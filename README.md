@@ -22,7 +22,9 @@ Open the site, then:
       gltfpack -i trees.glb -o site/models/trees.glb -cc -kn -ke     # keeps EXT_mesh_gpu_instancing
 
   Without `-vpf` the site's kilometre-wide ground skirt makes the shared quantization grid coarse enough to push the terrain up through the slab.
-- `.github/workflows/pages.yml`: publishes `site/` to GitHub Pages on every push to `main`.
+- `.github/workflows/pages.yml`: publishes `site/` to GitHub Pages on every push to `main`. It must be the only Pages workflow: a second one (such as GitHub's starter `static.yml`, which uploads the whole repo) races it, and whichever finishes last wins. When the starter won, https://mullinmax.github.io/house/ showed a 404 and the viewer was only at `/house/site/`.
+
+**Site address:** https://mullinmax.github.io/house/ (Settings, Pages, Source must be "GitHub Actions").
 
 ## Performance notes
 
