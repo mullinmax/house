@@ -5,27 +5,27 @@
   {
    "file": "site.glb",
    "name": "site",
-   "bytes": 2116348
+   "bytes": 2116224
   },
   {
    "file": "trees.glb",
    "name": "trees",
-   "bytes": 1305436
+   "bytes": 1305400
   },
   {
    "file": "shell.glb",
    "name": "shell",
-   "bytes": 836324
+   "bytes": 836228
   },
   {
    "file": "interior.glb",
    "name": "interior",
-   "bytes": 939764
+   "bytes": 939776
   },
   {
    "file": "furniture_west.glb",
    "name": "furniture_west",
-   "bytes": 1769472
+   "bytes": 1769748
   },
   {
    "file": "furniture_east.glb",
@@ -792,8 +792,8 @@
   "note": "show the first round(N*density) instances of each tree mesh for a density slider"
  },
  "zfight": {
-  "before": 1423,
-  "after": 1018
+  "before": 1424,
+  "after": 1019
  },
  "drive_route_plan_ft": {
   "edge_fit": [
@@ -820,5 +820,5 @@
   -0.7405,
   0.6157
  ],
- "note": "Laptop export v20. Textures capped (tools/shrink_textures.py: 512 px furniture and trees, 1024 house, 2048 site), then gltfpack -cc -kn -ke (site -vpf)."
+ "note": "Laptop export v21. Textures capped (tools/shrink_textures.py: 512 px furniture and trees, 1024 house, 2048 site), then gltfpack -cc -kn -ke (site -vpf)."
 }
