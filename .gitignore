@@ -1,0 +1,9 @@
+# downloaded / generated, rebuild with fetch_assets.py, make_terrain.py, blender
+model/assets/*
+!model/assets/SOURCES.md
+!model/assets/art/
+model/data/terrain/raw/
+model/renders/
+model/web/
+model/.venv/
+__pycache__/
