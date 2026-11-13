@@ -1,0 +1,71 @@
+{
+ "extent_plan_ft": [
+  -478.46,
+  -474.0,
+  521.54,
+  526.0
+ ],
+ "grid_ft": 2.0,
+ "shape": [
+  501,
+  501
+ ],
+ "anchor": {
+  "lat": 39.805389,
+  "lon": -83.862139,
+  "plan_xy": [
+   21.54,
+   26.0
+  ]
+ },
+ "perimeter_grade_ft": {
+  "min": 1033.39,
+  "median": 1034.26,
+  "max": 1034.54
+ },
+ "suggested_slab_top_elev_ft": 1034.93,
+ "slab_reveal_ft": 0.67,
+ "sources": {
+  "dem": "USGS 3DEP 1 m bare earth, elevation.nationalmap.gov 3DEPElevation ImageServer",
+  "ortho": {
+   "service": "USDA NAIP via imagery.nationalmap.gov USGSNAIPImagery",
+   "tiles": [
+    {
+     "OBJECTID": 146489,
+     "Name": "m_3908310_sw_17_030_20230518",
+     "Year": 2023,
+     "acquisition_date": 1684368000000,
+     "State": "OH"
+    },
+    {
+     "OBJECTID": 148796,
+     "Name": "Ov_i02_L01_R00000166_C0000006D.tif",
+     "Year": 2023,
+     "acquisition_date": null,
+     "State": "OH"
+    },
+    {
+     "OBJECTID": 148822,
+     "Name": "Ov_i02_L02_R000000B3_C00000036.tif",
+     "Year": 2023,
+     "acquisition_date": null,
+     "State": "OH"
+    },
+    {
+     "OBJECTID": 148829,
+     "Name": "Ov_i02_L03_R00000059_C0000001B.tif",
+     "Year": 2023,
+     "acquisition_date": null,
+     "State": "OH"
+    }
+   ]
+  },
+  "lidar": {
+   "ept": "https://s3-us-west-2.amazonaws.com/usgs-lidar-public/OH_StatewideP3_5_B21/",
+   "points": 9678788,
+   "building_points": 0,
+   "ground_minus_dem_ft": -0.01
+  },
+  "osm": "OpenStreetMap contributors (ODbL), Overpass API"
+ }
+}

@@ -1,0 +1,533 @@
+# Heilman-Mullin Residence, 1671 State Route 343
+# Single source of truth for the 3D model. Edit a value, then rebuild:
+#   blender --background --python build_house.py -- --config config.toml
+# Units are FEET unless noted. Plan origin = outside NW corner of the house slab,
+# +x = east, +y = SOUTH (same as reading the plan sheet), z = height above slab.
+# Source for every number is noted. "ASSUMED" means not on the plans yet: confirm or change.
+
+[project]
+name = "Heilman-Mullin Residence"
+plan_set = "Moonlight Architecture sealed set 06/14/2026"
+true_north_offset_deg = 0.0     # drone photos show plan north = true north within ~0.5 deg
+
+# ---------------------------------------------------------------- HOUSE SHELL
+[house]
+width_x = 43.0833               # 43'-1" (A-11)
+depth_y = 52.0                  # 52'-0" (A-11)
+ext_wall_thickness = 0.5417     # 6-1/2" SIP (A-11 notes)
+int_wall_source = "data/traced_geometry.json"   # interior walls pulled from A-11 vector data
+slab_thickness = 0.333
+
+[roof]
+north_wall_height = 9.0         # 9'-0" panel height (A-30)
+north_pitch = 3.82              # rise per 12. Was 3.88 on A-30, revised 9/15/2026 (Andy Roehl email)
+clerestory_wall_y = 34.616      # north face of the clerestory bearing wall (A-11 / A-12)
+south_wall_height = 11.0        # 11'-0" panel height (A-30)
+south_pitch = 2.0               # 2:12 (A-13)
+panel_thickness = 0.854         # 10-1/4" roof SIP (A-13)
+overhang = 1.0                  # 12" O.H. (A-13)
+fascia_height = 1.0             # 12" fascia (A-20 notes)
+roofing = "standing_seam"       # standing seam metal (Maxwell)
+seam_spacing_in = 16.0          # ASSUMED 16" panels, 1" ribs
+
+[ceilings]
+flat_height = 9.0               # 9'-0" CLG rooms (A-11). Everything else is vaulted to the roof.
+# [x_min, y_min, x_max, y_max] for each flat 9' ceiling room
+flat_rooms = [
+  [0.5, 10.95, 12.12, 22.41],   # Bed 3
+  [12.12, 10.95, 23.4, 15.03],  # Hall 2
+  [12.12, 15.03, 16.66, 22.87], # Hall 2 / linen
+  [16.66, 15.03, 31.12, 22.87], # Laundry (mech platform above)
+  [31.12, 15.03, 42.5, 22.87],  # Closet 1
+  [0.5, 22.87, 12.12, 29.03],   # Utility
+  [0.5, 29.03, 12.12, 34.62],   # Pantry + Powder
+]
+
+[loft]                          # 134 sf loft over Bath 1 (A-12)
+enabled = true
+rect = [31.12, 22.87, 42.5, 34.62]
+floor_height = 9.9              # 9' plate + 2x10 floor (A-30 notes)
+pony_wall_height = 3.5          # "HIGH PONYWALL" (A-12)
+ships_ladder = [27.7, 32.0, 31.12, 34.56]   # footprint from A-11, rises toward the east
+
+# ---------------------------------------------------------------- OPENINGS
+# wall = N, S, E, W (exterior) or C (clerestory wall). start/end measured along the wall
+# (x for N/S/C walls, y for E/W walls). sill/head are heights above slab.
+# Rough-opening locations come straight from the A-11 vector data.
+# Sill/head heights measured from the A-20 / A-21 elevations (unit edges vs floor line, 1/4" scale), 11/12/2026.
+# Unit codes are feet-inches: W30-60 = 3'-0" wide x 6'-0" tall.
+[[openings]]
+id = "W30-60 Bed 2"
+wall = "N"
+kind = "casement"
+start = 9.414
+end = 12.414
+sill = 2.08
+head = 8.08
+[[openings]]
+id = "W30-20 Bath 2"
+wall = "N"
+kind = "awning"
+start = 17.539
+end = 20.539
+sill = 6.08
+head = 8.08
+[[openings]]
+id = "W30-46 Study"
+wall = "N"
+kind = "casement"
+start = 25.539
+end = 28.539
+sill = 3.58
+head = 8.08
+[[openings]]
+id = "W60-60 Bed 1"
+wall = "N"
+kind = "casement_pair"
+start = 33.997
+end = 39.997
+sill = 2.08
+head = 8.08
+[[openings]]
+id = "W30-60 Bed 3 north"
+wall = "W"
+kind = "casement"
+start = 12.033
+end = 15.033
+sill = 2.08
+head = 8.08
+[[openings]]
+id = "W30-60 Bed 3 south"
+wall = "W"
+kind = "casement"
+start = 18.033
+end = 21.033
+sill = 2.08
+head = 8.08
+[[openings]]
+id = "D30-80 Kitchen door"
+wall = "W"
+kind = "door_glass"
+start = 37.866
+end = 41.033
+sill = 0.0
+head = 8.0
+[[openings]]
+id = "W30-30 Kitchen transom"
+wall = "W"
+kind = "fixed"
+start = 37.866
+end = 41.033
+sill = 9.04
+head = 12.07
+[[openings]]
+id = "W60-20 Bed 1 east"
+wall = "E"
+kind = "awning_pair"
+start = 4.803
+end = 10.803
+sill = 6.08
+head = 8.08
+[[openings]]
+id = "D30-80 Entry"
+wall = "E"
+kind = "door_glass"
+start = 37.866
+end = 41.033
+sill = 0.0
+head = 8.0
+[[openings]]
+id = "W60-50 Entry/Family"
+wall = "E"
+kind = "fixed"
+start = 43.033
+end = 49.033
+sill = 3.08
+head = 8.08
+[[openings]]
+id = "W40-40 Loft"
+wall = "E"
+kind = "fixed"
+start = 27.5
+end = 31.5
+sill = 13.67
+head = 17.67
+[[openings]]
+id = "W60-50 Kitchen folding"
+wall = "S"
+kind = "casement_pair"
+start = 7.039
+end = 13.039
+sill = 3.0
+head = 8.0
+[[openings]]
+id = "D120-80 Bi-parting"
+wall = "S"
+kind = "slider"
+start = 17.81
+end = 29.81
+sill = 0.0
+head = 8.0
+[[openings]]
+id = "W60-50 Dining fixed"
+wall = "S"
+kind = "fixed"
+start = 34.039
+end = 40.039
+sill = 3.0
+head = 8.0
+
+[clerestory]                    # 8 x W30-30 awning, 4'-10 1/2" o.c. (A-12)
+count = 8
+first_center_x = 4.5
+spacing = 4.875
+width = 3.0
+sill = 16.0                     # A-20 south elevation
+head = 19.0
+# Openings through the clerestory wall at floor level (A-11): [x_start, x_end, head]
+# First (pantry) opening narrowed from A-11 [0.5, 4.414] to fit a 2'-6" door that stops 2" short of the fridge panel. ASSUMED
+passages = [[0.743, 3.443, 6.67],[12.122, 16.206, 8.0], [20.914, 26.914, 8.0], [31.581, 39.664, 8.0], [40.164, 42.289, 6.67]]
+
+[barn_door]                     # living room "large French barn door" (Maxwell 11/12/2026), D60-80 on A-11
+enabled = true
+center_x = 23.9                 # picks the clerestory wall opening nearest this x (passage 20.914 to 26.914)
+side = "south"                  # hung on the dining side of the wall. ASSUMED
+open = 1.0                      # 0 closed, 1 slid fully open (open keeps the fly-through path clear)
+panel = "oak"                   # opaque solid white oak panels (Maxwell 11/13/2026); "glass" for glazed
+lites_high = 1                  # panels stacked per leaf (rails between them). ASSUMED
+
+# ---------------------------------------------------------------- OTHER STRUCTURES
+[garage]                        # delegated design, A-11 / A-22
+enabled = true
+rect = [63.0833, 15.0, 95.0833, 43.0]
+south_wall_height = 10.0        # ASSUMED from A-20 elevation scale
+pitch = 2.0                     # 2:12 down to the south (A-13)
+overhead_doors = [[5.5, 9.0], [17.5, 9.0]]   # [start from garage west, width], 8' tall (D90-80)
+north_windows = [5.5, 11.5, 17.5, 23.5]      # W30-30 awnings, start from garage west
+north_window_sill = 9.13        # A-21 north elevation (head 12'-1 1/2")
+north_window_height = 3.0       # W30-30 = 3'-0" x 3'-0"
+man_door_y = [37.9, 40.9]       # D30-68 into porch (west wall)
+driveway_depth = 25.0           # 25' pad in front of the garage (A-11)
+driveway_material = "Gravel"    # Maxwell 11/12/2026: driveway is gravel, not concrete
+
+[porch]                         # covered porch, delegated design
+enabled = true
+rect = [43.0833, 26.7, 63.0833, 42.6]
+high_height = 11.0              # ASSUMED
+pitch = 2.0
+posts_x = [49.75, 56.3]
+
+[greenhouse]                    # delegated design / deferred submittal
+enabled = true
+rect = [0.0, 52.0, 43.0833, 72.0]
+north_height = 9.5              # ASSUMED from A-20 dashed outline
+south_height = 6.3              # ASSUMED
+
+# ---------------------------------------------------------------- KITCHEN
+# Layout follows Danielle Gross (Carter Lumber) "Design Start Plan" elevations, 11/10/2026.
+# Erin's redline (11/12/2026) applied per Maxwell 11/13/2026: long pulls, 2 island drawers, drawer over the sheet pan
+# pullout, one tall utensil drawer, deeper microwave upper, pantry door instead of the tall cabinet, beverage fridge
+# facing the dining room, 15" seating overhang.
+[kitchen]
+island = [6.0, 42.52, 14.0, 46.27]      # 96" top (A-11), deepened to 45" for a 15" seating overhang (redline)
+island_overhang = 1.25                   # 15" seating overhang on the north side (Erin asked for 12" or more)
+island_color = "#56614A"                 # olive green as rendered by Carter. Erin's note said "soft green"
+cabinet_wood = "#B98B5A"                 # KraftMaid natural wood as rendered by Carter (species/stain TBD)
+counter_color = "#ECE8E0"                # ASSUMED light quartz
+hardware_color = "#B8B8B4"               # brushed nickel bar pulls as rendered
+wide_drawer_pulls = 1                    # Erin redline 11/12: one long pull on wide drawers (2 = Carter drawing)
+upper_bottom = 4.6                       # underside of the uppers on the fridge wall (from elevation)
+tall_height = 8.0                        # top of tall cabinets incl. crown (from elevation)
+# Each run: wall it backs onto, plan coordinate of that wall face, which way the fronts face,
+# and units as [start, end, type] measured along the wall (x for S/N runs, y for W run).
+# Types: blind, door1, doors2, drawers2, drawers3, drawer_door, drawer_doors2, dishwasher,
+#        pullout, oven_tower, tall_pantry, fridge, tray, beverage, panel
+[kitchen.runs.south]                     # sink wall, elevation 1
+axis = "x"
+back = 51.458
+facing = -1
+units = [[0.54, 2.6, "blind"], [2.6, 3.6, "pullout"], [3.6, 4.7, "drawers3"], [4.7, 6.2, "drawer_door"],
+         [6.2, 8.3, "dishwasher"], [8.3, 11.3, "doors2"], [11.3, 14.0, "drawers3"]]
+sink_x = [8.6, 11.0]
+[kitchen.runs.west]                      # cooktop wall, elevation 2
+axis = "y"
+back = 0.5417
+facing = 1
+units = [[41.7, 44.5, "oven_tower"], [44.5, 45.5, "drawer_tall"], [45.5, 48.5, "drawers2"], [48.5, 49.49, "pullout_drawer"]]
+cooktop_y = [45.6, 48.4]
+[kitchen.runs.north]                     # fridge wall (south face of the clerestory wall), elevation 3
+axis = "x"
+back = 35.158
+facing = 1
+units = [[3.9, 6.95, "fridge"], [7.1, 9.4, "drawers3"], [9.4, 11.7, "drawer_doors2"]]
+uppers = [[7.1, 9.4, "glass", 1.1], [9.4, 11.7, "microwave", 1.5]]   # [start, end, type, depth ft]; microwave upper deepened (redline)
+pantry_door = [0.743, 3.443]             # redline: door into the pantry where Carter drew a tall cabinet. Rough opening = first clerestory passage
+pantry_door_leaf = 2.5                   # 2'-6" x 6'-8" white oak slab. ASSUMED (a 2'-8" leaf leaves no room for casing against the west wall)
+pantry_casing_east = 0.292               # 3-1/2" casing; its outer edge stops 2" (0.167 ft) short of the fridge side panel at x = 3.9
+pantry_casing_west = 0.20                # trimmed to 2-3/8" so it dies into the west wall face at x = 0.542
+fridge_panels = 0.06                     # 3/4" oak side panels inside the fridge bay [3.9, 6.95], stainless unit between them. ASSUMED
+[kitchen.runs.island]                    # island working side faces south (elevation 4)
+axis = "x"
+back = 43.77
+facing = 1
+depth = 2.39
+units = [[6.1, 8.9, "tray"], [8.9, 11.8, "drawers2"]]
+[kitchen.runs.island_east]               # beverage fridge in the east end, door facing the dining room (redline)
+axis = "y"
+back = 11.8
+facing = 1
+depth = 2.04
+units = [[43.71, 43.95, "panel"], [43.95, 45.95, "beverage"], [45.95, 46.22, "panel"]]
+
+[kitchen.shelves]                        # open white oak shelves on the sink wall, west of the window
+x = [0.54, 6.7]
+heights = [5.4, 6.7]
+depth = 0.9
+
+# ---------------------------------------------------------------- MATERIALS
+[materials]
+siding_color = "#7D8A6C"        # LP SmartSide "Garden Sage" (approximate on screen)
+siding_style = "board_and_batten"
+batten_spacing_in = 12.0        # ASSUMED 12" o.c.
+batten_width_in = 2.5
+batten_thickness_in = 0.75      # battens are modeled as real geometry
+trim_color = "#1E2022"          # LP "Abyss Black"
+roof_color = "#2B2D2F"          # standing seam, charcoal (Maxwell OK 11/12/2026)
+window_exterior_color = "#141414"   # black clad
+window_interior = "white_oak"       # natural white oak, clear topcoat. Sash, jambs and casing all oak inside; black clad shows only outside
+window_grids = false
+floor_color = "#7A3B26"         # red-brown "leather" stained concrete
+floor_color_2 = "#5A2A1A"       # mottling
+floor_gloss = 0.35              # roughness (lower = shinier sealer)
+floor_cut_pattern = "diamond"   # both diagonals (Maxwell 11/12/2026)
+floor_cut_spacing = 9.0        # 9' x 9' diamonds, point to point 12'-8 3/4" (Maxwell saw-cut layout)
+floor_cut_origin = [23.875, 52.0]   # a diamond point sits at the rear (south) door center, 23'-10 1/2" from the west slab edge
+wall_paint = "#EEEAE3"
+interior_door = "white_oak"
+
+# ---------------------------------------------------------------- BURIED UTILITIES
+[utilities]
+source = "data/traced_geometry.json"
+geothermal_depth = 6.0          # ASSUMED typical horizontal loop depth
+septic_depth = 2.0              # ASSUMED
+geothermal_color = "#1E90FF"
+septic_color = "#C8551E"
+show_surface_markers = true     # paint the routes on the ground in renders
+
+# ---------------------------------------------------------------- TERRAIN
+# Real ground from public data (USGS 3DEP DEM + lidar, USDA NAIP photo, OpenStreetMap). Rebuild the data with
+#   python make_terrain.py        (writes data/terrain/*)
+# Set enabled = false to go back to the flat lawn.
+[terrain]
+enabled = true
+lat = 39.805389                 # 39 48'19.4" N, plan sheet site coordinate
+lon = -83.862139                # 83 51'43.7" W
+anchor_plan_xy = [21.54, 26.0]  # ASSUMED the plan-sheet coordinate marks the house center
+center_plan_xy = [21.54, 26.0]  # center of the modeled square
+area_ft = 1000.0                # modeled square, feet on a side
+grid_ft = 2.0                   # terrain mesh spacing
+ortho_px = 2000                 # orthophoto resolution across the square
+slab_top_elev_ft = 1034.93      # slab top, feet NAVD88: median natural grade at the slab edge (1034.26) + 8" reveal. ASSUMED, no survey
+slab_reveal_ft = 0.67           # slab top above finished grade (8")
+grade_buffer_ft = 3.0           # flat graded pad around slab / garage / porch / greenhouse
+grade_blend_ft = 25.0           # blend from the graded pad back to natural ground
+lawn_radius_ft = 90.0           # within this of the house, use mowed-lawn shader instead of the 2023 field photo
+lawn_blend_ft = 40.0
+min_tree_height_ft = 12.0
+max_tree_height_ft = 95.0       # cap on lidar tree heights; 150 ft lidar hits are outliers (Maxwell: some tall trees, none that tall)
+tree_min_spacing_ft = 14.0
+tree_density = 1.0              # fraction of lidar-detected trees to place (0..1)
+far_area_ft = 6000.0            # far ring out to the horizon: coarse DEM, NAIP photo and lidar tree tops (sparse levels)
+far_grid_ft = 20.0
+far_ortho_px = 3000
+far_lidar_depth = 10            # deepest EPT level read for the far ring (sparse points = tree tops only)
+far_tree_cell_ft = 10.0
+far_tree_spacing_ft = 26.0
+tree_style = "procedural"       # "procedural" hardwoods (oak, maple, ash, hickory) or "blobs" (v2 look)
+tree_species = { oak = 0.35, maple = 0.30, ash = 0.15, hickory = 0.20 }   # SW Ohio woodlot mix. ASSUMED
+show_osm_buildings = true
+show_roads = true
+
+# ---------------------------------------------------------------- DOLLHOUSE STILLS
+[dollhouse]                     # --render dollhouse : roof and ceilings off, walls sliced at cut_height
+cut_height = 9.25               # ft above slab
+plan_view = true                # also a straight-down cutaway plan
+plan_cut_height = 4.5           # the plan view is sliced lower so doorways show
+# views = { name = [x, y, z, lens_mm], ... } in plan feet; defaults are four high corner views
+# (separately, --render stills --only dollhouse_southwest,... renders the 8.6 ft cut set incl. close-ups; --cut sets its height)
+
+# ---------------------------------------------------------------- ASSETS (all CC0; fetch with: python fetch_assets.py)
+[assets]
+enabled = true
+dir = "assets"
+hdri = "kloofendal_48d_partly_cloudy_puresky"   # Poly Haven, CC0
+hdri_res = "2k"
+hdri_strength = 0.9
+hdri_rotation_deg = 0.0
+model_turn = {}                  # per-model extra rotation (deg); frames face front as authored (their placeholder card is replaced with generated prints)
+model_res = "1k"                 # Poly Haven glTF texture resolution (4 GB GPU: keep 1k)
+texture_res = "1K"               # ambientCG PBR set resolution
+polyhaven_models = ["sofa_03", "mid_century_lounge_chair", "modern_coffee_table_01", "side_table_01", "throw_pillows_01",
+                    "gallinera_table", "gallinera_chair", "painted_wooden_nightstand", "modern_wooden_cabinet",
+                    "modern_arm_chair_01", "bar_chair_round_01", "desk_lamp_arm_01", "potted_plant_01", "potted_plant_02",
+                    "potted_plant_04", "hanging_picture_frame_01", "hanging_picture_frame_02", "hanging_picture_frame_03",
+                    "industrial_wall_lamp", "modern_ceiling_lamp_01", "ceramic_vase_02"]
+ph_texture_res = "2k"
+[assets.polyhaven_textures]      # role = Poly Haven texture id (CC0), real-world tile size read from Poly Haven
+white_oak = "white_oak_veneer"   # 0.5 m tile: trim, doors, casings, sills, barn doors
+cabinet_oak = "oak_veneer_01"    # 1.83 m tile: KraftMaid natural cabinets (tinted to cabinet_wood)
+siding_grain = "fine_grained_wood"   # 0.6 m tile: cedar-grain emboss under the SmartSide paint
+[assets.ambientcg]               # role = ambientCG asset id (CC0)
+siding = "Wood026"               # wood grain under the painted SmartSide color
+floor = "Concrete048"            # roughness/normal variation under the stained-concrete color
+oak = "Wood058"
+quartz = "Marble012"
+tile_wall = "Tiles107"
+tile_floor = "Tiles071"
+roof = "PaintedMetal004"
+curtain = "Fabric061"
+bedding = "Fabric085"
+rug = "Carpet016"
+gravel = "Gravel043"
+asphalt = "Asphalt031"
+plaster = "PaintedPlaster017"
+leaf_a = "LeafSet024"            # leaf atlases with opacity for the procedural hardwoods
+leaf_b = "LeafSet022"
+leaf_c = "LeafSet017"
+leaf_d = "LeafSet019"
+bark = "Bark006"
+bark_b = "Bark001"
+
+# ---------------------------------------------------------------- FURNISHINGS (realism pass, 11/13/2026)
+# Every placement below is ASSUMED: rooms read from the A-11 room labels and wall vectors, nothing here is from a
+# furniture plan. x, y = plan feet (center of the piece), facing = compass direction the FRONT of the piece faces
+# (0 north, 90 east, 180 south, 270 west; for a bed, the direction from headboard to foot).
+# type = "model" uses a Poly Haven model from [assets] (len = target length in ft, the longer horizontal side),
+# anything else is modeled procedurally in build_details.py. z = height of the underside (ft); on = id of the piece it
+# sits on. enabled = false drops one piece.
+[furnishings]
+enabled = true
+interior_door_style = "slab"       # white oak flat slab doors, brushed nickel levers. ASSUMED
+baseboard_height_in = 4.5          # ASSUMED, white oak to match casings
+casing_width_in = 3.5
+gutters = true
+exterior_lights = true
+items = [
+  # ---- living room (vaulted, x 16.7-31.1, y 22.9-34.6)
+  { id = "living_rug", type = "rug", x = 26.4, y = 27.8, w = 7.5, l = 9.0, facing = 270, color = "#B9AE9A" },
+  { id = "sofa", type = "model", model = "sofa_03", x = 29.7, y = 27.8, facing = 270, len = 7.0 },
+  { id = "coffee_table", type = "model", model = "modern_coffee_table_01", x = 26.4, y = 27.8, facing = 270, len = 4.0 },
+  { id = "lounge_chair_n", type = "model", model = "mid_century_lounge_chair", x = 24.4, y = 24.9, facing = 120, len = 2.8 },
+  { id = "lounge_chair_s", type = "model", model = "mid_century_lounge_chair", x = 26.2, y = 32.0, facing = 20, len = 2.8 },
+  { id = "side_table_n", type = "model", model = "side_table_01", x = 30.3, y = 23.65, facing = 270, len = 1.3 },
+  { id = "living_lamp", type = "table_lamp", x = 30.3, y = 23.65, on = "side_table_n" },
+  { id = "pillows", type = "model", model = "throw_pillows_01", x = 29.9, y = 27.8, z = 1.45, facing = 270, len = 4.5 },
+  { id = "floor_lamp", type = "floor_lamp", x = 17.6, y = 33.8 },
+  { id = "plant_living", type = "model", model = "potted_plant_01", x = 17.5, y = 31.6, facing = 90, len = 2.0 },
+  { id = "art_living", type = "model", model = "hanging_picture_frame_01", x = 26.4, y = 23.0, z = 4.6, facing = 180, len = 3.0, wall = true },
+  # ---- dining (east end of the great room, by the W60-50 dining window)
+  { id = "dining_table", type = "model", model = "gallinera_table", x = 36.8, y = 46.9, facing = 0, len = 6.5 },
+  { id = "dchair_n1", type = "model", model = "gallinera_chair", x = 35.0, y = 44.7, facing = 180, len = 1.6 },
+  { id = "dchair_n2", type = "model", model = "gallinera_chair", x = 36.8, y = 44.7, facing = 180, len = 1.6 },
+  { id = "dchair_n3", type = "model", model = "gallinera_chair", x = 38.6, y = 44.7, facing = 180, len = 1.6 },
+  { id = "dchair_s1", type = "model", model = "gallinera_chair", x = 35.0, y = 49.1, facing = 0, len = 1.6 },
+  { id = "dchair_s2", type = "model", model = "gallinera_chair", x = 36.8, y = 49.1, facing = 0, len = 1.6 },
+  { id = "dchair_s3", type = "model", model = "gallinera_chair", x = 38.6, y = 49.1, facing = 0, len = 1.6 },
+  { id = "dining_pendant", type = "pendant", model = "modern_ceiling_lamp_01", x = 36.8, y = 46.9, z = 6.6, len = 1.5 },
+  { id = "vase_dining", type = "model", model = "ceramic_vase_02", x = 36.8, y = 46.9, on = "dining_table", facing = 0, len = 0.6 },
+  { id = "plant_entry", type = "model", model = "potted_plant_02", x = 41.6, y = 36.3, facing = 270, len = 2.2 },
+  # ---- kitchen
+  { id = "stool_1", type = "model", model = "bar_chair_round_01", x = 7.4, y = 41.7, facing = 180, len = 1.4 },
+  { id = "stool_2", type = "model", model = "bar_chair_round_01", x = 9.7, y = 41.7, facing = 180, len = 1.4 },
+  { id = "stool_3", type = "model", model = "bar_chair_round_01", x = 12.0, y = 41.7, facing = 180, len = 1.4 },
+  { id = "island_pendant_w", type = "pendant", model = "modern_ceiling_lamp_01", x = 8.0, y = 44.4, z = 7.3, len = 1.05 },
+  { id = "island_pendant_e", type = "pendant", model = "modern_ceiling_lamp_01", x = 12.0, y = 44.4, z = 7.3, len = 1.05 },
+  { id = "plant_counter", type = "model", model = "potted_plant_04", x = 13.3, y = 50.6, z = 3.0, facing = 0, len = 0.7 },
+  # headboards kept inside the room faces (bed 1 east face 42.54, bed 2 west face 5.87, bed 3 east face 11.83)
+  # ---- bedroom 1 (x 31.4-42.5, y 0.5-11.0): bed headboard on the east wall under the high awning windows
+  { id = "bed1", type = "bed", x = 38.8, y = 6.0, w = 5.3, l = 7.0, facing = 270, color = "#F1EEE8", accent = "#56614A" },
+  { id = "ns1_n", type = "model", model = "painted_wooden_nightstand", x = 41.75, y = 2.55, facing = 270, len = 1.7 },
+  { id = "ns1_s", type = "model", model = "painted_wooden_nightstand", x = 41.75, y = 9.45, facing = 270, len = 1.7 },
+  { id = "lamp1_n", type = "table_lamp", x = 41.75, y = 2.55, on = "ns1_n" },
+  { id = "lamp1_s", type = "table_lamp", x = 41.75, y = 9.45, on = "ns1_s" },
+  { id = "dresser1", type = "model", model = "modern_wooden_cabinet", x = 32.3, y = 5.0, facing = 90, len = 5.0 },
+  { id = "art_bed1", type = "model", model = "hanging_picture_frame_02", x = 31.45, y = 5.0, z = 4.9, facing = 90, len = 2.6, wall = true },
+  # ---- bedroom 2 (x 5.9-16.0, y 0.5-10.7): headboard on the west wall
+  { id = "bed2", type = "bed", x = 9.6, y = 5.6, w = 5.3, l = 7.0, facing = 90, color = "#F1EEE8", accent = "#9A6B4A" },
+  { id = "ns2_n", type = "model", model = "painted_wooden_nightstand", x = 6.75, y = 2.2, facing = 90, len = 1.7 },
+  { id = "ns2_s", type = "model", model = "painted_wooden_nightstand", x = 6.75, y = 9.0, facing = 90, len = 1.7 },
+  { id = "lamp2", type = "table_lamp", x = 6.75, y = 2.2, on = "ns2_n" },
+  { id = "dresser2", type = "model", model = "modern_wooden_cabinet", x = 15.2, y = 3.2, facing = 270, len = 4.2 },
+  # ---- bedroom 3 (x 0.5-12.1, y 11.0-22.4): headboard on the east wall, between the two west windows' sight line
+  { id = "bed3", type = "bed", x = 8.1, y = 16.6, w = 5.3, l = 7.0, facing = 270, color = "#F1EEE8", accent = "#7D8A6C" },
+  { id = "ns3_n", type = "model", model = "painted_wooden_nightstand", x = 11.0, y = 13.2, facing = 270, len = 1.7 },
+  { id = "ns3_s", type = "model", model = "painted_wooden_nightstand", x = 11.0, y = 20.0, facing = 270, len = 1.7 },
+  { id = "lamp3", type = "table_lamp", x = 11.0, y = 13.2, on = "ns3_n" },
+  { id = "dresser3", type = "model", model = "modern_wooden_cabinet", x = 5.6, y = 21.65, facing = 0, len = 4.0 },
+  { id = "plant_bed3", type = "model", model = "potted_plant_01", x = 1.4, y = 21.4, facing = 90, len = 1.8 },
+  # ---- study (x 23.0-31.1, y 0.5-10.7): desk under the north window
+  { id = "desk", type = "desk", x = 27.0, y = 1.95, w = 5.0, d = 2.3, facing = 180 },
+  { id = "desk_chair", type = "model", model = "modern_arm_chair_01", x = 27.0, y = 4.3, facing = 0, len = 2.1 },
+  { id = "desk_lamp", type = "model", model = "desk_lamp_arm_01", x = 29.0, y = 1.3, on = "desk", facing = 200, len = 1.2 },
+  { id = "art_study", type = "model", model = "hanging_picture_frame_03", x = 23.1, y = 5.5, z = 4.6, facing = 90, len = 2.2, wall = true },
+  # ---- laundry
+  { id = "washer", type = "washer", x = 26.15, y = 21.25, facing = 0 },
+  { id = "dryer", type = "dryer", x = 28.75, y = 21.25, facing = 0 },
+  # ---- bath 2 (x 16.3-22.6, y 0.6-10.7): alcove tub on the north wall
+  { id = "tub2", type = "tub", x0 = 16.25, x1 = 21.83, y0 = 0.54, y1 = 3.0 },
+  { id = "vanity2", type = "vanity", x = 21.72, y = 8.75, w = 3.5, d = 1.75, sinks = 1, facing = 270 },
+  { id = "mirror2", type = "mirror", x = 22.56, y = 8.75, z = 3.9, w = 3.0, h = 3.0, facing = 270 },
+  { id = "toilet2", type = "toilet", x = 21.4, y = 5.6, facing = 270 },
+  { id = "towel2", type = "towel", x = 16.3, y = 6.4, z = 4.0, w = 2.0, facing = 90, color = "#E9E4DA" },
+  # ---- bath 1 (x 31.6-42.5, y 22.9-34.6): double vanity on the west wall, shower in the NE corner
+  { id = "vanity1", type = "vanity", x = 32.46, y = 26.0, w = 5.4, d = 1.75, sinks = 2, facing = 90 },
+  { id = "mirror1", type = "mirror", x = 31.62, y = 26.0, z = 3.9, w = 4.8, h = 3.0, facing = 90 },
+  { id = "toilet1", type = "toilet", x = 32.75, y = 31.1, facing = 90 },
+  { id = "shower1", type = "shower", x0 = 38.41, x1 = 42.5, y0 = 22.87, y1 = 26.95, glass_x = 38.27 },
+  { id = "towel1", type = "towel", x = 34.3, y = 28.9, z = 4.0, w = 2.0, facing = 180, color = "#E9E4DA" },
+  # ---- powder room
+  { id = "vanity_p", type = "vanity", x = 7.6, y = 29.4, w = 2.6, d = 1.6, sinks = 1, facing = 180 },
+  { id = "mirror_p", type = "mirror", x = 7.6, y = 28.57, z = 3.9, w = 2.2, h = 2.8, facing = 180 },
+  { id = "toilet_p", type = "toilet", x = 7.1, y = 32.6, facing = 90 },
+  { id = "towel_p", type = "towel", x = 9.6, y = 28.57, z = 4.2, w = 1.2, facing = 180, color = "#D9CFBF" },
+]
+# window treatments: opening id -> kind (roller shade drop fraction, or curtain panels)
+shades = [
+  { opening = "W60-60 Bed 1", drop = 0.3, color = "#E6E0D4" },
+  { opening = "W30-60 Bed 2", drop = 0.3, color = "#E6E0D4" },
+  { opening = "W30-60 Bed 3 north", drop = 0.35, color = "#E6E0D4" },
+  { opening = "W30-60 Bed 3 south", drop = 0.35, color = "#E6E0D4" },
+  { opening = "W30-46 Study", drop = 0.25, color = "#E6E0D4" },
+  { opening = "W30-20 Bath 2", drop = 0.5, color = "#F2F0EC" },
+]
+curtains = [
+  { opening = "W60-50 Dining fixed", color = "#E8E2D6" },
+  { opening = "D120-80 Bi-parting", color = "#E8E2D6" },
+  { opening = "W60-50 Kitchen folding", color = "#E8E2D6" },
+]
+# exterior: wall lights (Poly Haven industrial_wall_lamp), outlets and hose bibs. wall = N/S/E/W, u along the wall, z height
+exterior_fixtures = [
+  { type = "light", wall = "E", u = 36.9, z = 7.0 },
+  { type = "light", wall = "W", u = 42.0, z = 7.0 },
+  { type = "light", wall = "S", u = 16.9, z = 8.6 },
+  { type = "light", wall = "S", u = 30.7, z = 8.6 },
+  { type = "outlet", wall = "E", u = 42.2, z = 1.5 },
+  { type = "outlet", wall = "W", u = 36.6, z = 1.5 },
+  { type = "outlet", wall = "N", u = 21.0, z = 1.5 },
+  { type = "hose_bib", wall = "W", u = 30.0, z = 1.3 },
+  { type = "hose_bib", wall = "N", u = 4.0, z = 1.3 },
+  { type = "hose_bib", wall = "E", u = 20.0, z = 1.3 },
+]
+
+# ---------------------------------------------------------------- RENDERING
+[render]
+engine = "CYCLES"
+resolution = [1280, 720]
+fps = 24
+samples = 24
+exterior_seconds = 20
+interior_seconds = 26
+sun_azimuth_deg = 200           # from north, clockwise
+sun_elevation_deg = 38           # used when [assets] is off; with the HDRI the sky's own sun is rotated to sun_azimuth_deg
+look = "AgX - Medium High Contrast"
+interior_light_w = 250          # per ceiling light
