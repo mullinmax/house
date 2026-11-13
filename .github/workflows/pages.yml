@@ -1,4 +1,5 @@
 name: Deploy walkthrough to GitHub Pages
+# The only workflow that deploys Pages. A second one (like the starter static.yml) races this and can leave /house/ empty.
 
 on:
   push:
