@@ -1,0 +1,5 @@
+{
+  "note": "Draft model exported in the cloud (flat ground, no baked textures). Replaced by export_web.py output from the full model.",
+  "units": "metres, glTF Y up",
+  "parts": [ { "file": "house.glb", "name": "house", "bytes": 1212212 } ]
+}
