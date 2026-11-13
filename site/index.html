@@ -76,6 +76,7 @@ input[type=range] { flex: 1; accent-color: var(--accent); }
   <div class="row" role="group" aria-label="Camera mode">
     <button id="mWalk" aria-pressed="true">Walk</button>
     <button id="mOrbit" aria-pressed="false">Orbit</button>
+    <button id="tClip" aria-pressed="false" title="Fly through walls (N)">No clip</button>
   </div>
   <select id="rooms" aria-label="Jump to a room"><option value="">Jump to a room</option></select>
   <div class="row">
@@ -83,9 +84,9 @@ input[type=range] { flex: 1; accent-color: var(--accent); }
     <button id="tUtil" aria-pressed="true">Buried lines</button>
   </div>
   <label>Sun <input id="sun" type="range" min="6" max="20" step="0.25" value="14"> <span id="sunlbl">2:00 PM</span></label>
-  <p class="help" id="helpDesk"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move, mouse looks (click the view first), <kbd>Shift</kbd> walks faster,
+  <p class="help" id="helpDesk"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move, mouse looks (click the view first), <kbd>Shift</kbd> walks faster, <kbd>N</kbd> toggles no clip (fly through walls, <kbd>Space</kbd> up, <kbd>C</kbd> down),
     <kbd>E</kbd> opens and closes doors, sliders, garage doors and drawers. <kbd>Esc</kbd> frees the mouse.</p>
-  <p class="help" id="helpTouch" hidden>Left stick moves, drag anywhere else to look. Tap a door or drawer to open or close it.</p>
+  <p class="help" id="helpTouch" hidden>Left stick moves, drag anywhere else to look. No clip lets you fly through walls in the direction you look. Tap a door or drawer to open or close it.</p>
 </div>
 
 <div id="cross" hidden></div>

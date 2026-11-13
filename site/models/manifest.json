@@ -1,5 +1,16 @@
 {
-  "note": "Draft model exported in the cloud (flat ground, no baked textures). Replaced by export_web.py output from the full model.",
+  "note": "Draft model exported in the cloud with export_web_draft.py: flat colors, baked floor, flat ground.",
   "units": "metres, glTF Y up",
-  "parts": [ { "file": "house.glb", "name": "house", "bytes": 1212212 } ]
+  "parts": [
+    {
+      "file": "house.glb",
+      "name": "house",
+      "bytes": 1455752
+    }
+  ],
+  "sun_direction": [
+    0.34,
+    -0.81,
+    0.47
+  ]
 }
