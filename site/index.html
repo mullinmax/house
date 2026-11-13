@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>House Walkthrough</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600&family=Inter:wght@400;500&display=swap">
+<style>
+:root {
+  --bg: #F5F6F2; --panel: rgba(245, 246, 242, 0.92); --fg: #23271F; --muted: #5E6656; --line: #D3D8CC;
+  --accent: #56614A; --accent-fg: #FFFFFF; --scrim: rgba(23, 26, 21, 0.55);
+  --display: "Space Grotesk", system-ui, sans-serif; --body: "Inter", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #171A15; --panel: rgba(23, 26, 21, 0.9); --fg: #E7EAE2; --muted: #A3AC98;
+    --line: #33392E; --accent: #A7B88F; --accent-fg: #171A15; --scrim: rgba(0, 0, 0, 0.6); color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #171A15; --panel: rgba(23, 26, 21, 0.9); --fg: #E7EAE2; --muted: #A3AC98;
+  --line: #33392E; --accent: #A7B88F; --accent-fg: #171A15; --scrim: rgba(0, 0, 0, 0.6); color-scheme: dark; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
+body { background: var(--bg); color: var(--fg); font: 14px/1.45 var(--body); touch-action: none; }
+canvas { display: block; width: 100vw; height: 100vh; height: 100dvh; }
+#panel { position: fixed; top: max(12px, env(safe-area-inset-top)); left: max(12px, env(safe-area-inset-left));
+  width: min(300px, calc(100vw - 24px)); background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px 14px; display: grid; gap: 10px; backdrop-filter: blur(6px); max-height: calc(100dvh - 24px); overflow: auto; }
+#panel h1 { font: 600 1.05rem var(--display); margin: 0; }
+#panel .eyebrow { font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+button, select { font: 500 .85rem var(--body); color: var(--fg); background: transparent; border: 1px solid var(--line);
+  border-radius: 6px; padding: 6px 10px; cursor: pointer; }
+button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
+select { width: 100%; background: var(--bg); }
+label { display: flex; align-items: center; gap: 8px; font-size: .85rem; }
+input[type=range] { flex: 1; accent-color: var(--accent); }
+.help { font-size: .78rem; color: var(--muted); margin: 0; }
+.help kbd { font: 500 .72rem ui-monospace, Menlo, Consolas, monospace; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+#collapse { position: absolute; top: 8px; right: 8px; padding: 2px 8px; }
+#panel.min > :not(#collapse):not(h1) { display: none; }
+#cross { position: fixed; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 0 1.5px rgba(0,0,0,.6); pointer-events: none; }
+#prompt { position: fixed; left: 50%; top: calc(50% + 22px); transform: translateX(-50%); background: var(--scrim);
+  color: #fff; padding: 4px 10px; border-radius: 6px; font-size: .85rem; pointer-events: none; white-space: nowrap; }
+#prompt kbd { font: 600 .8rem ui-monospace, Menlo, monospace; border: 1px solid rgba(255,255,255,.6); border-radius: 4px; padding: 0 5px; margin-right: 6px; }
+#loading { position: fixed; inset: 0; display: grid; place-items: center; background: var(--bg); z-index: 20; }
+#loading .box { width: min(360px, calc(100vw - 32px)); display: grid; gap: 10px; text-align: center; }
+#loading .bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; }
+#loading .bar > div { height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+#loading p { margin: 0; color: var(--muted); font-size: .85rem; }
+#stick { position: fixed; left: max(24px, env(safe-area-inset-left)); bottom: max(24px, env(safe-area-inset-bottom));
+  width: 120px; height: 120px; border-radius: 50%; border: 2px solid rgba(255,255,255,.5); background: rgba(0,0,0,.18); }
+#stick > div { position: absolute; left: 50%; top: 50%; width: 48px; height: 48px; margin: -24px 0 0 -24px; border-radius: 50%; background: rgba(255,255,255,.7); }
+#hint { position: fixed; left: 50%; bottom: max(16px, env(safe-area-inset-bottom)); transform: translateX(-50%);
+  background: var(--scrim); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: .85rem; pointer-events: none; }
+</style>
+<script type="importmap">
+{ "imports": {
+  "three": "./vendor/three/build/three.module.js",
+  "three/addons/": "./vendor/three/examples/jsm/",
+  "three-mesh-bvh": "./vendor/three-mesh-bvh/index.module.js"
+} }
+</script>
+</head>
+<body>
+<div id="loading"><div class="box">
+  <div class="eyebrow" style="font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--accent)">Loading model</div>
+  <div class="bar"><div id="bar"></div></div>
+  <p id="loadmsg">Starting</p>
+</div></div>
+
+<div id="panel">
+  <button id="collapse" title="Collapse panel">–</button>
+  <div class="eyebrow">Interactive model</div>
+  <h1>House walkthrough</h1>
+  <div class="row" role="group" aria-label="Camera mode">
+    <button id="mWalk" aria-pressed="true">Walk</button>
+    <button id="mOrbit" aria-pressed="false">Orbit</button>
+  </div>
+  <select id="rooms" aria-label="Jump to a room"><option value="">Jump to a room</option></select>
+  <div class="row">
+    <button id="tRoof" aria-pressed="false">Roof off</button>
+    <button id="tUtil" aria-pressed="true">Buried lines</button>
+  </div>
+  <label>Sun <input id="sun" type="range" min="6" max="20" step="0.25" value="14"> <span id="sunlbl">2:00 PM</span></label>
+  <p class="help" id="helpDesk"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move, mouse looks (click the view first), <kbd>Shift</kbd> walks faster,
+    <kbd>E</kbd> opens and closes doors, sliders, garage doors and drawers. <kbd>Esc</kbd> frees the mouse.</p>
+  <p class="help" id="helpTouch" hidden>Left stick moves, drag anywhere else to look. Tap a door or drawer to open or close it.</p>
+</div>
+
+<div id="cross" hidden></div>
+<div id="prompt" hidden><kbd>E</kbd><span id="promptTxt">Open</span></div>
+<div id="stick" hidden><div></div></div>
+<div id="hint" hidden>Click to look around</div>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>
