@@ -8,13 +8,20 @@ Open the site, then:
 - **N** toggles no clip: fly through walls in the direction you look, Space up, C down.
 - **E** opens and closes whatever you're looking at: doors, the barn doors, the bi-parting slider, the garage doors and drawers.
 - **Orbit mode:** drag to rotate around the site, scroll to zoom. Click a door to open it.
-- **Panel:** jump to any room, take the roof off for a dollhouse view, show or hide the buried geothermal and septic lines, and move the sun.
+- **Panel:** jump to any room, take the roof off for a dollhouse view, show or hide the buried geothermal and septic lines, hide the distant trees on slow devices, and move the sun.
+- **Slow device?** Add `?lite` to the address to start without shadows or distant trees.
 - **Phones:** the left stick moves, drag anywhere else to look, tap a door to open it.
 
 ## Layout
 
 - `site/index.html`, `site/app.js`: the viewer (three.js 0.160, vendored in `site/vendor`, MIT license).
-- `site/models/`: the model, split into `.glb` parts listed in `manifest.json`. These are exported from Blender with `export_web.py` and compressed with meshopt.
+- `site/models/`: the model, split into `.glb` parts listed in `manifest.json`. These are exported from Blender (full materials, real terrain and instanced trees) and compressed with gltfpack:
+
+      gltfpack -i part.glb -o site/models/part.glb -cc -kn -ke        # furniture, interior, shell
+      gltfpack -i site.glb -o site/models/site.glb -cc -kn -ke -vpf  # float positions keep terrain heights exact
+      gltfpack -i trees.glb -o site/models/trees.glb -cc -kn -ke     # keeps EXT_mesh_gpu_instancing
+
+  Without `-vpf` the site's kilometre-wide ground skirt makes the shared quantization grid coarse enough to push the terrain up through the slab.
 - `.github/workflows/pages.yml`: publishes `site/` to GitHub Pages on every push to `main`.
 
 ## Model conventions the viewer reads
@@ -30,7 +37,7 @@ Open the site, then:
 
 ## Draft export (cloud)
 
-`tools/export_web_draft.py` builds the model with pip `bpy` and writes `site/models/house.glb`.
+A fallback when the laptop export isn't available. `tools/export_web_draft.py` builds the model with pip `bpy` and writes `site/models/house.glb`.
 - It closes every door and wires them up as operable.
 - It bakes the stained concrete floor with its diamond saw cuts. Other materials are flat colors.
 

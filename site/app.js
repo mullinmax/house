@@ -60,6 +60,7 @@ const touch = matchMedia('(pointer: coarse)').matches;
 const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
 const world = new THREE.Group(); scene.add(world);
 const colliders = [];
+const pickables = [];   // every non-instanced mesh, for door picking
 const operables = [];
 const spawns = {};
 let sunDir = new THREE.Vector3(0.35, 0.6, 0.7).normalize();
@@ -114,7 +115,9 @@ function loadSky(file) {
 const RE_UTIL = /geothermal|septic|utilit|marker/i;
 const RE_ROOF = /roof|seam|fascia|soffit|gutter|downspout|rafter|ceiling|loft floor|ridge/i;
 const RE_NOCOLLIDE = /utilit|geothermal|septic|marker|leaf|leaves|crown|canopy|foliage|curtain|shade|rug|towel|light|lamp|glass pane|^Ground$/i;
-const roofNodes = [], utilNodes = [];
+const roofNodes = [], utilNodes = [], farTrees = [];
+const LITE = /[?&]lite\b/.test(location.search);
+let farOn = !LITE && !matchMedia('(pointer: coarse)').matches;   // distant woods are about 13M triangles
 
 function prepare() {
   world.updateMatrixWorld(true);
@@ -128,9 +131,18 @@ function prepare() {
       o.castShadow = true; o.receiveShadow = true;
       const m = o.material;
       if (m && m.transparent && m.opacity < 0.99) o.castShadow = false;
+      if (o.isInstancedMesh) {          // instanced trees: drawn only, no collision or picking. Names do not survive gltfpack, so the distant woods are told apart by instance count (hundreds vs. a few dozen near the house)
+        for (const mm of [].concat(o.material)) if (mm && mm.transparent) {
+          mm.transparent = false; mm.alphaTest = 0.3; mm.depthWrite = true;   // cutout leaves sort and draw far faster
+        }
+        if (o.count >= 300) { o.castShadow = false; farTrees.push(o); o.visible = farOn; }
+        return;
+      }
       let skip = false;
       for (let p = o; p; p = p.parent) if (RE_NOCOLLIDE.test(p.name || '')) { skip = true; break; }
-      if (!skip) { o.geometry.computeBoundsTree(); colliders.push(o); }
+      o.geometry.computeBoundsTree();
+      pickables.push(o);
+      if (!skip) colliders.push(o);
     }
   });
   // room list
@@ -192,7 +204,7 @@ function opAt(ndc) {
   if (!operables.length) return null;
   ray.setFromCamera(ndc, camera);
   ray.far = mode === 'walk' ? REACH : 60;
-  const hits = ray.intersectObjects(world.children, true);
+  const hits = ray.intersectObjects(pickables, false);
   for (const h of hits) {
     for (let p = h.object; p; p = p.parent) if (p.userData && p.userData._op) return p.userData._op;
     if (!RE_NOCOLLIDE.test(h.object.name || '')) return null;   // something solid is in the way
@@ -262,6 +274,13 @@ $('tUtil').onclick = (e) => {
   e.currentTarget.setAttribute('aria-pressed', on);
   for (const o of utilNodes) o.visible = on;
 };
+$('tFar').setAttribute('aria-pressed', farOn);
+$('tFar').onclick = (e) => {
+  farOn = e.currentTarget.getAttribute('aria-pressed') !== 'true';
+  e.currentTarget.setAttribute('aria-pressed', farOn);
+  for (const o of farTrees) o.visible = farOn;
+};
+if (LITE) renderer.shadowMap.enabled = false;
 function setSun(h) {
   // simple solar arc for 39.8 N in mid November: sunrise about 7 AM, noon altitude about 31 degrees
   const k = (h - 12) / 6.0;                                  // -1 morning .. +1 evening
@@ -443,4 +462,4 @@ renderer.setAnimationLoop(() => {
 });
 
 loadAll().catch((e) => { console.error(e); $('loadmsg').textContent = 'The model could not be loaded.'; });
-window.__B = THREE.Box3; window.__walk = { scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };
+window.__B = THREE.Box3; window.__T = THREE; window.__walk = { renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };
