@@ -28,20 +28,23 @@ const ROOMS = {
 const ROOM_LABELS = { Bed1: 'Bedroom 1', Bed2: 'Bedroom 2', Bed3: 'Bedroom 3', Bath1: 'Bath 1', Bath2: 'Bath 2', Outside_SW: 'Outside, southwest' };
 
 // ---------------------------------------------------------------- renderer, scene
-const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+// logarithmic depth keeps thin parts (cooktops, wall lights on siding) from flickering through what they sit on
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', logarithmicDepthBuffer: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+renderer.localClippingEnabled = true;
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
 renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.type = THREE.PCFShadowMap;
+renderer.shadowMap.autoUpdate = false;     // re-rendered only when the view, a door or the light changes
 document.body.prepend(renderer.domElement);
 
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xbfd3e6);
 scene.fog = new THREE.Fog(0xcbd9e6, 250, 1400);
-const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.05, 3000);
+const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 3000);
 
 const hemi = new THREE.HemisphereLight(0xdfe8f2, 0x6d6450, 1.1);
 scene.add(hemi);
@@ -64,6 +67,9 @@ const pickables = [];   // every non-instanced mesh, for door picking
 const operables = [];
 const spawns = {};
 let sunDir = new THREE.Vector3(0.35, 0.6, 0.7).normalize();
+let manifest = {};
+let daySky = null;
+let night = false, shadowDirty = true;
 
 async function getManifest() {
   try {
@@ -80,6 +86,7 @@ function progress(frac, msg) {
 
 async function loadAll() {
   const man = await getManifest();
+  manifest = man;
   const parts = man.parts || [];
   const sizes = parts.map((p) => p.bytes || 1);
   const total = sizes.reduce((a, b) => a + b, 0);
@@ -104,10 +111,10 @@ async function loadAll() {
 function loadSky(file) {
   new THREE.TextureLoader().load(`models/${file}`, (t) => {
     t.mapping = THREE.EquirectangularReflectionMapping; t.colorSpace = THREE.SRGBColorSpace;
-    scene.background = t;
+    daySky = t; if (!night) scene.background = t;
     const pm = new THREE.PMREMGenerator(renderer);
     scene.environment = pm.fromEquirectangular(t).texture;
-    scene.environmentIntensity = 0.6;
+    scene.environmentIntensity = night ? 0.04 : 0.6;
     pm.dispose();
   });
 }
@@ -117,47 +124,152 @@ const RE_ROOF = /roof|seam|fascia|soffit|gutter|downspout|rafter|ceiling|loft fl
 const RE_NOCOLLIDE = /utilit|geothermal|septic|marker|leaf|leaves|crown|canopy|foliage|curtain|shade|rug|towel|light|lamp|glass pane|^Ground$/i;
 const roofNodes = [], utilNodes = [], farTrees = [];
 const LITE = /[?&]lite\b/.test(location.search);
-let farOn = !LITE && !matchMedia('(pointer: coarse)').matches;   // distant woods are about 13M triangles
+let farOn = !LITE;   // distant trees are cheap now (about 300 triangles each)
+
+const UPPER_CUT = 2.70;                                   // metres: just under the 9 ft first floor ceilings
+const upperPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1e6);   // constant 1e6 = nothing clipped
+const nightFixtures = [];
 
 function prepare() {
   world.updateMatrixWorld(true);
+  const roofSet = new Set(), utilSet = new Set(), opRoots = new Set();
   world.traverse((o) => {
     const n = o.name || '';
     if (/^Spawn_/i.test(n)) { spawns[n.slice(6)] = o; return; }
-    if (o.userData && o.userData.operable) operables.push(makeOperable(o));
-    if (o !== world && o.parent !== world && RE_ROOF.test(n)) roofNodes.push(o);
-    if (o !== world && o.parent !== world && (n === 'Utilities' || RE_UTIL.test(n))) utilNodes.push(o);
-    if (o.isMesh) {
-      o.castShadow = true; o.receiveShadow = true;
-      const m = o.material;
-      if (m && m.transparent && m.opacity < 0.99) o.castShadow = false;
-      if (o.isInstancedMesh) {          // instanced trees: drawn only, no collision or picking. Names do not survive gltfpack, so the distant woods are told apart by instance count (hundreds vs. a few dozen near the house)
-        for (const mm of [].concat(o.material)) if (mm && mm.transparent) {
-          mm.transparent = false; mm.alphaTest = 0.3; mm.depthWrite = true;   // cutout leaves sort and draw far faster
-        }
-        if (o.count >= 300) { o.castShadow = false; farTrees.push(o); o.visible = farOn; }
-        return;
-      }
-      let skip = false;
-      for (let p = o; p; p = p.parent) if (RE_NOCOLLIDE.test(p.name || '')) { skip = true; break; }
-      o.geometry.computeBoundsTree();
-      pickables.push(o);
-      if (!skip) colliders.push(o);
-    }
+    if (o.userData && o.userData.operable) { operables.push(makeOperable(o)); opRoots.add(o); }
+    if (o !== world && o.parent !== world && RE_ROOF.test(n)) { roofNodes.push(o); roofSet.add(o); }
+    if (o !== world && o.parent !== world && (n === 'Utilities' || RE_UTIL.test(n))) { utilNodes.push(o); utilSet.add(o); }
+    if ((o.userData && o.userData.emissive_night) || RE_FIXTURE.test(n)) nightFixtures.push(o);
   });
+  const merged = mergeStatic(roofSet, utilSet, opRoots);
+  world.updateMatrixWorld(true);
+  world.traverse((o) => {
+    if (o !== world) o.matrixAutoUpdate = false;           // nothing static moves; operables update their own matrix
+    if (!o.isMesh) return;
+    o.castShadow = true; o.receiveShadow = true;
+    const mats = [].concat(o.material);
+    if (mats.some((m) => m && m.transparent && m.opacity < 0.99)) o.castShadow = false;
+    const part = partOf(o);
+    if (part && !/^(site|trees)$/i.test(part.name)) for (const m of mats) if (m) m.clippingPlanes = [upperPlane];
+    if (o.isInstancedMesh) {          // instanced trees: drawn only, no collision or picking. Names do not survive gltfpack, so the distant woods are told apart by instance count (a hundred or more vs. a few dozen near the house)
+      for (const mm of mats) if (mm && mm.transparent) {
+        mm.transparent = false; mm.alphaTest = 0.3; mm.depthWrite = true;   // cutout leaves sort and draw far faster
+      }
+      if (o.count >= 80) { o.castShadow = false; farTrees.push(o); o.visible = farOn; }
+      return;
+    }
+    let pass = !!o.userData.pass;
+    if (!pass) for (let p = o; p; p = p.parent) if (RE_NOCOLLIDE.test(p.name || '')) { pass = true; break; }
+    o.userData.pass = pass;
+    o.geometry.computeBoundsTree();
+    pickables.push(o);
+    if (!pass) colliders.push(o);
+  });
+  console.log(`merged static meshes into ${merged} draw groups`);
   // room list
   const names = [...new Set([...Object.keys(ROOMS), ...Object.keys(spawns)])];
   for (const k of names) {
     const opt = document.createElement('option'); opt.value = k; opt.textContent = ROOM_LABELS[k] || k.replace(/_/g, ' ');
     $('rooms').append(opt);
   }
-  setSun(parseFloat($('sun').value));
+  setNight(false);
   jump(names.includes('Outside_SW') ? 'Outside_SW' : names[0]);
   $('loading').hidden = true;
   if (touch) { $('stick').hidden = false; $('helpDesk').hidden = true; $('helpTouch').hidden = false; }
   else if (mode === 'walk') $('hint').hidden = false;
   $('cross').hidden = mode !== 'walk';
   console.log(`walkthrough ready: ${colliders.length} colliders, ${operables.length} operable, ${Object.keys(spawns).length} spawns`);
+}
+
+// ---------------------------------------------------------------- static merge
+// Thousands of small meshes cost one draw call each. Static meshes that share a material (and part,
+// toggle group and a 20 m grid cell) are baked into one mesh in world space.
+const RE_FIXTURE = /pendant|lamp|sconce|wall_light|ceiling_light|fixture|can_light|bulb/i;
+function partOf(o) { let p = o; while (p && p.parent && p.parent !== world) p = p.parent; return p && p.parent === world ? p : null; }
+
+function mergeStatic(roofSet, utilSet, opRoots) {
+  const buckets = new Map();
+  const fixtureSet = new Set(nightFixtures);
+  world.traverse((o) => {
+    if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || Array.isArray(o.material)) return;
+    if (o.geometry.morphAttributes && Object.keys(o.geometry.morphAttributes).length) return;
+    if (o.material.vertexColors) return;
+    let tag = '', pass = false;
+    for (let p = o; p && p !== world; p = p.parent) {
+      if (opRoots.has(p) || fixtureSet.has(p)) return;    // moving parts and night fixtures stay separate
+      if (roofSet.has(p)) tag = 'roof';
+      else if (utilSet.has(p) && !tag) tag = 'util';
+      if (RE_NOCOLLIDE.test(p.name || '')) pass = true;
+    }
+    const part = partOf(o); if (!part) return;
+    const g = o.geometry; if (!g.attributes.position) return;
+    if (!g.boundingBox) g.computeBoundingBox();
+    const c = g.boundingBox.getCenter(new THREE.Vector3()).applyMatrix4(o.matrixWorld);
+    const key = [part.name, tag, pass ? 1 : 0, o.material.uuid, Math.floor(c.x / 20), Math.floor(c.z / 20)].join('|');
+    if (!buckets.has(key)) buckets.set(key, { part, tag, pass, mat: o.material, list: [] });
+    buckets.get(key).list.push(o);
+  });
+  let groups = 0;
+  for (const bk of buckets.values()) {
+    if (bk.list.length < 2) continue;
+    const geo = bakeMerge(bk.list);
+    if (!geo) continue;
+    const m = new THREE.Mesh(geo, bk.mat);
+    m.name = `merged ${bk.part.name} ${bk.mat.name || ''}`.trim();
+    m.userData.pass = bk.pass;
+    bk.part.add(m);              // part scenes sit at the origin, so world-space geometry needs no transform
+    for (const o of bk.list) o.removeFromParent();
+    if (bk.tag === 'roof') roofNodes.push(m);
+    if (bk.tag === 'util') utilNodes.push(m);
+    groups++;
+  }
+  return groups;
+}
+
+function bakeMerge(list) {
+  const hasUV = list.every((o) => o.geometry.attributes.uv);
+  let nv = 0, ni = 0;
+  for (const o of list) {
+    const g = o.geometry, n = g.attributes.position.count;
+    nv += n; ni += g.index ? g.index.count : n;
+  }
+  const pos = new Float32Array(nv * 3), nor = new Float32Array(nv * 3), uv = hasUV ? new Float32Array(nv * 2) : null;
+  const idx = new Uint32Array(ni);
+  const v = new THREE.Vector3(), nm = new THREE.Matrix3();
+  let ov = 0, oi = 0;
+  for (const o of list) {
+    const g = o.geometry, P = g.attributes.position;
+    if (!g.attributes.normal) g.computeVertexNormals();
+    const N = g.attributes.normal, U = g.attributes.uv;
+    nm.getNormalMatrix(o.matrixWorld);
+    const flip = o.matrixWorld.determinant() < 0;
+    for (let i = 0; i < P.count; i++) {
+      v.fromBufferAttribute(P, i).applyMatrix4(o.matrixWorld); v.toArray(pos, (ov + i) * 3);
+      v.fromBufferAttribute(N, i).applyMatrix3(nm).normalize(); v.toArray(nor, (ov + i) * 3);
+      if (uv) { uv[(ov + i) * 2] = U.getX(i); uv[(ov + i) * 2 + 1] = U.getY(i); }
+    }
+    if (g.index) {
+      const I = g.index;
+      for (let k = 0; k < I.count; k += 3) {
+        const a = I.getX(k), b = I.getX(k + 1), c = I.getX(k + 2);
+        idx[oi + k] = ov + a; idx[oi + k + 1] = ov + (flip ? c : b); idx[oi + k + 2] = ov + (flip ? b : c);
+      }
+      oi += I.count;
+    } else {
+      for (let k = 0; k < P.count; k += 3) {
+        idx[oi + k] = ov + k; idx[oi + k + 1] = ov + k + (flip ? 2 : 1); idx[oi + k + 2] = ov + k + (flip ? 1 : 2);
+      }
+      oi += P.count;
+    }
+    ov += P.count;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+  if (uv) geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  geo.setIndex(new THREE.BufferAttribute(idx, 1));
+  geo.computeBoundingBox(); geo.computeBoundingSphere();
+  return geo;
 }
 
 // ---------------------------------------------------------------- operable things (E)
@@ -194,7 +306,8 @@ function applyOp(op) {
   } else {
     op.obj.position.copy(op.pos0).addScaledVector(op.slide, e);
   }
-  op.obj.updateMatrixWorld(true);
+  op.obj.updateMatrix(); op.obj.updateMatrixWorld(true);
+  shadowDirty = true;
 }
 
 const center = new THREE.Vector2(0, 0);
@@ -207,7 +320,7 @@ function opAt(ndc) {
   const hits = ray.intersectObjects(pickables, false);
   for (const h of hits) {
     for (let p = h.object; p; p = p.parent) if (p.userData && p.userData._op) return p.userData._op;
-    if (!RE_NOCOLLIDE.test(h.object.name || '')) return null;   // something solid is in the way
+    if (!h.object.userData.pass) return null;   // something solid is in the way
   }
   return null;
 }
@@ -268,6 +381,7 @@ $('tRoof').onclick = (e) => {
   const off = e.currentTarget.getAttribute('aria-pressed') !== 'true';
   e.currentTarget.setAttribute('aria-pressed', off);
   for (const o of roofNodes) o.visible = !off;
+  shadowDirty = true;
 };
 $('tUtil').onclick = (e) => {
   const on = e.currentTarget.getAttribute('aria-pressed') !== 'true';
@@ -281,18 +395,84 @@ $('tFar').onclick = (e) => {
   for (const o of farTrees) o.visible = farOn;
 };
 if (LITE) renderer.shadowMap.enabled = false;
-function setSun(h) {
-  // simple solar arc for 39.8 N in mid November: sunrise about 7 AM, noon altitude about 31 degrees
-  const k = (h - 12) / 6.0;                                  // -1 morning .. +1 evening
-  const alt = Math.max(0.02, Math.cos(k * Math.PI / 2) * THREE.MathUtils.degToRad(31));
-  const az = Math.PI + k * THREE.MathUtils.degToRad(70);     // from north, clockwise
-  const d = new THREE.Vector3(Math.sin(az) * Math.cos(alt), Math.sin(alt), -Math.cos(az) * Math.cos(alt));
-  sunDir.copy(d);
-  sun.intensity = 2.6 * Math.min(1, alt / 0.25);
-  const hh = Math.floor(h), mm = Math.round((h - hh) * 60);
-  $('sunlbl').textContent = `${((hh + 11) % 12) + 1}:${String(mm).padStart(2, '0')} ${hh < 12 ? 'AM' : 'PM'}`;
+$('tUp').onclick = (e) => {
+  const off = e.currentTarget.getAttribute('aria-pressed') !== 'true';
+  e.currentTarget.setAttribute('aria-pressed', off);
+  upperPlane.constant = off ? UPPER_CUT : 1e6;
+  shadowDirty = true;
+};
+
+// ---------------------------------------------------------------- day / night
+const NIGHT_POOL = 8;               // the nearest room lights are lit; a fixed count avoids shader rebuilds while walking
+const pool = [];
+let lightSpots = null;
+const WARM = 0xffd6a0;
+
+function roomLights() {
+  if (lightSpots) return lightSpots;
+  const out = [];
+  for (const L of manifest.lights || []) {        // Blender world metres, Z up
+    const p = L.pos || [0, 0, 0];
+    out.push({ pos: new THREE.Vector3(p[0], p[2], -p[1]), color: L.color || WARM, cd: Math.min(14, Math.max(3, Math.min(L.intensity_lm || 800, 1600) / (L.room === 'lamp' ? 200 : 110))) });
+  }
+  if (!out.length) {                              // fallback: one ceiling light per room plus the fixtures in the model
+    for (const [k, r] of Object.entries(ROOMS)) if (!/^Outside/.test(k)) out.push({ pos: plan(r[0], r[1], 8.3), color: WARM, cd: 9 });
+    for (const o of nightFixtures) {
+      const bb = new THREE.Box3().setFromObject(o); if (bb.isEmpty()) continue;
+      const c = bb.getCenter(new THREE.Vector3()); c.y = bb.min.y - 0.05;
+      if (!out.some((q) => q.pos.distanceTo(c) < 1.2)) out.push({ pos: c, color: WARM, cd: /lamp/i.test(o.name) ? 4 : 6 });
+    }
+  }
+  return (lightSpots = out);
 }
-$('sun').oninput = (e) => setSun(parseFloat(e.target.value));
+
+const glow = new Map();
+function setFixtureGlow(on) {
+  for (const o of nightFixtures) o.traverse((m) => {
+    if (!m.isMesh) return;
+    for (const mat of [].concat(m.material)) {
+      if (!mat || !mat.emissive) continue;
+      if (!glow.has(mat)) glow.set(mat, [mat.emissive.clone(), mat.emissiveIntensity]);
+      if (on && /shade|glass|bulb|diffuser|lens|white/i.test((mat.name || '') + ' ' + m.name)) { mat.emissive.set(WARM); mat.emissiveIntensity = 1.2; }
+      else { const [c, i] = glow.get(mat); mat.emissive.copy(c); mat.emissiveIntensity = i; }
+    }
+  });
+}
+
+function setNight(on) {
+  night = on;
+  $('tDay').setAttribute('aria-pressed', !on); $('tNight').setAttribute('aria-pressed', on);
+  if (!manifest.sun_direction) sunDir.set(0.25, 0.55, 0.8).normalize();   // a mid-afternoon sun from the south
+  sun.intensity = on ? 0 : 2.6;
+  hemi.intensity = on ? 0.06 : 1.1; hemi.color.set(on ? 0x5a6a8a : 0xdfe8f2);
+  fill.intensity = on ? 0.03 : 0.25;
+  scene.background = on ? new THREE.Color(0x0b1020) : (daySky || new THREE.Color(0xbfd3e6));
+  scene.environmentIntensity = on ? 0.04 : 0.6;
+  scene.fog.color.set(on ? 0x0b1020 : 0xcbd9e6);
+  renderer.toneMappingExposure = 1.0;
+  if (on && !pool.length) for (let i = 0; i < NIGHT_POOL; i++) {
+    const L = new THREE.PointLight(WARM, 0, 14, 2); pool.push(L); scene.add(L);
+  }
+  if (!on) { for (const L of pool) scene.remove(L); pool.length = 0; }
+  setFixtureGlow(on);
+  placeLights(true);
+  shadowDirty = true;
+}
+$('tDay').onclick = () => setNight(false);
+$('tNight').onclick = () => setNight(true);
+
+let lastPlace = 0;
+function placeLights(force) {
+  if (!pool.length) return;
+  const now = performance.now(); if (!force && now - lastPlace < 400) return; lastPlace = now;
+  const c = mode === 'walk' ? camera.position : orbit.target;
+  const spots = roomLights().slice().sort((x, y) => x.pos.distanceToSquared(c) - y.pos.distanceToSquared(c));
+  pool.forEach((L, i) => {
+    const s2 = spots[i];
+    if (!s2) { L.intensity = 0; return; }
+    L.position.copy(s2.pos); L.color.set(s2.color); L.intensity = s2.cd;
+  });
+}
 $('collapse').onclick = () => { $('panel').classList.toggle('min'); $('collapse').textContent = $('panel').classList.contains('min') ? '+' : '–'; };
 
 // ---------------------------------------------------------------- walking physics
@@ -444,6 +624,7 @@ addEventListener('resize', () => {
 // ---------------------------------------------------------------- loop
 const clock = new THREE.Clock();
 let promptFrame = 0;
+const snap = new THREE.Vector3(), lastSnap = new THREE.Vector3(1e9, 0, 0);
 renderer.setAnimationLoop(() => {
   const raw = clock.getDelta(), dt = Math.min(raw, 0.05);
   if (mode === 'walk' && colliders.length) walk(dt); else orbit.update();
@@ -452,7 +633,15 @@ renderer.setAnimationLoop(() => {
   }
   // the sun and its shadow box follow the viewer
   const c = mode === 'walk' ? camera.position : orbit.target;
-  sun.target.position.copy(c); sun.position.copy(c).addScaledVector(sunDir, 150); sun.target.updateMatrixWorld();
+  snap.set(Math.round(c.x / 4) * 4, Math.round(c.y / 4) * 4, Math.round(c.z / 4) * 4);
+  if (!snap.equals(lastSnap)) { lastSnap.copy(snap); shadowDirty = true; }
+  if (shadowDirty && !night) {
+    sun.target.position.copy(snap); sun.position.copy(snap).addScaledVector(sunDir, 150);
+    sun.target.updateMatrixWorld(); sun.updateMatrixWorld();
+    renderer.shadowMap.needsUpdate = true;
+  }
+  shadowDirty = false;
+  placeLights(false);
   if (mode === 'walk' && !touch && (++promptFrame % 6 === 0)) {
     const op = opAt(center);
     $('prompt').hidden = !op;
@@ -462,4 +651,4 @@ renderer.setAnimationLoop(() => {
 });
 
 loadAll().catch((e) => { console.error(e); $('loadmsg').textContent = 'The model could not be loaded.'; });
-window.__B = THREE.Box3; window.__T = THREE; window.__walk = { renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };
+window.__B = THREE.Box3; window.__T = THREE; window.__walk = { setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };

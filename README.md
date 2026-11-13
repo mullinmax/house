@@ -8,7 +8,7 @@ Open the site, then:
 - **N** toggles no clip: fly through walls in the direction you look, Space up, C down.
 - **E** opens and closes whatever you're looking at: doors, the barn doors, the bi-parting slider, the garage doors and drawers.
 - **Orbit mode:** drag to rotate around the site, scroll to zoom. Click a door to open it.
-- **Panel:** jump to any room, take the roof off for a dollhouse view, show or hide the buried geothermal and septic lines, hide the distant trees on slow devices, and move the sun.
+- **Panel:** jump to any room, take the roof off for a dollhouse view, cut away the loft and attic with Upstairs off, switch between Day and Night (room lights on), show or hide the buried geothermal and septic lines, and hide the distant trees on slow devices.
 - **Slow device?** Add `?lite` to the address to start without shadows or distant trees.
 - **Phones:** the left stick moves, drag anywhere else to look, tap a door to open it.
 
@@ -23,6 +23,12 @@ Open the site, then:
 
   Without `-vpf` the site's kilometre-wide ground skirt makes the shared quantization grid coarse enough to push the terrain up through the slab.
 - `.github/workflows/pages.yml`: publishes `site/` to GitHub Pages on every push to `main`.
+
+## Performance notes
+
+- On load the viewer bakes static meshes that share a material into one mesh per part, toggle group and 20 m grid cell, cutting about 2000 draw calls to about 550. Operable parts and light fixtures stay separate.
+- Shadows are redrawn only when the viewer moves 4 m, a door moves, or a toggle changes. Pixel ratio is capped at 1.5. A logarithmic depth buffer reduces flicker on thin parts.
+- At night the 8 room lights nearest the viewer are lit, from `manifest.lights` (Blender metres) or one per room as a fallback.
 
 ## Model conventions the viewer reads
 
