@@ -1,16 +1,213 @@
 {
-  "note": "Draft model exported in the cloud with export_web_draft.py: flat colors, baked floor, flat ground.",
-  "units": "metres, glTF Y up",
-  "parts": [
-    {
-      "file": "house.glb",
-      "name": "house",
-      "bytes": 1455752
-    }
-  ],
-  "sun_direction": [
-    0.34,
-    -0.81,
-    0.47
-  ]
+ "units": "metres",
+ "up": "glTF Y-up (Blender Z-up converted by the exporter); extras use Blender world coords",
+ "parts": [
+  {
+   "file": "site.glb",
+   "name": "site",
+   "bytes": 3800536
+  },
+  {
+   "file": "trees.glb",
+   "name": "trees",
+   "bytes": 7621572
+  },
+  {
+   "file": "shell.glb",
+   "name": "shell",
+   "bytes": 6092016
+  },
+  {
+   "file": "interior.glb",
+   "name": "interior",
+   "bytes": 2872236
+  },
+  {
+   "file": "furniture_west.glb",
+   "name": "furniture_west",
+   "bytes": 5919476
+  },
+  {
+   "file": "furniture_east.glb",
+   "name": "furniture_east",
+   "bytes": 6794484
+  }
+ ],
+ "sky": "sky.jpg",
+ "spawns": {
+  "Kitchen": {
+   "pos": [
+    3.2,
+    -14.783,
+    1.625
+   ],
+   "look": [
+    0.914,
+    -13.411,
+    1.533
+   ]
+  },
+  "Living": {
+   "pos": [
+    5.944,
+    -8.534,
+    1.625
+   ],
+   "look": [
+    9.144,
+    -8.534,
+    1.533
+   ]
+  },
+  "Dining": {
+   "pos": [
+    12.649,
+    -13.259,
+    1.625
+   ],
+   "look": [
+    10.363,
+    -14.63,
+    1.533
+   ]
+  },
+  "Bed1": {
+   "pos": [
+    10.363,
+    -3.048,
+    1.625
+   ],
+   "look": [
+    12.649,
+    -1.524,
+    1.533
+   ]
+  },
+  "Bed2": {
+   "pos": [
+    4.328,
+    -2.865,
+    1.625
+   ],
+   "look": [
+    2.134,
+    -1.372,
+    1.533
+   ]
+  },
+  "Bed3": {
+   "pos": [
+    0.914,
+    -6.34,
+    1.625
+   ],
+   "look": [
+    3.353,
+    -4.572,
+    1.533
+   ]
+  },
+  "Bath1": {
+   "pos": [
+    10.82,
+    -8.382,
+    1.625
+   ],
+   "look": [
+    9.754,
+    -7.62,
+    1.533
+   ]
+  },
+  "Bath2": {
+   "pos": [
+    5.791,
+    -2.286,
+    1.625
+   ],
+   "look": [
+    6.553,
+    -0.61,
+    1.533
+   ]
+  },
+  "Garage": {
+   "pos": [
+    24.079,
+    -7.62,
+    1.625
+   ],
+   "look": [
+    24.079,
+    -12.802,
+    1.533
+   ]
+  },
+  "Outside_SW": {
+   "pos": [
+    -12.192,
+    -33.528,
+    1.022
+   ],
+   "look": [
+    6.706,
+    -9.144,
+    0.931
+   ]
+  }
+ },
+ "eye_height_m": 1.625,
+ "operable": [
+  "Barn door L",
+  "Barn door R",
+  "D120-80 Bi-parting leaf E",
+  "D120-80 Bi-parting leaf W",
+  "D30-80 Entry",
+  "D30-80 Kitchen door",
+  "Door 1",
+  "Door 10",
+  "Door 11",
+  "Door 12",
+  "Door 13",
+  "Door 14",
+  "Door 15",
+  "Door 16",
+  "Door 17",
+  "Door 2",
+  "Door 3",
+  "Door 4",
+  "Door 5",
+  "Door 6",
+  "Door 7",
+  "Door 8",
+  "Door 9",
+  "Drawer island 1 drawers2 drawer 0",
+  "Drawer island 1 drawers2 drawer 1",
+  "Drawer north 1 drawers3 drawer 0",
+  "Drawer north 1 drawers3 drawer 1",
+  "Drawer north 1 drawers3 drawer 2",
+  "Drawer north 2 drawer_doors2 drawer 0",
+  "Drawer south 2 drawers3 drawer 0",
+  "Drawer south 2 drawers3 drawer 1",
+  "Drawer south 2 drawers3 drawer 2",
+  "Drawer south 3 drawer_door drawer 0",
+  "Drawer south 6 drawers3 drawer 0",
+  "Drawer south 6 drawers3 drawer 1",
+  "Drawer south 6 drawers3 drawer 2",
+  "Drawer west 0 oven_tower drawer 0",
+  "Drawer west 1 drawer_tall drawer 0",
+  "Drawer west 2 drawers2 drawer 0",
+  "Drawer west 2 drawers2 drawer 1",
+  "Drawer west 3 pullout_drawer drawer 0",
+  "Garage door 1",
+  "Garage door 2",
+  "Garage man door.001",
+  "Pantry door.001"
+ ],
+ "sun_direction": [
+  -0.2695,
+  -0.7405,
+  0.6157
+ ],
+ "note": "Full model exported from Blender on the laptop, compressed with gltfpack -cc -kn -ke (site with -vpf to keep terrain heights exact, trees instanced)."
 }
