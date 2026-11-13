@@ -5,32 +5,32 @@
   {
    "file": "site.glb",
    "name": "site",
-   "bytes": 3800536
+   "bytes": 3729044
   },
   {
    "file": "trees.glb",
    "name": "trees",
-   "bytes": 7621572
+   "bytes": 6165092
   },
   {
    "file": "shell.glb",
    "name": "shell",
-   "bytes": 6092016
+   "bytes": 5657744
   },
   {
    "file": "interior.glb",
    "name": "interior",
-   "bytes": 2872236
+   "bytes": 2495416
   },
   {
    "file": "furniture_west.glb",
    "name": "furniture_west",
-   "bytes": 5919476
+   "bytes": 5433488
   },
   {
    "file": "furniture_east.glb",
    "name": "furniture_east",
-   "bytes": 6794484
+   "bytes": 6809904
   }
  ],
  "sky": "sky.jpg",
@@ -204,10 +204,594 @@
   "Garage man door.001",
   "Pantry door.001"
  ],
+ "floors": {
+  "main": 0.0,
+  "loft": 3.018,
+  "attic": 3.005,
+  "toggle_node": "SecondStory"
+ },
+ "lights": [
+  {
+   "name": "Light Kitchen 0",
+   "room": "Kitchen",
+   "pos": [
+    1.219,
+    -14.021,
+    3.56
+   ],
+   "kind": "spot",
+   "color": "#FFDBB3",
+   "intensity_lm": 800
+  },
+  {
+   "name": "Light Kitchen 1",
+   "room": "Kitchen",
+   "pos": [
+    3.048,
+    -14.935,
+    3.408
+   ],
+   "kind": "spot",
+   "color": "#FFDBB3",
+   "intensity_lm": 800
+  },
+  {
+   "name": "Light Kitchen 2",
+   "room": "Kitchen",
+   "pos": [
+    3.048,
+    -12.04,
+    3.89
+   ],
+   "kind": "spot",
+   "color": "#FFDBB3",
+   "intensity_lm": 800
+  },
+  {
+   "name": "Light Dining 3",
+   "room": "Dining",
+   "pos": [
+    7.285,
+    -11.887,
+    3.916
+   ],
+   "kind": "spot",
+   "color": "#FFDBB3",
+   "intensity_lm": 800
+  },
+  {
+   "name": "Light Great room 4",
+   "room": "Great room",
+   "pos": [
+    5.029,
+    -14.326,
+    3.509
+   ],
+   "kind": "spot",
+   "color": "#FFDBB3",
+   "intensity_lm": 800
+  },
+  {
+   "name": "Light Great room 5",
+   "room": "Great room",
+   "pos": [
+    9.449,
+    -14.326,
+    3.509
+   ],
+   "kind": "spot",
+   "color": "#FFDBB3",
+   "intensity_lm": 800
+  },
+  {
+   "name": "Light Entry 6",
+   "room": "Entry",
+   "pos": [
+    12.04,
+    -12.04,
+    3.89
+   ],
+   "kind": "spot",
+   "color": "#FFDBB3",
+   "intensity_lm": 800
+  },
+  {
+   "name": "Light Family 7",
+   "room": "Family",
+   "pos": [
+    11.278,
+    -14.173,
+    3.535
+   ],
+   "kind": "spot",
+   "color": "#FFDBB3",
+   "intensity_lm": 800
+  },
+  {
+   "name": "Light Living 8",
+   "room": "Living",
+   "pos": [
+    6.401,
+    -8.687,
+    5.35
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 1600
+  },
+  {
+   "name": "Light Living 9",
+   "room": "Living",
+   "pos": [
+    8.534,
+    -7.62,
+    5.071
+   ],
+   "kind": "spot",
+   "color": "#FFDBB3",
+   "intensity_lm": 800
+  },
+  {
+   "name": "Light Bed1 10",
+   "room": "Bed1",
+   "pos": [
+    11.217,
+    -1.768,
+    3.147
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 1600
+  },
+  {
+   "name": "Light Bed2 11",
+   "room": "Bed2",
+   "pos": [
+    3.353,
+    -1.707,
+    3.128
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 1600
+  },
+  {
+   "name": "Light Bed3 12",
+   "room": "Bed3",
+   "pos": [
+    1.981,
+    -5.06,
+    2.585
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 1600
+  },
+  {
+   "name": "Light Study 13",
+   "room": "Study",
+   "pos": [
+    8.23,
+    -1.707,
+    3.128
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 1600
+  },
+  {
+   "name": "Light Bath1 14",
+   "room": "Bath1",
+   "pos": [
+    10.516,
+    -7.925,
+    5.107
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 1200
+  },
+  {
+   "name": "Light Bath1 shower 15",
+   "room": "Bath1 shower",
+   "pos": [
+    12.314,
+    -7.59,
+    5.062
+   ],
+   "kind": "spot",
+   "color": "#FFDBB3",
+   "intensity_lm": 600
+  },
+  {
+   "name": "Light Bath2 16",
+   "room": "Bath2",
+   "pos": [
+    5.913,
+    -1.829,
+    3.167
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 1200
+  },
+  {
+   "name": "Light Powder 17",
+   "room": "Powder",
+   "pos": [
+    2.743,
+    -9.632,
+    2.585
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 800
+  },
+  {
+   "name": "Light Pantry 18",
+   "room": "Pantry",
+   "pos": [
+    0.914,
+    -9.693,
+    2.585
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 800
+  },
+  {
+   "name": "Light Utility 19",
+   "room": "Utility",
+   "pos": [
+    1.92,
+    -7.894,
+    2.585
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 1200
+  },
+  {
+   "name": "Light Laundry 20",
+   "room": "Laundry",
+   "pos": [
+    7.315,
+    -5.761,
+    2.585
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 1600
+  },
+  {
+   "name": "Light Closet 1 21",
+   "room": "Closet 1",
+   "pos": [
+    10.363,
+    -5.761,
+    2.585
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 1200
+  },
+  {
+   "name": "Light Closet 1 22",
+   "room": "Closet 1",
+   "pos": [
+    12.192,
+    -5.761,
+    2.585
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 1200
+  },
+  {
+   "name": "Light Hall 2 23",
+   "room": "Hall 2",
+   "pos": [
+    4.389,
+    -3.962,
+    2.585
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 1000
+  },
+  {
+   "name": "Light Hall 2 24",
+   "room": "Hall 2",
+   "pos": [
+    5.791,
+    -3.962,
+    2.585
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 1000
+  },
+  {
+   "name": "Light Hall 25",
+   "room": "Hall",
+   "pos": [
+    4.328,
+    -9.296,
+    5.605
+   ],
+   "kind": "spot",
+   "color": "#FFDBB3",
+   "intensity_lm": 800
+  },
+  {
+   "name": "Light Loft 26",
+   "room": "Loft",
+   "pos": [
+    11.217,
+    -8.778,
+    5.379
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 1200
+  },
+  {
+   "name": "Light Garage 27",
+   "room": "Garage",
+   "pos": [
+    21.641,
+    -7.315,
+    2.707
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 2500
+  },
+  {
+   "name": "Light Garage 28",
+   "room": "Garage",
+   "pos": [
+    26.518,
+    -7.315,
+    2.707
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 2500
+  },
+  {
+   "name": "Light Garage 29",
+   "room": "Garage",
+   "pos": [
+    21.641,
+    -10.363,
+    2.707
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 2500
+  },
+  {
+   "name": "Light Garage 30",
+   "room": "Garage",
+   "pos": [
+    26.518,
+    -10.363,
+    2.707
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 2500
+  },
+  {
+   "name": "Light Porch 31",
+   "room": "Porch",
+   "pos": [
+    16.154,
+    -10.516,
+    2.829
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 1000
+  },
+  {
+   "name": "Light Greenhouse 32",
+   "room": "Greenhouse",
+   "pos": [
+    6.553,
+    -18.898,
+    2.067
+   ],
+   "kind": "point",
+   "color": "#FFDBB3",
+   "intensity_lm": 1500
+  },
+  {
+   "name": "dining_pendant bulb",
+   "room": "lamp",
+   "pos": [
+    7.285,
+    -13.198,
+    2.088
+   ],
+   "kind": "point",
+   "color": "#FFD9A8",
+   "intensity_lm": 7609
+  },
+  {
+   "name": "floor_lamp bulb",
+   "room": "lamp",
+   "pos": [
+    5.364,
+    -10.302,
+    1.524
+   ],
+   "kind": "point",
+   "color": "#FFD9A8",
+   "intensity_lm": 9783
+  },
+  {
+   "name": "island_pendant_e bulb",
+   "room": "lamp",
+   "pos": [
+    3.658,
+    -13.533,
+    2.301
+   ],
+   "kind": "point",
+   "color": "#FFD9A8",
+   "intensity_lm": 7609
+  },
+  {
+   "name": "island_pendant_w bulb",
+   "room": "lamp",
+   "pos": [
+    2.438,
+    -13.533,
+    2.301
+   ],
+   "kind": "point",
+   "color": "#FFD9A8",
+   "intensity_lm": 7609
+  },
+  {
+   "name": "lamp1_n bulb",
+   "room": "lamp",
+   "pos": [
+    12.725,
+    -0.777,
+    1.069
+   ],
+   "kind": "point",
+   "color": "#FFD9A8",
+   "intensity_lm": 5435
+  },
+  {
+   "name": "lamp1_s bulb",
+   "room": "lamp",
+   "pos": [
+    12.725,
+    -2.88,
+    1.069
+   ],
+   "kind": "point",
+   "color": "#FFD9A8",
+   "intensity_lm": 5435
+  },
+  {
+   "name": "lamp2 bulb",
+   "room": "lamp",
+   "pos": [
+    2.057,
+    -0.671,
+    1.069
+   ],
+   "kind": "point",
+   "color": "#FFD9A8",
+   "intensity_lm": 5435
+  },
+  {
+   "name": "lamp3 bulb",
+   "room": "lamp",
+   "pos": [
+    3.353,
+    -4.023,
+    1.069
+   ],
+   "kind": "point",
+   "color": "#FFD9A8",
+   "intensity_lm": 5435
+  },
+  {
+   "name": "living_lamp bulb",
+   "room": "lamp",
+   "pos": [
+    9.235,
+    -7.209,
+    0.839
+   ],
+   "kind": "point",
+   "color": "#FFD9A8",
+   "intensity_lm": 5435
+  },
+  {
+   "name": "Wall light E 36.9 bulb",
+   "room": "exterior",
+   "pos": [
+    13.334,
+    -11.247,
+    2.134
+   ],
+   "kind": "point",
+   "color": "#FFD9A8",
+   "intensity_lm": 6522
+  },
+  {
+   "name": "Wall light S 16.9 bulb",
+   "room": "exterior",
+   "pos": [
+    5.151,
+    -16.052,
+    2.621
+   ],
+   "kind": "point",
+   "color": "#FFD9A8",
+   "intensity_lm": 6522
+  },
+  {
+   "name": "Wall light S 30.7 bulb",
+   "room": "exterior",
+   "pos": [
+    9.357,
+    -16.052,
+    2.621
+   ],
+   "kind": "point",
+   "color": "#FFD9A8",
+   "intensity_lm": 6522
+  },
+  {
+   "name": "Wall light W 42.0 bulb",
+   "room": "exterior",
+   "pos": [
+    -0.202,
+    -12.802,
+    2.134
+   ],
+   "kind": "point",
+   "color": "#FFD9A8",
+   "intensity_lm": 6522
+  }
+ ],
+ "zfight": {
+  "before": 1414,
+  "after": 1026
+ },
+ "drive_route_plan_ft": {
+  "edge_fit": [
+   189.1,
+   -0.0449
+  ],
+  "start": [
+   187.0,
+   -331.5
+  ],
+  "turn": [
+   171.0,
+   25.5
+  ],
+  "end": [
+   95.1,
+   55.5
+  ],
+  "width": 14.0,
+  "radius": 30.0
+ },
  "sun_direction": [
   -0.2695,
   -0.7405,
   0.6157
  ],
- "note": "Full model exported from Blender on the laptop, compressed with gltfpack -cc -kn -ke (site with -vpf to keep terrain heights exact, trees instanced)."
+ "note": "Laptop export v13/14, compressed with gltfpack -cc -kn -ke (site with -vpf, trees instanced)."
 }

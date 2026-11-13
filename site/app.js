@@ -124,7 +124,7 @@ const RE_ROOF = /roof|seam|fascia|soffit|gutter|downspout|rafter|ceiling|loft fl
 const RE_NOCOLLIDE = /utilit|geothermal|septic|marker|leaf|leaves|crown|canopy|foliage|curtain|shade|rug|towel|light|lamp|glass pane|^Ground$/i;
 const roofNodes = [], utilNodes = [], farTrees = [];
 const LITE = /[?&]lite\b/.test(location.search);
-let farOn = !LITE && !matchMedia('(pointer: coarse)').matches;   // distant woods are about 13M triangles
+let farOn = !LITE;   // distant trees are cheap now (about 300 triangles each)
 
 const UPPER_CUT = 2.70;                                   // metres: just under the 9 ft first floor ceilings
 const upperPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1e6);   // constant 1e6 = nothing clipped
@@ -151,11 +151,11 @@ function prepare() {
     if (mats.some((m) => m && m.transparent && m.opacity < 0.99)) o.castShadow = false;
     const part = partOf(o);
     if (part && !/^(site|trees)$/i.test(part.name)) for (const m of mats) if (m) m.clippingPlanes = [upperPlane];
-    if (o.isInstancedMesh) {          // instanced trees: drawn only, no collision or picking. Names do not survive gltfpack, so the distant woods are told apart by instance count (hundreds vs. a few dozen near the house)
+    if (o.isInstancedMesh) {          // instanced trees: drawn only, no collision or picking. Names do not survive gltfpack, so the distant woods are told apart by instance count (a hundred or more vs. a few dozen near the house)
       for (const mm of mats) if (mm && mm.transparent) {
         mm.transparent = false; mm.alphaTest = 0.3; mm.depthWrite = true;   // cutout leaves sort and draw far faster
       }
-      if (o.count >= 300) { o.castShadow = false; farTrees.push(o); o.visible = farOn; }
+      if (o.count >= 80) { o.castShadow = false; farTrees.push(o); o.visible = farOn; }
       return;
     }
     let pass = !!o.userData.pass;
@@ -413,7 +413,7 @@ function roomLights() {
   const out = [];
   for (const L of manifest.lights || []) {        // Blender world metres, Z up
     const p = L.pos || [0, 0, 0];
-    out.push({ pos: new THREE.Vector3(p[0], p[2], -p[1]), color: L.color || WARM, cd: Math.min(20, Math.max(4, (L.intensity_lm || 800) / 90)) });
+    out.push({ pos: new THREE.Vector3(p[0], p[2], -p[1]), color: L.color || WARM, cd: Math.min(14, Math.max(3, Math.min(L.intensity_lm || 800, 1600) / (L.room === 'lamp' ? 200 : 110))) });
   }
   if (!out.length) {                              // fallback: one ceiling light per room plus the fixtures in the model
     for (const [k, r] of Object.entries(ROOMS)) if (!/^Outside/.test(k)) out.push({ pos: plan(r[0], r[1], 8.3), color: WARM, cd: 9 });
