@@ -8,8 +8,8 @@ Open the site, then:
 - **N** toggles no clip: fly through walls in the direction you look, Space up, C down.
 - **E** opens and closes whatever you're looking at: doors, the barn doors, the bi-parting slider, the garage doors and drawers.
 - **Orbit mode:** drag to rotate around the site, scroll to zoom. Click a door to open it.
-- **Panel:** jump to any room, take the roof off for a dollhouse view, cut away the loft and attic with Upstairs off, switch between Day and Night (room lights on), show or hide the buried geothermal and septic lines, and hide the distant trees on slow devices.
-- **Slow device?** Add `?lite` to the address to start without shadows or distant trees.
+- **Panel:** jump to any room, take the roof off for a dollhouse view, cut away the loft and attic with Upstairs off, switch between Day and Night (room lights on), show or hide the buried geothermal and septic lines, and thin the trees with the Trees slider on slow devices.
+- **Slow device?** Add `?lite` to the address to start without shadows and with a quarter of the trees.
 - **Phones:** the left stick moves, drag anywhere else to look, tap a door to open it.
 
 ## Layout

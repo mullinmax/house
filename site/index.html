@@ -83,14 +83,14 @@ input[type=range] { flex: 1; accent-color: var(--accent); }
     <button id="tRoof" aria-pressed="false">Roof off</button>
     <button id="tUp" aria-pressed="false" title="Cut the house just under the first floor ceilings, hiding the loft and attic">Upstairs off</button>
     <button id="tUtil" aria-pressed="true">Buried lines</button>
-    <button id="tFar" aria-pressed="true" title="Thousands of trees beyond the lot. Turn off if the view is slow.">Distant trees</button>
   </div>
+  <label>Trees <input id="trees" type="range" min="0" max="100" step="5" value="100"> <span id="treelbl">100%</span></label>
   <div class="row" role="group" aria-label="Time of day">
     <button id="tDay" aria-pressed="true">Day</button>
     <button id="tNight" aria-pressed="false" title="Turn the sun off and the room lights on">Night</button>
   </div>
   <p class="help" id="helpDesk"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move, mouse looks (click the view first), <kbd>Shift</kbd> walks faster, <kbd>N</kbd> toggles no clip (fly through walls, <kbd>Space</kbd> up, <kbd>C</kbd> down),
-    <kbd>E</kbd> opens and closes doors, sliders, garage doors and drawers. <kbd>Esc</kbd> frees the mouse. Slow? Turn off Distant trees, or add <kbd>?lite</kbd> to the address.</p>
+    <kbd>E</kbd> opens and closes doors, sliders, garage doors and drawers. <kbd>Esc</kbd> frees the mouse. Slow? Turn the Trees slider down, or add <kbd>?lite</kbd> to the address.</p>
   <p class="help" id="helpTouch" hidden>Left stick moves, drag anywhere else to look. No clip lets you fly through walls in the direction you look. Tap a door or drawer to open or close it.</p>
 </div>
 

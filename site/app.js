@@ -122,9 +122,9 @@ function loadSky(file) {
 const RE_UTIL = /geothermal|septic|utilit|marker/i;
 const RE_ROOF = /roof|seam|fascia|soffit|gutter|downspout|rafter|ceiling|loft floor|ridge/i;
 const RE_NOCOLLIDE = /utilit|geothermal|septic|marker|leaf|leaves|crown|canopy|foliage|curtain|shade|rug|towel|light|lamp|glass pane|^Ground$/i;
-const roofNodes = [], utilNodes = [], farTrees = [];
+const roofNodes = [], utilNodes = [], treeMeshes = [];
 const LITE = /[?&]lite\b/.test(location.search);
-let farOn = !LITE;   // distant trees are cheap now (about 300 triangles each)
+let treeFrac = LITE ? 0.25 : 1;   // share of trees drawn, from the Trees slider
 
 const UPPER_CUT = 2.70;                                   // metres: just under the 9 ft first floor ceilings
 const upperPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1e6);   // constant 1e6 = nothing clipped
@@ -155,7 +155,8 @@ function prepare() {
       for (const mm of mats) if (mm && mm.transparent) {
         mm.transparent = false; mm.alphaTest = 0.3; mm.depthWrite = true;   // cutout leaves sort and draw far faster
       }
-      if (o.count >= 80) { o.castShadow = false; farTrees.push(o); o.visible = farOn; }
+      if (o.count >= 80) o.castShadow = false;       // distant woods: no shadows
+      shuffleInstances(o); o.userData.fullCount = o.count; treeMeshes.push(o);
       return;
     }
     let pass = !!o.userData.pass;
@@ -173,6 +174,7 @@ function prepare() {
     $('rooms').append(opt);
   }
   setNight(false);
+  setTrees(treeFrac);
   jump(names.includes('Outside_SW') ? 'Outside_SW' : names[0]);
   $('loading').hidden = true;
   if (touch) { $('stick').hidden = false; $('helpDesk').hidden = true; $('helpTouch').hidden = false; }
@@ -388,12 +390,26 @@ $('tUtil').onclick = (e) => {
   e.currentTarget.setAttribute('aria-pressed', on);
   for (const o of utilNodes) o.visible = on;
 };
-$('tFar').setAttribute('aria-pressed', farOn);
-$('tFar').onclick = (e) => {
-  farOn = e.currentTarget.getAttribute('aria-pressed') !== 'true';
-  e.currentTarget.setAttribute('aria-pressed', farOn);
-  for (const o of farTrees) o.visible = farOn;
-};
+// Trees slider: draw a share of every species. Instances are shuffled once with the same seed for meshes
+// of equal count, so a tree's bark and leaves stay together and thinning is spread evenly.
+function shuffleInstances(o) {
+  const n = o.count, m = new THREE.Matrix4(), t = new THREE.Matrix4();
+  let seed = 1234567 + n;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) >>> 0) / 4294967296);
+  for (let i = n - 1; i > 0; i--) {
+    const j = Math.floor(rnd() * (i + 1));
+    o.getMatrixAt(i, m); o.getMatrixAt(j, t); o.setMatrixAt(i, t); o.setMatrixAt(j, m);
+  }
+  o.instanceMatrix.needsUpdate = true;
+}
+function setTrees(frac) {
+  treeFrac = frac;
+  for (const o of treeMeshes) { o.count = Math.round(o.userData.fullCount * frac); o.visible = o.count > 0; }
+  $('treelbl').textContent = `${Math.round(frac * 100)}%`;
+  shadowDirty = true;
+}
+$('trees').value = Math.round(treeFrac * 100);
+$('trees').oninput = (e) => setTrees(parseInt(e.target.value, 10) / 100);
 if (LITE) renderer.shadowMap.enabled = false;
 $('tUp').onclick = (e) => {
   const off = e.currentTarget.getAttribute('aria-pressed') !== 'true';
