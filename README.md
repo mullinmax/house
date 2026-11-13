@@ -5,6 +5,7 @@ An interactive, walkable 3D model of the house, built from the parametric Blende
 Open the site, then:
 
 - **Walk mode:** click the view, then use W A S D to move and the mouse to look. Hold Shift to go faster. Esc frees the mouse.
+- **N** toggles no clip: fly through walls in the direction you look, Space up, C down.
 - **E** opens and closes whatever you're looking at: doors, the barn doors, the bi-parting slider, the garage doors and drawers.
 - **Orbit mode:** drag to rotate around the site, scroll to zoom. Click a door to open it.
 - **Panel:** jump to any room, take the roof off for a dollhouse view, show or hide the buried geothermal and septic lines, and move the sun.
@@ -26,6 +27,16 @@ Open the site, then:
   - Pivots sit at the hinge or track.
 - **Spawn points:** `Spawn_<Room>` empty nodes, at eye height, are spawn points. An optional `look` extra gives the Blender world point to face.
 - **Toggles:** nodes named `Roof` or matching roof, fascia, gutter and ceiling names hide with "Roof off". Nodes named `Utilities` or matching geothermal or septic names follow "Buried lines".
+
+## Draft export (cloud)
+
+`tools/export_web_draft.py` builds the model with pip `bpy` and writes `site/models/house.glb`.
+- It closes every door and wires them up as operable.
+- It bakes the stained concrete floor with its diamond saw cuts. Other materials are flat colors.
+
+To run it:
+
+    python tools/export_web_draft.py --model /path/to/house-model --out site/models --gltfpack /path/to/gltfpack
 
 ## Run locally
 

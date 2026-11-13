@@ -21,7 +21,7 @@ const plan = (x, y, z = 0) => new THREE.Vector3(x * F, z * F, y * F);
 
 // Fallback room spawns in plan feet [x, y, look x, look y], used when the model has no Spawn_<Room> nodes.
 const ROOMS = {
-  Kitchen: [9, 39.5, 8, 48], Living: [24, 30, 24, 18], Dining: [30, 44, 10, 44], Bed1: [37, 14, 37, 4],
+  Kitchen: [9, 39.5, 8, 48], Living: [19, 29, 31, 27], Dining: [30, 44, 10, 44], Bed1: [37, 14, 37, 4],
   Bed2: [8, 7, 11, 1], Bed3: [8, 17, 1, 17], Bath1: [36, 27, 36, 32], Bath2: [19, 7, 19, 2],
   Garage: [79, 30, 79, 18], Outside_SW: [-35, 95, 21, 26],
 };
@@ -203,7 +203,7 @@ function toggle(op) { if (op) op.target = op.target ? 0 : 1; }
 
 // ---------------------------------------------------------------- camera modes
 let mode = 'walk';
-let lastRoom = null, jumping = false;
+let lastRoom = null, jumping = false, noclip = false;
 const look = new PointerLockControls(camera, renderer.domElement);
 const orbit = new OrbitControls(camera, renderer.domElement);
 orbit.enabled = false; orbit.enableDamping = true; orbit.maxPolarAngle = Math.PI * 0.495;
@@ -247,7 +247,7 @@ function jump(name) {
   const feet = groundAt(pos, /^Outside/i.test(name) ? 300 : STEP + EYE);
   pos.y = feet + EYE; at.y = pos.y;
   camera.position.copy(pos); camera.lookAt(at);
-  vel.set(0, 0, 0);
+  vel.set(0, 0, 0); if (noclip) setNoclip(false);
 }
 $('rooms').onchange = (e) => { jump(e.target.value); e.target.value = ''; e.target.blur(); };
 
@@ -301,7 +301,33 @@ function blocked(origin, dir, dist) {
   return null;
 }
 
+function setNoclip(on) {
+  noclip = on; $('tClip').setAttribute('aria-pressed', on); vy = 0;
+  if (!on) {   // land on whatever is below
+    const g = groundAt(camera.position, STEP + EYE); camera.position.y = Math.max(camera.position.y, g + EYE);
+  }
+}
+$('tClip').onclick = () => { if (mode !== 'walk') setMode('walk'); setNoclip(!noclip); };
+
+function fly(dt) {
+  const fwd = new THREE.Vector3(); camera.getWorldDirection(fwd);
+  const right = new THREE.Vector3().crossVectors(fwd, camera.up).normalize();
+  const want = new THREE.Vector3();
+  if (keys.has('KeyW') || keys.has('ArrowUp')) want.add(fwd);
+  if (keys.has('KeyS') || keys.has('ArrowDown')) want.sub(fwd);
+  if (keys.has('KeyD') || keys.has('ArrowRight')) want.add(right);
+  if (keys.has('KeyA') || keys.has('ArrowLeft')) want.sub(right);
+  if (keys.has('Space')) want.y += 1;
+  if (keys.has('KeyC') || keys.has('ControlLeft')) want.y -= 1;
+  want.addScaledVector(fwd, -stick.y).addScaledVector(right, stick.x);
+  if (want.lengthSq() > 1) want.normalize();
+  const speed = (keys.has('ShiftLeft') || keys.has('ShiftRight') ? 12 : 4);
+  vel.lerp(want.multiplyScalar(speed), Math.min(1, dt * 8));
+  camera.position.addScaledVector(vel, dt);
+}
+
 function walk(dt) {
+  if (noclip) return fly(dt);
   const fwd = new THREE.Vector3(); camera.getWorldDirection(fwd); fwd.y = 0; fwd.normalize();
   const right = new THREE.Vector3().crossVectors(fwd, camera.up).normalize();
   const want = new THREE.Vector3();
@@ -338,6 +364,8 @@ addEventListener('keydown', (e) => {
   if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
   keys.add(e.code);
   if (e.code === 'KeyE') toggle(opAt(center));
+  if (e.code === 'KeyN') { if (mode !== 'walk') setMode('walk'); setNoclip(!noclip); }
+  if (e.code === 'Space') e.preventDefault();
 });
 addEventListener('keyup', (e) => keys.delete(e.code));
 addEventListener('blur', () => keys.clear());
@@ -415,4 +443,4 @@ renderer.setAnimationLoop(() => {
 });
 
 loadAll().catch((e) => { console.error(e); $('loadmsg').textContent = 'The model could not be loaded.'; });
-window.__B = THREE.Box3; window.__walk = { scene, camera, jump, setMode, operables, colliders, toggle, opAt };
+window.__B = THREE.Box3; window.__walk = { scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };
