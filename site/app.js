@@ -28,9 +28,13 @@ const ROOMS = {
 const ROOM_LABELS = { Bed1: 'Bedroom 1', Bed2: 'Bedroom 2', Bed3: 'Bedroom 3', Bath1: 'Bath 1', Bath2: 'Bath 2', Outside_SW: 'Outside, southwest' };
 
 // ---------------------------------------------------------------- renderer, scene
-// logarithmic depth keeps thin parts (cooktops, wall lights on siding) from flickering through what they sit on
-const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance', logarithmicDepthBuffer: true });
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+// No logarithmic depth: it writes depth per pixel, which turns off the GPU's early depth test and made every
+// hidden surface cost full shading. The model's coplanar faces are nudged apart instead, and a 0.15 m near
+// plane keeps enough depth precision. MSAA only where the screen isn't already high density.
+const renderer = new THREE.WebGLRenderer({ antialias: window.devicePixelRatio < 1.5, powerPreference: 'high-performance' });
+const MAX_DPR = Math.min(window.devicePixelRatio, 1.5);
+let dpr = MAX_DPR;
+renderer.setPixelRatio(dpr);
 renderer.localClippingEnabled = true;
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
@@ -44,7 +48,7 @@ document.body.prepend(renderer.domElement);
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xbfd3e6);
 scene.fog = new THREE.Fog(0xcbd9e6, 250, 1400);
-const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 3000);
+const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.15, 2500);
 
 const hemi = new THREE.HemisphereLight(0xdfe8f2, 0x6d6450, 1.1);
 scene.add(hemi);
@@ -84,28 +88,54 @@ function progress(frac, msg) {
   if (msg) $('loadmsg').textContent = msg;
 }
 
+// The house (shell, interior, site) loads first so you can start walking; furniture and trees stream in
+// behind it and are prepared one part per idle moment, so the first frame is not held up by them.
+const LATER = /^(furniture|trees)/i;
 async function loadAll() {
   const man = await getManifest();
   manifest = man;
   const parts = man.parts || [];
   const sizes = parts.map((p) => p.bytes || 1);
-  const total = sizes.reduce((a, b) => a + b, 0);
   const got = new Array(parts.length).fill(0);
-  const upd = (msg) => progress(got.reduce((a, b) => a + b, 0) / total, msg);
+  const isLater = parts.map((p) => LATER.test(p.name || p.file) && parts.some((q) => !LATER.test(q.name || q.file)));
+  const firstTotal = sizes.reduce((a, b, i) => a + (isLater[i] ? 0 : b), 0);
+  const upd = (msg) => progress(Math.min(1, got.reduce((a, b, i) => a + (isLater[i] ? 0 : b), 0) / firstTotal), msg);
   if (man.sky) loadSky(man.sky);
   if (man.sun_direction) {          // Blender world direction toward the sun, Z up
     const [x, y, z] = man.sun_direction; sunDir = new THREE.Vector3(x, z, -y).normalize();
   }
-  await Promise.all(parts.map((p, i) => new Promise((resolve) => {
+  let ready = false;
+  const queue = [];
+  const loads = parts.map((p, i) => new Promise((resolve) => {
     loader.load(`models/${p.file}`, (g) => {
       g.scene.name = p.name || p.file;
-      world.add(g.scene);
-      got[i] = sizes[i]; upd(`Loaded ${p.file}`);
+      got[i] = sizes[i];
+      if (isLater[i]) { queue.push(g.scene); if (ready) drain(); }
+      else { world.add(g.scene); upd(`Loaded ${p.file}`); }
       resolve();
-    }, (e) => { if (e.total) { got[i] = sizes[i] * e.loaded / e.total; upd(`Loading ${p.file}`); } },
+    }, (e) => { if (e.total) { got[i] = sizes[i] * e.loaded / e.total; if (!isLater[i]) upd(`Loading ${p.file}`); } },
     (err) => { console.warn('failed', p.file, err); got[i] = sizes[i]; upd(`Could not load ${p.file}`); resolve(); });
-  })));
-  prepare();
+  }));
+  await Promise.all(loads.filter((_, i) => !isLater[i]));
+  prepare([...world.children], true);
+  ready = true;
+  let busy = false;
+  const idle = window.requestIdleCallback || ((f) => setTimeout(f, 30));
+  function drain() {
+    if (busy || !queue.length) return;
+    busy = true;
+    idle(() => {
+      const root = queue.shift();
+      world.add(root);
+      prepare([root], false);
+      busy = false; drain();
+    }, { timeout: 500 });
+  }
+  drain();
+  await Promise.all(loads);
+  await new Promise((r) => { const t = setInterval(() => { if (!queue.length && !busy) { clearInterval(t); r(); } }, 100); });
+  window.__allLoaded = true;
+  console.log(`all parts in: ${colliders.length} colliders, ${operables.length} operable`);
 }
 
 function loadSky(file) {
@@ -130,10 +160,11 @@ const UPPER_CUT = 2.70;                                   // metres: just under 
 const upperPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1e6);   // constant 1e6 = nothing clipped
 const nightFixtures = [];
 
-function prepare() {
-  world.updateMatrixWorld(true);
+function prepare(roots, first) {
+  for (const r of roots) r.updateMatrixWorld(true);
   const roofSet = new Set(), utilSet = new Set(), opRoots = new Set();
-  world.traverse((o) => {
+  const nFix = nightFixtures.length;
+  for (const r of roots) r.traverse((o) => {
     const n = o.name || '';
     if (/^Spawn_/i.test(n)) { spawns[n.slice(6)] = o; return; }
     if (o.userData && o.userData.operable) { operables.push(makeOperable(o)); opRoots.add(o); }
@@ -141,10 +172,10 @@ function prepare() {
     if (o !== world && o.parent !== world && (n === 'Utilities' || RE_UTIL.test(n))) { utilNodes.push(o); utilSet.add(o); }
     if ((o.userData && o.userData.emissive_night) || RE_FIXTURE.test(n)) nightFixtures.push(o);
   });
-  const merged = mergeStatic(roofSet, utilSet, opRoots);
-  world.updateMatrixWorld(true);
-  world.traverse((o) => {
-    if (o !== world) o.matrixAutoUpdate = false;           // nothing static moves; operables update their own matrix
+  const merged = mergeStatic(roots, roofSet, utilSet, opRoots, nightFixtures.slice(nFix));
+  for (const r of roots) r.updateMatrixWorld(true);
+  for (const r of roots) r.traverse((o) => {
+    o.matrixAutoUpdate = false;           // nothing static moves; operables update their own matrix
     if (!o.isMesh) return;
     o.castShadow = true; o.receiveShadow = true;
     const mats = [].concat(o.material);
@@ -166,7 +197,14 @@ function prepare() {
     pickables.push(o);
     if (!pass) colliders.push(o);
   });
-  console.log(`merged static meshes into ${merged} draw groups`);
+  console.log(`${roots.map((r) => r.name).join(', ')}: merged static meshes into ${merged} draw groups`);
+  applyToggles();
+  shadowDirty = true;
+  if (!first) {                       // a part that streamed in after the house: match the current settings
+    if (roots.some((r) => /^trees/i.test(r.name))) setTrees(treeFrac);
+    if (night && nightFixtures.length > nFix) setFixtureGlow(true);
+    return;
+  }
   // room list
   const names = [...new Set([...Object.keys(ROOMS), ...Object.keys(spawns)])];
   for (const k of names) {
@@ -189,10 +227,10 @@ function prepare() {
 const RE_FIXTURE = /pendant|lamp|sconce|wall_light|ceiling_light|fixture|can_light|bulb/i;
 function partOf(o) { let p = o; while (p && p.parent && p.parent !== world) p = p.parent; return p && p.parent === world ? p : null; }
 
-function mergeStatic(roofSet, utilSet, opRoots) {
+function mergeStatic(roots, roofSet, utilSet, opRoots, fixtures) {
   const buckets = new Map();
-  const fixtureSet = new Set(nightFixtures);
-  world.traverse((o) => {
+  const fixtureSet = new Set(fixtures);
+  for (const r of roots) r.traverse((o) => {
     if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || Array.isArray(o.material)) return;
     if (o.geometry.morphAttributes && Object.keys(o.geometry.morphAttributes).length) return;
     if (o.material.vertexColors) return;
@@ -379,17 +417,14 @@ function jump(name) {
 $('rooms').onchange = (e) => { jump(e.target.value); e.target.value = ''; e.target.blur(); };
 
 // ---------------------------------------------------------------- toggles
-$('tRoof').onclick = (e) => {
-  const off = e.currentTarget.getAttribute('aria-pressed') !== 'true';
-  e.currentTarget.setAttribute('aria-pressed', off);
-  for (const o of roofNodes) o.visible = !off;
+function applyToggles() {
+  const roofOff = $('tRoof').getAttribute('aria-pressed') === 'true', utilOn = $('tUtil').getAttribute('aria-pressed') === 'true';
+  for (const o of roofNodes) o.visible = !roofOff;
+  for (const o of utilNodes) o.visible = utilOn;
   shadowDirty = true;
-};
-$('tUtil').onclick = (e) => {
-  const on = e.currentTarget.getAttribute('aria-pressed') !== 'true';
-  e.currentTarget.setAttribute('aria-pressed', on);
-  for (const o of utilNodes) o.visible = on;
-};
+}
+$('tRoof').onclick = (e) => { e.currentTarget.setAttribute('aria-pressed', e.currentTarget.getAttribute('aria-pressed') !== 'true'); applyToggles(); };
+$('tUtil').onclick = (e) => { e.currentTarget.setAttribute('aria-pressed', e.currentTarget.getAttribute('aria-pressed') !== 'true'); applyToggles(); };
 // Trees slider: draw a share of every species. Instances are shuffled once with the same seed for meshes
 // of equal count, so a tree's bark and leaves stay together and thinning is spread evenly.
 function shuffleInstances(o) {
@@ -419,7 +454,7 @@ $('tUp').onclick = (e) => {
 };
 
 // ---------------------------------------------------------------- day / night
-const NIGHT_POOL = 8;               // the nearest room lights are lit; a fixed count avoids shader rebuilds while walking
+const NIGHT_POOL = 6;               // the nearest room lights are lit; a fixed count avoids shader rebuilds while walking
 const pool = [];
 let lightSpots = null;
 const WARM = 0xffd6a0;
@@ -641,8 +676,20 @@ addEventListener('resize', () => {
 const clock = new THREE.Clock();
 let promptFrame = 0;
 const snap = new THREE.Vector3(), lastSnap = new THREE.Vector3(1e9, 0, 0);
+// adaptive resolution: drop the render scale when frames run long, raise it back when there's headroom
+let frameAcc = 0, frameN = 0;
+function adaptResolution(raw) {
+  frameAcc += raw; frameN++;
+  if (frameAcc < 1.0) return;
+  const ms = (frameAcc / frameN) * 1000; frameAcc = 0; frameN = 0;
+  let next = dpr;
+  if (ms > 24) next = Math.max(0.6, dpr - 0.15);
+  else if (ms < 13) next = Math.min(MAX_DPR, dpr + 0.1);
+  if (Math.abs(next - dpr) > 0.01) { dpr = next; renderer.setPixelRatio(dpr); renderer.setSize(innerWidth, innerHeight); }
+}
 renderer.setAnimationLoop(() => {
   const raw = clock.getDelta(), dt = Math.min(raw, 0.05);
+  if (!document.hidden) adaptResolution(raw);
   if (mode === 'walk' && colliders.length) walk(dt); else orbit.update();
   for (const op of operables) {
     if (op.t !== op.target) { op.t = op.target > op.t ? Math.min(1, op.t + raw / 0.4) : Math.max(0, op.t - raw / 0.4); applyOp(op); }
@@ -667,4 +714,4 @@ renderer.setAnimationLoop(() => {
 });
 
 loadAll().catch((e) => { console.error(e); $('loadmsg').textContent = 'The model could not be loaded.'; });
-window.__B = THREE.Box3; window.__T = THREE; window.__walk = { setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };
+window.__B = THREE.Box3; window.__T = THREE; window.__walk = { getDpr: () => dpr, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };
