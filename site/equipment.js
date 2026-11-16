@@ -184,7 +184,7 @@ const BUILD = {
     box(g, dia + 4, 2, dia + 4, galv(), 0, 1, r + 2);                                       // 2" drain pan (U-11 detail)
     cyl(g, r, h - 14, white(), 0, 2 + (h - 14) / 2, r + 2, 'y', 40);                         // tank
     cyl(g, r + 0.3, 12, greyPlastic(), 0, h - 6, r + 2, 'y', 40);                            // heat pump section
-    cyl(g, r - 1.5, 0.6, darkPlastic(), 0, h - 0.3, r + 2, 'y', 40);                         // top grille
+    cyl(g, r - 1.5, 0.6, darkPlastic(), 0, h + 0.1, r + 2, 'y', 40);                         // top grille, standing proud of the cap (a shared top face flickered)
     box(g, 6, 3.5, 0.6, darkPlastic(), 0, h - 9, dia + 2.2);                                 // display
     for (const [x, m] of [[-5.5, blue()], [5.5, red()]]) {                                   // cold in, hot out
       cyl(g, 0.55, 30, m === blue() ? copper() : copper(), x, h + 15, r + 2);
@@ -329,9 +329,10 @@ export function cullBaked(roots, items) {
   }
   if (!boxes.length) return 0;
   let dropped = 0;
+  const emptied = [];
   const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), ctr = new THREE.Vector3();
   for (const r of roots) r.traverse((o) => {
-    if (!o.isMesh || o.isInstancedMesh || Array.isArray(o.material)) return;
+    if (!o.isMesh || o.isInstancedMesh || Array.isArray(o.material) || o.userData.house) return;
     const mn = o.material.name || '';
     const hits = boxes.filter((bx) => bx.mats.has(mn));
     if (!hits.length) return;
@@ -351,9 +352,11 @@ export function cullBaked(roots, items) {
       keep.push(ia, ib, ic);
     }
     if (keep.length === n) return;
+    if (!keep.length) { emptied.push(o); return; }           // nothing left of it
     g.setIndex(keep);
     g.computeBoundingBox(); g.computeBoundingSphere();
   });
+  for (const o of emptied) o.removeFromParent();
   return dropped;
 }
 
@@ -368,17 +371,22 @@ function buildTrusses(t) {
   const D = t.depth_in / 12, CH = 1.5 / 12, CW = 3.5 / 12, sp = t.spacing_in / 12, z0 = t.z0;
   const push = (geo, m4) => { geo.applyMatrix4(m4); geos.push(geo); };
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), one = new THREE.Vector3(1, 1, 1);
-  for (const [x0, y0, x1, y1] of [...t.regions, ...(t.loft_regions || [])]) {
+  // Held just inside each region and above the ceiling drywall, so no truss face lands on a wall, the ceiling or the
+  // loft edge (coplanar faces showed the chords and webs through the drywall).
+  const E = 0.05, zb = 0.07, zt = 0.01;
+  for (const [rx0, ry0, rx1, ry1] of [...t.regions, ...(t.loft_regions || [])]) {
+    const x0 = rx0 + E, x1 = rx1 - E, y0 = ry0 + E, y1 = ry1 - E;
     const n = Math.max(1, Math.round((x1 - x0) / sp)), L = y1 - y0;
     for (let i = 0; i <= n; i++) {
       const x = Math.min(x1 - CW / 2, Math.max(x0 + CW / 2, x0 + i * (x1 - x0) / n));
-      for (const zc of [z0 + CH / 2, z0 + D - CH / 2]) {                         // bottom and top chords
+      for (const zc of [z0 + zb + CH / 2, z0 + D - zt - CH / 2]) {                         // bottom and top chords
         m4.makeTranslation(...plan(x, y0 + L / 2, zc).toArray());
         push(new THREE.BoxGeometry(CW * F, CH * F, L * F), m4.clone());
       }
       const panels = Math.max(2, Math.round(L / (D * 1.5))), pl = L / panels;     // webs zigzag between the chords
       for (let k = 0; k < panels; k++) {
-        const a = plan(x, y0 + k * pl, k % 2 ? z0 + D - CH : z0 + CH), b = plan(x, y0 + (k + 1) * pl, k % 2 ? z0 + CH : z0 + D - CH);
+        const lo = z0 + zb + CH, hi = z0 + D - zt - CH;
+        const a = plan(x, y0 + k * pl, k % 2 ? hi : lo), b = plan(x, y0 + (k + 1) * pl, k % 2 ? lo : hi);
         const d = b.clone().sub(a), len = d.length();
         q.setFromUnitVectors(new THREE.Vector3(0, 0, 1), d.clone().normalize());
         m4.compose(a.clone().addScaledVector(d, 0.5), q, one);
@@ -395,13 +403,13 @@ function buildTrusses(t) {
     m4.makeTranslation(...plan((x0 + x1) / 2, (y0 + y1) / 2, z0 + D + dt / 2).toArray());
     const geo = new THREE.BoxGeometry((x1 - x0) * F, dt * F, (y1 - y0) * F); geo.applyMatrix4(m4); decks.push(geo);
   }
-  if (decks.length) { const me = new THREE.Mesh(mergeGeometries(decks), deckM); me.name = 'Attic deck on trusses'; me.userData.equipId = t.id; g.add(me); }
+  if (decks.length) { const me = new THREE.Mesh(mergeGeometries(decks), deckM); me.name = 'Attic deck on trusses'; me.userData.equipId = t.id; me.userData.deckOverlay = true; g.add(me); }
   const lofts = [];                                                   // the loft's finished floor rides up with its trusses
   for (const [x0, y0, x1, y1] of t.loft_regions || []) {
     m4.makeTranslation(...plan((x0 + x1) / 2, (y0 + y1) / 2, z0 + D + dt / 2).toArray());
     const geo = new THREE.BoxGeometry((x1 - x0) * F, dt * F, (y1 - y0) * F); geo.applyMatrix4(m4); lofts.push(geo);
   }
-  if (lofts.length) { const me = new THREE.Mesh(mergeGeometries(lofts), mat('loft floor oak', 0xc8a57a, 0.6)); me.name = 'Loft floor on trusses'; me.userData.equipId = t.id; g.add(me); }
+  if (lofts.length) { const me = new THREE.Mesh(mergeGeometries(lofts), mat('loft floor oak', 0xc8a57a, 0.6)); me.name = 'Loft floor on trusses'; me.userData.equipId = t.id; me.userData.deckOverlay = true; g.add(me); }
   return g;
 }
 

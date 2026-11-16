@@ -1,5 +1,8 @@
-// House walkthrough: three.js viewer for the parametric Blender model.
-// Model parts and options come from models/manifest.json (written by export_web.py).
+// House walkthrough: three.js viewer for the parametric house model.
+// The house is built in the browser from models/house.json (model/make_house.py) and the equipment from
+// models/equipment.json (model/make_equipment.py). Terrain, trees and furniture are .glb parts listed in
+// models/manifest.json, last exported from the archived Blender model. Add ?baked to the address to load the old
+// Blender shell.glb and interior.glb instead of the generated house, for comparison.
 // Units are metres, glTF Y up. Plan feet (x east, y south from the NW slab corner) map to (x*F, z, y*F).
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -8,13 +11,17 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { buildEquipment, cullBaked, setDuctXray, infoHTML, equipMaterials } from './equipment.js';
+import { buildHouse, houseRecordAt } from './house.js';
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
 const F = 0.3048;
-const EYE = 5.33 * F;          // 5'-4" eye height
+const EYE = 5.58 * F;          // 5'-7" eyes, a 5'-10" person (Maxwell, 11/16/2026)
+const CROUCH = 3.2 * F;        // eye height crouched (C)
+const DUCK_MIN = 2.4 * F;      // lowest the eyes go when ducking under a sloped roof
+const HEAD = 0.35 * F;         // top of the head above the eyes
 const RADIUS = 0.9 * F;        // body radius for wall collision
 const STEP = 1.2 * F;          // tallest step you can walk up
 const REACH = 6 * F;           // how far E reaches
@@ -103,11 +110,33 @@ async function getEquipment() {
   return null;
 }
 
+// The house: walls, roof, windows, doors, cabinets, trim, loft, garage and porch, from models/house.json.
+// It replaces the Blender shell.glb and interior.glb, which ?baked brings back.
+const BAKED = /[?&]baked\b/.test(location.search);
+const HOUSE_PARTS = /^(shell|interior)$/i;
+let house = null, houseMeta = {}, houseSpawns = {};
+async function getHouse() {
+  if (BAKED) return null;
+  try {
+    const r = await fetch('models/house.json', { cache: 'no-cache' });
+    if (r.ok) return await r.json();
+  } catch (e) { /* fall back to the baked parts */ }
+  return null;
+}
+
 async function loadAll() {
-  const [man, eq] = await Promise.all([getManifest(), getEquipment()]);
+  const [man, eq, hd] = await Promise.all([getManifest(), getEquipment(), getHouse()]);
   manifest = man; equipData = eq;
   setupSlice();
-  const parts = man.parts || [];
+  let parts = man.parts || [];
+  if (hd) {
+    const skip = new Set((eq && eq.items || []).map((it) => it.id));      // appliances the equipment layer draws for real
+    house = buildHouse(hd, { skip });
+    houseMeta = hd.meta || {}; houseSpawns = hd.spawns || {};
+    world.add(house.root);
+    parts = parts.filter((p) => !HOUSE_PARTS.test(p.name || p.file.replace(/\.glb$/, '')));
+    console.log(`house: ${house.recs.length} records built from house.json`);
+  }
   const sizes = parts.map((p) => p.bytes || 1);
   const got = new Array(parts.length).fill(0);
   const isLater = parts.map((p) => LATER.test(p.name || p.file) && parts.some((q) => !LATER.test(q.name || q.file)));
@@ -167,13 +196,36 @@ const RE_ROOF = /roof|seam|fascia|soffit|gutter|downspout|rafter|ceiling|loft fl
 const RE_NOCOLLIDE = /utilit|geothermal|septic|marker|leaf|leaves|crown|canopy|foliage|curtain|shade|rug|towel|light|lamp|glass pane|^Ground$/i;
 const roofNodes = [], utilNodes = [], treeMeshes = [];
 const LITE = /[?&]lite\b/.test(location.search);
-let treeFrac = LITE ? 0.25 : 1;   // share of trees drawn, from the Trees slider
 
 const upperPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1e6);   // the slice: everything above it is cut away. 1e6 = nothing clipped
 const houseMats = new Set(), furnitureMeshes = [], bakedDeck = [];
 const nightFixtures = [];
 
+// house.json says what of the baked export the generated house replaces: furniture now built in the browser
+// (by name, or by box for pieces merged into per material meshes), pieces that only moved, and a stray site pad.
+function applyHouseEdits(roots) {
+  const gone = new Set(houseMeta.replace_nodes || []), moves = houseMeta.move_nodes || {};
+  for (const r of roots) {
+    if (!/^(furniture|site)/i.test(r.name)) continue;
+    const drop = [];
+    r.traverse((o) => {
+      if (gone.has(o.name)) drop.push(o);
+      const mv = moves[o.name];
+      if (mv && !o.userData._moved) {
+        o.userData._moved = true;
+        o.position.x += mv[0] * F; o.position.z += mv[1] * F;
+        if (mv[2]) o.rotateY(THREE.MathUtils.degToRad(mv[2]));
+      }
+    });
+    for (const o of drop) o.removeFromParent();
+    r.updateMatrixWorld(true);
+    const culls = (houseMeta.cull || []).filter((c) => new RegExp('^' + (c.parts || 'furniture'), 'i').test(r.name));
+    if (culls.length) cullBaked([r], [{ cull: culls }]);
+  }
+}
+
 function prepare(roots, first) {
+  if (house) applyHouseEdits(roots);
   for (const r of roots) r.updateMatrixWorld(true);
   const roofSet = new Set(), utilSet = new Set(), opRoots = new Set();
   const nFix = nightFixtures.length;
@@ -196,14 +248,14 @@ function prepare(roots, first) {
     if (mats.some((m) => m && m.transparent && m.opacity < 0.99)) o.castShadow = false;
     const part = partOf(o);
     if (part && !/^(site|trees)$/i.test(part.name)) for (const m of mats) if (m) { m.clippingPlanes = [upperPlane]; m.clipShadows = true; houseMats.add(m); }
-    if (part && /^furniture/i.test(part.name)) furnitureMeshes.push(o);
+    if ((part && /^furniture/i.test(part.name)) || o.userData.layer === 'furniture') furnitureMeshes.push(o);
     if (!o.isInstancedMesh && mats[0] && mats[0].name === 'Attic Deck') bakedDeck.push(o);
     if (o.isInstancedMesh) {          // instanced trees: drawn only, no collision or picking. Names do not survive gltfpack, so the distant woods are told apart by instance count (a hundred or more vs. a few dozen near the house)
       for (const mm of mats) if (mm && mm.transparent) {
         mm.transparent = false; mm.alphaTest = 0.3; mm.depthWrite = true;   // cutout leaves sort and draw far faster
       }
       if (o.count >= 80) o.castShadow = false;       // distant woods: no shadows
-      shuffleInstances(o); o.userData.fullCount = o.count; treeMeshes.push(o);
+      o.userData.fullCount = o.count; treeMeshes.push(o);
       return;
     }
     let pass = !!o.userData.pass;
@@ -217,22 +269,16 @@ function prepare(roots, first) {
   applyToggles();
   shadowDirty = true;
   if (!first) {                       // a part that streamed in after the house: match the current settings
-    if (roots.some((r) => /^trees/i.test(r.name))) setTrees(treeFrac);
     if (night && nightFixtures.length > nFix) setFixtureGlow(true);
     return;
   }
-  // room list
   const names = [...new Set([...Object.keys(ROOMS), ...Object.keys(spawns)])];
-  for (const k of names) {
-    const opt = document.createElement('option'); opt.value = k; opt.textContent = ROOM_LABELS[k] || k.replace(/_/g, ' ');
-    $('rooms').append(opt);
-  }
   setNight(false);
-  setTrees(treeFrac);
   addEquipment();
-  jump(names.includes('Outside_SW') ? 'Outside_SW' : names[0]);
+  lastRoom = names.includes('Outside_SW') ? 'Outside_SW' : names[0];
+  setMode('orbit');
   $('loading').hidden = true;
-  if (touch) { $('stick').hidden = false; $('helpDesk').hidden = true; $('helpTouch').hidden = false; }
+  if (touch) $('stick').hidden = mode !== 'walk';
   else if (mode === 'walk') $('hint').hidden = false;
   $('cross').hidden = mode !== 'walk';
   console.log(`walkthrough ready: ${colliders.length} colliders, ${operables.length} operable, ${Object.keys(spawns).length} spawns`);
@@ -250,7 +296,7 @@ function mergeStatic(roots, roofSet, utilSet, opRoots, fixtures) {
   for (const r of roots) r.traverse((o) => {
     if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || Array.isArray(o.material)) return;
     if (o.geometry.morphAttributes && Object.keys(o.geometry.morphAttributes).length) return;
-    if (o.material.vertexColors) return;
+    if (o.material.vertexColors || o.userData.house) return;   // generated house meshes keep their record ranges
     let tag = '', pass = false;
     for (let p = o; p && p !== world; p = p.parent) {
       if (opRoots.has(p) || fixtureSet.has(p)) return;    // moving parts and night fixtures stay separate
@@ -385,7 +431,10 @@ function targetAt(ndc) {
     const u = h.object.userData;
     if (!solid) for (let p = h.object; p; p = p.parent) if (p.userData && p.userData._op) return (mode !== 'walk' || h.distance <= REACH) ? { op: p.userData._op } : null;
     if (u.equipId && equip && equip.byId[u.equipId] && (!solid || ghost || (xray && u.duct))) return { equip: equip.byId[u.equipId] };
-    if (!u.pass) { if (!ghost && !xray) return null; solid = true; }
+    if (!u.pass) {
+      if (!ghost && !xray) { const rec = houseRecordAt(h, house); return rec ? { equip: rec, house: true } : null; }
+      solid = true;
+    }
   }
   return null;
 }
@@ -394,7 +443,7 @@ function act(ndc) { const t = targetAt(ndc); if (!t) return; if (t.op) toggle(t.
 function toggle(op) { if (op) op.target = op.target ? 0 : 1; }
 
 // ---------------------------------------------------------------- camera modes
-let mode = 'walk';
+let mode = 'orbit';             // orbit by default (Maxwell, 11/16/2026); Walk is a button away
 let lastRoom = null, jumping = false, noclip = false;
 const look = new PointerLockControls(camera, renderer.domElement);
 const orbit = new OrbitControls(camera, renderer.domElement);
@@ -407,9 +456,9 @@ function setMode(m) {
   orbit.enabled = m === 'orbit';
   $('cross').hidden = m !== 'walk'; $('stick').hidden = !(touch && m === 'walk');
   $('hint').hidden = !(m === 'walk' && !touch && !look.isLocked);
+  $('tCrouch').hidden = m !== 'walk';
   if (m === 'orbit') {
     if (look.isLocked) look.unlock();
-    const dir = new THREE.Vector3(); camera.getWorldDirection(dir);
     orbit.target.copy(plan(21.5, 26, 4));
     if (camera.position.distanceTo(orbit.target) < 15) camera.position.copy(plan(-60, 110, 70));
     orbit.update();
@@ -435,41 +484,48 @@ function jump(name) {
     const r = ROOMS[name]; pos = plan(r[0], r[1]); at = plan(r[2], r[3]);
   } else return;
   if (mode !== 'walk') { jumping = true; setMode('walk'); jumping = false; }
-  if (!s) pos.y = EYE;
-  const feet = groundAt(pos, /^Outside/i.test(name) ? 300 : STEP + EYE);
-  pos.y = feet + EYE; at.y = pos.y;
+  eyeH = crouch ? CROUCH : EYE;
+  if (!s) pos.y = EYE; else pos.y += eyeH - (houseMeta.eye_ft ? houseMeta.eye_ft * F : EYE);
+  const feet = groundAt(pos, /^Outside/i.test(name) ? 300 : STEP);
+  pos.y = feet + eyeH; at.y = pos.y;
   camera.position.copy(pos); camera.lookAt(at);
   vel.set(0, 0, 0); if (noclip) setNoclip(false);
 }
-$('rooms').onchange = (e) => { jump(e.target.value); e.target.value = ''; e.target.blur(); };
 
 // ---------------------------------------------------------------- layers
 // Hidden things move to layer 1: the camera, the shadow pass and every raycast (walking, picking) only see layer 0.
 const show = (o, on) => o.traverse((m) => m.layers.set(on ? 0 : 1));
-const LAYERS = ['Roof', 'Furniture', 'Appliances', 'Mechanical', 'Ducts', 'Trusses', 'Util'];
+// Every view switch is a layer: Walls off fades the house so the systems read, Duct x-ray colours the ducts and
+// shows them through everything, Trees and Distant trees stand in for the old slider.
+const LAYERS = ['Roof', 'Walls', 'Furniture', 'Trees', 'FarTrees', 'Appliances', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
 const layerOn = (k) => $('l' + k).checked;
 let sliced = false;
 function applyToggles() {
   for (const o of roofNodes) show(o, layerOn('Roof') && !sliced);     // a slice lifts the roof off too, or it would cover the cut
   for (const o of utilNodes) show(o, layerOn('Util'));
   for (const o of furnitureMeshes) show(o, layerOn('Furniture'));
+  for (const o of treeMeshes) show(o, layerOn(o.userData.fullCount >= 80 ? 'FarTrees' : 'Trees'));
   if (equip) {
     show(equip.layers.appliances, layerOn('Appliances'));
     show(equip.layers.mechanical, layerOn('Mechanical'));
     show(equip.layers.ducts, layerOn('Ducts'));
     show(equip.layers.trusses, layerOn('Trusses'));
-    for (const o of bakedDeck) show(o, !layerOn('Trusses'));     // the trusses carry their own, higher deck
+    for (const o of bakedDeck) show(o, house ? true : !layerOn('Trusses'));     // the baked house's thin deck gives way to the trusses' own
   }
+  if (ghost !== !layerOn('Walls')) setGhost(!layerOn('Walls'));
+  if (xray !== layerOn('Xray')) { xray = layerOn('Xray'); setDuctXray(xray); }
+  $('rowXray').classList.toggle('off', !layerOn('Ducts'));
   shadowDirty = true;
 }
 for (const k of LAYERS) $('l' + k).onchange = applyToggles;
-if (innerWidth < 700) { $('layers').open = false; $('helpTouch').hidden = true; }      // keep the panel short on a phone
+if (LITE) $('lFarTrees').checked = false;
+if (innerWidth < 700) $('layers').open = false;      // keep the panel short on a phone
 
-// See through the house: walls, floors and furniture go faint so the systems inside read clearly.
-let ghost = false;
+// Walls off: walls, floors and furniture go faint so the systems inside read clearly.
+let ghost = false, xray = false;
 const ghostSaved = new Map();
 function setGhost(on) {
-  ghost = on; $('tGhost').setAttribute('aria-pressed', on);
+  ghost = on;
   for (const m of houseMats) {
     if (on) {
       if (!ghostSaved.has(m)) ghostSaved.set(m, [m.transparent, m.opacity, m.depthWrite]);
@@ -479,18 +535,141 @@ function setGhost(on) {
   }
   shadowDirty = true;
 }
-$('tGhost').onclick = () => setGhost(!ghost);
-let xray = false;
-$('tXray').onclick = () => { xray = !xray; $('tXray').setAttribute('aria-pressed', xray); setDuctXray(xray); };
-// one click: only the structure and the systems
-$('tSystems').onclick = () => {
-  const on = $('tSystems').getAttribute('aria-pressed') !== 'true';
-  $('tSystems').setAttribute('aria-pressed', on);
-  $('lFurniture').checked = !on; $('lRoof').checked = !on;
-  for (const k of ['Appliances', 'Mechanical', 'Ducts', 'Trusses', 'Util']) if (on) $('l' + k).checked = true;
-  $('trees').value = on ? 0 : 100; setTrees(on ? 0 : 1);
-  setGhost(on); applyToggles();
-};
+
+
+// ---------------------------------------------------------------- modals: rooms, equipment, controls
+// The room picker and the equipment finder draw the floor plan from house.json (rooms, outline) in plan feet.
+const svgNS = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(svgNS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); if (parent) parent.append(e); return e; };
+const PLAN_ROOMS = [   // used when house.json has no room list (?baked)
+  ['Kitchen', 0.5, 34.6, 16.7, 51.5], ['Living', 16.7, 22.9, 31.1, 34.6], ['Dining', 16.7, 34.6, 31.1, 51.5], ['Bedroom 1', 31.1, 0.5, 42.6, 11.0],
+  ['Bedroom 2', 5.9, 0.5, 16.1, 10.7], ['Bedroom 3', 0.5, 10.95, 12.12, 22.41], ['Bath 1', 31.6, 22.9, 42.5, 34.6], ['Bath 2', 16.1, 0.5, 22.7, 10.7],
+];
+function planRooms() {
+  const rs = houseMeta.rooms || PLAN_ROOMS.map(([name, a, b, c, d]) => ({ name, rect: [a, b, c, d] }));
+  return rs;
+}
+function planSvg(withGarage = true) {
+  const o = houseMeta.outline || { house: [0, 0, 43.0833, 52], garage: [63.0833, 15, 95.0833, 43], porch: [43.0833, 26.7, 63.0833, 42.6] };
+  const xs = [o.house, withGarage && o.garage, withGarage && o.porch].filter(Boolean);
+  const x0 = Math.min(...xs.map((r) => r[0])) - 3, x1 = Math.max(...xs.map((r) => r[2])) + 3, y0 = -5, y1 = Math.max(...xs.map((r) => r[3])) + 3;
+  const svg = el('svg', { viewBox: `${x0} ${y0} ${x1 - x0} ${y1 - y0}`, class: 'plan', role: 'img' });
+  for (const r of xs) el('rect', { x: r[0], y: r[1], width: r[2] - r[0], height: r[3] - r[1], class: 'out' }, svg);
+  const n = el('g', { transform: `translate(${x0 + 2.5} ${y0 + 3})` }, svg);           // north arrow
+  el('path', { d: 'M0 1.6 L0 -1.6 M-0.8 -0.6 L0 -1.6 L0.8 -0.6', class: 'north' }, n);
+  const t = el('text', { x: 0, y: 2.6, class: 'small' }, n); t.textContent = 'N';
+  return svg;
+}
+function addRoomShapes(svg, onPick) {
+  const rooms = planRooms();
+  for (const R of [...rooms.filter((r) => !r.upper), ...rooms.filter((r) => r.upper)]) {    // the loft draws over Bath 1
+    const [a, b, c, d] = R.rect;
+    const g = el('g', {}, svg);
+    const r = el('rect', { x: a, y: b, width: c - a, height: d - b, class: 'rm' + (R.upper ? ' up' : ''), tabindex: 0, 'aria-label': R.name }, g);
+    const tl = el('title', {}, r); tl.textContent = R.upper ? `${R.name} (upstairs, over ${'Bath 1'})` : R.name;
+    if (onPick) { r.onclick = () => onPick(R); r.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') onPick(R); }; }
+    const small = (c - a) < 7 || (d - b) < 5;
+    const tx = el('text', { x: (a + c) / 2, y: R.upper ? b + 1.6 : (b + d) / 2, class: small ? 'small' : '' }, g);
+    tx.textContent = R.name.replace('Bedroom 4 / study', 'Study').replace('Entry / family', 'Entry');
+  }
+}
+let modalKind = null;
+function openModal(kind) {
+  modalKind = kind;
+  if (look.isLocked) look.unlock();
+  const body = $('modalBody'), tools = $('modalTools');
+  body.textContent = ''; tools.textContent = '';
+  if (kind === 'rooms') {
+    $('modalTitle').textContent = 'Go to a room';
+    let how = mode === 'walk' ? 'walk' : 'above';
+    for (const [k, label] of [['walk', 'Walk in'], ['above', 'View from above']]) {
+      const b = document.createElement('button'); b.textContent = label; b.setAttribute('aria-pressed', how === k);
+      b.onclick = () => { how = k; for (const x of tools.children) x.setAttribute('aria-pressed', x === b); };
+      tools.append(b);
+    }
+    const svg = planSvg(); addRoomShapes(svg, (R) => { closeModal(); goRoom(R, how); });
+    body.append(svg);
+    const row = document.createElement('div'); row.className = 'row';
+    const out = document.createElement('button'); out.textContent = 'Outside, southwest'; out.onclick = () => { closeModal(); if (how === 'walk') jump('Outside_SW'); else setMode('orbit'), orbitHome(); };
+    row.append(out);
+    const p = document.createElement('p'); p.className = 'note'; p.textContent = 'The dashed outline is the loft, upstairs over Bath 1.';
+    body.append(row, p);
+  } else if (kind === 'equip' && equip) {
+    $('modalTitle').textContent = 'Find equipment';
+    const grid = document.createElement('div'); grid.className = 'equipgrid';
+    const svg = planSvg(false); addRoomShapes(svg, null);
+    const list = document.createElement('div'); list.className = 'elist';
+    const groups = {};
+    for (const it of Object.values(equip.byId)) if (it.name && !it.type) (groups[it.category || 'Other'] ||= []).push(it);
+    const PAL = ['#3B82C4', '#C4473B', '#3F9B57', '#B7862C', '#7A5BB5', '#2C9AA0', '#B5507F'];
+    Object.entries(groups).forEach(([cat, items], gi) => {
+      const col = PAL[gi % PAL.length];
+      const sec = document.createElement('div'); const h = document.createElement('h3');
+      const sw = document.createElement('i'); sw.style.background = col; h.append(sw, cat); sec.append(h);
+      for (const it of items) {
+        const pick = () => { closeModal(); showInfo(it); goTo(it); };
+        const b = document.createElement('button'); b.textContent = it.name; b.onclick = pick; sec.append(b);
+        const bb = it.box ? it.box : it.obj ? new THREE.Box3().setFromObject(it.obj) : null;
+        if (bb && !bb.isEmpty()) {
+          const c = bb.getCenter(new THREE.Vector3());
+          const d = el('circle', { cx: c.x / F, cy: c.z / F, r: 0.75, fill: col, class: 'dot', tabindex: 0 }, svg);
+          const tl = el('title', {}, d); tl.textContent = `${it.name}${c.y > 2.8 ? ' (attic)' : ''}`;
+          d.onclick = pick; d.onkeydown = (e) => { if (e.key === 'Enter') pick(); };
+          b.onmouseenter = () => d.setAttribute('r', 1.3); b.onmouseleave = () => d.setAttribute('r', 0.75);
+        }
+      }
+      list.append(sec);
+    });
+    grid.append(svg, list); body.append(grid);
+  } else if (kind === 'controls') {
+    $('modalTitle').textContent = 'Controls';
+    const K = (k) => k.split(' ').map((x) => `<kbd>${x}</kbd>`).join(' ');
+    const sect = (title, rows) => `<div><h3>${title}</h3><table>${rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</table></div>`;
+    body.innerHTML = `<div class="keys">${
+      sect('Orbit (the default)', [['Drag', 'Turn around the house'], ['Right drag', 'Slide the view'], ['Scroll', 'Zoom'], [K('W A S D'), 'Slide the point you turn around'], [K('Shift'), 'Slide faster'], ['Click', 'Open a door, or read about what you click']])
+    }${
+      sect('Walk', [['Click the view', 'Look with the mouse'], [K('W A S D'), 'Move'], [K('Shift'), 'Walk faster'], [K('C'), 'Crouch. You also duck under low roofs on your own'], [K('E'), 'Open or close, or read about what is under the dot'], [K('N'), 'No clip: fly through walls'], [K('Space') + ' ' + K('C'), 'Up and down while flying'], [K('Esc'), 'Free the mouse']])
+    }${
+      sect('Anywhere', [[K('H'), 'This page'], ['Go to a room', 'Pick a room on the plan'], ['Find equipment', 'Pick a piece of equipment on the plan'], ['Height slice', 'Cut the house at any height'], ['Layers', 'Show or hide parts of the model']])
+    }${
+      sect('Phone or tablet', [['Left stick', 'Move (in Walk)'], ['Drag', 'Look or turn'], ['Pinch', 'Zoom (in Orbit)'], ['Tap', 'Open a door, or read about what you tap']])
+    }</div><p class="note">Slow? Turn off Distant trees in Layers, or add <kbd>?lite</kbd> to the address.</p>`;
+  }
+  $('modal').hidden = false;
+  $('modalClose').focus();
+}
+function closeModal() { $('modal').hidden = true; modalKind = null; }
+$('modalClose').onclick = closeModal;
+$('modal').addEventListener('click', (e) => { if (e.target === $('modal')) closeModal(); });
+$('bRooms').onclick = () => openModal('rooms');
+$('bEquip').onclick = () => openModal('equip');
+$('bControls').onclick = () => openModal('controls');
+
+function orbitHome() {
+  orbit.target.copy(plan(21.5, 26, 4)); camera.position.copy(plan(-60, 110, 70)); orbit.update();
+}
+// Walk into a room (a spawn inside it if there is one), or look down into it with the slice at that level.
+function goRoom(R, how) {
+  const [a, b, c, d] = R.rect, cx = (a + c) / 2, cy = (b + d) / 2, floor = R.floor || 0;
+  if (how === 'walk') {
+    const sp = Object.entries(houseSpawns).find(([, s2]) => s2.pos[0] >= a && s2.pos[0] <= c && s2.pos[1] >= b && s2.pos[1] <= d && Math.abs((s2.pos[2] - (houseMeta.eye_ft || 5.58)) - floor) < 1);
+    if (sp && spawns[sp[0]]) { jump(sp[0]); return; }
+    if (mode !== 'walk') { jumping = true; setMode('walk'); jumping = false; }
+    const long = (c - a) >= (d - b);
+    const from = long ? plan(a + (c - a) * 0.2, cy) : plan(cx, b + (d - b) * 0.2), to = long ? plan(c, cy) : plan(cx, d);
+    eyeH = crouch ? CROUCH : EYE; vel.set(0, 0, 0); if (noclip) setNoclip(false);
+    from.y = floor * F + eyeH; const feet = groundAt(from, STEP); from.y = feet + eyeH; to.y = from.y;
+    camera.position.copy(from); camera.lookAt(to); lastRoom = null;
+    return;
+  }
+  if (mode !== 'orbit') setMode('orbit');
+  const lv = (levels || []).find((L) => R.upper ? /loft|attic/i.test(L.name) : /main/i.test(L.name));
+  if (!R.outside && R.name !== 'Garage' && lv) setSlice(lv.cut_ft ?? SLICE_MAX); else setSlice(SLICE_MAX);
+  const size = Math.max(c - a, d - b);
+  orbit.target.copy(plan(cx, cy, floor + 2.5));
+  camera.position.copy(plan(cx - size * 0.35, cy + size * 0.9 + 6, floor + size * 1.1 + 10));
+  orbit.update();
+}
 
 // ---------------------------------------------------------------- height slice
 // The slider cuts the house at any height. It catches at each level's detent, set just under that level's ceiling.
@@ -525,6 +704,10 @@ const cutY = () => upperPlane.constant;
 function addEquipment() {
   if (!equipData || equip) return;
   equip = buildEquipment(equipData);
+  if (house) {           // the generated house has the raised deck and loft floor already; the overlays would z-fight it
+    const extra = []; equip.root.traverse((o) => { if (o.userData.deckOverlay) extra.push(o); });
+    for (const o of extra) o.removeFromParent();
+  }
   scene.add(equip.root);
   for (const m of equipMaterials()) { m.clippingPlanes = [upperPlane]; m.clipShadows = true; }
   equip.root.traverse((o) => {
@@ -534,16 +717,7 @@ function addEquipment() {
     pickables.push(o);
     if (!o.userData.pass) colliders.push(o);
   });
-  const sel = $('equipSel');
-  const groups = {};
-  for (const it of Object.values(equip.byId)) if (it.name && !it.type) (groups[it.category || 'Other'] ||= []).push(it);
-  for (const [cat, list] of Object.entries(groups)) {
-    const og = document.createElement('optgroup'); og.label = cat;
-    for (const it of list) { const o = document.createElement('option'); o.value = it.id; o.textContent = it.name; og.append(o); }
-    sel.append(og);
-  }
-  sel.hidden = false;
-  sel.onchange = (e) => { const it = equip.byId[e.target.value]; e.target.value = ''; e.target.blur(); if (it) { showInfo(it); goTo(it); } };
+  $('bEquip').hidden = false;
   applyToggles();
   console.log(`equipment: ${Object.keys(equip.byId).length} things with info`);
 }
@@ -553,15 +727,16 @@ function showInfo(it) {
   $('infoBody').innerHTML = infoHTML(it);
   $('info').hidden = false;
   if (selBox) { scene.remove(selBox); selBox = null; }
-  if (it.obj && !it.type && it.id !== 'floor_trusses') {            // outline single things, not whole duct runs
-    selBox = new THREE.Box3Helper(new THREE.Box3().setFromObject(it.obj).expandByScalar(0.015), 0xffb000);
+  const bb = it.box ? it.box.clone() : it.obj ? new THREE.Box3().setFromObject(it.obj) : null;
+  if (bb && !bb.isEmpty() && !it.type && it.id !== 'floor_trusses' && !/^(roof|ceiling|slab)$/.test(it.kind || '')) {   // outline single things, not whole runs
+    selBox = new THREE.Box3Helper(bb.expandByScalar(0.015), 0xffb000);
     selBox.material.depthTest = false; selBox.renderOrder = 20; scene.add(selBox);
   }
 }
 function hideInfo() { $('info').hidden = true; if (selBox) { scene.remove(selBox); selBox = null; } }
 $('infoClose').onclick = hideInfo;
 function goTo(it) {       // bring the thing into view
-  const c = new THREE.Box3().setFromObject(it.obj).getCenter(new THREE.Vector3());
+  const c = (it.box ? it.box.clone() : new THREE.Box3().setFromObject(it.obj)).getCenter(new THREE.Vector3());
   const a = THREE.MathUtils.degToRad(it.facing || 0), front = new THREE.Vector3(Math.sin(a), 0, -Math.cos(a));
   if (mode === 'orbit') {
     orbit.target.copy(c); camera.position.copy(c).addScaledVector(front, 3.2).add(new THREE.Vector3(0, 2.2, 0)); orbit.update();
@@ -573,39 +748,24 @@ function goTo(it) {       // bring the thing into view
   }
 }
 
-// Trees slider: draw a share of every species. Instances are shuffled once with the same seed for meshes
-// of equal count, so a tree's bark and leaves stay together and thinning is spread evenly.
-function shuffleInstances(o) {
-  const n = o.count, m = new THREE.Matrix4(), t = new THREE.Matrix4();
-  let seed = 1234567 + n;
-  const rnd = () => ((seed = (seed * 1103515245 + 12345) >>> 0) / 4294967296);
-  for (let i = n - 1; i > 0; i--) {
-    const j = Math.floor(rnd() * (i + 1));
-    o.getMatrixAt(i, m); o.getMatrixAt(j, t); o.setMatrixAt(i, t); o.setMatrixAt(j, m);
-  }
-  o.instanceMatrix.needsUpdate = true;
-}
-function setTrees(frac) {
-  treeFrac = frac;
-  for (const o of treeMeshes) { o.count = Math.round(o.userData.fullCount * frac); o.visible = o.count > 0; }
-  $('treelbl').textContent = `${Math.round(frac * 100)}%`;
-  shadowDirty = true;
-}
-$('trees').value = Math.round(treeFrac * 100);
-$('trees').oninput = (e) => setTrees(parseInt(e.target.value, 10) / 100);
 if (LITE) renderer.shadowMap.enabled = false;
 // ---------------------------------------------------------------- day / night
-const NIGHT_POOL = 6;               // the nearest room lights are lit; a fixed count avoids shader rebuilds while walking
-const pool = [];
+// Night: the outside wall lights and the porch stay lit all the time. Inside, the nearest room lights are lit from a
+// fixed pool (a fixed count avoids shader rebuilds). A pool light that is no longer among the nearest fades out before
+// it moves, and fades in where it lands, so lights never blink on and off as you move.
+const NIGHT_POOL = 6;
+const pool = [];      // { L, spot, want }
 let lightSpots = null;
 const WARM = 0xffd6a0;
 
 function roomLights() {
   if (lightSpots) return lightSpots;
-  const out = [];
+  const out = [], moved = houseMeta.lights_moved || {};
   for (const L of manifest.lights || []) {        // Blender world metres, Z up
-    const p = L.pos || [0, 0, 0];
-    out.push({ pos: new THREE.Vector3(p[0], p[2], -p[1]), color: L.color || WARM, cd: Math.min(14, Math.max(3, Math.min(L.intensity_lm || 800, 1600) / (L.room === 'lamp' ? 200 : 110))) });
+    let p = L.pos || [0, 0, 0];
+    const mv = moved[L.name];
+    const pos = mv ? plan(mv[0], mv[1], mv[2]) : new THREE.Vector3(p[0], p[2], -p[1]);
+    out.push({ pos, fixed: L.room === 'exterior' || L.room === 'Porch', color: L.color || WARM, cd: Math.min(14, Math.max(3, Math.min(L.intensity_lm || 800, 1600) / (L.room === 'lamp' ? 200 : 110))) });
   }
   if (!out.length) {                              // fallback: one ceiling light per room plus the fixtures in the model
     for (const [k, r] of Object.entries(ROOMS)) if (!/^Outside/.test(k)) out.push({ pos: plan(r[0], r[1], 8.3), color: WARM, cd: 9 });
@@ -617,6 +777,31 @@ function roomLights() {
   }
   return (lightSpots = out);
 }
+
+let lastPlace = 0;
+function placeLights(force) {
+  if (!pool.length) return;
+  const now = performance.now();
+  if (force || now - lastPlace > 400) {
+    lastPlace = now;
+    const c = mode === 'walk' ? camera.position : orbit.target;
+    const spots = roomLights().filter((q) => !q.fixed).sort((x, y) => x.pos.distanceToSquared(c) - y.pos.distanceToSquared(c));
+    const want = new Set(spots.slice(0, pool.filter((e) => !e.fixed).length));
+    const lit = new Set(pool.map((e) => e.spot));
+    for (const e of pool) {
+      if (e.fixed) continue;
+      if (e.spot && want.has(e.spot)) { e.want = e.spot.cd; continue; }
+      e.want = 0;
+      if (!e.spot || e.L.intensity < 0.05 || force) {      // dark now: move it to a spot that should be lit
+        const next = [...want].find((q) => !lit.has(q));
+        if (next) { lit.delete(e.spot); lit.add(next); e.spot = next; e.L.position.copy(next.pos); e.L.color.set(next.color); e.want = next.cd; if (force) e.L.intensity = next.cd; }
+      }
+    }
+  }
+  const k = Math.min(1, (now - (placeLights.t || now)) / 350); placeLights.t = now;
+  for (const e of pool) e.L.intensity += (e.want - e.L.intensity) * (force ? 1 : k);
+}
+$('collapse').onclick = () => { $('panel').classList.toggle('min'); $('collapse').textContent = $('panel').classList.contains('min') ? '+' : '–'; };
 
 const glow = new Map();
 function setFixtureGlow(on) {
@@ -642,10 +827,13 @@ function setNight(on) {
   scene.environmentIntensity = on ? 0.04 : 0.6;
   scene.fog.color.set(on ? 0x0b1020 : 0xcbd9e6);
   renderer.toneMappingExposure = 1.0;
-  if (on && !pool.length) for (let i = 0; i < NIGHT_POOL; i++) {
-    const L = new THREE.PointLight(WARM, 0, 14, 2); pool.push(L); scene.add(L);
+  if (on && !pool.length) {
+    for (const q of roomLights().filter((q) => q.fixed)) {
+      const L = new THREE.PointLight(q.color, q.cd, 14, 2); L.position.copy(q.pos); pool.push({ L, spot: q, want: q.cd, fixed: true }); scene.add(L);
+    }
+    for (let i = 0; i < NIGHT_POOL; i++) { const L = new THREE.PointLight(WARM, 0, 14, 2); pool.push({ L, spot: null, want: 0 }); scene.add(L); }
   }
-  if (!on) { for (const L of pool) scene.remove(L); pool.length = 0; }
+  if (!on) { for (const e of pool) scene.remove(e.L); pool.length = 0; }
   setFixtureGlow(on);
   placeLights(true);
   shadowDirty = true;
@@ -653,19 +841,6 @@ function setNight(on) {
 $('tDay').onclick = () => setNight(false);
 $('tNight').onclick = () => setNight(true);
 
-let lastPlace = 0;
-function placeLights(force) {
-  if (!pool.length) return;
-  const now = performance.now(); if (!force && now - lastPlace < 400) return; lastPlace = now;
-  const c = mode === 'walk' ? camera.position : orbit.target;
-  const spots = roomLights().slice().sort((x, y) => x.pos.distanceToSquared(c) - y.pos.distanceToSquared(c));
-  pool.forEach((L, i) => {
-    const s2 = spots[i];
-    if (!s2) { L.intensity = 0; return; }
-    L.position.copy(s2.pos); L.color.set(s2.color); L.intensity = s2.cd;
-  });
-}
-$('collapse').onclick = () => { $('panel').classList.toggle('min'); $('collapse').textContent = $('panel').classList.contains('min') ? '+' : '–'; };
 
 // ---------------------------------------------------------------- walking physics
 const keys = new Set();
@@ -675,16 +850,49 @@ const down = new THREE.Raycaster(); down.firstHitOnly = true;
 const side = new THREE.Raycaster(); side.firstHitOnly = true;
 const DOWN = new THREE.Vector3(0, -1, 0);
 
-function groundAt(p, from = STEP + EYE) {
-  down.set(new THREE.Vector3(p.x, (p.y - EYE) + from, p.z), DOWN);
+// Feet are eyeH below the camera. eyeH is the standing eye height, lower when crouched or ducking under a roof.
+let eyeH = EYE, crouch = false;
+// The floor under you: cast down from just above a step's height over your feet, so a roof or a ceiling over
+// your head is never taken for the floor (that is what lifted you through the attic roof).
+function groundAt(p, from = STEP) {
+  down.set(new THREE.Vector3(p.x, (p.y - eyeH) + from, p.z), DOWN);
   down.far = from + 400;
   const h = down.intersectObjects(colliders, false)[0];
   return h ? h.point.y : 0;
 }
+const UP = new THREE.Vector3(0, 1, 0);
+let furnSet = new Set();
+function ceilingAt(x, feet, z) {         // the first thing above your feet, up to 8 ft
+  down.set(new THREE.Vector3(x, feet + 0.5 * F, z), UP);
+  down.far = 8 * F; down.firstHitOnly = false;
+  if (furnSet.size !== furnitureMeshes.length) furnSet = new Set(furnitureMeshes);   // you duck under roofs and beams, not over chairs
+  const furn = furnSet;
+  const h = down.intersectObjects(colliders, false).find((q) => !furn.has(q.object));
+  down.firstHitOnly = true;
+  return h ? h.point.y : feet + 1e3;
+}
 
+// Ship's ladders from house.json: inside the footprint (stretched by pad past the top end) your feet follow a ramp
+// from the bottom to the landing. Returns the ramp height in metres, or null when you are not on one.
+function climbAt(p, pad = 0) {
+  for (const c of houseMeta.climbs || []) {
+    const [x0, y0, x1, y1] = c.rect, x = p.x / F, y = p.z / F;
+    const feet = (p.y - eyeH) / F;
+    if (y < y0 || y > y1 || x < x0 - 0.3 || x > x1 + RADIUS / F + pad / F) continue;
+    const t = Math.min(1, Math.max(0, (x - x0) / (x1 - x0)));
+    const z = c.z0 + (c.z1 - c.z0) * t;
+    if (Math.abs(feet - z) > 2.5) continue;              // walking under it or on the loft beside it
+    if (x > x1) return null;                              // past the top: the loft floor takes over
+    return z * F;
+  }
+  return null;
+}
+
+// Body rays: knee, waist and the crouched head. Anything higher you duck under instead of walking into.
 function blocked(origin, dir, dist) {
-  for (const hgt of [0.25 * EYE + STEP * 0.6, 0.55 * EYE, 0.95 * EYE]) {
-    side.set(new THREE.Vector3(origin.x, origin.y - EYE + hgt, origin.z), dir);
+  const feet = origin.y - eyeH;
+  for (const hgt of [1.05 * F, 2.0 * F, Math.min(eyeH, CROUCH) * 0.95]) {
+    side.set(new THREE.Vector3(origin.x, feet + hgt, origin.z), dir);
     side.far = dist + RADIUS;
     const h = side.intersectObjects(colliders, false)[0];
     if (h) return h;
@@ -692,13 +900,16 @@ function blocked(origin, dir, dist) {
   return null;
 }
 
+function setCrouch(on) { crouch = on; $('tCrouch').setAttribute('aria-pressed', on); }
 function setNoclip(on) {
   noclip = on; $('tClip').setAttribute('aria-pressed', on); vy = 0;
-  if (!on) {   // land on whatever is below
-    const g = groundAt(camera.position, STEP + EYE); camera.position.y = Math.max(camera.position.y, g + EYE);
+  if (!on) {   // land on whatever is below your eyes
+    eyeH = crouch ? CROUCH : EYE;
+    const g = groundAt(camera.position, eyeH); camera.position.y = Math.max(camera.position.y, g + eyeH);
   }
 }
 $('tClip').onclick = () => { if (mode !== 'walk') setMode('walk'); setNoclip(!noclip); };
+$('tCrouch').onclick = () => setCrouch(!crouch);
 
 function fly(dt) {
   const fwd = new THREE.Vector3(); camera.getWorldDirection(fwd);
@@ -717,6 +928,24 @@ function fly(dt) {
   camera.position.addScaledVector(vel, dt);
 }
 
+// Orbit: W A S D slide the point you orbit around across the ground, relative to the way you face; Shift is faster.
+function panOrbit(dt) {
+  let f = 0, r = 0;
+  if (keys.has('KeyW') || keys.has('ArrowUp')) f++;
+  if (keys.has('KeyS') || keys.has('ArrowDown')) f--;
+  if (keys.has('KeyD') || keys.has('ArrowRight')) r++;
+  if (keys.has('KeyA') || keys.has('ArrowLeft')) r--;
+  if (!f && !r) return;
+  const fwd = orbit.target.clone().sub(camera.position); fwd.y = 0;
+  if (fwd.lengthSq() < 1e-6) camera.getWorldDirection(fwd), fwd.y = 0;
+  fwd.normalize();
+  const right = new THREE.Vector3().crossVectors(fwd, UP).normalize();
+  const dist = camera.position.distanceTo(orbit.target);
+  const speed = Math.max(2, dist * 0.6) * (keys.has('ShiftLeft') || keys.has('ShiftRight') ? 3 : 1);
+  const mv = fwd.multiplyScalar(f).addScaledVector(right, r).normalize().multiplyScalar(speed * dt);
+  orbit.target.add(mv); camera.position.add(mv);
+}
+
 function walk(dt) {
   if (noclip) return fly(dt);
   const fwd = new THREE.Vector3(); camera.getWorldDirection(fwd); fwd.y = 0; fwd.normalize();
@@ -732,7 +961,10 @@ function walk(dt) {
   vel.lerp(want.multiplyScalar(speed), Math.min(1, dt * 10));
   let move = vel.clone().multiplyScalar(dt);
   const p = camera.position;
-  for (let i = 0; i < 2 && move.lengthSq() > 1e-10; i++) {    // slide along walls
+  // On a ship's ladder the treads and the landing edge are too steep to step up one by one, so the climb follows the
+  // ladder's slope instead and walls are not checked until you are off it (Maxwell, 11/16/2026: could not step off the top).
+  const climbing = climbAt(p, RADIUS) !== null || climbAt(p.clone().add(move), RADIUS) !== null;
+  for (let i = 0; i < 2 && !climbing && move.lengthSq() > 1e-10; i++) {    // slide along walls
     const len = move.length(), dir = move.clone().divideScalar(len);
     const h = blocked(p, dir, len);
     if (!h) break;
@@ -745,18 +977,28 @@ function walk(dt) {
   p.add(move);
   // gravity and stepping
   const g = groundAt(p);
-  const feet = p.y - EYE;
-  if (feet > g + 0.01) { vy -= 9.8 * dt; p.y = Math.max(g + EYE, p.y + vy * dt); }
-  else { vy = 0; p.y = g + EYE; }
+  let feet = p.y - eyeH;
+  const cl = climbAt(p);
+  if (cl !== null) { vy = 0; feet = Math.max(cl, g); }                       // on the ship's ladder: ride its slope
+  else if (feet > g + 0.01) { vy -= 9.8 * dt; feet = Math.max(g, feet + vy * dt); }
+  else { vy = 0; feet = g; }
+  // duck under low roofs: the eyes stay a head's height under whatever is overhead
+  const room = ceilingAt(p.x, feet, p.z) - feet - HEAD;
+  const eyeWant = Math.max(DUCK_MIN, Math.min(crouch ? CROUCH : EYE, room));
+  eyeH += (eyeWant - eyeH) * Math.min(1, dt * 10);
+  p.y = feet + eyeH;
 }
 
 // ---------------------------------------------------------------- input
 addEventListener('keydown', (e) => {
   if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
+  if (modalKind && e.code !== 'Escape') return;
   keys.add(e.code);
   if (e.code === 'KeyE') act(center);
-  if (e.code === 'Escape') hideInfo();
+  if (e.code === 'Escape') { if (modalKind) closeModal(); else hideInfo(); }
   if (e.code === 'KeyN') { if (mode !== 'walk') setMode('walk'); setNoclip(!noclip); }
+  if (e.code === 'KeyC' && mode === 'walk' && !noclip) setCrouch(!crouch);
+  if (e.code === 'KeyH' || e.key === '?') openModal('controls');
   if (e.code === 'Space') e.preventDefault();
 });
 addEventListener('keyup', (e) => keys.delete(e.code));
@@ -837,7 +1079,7 @@ function adaptResolution(raw) {
 renderer.setAnimationLoop(() => {
   const raw = clock.getDelta(), dt = Math.min(raw, 0.05);
   if (!document.hidden) adaptResolution(raw);
-  if (mode === 'walk' && colliders.length) walk(dt); else orbit.update();
+  if (mode === 'walk' && colliders.length) walk(dt); else { panOrbit(dt); orbit.update(); }
   for (const op of operables) {
     if (op.t !== op.target) { op.t = op.target > op.t ? Math.min(1, op.t + raw / 0.4) : Math.max(0, op.t - raw / 0.4); applyOp(op); }
   }
@@ -854,11 +1096,13 @@ renderer.setAnimationLoop(() => {
   placeLights(false);
   if (mode === 'walk' && !touch && (++promptFrame % 6 === 0)) {
     const t = targetAt(center);
-    $('prompt').hidden = !t;
-    if (t) $('promptTxt').textContent = t.op ? (t.op.target ? 'Close' : 'Open') : `About: ${t.equip.name}`;
+    const shown = t && !t.house;                 // walls and trim answer a click, but do not prompt
+    $('prompt').hidden = !shown;
+    if (shown) $('promptTxt').textContent = t.op ? (t.op.target ? 'Close' : 'Open') : `About: ${t.equip.name}`;
   } else if (mode !== 'walk') $('prompt').hidden = true;
   renderer.render(scene, camera);
 });
 
 loadAll().catch((e) => { console.error(e); $('loadmsg').textContent = 'The model could not be loaded.'; });
-window.__B = THREE.Box3; window.__T = THREE; window.__walk = { orbit, setSlice, setGhost, targetAt, showInfo, goTo, get equip() { return equip; }, getDpr: () => dpr, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };
+window.__B = THREE.Box3; window.__T = THREE; window.__walk = { orbit, setSlice, setGhost, applyToggles, goRoom, closeModal,
+  simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, showInfo, goTo, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };

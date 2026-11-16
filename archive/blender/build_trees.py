@@ -8,7 +8,7 @@ Near trees (data/terrain/trees.json, full-density lidar) use the detailed varian
 """
 import glob as _glob
 
-_ADIR = os.path.join(HERE, C.get("assets", {}).get("dir", "assets"))
+_ADIR = os.path.join(SRC, C.get("assets", {}).get("dir", "assets"))
 _AC = C.get("assets", {}).get("ambientcg", {})
 
 
@@ -255,6 +255,22 @@ def _place(name, coll, x, y, h, crown_r, sp, rr):
 
 _rr = random.Random(23)
 n_near = n_far = n_under = 0
+
+
+def _plot_dist_pre(x, y):
+    P_ = TER.get("plot_outline"); inside = False
+    for i in range(len(P_)):
+        (x1, y1), (x2, y2) = P_[i], P_[i - 1]
+        if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1):
+            inside = not inside
+    if inside:
+        return 0.0
+    best = 1e9
+    for i in range(len(P_)):
+        (x1, y1), (x2, y2) = P_[i - 1], P_[i]
+        dx, dy = x2 - x1, y2 - y1; t = max(0, min(1, ((x - x1) * dx + (y - y1) * dy) / max(dx * dx + dy * dy, 1e-9)))
+        best = min(best, math.hypot(x - (x1 + t * dx), y - (y1 + t * dy)))
+    return best
 _near = json.load(open(os.path.join(_tdir, "trees.json"))) if os.path.exists(os.path.join(_tdir, "trees.json")) else []
 for k, (x, y, h, r) in enumerate(_near):
     if _rr.random() > dens or h < TER.get("min_tree_height_ft", 12.0):
@@ -262,18 +278,45 @@ for k, (x, y, h, r) in enumerate(_near):
     h = min(h, TER.get("max_tree_height_ft", 95.0))
     if -r - 3 < x < HW + r + 3 and -r - 3 < y < HD + r + 3:
         continue
+    if TER.get("plot_outline") and _plot_dist_pre(x, y) > TER.get("plot_buffer_ft", 150.0) and _rr.random() > TER.get("far_outside_keep", 1.0):
+        continue
     sp = _pick(_rr)
     _place(f"Tree {k} {sp}", _rr.choice(VARIANTS[(sp, "near")]), x, y, h, r, sp, _rr); n_near += 1
     if h > 40:      # understory saplings under the canopy
         ux, uy = x + _rr.uniform(-.35, .35) * h * 0.3, y + _rr.uniform(-.35, .35) * h * 0.3
         sp2 = _pick(_rr)
         _place(f"Sapling {k}", _rr.choice(VARIANTS[(sp2, "far")]), ux, uy, _rr.uniform(12, 22), 5, sp2, _rr); n_under += 1
+# focus on our plot: full detail on and within plot_buffer_ft of it, far woods outside thinned to far_outside_keep
+_plot = TER.get("plot_outline")
+
+
+def _plot_dist(x, y):
+    """0 inside the plot polygon, else distance (ft) to its edge."""
+    P_ = _plot; inside = False
+    for i in range(len(P_)):
+        (x1, y1), (x2, y2) = P_[i], P_[i - 1]
+        if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1):
+            inside = not inside
+    if inside:
+        return 0.0
+    best = 1e9
+    for i in range(len(P_)):
+        (x1, y1), (x2, y2) = P_[i - 1], P_[i]
+        dx, dy = x2 - x1, y2 - y1; t = max(0, min(1, ((x - x1) * dx + (y - y1) * dy) / max(dx * dx + dy * dy, 1e-9)))
+        best = min(best, math.hypot(x - (x1 + t * dx), y - (y1 + t * dy)))
+    return best
+
+
 _farp = os.path.join(_tdir, "far_trees.json")
+n_thin = 0
 if os.path.exists(_farp):
     for k, (x, y, h, r) in enumerate(json.load(open(_farp))):
         if _rr.random() > dens:
             continue
+        if _plot and _plot_dist(x, y) > TER.get("plot_buffer_ft", 150.0) and _rr.random() > TER.get("far_outside_keep", 1.0):
+            n_thin += 1
+            continue
         sp = _pick(_rr)
         _place(f"Far tree {k}", VARIANTS[(sp, "far")][0], x, y, h, r, sp, _rr); n_far += 1
 keep = n_near + n_far
-print(f"trees: {n_near} near (detailed), {n_under} understory, {n_far} far ring (low poly)")
+print(f"trees: {n_near} near (detailed), {n_under} understory, {n_far} far ring (low poly), {n_thin} far trees thinned outside the plot")

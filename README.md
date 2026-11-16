@@ -1,24 +1,29 @@
 # House walkthrough
 
-An interactive, walkable 3D model of the house, built from the parametric Blender model and hosted with GitHub Pages.
+An interactive, walkable 3D model of the house, built in the browser from the house plans in `model/config.toml` and hosted with GitHub Pages.
 
 Open the site, then:
 
-- **Walk mode:** click the view, then use W A S D to move and the mouse to look. Hold Shift to go faster. Esc frees the mouse.
+- **Orbit mode** (the default): drag to rotate, scroll to zoom, W A S D (or the arrow keys) to slide the orbit centre around the site. Click a door to open it.
+- **Walk mode:** click the view, then use W A S D to move and the mouse to look. Hold Shift to go faster, Space to jump, C (or the Crouch button) to crouch. Esc frees the mouse. The eye is at 5 ft 7 in, for a 5 ft 10 in person, and you duck on your own under low roof in the attic. The ship's ladder climbs straight onto the loft.
 - **N** toggles no clip: fly through walls in the direction you look, Space up, C down.
 - **E** opens and closes whatever you're looking at: doors, the barn doors, the bi-parting slider, the garage doors and drawers.
-- **Orbit mode:** drag to rotate around the site, scroll to zoom. Click a door to open it.
-- **Click or E on an appliance, a piece of equipment or a duct** to read what it is: model, price, size, specs, and notes on where the design is still open. "Find equipment" in the panel jumps to any of them.
+- **Click or E on an appliance, a piece of equipment, a duct, a piece of furniture, or any wall, window, door, cabinet or trim piece** to read what it is: model, price, size, specs, and notes on where the design is still open.
+- **Controls** (or H) opens a page that lists every key and touch control.
+- **Go to a room** opens a plan of the house. Click a room to walk into it or to look down on it from above. **Find equipment** opens the same plan with every appliance and piece of equipment as a dot, plus a list by category.
 - **Height slice:** a slider cuts the house at any height. It catches at detents just under each level's ceiling (main floor, floor trusses, loft and attic), and lifts the roof off while it is cutting.
-- **Layers:** show or hide the roof, furniture, appliances, mechanical equipment, ducts, floor trusses and buried lines. "Systems only" hides the roof, furniture and trees and fades the walls. "Duct x-ray" colours the ducts (blue supply, red return, green fresh air) and shows them through everything.
-- **Panel:** jump to any room, switch between Day and Night (room lights on), and thin the trees with the Trees slider on slow devices.
-- **Slow device?** Add `?lite` to the address to start without shadows and with a quarter of the trees.
+- **Layers**, each with an icon: roof, walls, furniture, trees, distant trees, appliances, mechanical, ducts, duct x-ray, floor trusses and buried lines. Walls off fades the house so the systems read. Duct x-ray colours the ducts (blue supply, red return, green fresh air) and shows them through everything.
+- **Day and Night:** at night the room lights come on. The porch and exterior lights stay on, and the nearest six interior lights fade in as you move.
+- **Slow device?** Add `?lite` to the address to start without shadows or the distant trees.
 - **Phones:** the left stick moves, drag anywhere else to look, tap a door to open it.
 
 ## Layout
 
 - `site/index.html`, `site/app.js`: the viewer (three.js 0.160, vendored in `site/vendor`, MIT license).
-- `site/models/`: the model, split into `.glb` parts listed in `manifest.json`. These are exported from Blender (full materials, real terrain and instanced trees) and shrunk and compressed. First cap the textures (512 px for furniture and trees, 1024 for shell and interior, 2048 for site; opaque images become JPEG):
+- `model/config.toml`: the house plans as numbers (walls, rooms, windows, doors, roof, kitchen, loft, garage, porch, floor trusses). Everything below is built from it.
+- `site/models/house.json`, `site/house.js`: the house itself (see "The house" below).
+- `site/models/equipment.json`, `site/equipment.js`: appliances, equipment and ducts (see below).
+- `site/models/*.glb`: what is still exported from Blender, listed in `manifest.json`: terrain (`site.glb`), trees and furniture and bath fixtures. `shell.glb` and `interior.glb` are the old Blender house, kept as a fallback (`?baked`). The Blender scripts live in `archive/blender/` with their own README. To shrink and pack a new export, first cap the textures (512 px for furniture and trees, 1024 for shell and interior, 2048 for site; opaque images become JPEG):
 
       python3 tools/shrink_textures.py in/part.glb shrunk/part.glb --max 1024
 
@@ -54,27 +59,39 @@ Open the site, then:
 - **Spawn points:** `Spawn_<Room>` empty nodes, at eye height, are spawn points. An optional `look` extra gives the Blender world point to face.
 - **Layers:** nodes named `Roof` or matching roof, fascia, gutter and ceiling names follow the Roof layer. Nodes named `Utilities` or matching geothermal or septic names follow "Buried lines". Parts named `furniture*` follow Furniture.
 
+## The house
+
+`model/make_house.py` (plain Python, no Blender) reads `config.toml` and writes `site/models/house.json`; `site/house.js` builds it in the browser.
+
+```
+python model/make_house.py            # add --check to list faces that still overlap
+```
+
+- It is a port of the house parts of the Blender scripts: slab with the stained finish and diamond saw cuts, exterior walls with board and batten, clerestory, interior walls, headers, windows and doors with trim, roof, fascia, gutters and soffits, vaulted and flat ceilings, the attic deck, the loft with its rail and ladder, kitchen cabinets and island, baseboards and casings, garage, porch and greenhouse.
+- Every piece is a record with an id (`wall.int.3`, `window.w60-60_bed_1`, `cabinet.west.2`, `door.d30-80_entry`, ...), a name, a room, a layer and an `info` block, the same pattern as the equipment. Clicking any of them shows its card.
+- Shapes are boxes, eight point solids, polygons, cylinders and wall panels with holes. Openings in walls are holes in the panel, so no boolean cuts are needed. Static shapes are merged into one mesh per material and layer, and the viewer maps a hit back to its record.
+- Doors, drawers, cabinet doors, the barn doors, the bi-parting slider and the garage doors are operable pivots, in the same format the Blender export used (below).
+- Where `equipment.json` has a real model of an appliance, the placeholder box for it is skipped.
+- Coplanar faces are nudged a hair apart when the file is written so nothing flickers.
+- Furniture the browser builds (the queen beds and nightstands in bedrooms 2 and 3, the Uplift L desk and office chair in the Study) is listed in `[furnishings]` with `web = true`. Its records go on the furniture layer, and `house.json` `meta` tells the viewer how to edit the Blender furniture and site GLBs to match: `replace_nodes` (named nodes to drop), `cull` (boxes of triangles to drop, by material and part), `move_nodes` (nodes to shift and turn) and `lights_moved`.
+- `meta` also carries `rooms` and `outline` for the room picker plan, `climbs` (the ship's ladder ramp) and `eye_ft`.
+- `?baked` in the address loads the old Blender `shell.glb` and `interior.glb` in place of the generated house, for comparison.
+
 ## Appliances, equipment and ducts
 
-These are not in the Blender export. `site/equipment.js` builds them in the browser from `site/models/equipment.json`, which `model/make_equipment.py` writes (plain Python, no Blender):
+`site/equipment.js` builds them in the browser from `site/models/equipment.json`, which `model/make_equipment.py` writes (plain Python, no Blender):
 
 ```
 python model/make_equipment.py
 ```
 
 - Every thing is a record with an id, a name, a `system` (`hvac.supply`, `geothermal.loop`, `plumbing.dhw`, ...), a room, a layer, its geometry (a builder and true size, or a duct or pipe path) and an `info` block for the card. Positions are plan feet, sizes are inches.
-- `cull` boxes and `replaces_nodes` remove the generic appliance boxes from the Blender model so the real ones take their place.
+- `cull` boxes and `replaces_nodes` remove the generic appliance boxes from the old Blender model (with `?baked`) so the real ones take their place.
 - The duct layout starts from Andy Roehl's M-10 (07/30/2026) and changes two things at Maxwell's direction: the supply trunk runs along the north wall of the attic, and every bedroom gets a ducted return through open web floor trusses in place of transfer grilles. The trusses are 11-7/8 in deep (set in `[floor_trusses]` in `config.toml`, which also raises the attic deck and the loft floor). Truss spacing and direction, duct sizes off the trunk and the heat pump orientation are marked ASSUMED in the data and on the cards.
 
-## Draft export (cloud)
+## Blender (archived)
 
-A fallback when the laptop export isn't available. `tools/export_web_draft.py` builds the model with pip `bpy` and writes `site/models/house.glb`.
-- It closes every door and wires them up as operable.
-- It bakes the stained concrete floor with its diamond saw cuts. Other materials are flat colors.
-
-To run it:
-
-    python tools/export_web_draft.py --model /path/to/house-model --out site/models --gltfpack /path/to/gltfpack
+The renders, terrain, trees and furniture still come from the Blender scripts in `archive/blender/`. Its README says how to run them, including `export_web_draft.py`, the pip `bpy` export for when the laptop isn't available.
 
 ## Run locally
 

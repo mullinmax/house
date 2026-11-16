@@ -35,7 +35,7 @@ WEB = C.get("web", {})
 OUTD = os.path.join(HERE, WEB.get("out_dir", "web"))
 os.makedirs(OUTD, exist_ok=True)
 TEX = WEB.get("texture_px", 1024)
-TEX_FURN = WEB.get("furniture_texture_px", 512)
+TEX_FURN = WEB.get("furniture_texture_px", 256)
 EYE = WEB.get("eye_height_ft", 5.33)
 ONLY = set(a for a in (ARGS.get("parts") or "").split(",") if a)
 
@@ -53,15 +53,16 @@ ops = []
 for o in C["openings"]:
     fr = wall_frame(o["wall"])
     if o["kind"] == "door_glass":
-        parts = objs_named(o["id"] + " glass") + objs_named(o["id"] + " kick rail")
-        hx, hy = fr(o["start"] + 0.18, SKIN + 0.2)
+        # the whole leaf moves: sash frame ring (clad + oak halves), glass, kick rail; trim, jambs, casing stay
+        parts = objs_named(o["id"] + " glass") + objs_named(o["id"] + " kick rail") + objs_named(o["id"] + " frame ")
+        hx, hy = fr(o["start"], SKIN + 0.2)
         ax_ = Vector(P(*fr(o["start"] + 1, 0)) - P(*fr(o["start"], 0)))
         in_ = Vector(P(*fr(o["start"], 1)) - P(*fr(o["start"], 0)))
         sgn = 1 if ax_.cross(in_).z > 0 else -1
         ops.append(pivot(o["id"], parts, P(hx, hy, 0), {"operable": "swing", "open_angle": 90 * sgn, "axis": "z"}, c_win))
     elif o["kind"] == "slider":
         # bi-parting: the two middle panes slide outward over the fixed outer panes
-        for g_ in objs_named(o["id"] + " glass"):
+        for g_ in objs_named(o["id"] + " glass") + objs_named(o["id"] + " mullion"):
             bpy.data.objects.remove(g_)
         u0, u1, z0, z1 = o["start"], o["end"], o["sill"], o["head"]
         w4 = (u1 - u0) / 4; v0 = SKIN + 0.05
@@ -69,11 +70,17 @@ for o in C["openings"]:
                                (u0 + w4, (u0 + u1) / 2 - 0.01, "leaf W", 0.55), ((u0 + u1) / 2 + 0.01, u1 - w4, "leaf E", 0.55)):
             g_ = wbox(f"{o['id']} glass {nm}", o["wall"], a, b, v0 + 0.3 * vv - 0.015, v0 + 0.3 * vv + 0.015, z0 + 0.12, z1 - 0.05, "Glass", c_win)
             if nm.startswith("leaf"):
-                fx_ = wbox(f"{o['id']} {nm} frame", o["wall"], a, b, v0 + 0.3 * vv - 0.03, v0 + 0.3 * vv + 0.03, z0 + 0.06, z0 + 0.14, "Window Frame", c_win)
+                vv0, vv1 = v0 + 0.3 * vv - 0.035, v0 + 0.3 * vv + 0.035
+                fr_ = [wbox(f"{o['id']} {nm} sash bottom", o["wall"], a, b, vv0, vv1, z0 + 0.06, z0 + 0.16, "Window Frame", c_win),
+                       wbox(f"{o['id']} {nm} sash top", o["wall"], a, b, vv0, vv1, z1 - 0.12, z1 - 0.04, "Window Frame", c_win),
+                       wbox(f"{o['id']} {nm} sash stile a", o["wall"], a, a + 0.12, vv0, vv1, z0 + 0.06, z1 - 0.04, "Window Frame", c_win),
+                       wbox(f"{o['id']} {nm} sash stile b", o["wall"], b - 0.12, b, vv0, vv1, z0 + 0.06, z1 - 0.04, "Window Frame", c_win),
+                       wbox(f"{o['id']} {nm} handle", o["wall"], (b - 0.3 if nm == "leaf W" else a + 0.2), (b - 0.2 if nm == "leaf W" else a + 0.3),
+                            vv1, vv1 + 0.06, 3.0, 4.2, "Brushed Nickel", c_win)]
                 sg = -1 if nm == "leaf W" else 1
                 d = Vector(P(*fr(o["start"] + sg * w4, 0)) - P(*fr(o["start"], 0)))
                 cx, cy = fr((a + b) / 2, v0 + 0.3 * vv)
-                ops.append(pivot(f"{o['id']} {nm}", [g_, fx_], P(cx, cy, 0), {"operable": "slide", "slide": [round(d.x, 3), round(d.y, 3), 0.0]}, c_win))
+                ops.append(pivot(f"{o['id']} {nm}", [g_] + fr_, P(cx, cy, 0), {"operable": "slide", "slide": [round(d.x, 3), round(d.y, 3), 0.0]}, c_win))
 BDc = C.get("barn_door", {})
 if BDc.get("enabled"):
     bx0, bx1, bhd = min(CL["passages"], key=lambda p: abs((p[0] + p[1]) / 2 - BDc["center_x"]))
@@ -145,6 +152,7 @@ def group_node(name, objects, coll):
 roof_objs = list(c_roof.all_objects) + [o for o in c_out.objects if any(w in o.name for w in ("roof", "Roof", "seam"))] + \
             [o for o in bpy.data.objects if o.name.startswith(("Fascia", "Rake", "Soffit", "Gutter"))]
 util_objs = list(c_util.all_objects) + list(c_mark.all_objects)
+upper_objs = [o for o in bpy.data.objects if o.type == 'MESH' and o.name.startswith(("Loft floor", "Loft railing", "Attic floor"))]
 
 # ================================================================== bakes (procedural -> images), GPU if free
 scene.render.engine = 'CYCLES'
@@ -359,19 +367,137 @@ try:
     _have_trees = True
 except NameError:
     _have_trees = False
+def gen_web_tree(sp, seed, near=True):
+    """browser tree: trunk + a few limbs + leaf clumps of big alpha cards. ~1.5k tris near, ~400 far."""
+    import random as _r
+    rng = _r.Random(seed)
+    BV, BF, BU, LV, LF, LU = [], [], [], [], [], []
+    top = sp["split"]; r0 = 0.017
+    trunk = _branch_pts(rng, Vector((0, 0, -0.03)), Vector((rng.uniform(-.03, .03), rng.uniform(-.03, .03), 1)), top + 0.03, 5 if near else 3, 0.0)
+    _tube(BV, BF, BU, trunk, [r0 * (1 - 0.55 * i / (len(trunk) - 1)) for i in range(len(trunk))], 6 if near else 4)
+    nm = 7 if near else 4; clumps = 5 if near else 3; cards = 11 if near else 9
+    R = sp["ratio"]; bole = sp["bole"]
+    for i in range(nm):
+        t = bole + (0.95 - bole) * (i + 0.5) / nm
+        k = min(int(min(t, top) / top * (len(trunk) - 1)), len(trunk) - 2)
+        start = trunk[k]
+        az = i * math.radians(137.5) + rng.uniform(-.3, .3)
+        el = math.radians(rng.uniform(*sp["elev"]))
+        d = Vector((math.cos(az) * math.cos(el), math.sin(az) * math.cos(el), math.sin(el)))
+        L = max(0.15, R * 1.1 * math.sin(math.pi * min(1, (t - bole) / (1 - bole) * 0.85 + 0.15)) / max(math.cos(el), 0.35) + (1 - t) * 0.2)
+        L = min(L, (1.0 - start.z) / max(math.sin(el), 0.2) * 1.05 + R * 0.4)
+        pts = _branch_pts(rng, start, d, L, 3, sp["curve"] * L, 0.06)
+        _tube(BV, BF, BU, pts, [r0 * 0.5, r0 * 0.35, r0 * 0.2, r0 * 0.08], 4 if near else 3)
+        for c in range(clumps):
+            u_ = 0.35 + 0.65 * c / max(1, clumps - 1)
+            p = pts[0].lerp(pts[-1], u_) + Vector((rng.gauss(0, .04), rng.gauss(0, .04), rng.gauss(0.02, .03)))
+            size = sp["card"] * (4.2 if near else 5.5) * rng.uniform(0.8, 1.2)
+            for _ in range(cards):
+                c_ = p + Vector((rng.gauss(0, .045), rng.gauss(0, .045), rng.gauss(0, .035)))
+                nrm = Vector((rng.uniform(-1, 1), rng.uniform(-1, 1), rng.uniform(-0.3, 1))).normalized()
+                u, w = _frame(nrm); b = len(LV)
+                for (a_, b_) in ((-1, -1), (1, -1), (1, 1), (-1, 1)):
+                    LV.append(c_ + u * a_ * size / 2 + w * b_ * size / 2)
+                LU.extend([(0, 0), (1, 0), (1, 1), (0, 1)]); LF.append((b, b + 1, b + 2, b + 3))
+    return (BV, BF, BU), (LV, LF, LU)
+
+
+WEB_TREE = {}
+if _have_trees:
+    for spn, sp in SPECIES.items():
+        for lod in ("near", "far"):
+            bark, leaf = gen_web_tree(sp, hash((spn, lod, "web")) & 0xffff, lod == "near")
+            WEB_TREE[(spn, lod, "bark")] = _mesh(f"web {spn} {lod} bark", bark, MATS[f"Bark {spn}"])
+            WEB_TREE[(spn, lod, "leaves")] = _mesh(f"web {spn} {lod} leaves", leaf, MATS[f"Leaves {spn}"])
+    print("web trees:", {f"{k[0]} {k[1]} {k[2]}": len(m.polygons) * 2 for k, m in WEB_TREE.items() if k[2] == "leaves"},
+          "bark tris near/far", len(WEB_TREE[("oak", "near", "bark")].polygons) * 2, len(WEB_TREE[("oak", "far", "bark")].polygons) * 2)
 if _have_trees:
     holders = {}
-    for e in [o for o in c_sur.objects if o.instance_type == 'COLLECTION' and o.instance_collection and o.instance_collection.name.startswith("tree ")]:
+    import random as _rnd
+    _tree_es = [o for o in c_sur.objects if o.instance_type == 'COLLECTION' and o.instance_collection and o.instance_collection.name.startswith("tree ")]
+    _rnd.Random(5).shuffle(_tree_es)      # random order: a viewer density slider (first N instances) thins evenly
+    for _ti, e in enumerate(_tree_es):
+        e.name = f"T{_ti:05d} {e.name}"
         cc = e.instance_collection
+        spn_, lod_ = cc.name.split()[1], ("far" if (" Far tree" in e.name or " Sapling" in e.name) else "near")
         for so in cc.objects:
-            key = so.name
+            kind_ = "leaves" if "leaves" in so.name else "bark"
+            key = f"{spn_} {lod_} {kind_}"
             if key not in holders:
                 h_ = bpy.data.objects.new(f"Trees {key}", None); c_sur.objects.link(h_); holders[key] = h_; tree_roots.append(h_)
-            inst = bpy.data.objects.new(f"{e.name} {so.name.split()[-1]}", so.data); c_sur.objects.link(inst)
+            inst = bpy.data.objects.new(f"{e.name} {kind_}", WEB_TREE[(spn_, lod_, kind_)]); c_sur.objects.link(inst)
             inst.matrix_world = e.matrix_world
             inst.parent = holders[key]
         bpy.data.objects.remove(e)
     print(f"web: {sum(len(h.children) for h in holders.values())} tree instances under {len(holders)} holders")
+
+# ================================================================== z-fighting: coplanar overlapping faces from different objects
+def zfight_scan(objs, tol=0.001):
+    """axis-aligned faces bucketed by (axis, direction, plane); returns overlapping pairs from different objects."""
+    dg = bpy.context.evaluated_depsgraph_get()
+    buckets = {}
+    for ob in objs:
+        try:
+            me = ob.evaluated_get(dg).to_mesh()
+        except Exception:
+            continue
+        mw = ob.matrix_world
+        for p in me.polygons:
+            nrm = (mw.to_3x3() @ p.normal).normalized()
+            ax = max(range(3), key=lambda a: abs(nrm[a]))
+            if abs(nrm[ax]) < 0.999 or p.area < 1e-6:
+                continue
+            vs = [mw @ me.vertices[i].co for i in p.vertices]
+            if ax == 2 and nrm[2] < 0 and vs[0][2] <= 0.005:
+                continue                 # bottoms resting on the slab are never seen
+            pl = round(vs[0][ax] / tol)
+            ua, va = [a for a in range(3) if a != ax]
+            rect = (min(v[ua] for v in vs), max(v[ua] for v in vs), min(v[va] for v in vs), max(v[va] for v in vs))
+            buckets.setdefault((ax, 1 if nrm[ax] > 0 else -1, pl), []).append((ob.name, rect))
+        ob.evaluated_get(dg).to_mesh_clear()
+    pairs = set()
+    for key, lst in buckets.items():
+        if len(lst) < 2:
+            continue
+        lst.sort(key=lambda r: r[1][0])
+        for i, (na, ra) in enumerate(lst):
+            for nb, rb in lst[i + 1:]:
+                if rb[0] >= ra[1] - 1e-4:
+                    break
+                if na != nb and min(ra[3], rb[3]) - max(ra[2], rb[2]) > 1e-3 and min(ra[1], rb[1]) - max(ra[0], rb[0]) > 1e-3:
+                    pairs.add((min(na, nb), max(na, nb), key[0], key[1]))
+    return pairs
+
+
+def obj_size(name):
+    o = bpy.data.objects[name]; d = o.dimensions
+    return d.x * d.y * d.z + 1e-9 * (d.x + d.y + d.z)
+
+
+zf_objs = [o for o in bpy.data.objects if o.type == 'MESH' and not o.hide_render and o.visible_get()
+           and not o.name.startswith(("Terrain", "Ground", "Trees", "Far tree", "Tree ", "Sapling", "Road", "Neighbor", "cut "))
+           and not any(c_.name.startswith(("asset ", "tree ", "Asset Library", "Tree Library")) for c_ in o.users_collection)]
+zf_before = zfight_scan(zf_objs)
+moved = set(); pairs_ = zf_before
+for pass_ in range(3):
+    for (a, b, ax, sg) in sorted(pairs_):
+        small = a if obj_size(a) < obj_size(b) else b
+        if (small, ax, sg) in moved:
+            small = b if small == a else a                     # already nudged this way: move the other one
+            if (small, ax, sg) in moved:
+                continue
+        o = bpy.data.objects[small]
+        off = Vector((0, 0, 0)); off[ax] = 0.0025 * sg        # 2.5 mm out along the shared face normal
+        mw = o.matrix_world.copy(); mw.translation += off; o.matrix_world = mw
+        moved.add((small, ax, sg))
+    bpy.context.view_layer.update()
+    pairs_ = zfight_scan(zf_objs)
+    if not pairs_:
+        break
+zf_after = pairs_
+print(f"z-fighting: {len(zf_before)} coplanar overlapping pairs before, {len(zf_after)} after ({len(moved)} parts nudged 2.5 mm)")
+json.dump({"before": sorted([list(p) for p in zf_before])[:400], "after": sorted([list(p) for p in zf_after])[:400]},
+          open(os.path.join(OUTD, "zfight_report.json"), "w"), indent=0)
 
 # ================================================================== parts and export
 def all_in(*colls):
@@ -386,10 +512,96 @@ site = all_in(c_site) | all_in(c_util) | all_in(c_mark) | ({o for o in c_sur.obj
 furn = all_in(c_furn)
 shell = all_in(c_ext) | all_in(c_roof) | all_in(c_win) | all_in(c_out) | all_in(c_xdet)
 interior = (all_in(c_house) - shell - furn) | all_in(c_int) | all_in(c_ceil) | all_in(c_kit) | all_in(c_trim)
-PARTS = [("site", site | {group_node("Utilities", util_objs, c_site)}),
+upper_node = group_node("SecondStory", upper_objs, c_ceil)
+
+
+# ------------------------------------------------------------------ fewer draw calls: merge static meshes per material
+def merge_static(objs, label):
+    """join meshes that never move (not operable, not under a toggle node) into one mesh per material set."""
+    dg = bpy.context.evaluated_depsgraph_get()
+
+    def movable(o):
+        p = o
+        while p is not None:
+            if p.get("operable"):
+                return True
+            p = p.parent
+        return False
+    groups = {}
+    for o in objs:
+        if o.type != 'MESH' or movable(o) or o.get("emissive_night") or o.name.startswith(("Spawn_",)):
+            continue
+        root = o.parent.name if o.parent is not None and o.parent.type == 'EMPTY' and o.parent.name in ("Roof", "Utilities", "SecondStory") else ""
+        if o.parent is not None and not root:
+            continue                     # parented to something else: keep as is
+        mats = tuple(s.material.name if s.material else "" for s in o.material_slots)
+        ceil_ = "ceiling" in o.name.lower()
+        groups.setdefault((root, mats, ceil_), []).append(o)
+    made = []
+    for (root, mats, ceil_), lst in groups.items():
+        if len(lst) < 2:
+            continue
+        bm = bmesh.new()
+        for o in lst:
+            me = o.evaluated_get(dg).to_mesh()
+            tmp = me.copy(); tmp.transform(o.matrix_world)
+            bm.from_mesh(tmp); bpy.data.meshes.remove(tmp)
+            o.evaluated_get(dg).to_mesh_clear()
+        nm_ = f"{label} {'ceiling ' if ceil_ else ''}{mats[0] if mats else 'mesh'}"
+        me = bpy.data.meshes.new(nm_); bm.to_mesh(me); bm.free()
+        for m_ in mats:
+            me.materials.append(bpy.data.materials.get(m_) if m_ else None)
+        ob = bpy.data.objects.new(nm_, me); lst[0].users_collection[0].objects.link(ob)
+        if root:
+            ob.parent = bpy.data.objects[root]
+        for o in lst:
+            bpy.data.objects.remove(o)
+        made.append(ob)
+    return made
+
+
+roof_node = group_node("Roof", roof_objs, c_roof)
+util_node = group_node("Utilities", util_objs, c_site)
+# ---- performance: lighter furniture models, merged procedural furniture, lighter site
+FURN_TRIS = WEB.get("furniture_model_tris", 6000)
+for c_ in bpy.data.collections:
+    if c_.name.startswith("asset "):
+        for o in c_.all_objects:
+            if o.type == 'MESH':
+                t_ = sum(len(p.vertices) - 2 for p in o.data.polygons)
+                if t_ > FURN_TRIS:
+                    md = o.modifiers.new("web decimate", 'DECIMATE'); md.ratio = max(0.05, FURN_TRIS / t_)
+for o in list(c_furn.all_objects):         # flatten procedural furniture groups so they can merge per material
+    if o.type == 'MESH' and o.parent is not None and o.parent.type == 'EMPTY' and not o.parent.get("operable") and o.parent.instance_type != 'COLLECTION':
+        mw = o.matrix_world.copy(); o.parent = None; o.matrix_world = mw
+for o in [o for o in bpy.data.objects if o.type == 'CURVE' and (o.name.startswith(("Geothermal", "Septic")))]:
+    o.data.bevel_resolution = 0            # 4-sided pipes are plenty in the browser
+for oname, ratio in (("Terrain", WEB.get("terrain_ratio_perf", 0.15)), ("Terrain far", 0.3)):
+    ob = bpy.data.objects.get(oname)
+    if ob and "web decimate" in ob.modifiers:
+        ob.modifiers["web decimate"].ratio = ratio
+n0 = sum(1 for o in bpy.data.objects if o.type == 'MESH')
+_fw_pre = [o for o in c_furn.objects if o.type == 'MESH' and o.parent is None and o.matrix_world.translation.x < (HW / 2) * F]
+_fe_pre = [o for o in c_furn.objects if o.type == 'MESH' and o.parent is None and o.matrix_world.translation.x >= (HW / 2) * F]
+merge_static(list(shell | set(roof_objs)), "Shell")
+merge_static(list(interior | set(upper_objs)), "Interior")
+merge_static(list(site | set(util_objs)), "Site")
+# procedural furniture: merge per material in each half (west/east of the centre line), lamps' glowing parts stay separate
+for o in _fw_pre + _fe_pre:
+    if o.name in bpy.data.objects and (o.matrix_world @ Vector()).x < (HW / 2) * F:
+        o["_half"] = "W"
+merge_static([o for o in _fw_pre if o.name in bpy.data.objects and o.get("_half") == "W"], "Furniture W")
+merge_static([o for o in _fe_pre if o.name in bpy.data.objects and o.get("_half") != "W"], "Furniture E")
+print(f"web: merged static meshes {n0} -> {sum(1 for o in bpy.data.objects if o.type == 'MESH')} objects")
+tree_set = set(tree_roots) | {ch for h in tree_roots for ch in h.children}
+site = all_in(c_site) | all_in(c_util) | all_in(c_mark) | ({o for o in c_sur.objects} - tree_set)
+shell = all_in(c_ext) | all_in(c_roof) | all_in(c_win) | all_in(c_out) | all_in(c_xdet)
+furn = all_in(c_furn)
+interior = (all_in(c_house) - shell - furn) | all_in(c_int) | all_in(c_ceil) | all_in(c_kit) | all_in(c_trim)
+PARTS = [("site", site | {util_node}),
          ("trees", tree_set),
-         ("shell", shell | {group_node("Roof", roof_objs, c_roof)}),
-         ("interior", interior | set(c_web.objects))]
+         ("shell", shell | {roof_node}),
+         ("interior", interior | set(c_web.objects) | {upper_node})]
 # furniture in two halves (west / east of the house centre line) to stay under the per-file limit
 _fw, _fe = set(), set()
 for o in c_furn.objects:
@@ -412,7 +624,14 @@ def with_family(objs):
 
 manifest = {"units": "metres", "up": "glTF Y-up (Blender Z-up converted by the exporter); extras use Blender world coords",
             "parts": [], "sky": "sky.jpg", "spawns": spawn_info, "eye_height_m": round(EYE * F, 3),
-            "operable": sorted(o.name for o in bpy.data.objects if o.get("operable"))}
+            "operable": sorted(o.name for o in bpy.data.objects if o.get("operable")),
+            "floors": {"main": 0.0, "loft": round(C["loft"]["floor_height"] * F, 3),
+                       "attic": round((C["ceilings"]["flat_height"] + FLOOR_T) * F, 3), "toggle_node": "SecondStory"},
+            "lights": globals().get("LIGHTS", []),
+            "trees": {"instance_order": "shuffled", "note": "show the first round(N*density) instances of each tree mesh for a density slider"},
+            "zfight": {"before": len(zf_before), "after": len(zf_after)}}
+if globals().get("DRIVE_ROUTE"):
+    manifest["drive_route_plan_ft"] = DRIVE_ROUTE
 az, el = math.radians(RC["sun_azimuth_deg"]), math.radians(RC["sun_elevation_deg"])
 manifest["sun_direction"] = [round(math.sin(az) * math.cos(el), 4), round(math.cos(az) * math.cos(el), 4), round(math.sin(el), 4)]
 for name, objs in PARTS:

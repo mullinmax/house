@@ -48,6 +48,44 @@ legend { font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; col
 #slicelbl { font-variant-numeric: tabular-nums; font-size: .82rem; color: var(--muted); }
 fieldset > label.stack { display: grid; gap: 2px; }
 #detents button { padding: 3px 8px; font-size: .78rem; }
+.layers { display: grid; gap: 2px; }
+.layer { display: grid; grid-template-columns: auto 18px 1fr; gap: 8px; align-items: center; padding: 3px 4px; border-radius: 6px; cursor: pointer; }
+.layer:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.layer.sub { margin-left: 22px; }
+.layer.off { opacity: .45; }
+.layer input { accent-color: var(--accent); margin: 0; }
+.ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: var(--muted); }
+#modal { position: fixed; inset: 0; background: var(--scrim); display: grid; place-items: center; z-index: 30; padding: 16px; }
+#modal .sheet { background: var(--bg); color: var(--fg); border: 1px solid var(--line); border-radius: 12px; width: min(980px, 100%); max-height: calc(100dvh - 32px);
+  overflow: auto; padding: 14px 16px 16px; display: grid; gap: 12px; }
+.mhead { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.mhead h2 { font: 600 1.1rem var(--display); margin: 0; flex: 1; min-width: 10ch; }
+#modalClose { font-size: 1.1rem; line-height: 1.2; padding: 2px 10px; }
+.plan { width: 100%; height: auto; display: block; }
+.plan .rm { fill: color-mix(in srgb, var(--accent) 8%, var(--bg)); stroke: var(--muted); stroke-width: .12; cursor: pointer; }
+.plan .rm:hover, .plan .rm:focus { fill: color-mix(in srgb, var(--accent) 35%, var(--bg)); outline: none; }
+.plan .rm.up { fill: none; stroke-dasharray: .6 .4; stroke: var(--accent); stroke-width: .2; }
+.plan .rm.up:hover { fill: color-mix(in srgb, var(--accent) 25%, transparent); }
+.plan .out { fill: none; stroke: var(--fg); stroke-width: .35; }
+.plan text { font: 500 1.05px var(--body); fill: var(--fg); pointer-events: none; text-anchor: middle; dominant-baseline: middle; }
+.plan text.small { font-size: .8px; fill: var(--muted); }
+.plan .dot { cursor: pointer; stroke: var(--bg); stroke-width: .18; }
+.plan .dot:hover { stroke: var(--fg); stroke-width: .3; }
+.plan .north { stroke: var(--muted); fill: none; stroke-width: .15; }
+.equipgrid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr); gap: 14px; align-items: start; }
+@media (max-width: 760px) { .equipgrid { grid-template-columns: 1fr; } }
+.elist { display: grid; gap: 10px; font-size: .85rem; }
+.elist h3 { font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 0 0 4px; display: flex; align-items: center; gap: 6px; }
+.elist h3 i { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+.elist button { display: block; width: 100%; text-align: left; border: 0; padding: 4px 6px; }
+.elist button:hover { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+.keys { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px 22px; }
+.keys h3 { font: 600 .95rem var(--display); margin: 0 0 6px; }
+.keys table { border-collapse: collapse; width: 100%; font-size: .85rem; }
+.keys td { padding: 4px 0; border-top: 1px solid var(--line); vertical-align: top; }
+.keys td:first-child { width: 42%; padding-right: 10px; white-space: nowrap; }
+kbd { font: 500 .75rem ui-monospace, Menlo, Consolas, monospace; border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 4px; padding: 0 5px; background: var(--panel); }
+.note { color: var(--muted); font-size: .8rem; margin: 0; }
 #info { position: fixed; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); width: min(340px, calc(100vw - 24px));
   max-height: calc(100dvh - 24px); overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px;
   backdrop-filter: blur(6px); z-index: 5; touch-action: pan-y; }
@@ -102,12 +140,16 @@ fieldset > label.stack { display: grid; gap: 2px; }
   <div class="eyebrow">Interactive model</div>
   <h1>House walkthrough</h1>
   <div class="row" role="group" aria-label="Camera mode">
-    <button id="mWalk" aria-pressed="true">Walk</button>
-    <button id="mOrbit" aria-pressed="false">Orbit</button>
+    <button id="mOrbit" aria-pressed="true" title="Drag to turn, scroll to zoom, W A S D to slide">Orbit</button>
+    <button id="mWalk" aria-pressed="false" title="Walk through the house at eye height">Walk</button>
+    <button id="tCrouch" aria-pressed="false" title="Crouch (C)">Crouch</button>
     <button id="tClip" aria-pressed="false" title="Fly through walls (N)">No clip</button>
   </div>
-  <select id="rooms" aria-label="Jump to a room"><option value="">Jump to a room</option></select>
-  <select id="equipSel" aria-label="Find an appliance or a piece of equipment" hidden><option value="">Find equipment</option></select>
+  <div class="row" role="group" aria-label="Go to">
+    <button id="bRooms" title="Pick a room on the floor plan">Go to a room</button>
+    <button id="bEquip" title="Pick an appliance or a piece of equipment on the plan" hidden>Find equipment</button>
+    <button id="bControls" title="Keys and gestures (H)">Controls</button>
+  </div>
   <fieldset>
     <legend>Height slice</legend>
     <label class="stack"><input id="slice" type="range" min="0.5" max="23" step="0.05" value="23" list="sliceticks" aria-label="Cut the house at this height"> <span id="slicelbl">Whole house</span></label>
@@ -116,29 +158,31 @@ fieldset > label.stack { display: grid; gap: 2px; }
   </fieldset>
   <details id="layers" open>
     <summary>Layers</summary>
-    <div class="checks">
-      <label><input type="checkbox" id="lRoof" checked> Roof</label>
-      <label><input type="checkbox" id="lFurniture" checked> Furniture</label>
-      <label><input type="checkbox" id="lAppliances" checked> Appliances</label>
-      <label><input type="checkbox" id="lMechanical" checked> Mechanical</label>
-      <label><input type="checkbox" id="lDucts" checked> Ducts</label>
-      <label><input type="checkbox" id="lTrusses" checked> Floor trusses</label>
-      <label><input type="checkbox" id="lUtil" checked> Buried lines</label>
-    </div>
-    <div class="row">
-      <button id="tSystems" aria-pressed="false" title="Hide the roof, furniture and trees and fade the walls, leaving the structure and the systems">Systems only</button>
-      <button id="tGhost" aria-pressed="false" title="Fade the walls, floors and furniture">See-through walls</button>
-      <button id="tXray" aria-pressed="false" title="Colour the ducts (blue supply, red return, green fresh air) and show them through everything">Duct x-ray</button>
+    <div class="layers">
+      <label class="layer" id="rowRoof" title="Roof, fascia, gutters and ceilings"><input type="checkbox" id="lRoof" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 8.5 8 2.5l6.5 6"/><path d="M4 7.5V13h8V7.5"/></svg> <span>Roof</span></label>
+      <label class="layer" id="rowWalls" title="Off: walls, floors and furniture fade so the systems read"><input type="checkbox" id="lWalls" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="10"/><path d="M2 6.5h12M2 10h12M6 3v3.5M10 6.5V10M6 10v3"/></svg> <span>Walls</span></label>
+      <label class="layer" id="rowFurniture" title=""><input type="checkbox" id="lFurniture" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 7V12M13.5 7V12M2.5 9.5h11M4 9.5V5.5h8v4"/></svg> <span>Furniture</span></label>
+      <label class="layer" id="rowTrees" title="Trees near the house"><input type="checkbox" id="lTrees" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8 3.5 9h9z"/><path d="M8 9v5"/></svg> <span>Trees</span></label>
+      <label class="layer" id="rowFarTrees" title="The woods further out. Off is faster on slow devices"><input type="checkbox" id="lFarTrees" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 5 1.8 9h4.4zM12 5 9.8 9h4.4zM8 3.5 5.6 8h4.8z"/><path d="M1 13h14"/></svg> <span>Distant trees</span></label>
+      <label class="layer" id="rowAppliances" title=""><input type="checkbox" id="lAppliances" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="1.8" width="8" height="12.4" rx="1"/><path d="M4 6.5h8M6 3.8v1.4M6 8.5v2"/></svg> <span>Appliances</span></label>
+      <label class="layer" id="rowMechanical" title="Heat pump, ERV, water heater, geothermal"><input type="checkbox" id="lMechanical" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/><path d="M8 8 8 3.2M8 8l4.2 2.4M8 8l-4.2 2.4"/></svg> <span>Mechanical</span></label>
+      <label class="layer" id="rowDucts" title="Supply, return and fresh air ducts"><input type="checkbox" id="lDucts" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 6h9v4h-9z"/><path d="M10.5 8H15M12.8 5.8 15 8l-2.2 2.2"/></svg> <span>Ducts</span></label>
+      <label class="layer sub" id="rowXray" title="Colour the ducts (blue supply, red return, green fresh air) and show them through everything"><input type="checkbox" id="lXray"> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12" stroke="#3B82C4"/><path d="M2 8h12" stroke="#C4473B"/><path d="M2 12h12" stroke="#3F9B57"/></svg> <span>Duct x-ray</span></label>
+      <label class="layer" id="rowTrusses" title=""><input type="checkbox" id="lTrusses" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 4h14M1 12h14M1.5 12 4.5 4 7.5 12 10.5 4 13.5 12"/></svg> <span>Floor trusses</span></label>
+      <label class="layer" id="rowUtil" title="Geothermal loops and septic"><input type="checkbox" id="lUtil" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 5h14"/><path d="M2 10h12" stroke-dasharray="2 1.6"/><path d="M3 5v2M8 5v2M13 5v2" stroke-width="1"/></svg> <span>Buried lines</span></label>
     </div>
   </details>
-  <label>Trees <input id="trees" type="range" min="0" max="100" step="5" value="100"> <span id="treelbl">100%</span></label>
   <div class="row" role="group" aria-label="Time of day">
     <button id="tDay" aria-pressed="true">Day</button>
     <button id="tNight" aria-pressed="false" title="Turn the sun off and the room lights on">Night</button>
   </div>
-  <p class="help" id="helpDesk"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move, mouse looks (click the view first), <kbd>Shift</kbd> walks faster, <kbd>N</kbd> toggles no clip (fly through walls, <kbd>Space</kbd> up, <kbd>C</kbd> down),
-    <kbd>E</kbd> or a click opens and closes doors, sliders, garage doors and drawers, and shows the details of an appliance, a piece of equipment or a duct. <kbd>Esc</kbd> frees the mouse. Slow? Turn the Trees slider down, or add <kbd>?lite</kbd> to the address.</p>
-  <p class="help" id="helpTouch" hidden>Left stick moves, drag anywhere else to look. No clip lets you fly through walls in the direction you look. Tap a door or drawer to open or close it, or an appliance or duct to read about it.</p>
+</div>
+
+<div id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="sheet">
+    <div class="mhead"><h2 id="modalTitle"></h2><div class="row" id="modalTools"></div><button id="modalClose" aria-label="Close" title="Close (Esc)">×</button></div>
+    <div id="modalBody"></div>
+  </div>
 </div>
 
 <aside id="info" hidden aria-live="polite">
@@ -149,7 +193,7 @@ fieldset > label.stack { display: grid; gap: 2px; }
 <div id="cross" hidden></div>
 <div id="prompt" hidden><kbd>E</kbd><span id="promptTxt">Open</span></div>
 <div id="stick" hidden><div></div></div>
-<div id="hint" hidden>Click to look around</div>
+<div id="hint" hidden>Click to look around. <kbd>H</kbd> for controls</div>
 
 <script type="module" src="./app.js"></script>
 </body>
