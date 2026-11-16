@@ -36,6 +36,7 @@ To put a new export on the site, shrink and pack the parts as described in the m
 - `build_details.py`: furniture, bath fixtures, interior trim and doors, exterior details, light fixtures, PBR materials.
 - `build_trees.py`: procedural hardwoods.
 - `export_web.py`: the glTF export for the walkthrough (operable pivots, spawns, baked floor and terrain, z-fight nudges).
+- `export_web_draft.py`: a cloud fallback export with pip `bpy` (closes every door, bakes the stained slab, flat colours elsewhere): `python archive/blender/export_web_draft.py --model /path/to/house-model --out site/models --gltfpack /path/to/gltfpack`.
 - `fetch_assets.py`, `assets/SOURCES.md`: CC0 asset downloads and credits.
 - `render_queue.ps1`, `make_contact_sheet.py`: resumable renders on the laptop and contact sheets.
 - `web_*.py`: checks on an export (bounds, node counts, previews, attic walls, chunking for upload).

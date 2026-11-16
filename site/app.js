@@ -1,5 +1,8 @@
-// House walkthrough: three.js viewer for the parametric Blender model.
-// Model parts and options come from models/manifest.json (written by export_web.py).
+// House walkthrough: three.js viewer for the parametric house model.
+// The house is built in the browser from models/house.json (model/make_house.py) and the equipment from
+// models/equipment.json (model/make_equipment.py). Terrain, trees and furniture are .glb parts listed in
+// models/manifest.json, last exported from the archived Blender model. Add ?baked to the address to load the old
+// Blender shell.glb and interior.glb instead of the generated house, for comparison.
 // Units are metres, glTF Y up. Plan feet (x east, y south from the NW slab corner) map to (x*F, z, y*F).
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -8,6 +11,7 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { buildEquipment, cullBaked, setDuctXray, infoHTML, equipMaterials } from './equipment.js';
+import { buildHouse, houseRecordAt } from './house.js';
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
@@ -103,11 +107,32 @@ async function getEquipment() {
   return null;
 }
 
+// The house: walls, roof, windows, doors, cabinets, trim, loft, garage and porch, from models/house.json.
+// It replaces the Blender shell.glb and interior.glb, which ?baked brings back.
+const BAKED = /[?&]baked\b/.test(location.search);
+const HOUSE_PARTS = /^(shell|interior)$/i;
+let house = null;
+async function getHouse() {
+  if (BAKED) return null;
+  try {
+    const r = await fetch('models/house.json', { cache: 'no-cache' });
+    if (r.ok) return await r.json();
+  } catch (e) { /* fall back to the baked parts */ }
+  return null;
+}
+
 async function loadAll() {
-  const [man, eq] = await Promise.all([getManifest(), getEquipment()]);
+  const [man, eq, hd] = await Promise.all([getManifest(), getEquipment(), getHouse()]);
   manifest = man; equipData = eq;
   setupSlice();
-  const parts = man.parts || [];
+  let parts = man.parts || [];
+  if (hd) {
+    const skip = new Set((eq && eq.items || []).map((it) => it.id));      // appliances the equipment layer draws for real
+    house = buildHouse(hd, { skip });
+    world.add(house.root);
+    parts = parts.filter((p) => !HOUSE_PARTS.test(p.name || p.file.replace(/\.glb$/, '')));
+    console.log(`house: ${house.recs.length} records built from house.json`);
+  }
   const sizes = parts.map((p) => p.bytes || 1);
   const got = new Array(parts.length).fill(0);
   const isLater = parts.map((p) => LATER.test(p.name || p.file) && parts.some((q) => !LATER.test(q.name || q.file)));
@@ -250,7 +275,7 @@ function mergeStatic(roots, roofSet, utilSet, opRoots, fixtures) {
   for (const r of roots) r.traverse((o) => {
     if (!o.isMesh || o.isInstancedMesh || o.isSkinnedMesh || Array.isArray(o.material)) return;
     if (o.geometry.morphAttributes && Object.keys(o.geometry.morphAttributes).length) return;
-    if (o.material.vertexColors) return;
+    if (o.material.vertexColors || o.userData.house) return;   // generated house meshes keep their record ranges
     let tag = '', pass = false;
     for (let p = o; p && p !== world; p = p.parent) {
       if (opRoots.has(p) || fixtureSet.has(p)) return;    // moving parts and night fixtures stay separate
@@ -385,7 +410,10 @@ function targetAt(ndc) {
     const u = h.object.userData;
     if (!solid) for (let p = h.object; p; p = p.parent) if (p.userData && p.userData._op) return (mode !== 'walk' || h.distance <= REACH) ? { op: p.userData._op } : null;
     if (u.equipId && equip && equip.byId[u.equipId] && (!solid || ghost || (xray && u.duct))) return { equip: equip.byId[u.equipId] };
-    if (!u.pass) { if (!ghost && !xray) return null; solid = true; }
+    if (!u.pass) {
+      if (!ghost && !xray) { const rec = houseRecordAt(h, house); return rec ? { equip: rec, house: true } : null; }
+      solid = true;
+    }
   }
   return null;
 }
@@ -553,15 +581,16 @@ function showInfo(it) {
   $('infoBody').innerHTML = infoHTML(it);
   $('info').hidden = false;
   if (selBox) { scene.remove(selBox); selBox = null; }
-  if (it.obj && !it.type && it.id !== 'floor_trusses') {            // outline single things, not whole duct runs
-    selBox = new THREE.Box3Helper(new THREE.Box3().setFromObject(it.obj).expandByScalar(0.015), 0xffb000);
+  const bb = it.box ? it.box.clone() : it.obj ? new THREE.Box3().setFromObject(it.obj) : null;
+  if (bb && !bb.isEmpty() && !it.type && it.id !== 'floor_trusses' && !/^(roof|ceiling|slab)$/.test(it.kind || '')) {   // outline single things, not whole runs
+    selBox = new THREE.Box3Helper(bb.expandByScalar(0.015), 0xffb000);
     selBox.material.depthTest = false; selBox.renderOrder = 20; scene.add(selBox);
   }
 }
 function hideInfo() { $('info').hidden = true; if (selBox) { scene.remove(selBox); selBox = null; } }
 $('infoClose').onclick = hideInfo;
 function goTo(it) {       // bring the thing into view
-  const c = new THREE.Box3().setFromObject(it.obj).getCenter(new THREE.Vector3());
+  const c = (it.box ? it.box.clone() : new THREE.Box3().setFromObject(it.obj)).getCenter(new THREE.Vector3());
   const a = THREE.MathUtils.degToRad(it.facing || 0), front = new THREE.Vector3(Math.sin(a), 0, -Math.cos(a));
   if (mode === 'orbit') {
     orbit.target.copy(c); camera.position.copy(c).addScaledVector(front, 3.2).add(new THREE.Vector3(0, 2.2, 0)); orbit.update();
@@ -854,11 +883,12 @@ renderer.setAnimationLoop(() => {
   placeLights(false);
   if (mode === 'walk' && !touch && (++promptFrame % 6 === 0)) {
     const t = targetAt(center);
-    $('prompt').hidden = !t;
-    if (t) $('promptTxt').textContent = t.op ? (t.op.target ? 'Close' : 'Open') : `About: ${t.equip.name}`;
+    const shown = t && !t.house;                 // walls and trim answer a click, but do not prompt
+    $('prompt').hidden = !shown;
+    if (shown) $('promptTxt').textContent = t.op ? (t.op.target ? 'Close' : 'Open') : `About: ${t.equip.name}`;
   } else if (mode !== 'walk') $('prompt').hidden = true;
   renderer.render(scene, camera);
 });
 
 loadAll().catch((e) => { console.error(e); $('loadmsg').textContent = 'The model could not be loaded.'; });
-window.__B = THREE.Box3; window.__T = THREE; window.__walk = { orbit, setSlice, setGhost, targetAt, showInfo, goTo, get equip() { return equip; }, getDpr: () => dpr, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };
+window.__B = THREE.Box3; window.__T = THREE; window.__walk = { orbit, setSlice, setGhost, targetAt, showInfo, goTo, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };
