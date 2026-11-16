@@ -8,7 +8,10 @@ Open the site, then:
 - **N** toggles no clip: fly through walls in the direction you look, Space up, C down.
 - **E** opens and closes whatever you're looking at: doors, the barn doors, the bi-parting slider, the garage doors and drawers.
 - **Orbit mode:** drag to rotate around the site, scroll to zoom. Click a door to open it.
-- **Panel:** jump to any room, take the roof off for a dollhouse view, cut away the loft and attic with Upstairs off, switch between Day and Night (room lights on), show or hide the buried geothermal and septic lines, and thin the trees with the Trees slider on slow devices.
+- **Click or E on an appliance, a piece of equipment or a duct** to read what it is: model, price, size, specs, and notes on where the design is still open. "Find equipment" in the panel jumps to any of them.
+- **Height slice:** a slider cuts the house at any height. It catches at detents just under each level's ceiling (main floor, floor trusses, loft and attic), and lifts the roof off while it is cutting.
+- **Layers:** show or hide the roof, furniture, appliances, mechanical equipment, ducts, floor trusses and buried lines. "Systems only" hides the roof, furniture and trees and fades the walls. "Duct x-ray" colours the ducts (blue supply, red return, green fresh air) and shows them through everything.
+- **Panel:** jump to any room, switch between Day and Night (room lights on), and thin the trees with the Trees slider on slow devices.
 - **Slow device?** Add `?lite` to the address to start without shadows and with a quarter of the trees.
 - **Phones:** the left stick moves, drag anywhere else to look, tap a door to open it.
 
@@ -49,7 +52,19 @@ Open the site, then:
   - `"rollup"` lifts the door by its own height.
   - Pivots sit at the hinge or track.
 - **Spawn points:** `Spawn_<Room>` empty nodes, at eye height, are spawn points. An optional `look` extra gives the Blender world point to face.
-- **Toggles:** nodes named `Roof` or matching roof, fascia, gutter and ceiling names hide with "Roof off". Nodes named `Utilities` or matching geothermal or septic names follow "Buried lines".
+- **Layers:** nodes named `Roof` or matching roof, fascia, gutter and ceiling names follow the Roof layer. Nodes named `Utilities` or matching geothermal or septic names follow "Buried lines". Parts named `furniture*` follow Furniture.
+
+## Appliances, equipment and ducts
+
+These are not in the Blender export. `site/equipment.js` builds them in the browser from `site/models/equipment.json`, which `model/make_equipment.py` writes (plain Python, no Blender):
+
+```
+python model/make_equipment.py
+```
+
+- Every thing is a record with an id, a name, a `system` (`hvac.supply`, `geothermal.loop`, `plumbing.dhw`, ...), a room, a layer, its geometry (a builder and true size, or a duct or pipe path) and an `info` block for the card. Positions are plan feet, sizes are inches.
+- `cull` boxes and `replaces_nodes` remove the generic appliance boxes from the Blender model so the real ones take their place.
+- The duct layout starts from Andy Roehl's M-10 (07/30/2026) and changes two things at Maxwell's direction: the supply trunk runs along the north wall of the attic, and every bedroom gets a ducted return through open web floor trusses in place of transfer grilles. The trusses are 11-7/8 in deep (set in `[floor_trusses]` in `config.toml`, which also raises the attic deck and the loft floor). Truss spacing and direction, duct sizes off the trunk and the heat pump orientation are marked ASSUMED in the data and on the cards.
 
 ## Draft export (cloud)
 
