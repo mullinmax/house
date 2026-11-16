@@ -14,13 +14,18 @@ his 8/14/2026 notes to Andy. Anything marked ASSUMED is a placeholder until the 
 """
 import json, os
 
-CEIL = 9.0                 # flat ceilings (A-11)
-TRUSS_IN = 16.0            # ASSUMED open web floor truss depth
-DECK = CEIL + TRUSS_IN / 12 + 0.75 / 12          # top of the attic deck on the trusses
+import tomllib
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "config.toml"), "rb") as _f:
+    CFG = tomllib.load(_f)
+CEIL = CFG["ceilings"]["flat_height"]             # flat ceilings (A-11)
+TRUSS_IN = CFG["floor_trusses"]["depth_in"]       # 11-7/8 in open web floor trusses (Maxwell, 11/16/2026)
+DECK_IN = CFG["floor_trusses"]["deck_in"]
+DECK = CEIL + (TRUSS_IN + DECK_IN) / 12           # top of the attic deck and the loft subfloor
 ZT = CEIL + TRUSS_IN / 24                         # duct centreline inside the truss space
+RH = 8                                            # tallest duct that passes between the 2x4 chords (8-7/8 in clear)
 ZTR = DECK + 8.0 / 12 + 0.02                      # centre of the 18 x 16 supply trunk sitting on the deck
-FLAT = [[0.5, 10.95, 12.12, 22.41], [12.12, 10.95, 23.4, 15.03], [12.12, 15.03, 16.66, 22.87], [16.66, 15.03, 31.12, 22.87],
-        [31.12, 15.03, 42.5, 22.87], [0.5, 22.87, 12.12, 29.03], [0.5, 29.03, 12.12, 34.62]]       # [ceilings].flat_rooms in config.toml
+FLAT = CFG["ceilings"]["flat_rooms"]
+LOFT = CFG["loft"]["rect"]
 
 items, runs, ducts = [], [], []
 APPROX = "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
@@ -200,26 +205,27 @@ supply("s_living1", "Living", 46, 6, drop(24.5, YS, 22.62), dict(at=[24.5, 22.9,
 supply("s_living2", "Living", 46, 6, drop(28.5, YS, 22.62), dict(at=[28.5, 22.9, ZT], size=[10, 6], wall=S))
 supply("s_laundry", "Laundry", 40, 6, drop(26.5, YS, 19.0), dict(at=[26.5, 19.0, CEIL - 0.02], size=[10, 6]))
 supply("s_closet1", "Closet 1", 33, 6, drop(33.4, YS, 18.9), dict(at=[33.4, 18.9, CEIL - 0.02], size=[10, 6]))
-supply("s_bath1", "Bath 1", 49, 6, drop(34.6, YS, 27.6, 9.45), dict(at=[34.6, 27.6, CEIL - 0.02], size=[10, 6]), "Runs in the loft floor.")
-supply("s_loft", "Loft", 88, 6, drop(36.0, YS, 24.6, 9.45), dict(at=[36.0, 24.6, 9.93], size=[12, 4]), "Floor register in the loft.")
+supply("s_bath1", "Bath 1", 49, 6, drop(34.6, YS, 27.6), dict(at=[34.6, 27.6, CEIL - 0.02], size=[10, 6]), "Runs in the loft floor.")
+supply("s_loft", "Loft", 88, 6, drop(36.0, YS, 24.6), dict(at=[36.0, 24.6, DECK + 0.01], size=[12, 4]), "Floor register in the loft.")
 for k, x in enumerate([32.3, 38.0]):
-    supply(f"s_family{k+1}", "Entry / family", 112, 7, drop(x, YS, 35.0, 9.45), dict(at=[x, 35.1, 9.45], size=[14, 6], wall=S), "Runs in the loft floor to a high sidewall register.")
+    supply(f"s_family{k+1}", "Entry / family", 112, 7, drop(x, YS, 35.0), dict(at=[x, 35.1, ZT], size=[14, 6], wall=S), "Runs in the loft floor to a high sidewall register.")
 supply("s_bed1", "Bedroom 1", 138, 8, [[40.4, YE - 0.6, 11.0], [40.4, 14.95, 11.0]], dict(at=[40.4, 14.97, 11.0], size=[14, 8], wall=N), "High sidewall register through the attic wall.")
 
 # returns: every one of these is ducted in the open web truss space instead of M-10's transfer grilles and hall return
 RNOTE = ("New. M-10 returned all air to one 34 x 10 grille in hall 1 through transfer grilles and door undercuts. The builder plans open web floor trusses, "
          "so each bedroom and the study gets its own ducted return here. The return main runs in the trusses directly under the supply trunk, which keeps "
-         "supply branches and returns from crossing. Sizes, truss depth (16 in) and truss direction are ASSUMED until Andy or the HVAC installer sizes them.")
-ret("return_main", "Return main", [24, 10], [[39.5, YE, ZT], [XJ, YE, ZT], [XJ, YN, ZT], [XW, YN, ZT], [XW, 22.3, ZT], [5.2, 22.3, ZT], [5.2, 25.6, ZT]],
-    grilles=[dict(at=[XW, 19.5, CEIL - 0.02], size=[20, 10])], note=RNOTE)
+         "supply branches and returns from crossing. The trusses are 11-7/8 in deep, which leaves about 8-7/8 in clear between the chords, so every duct in the floor is "
+         "8 in tall or less. Duct sizes and truss direction are ASSUMED until Andy or the HVAC installer sizes them.")
+ret("return_main", "Return main", [28, RH], [[39.5, YE, ZT], [XJ, YE, ZT], [XJ, YN, ZT], [XW, YN, ZT], [XW, 22.3, ZT], [5.2, 22.3, ZT], [5.2, 25.6, ZT]],
+    grilles=[dict(at=[XW, 19.5, CEIL - 0.02], size=[20, 8])], note=RNOTE)
 ducts[-1]["info"]["specs"] = [["Serves", "Bedrooms 1, 2 and 3, the study, and the common area return"], ["Bedroom 3", "Ceiling grille straight into the main"]]
-ret("return_riser", None, [30, 10], [[5.2, 25.6, ZT], [5.2, 25.6, DECK + 0.6]], info_of="return_main")
+ret("return_riser", None, [30, RH], [[5.2, 25.6, ZT], [5.2, 25.6, DECK + 0.6]], info_of="return_main")
 ret("return_plenum", None, [36, 20], [[5.2, 24.92, DECK + 5.5 / 12 + 10.6 / 12], [5.2, 26.4, DECK + 5.5 / 12 + 10.6 / 12]], info_of="return_main")
 ret("r_bed1", "Return from bedroom 1", [14, 8], [[39.5, 15.05, ZT], [39.5, YE, ZT]], grilles=[dict(at=[39.5, 15.0, ZT], size=[20, 8], wall=N)], note="High wall grille, ducted through the trusses to the return main.")
 ret("r_bed2", "Return from bedroom 2", [14, 8], [[13.6, 10.68, ZT], [13.6, YN, ZT]], grilles=[dict(at=[13.6, 10.63, ZT], size=[16, 8], wall=N)], note="High wall grille above the door, ducted through the trusses to the return main.")
 ret("r_study", "Return from bedroom 4 / study", [10, 8], [[23.02, 9.9, ZT], [22.8, 9.9, ZT], [22.8, YN, ZT]], grilles=[dict(at=[23.07, 9.9, ZT], size=[14, 8], wall="E")],
     note="The study does not touch the attic. This uses the wall chase at its southwest corner to reach the trusses. ASSUMED.")
-ret("r_common", "Return from living and common areas", [24, 10], [[12.1, 27.4, ZT], [5.2, 27.4, ZT], [5.2, 25.6, ZT]], grilles=[dict(at=[12.15, 27.4, ZT], size=[30, 10], wall="E")],
+ret("r_common", "Return from living and common areas", [28, RH], [[12.1, 27.4, ZT], [5.2, 27.4, ZT], [5.2, 25.6, ZT]], grilles=[dict(at=[12.15, 27.4, ZT], size=[30, 8], wall="E")],
     note="One grille high on the hall 1 wall serves the open living, kitchen, dining and family space. It takes the place of M-10's 34 x 10 hall return.")
 
 # ERV ducts
@@ -227,15 +233,18 @@ for k, (y, nm) in enumerate([(28.2, "outdoor air in"), (29.6, "exhaust air out")
     ducts.append(dict(id=f"erv_wall_{k}", info_of="erv", type="erv", shape="round", size=6, points=[[0.75, y, DECK + 1.15], [-0.05, y, DECK + 1.15]]))
 ducts.append(dict(id="erv_to_return", info_of="erv", type="erv", shape="round", size=6, points=[[2.95, 28.9, DECK + 1.15], [4.4, 28.9, DECK + 1.15], [4.4, 26.4, DECK + 1.15]]))
 
-trusses = dict(id="floor_trusses", name="Open web floor trusses", category="Structure", system="structure.floor", regions=FLAT, z0=CEIL, depth_in=TRUSS_IN, spacing_in=24, deck_in=0.75,
-    info=dict(model="16 in open web floor trusses at 24 in on centre (ASSUMED)",
-      notes=["The builder plans open web floor trusses under the attic so ducts can run through the floor. Depth, spacing and span direction are placeholders until the truss drawings exist.",
-             "The sealed plans and the Blender model still show a 9.6 in floor here, so the deck in this layer sits about 7 in higher than the baked one."]))
+trusses = dict(id="floor_trusses", name="Open web floor trusses", category="Structure", system="structure.floor", regions=FLAT, loft_regions=[LOFT],
+    z0=CEIL, depth_in=TRUSS_IN, spacing_in=CFG["floor_trusses"]["spacing_in"], deck_in=DECK_IN,
+    info=dict(model="11-7/8 in open web floor trusses",
+      specs=[["Depth", "11-7/8 in (Maxwell, 11/16/2026)"], ["Clear for ducts", "About 8-7/8 in between the chords"], ["Floor top", f"{DECK:.2f} ft above the slab with 3/4 in decking"],
+             ["Spacing", "24 in on centre, ASSUMED"], ["Span", "North to south, ASSUMED"]],
+      notes=["The attic deck and the loft floor sit on these, about 3 in higher in the attic and 2 in higher in the loft than the sealed plans.",
+             "The loft railing, pony wall, ladder and furniture come from the last Blender export and still sit at the old height, about 2 in low, until the next export."]))
 
 out = dict(
     meta=dict(units="plan feet for positions, inches for sizes", generated_by="model/make_equipment.py",
               sources=["M-10 mechanical plan 07/30/2026 (preliminary)", "U-11 sealed plan", "Geo-Hydro quotes MMUL8476-4 and MMUL8476-5", "Appliance shortlist 11/15/2026"]),
-    levels=[dict(id="main", name="Main floor", cut_ft=8.85), dict(id="truss", name="Floor trusses", cut_ft=10.3),
+    levels=[dict(id="main", name="Main floor", cut_ft=8.85), dict(id="truss", name="Floor trusses", cut_ft=round(CEIL + TRUSS_IN / 12 - 0.03, 2)),
             dict(id="upper", name="Loft and attic", cut_ft=16.0), dict(id="all", name="Whole house", cut_ft=None)],
     items=items, runs=runs, ducts=ducts, trusses=trusses)
 path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "site", "models", "equipment.json")

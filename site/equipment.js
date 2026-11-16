@@ -368,7 +368,7 @@ function buildTrusses(t) {
   const D = t.depth_in / 12, CH = 1.5 / 12, CW = 3.5 / 12, sp = t.spacing_in / 12, z0 = t.z0;
   const push = (geo, m4) => { geo.applyMatrix4(m4); geos.push(geo); };
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), one = new THREE.Vector3(1, 1, 1);
-  for (const [x0, y0, x1, y1] of t.regions) {
+  for (const [x0, y0, x1, y1] of [...t.regions, ...(t.loft_regions || [])]) {
     const n = Math.max(1, Math.round((x1 - x0) / sp)), L = y1 - y0;
     for (let i = 0; i <= n; i++) {
       const x = Math.min(x1 - CW / 2, Math.max(x0 + CW / 2, x0 + i * (x1 - x0) / n));
@@ -396,6 +396,12 @@ function buildTrusses(t) {
     const geo = new THREE.BoxGeometry((x1 - x0) * F, dt * F, (y1 - y0) * F); geo.applyMatrix4(m4); decks.push(geo);
   }
   if (decks.length) { const me = new THREE.Mesh(mergeGeometries(decks), deckM); me.name = 'Attic deck on trusses'; me.userData.equipId = t.id; g.add(me); }
+  const lofts = [];                                                   // the loft's finished floor rides up with its trusses
+  for (const [x0, y0, x1, y1] of t.loft_regions || []) {
+    m4.makeTranslation(...plan((x0 + x1) / 2, (y0 + y1) / 2, z0 + D + dt / 2).toArray());
+    const geo = new THREE.BoxGeometry((x1 - x0) * F, dt * F, (y1 - y0) * F); geo.applyMatrix4(m4); lofts.push(geo);
+  }
+  if (lofts.length) { const me = new THREE.Mesh(mergeGeometries(lofts), mat('loft floor oak', 0xc8a57a, 0.6)); me.name = 'Loft floor on trusses'; me.userData.equipId = t.id; g.add(me); }
   return g;
 }
 

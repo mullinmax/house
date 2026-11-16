@@ -796,6 +796,8 @@ if C["materials"]["siding_style"] == "board_and_batten":
 # ------------------------------------------------------------------ interior walls (A-11 vectors)
 LOFT = C["loft"]
 LX0, LY0, LX1, LY1 = LOFT["rect"]
+_ft = C.get("floor_trusses")          # attic and loft floor thickness (ft): trusses plus decking, or the old 9.6" default
+FLOOR_T = (_ft["depth_in"] + _ft.get("deck_in", 0.75)) / 12 if _ft else 0.8
 
 
 def pt_in_poly(x, y, poly):
@@ -844,7 +846,7 @@ def wall_top(x0, x1, y0, y1):
     if in_loft:
         if abs(cx - (LX0 + 0.23)) < 0.4:      # loft edge pony wall (bath 1 west wall)
             return lambda x, y: LOFT["floor_height"] + LOFT["pony_wall_height"]
-        return lambda x, y: LOFT["floor_height"] - 0.9
+        return lambda x, y: LOFT["floor_height"] - FLOOR_T
     return lambda x, y: roof_under(min(y, YC2))
 
 
@@ -957,11 +959,11 @@ mesh_obj("Vault ceiling south", v, [(0, 1, 2, 3)], "Drywall", c_ceil)
 # flat 9' ceilings + attic floor
 FH = C["ceilings"]["flat_height"]
 for k, (x0, y0, x1, y1) in enumerate(C["ceilings"]["flat_rooms"]):
-    box(f"Flat ceiling {k}", x0, x1, y0, y1, FH, FH + 0.8, "Drywall", c_ceil)
+    box(f"Flat ceiling {k}", x0, x1, y0, y1, FH, FH + FLOOR_T, "Drywall", c_ceil)
 
 # loft
 if LOFT["enabled"]:
-    box("Loft floor", LX0, LX1, LY0, LY1, LOFT["floor_height"] - 0.9, LOFT["floor_height"], "White Oak", c_ceil)
+    box("Loft floor", LX0, LX1, LY0, LY1, LOFT["floor_height"] - FLOOR_T, LOFT["floor_height"], "White Oak", c_ceil)
     lx0, ly0, lx1, ly1 = LOFT["ships_ladder"]
     n = 11
     for k in range(n):

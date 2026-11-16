@@ -64,7 +64,7 @@ python model/make_equipment.py
 
 - Every thing is a record with an id, a name, a `system` (`hvac.supply`, `geothermal.loop`, `plumbing.dhw`, ...), a room, a layer, its geometry (a builder and true size, or a duct or pipe path) and an `info` block for the card. Positions are plan feet, sizes are inches.
 - `cull` boxes and `replaces_nodes` remove the generic appliance boxes from the Blender model so the real ones take their place.
-- The duct layout starts from Andy Roehl's M-10 (07/30/2026) and changes two things at Maxwell's direction: the supply trunk runs along the north wall of the attic, and every bedroom gets a ducted return through open web floor trusses in place of transfer grilles. Truss depth and direction, duct sizes off the trunk and the heat pump orientation are marked ASSUMED in the data and on the cards.
+- The duct layout starts from Andy Roehl's M-10 (07/30/2026) and changes two things at Maxwell's direction: the supply trunk runs along the north wall of the attic, and every bedroom gets a ducted return through open web floor trusses in place of transfer grilles. The trusses are 11-7/8 in deep (set in `[floor_trusses]` in `config.toml`, which also raises the attic deck and the loft floor). Truss spacing and direction, duct sizes off the trunk and the heat pump orientation are marked ASSUMED in the data and on the cards.
 
 ## Draft export (cloud)
 

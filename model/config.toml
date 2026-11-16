@@ -43,10 +43,16 @@ flat_rooms = [
   [0.5, 29.03, 12.12, 34.62],   # Pantry + Powder
 ]
 
+[floor_trusses]                 # open web floor trusses under the attic deck and the loft (builder's choice, so returns can be ducted)
+depth_in = 11.875               # 11-7/8" (Maxwell 11/16/2026)
+deck_in = 0.75                  # ASSUMED 3/4" decking
+spacing_in = 24.0               # ASSUMED
+span = "ns"                     # ASSUMED north to south, until the truss drawings exist
+
 [loft]                          # 134 sf loft over Bath 1 (A-12)
 enabled = true
 rect = [31.12, 22.87, 42.5, 34.62]
-floor_height = 9.9              # 9' plate + 2x10 floor (A-30 notes)
+floor_height = 10.052           # 9' plate + 11-7/8" open web trusses + 3/4" subfloor (Maxwell 11/16/2026). Was 9.9 with the 2x10 floor on A-30
 pony_wall_height = 3.5          # "HIGH PONYWALL" (A-12)
 ships_ladder = [27.7, 32.0, 31.12, 34.56]   # footprint from A-11, rises toward the east
 
