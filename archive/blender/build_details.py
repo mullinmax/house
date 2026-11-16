@@ -9,7 +9,7 @@ fascia and soffit, gutters and downspouts, door thresholds.
 import glob, random
 
 AS = C.get("assets", {})
-ADIR = os.path.join(HERE, AS.get("dir", "assets"))
+ADIR = os.path.join(SRC, AS.get("dir", "assets"))
 FU = C.get("furnishings", {})
 c_furn = col("Furniture and Fixtures", c_house)
 c_trim = col("Interior Trim and Doors", c_house)
@@ -349,7 +349,7 @@ def place_model(it):
     c_furn.objects.link(e)
     yy = it["y"]
     if it.get("wall"):   # wall hung: back against the wall plane at (x, y)
-        f_ = math.radians(it.get("facing", 180)); d = sy * s / 2 + 0.02
+        f_ = math.radians(it.get("facing", 180)); d = sy * s / 2 + 0.05   # 5/8" off the wall: no coplanar back plate
         x_ = it["x"] + math.sin(f_) * d; yy = it["y"] - math.cos(f_) * d
         e.location = P(x_, yy, z)
     else:
@@ -555,22 +555,105 @@ def make_tub(it):
 def make_shower(it):
     x0, x1, y0, y1 = it["x0"], it["x1"], it["y0"], it["y1"]
     gx = it.get("glass_x", x0 - 0.12)
-    p = [box("shower floor tile", min(gx, x0), x1, y0, y1, 0.0, 0.06, "Tile Floor", c_furn),
-         box("shower curb", gx - 0.18, gx + 0.18, y0, y1, 0, 0.35, "Counter", c_furn),
-         tile_wall("shower tile north", x0, x1, y0, y0 + 0.02, 0.06, 7.5),
-         tile_wall("shower tile east", x1 - 0.02, x1, y0, y1, 0.06, 7.5),
-         tile_wall("shower tile south", x0, x1, y1 - 0.02, y1, 0.06, 7.5),
-         box("shower glass", gx - 0.02, gx + 0.02, y0 + 0.05, y1 - 0.05, 0.35, 7.2, "Glass", c_furn),
-         box("shower glass hinge", gx - 0.04, gx + 0.04, y1 - 0.3, y1 - 0.2, 5.5, 5.8, "Brushed Nickel", c_furn),
-         box("shower handle", gx + 0.02, gx + 0.08, y0 + 0.3, y0 + 0.36, 3.0, 4.2, "Brushed Nickel", c_furn),
-         cyl("rain head", 0.4, 0.4, 0.04, "Brushed Nickel", 7.4, cx=(x0 + x1) / 2 + 0.4, cy=(y0 + y1) / 2),
+    if it.get("curbless"):     # flush tile floor sloping to a linear drain at the back wall, no curb
+        p = [box("shower floor tile", min(gx, x0) - 0.3, x1, y0, y1, 0.003, 0.012, "Tile Floor", c_furn),
+             box("shower linear drain", x1 - 0.42, x1 - 0.12, y0 + 0.15, y1 - 0.15, 0.012, 0.016, "Brushed Nickel", c_furn)]
+    else:
+        p = [box("shower floor tile", min(gx, x0), x1, y0, y1, 0.0, 0.06, "Tile Floor", c_furn),
+             box("shower curb", gx - 0.18, gx + 0.18, y0, y1, 0, 0.35, "Counter", c_furn)]
+    p += [tile_wall("shower tile north", x0, x1, y0 + 0.003, y0 + 0.023, 0.012, 7.5),
+          tile_wall("shower tile east", x1 - 0.023, x1 - 0.003, y0, y1, 0.012, 7.5),
+          tile_wall("shower tile south", x0, x1, y1 - 0.023, y1 - 0.003, 0.012, 7.5)]
+    if not it.get("doorless"):
+        p += [box("shower glass", gx - 0.02, gx + 0.02, y0 + 0.05, y1 - 0.05, 0.35, 7.2, "Glass", c_furn),
+              box("shower glass hinge", gx - 0.04, gx + 0.04, y1 - 0.3, y1 - 0.2, 5.5, 5.8, "Brushed Nickel", c_furn),
+              box("shower handle", gx + 0.02, gx + 0.08, y0 + 0.3, y0 + 0.36, 3.0, 4.2, "Brushed Nickel", c_furn)]
+    p += [cyl("rain head", 0.4, 0.4, 0.04, "Brushed Nickel", 7.4, cx=(x0 + x1) / 2 + 0.4, cy=(y0 + y1) / 2),
          box("rain arm", (x0 + x1) / 2 + 0.4, x1, (y0 + y1) / 2 - 0.03, (y0 + y1) / 2 + 0.03, 7.44, 7.5, "Brushed Nickel", c_furn),
          cyl("valve", 0.22, 0.22, 0.04, "Brushed Nickel", 3.8, cx=x1 - 0.04, cy=(y0 + y1) / 2),
-         box("shower niche", x1 - 0.05, x1 - 0.02, y0 + 1.2, y0 + 2.4, 4.4, 5.5, "Appliance Interior", c_furn)]
+         box("shower niche", x1 - 0.06, x1 - 0.025, y0 + 1.2, y0 + 2.4, 4.4, 5.5, "Appliance Interior", c_furn)]
     return p
 
 
-BUILDERS = {"bed": make_bed, "toilet": make_toilet, "vanity": make_vanity, "mirror": make_mirror, "towel": make_towel,
+def make_wetroom(it):
+    """open, curbless wet zone: flush tile floor, linear drain across the entry, tiled walls floor to ceiling,
+    tiled bench, shower head and valve on the south wall."""
+    x0, x1, y0, y1 = it["x0"], it["x1"], it["y0"], it["y1"]
+    top = it.get("ceiling", 9.0); dy = it.get("drain_y", y0 + 0.35); hx = it.get("head_x", (x0 + x1) / 2)
+    yw = it.get("wet_from", y0)          # tiled walls from here south; the floor is tiled over the whole room
+    p = [box("wet zone floor tile", x0, x1, y0, y1, 0.003, 0.012, "Tile Floor", c_furn),
+         box("wet zone linear drain", x0 + 0.15, x1 - 0.15, dy - 0.12, dy + 0.12, 0.012, 0.016, "Brushed Nickel", c_furn),
+         tile_wall("wet zone tile west", x0 + 0.003, x0 + 0.023, yw, y1, 0.012, top - 0.01),
+         tile_wall("wet zone tile south", x0, x1, y1 - 0.023, y1 - 0.003, 0.012, top - 0.01),
+         tile_wall("wet zone tile east", x1 - 0.023, x1 - 0.003, yw, y1, 0.012, top - 0.01)]
+    if it.get("entry_tile", True):       # inside faces of the entry wall either side of the open doorway
+        for (a0, a1) in ((x0, 34.37), (37.04, x1)):
+            if a1 - a0 > 0.1:
+                p.append(tile_wall("wet zone tile entry wall", a0, a1, y0 + 0.003, y0 + 0.023, 0.012, top - 0.01))
+    if it.get("bench") == "north":    # tiled bench along the room's north wall, full width
+        bd, bh = it.get("bench_d", 1.25), it.get("bench_h", 1.5)
+        bx0 = x0 + it.get("bench_clear_w", 0.9)      # keep the doorway (west side) clear
+        p += [box("wet zone bench", bx0, x1 - 0.023, y0 + 0.023, y0 + bd, 0.012, bh, "Tile Wall", c_furn),
+              box("wet zone bench top", bx0 - 0.03, x1 - 0.023, y0 + 0.023, y0 + bd + 0.03, bh, bh + 0.08, "Counter", c_furn)]
+        print(f"wet room bench: x {bx0:.2f}-{x1 - 0.023:.2f}, y {y0 + 0.023:.2f}-{y0 + bd + 0.03:.2f}, top {bh + 0.08:.2f} ft")
+        p.append(tile_wall("wet zone tile north", x0, x1, y0 + 0.003, y0 + 0.023, 0.012, top - 0.01))
+    if it.get("bench") == "east":
+        bd, bh = it.get("bench_d", 1.25), it.get("bench_h", 1.5)
+        p += [box("wet zone bench", x1 - bd, x1 - 0.023, dy + 0.5, y1 - 0.023, 0.012, bh, "Tile Wall", c_furn),
+              box("wet zone bench top", x1 - bd - 0.03, x1 - 0.023, dy + 0.47, y1 - 0.023, bh, bh + 0.08, "Counter", c_furn)]
+    p += [box("shower arm", hx - 0.03, hx + 0.03, y1 - 0.5, y1 - 0.023, 6.95, 7.01, "Brushed Nickel", c_furn),
+          cyl("shower head", 0.33, 0.33, 0.04, "Brushed Nickel", 6.9, cx=hx, cy=y1 - 0.5),
+          cyl("shower valve", 0.22, 0.22, 0.04, "Brushed Nickel", 3.8, cx=hx, cy=y1 - 0.03),
+          box("hand shower bar", x1 - 0.06, x1 - 0.026, y1 - 1.2, y1 - 1.15, 2.4, 5.4, "Brushed Nickel", c_furn) if it.get("bench") == "east" else box("hand shower bar", x0 + 1.4, x0 + 1.45, y0 + 0.026, y0 + 0.06, 2.4, 5.4, "Brushed Nickel", c_furn),
+          box("wet zone niche", hx + 1.0, hx + 2.2, y1 - 0.06, y1 - 0.025, 4.4, 5.5, "Appliance Interior", c_furn)]
+    return p
+
+
+def make_bookshelf(it):
+    """compact white oak bookcase with books (coloured blocks). Local back at -y."""
+    w, d, h = it.get("w", 2.0), it.get("d", 1.0), it.get("h", 3.5)
+    p = [box("shelf side", -w / 2, -w / 2 + 0.06, -d / 2, d / 2, 0, h, "White Oak", c_furn),
+         box("shelf side", w / 2 - 0.06, w / 2, -d / 2, d / 2, 0, h, "White Oak", c_furn),
+         box("shelf back", -w / 2, w / 2, -d / 2, -d / 2 + 0.03, 0, h, "White Oak", c_furn)]
+    rng_ = random.Random(len(it["id"]))
+    cols = ["#7A3B26", "#2F4858", "#C9B68E", "#56614A", "#1E2022", "#9A6B4A", "#E9E2D3"]
+    nsh = 4
+    for k in range(nsh + 1):
+        z = 0.1 + k * (h - 0.16) / nsh
+        p.append(box("shelf board", -w / 2 + 0.06, w / 2 - 0.06, -d / 2 + 0.03, d / 2, z, z + 0.06, "White Oak", c_furn))
+        if k < nsh:
+            x = -w / 2 + 0.1
+            while x < w / 2 - 0.25 and rng_.random() > 0.08:
+                bw = rng_.uniform(0.06, 0.14); bh = rng_.uniform(0.55, 0.8) * ((h - 0.16) / nsh - 0.08)
+                c_ = cols[rng_.randrange(len(cols))]
+                if "Book " + c_ not in MATS:
+                    simple("Book " + c_, c_, 0.7)
+                p.append(box("book", x, x + bw, -d / 2 + 0.06, d / 2 - 0.1, z + 0.06, z + 0.06 + bh, "Book " + c_, c_furn))
+                x += bw + 0.005
+    return group(it["id"], p, it["x"], it["y"], 0, it.get("facing", 180))
+
+
+def make_bench(it):
+    """built-in white oak bench with open shoe cubbies below. Local: back against the wall at -y, front +y."""
+    w, d, h = it.get("w", 4.0), it.get("d", 1.25), it.get("h", 1.5)
+    p = [box("bench seat", -w / 2, w / 2, -d / 2, d / 2, h - 0.12, h, "White Oak", c_furn),
+         box("bench bottom", -w / 2, w / 2, -d / 2, d / 2 - 0.05, 0.0, 0.25, "White Oak", c_furn),
+         box("bench shelf", -w / 2 + 0.06, w / 2 - 0.06, -d / 2, d / 2 - 0.05, 0.62, 0.7, "White Oak", c_furn),
+         box("bench back", -w / 2 + 0.06, w / 2 - 0.06, -d / 2, -d / 2 + 0.04, 0.25, h - 0.12, "White Oak", c_furn)]
+    n = max(2, int(round(w / 1.0)))
+    for k in range(n + 1):        # cubby dividers
+        x_ = -w / 2 + k * (w - 0.06) / n
+        p.append(box("bench divider", x_, x_ + 0.06, -d / 2, d / 2 - 0.05, 0.25, h - 0.12, "White Oak", c_furn))
+    cush = fabric(it["id"] + " cushion", it.get("cushion", "#56614A"))
+    p.append(bevel(box("bench cushion", -w / 2 + 0.05, w / 2 - 0.05, -d / 2 + 0.05, d / 2 - 0.05, h, h + 0.2, cush, c_furn), 0.05, 3))
+    for k in range(4):            # coat hooks on a rail above
+        x_ = -w / 2 + 0.5 + k * (w - 1.0) / 3
+        p.append(box("bench hook", x_ - 0.03, x_ + 0.03, -d / 2, -d / 2 + 0.25, 5.4, 5.5, "Black Metal", c_furn))
+    p.append(box("bench hook rail", -w / 2 + 0.2, w / 2 - 0.2, -d / 2, -d / 2 + 0.05, 5.3, 5.8, "White Oak", c_furn))
+    return group(it["id"], p, it["x"], it["y"], 0, it.get("facing", 180))
+
+
+BUILDERS = {"bench": make_bench, "bookshelf": make_bookshelf, "bed": make_bed,"toilet": make_toilet, "vanity": make_vanity, "mirror": make_mirror, "towel": make_towel,
             "desk": make_desk, "table_lamp": make_table_lamp, "floor_lamp": make_floor_lamp, "pendant": make_pendant,
             "rug": make_rug, "washer": make_laundry, "dryer": lambda it: make_laundry(it, True)}
 
@@ -584,8 +667,8 @@ if FU.get("enabled"):
             t = it["type"]
             if t == "model":
                 place_model(it)
-            elif t in ("tub", "shower"):
-                for p_ in (make_tub(it) if t == "tub" else make_shower(it)):
+            elif t in ("tub", "shower", "wetroom"):
+                for p_ in (make_tub(it) if t == "tub" else make_shower(it) if t == "shower" else make_wetroom(it)):
                     for c_ in list(p_.users_collection):
                         c_.objects.unlink(p_)
                     c_furn.objects.link(p_)
@@ -693,6 +776,20 @@ if FU.get("enabled"):
         return ccw(p1, q1, q2) != ccw(p2, q1, q2) and ccw(p1, p2, q1) != ccw(p1, p2, q2)
 
     nd_ = 0
+    # config door changes: drop detected openings near given points, add ones the A-11 trace does not pair up
+    for (rx, ry) in FU.get("door_remove", []):
+        def _near(g):
+            ax, g0, g1, t0, t1, h = g
+            cx, cy = ((g0 + g1) / 2, (t0 + t1) / 2) if ax == "x" else ((t0 + t1) / 2, (g0 + g1) / 2)
+            return math.hypot(cx - rx, cy - ry) < 1.5
+        DOOR_GAPS[:] = [g for g in DOOR_GAPS if not _near(g)]
+    for da in FU.get("door_add", []):
+        DOOR_GAPS.append((da["axis"], da["g0"], da["g1"], da["t0"], da["t1"], da.get("head", 6.67)))
+        ztop_ = C["ceilings"]["flat_height"] + FLOOR_T
+        if da["axis"] == "y":
+            box("Header (added door)", da["t0"], da["t1"], da["g0"], da["g1"], da.get("head", 6.67), ztop_, "Drywall", c_int)
+        else:
+            box("Header (added door)", da["g0"], da["g1"], da["t0"], da["t1"], da.get("head", 6.67), ztop_, "Drywall", c_int)
     for (ax, g0, g1, t0, t1, h) in DOOR_GAPS:
         wdt = g1 - g0
         if ax == "x":
@@ -700,6 +797,10 @@ if FU.get("enabled"):
         else:
             span = (((t0 + t1) / 2, g0), ((t0 + t1) / 2, g1))
         on_path = any(seg_cross(walk[i], walk[i + 1], span[0], span[1]) for i in range(len(walk) - 1)) and not ARGS.get("web")
+        _gc = ((g0 + g1) / 2, (t0 + t1) / 2) if ax == "x" else ((t0 + t1) / 2, (g0 + g1) / 2)
+        pocket_dir = next((pd[2] for pd in FU.get("door_pocket", []) if math.hypot(pd[0] - _gc[0], pd[1] - _gc[1]) < 1.5), 0)
+        if pocket_dir:
+            on_path = False
 
         def B(name, a0, a1, b0, b1, z0, z1, mat="White Oak"):
             """box in door coords: a along the opening, b across the wall."""
@@ -723,6 +824,16 @@ if FU.get("enabled"):
                 B("Door leaf (open)", a0_, a1_, b0_, b0_ + 0.14, 0.04, h - 0.08)
                 lx_ = a0_ + 0.25 if k_ == 0 else a1_ - 0.25
                 B("Door lever", lx_ - 0.06, lx_ + 0.06, b0_ + 0.14, b0_ + 0.2, 2.95, 3.12, "Brushed Nickel")
+            elif pocket_dir:      # pocket door: leaf slides into the wall beside the opening, flush pulls, no levers
+                parts_ = [B("Pocket door leaf", l0, l1, tm - 0.06, tm + 0.06, 0.04, h - 0.08)]
+                px_ = l0 + 0.2 if pocket_dir > 0 else l1 - 0.2
+                for sgn in (-1, 1):
+                    b0 = tm + sgn * 0.06; b1 = b0 + sgn * 0.01
+                    parts_.append(B("Pocket door pull", px_ - 0.05, px_ + 0.05, min(b0, b1), max(b0, b1), 3.0, 3.4, "Brushed Nickel"))
+                if ARGS.get("web"):
+                    d_ = pocket_dir * lw * F
+                    make_pivot(f"Pocket door {nd_ + 1}", parts_, P((l0 + l1) / 2, tm, 0) if ax == "x" else P(tm, (l0 + l1) / 2, 0),
+                               {"operable": "slide", "slide": [round(d_, 3), 0.0, 0.0] if ax == "x" else [0.0, round(-d_, 3), 0.0]}, c_trim)
             else:
                 parts_ = [B("Door leaf", l0, l1, tm - 0.07, tm + 0.07, 0.04, h - 0.08)]
                 lx = l1 - 0.25 if k_ == 0 else l0 + 0.25
@@ -810,6 +921,58 @@ if FU.get("enabled"):
             wbox("Hose bib spout", w_, u_ - 0.04, u_ + 0.04, -BAT_T - 0.42, -BAT_T - 0.34, z_ - 0.2, z_, "Brushed Nickel", c_xdet)
             wbox("Hose bib handle", w_, u_ - 0.1, u_ + 0.1, -BAT_T - 0.28, -BAT_T - 0.24, z_ + 0.05, z_ + 0.15, "Brushed Nickel", c_xdet)
     print("exterior details: fascia, soffits, gutters, thresholds, fixtures")
+
+# ================================================================== room light fixtures (night) -> LIGHTS registry
+LIGHTS = []        # dicts for the web manifest: name, room, pos (Blender m), kind, color, intensity_lm
+LG = C.get("lighting", {})
+if LG.get("enabled"):
+    for o in [o for o in c_cam.objects if o.name.startswith("Can ")]:
+        bpy.data.objects.remove(o)               # generic render fill lights replaced by real fixtures
+    simple("Light Lens", "#FFF4E0", 0.4)
+    _ll = MATS["Light Lens"].node_tree.nodes["Principled BSDF"]
+    _ll.inputs["Emission Color"].default_value = hexcol("#FFE6C2"); _ll.inputs["Emission Strength"].default_value = 3.0
+
+    def ceiling_at(x, y):
+        for (a0, b0, a1, b1) in C["ceilings"]["flat_rooms"]:
+            if a0 <= x <= a1 and b0 <= y <= b1:
+                return C["ceilings"]["flat_height"]
+        if LOFT["enabled"] and LX0 <= x <= LX1 and LY0 <= y <= LY1:
+            return roof_under(y)               # the loft sees the roof
+        if 63 <= x <= 96 and 15 <= y <= 43:
+            return C["garage"]["south_wall_height"] - 0.6
+        if 43 <= x <= 63 and 26 <= y <= 43:
+            return C["porch"]["high_height"] - 1.2
+        if 0 <= x <= HW and 52 <= y <= 72:
+            return C["greenhouse"]["south_height"] + 1.0
+        return roof_under(y)
+    for k, (room, x, y, kind, lm) in enumerate(LG.get("fixtures", [])):
+        if room == "Greenhouse" and not C["greenhouse"]["enabled"]:
+            continue
+        zc = ceiling_at(x, y) - 0.02
+        nm = f"Light {room} {k}"
+        if kind == "can":
+            fx = [cyl(nm + " trim", 0.3, 0.3, 0.03, "Enamel White", zc - 0.03, cx=x, cy=y, collection=c_furn),
+                  cyl(nm + " lens", 0.22, 0.22, 0.01, "Light Lens", zc - 0.035, cx=x, cy=y, collection=c_furn)]
+        else:
+            fx = [cyl(nm + " base", 0.45, 0.45, 0.06, "Enamel White", zc - 0.06, cx=x, cy=y, collection=c_furn),
+                  cyl(nm + " lens", 0.42, 0.34, 0.18, "Light Lens", zc - 0.24, cx=x, cy=y, collection=c_furn)]
+        for f_ in fx:
+            f_["emissive_night"] = True
+        zl = zc - (0.5 if kind == "flush" else 0.3)
+        ld = bpy.data.lights.new(nm, 'POINT'); ld.energy = lm / 683 * 4 * math.pi / 8; ld.color = (1.0, 0.86, 0.7); ld.shadow_soft_size = 0.2 * F
+        lo = bpy.data.objects.new(nm, ld); lo.location = P(x, y, zl); c_cam.objects.link(lo)
+        LIGHTS.append({"name": nm, "room": room, "pos": [round(v, 3) for v in P(x, y, zl)], "kind": "spot" if kind == "can" else "point",
+                       "color": "#FFDBB3", "intensity_lm": lm})
+    # lamps, pendants, exterior wall lights already in the scene
+    for o in bpy.data.objects:
+        if o.type == 'LIGHT' and o.data.type == 'POINT' and not o.name.startswith(("Light ", "Can ")):
+            kind_ = "exterior" if "Wall light" in o.name else ("garage" if "Garage light" in o.name else "lamp")
+            LIGHTS.append({"name": o.name, "room": kind_, "pos": [round(v, 3) for v in o.location], "kind": "point",
+                           "color": "#FFD9A8", "intensity_lm": int(round(o.data.energy * 683 / (4 * math.pi) * 8 / 2))})
+    for o in bpy.data.objects:     # fixture meshes that glow at night
+        if o.type == 'MESH' and any(s.material and s.material.name in ("Bulb Glow", "Light Lens", "Lamp Shade") for s in o.material_slots):
+            o["emissive_night"] = True
+    print(f"lighting: {len(LG.get('fixtures', []))} room fixtures, {len(LIGHTS)} lights total")
 
 # ================================================================== real-scale wood with the grain along each piece
 if AS.get("enabled") and PHT:

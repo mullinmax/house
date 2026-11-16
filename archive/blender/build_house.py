@@ -16,7 +16,8 @@ Blender scene is meters: X east, Y north, Z up.
 import bpy, bmesh, math, json, os, sys, tomllib
 from mathutils import Vector
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+SRC = os.path.dirname(os.path.abspath(__file__))          # the archived scripts
+HERE = SRC if os.path.exists(os.path.join(SRC, "config.toml")) else os.path.normpath(os.path.join(SRC, "..", "..", "model"))   # config.toml and data/
 F = 0.3048
 
 
@@ -518,7 +519,7 @@ def build_terrain():
         dist = np.minimum(np.hypot(dx, dy), np.hypot(dx2, dy2))
     else:
         dist = np.hypot(dx, dy)
-    lawn = 1 - np.clip((dist - lr) / lb, 0, 1)
+    lawn = 1 - np.clip((dist - lr) / lb, 0, 1) if lr > 0 else np.zeros_like(dist)   # 0 = photo right up to the house
     at = me.attributes.new("lawn", 'FLOAT', 'POINT'); at.data.foreach_set("value", lawn.ravel().astype(np.float32))
     me.polygons.foreach_set("use_smooth", np.ones(len(faces), bool))
     me.update()
@@ -571,7 +572,18 @@ def build_terrain():
     for j in range(len(gy) - 1):
         for i in range(nx - 1):
             f.append((j * nx + i, (j + 1) * nx + i, (j + 1) * nx + i + 1, j * nx + i + 1))
-    sk = mesh_obj("Ground skirt", v, f, "Grass", c_site)
+    skm = "Grass"
+    if TER.get("skirt_color", "auto") and FT is not None:
+        try:   # plain colour matching the edge of the far photo instead of the generic grass shader
+            from PIL import Image as _PI
+        except Exception:
+            _PI = None
+        im_ = bpy.data.images.load(os.path.join(_tdir, "far_ortho.jpg"), check_existing=True)
+        w_, h_ = im_.size; px_ = np.empty(w_ * h_ * 4, np.float32); im_.pixels.foreach_get(px_); px_ = px_.reshape(h_, w_, 4)
+        edge_ = np.concatenate([px_[:8].reshape(-1, 4), px_[-8:].reshape(-1, 4), px_[:, :8].reshape(-1, 4), px_[:, -8:].reshape(-1, 4)])
+        mc = edge_[:, :3].mean(0) if TER.get("skirt_color") == "auto" else hexcol(TER["skirt_color"])[:3]
+        simple("Ground skirt", tuple(float(c) for c in mc) + (1.0,), 0.95); skm = "Ground skirt"
+    sk = mesh_obj("Ground skirt", v, f, skm, c_site)
     return ob
 
 
@@ -670,7 +682,12 @@ def window_unit(o, wall, depth_wall):
     # frame ring: aluminum clad (black) on the exterior half, white oak on the interior half.
     # Pieces butt together instead of overlapping so no coincident faces render dark.
     vm = v0 + fd * 0.5
-    for (va, vb, fm) in ((v0, vm, "Window Frame"), (vm, v0 + fd, "White Oak")):
+    inner = "White Oak"
+    if o.get("interior_color"):          # painted interior (e.g. Dried Thyme on the kitchen window)
+        inner = "Paint " + o["interior_color"]
+        if inner not in MATS:
+            simple(inner, o["interior_color"], 0.45)
+    for (va, vb, fm) in ((v0, vm, "Window Frame"), (vm, v0 + fd, inner)):
         tag = "clad" if fm == "Window Frame" else "oak"
         wbox(f"{name} frame L {tag}", wall, u0, u0 + fw, va, vb, z0, z1, fm, c_win)
         wbox(f"{name} frame R {tag}", wall, u1 - fw, u1, va, vb, z0, z1, fm, c_win)
@@ -694,7 +711,7 @@ def window_unit(o, wall, depth_wall):
         wbox(name + " trim B", wall, u0 - tw, u1 + tw, -BAT_T - 0.04, SKIN, z0 - tw, z0, "Trim", c_win)
     # interior white oak jamb liner and casing (3.5")
     jd0, jd1 = v0 + fd, depth_wall
-    oak = "White Oak"
+    oak = inner
     wbox(name + " jamb L", wall, u0, u0 + 0.06, jd0, jd1, z0, z1 - 0.06, oak, c_win)
     wbox(name + " jamb R", wall, u1 - 0.06, u1, jd0, jd1, z0, z1 - 0.06, oak, c_win)
     wbox(name + " jamb T", wall, u0, u1, jd0, jd1, z1 - 0.06, z1, oak, c_win)
@@ -797,7 +814,7 @@ if C["materials"]["siding_style"] == "board_and_batten":
 LOFT = C["loft"]
 LX0, LY0, LX1, LY1 = LOFT["rect"]
 _ft = C.get("floor_trusses")          # attic and loft floor thickness (ft): trusses plus decking, or the old 9.6" default
-FLOOR_T = (_ft["depth_in"] + _ft.get("deck_in", 0.75)) / 12 if _ft else 0.8
+FLOOR_T = (_ft["depth_in"] + _ft.get("deck_in", 0.75)) / 12 if _ft else 0.86
 
 
 def pt_in_poly(x, y, poly):
@@ -847,7 +864,35 @@ def wall_top(x0, x1, y0, y1):
         if abs(cx - (LX0 + 0.23)) < 0.4:      # loft edge pony wall (bath 1 west wall)
             return lambda x, y: LOFT["floor_height"] + LOFT["pony_wall_height"]
         return lambda x, y: LOFT["floor_height"] - FLOOR_T
+    if C["ceilings"].get("walls_stop_at_attic") and wall_between_flats(x0, x1, y0, y1):
+        return lambda x, y: C["ceilings"]["flat_height"] + FLOOR_T      # stops under the attic deck
     return lambda x, y: roof_under(min(y, YC2))
+
+
+def in_flat(x, y):
+    for (a0, b0, a1, b1) in C["ceilings"]["flat_rooms"]:
+        if a0 - 0.02 <= x <= a1 + 0.02 and b0 - 0.02 <= y <= b1 + 0.02:
+            return True
+    return False
+
+
+def wall_between_flats(x0, x1, y0, y1):
+    """True when every sample just beyond both long faces of the wall is under a flat 9 ft ceiling (or outside the house)."""
+    def flat_or_out(x, y):
+        return in_flat(x, y) or not (T < x < HW - T and T < y < HD - T)
+    alongx = (x1 - x0) >= (y1 - y0)
+    n = 5
+    for k in range(n):
+        t = (k + 0.5) / n
+        if alongx:
+            x = x0 + (x1 - x0) * t
+            if not (flat_or_out(x, y0 - 0.6) and flat_or_out(x, y1 + 0.6)):
+                return False
+        else:
+            y = y0 + (y1 - y0) * t
+            if not (flat_or_out(x0 - 0.6, y) and flat_or_out(x1 + 0.6, y)):
+                return False
+    return True
 
 
 INT_RECTS = []
@@ -882,10 +927,14 @@ def make_headers():
                 continue
             for horiz in (True, False):
                 if horiz:   # walls running in x with identical y span
-                    if abs(a[2] - b[2]) > 0.02 or abs(a[3] - b[3]) > 0.02 or (a[3] - a[2]) > 0.7:
+                    if abs(a[2] - b[2]) > 0.08 or abs(a[3] - b[3]) > 0.08 or (a[3] - a[2]) > 0.7:
                         continue
                     lo, hi = (a, b) if a[1] <= b[0] else (b, a)
                     gap0, gap1 = lo[1], hi[0]
+                    if 0.02 < gap1 - gap0 <= 1.4 and not any(r is not a and r is not b and r[0] < gap1 - 0.01 and r[1] > gap0 + 0.01 and r[2] < a[3] and r[3] > a[2] for r in rects):
+                        box(f"Wall sliver fill {i}-{j}", gap0, gap1, min(a[2], b[2]), max(a[3], b[3]), 0, 9, "Drywall", c_int,
+                            ztop=wall_top(gap0, gap1, a[2], a[3])); WALL_FIXES.append(("sliver", round(gap0, 2), round(gap1, 2), round(a[2], 2)))
+                        continue
                     if not (1.4 < gap1 - gap0 < 7.0):
                         continue
                     if any(r is not a and r is not b and r[0] < gap1 - 0.01 and r[1] > gap0 + 0.01 and r[2] < a[3] and r[3] > a[2] for r in rects):
@@ -897,10 +946,14 @@ def make_headers():
                     if top(cx, cy) - h > 0.2:
                         box(f"Header {i}-{j}", gap0, gap1, a[2], a[3], h, 9, "Drywall", c_int, ztop=top); made += 1
                 else:
-                    if abs(a[0] - b[0]) > 0.02 or abs(a[1] - b[1]) > 0.02 or (a[1] - a[0]) > 0.7:
+                    if abs(a[0] - b[0]) > 0.08 or abs(a[1] - b[1]) > 0.08 or (a[1] - a[0]) > 0.7:
                         continue
                     lo, hi = (a, b) if a[3] <= b[2] else (b, a)
                     gap0, gap1 = lo[3], hi[2]
+                    if 0.02 < gap1 - gap0 <= 1.4 and not any(r is not a and r is not b and r[2] < gap1 - 0.01 and r[3] > gap0 + 0.01 and r[0] < a[1] and r[1] > a[0] for r in rects):
+                        box(f"Wall sliver fill {i}-{j}", min(a[0], b[0]), max(a[1], b[1]), gap0, gap1, 0, 9, "Drywall", c_int,
+                            ztop=wall_top(a[0], a[1], gap0, gap1)); WALL_FIXES.append(("sliver", round(a[0], 2), round(gap0, 2), round(gap1, 2)))
+                        continue
                     if not (1.4 < gap1 - gap0 < 7.0):
                         continue
                     if any(r is not a and r is not b and r[2] < gap1 - 0.01 and r[3] > gap0 + 0.01 and r[0] < a[1] and r[1] > a[0] for r in rects):
@@ -914,8 +967,8 @@ def make_headers():
     return made
 
 
-DOOR_GAPS = []
-print("headers:", make_headers())
+DOOR_GAPS = []; WALL_FIXES = []
+print("headers:", make_headers(), "wall sliver fills:", len(WALL_FIXES), WALL_FIXES[:12])
 
 # ------------------------------------------------------------------ roofs
 OH = R["overhang"]; TH = R["panel_thickness"]
@@ -959,7 +1012,37 @@ mesh_obj("Vault ceiling south", v, [(0, 1, 2, 3)], "Drywall", c_ceil)
 # flat 9' ceilings + attic floor
 FH = C["ceilings"]["flat_height"]
 for k, (x0, y0, x1, y1) in enumerate(C["ceilings"]["flat_rooms"]):
-    box(f"Flat ceiling {k}", x0, x1, y0, y1, FH, FH + FLOOR_T, "Drywall", c_ceil)
+    box(f"Flat ceiling {k}", x0, x1, y0, y1, FH, FH + FLOOR_T - 0.06, "Drywall", c_ceil)
+    if C["ceilings"].get("attic_floor"):    # one continuous attic deck on top of the flat ceilings
+        if "Attic Deck" not in MATS:
+            simple("Attic Deck", "#C8B28A", 0.85)
+        box(f"Attic floor {k}", x0, x1, y0, y1, FH + FLOOR_T - 0.06, FH + FLOOR_T, "Attic Deck", c_ceil)
+if C["ceilings"].get("attic_floor"):
+    # bridge the decks across the tops of walls between flat rooms (gap up to 0.8 ft) so the attic is one space
+    FR_ = C["ceilings"]["flat_rooms"]; ATTIC_LINKS = []
+    for i, (a0, b0, a1, b1) in enumerate(FR_):
+        for j, (c0, d0, c1, d1) in enumerate(FR_):
+            if j <= i:
+                continue
+            ox0, ox1 = max(a0, c0), min(a1, c1); oy0, oy1 = max(b0, d0), min(b1, d1)
+            if ox1 - ox0 > 1.0 and 0 < oy0 - oy1 <= 0.8:          # stacked in y with a wall-thick gap
+                box(f"Attic floor bridge {i}-{j}", ox0, ox1, oy1, oy0, FH + FLOOR_T - 0.06, FH + FLOOR_T, "Attic Deck", c_ceil); ATTIC_LINKS.append((i, j))
+            elif oy1 - oy0 > 1.0 and 0 < ox0 - ox1 <= 0.8:        # side by side in x with a gap
+                box(f"Attic floor bridge {i}-{j}", ox1, ox0, oy0, oy1, FH + FLOOR_T - 0.06, FH + FLOOR_T, "Attic Deck", c_ceil); ATTIC_LINKS.append((i, j))
+            elif (ox1 - ox0 > 1.0 and abs(oy0 - oy1) < 0.02) or (oy1 - oy0 > 1.0 and abs(ox0 - ox1) < 0.02):
+                ATTIC_LINKS.append((i, j))                        # decks already meet edge to edge
+    # connected attic areas (union-find over the links)
+    par_ = list(range(len(FR_)))
+    def _f(a):
+        while par_[a] != a:
+            a = par_[a]
+        return a
+    for i, j in ATTIC_LINKS:
+        par_[_f(i)] = _f(j)
+    ATTIC_GROUPS = {}
+    for i in range(len(FR_)):
+        ATTIC_GROUPS.setdefault(_f(i), []).append(i)
+    print("attic: links", ATTIC_LINKS, "connected groups", list(ATTIC_GROUPS.values()))
 
 # loft
 if LOFT["enabled"]:
@@ -975,6 +1058,30 @@ if LOFT["enabled"]:
              P(lx0, yy + 0.15, 0), P(lx0 + 0.35, yy + 0.15, 0), P(lx1, yy + 0.15, LOFT["floor_height"]), P(lx1 - 0.35, yy + 0.15, LOFT["floor_height"])]
         f = [(0, 1, 2, 3), (4, 7, 6, 5), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
         mesh_obj(f"Ladder stringer {yy}", v, f, "White Oak", c_ceil)
+    if LOFT.get("railing"):
+        # 36" guard on the open (west) loft edge, open where the ships ladder lands; handrails up both ladder sides
+        RH = LOFT.get("railing_height", 3.0); FL = LOFT["floor_height"]
+        if "Black Metal" not in MATS:
+            simple("Black Metal", "#151515", 0.4, 0.6)
+        ya, yb = LY0 + 0.1, ly0 - 0.05
+        rx0, rx1 = LX0, LX0 + 0.12
+        box("Loft railing cap", rx0 - 0.04, rx1 + 0.04, ya, yb, FL + RH - 0.12, FL + RH, "White Oak", c_ceil)
+        box("Loft railing bottom rail", rx0, rx1, ya, yb, FL + 0.1, FL + 0.2, "Black Metal", c_ceil)
+        npost = max(2, int((yb - ya) / 4.0) + 1)
+        for k in range(npost):
+            yp = ya + (yb - ya) * k / (npost - 1)
+            box("Loft railing post", rx0, rx1, yp - 0.06, yp + 0.06, FL, FL + RH - 0.12, "Black Metal", c_ceil)
+        yb_ = ya + 0.33
+        while yb_ < yb - 0.2:            # balusters under 4" clear
+            box("Loft railing baluster", rx0 + 0.04, rx0 + 0.08, yb_ - 0.02, yb_ + 0.02, FL + 0.2, FL + RH - 0.12, "Black Metal", c_ceil)
+            yb_ += 0.33
+        for yy in (ly0 - 0.08, ly1 + 0.02):      # sloped handrails along the ladder, 34" above the treads
+            v = [P(lx0 + 0.3, yy, 2.83), P(lx1 + 0.3, yy, FL + 2.83), P(lx1 + 0.3, yy, FL + 2.95), P(lx0 + 0.3, yy, 2.95),
+                 P(lx0 + 0.3, yy + 0.06, 2.83), P(lx1 + 0.3, yy + 0.06, FL + 2.83), P(lx1 + 0.3, yy + 0.06, FL + 2.95), P(lx0 + 0.3, yy + 0.06, 2.95)]
+            f = [(0, 1, 2, 3), (4, 7, 6, 5), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
+            mesh_obj(f"Loft railing ladder handrail {yy}", v, f, "Black Metal", c_ceil)
+            for (xa, za) in ((lx0 + 0.3, 0.0), (lx1 + 0.3, FL)):
+                box("Loft railing ladder post", xa - 0.05, xa + 0.05, yy, yy + 0.06, za, za + 2.95, "Black Metal", c_ceil)
 
 # ------------------------------------------------------------------ kitchen & fixtures
 # Built from the Carter Lumber elevations (see [kitchen] in config.toml).
@@ -1176,12 +1283,12 @@ if nr.get("pantry_door"):
     print(f"pantry door: opening {px0:.3f}-{px1:.3f}, leaf {leaf:.2f} ft, casing {px0 - cw:.3f}-{px1 + ce:.3f}")
 # sink, cooktop, hood
 sr = RUNS["south"]; sx0, sx1 = sr["sink_x"]
-rbox(sr, "Drop-in sink rim", sx0, sx1, 0.35, 1.75, CTR_Z, CTR_Z + 0.03, "Stainless")
+rbox(sr, "Drop-in sink rim", sx0, sx1, 0.35, 1.75, CTR_Z + 0.004, CTR_Z + 0.03, "Stainless")
 rbox(sr, "Sink bowl", sx0 + 0.1, sx1 - 0.1, 0.45, 1.65, CTR_Z - 0.7, CTR_Z + 0.031, "Stainless")
 rbox(sr, "Faucet", (sx0 + sx1) / 2 - 0.05, (sx0 + sx1) / 2 + 0.05, 0.15, 0.25, CTR_Z, CTR_Z + 1.2, "Brushed Nickel")
 rbox(sr, "Faucet spout", (sx0 + sx1) / 2 - 0.04, (sx0 + sx1) / 2 + 0.04, 0.15, 0.85, CTR_Z + 1.12, CTR_Z + 1.2, "Brushed Nickel")
 wr = RUNS["west"]; cy0, cy1 = wr["cooktop_y"]
-rbox(wr, "Cooktop", cy0, cy1, 0.15, 1.85, CTR_Z, CTR_Z + 0.03, "Black Glass")
+rbox(wr, "Cooktop", cy0, cy1, 0.15, 1.85, CTR_Z + 0.004, CTR_Z + 0.035, "Black Glass")   # lifted off the counter plane
 rbox(wr, "Hood", cy0 + 0.1, cy1 - 0.1, 0, 1.9, 6.0, 6.35, "Stainless")
 rbox(wr, "Hood chimney", (cy0 + cy1) / 2 - 0.45, (cy0 + cy1) / 2 + 0.45, 0, 0.9, 6.35, 11.6, "Stainless")
 # island top with seating overhang on the north side
@@ -1316,8 +1423,38 @@ if GA["enabled"]:
             box(f"Gravel drive {k}", min(a[0], b[0]), max(a[0], b[0]), min(a[1], b[1]), max(a[1], b[1]), GROUND_Z, GROUND_Z + 0.05 + 0.03 * k, "Gravel", c_site)
     else:
         drape_rect("Driveway", gx0, gx1, gy1, gy1 + GA["driveway_depth"], 0.12, GA.get("driveway_material", "Gravel"), c_site)
-        drape_rect("Gravel drive 0", gx1, gx1 + 22, gy1 + 5, gy1 + 20, 0.10, "Gravel", c_site)
-        drape_rect("Gravel drive 1", gx1 + 8, gx1 + 22, drive_n, gy1 + 5, 0.13, "Gravel", c_site, step=3.0)
+        _chm_p = os.path.join(_tdir, "chm.npy")
+        if GA.get("drive_follow_trees") and os.path.exists(_chm_p):
+            # drive parallel to the woodlot edge east of the house: fit the canopy drip line, keep the drive edge
+            # drive_offset_ft west of it, then curve west into the garage apron
+            _chm = np.load(_chm_p); _s = TSTEP
+            _xs = TX0 + np.arange(_chm.shape[1]) * _s
+            pts_e = []
+            for yy in np.arange(drive_n + 20, gy1 + 40, 10.0):
+                r_ = int(round((yy - TY0) / _s)); band = _chm[max(0, r_ - 3):r_ + 4].max(0)
+                m_ = (_xs > gx1 + 20) & (band > 15)
+                run = [i for i in np.where(m_)[0] if m_[i:i + 4].all()]
+                if run:
+                    pts_e.append((yy, _xs[run[0]]))
+            ya_, xa_ = np.array(pts_e).T
+            b_, a_ = np.polyfit(ya_, xa_, 1)                  # canopy edge x = a + b*y
+            W_ = GA.get("drive_width_ft", 14.0); off = GA.get("drive_offset_ft", 10.0)
+            cx_ = lambda y: a_ + b_ * y - off - W_ / 2
+            yt = gy1 + GA["driveway_depth"] / 2              # turn into the apron at its middle
+            R_ = min(30.0, (cx_(yt) - gx1) * 0.6)
+            route = [(cx_(y), y) for y in np.arange(drive_n, yt - R_, 10.0)]
+            yc_, xc_ = yt - R_, cx_(yt - R_) - R_              # arc centre: heading south, turning west
+            for k_ in range(1, 10):
+                th = math.pi / 2 * k_ / 9
+                route.append((xc_ + R_ * math.cos(th), yc_ + R_ * math.sin(th)))
+            route.append((gx1 - 1.0, yt))
+            drape_ribbon("Gravel drive", route, W_, 0.13, "Gravel", c_site)
+            DRIVE_ROUTE = {"edge_fit": [round(a_, 1), round(b_, 4)], "start": [round(route[0][0], 1), round(route[0][1], 1)],
+                           "turn": [round(xc_ + R_, 1), round(yc_, 1)], "end": [round(gx1, 1), round(yt, 1)], "width": W_, "radius": round(R_, 1)}
+            print("drive follows tree line:", DRIVE_ROUTE)
+        else:
+            drape_rect("Gravel drive 0", gx1, gx1 + 22, gy1 + 5, gy1 + 20, 0.10, "Gravel", c_site)
+            drape_rect("Gravel drive 1", gx1 + 8, gx1 + 22, drive_n, gy1 + 5, 0.13, "Gravel", c_site, step=3.0)
 
 PO = C["porch"]
 if PO["enabled"]:
@@ -1448,7 +1585,7 @@ if TERRAIN is not None:
     crowns, trunk = crown_meshes()
     keep = 0
     if TER.get("tree_style", "blobs") == "procedural":
-        _bt = os.path.join(HERE, "build_trees.py")
+        _bt = os.path.join(SRC, "build_trees.py")
         exec(compile(open(_bt, encoding="utf-8").read(), _bt, "exec"))
         trees = []          # placed by build_trees.py
     for k, (x, y, h, r) in enumerate(trees):
@@ -1551,7 +1688,7 @@ for k, (x, y, z) in enumerate([(8, 44, 8.4), (22, 44, 8.4), (36, 44, 8.4), (22, 
 
 # ------------------------------------------------------------------ realism pass: furniture, fixtures, trim, PBR, HDRI
 if FURN.get("enabled") or C.get("assets", {}).get("enabled"):
-    _bd = os.path.join(HERE, "build_details.py")
+    _bd = os.path.join(SRC, "build_details.py")
     exec(compile(open(_bd, encoding="utf-8").read(), _bd, "exec"))
 
 # ------------------------------------------------------------------ cameras

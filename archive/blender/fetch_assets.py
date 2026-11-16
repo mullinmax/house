@@ -7,10 +7,11 @@ Run:  python fetch_assets.py          (skips files already downloaded)
 """
 import io, json, os, sys, tomllib, urllib.request, zipfile
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+SRC = os.path.dirname(os.path.abspath(__file__))
+HERE = SRC if os.path.exists(os.path.join(SRC, "config.toml")) else os.path.normpath(os.path.join(SRC, "..", "..", "model"))
 C = tomllib.load(open(os.path.join(HERE, "config.toml"), "rb"))
 A = C["assets"]
-OUT = os.path.join(HERE, A.get("dir", "assets"))
+OUT = os.path.join(SRC, A.get("dir", "assets"))
 UA = {"User-Agent": "house-model-assets/1.0 (personal project)"}
 
 
