@@ -36,6 +36,34 @@ label { display: flex; align-items: center; gap: 8px; font-size: .85rem; }
 input[type=range] { flex: 1; accent-color: var(--accent); }
 .help { font-size: .78rem; color: var(--muted); margin: 0; }
 .help kbd { font: 500 .72rem ui-monospace, Menlo, Consolas, monospace; border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; }
+fieldset { border: 1px solid var(--line); border-radius: 8px; margin: 0; padding: 8px 10px 10px; display: grid; gap: 8px; min-width: 0; }
+details { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; }
+details[open] { padding-bottom: 10px; }
+details > summary { font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); cursor: pointer; padding: 2px 0; }
+details[open] > summary { margin-bottom: 8px; }
+details > .row { margin-top: 8px; }
+legend { font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding: 0 4px; }
+.checks { display: grid; grid-template-columns: 1fr 1fr; gap: 4px 10px; }
+.checks input { accent-color: var(--accent); margin: 0; }
+#slicelbl { font-variant-numeric: tabular-nums; font-size: .82rem; color: var(--muted); }
+fieldset > label.stack { display: grid; gap: 2px; }
+#detents button { padding: 3px 8px; font-size: .78rem; }
+#info { position: fixed; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); width: min(340px, calc(100vw - 24px));
+  max-height: calc(100dvh - 24px); overflow: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px;
+  backdrop-filter: blur(6px); z-index: 5; touch-action: pan-y; }
+#info .eyebrow { font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+#info h2 { font: 600 1.05rem var(--display); margin: 2px 28px 4px 0; }
+#info p { margin: 6px 0; }
+#info .model { color: var(--muted); }
+#info .price { font-weight: 500; }
+#info dl { display: grid; grid-template-columns: auto 1fr; gap: 3px 10px; margin: 8px 0; font-size: .82rem; }
+#info dt { color: var(--muted); }
+#info dd { margin: 0; }
+#info ul { margin: 8px 0; padding-left: 18px; font-size: .82rem; }
+#info li { margin: 3px 0; }
+#info .place { font-size: .82rem; color: var(--muted); }
+#infoClose { position: absolute; top: 8px; right: 8px; padding: 0 8px; font-size: 1.1rem; line-height: 1.5; }
+@media (max-width: 700px) { #info { top: auto; bottom: max(12px, env(safe-area-inset-bottom)); max-height: 45dvh; } }
 #collapse { position: absolute; top: 8px; right: 8px; padding: 2px 8px; }
 #panel.min > :not(#collapse):not(h1) { display: none; }
 #cross { position: fixed; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
@@ -79,20 +107,44 @@ input[type=range] { flex: 1; accent-color: var(--accent); }
     <button id="tClip" aria-pressed="false" title="Fly through walls (N)">No clip</button>
   </div>
   <select id="rooms" aria-label="Jump to a room"><option value="">Jump to a room</option></select>
-  <div class="row">
-    <button id="tRoof" aria-pressed="false">Roof off</button>
-    <button id="tUp" aria-pressed="false" title="Cut the house just under the first floor ceilings, hiding the loft and attic">Upstairs off</button>
-    <button id="tUtil" aria-pressed="true">Buried lines</button>
-  </div>
+  <select id="equipSel" aria-label="Find an appliance or a piece of equipment" hidden><option value="">Find equipment</option></select>
+  <fieldset>
+    <legend>Height slice</legend>
+    <label class="stack"><input id="slice" type="range" min="0.5" max="23" step="0.05" value="23" list="sliceticks" aria-label="Cut the house at this height"> <span id="slicelbl">Whole house</span></label>
+    <datalist id="sliceticks"></datalist>
+    <div class="row" id="detents" role="group" aria-label="Levels"></div>
+  </fieldset>
+  <details id="layers" open>
+    <summary>Layers</summary>
+    <div class="checks">
+      <label><input type="checkbox" id="lRoof" checked> Roof</label>
+      <label><input type="checkbox" id="lFurniture" checked> Furniture</label>
+      <label><input type="checkbox" id="lAppliances" checked> Appliances</label>
+      <label><input type="checkbox" id="lMechanical" checked> Mechanical</label>
+      <label><input type="checkbox" id="lDucts" checked> Ducts</label>
+      <label><input type="checkbox" id="lTrusses" checked> Floor trusses</label>
+      <label><input type="checkbox" id="lUtil" checked> Buried lines</label>
+    </div>
+    <div class="row">
+      <button id="tSystems" aria-pressed="false" title="Hide the roof, furniture and trees and fade the walls, leaving the structure and the systems">Systems only</button>
+      <button id="tGhost" aria-pressed="false" title="Fade the walls, floors and furniture">See-through walls</button>
+      <button id="tXray" aria-pressed="false" title="Colour the ducts (blue supply, red return, green fresh air) and show them through everything">Duct x-ray</button>
+    </div>
+  </details>
   <label>Trees <input id="trees" type="range" min="0" max="100" step="5" value="100"> <span id="treelbl">100%</span></label>
   <div class="row" role="group" aria-label="Time of day">
     <button id="tDay" aria-pressed="true">Day</button>
     <button id="tNight" aria-pressed="false" title="Turn the sun off and the room lights on">Night</button>
   </div>
   <p class="help" id="helpDesk"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> move, mouse looks (click the view first), <kbd>Shift</kbd> walks faster, <kbd>N</kbd> toggles no clip (fly through walls, <kbd>Space</kbd> up, <kbd>C</kbd> down),
-    <kbd>E</kbd> opens and closes doors, sliders, garage doors and drawers. <kbd>Esc</kbd> frees the mouse. Slow? Turn the Trees slider down, or add <kbd>?lite</kbd> to the address.</p>
-  <p class="help" id="helpTouch" hidden>Left stick moves, drag anywhere else to look. No clip lets you fly through walls in the direction you look. Tap a door or drawer to open or close it.</p>
+    <kbd>E</kbd> or a click opens and closes doors, sliders, garage doors and drawers, and shows the details of an appliance, a piece of equipment or a duct. <kbd>Esc</kbd> frees the mouse. Slow? Turn the Trees slider down, or add <kbd>?lite</kbd> to the address.</p>
+  <p class="help" id="helpTouch" hidden>Left stick moves, drag anywhere else to look. No clip lets you fly through walls in the direction you look. Tap a door or drawer to open or close it, or an appliance or duct to read about it.</p>
 </div>
+
+<aside id="info" hidden aria-live="polite">
+  <button id="infoClose" title="Close (Esc)" aria-label="Close">×</button>
+  <div id="infoBody"></div>
+</aside>
 
 <div id="cross" hidden></div>
 <div id="prompt" hidden><kbd>E</kbd><span id="promptTxt">Open</span></div>
