@@ -1,6 +1,7 @@
 # Heilman-Mullin Residence, 1671 State Route 343
 # Single source of truth for the 3D model. Edit a value, then rebuild:
-#   blender --background --python build_house.py -- --config config.toml
+#   python model/make_house.py          (walkthrough house, site/models/house.json)
+#   python model/make_equipment.py      (appliances, equipment, ducts, site/models/equipment.json)
 # Units are FEET unless noted. Plan origin = outside NW corner of the house slab,
 # +x = east, +y = SOUTH (same as reading the plan sheet), z = height above slab.
 # Source for every number is noted. "ASSUMED" means not on the plans yet: confirm or change.
@@ -36,12 +37,15 @@ flat_height = 9.0               # 9'-0" CLG rooms (A-11). Everything else is vau
 flat_rooms = [
   [0.5, 10.95, 12.12, 22.41],   # Bed 3
   [12.12, 10.95, 23.4, 15.03],  # Hall 2
+  [23.4, 10.95, 31.12, 15.03],  # Hall 2 east leg to the master bedroom door: 9' ceiling + attic over it (Maxwell 11/13). ASSUMED
   [12.12, 15.03, 16.66, 22.87], # Hall 2 / linen
   [16.66, 15.03, 31.12, 22.87], # Laundry (mech platform above)
   [31.12, 15.03, 42.5, 22.87],  # Closet 1
   [0.5, 22.87, 12.12, 29.03],   # Utility
   [0.5, 29.03, 12.12, 34.62],   # Pantry + Powder
 ]
+attic_floor = true              # walkable attic deck on top of every flat ceiling; decks bridge over walls between flat rooms (one attic). ASSUMED
+walls_stop_at_attic = true      # interior walls with flat ceilings on both sides stop at the attic deck (Maxwell 11/13)
 
 [floor_trusses]                 # open web floor trusses under the attic deck and the loft (builder's choice, so returns can be ducted)
 depth_in = 11.875               # 11-7/8" (Maxwell 11/16/2026)
@@ -53,7 +57,10 @@ span = "ns"                     # ASSUMED north to south, until the truss drawin
 enabled = true
 rect = [31.12, 22.87, 42.5, 34.62]
 floor_height = 10.052           # 9' plate + 11-7/8" open web trusses + 3/4" subfloor (Maxwell 11/16/2026). Was 9.9 with the 2x10 floor on A-30
-pony_wall_height = 3.5          # "HIGH PONYWALL" (A-12)
+pony_wall_height = 0.0          # Maxwell 11/13: wall stops level with the loft floor (A-12 showed a high pony wall), railing above
+railing = true                  # 36" guard along the open loft edge and handrails up the ships ladder. ASSUMED
+railing_height = 3.0
+railing_style = "steel_oak"     # black steel posts and balusters, white oak cap. ASSUMED
 ships_ladder = [27.7, 32.0, 31.12, 34.56]   # footprint from A-11, rises toward the east
 
 # ---------------------------------------------------------------- OPENINGS
@@ -162,6 +169,7 @@ head = 17.67
 id = "W60-50 Kitchen folding"
 wall = "S"
 kind = "casement_pair"
+interior_color = "#7B8770"   # Sherwin-Williams Dried Thyme SW 6186 inside (Maxwell 11/13), white oak elsewhere
 start = 7.039
 end = 13.039
 sill = 3.0
@@ -215,6 +223,9 @@ north_window_height = 3.0       # W30-30 = 3'-0" x 3'-0"
 man_door_y = [37.9, 40.9]       # D30-68 into porch (west wall)
 driveway_depth = 25.0           # 25' pad in front of the garage (A-11)
 driveway_material = "Gravel"    # Maxwell 11/12/2026: driveway is gravel, not concrete
+drive_follow_trees = true       # Maxwell 11/13: gravel drive runs parallel to the woodlot edge east of the house (house stays on true N-S)
+drive_offset_ft = 10.0          # drive edge this far west of the canopy drip line. ASSUMED
+drive_width_ft = 14.0           # ASSUMED
 
 [porch]                         # covered porch, delegated design
 enabled = true
@@ -224,7 +235,7 @@ pitch = 2.0
 posts_x = [49.75, 56.3]
 
 [greenhouse]                    # delegated design / deferred submittal
-enabled = true
+enabled = false                 # removed for now (Maxwell 11/13); set true to bring it back
 rect = [0.0, 52.0, 43.0833, 72.0]
 north_height = 9.5              # ASSUMED from A-20 dashed outline
 south_height = 6.3              # ASSUMED
@@ -337,12 +348,16 @@ slab_top_elev_ft = 1034.93      # slab top, feet NAVD88: median natural grade at
 slab_reveal_ft = 0.67           # slab top above finished grade (8")
 grade_buffer_ft = 3.0           # flat graded pad around slab / garage / porch / greenhouse
 grade_blend_ft = 25.0           # blend from the graded pad back to natural ground
-lawn_radius_ft = 90.0           # within this of the house, use mowed-lawn shader instead of the 2023 field photo
+lawn_radius_ft = 0.0            # Maxwell 11/13: NAIP photo right up to the house (was 90 ft of lawn shader)
 lawn_blend_ft = 40.0
 min_tree_height_ft = 12.0
 max_tree_height_ft = 95.0       # cap on lidar tree heights; 150 ft lidar hits are outliers (Maxwell: some tall trees, none that tall)
 tree_min_spacing_ft = 14.0
 tree_density = 1.0              # fraction of lidar-detected trees to place (0..1)
+plot_outline = [[-1160, -420], [150, -395], [110, 960], [-1230, 945], [-1233, 617], [-520, 617], [-520, 100], [-1233, 100]]   # our ~34 acre field around the 7.5 acre farm (SW), traced on NAIP 2023. ASSUMED
+plot_buffer_ft = 150.0          # full-detail trees on the plot and this far around it
+far_outside_keep = 0.08         # fraction of far-ring trees kept outside the plot buffer (horizon only)
+skirt_color = "auto"            # ground beyond the far photo: mean colour of the photo edge
 far_area_ft = 6000.0            # far ring out to the horizon: coarse DEM, NAIP photo and lidar tree tops (sparse levels)
 far_grid_ft = 20.0
 far_ortho_px = 3000
@@ -418,6 +433,9 @@ baseboard_height_in = 4.5          # ASSUMED, white oak to match casings
 casing_width_in = 3.5
 gutters = true
 exterior_lights = true
+door_add = [ { axis = "y", g0 = 15.491, g1 = 18.158, t0 = 31.122, t1 = 31.581, head = 6.67, note = "laundry to Closet 1, A-11 D28-68" } ]   # ASSUMED leaf 2'-4"
+door_remove = [ [37.19, 19.99], [38.27, 25.45] ]   # 2nd: Bath 1 wet-room opening (x 38.12-38.41, y 23.95-26.95) is open, no leaf
+door_pocket = [ [14.16, 22.64, -1] ]   # door between the bedroom wing and the common space: pocket door sliding west into the wall (Maxwell 11/13)   # opening inside Closet 1: left open, no door (Maxwell 11/13)
 items = [
   # ---- living room (vaulted, x 16.7-31.1, y 22.9-34.6)
   { id = "living_rug", type = "rug", x = 26.4, y = 27.8, w = 7.5, l = 9.0, facing = 270, color = "#B9AE9A" },
@@ -431,16 +449,24 @@ items = [
   { id = "floor_lamp", type = "floor_lamp", x = 17.6, y = 33.8 },
   { id = "plant_living", type = "model", model = "potted_plant_01", x = 17.5, y = 31.6, facing = 90, len = 2.0 },
   { id = "art_living", type = "model", model = "hanging_picture_frame_01", x = 26.4, y = 23.0, z = 4.6, facing = 180, len = 3.0, wall = true },
-  # ---- dining (east end of the great room, by the W60-50 dining window)
-  { id = "dining_table", type = "model", model = "gallinera_table", x = 36.8, y = 46.9, facing = 0, len = 6.5 },
-  { id = "dchair_n1", type = "model", model = "gallinera_chair", x = 35.0, y = 44.7, facing = 180, len = 1.6 },
-  { id = "dchair_n2", type = "model", model = "gallinera_chair", x = 36.8, y = 44.7, facing = 180, len = 1.6 },
-  { id = "dchair_n3", type = "model", model = "gallinera_chair", x = 38.6, y = 44.7, facing = 180, len = 1.6 },
-  { id = "dchair_s1", type = "model", model = "gallinera_chair", x = 35.0, y = 49.1, facing = 0, len = 1.6 },
-  { id = "dchair_s2", type = "model", model = "gallinera_chair", x = 36.8, y = 49.1, facing = 0, len = 1.6 },
-  { id = "dchair_s3", type = "model", model = "gallinera_chair", x = 38.6, y = 49.1, facing = 0, len = 1.6 },
-  { id = "dining_pendant", type = "pendant", model = "modern_ceiling_lamp_01", x = 36.8, y = 46.9, z = 6.6, len = 1.5 },
-  { id = "vase_dining", type = "model", model = "ceramic_vase_02", x = 36.8, y = 46.9, on = "dining_table", facing = 0, len = 0.6 },
+  # ---- dining: centred between the D120 bi-parting doors (south wall) and the barn doors (Maxwell 11/13)
+  { id = "dining_table", type = "model", model = "gallinera_table", x = 23.9, y = 43.3, facing = 0, len = 6.5 },
+  { id = "dchair_n1", type = "model", model = "gallinera_chair", x = 22.1, y = 41.1, facing = 180, len = 1.6 },
+  { id = "dchair_n2", type = "model", model = "gallinera_chair", x = 23.9, y = 41.1, facing = 180, len = 1.6 },
+  { id = "dchair_n3", type = "model", model = "gallinera_chair", x = 25.7, y = 41.1, facing = 180, len = 1.6 },
+  { id = "dchair_s1", type = "model", model = "gallinera_chair", x = 22.1, y = 45.5, facing = 0, len = 1.6 },
+  { id = "dchair_s2", type = "model", model = "gallinera_chair", x = 23.9, y = 45.5, facing = 0, len = 1.6 },
+  { id = "dchair_s3", type = "model", model = "gallinera_chair", x = 25.7, y = 45.5, facing = 0, len = 1.6 },
+  { id = "dining_pendant", type = "pendant", model = "modern_ceiling_lamp_01", x = 23.9, y = 43.3, z = 6.6, len = 1.5 },
+  { id = "vase_dining", type = "model", model = "ceramic_vase_02", x = 23.9, y = 43.3, on = "dining_table", facing = 0, len = 0.6 },
+  { id = "entry_bench", type = "bench", x = 35.62, y = 33.75, w = 8.0, d = 1.25, h = 1.5, facing = 180 },   # built-in oak bench + shoe cubbies + hook rail filling the north-wall alcove by the entry (x 31.58-39.66, back wall y 33.12). Maxwell 11/13, ASSUMED 15" deep, 18" seat
+  # ---- reading nook, great room SE corner (Maxwell 11/13). ASSUMED
+  { id = "nook_rug", type = "rug", x = 40.0, y = 48.6, w = 5.0, l = 6.0, facing = 180, color = "#9C8F78" },
+  { id = "nook_chair", type = "model", model = "mid_century_lounge_chair", x = 39.9, y = 48.4, facing = 135, len = 2.8 },
+  { id = "nook_table", type = "model", model = "side_table_01", x = 41.8, y = 47.3, facing = 270, len = 1.3 },
+  { id = "nook_lamp", type = "floor_lamp", x = 38.3, y = 50.6 },
+  { id = "nook_shelf", type = "bookshelf", x = 41.95, y = 50.3, w = 2.0, d = 1.0, h = 3.5, facing = 270 },
+  { id = "nook_plant", type = "model", model = "potted_plant_04", x = 41.8, y = 47.3, on = "nook_table", facing = 0, len = 0.6 },
   { id = "plant_entry", type = "model", model = "potted_plant_02", x = 41.6, y = 36.3, facing = 270, len = 2.2 },
   # ---- kitchen
   { id = "stool_1", type = "model", model = "bar_chair_round_01", x = 7.4, y = 41.7, facing = 180, len = 1.4 },
@@ -488,8 +514,8 @@ items = [
   # ---- bath 1 (x 31.6-42.5, y 22.9-34.6): double vanity on the west wall, shower in the NE corner
   { id = "vanity1", type = "vanity", x = 32.46, y = 26.0, w = 5.4, d = 1.75, sinks = 2, facing = 90 },
   { id = "mirror1", type = "mirror", x = 31.62, y = 26.0, z = 3.9, w = 4.8, h = 3.0, facing = 90 },
-  { id = "toilet1", type = "toilet", x = 32.75, y = 31.1, facing = 90 },
-  { id = "shower1", type = "shower", x0 = 38.41, x1 = 42.5, y0 = 22.87, y1 = 26.95, glass_x = 38.27 },
+  { id = "toilet1", type = "toilet", x = 32.75, y = 31.1, facing = 90 },   # toilet room south of the D28-68 door (A-11 position)
+  { id = "wetroom1", type = "wetroom", x0 = 38.41, x1 = 42.5, y0 = 22.87, y1 = 32.82, drain_y = 27.1, wet_from = 22.87, head_x = 40.45, bench = "north", bench_h = 1.5, bench_d = 1.25, ceiling = 9.0, entry_tile = false },   # Maxwell 11/13: open doorway (A-11 D28-68 gap x 34.37-37.04 at y 29.4), linear drain E-W at its south edge, tiled wet zone south of it with shower on the south wall + tiled bench. ASSUMED
   { id = "towel1", type = "towel", x = 34.3, y = 28.9, z = 4.0, w = 2.0, facing = 180, color = "#E9E4DA" },
   # ---- powder room
   { id = "vanity_p", type = "vanity", x = 7.6, y = 29.4, w = 2.6, d = 1.6, sinks = 1, facing = 180 },
@@ -498,19 +524,8 @@ items = [
   { id = "towel_p", type = "towel", x = 9.6, y = 28.57, z = 4.2, w = 1.2, facing = 180, color = "#D9CFBF" },
 ]
 # window treatments: opening id -> kind (roller shade drop fraction, or curtain panels)
-shades = [
-  { opening = "W60-60 Bed 1", drop = 0.3, color = "#E6E0D4" },
-  { opening = "W30-60 Bed 2", drop = 0.3, color = "#E6E0D4" },
-  { opening = "W30-60 Bed 3 north", drop = 0.35, color = "#E6E0D4" },
-  { opening = "W30-60 Bed 3 south", drop = 0.35, color = "#E6E0D4" },
-  { opening = "W30-46 Study", drop = 0.25, color = "#E6E0D4" },
-  { opening = "W30-20 Bath 2", drop = 0.5, color = "#F2F0EC" },
-]
-curtains = [
-  { opening = "W60-50 Dining fixed", color = "#E8E2D6" },
-  { opening = "D120-80 Bi-parting", color = "#E8E2D6" },
-  { opening = "W60-50 Kitchen folding", color = "#E8E2D6" },
-]
+shades = []                       # none for now (Maxwell 11/13); v2 list in git history
+curtains = []
 # exterior: wall lights (Poly Haven industrial_wall_lamp), outlets and hose bibs. wall = N/S/E/W, u along the wall, z height
 exterior_fixtures = [
   { type = "light", wall = "E", u = 36.9, z = 7.0 },
@@ -523,6 +538,24 @@ exterior_fixtures = [
   { type = "hose_bib", wall = "W", u = 30.0, z = 1.3 },
   { type = "hose_bib", wall = "N", u = 4.0, z = 1.3 },
   { type = "hose_bib", wall = "E", u = 20.0, z = 1.3 },
+]
+
+# ---------------------------------------------------------------- LIGHTING (night)
+[lighting]
+enabled = true
+fixtures = [   # room, x, y, kind (flush = ceiling disc, can = recessed), lumens. ASSUMED positions
+  ["Kitchen", 4.0, 46.0, "can", 800], ["Kitchen", 10.0, 49.0, "can", 800], ["Kitchen", 10.0, 39.5, "can", 800],
+  ["Dining", 23.9, 39.0, "can", 800], ["Great room", 16.5, 47.0, "can", 800], ["Great room", 31.0, 47.0, "can", 800],
+  ["Entry", 39.5, 39.5, "can", 800], ["Family", 37.0, 46.5, "can", 800],
+  ["Living", 21.0, 28.5, "flush", 1600], ["Living", 28.0, 25.0, "can", 800],
+  ["Bed1", 36.8, 5.8, "flush", 1600], ["Bed2", 11.0, 5.6, "flush", 1600], ["Bed3", 6.5, 16.6, "flush", 1600],
+  ["Study", 27.0, 5.6, "flush", 1600], ["Bath1", 34.5, 26.0, "flush", 1200], ["Bath1 shower", 40.45, 29.9, "can", 600], ["Bath1 toilet", 34.8, 31.1, "flush", 600],
+  ["Bath2", 19.4, 6.0, "flush", 1200], ["Powder", 9.0, 31.6, "flush", 800], ["Pantry", 3.0, 31.8, "flush", 800],
+  ["Utility", 6.3, 25.9, "flush", 1200], ["Laundry", 24.0, 18.9, "flush", 1600], ["Closet 1", 34.0, 18.9, "flush", 1200],
+  ["Closet 1", 40.0, 18.9, "flush", 1200], ["Hall 2", 14.4, 13.0, "flush", 1000], ["Hall 2", 19.0, 13.0, "flush", 1000], ["Hall 2", 27.0, 13.0, "flush", 1000],
+  ["Hall", 14.2, 30.5, "can", 800], ["Loft", 36.8, 28.8, "flush", 1200], ["Garage", 71.0, 24.0, "flush", 2500],
+  ["Garage", 87.0, 24.0, "flush", 2500], ["Garage", 71.0, 34.0, "flush", 2500], ["Garage", 87.0, 34.0, "flush", 2500],
+  ["Porch", 53.0, 34.5, "flush", 1000], ["Greenhouse", 21.5, 62.0, "flush", 1500],   # greenhouse fixture is skipped while [greenhouse] is off
 ]
 
 # ---------------------------------------------------------------- RENDERING

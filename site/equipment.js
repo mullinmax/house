@@ -331,7 +331,7 @@ export function cullBaked(roots, items) {
   let dropped = 0;
   const a = new THREE.Vector3(), b = new THREE.Vector3(), c = new THREE.Vector3(), ctr = new THREE.Vector3();
   for (const r of roots) r.traverse((o) => {
-    if (!o.isMesh || o.isInstancedMesh || Array.isArray(o.material)) return;
+    if (!o.isMesh || o.isInstancedMesh || Array.isArray(o.material) || o.userData.house) return;
     const mn = o.material.name || '';
     const hits = boxes.filter((bx) => bx.mats.has(mn));
     if (!hits.length) return;
