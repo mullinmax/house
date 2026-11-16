@@ -1270,8 +1270,174 @@ if GH["enabled"]:
         prism_x("Black Metal", x - 0.12, x + 0.12, [(hy0, htop(hy0) - 0.45), (hy1, htop(hy1) - 0.45), (hy1, htop(hy1) + 0.05), (hy0, htop(hy0) + 0.05)])
         box("Black Metal", x - 0.12, x + 0.12, hy1 - 0.3, hy1 - 0.06, 0, htop(hy1) - 0.45)
 
+# ------------------------------------------------------------------ furniture the browser builds
+# Most furniture is still the baked Blender export (site/models/furniture_*.glb). Pieces marked web = true in
+# [furnishings] are built here instead, and meta tells the viewer what to take out of the export: replace_nodes by
+# name, cull boxes for pieces that were merged into per material meshes, and move_nodes for pieces that only moved.
+MATERIALS.update({
+    "Bedding": dict(color="#F1EEE8", rough=0.9),
+    "Walnut Laminate": dict(color="#8A6040", rough=0.45, map="cabinet_oak.jpg", tile=0.8, grain="long"),
+    "Chair Fabric": dict(color="#2B2D2F", rough=0.85),
+    "Lamp Shade": dict(color="#F3EBDD", rough=0.8, opacity=0.92),
+})
+FURN = FU.get("items", []) if FU.get("enabled") else []
+BYFID = {it["id"]: it for it in FURN}
+WEB_META = dict(replace_nodes=[], cull=[], move_nodes={})
+FURN_MATS = ["Bedding", "Fabric #F1EEE8", "Fabric #9A6B4A", "Fabric #7D8A6C", "Fabric #56614A", "White Oak", "Upholstery", "Black Metal",
+             "Brushed Nickel", "Cabinet Wood", "Plastic Grey", "painted_wooden_nightstand", "Lamp Shade"]
+
+
+def frame_at(cx, cy, facing):
+    """Local (a, b) to plan: b runs toward the front (facing, compass degrees), a to the right of it."""
+    t = math.radians(facing)
+    fx, fy = math.sin(t), -math.cos(t)
+    rx, ry = math.cos(t), math.sin(t)
+    return lambda a, b: (cx + a * rx + b * fx, cy + a * ry + b * fy)
+
+
+def lbox(mat, fr, a0, a1, b0, b1, z0, z1):
+    p, q = fr(a0, b0), fr(a1, b1)
+    box(mat, min(p[0], q[0]), max(p[0], q[0]), min(p[1], q[1]), max(p[1], q[1]), z0, z1)
+
+
+def top_of(it):
+    if it.get("on") and it["on"] in BYFID:
+        o = BYFID[it["on"]]
+        if o["type"] == "nightstand":
+            return o.get("h", 2.0)
+        if o["type"] == "l_desk":
+            return o.get("height_in", 29.0) / 12
+    return it.get("z", 0.0)
+
+
+def web_bed(it):
+    W, L = it.get("w", 5.25), it.get("l", 7.0)
+    fr = frame_at(it["x"], it["y"], it["facing"])
+    hb = -L / 2
+    acc = paint(it.get("accent", "#9A6B4A"))
+    lbox("White Oak", fr, -W / 2, W / 2, hb, hb + 0.22, 0.0, 3.5)                       # headboard
+    lbox("White Oak", fr, -W / 2, W / 2, hb + 0.22, L / 2, 0.3, 0.95)                    # platform
+    for a in (-W / 2 + 0.05, W / 2 - 0.3):
+        for b in (hb + 0.25, L / 2 - 0.3):
+            lbox("Black Metal", fr, a, a + 0.25, b, b + 0.25, 0.0, 0.3)
+    mw, ml = 5.0, 80 / 12                                                                # queen mattress 60 x 80 in
+    lbox("Bedding", fr, -mw / 2, mw / 2, hb + 0.27, hb + 0.27 + ml, 0.95, 1.85)
+    lbox(acc, fr, -mw / 2 - 0.06, mw / 2 + 0.06, hb + 2.2, hb + 0.33 + ml, 1.25, 1.93)       # duvet over the lower part
+    for a0 in (-mw / 2 + 0.15, 0.1):
+        lbox("Bedding", fr, a0, a0 + 2.25, hb + 0.4, hb + 1.65, 1.85, 2.25)                # pillows
+
+
+def web_nightstand(it):
+    w, d, h = it.get("w", 1.4), it.get("d", 1.3), it.get("h", 2.0)
+    fr = frame_at(it["x"], it["y"], it["facing"])
+    lbox("White Oak", fr, -w / 2, w / 2, -d / 2, d / 2, 0.35, h)
+    for a in (-w / 2 + 0.05, w / 2 - 0.15):
+        for b in (-d / 2 + 0.05, d / 2 - 0.15):
+            lbox("White Oak", fr, a, a + 0.1, b, b + 0.1, 0.0, 0.35)
+    lbox("Black Metal", fr, -0.25, 0.25, d / 2, d / 2 + 0.05, h - 0.4, h - 0.33)            # drawer pull
+
+
+def web_table_lamp(it):
+    z = top_of(it)
+    cyl("Black Metal", it["x"], it["y"], z, z + 0.08, 0.28)
+    cyl("Black Metal", it["x"], it["y"], z + 0.08, z + 1.0, 0.04)
+    cyl("Lamp Glass", it["x"], it["y"], z + 0.85, z + 1.55, 0.5, 0.36)
+
+
+def web_desk_lamp(it):
+    z = top_of(it)
+    cyl("Black Metal", it["x"], it["y"], z, z + 0.06, 0.25)
+    cyl("Black Metal", it["x"], it["y"], z + 0.06, z + 1.4, 0.03)
+    box("Black Metal", it["x"] - 0.7, it["x"] + 0.02, it["y"] - 0.03, it["y"] + 0.03, z + 1.36, z + 1.42)
+    box("Lamp Glass", it["x"] - 0.95, it["x"] - 0.55, it["y"] - 0.12, it["y"] + 0.12, z + 1.3, z + 1.36)
+
+
+def web_l_desk(it):
+    """UPLIFT V2 L-shaped desk. facing 90: you sit facing east, the main top on the east wall, return on the right (south)."""
+    x0, y0 = it["x0"], it["y0"]
+    mL, mD = it["main"][0] / 12, it["main"][1] / 12
+    rL, rW = it["ret"][0] / 12, it["ret"][1] / 12
+    H, T = it.get("height_in", 29.0) / 12, it.get("top_in", 1.0) / 12
+    mx0, mx1, my0, my1 = x0, x0 + mD, y0, y0 + mL                                       # main top
+    if it.get("side", "right") == "right":
+        rx0, rx1, ry0, ry1 = x0 - rL, x0, my1 - rW, my1
+    else:
+        rx0, rx1, ry0, ry1 = x0 - rL, x0, my0, my0 + rW
+    box("Walnut Laminate", mx0, mx1, my0, my1, H - T, H)
+    box("Walnut Laminate", rx0, rx1, ry0, ry1, H - T, H)
+    LW, LD = 80 / 304.8, 50 / 304.8                                                       # 50 x 80 mm legs
+    legs = [((mx0 + mx1) / 2 + 0.2, my0 + 0.55, "x"), ((mx0 + mx1) / 2 + 0.2, (ry0 + ry1) / 2, "x"), (rx0 + 0.55, (ry0 + ry1) / 2, "y")]
+    for (lx, ly, foot) in legs:
+        box("Black Metal", lx - LW / 2, lx + LW / 2, ly - LD / 2, ly + LD / 2, 0.08, H - T - 0.1)
+        if foot == "x":
+            box("Black Metal", mx0 + 0.15, mx1 - 0.1, ly - 0.1, ly + 0.1, 0.0, 0.08)
+        else:
+            box("Black Metal", lx - 0.1, lx + 0.1, ry0 + 0.1, ry1 - 0.1, 0.0, 0.08)
+    box("Black Metal", (mx0 + mx1) / 2 + 0.1, (mx0 + mx1) / 2 + 0.3, my0 + 0.4, my1 - 0.3, H - T - 0.1, H - T)     # frame under the tops
+    box("Black Metal", rx0 + 0.4, mx0 + 0.6, (ry0 + ry1) / 2 - 0.1, (ry0 + ry1) / 2 + 0.1, H - T - 0.1, H - T)
+    box("Black Metal", mx0 - 0.02, mx0 + 0.25, ry0 - 0.35, ry0 - 0.05, H - T - 0.07, H - T)                    # keypad, front edge
+    box("Paint #1E2022", mx0 + 0.2, mx0 + 1.4, my0 + 0.6, my0 + 2.4, H, H + 0.01)                               # desk pad
+    MATERIALS.setdefault("Paint #1E2022", dict(color="#1E2022", rough=0.8))
+
+
+def web_office_chair(it):
+    cx, cy = it["x"], it["y"]
+    fr = frame_at(cx, cy, it["facing"])
+    for k in range(5):                                                                     # five star base on casters
+        t = 2 * math.pi * k / 5
+        dx, dy, px, py = math.cos(t), math.sin(t), -math.sin(t) * 0.05, math.cos(t) * 0.05
+        a, b = (cx + 0.1 * dx, cy + 0.1 * dy), (cx + 1.05 * dx, cy + 1.05 * dy)
+        hexa("Black Metal", [(a[0] - px, a[1] - py, 0.22), (b[0] - px, b[1] - py, 0.18), (b[0] - px, b[1] - py, 0.26), (a[0] - px, a[1] - py, 0.32),
+                             (a[0] + px, a[1] + py, 0.22), (b[0] + px, b[1] + py, 0.18), (b[0] + px, b[1] + py, 0.26), (a[0] + px, a[1] + py, 0.32)])
+        cyl("Black Metal", b[0], b[1], 0.0, 0.18, 0.08)
+    cyl("Black Metal", cx, cy, 0.3, 1.45, 0.09)
+    lbox("Chair Fabric", fr, -0.85, 0.85, -0.8, 0.85, 1.45, 1.72)                         # seat
+    lbox("Chair Fabric", fr, -0.8, 0.8, -1.0, -0.82, 1.95, 3.45)                          # back
+    lbox("Black Metal", fr, -0.1, 0.1, -0.95, -0.75, 1.45, 1.95)
+    for a in (-0.95, 0.8):                                                                 # arms
+        lbox("Black Metal", fr, a, a + 0.15, -0.1, 0.05, 1.72, 2.3)
+        lbox("Black Metal", fr, a - 0.02, a + 0.17, -0.5, 0.45, 2.3, 2.4)
+
+
+# The baked site has a concrete pad under the kitchen's south service window that is not on the drawings (Maxwell,
+# 11/16/2026). The pads at the bi-parting door and the west door stay.
+WEB_META["cull"].append(dict(box=[6.9, 51.9, -1.0, 13.1, 56.1, 0.2], materials=["Concrete"], parts="site"))
+
+WEB_BUILD = {"bed": web_bed, "nightstand": web_nightstand, "table_lamp": web_table_lamp, "desk_lamp": web_desk_lamp,
+             "l_desk": web_l_desk, "office_chair": web_office_chair}
+WEB_INFO = {
+    "bed": lambda it: dict(model="Queen bed, 60 x 80 in mattress on a white oak platform (ASSUMED)", notes=["Queen, and placed so the side tables clear both doors (Maxwell, 11/16/2026)."]),
+    "nightstand": lambda it: dict(model=f"Nightstand, {ftin(it.get('w', 1.4))} wide (ASSUMED)"),
+    "table_lamp": lambda it: dict(model="Table lamp (ASSUMED)"),
+    "desk_lamp": lambda it: dict(model="UPLIFT E3 LED desk lamp, black (came with the desk order)"),
+    "l_desk": lambda it: dict(model="UPLIFT V2 L-shaped standing desk", price="$1,462.85 (04/2022, order SO778262)",
+                              specs=[["Size", "60\" main x 60\" return, return on the right"], ["Top", "1\" walnut laminate, main 59.6 x 30 in, return 30 x 27.5 in"],
+                                     ["Frame", "V2 C-frame, 3 legs, black"], ["Controls", "Advanced keypad"], ["Shown at", "29 in, seated height (it stands up to about 50 in)"]],
+                              notes=["Maxwell's own desk, from his UPLIFT order. Placed on the east wall, off the window (Maxwell, 11/16/2026)."]),
+    "office_chair": lambda it: dict(model="Office chair (stand in, ASSUMED)"),
+}
+WEB_NAMES = {"bed": "Queen bed", "nightstand": "Nightstand", "table_lamp": "Table lamp", "desk_lamp": "Desk lamp", "l_desk": "L-shaped standing desk", "office_chair": "Office chair"}
+for it in FURN:
+    if it.get("moved_from"):
+        ox, oy, of = it["moved_from"]
+        WEB_META["move_nodes"][it["id"]] = [rnd(it["x"] - ox), rnd(it["y"] - oy), -(it.get("facing", 0) - of)]
+    if not it.get("web"):
+        continue
+    t = it["type"]
+    WEB_META["replace_nodes"].append(it["id"])
+    if it.get("cull_old"):
+        x0, y0, x1, y1, zt = it["cull_old"]
+        WEB_META["cull"].append(dict(box=[x0, y0, 0.02, x1, y1, zt], materials=FURN_MATS))
+    cx = it.get("x", it.get("x0"))
+    cy = it.get("y", it.get("y0"))
+    rec(f"furniture.{it['id']}", "furniture", WEB_NAMES.get(t, t), "furniture", room=room_at(cx, cy),
+        info=WEB_INFO.get(t, lambda i: dict(model=t))(it))
+    WEB_BUILD[t](it)
+    if t in ("table_lamp", "desk_lamp"):                    # the night light for a lamp follows it
+        WEB_META.setdefault("lights_moved", {})[f"{it['id']} bulb"] = [it["x"], it["y"], rnd(top_of(it) + 1.2)]
+
 # ------------------------------------------------------------------ spawns (as in export_web.py), eye height above the floor
-EYE = C.get("web", {}).get("eye_height_ft", 5.33)
+EYE = C.get("web", {}).get("eye_height_ft", 5.58)       # 5'-7" eyes, for a 5'-10" person (Maxwell, 11/16/2026)
 SPAWNS = C.get("web", {}).get("spawns", {
     "Kitchen": [[10.5, 48.5], [3.0, 44.0]], "Living": [[19.5, 28.0], [30.0, 28.0]], "Dining": [[41.5, 43.5], [34.0, 48.0]],
     "Bed1": [[34.0, 10.0], [41.5, 5.0]], "Bed2": [[14.2, 9.4], [7.0, 4.5]], "Bed3": [[3.0, 20.8], [11.0, 15.0]],
@@ -1343,7 +1509,14 @@ NUDGED = nudge()
 out = dict(
     meta=dict(generated_by="model/make_house.py", units="plan feet (x east, y south from the outside NW slab corner, z up from the slab top)",
               source="config.toml and data/traced_geometry.json; port of the v21 Blender model (archive/blender)",
-              eye_ft=EYE, floors=dict(main=0.0, loft=LOFT["floor_height"], attic=FH + FLOOR_T)),
+              eye_ft=EYE, floors=dict(main=0.0, loft=LOFT["floor_height"], attic=FH + FLOOR_T),
+              rooms=[dict(name=n, rect=[x0, y0, x1, y1]) for (n, x0, y0, x1, y1) in ROOMS]
+                    + [dict(name="Loft", rect=list(LOFT["rect"]), floor=LOFT["floor_height"], upper=True)]
+                    + ([dict(name="Garage", rect=list(GA["rect"]))] if GA.get("enabled") else [])
+                    + ([dict(name="Porch", rect=list(C["porch"]["rect"]), outside=True)] if C.get("porch", {}).get("enabled", True) and C.get("porch", {}).get("rect") else []),
+              outline=dict(house=[0, 0, HW, HD], garage=GA["rect"] if GA.get("enabled") else None, porch=C.get("porch", {}).get("rect")),
+              climbs=[dict(id="loft.ladder", rect=list(LOFT["ships_ladder"]), axis="x", z0=0.0, z1=LOFT["floor_height"])] if LOFT.get("enabled") else [],
+              **WEB_META),
     materials=MATERIALS,
     spawns={k: dict(pos=[p[0], p[1], EYE], look=[l[0], l[1], EYE - 0.3]) for k, (p, l) in SPAWNS.items()},
     records=RECS)

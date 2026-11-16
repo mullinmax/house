@@ -11,7 +11,7 @@ const V = (x, y, z) => new THREE.Vector3(x * F, z * F, y * F);
 // ---------------------------------------------------------------- materials
 const KIND_LABEL = {
   wall: 'Wall', window: 'Window', door: 'Door', cabinet: 'Kitchen cabinet', roof: 'Roof', ceiling: 'Ceiling', floor: 'Floor', slab: 'Slab',
-  trim: 'Trim', fixture: 'Fixture', gutter: 'Roof drainage', stair: 'Stair', railing: 'Railing', appliance: 'Appliance', structure: 'Structure',
+  trim: 'Trim', fixture: 'Fixture', gutter: 'Roof drainage', stair: 'Stair', railing: 'Railing', appliance: 'Appliance', structure: 'Structure', furniture: 'Furniture',
 };
 
 function slabCanvas(m) {
@@ -201,7 +201,7 @@ export function buildHouse(data, { skip = new Set() } = {}) {
   const grainOf = (m) => (mats[m] && mats[m].userData.grain) || '';
   const root = new THREE.Group(); root.name = 'house';
   const recs = [], byId = {};
-  const LAYER_NAME = { roof: 'Roof', ceiling: 'ceiling', shell: 'House shell', interior: 'House interior' };
+  const LAYER_NAME = { roof: 'Roof', ceiling: 'ceiling', shell: 'House shell', interior: 'House interior', furniture: 'House furniture' };
   const buckets = new Map();
   let ri = -1;
   const getter = (group) => (m) => {
@@ -230,6 +230,7 @@ export function buildHouse(data, { skip = new Set() } = {}) {
   for (const bk of buckets.values()) {
     if (!bk.tris) continue;
     const m = bucketMesh(bk, `${LAYER_NAME[bk.group] || 'House'} ${bk.mat.name}`);
+    m.userData.layer = bk.group;
     root.add(m);
   }
   // moving parts: a pivot node carrying the same extras the Blender export wrote (slide in Blender metres, Z up)
@@ -244,7 +245,7 @@ export function buildHouse(data, { skip = new Set() } = {}) {
       if (!bk.tris) continue;
       const m = bucketMesh(bk, `${r.name} ${bk.mat.name}`);
       m.geometry.translate(-piv.position.x, -piv.position.y, -piv.position.z);
-      m.userData.equipId = r.id;
+      m.userData.equipId = r.id; m.userData.layer = r.layer;
       piv.add(m);
     }
     root.add(piv);

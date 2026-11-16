@@ -4,15 +4,17 @@ An interactive, walkable 3D model of the house, built in the browser from the ho
 
 Open the site, then:
 
-- **Walk mode:** click the view, then use W A S D to move and the mouse to look. Hold Shift to go faster. Esc frees the mouse.
+- **Orbit mode** (the default): drag to rotate, scroll to zoom, W A S D (or the arrow keys) to slide the orbit centre around the site. Click a door to open it.
+- **Walk mode:** click the view, then use W A S D to move and the mouse to look. Hold Shift to go faster, Space to jump, C (or the Crouch button) to crouch. Esc frees the mouse. The eye is at 5 ft 7 in, for a 5 ft 10 in person, and you duck on your own under low roof in the attic. The ship's ladder climbs straight onto the loft.
 - **N** toggles no clip: fly through walls in the direction you look, Space up, C down.
 - **E** opens and closes whatever you're looking at: doors, the barn doors, the bi-parting slider, the garage doors and drawers.
-- **Orbit mode:** drag to rotate around the site, scroll to zoom. Click a door to open it.
-- **Click or E on an appliance, a piece of equipment, a duct, or any wall, window, door, cabinet or trim piece** to read what it is: model, price, size, specs, and notes on where the design is still open. "Find equipment" in the panel jumps to any of them.
+- **Click or E on an appliance, a piece of equipment, a duct, a piece of furniture, or any wall, window, door, cabinet or trim piece** to read what it is: model, price, size, specs, and notes on where the design is still open.
+- **Controls** (or H) opens a page that lists every key and touch control.
+- **Go to a room** opens a plan of the house. Click a room to walk into it or to look down on it from above. **Find equipment** opens the same plan with every appliance and piece of equipment as a dot, plus a list by category.
 - **Height slice:** a slider cuts the house at any height. It catches at detents just under each level's ceiling (main floor, floor trusses, loft and attic), and lifts the roof off while it is cutting.
-- **Layers:** show or hide the roof, furniture, appliances, mechanical equipment, ducts, floor trusses and buried lines. "Systems only" hides the roof, furniture and trees and fades the walls. "Duct x-ray" colours the ducts (blue supply, red return, green fresh air) and shows them through everything.
-- **Panel:** jump to any room, switch between Day and Night (room lights on), and thin the trees with the Trees slider on slow devices.
-- **Slow device?** Add `?lite` to the address to start without shadows and with a quarter of the trees.
+- **Layers**, each with an icon: roof, walls, furniture, trees, distant trees, appliances, mechanical, ducts, duct x-ray, floor trusses and buried lines. Walls off fades the house so the systems read. Duct x-ray colours the ducts (blue supply, red return, green fresh air) and shows them through everything.
+- **Day and Night:** at night the room lights come on. The porch and exterior lights stay on, and the nearest six interior lights fade in as you move.
+- **Slow device?** Add `?lite` to the address to start without shadows or the distant trees.
 - **Phones:** the left stick moves, drag anywhere else to look, tap a door to open it.
 
 ## Layout
@@ -71,6 +73,8 @@ python model/make_house.py            # add --check to list faces that still ove
 - Doors, drawers, cabinet doors, the barn doors, the bi-parting slider and the garage doors are operable pivots, in the same format the Blender export used (below).
 - Where `equipment.json` has a real model of an appliance, the placeholder box for it is skipped.
 - Coplanar faces are nudged a hair apart when the file is written so nothing flickers.
+- Furniture the browser builds (the queen beds and nightstands in bedrooms 2 and 3, the Uplift L desk and office chair in the Study) is listed in `[furnishings]` with `web = true`. Its records go on the furniture layer, and `house.json` `meta` tells the viewer how to edit the Blender furniture and site GLBs to match: `replace_nodes` (named nodes to drop), `cull` (boxes of triangles to drop, by material and part), `move_nodes` (nodes to shift and turn) and `lights_moved`.
+- `meta` also carries `rooms` and `outline` for the room picker plan, `climbs` (the ship's ladder ramp) and `eye_ft`.
 - `?baked` in the address loads the old Blender `shell.glb` and `interior.glb` in place of the generated house, for comparison.
 
 ## Appliances, equipment and ducts
