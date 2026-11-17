@@ -101,8 +101,12 @@ kbd { font: 500 .75rem ui-monospace, Menlo, Consolas, monospace; border: 1px sol
 #info li { margin: 3px 0; }
 #info .place { font-size: .82rem; color: var(--muted); }
 #infoClose { position: absolute; top: 8px; right: 8px; padding: 0 8px; font-size: 1.1rem; line-height: 1.5; }
-#collapse { position: absolute; top: 8px; right: 8px; padding: 2px 8px; }
-#panel.min > :not(#collapse):not(h1) { display: none; }
+/* the menu folds into its hamburger button */
+.phead { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+#collapse { padding: 5px 7px; line-height: 0; }
+#collapse .ic { color: var(--fg); stroke-width: 1.6; }
+#panel.min { width: auto; padding: 6px; }
+#panel.min > :not(.phead), #panel.min .phead > :not(#collapse) { display: none; }
 #cross { position: fixed; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
   background: #fff; box-shadow: 0 0 0 1.5px rgba(0,0,0,.6); pointer-events: none; }
 #prompt { position: fixed; left: 50%; top: calc(50% + 22px); transform: translateX(-50%); background: var(--scrim);
@@ -149,7 +153,6 @@ body.compact #panel { display: none; top: auto; left: 8px; right: 8px; width: au
 body.compact #panel[data-sheet="layers"], body.compact #panel[data-sheet="more"] { display: grid; }
 body.compact #panel > [data-sec] { display: none; }
 body.compact #panel[data-sheet="layers"] > [data-sec="layers"], body.compact #panel[data-sheet="more"] > [data-sec="more"] { display: grid; }
-body.compact #panel[data-sheet="more"] > .row[data-sec="more"] { display: flex; }
 body.compact .sheethead { display: flex; align-items: center; }
 .sheethead h2 { font: 600 1rem var(--display); margin: 0; flex: 1; }
 #sheetClose { font-size: 1.2rem; line-height: 1; padding: 6px 12px; }
@@ -202,19 +205,26 @@ body.compact .keys td:first-child { white-space: normal; }
 </div></div>
 
 <div id="panel">
-  <button id="collapse" title="Collapse panel">–</button>
-  <div class="eyebrow desk">Interactive model</div>
-  <h1 class="desk">House walkthrough</h1>
-  <div class="sheethead"><h2 id="sheetTitle"></h2><button id="sheetClose" aria-label="Close">×</button></div>
-  <div class="row desk" role="group" aria-label="Camera mode">
-    <button data-mode="orbit" aria-pressed="true" title="Drag to turn, scroll to zoom, W A S D to slide">Orbit</button>
-    <button data-mode="walk" aria-pressed="false" title="Walk through the house at eye height">Walk</button>
-  </div>
-  <div class="row desk" role="group" aria-label="Go to">
+  <div class="phead desk">
+    <button id="collapse" title="Hide the menu" aria-label="Menu" aria-expanded="true"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4h11M2.5 8h11M2.5 12h11"/></svg></button>
     <button data-act="rooms" title="Pick a room on the floor plan">Go to a room</button>
     <button data-act="equip" title="Pick an appliance or a piece of equipment on the plan" hidden>Find equipment</button>
     <button data-act="controls" title="Keys and gestures (H)">Controls</button>
   </div>
+  <div class="sheethead"><h2 id="sheetTitle"></h2><button id="sheetClose" aria-label="Close">×</button></div>
+  <fieldset data-sec="more">
+    <legend>View</legend>
+    <div class="row">
+      <button class="desk" data-mode="orbit" aria-pressed="true" title="Drag to turn, scroll to zoom, W A S D to slide, Space and Shift to rise and sink">Orbit</button>
+      <button class="desk" data-mode="walk" aria-pressed="false" title="Walk through the house at eye height">Walk</button>
+      <button id="tClip" aria-pressed="false" title="Fly through walls (N)">No clip</button>
+      <button data-act="crouch" aria-pressed="false" title="Crouch (C)" hidden>Crouch</button>
+    </div>
+    <div class="row" role="group" aria-label="Time of day">
+      <button id="tDay" aria-pressed="true">Day</button>
+      <button id="tNight" aria-pressed="false" title="Turn the sun off and the room lights on">Night</button>
+    </div>
+  </fieldset>
   <fieldset data-sec="layers">
     <legend>Height slice</legend>
     <label class="stack"><input id="slice" type="range" min="0.5" max="23" step="0.05" value="23" list="sliceticks" aria-label="Cut the house at this height"> <span id="slicelbl">Whole house</span></label>
@@ -228,11 +238,10 @@ body.compact .keys td:first-child { white-space: normal; }
       <label class="layer" id="rowWalls" title="Off: walls, floors and furniture fade so the systems read"><input type="checkbox" id="lWalls" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="10"/><path d="M2 6.5h12M2 10h12M6 3v3.5M10 6.5V10M6 10v3"/></svg> <span>Walls</span></label>
       <label class="layer" id="rowFurniture" title=""><input type="checkbox" id="lFurniture" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 7V12M13.5 7V12M2.5 9.5h11M4 9.5V5.5h8v4"/></svg> <span>Furniture</span></label>
       <label class="layer" id="rowAppliances" title=""><input type="checkbox" id="lAppliances" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="1.8" width="8" height="12.4" rx="1"/><path d="M4 6.5h8M6 3.8v1.4M6 8.5v2"/></svg> <span>Appliances</span></label>
-      <label class="layer" id="rowTrees" title="Every tree: off hides the near trees and the distant woods"><input type="checkbox" id="lTrees" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8 3.5 9h9z"/><path d="M8 9v5"/></svg> <span>Trees</span></label>
-      <label class="layer sub" id="rowFarTrees" title="The woods further out, shown while Trees is on. Off is faster on slow devices"><input type="checkbox" id="lFarTrees" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 5 1.8 9h4.4zM12 5 9.8 9h4.4zM8 3.5 5.6 8h4.8z"/><path d="M1 13h14"/></svg> <span>Distant trees</span></label>
+      <label class="layer" id="rowTrees" title="Trees, shrubs and the woods"><input type="checkbox" id="lTrees" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8 3.5 9h9z"/><path d="M8 9v5"/></svg> <span>Trees</span></label>
+      <label class="layer" id="rowMechanical" title="Heat pump, ERV, water heater, geothermal"><input type="checkbox" id="lMechanical" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/><path d="M8 8 8 3.2M8 8l4.2 2.4M8 8l-4.2 2.4"/></svg> <span>Mechanical</span></label>
       <label class="layer" id="rowDucts" title="Supply, return and fresh air ducts"><input type="checkbox" id="lDucts" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 6h9v4h-9z"/><path d="M10.5 8H15M12.8 5.8 15 8l-2.2 2.2"/></svg> <span>Ducts</span></label>
       <label class="layer sub" id="rowXray" title="Colour the ducts (blue supply, red return, green fresh air, purple exhaust) and show them through everything"><input type="checkbox" id="lXray"> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12" stroke="#3B82C4"/><path d="M2 8h12" stroke="#C4473B"/><path d="M2 12h12" stroke="#3F9B57"/></svg> <span>Duct x-ray</span></label>
-      <label class="layer" id="rowMechanical" title="Heat pump, ERV, water heater, geothermal"><input type="checkbox" id="lMechanical" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/><path d="M8 8 8 3.2M8 8l4.2 2.4M8 8l-4.2 2.4"/></svg> <span>Mechanical</span></label>
       <label class="layer" id="rowTrusses" title=""><input type="checkbox" id="lTrusses" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 4h14M1 12h14M1.5 12 4.5 4 7.5 12 10.5 4 13.5 12"/></svg> <span>Floor trusses</span></label>
       <label class="layer" id="rowUtil" title="Geothermal loops and septic"><input type="checkbox" id="lUtil" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 5h14"/><path d="M2 10h12" stroke-dasharray="2 1.6"/><path d="M3 5v2M8 5v2M13 5v2" stroke-width="1"/></svg> <span>Buried lines</span></label>
     </div>
@@ -240,14 +249,6 @@ body.compact .keys td:first-child { white-space: normal; }
   <div class="biglist" data-sec="more">
     <button data-act="equip" hidden>Find equipment</button>
     <button data-act="controls">Controls and gestures</button>
-  </div>
-  <div class="row" data-sec="more" role="group" aria-label="Time of day">
-    <button id="tDay" aria-pressed="true">Day</button>
-    <button id="tNight" aria-pressed="false" title="Turn the sun off and the room lights on">Night</button>
-  </div>
-  <div class="row" data-sec="more" role="group" aria-label="Movement">
-    <button data-act="crouch" aria-pressed="false" title="Crouch (C)" hidden>Crouch</button>
-    <button id="tClip" aria-pressed="false" title="Fly through walls (N)">No clip</button>
   </div>
 </div>
 
