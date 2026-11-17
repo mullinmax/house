@@ -42,10 +42,11 @@ const DUCT = {
   return: new THREE.MeshStandardMaterial({ color: 0xc6aca9, roughness: 0.45, metalness: 0.6 }),
   transfer: new THREE.MeshStandardMaterial({ color: 0xc9c2a4, roughness: 0.6, metalness: 0.3 }),
   erv: new THREE.MeshStandardMaterial({ color: 0xb4c4a2, roughness: 0.6, metalness: 0.3 }),
+  exhaust: new THREE.MeshStandardMaterial({ color: 0xbcb0c6, roughness: 0.5, metalness: 0.5 }),
   grille: new THREE.MeshStandardMaterial({ color: 0xf4f4f0, roughness: 0.5, metalness: 0.1 }),
   slot: new THREE.MeshStandardMaterial({ color: 0x55585a, roughness: 0.7, metalness: 0.2 }),
 };
-const XRAY = { supply: 0x2f8be0, return: 0xe0503a, transfer: 0xe0b23a, erv: 0x6cbf4a, grille: 0xffffff, slot: 0x222222 };
+const XRAY = { supply: 0x2f8be0, return: 0xe0503a, transfer: 0xe0b23a, erv: 0x6cbf4a, exhaust: 0x9b59d0, grille: 0xffffff, slot: 0x222222 };
 for (const [k, m] of Object.entries(DUCT)) m.name = 'Duct ' + k;
 
 // ---------------------------------------------------------------- geometry helpers (inches, local frame)
@@ -285,7 +286,7 @@ function buildRun(run) {
   return g;
 }
 
-// ducts: { type: supply|return|transfer|erv, shape: rect|round, size: [w, h] or dia (in), points: [[x,y,z], ...] plan ft }
+// ducts: { type: supply|return|transfer|erv|exhaust, shape: rect|round, size: [w, h] or dia (in), points: [[x,y,z], ...] plan ft }
 function buildDuct(dc) {
   const g = new THREE.Group();
   const m = DUCT[dc.type] || DUCT.supply;
