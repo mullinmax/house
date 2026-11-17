@@ -403,92 +403,87 @@
    }
   },
   {
-   "id": "washer",
-   "name": "LG front load washer",
+   "id": "washer_dryer",
+   "name": "GE Profile UltraFast Combo washer dryer",
    "category": "Laundry appliance",
    "system": "laundry",
    "room": "Laundry",
    "layer": "appliances",
    "builder": "front_load_laundry",
    "size": [
-    27,
-    39,
-    30.25
+    28,
+    46.7,
+    32
    ],
    "at": [
-    26.15,
+    27.45,
     22.36,
     0
    ],
    "facing": 0,
+   "finish": "graphite",
+   "kind_ring": "dark",
    "replaces_nodes": [
-    "washer"
-   ],
-   "info": {
-    "model": "LG WM5500HWA, 4.5 cu ft (matching white washer)",
-    "price": "About $799",
-    "specs": [
-     [
-      "Size",
-      "About 27 W x 39 H x 30.25 D in"
-     ],
-     [
-      "Capacity",
-      "4.5 cu ft"
-     ]
-    ],
-    "notes": [
-     "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class.",
-     "The shortlist only names the dryer. This is the matching white washer. The 5.0 cu ft WM6500HWA (about $1,199) is the step up."
-    ],
-    "placement": "Laundry south wall, left of the dryer."
-   }
-  },
-  {
-   "id": "dryer",
-   "name": "LG heat pump dryer",
-   "category": "Laundry appliance",
-   "system": "laundry",
-   "room": "Laundry",
-   "layer": "appliances",
-   "builder": "front_load_laundry",
-   "size": [
-    27,
-    39,
-    32.25
-   ],
-   "at": [
-    28.75,
-    22.36,
-    0
-   ],
-   "facing": 0,
-   "label": "dryer",
-   "replaces_nodes": [
+    "washer",
     "dryer"
    ],
+   "cull": [
+    {
+     "box": [
+      24.95,
+      19.7,
+      0.0,
+      29.95,
+      22.45,
+      3.3
+     ],
+     "materials": [
+      "Enamel White",
+      "Plastic Grey",
+      "Aluminum",
+      "Black Glass",
+      "Glass"
+     ]
+    }
+   ],
    "info": {
-    "model": "LG DLHC5502W, 7.8 cu ft ventless heat pump dryer",
-    "price": "$1,345 to $1,349",
+    "model": "GE Profile PFQ97HSPVDS UltraFast Combo, 4.8 cu ft all in one washer dryer, Carbon Graphite",
+    "price": "$2,199 at Lowe's",
     "specs": [
      [
       "Size",
-      "27 W x 39 H x 32.25 D in (52.75 in with the door open)"
+      "28 W x 46 7/10 H x 32 D in"
      ],
      [
       "Capacity",
-      "7.8 cu ft"
+      "4.8 cu ft, washes and dries in one drum"
+     ],
+     [
+      "Drying",
+      "Ventless heat pump, no dryer vent"
      ],
      [
       "Power",
-      "240 V, 15 A"
+      "120 V, 11 A, on its own 15 A circuit, outlet within 36 in of the cord entry"
      ],
      [
-      "Venting",
-      "None. It needs a condensate drain instead of a duct."
+      "Water",
+      "Hot and cold valves 36 1/4 in above the floor, drain hose standpipe"
+     ],
+     [
+      "Clearance",
+      "0 in sides and top, 1/2 in each side suggested"
+     ],
+     [
+      "Weight",
+      "302 lb"
      ]
     ],
-    "placement": "Laundry south wall, right of the washer."
+    "notes": [
+     "One combo unit replaces the separate washer and dryer (Maxwell, 11/17/2026). Lowe's lists this listing as model PFQ97HSPVDS.",
+     "Size from AJ Madison and the GE spec sheet. It is 7 1/2 in taller than a standard front loader, so check any counter or shelf planned above it."
+    ],
+    "placement": "Laundry south wall, centred where the washer and dryer pair stood."
    }
   },
   {
