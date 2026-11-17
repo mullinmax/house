@@ -239,7 +239,7 @@ supply("s_bed1", "Bedroom 1", 138, 8, [[40.4, YE - 0.6, 11.0], [40.4, 14.95, 11.
 # plenum box on the deck at the heat pump.
 DK = DECK + 5 / 12                                # centre of a 10 in tall duct lying on the deck
 LOW = 1.0                                         # centre of a low return grille, 8 in tall, its bottom 8 in above the floor
-STK = [14, 3.25]                                  # wall stack: 14 x 3-1/4 in in a 2x4 stud bay (w runs along plan x)
+STK = [14, 2.5]                                   # wall stack: 14 x 2-1/2 in, kept inside a 3-1/2 in stud bay (w runs along plan x)
 YP = 25.5                                         # where the bedroom flex rises into the return plenum box
 PZ = DECK + 1.0                                   # centre of the 24 in tall plenum box on the deck
 def ret(id, name, size, points, grilles=None, note=None, info_of=None, model=None, flex=False):
@@ -301,7 +301,7 @@ XR3, XR2 = bay(7.7), bay(9.7)
 r = ret("return_bed23", "Bedrooms 2 and 3 return", 10, bend([[XR3, 10.85, ZT], [XR3, YP, ZT], [XR3, YP, DECK + 0.2]]), flex=True,
         grilles=[dict(at=[XR3, 11.02, LOW], size=[14, 8], wall=S)])
 r["info"]["specs"] = [["Serves", "Bedroom 3 (low grille on its north wall) and bedroom 2 (low grille on its south wall)"],
-                      ["Duct", "14 x 3-1/4 in wall stacks, 7 in flex from bedroom 2 through one truss, 10 in flex south in one truss bay to the plenum"],
+                      ["Duct", "14 x 2-1/2 in wall stacks, 7 in flex from bedroom 2 through one truss, 10 in flex south in one truss bay to the plenum"],
                       ["Crosses", "One truss, at 7 in. No supply runs"]]
 r["info"]["notes"] = ["Bedroom 3's grille moved from its south wall, next to the bed, to its north wall (Maxwell, 11/17/2026). It shares that wall with bedroom 2, "
                       "so the two stacks rise side by side into the trusses over bedroom 3 and join there: bedroom 2's 7 in flex crosses one truss into bedroom 3's bay and "
@@ -319,7 +319,7 @@ r = ret("return_study", "Study and bedroom 1 returns", 7,
         bend([[XSB, 10.85, ZT], [XSB - 0.35, 11.4, ZT], [XSB - 0.35, YSW, ZT], [XR2, YSW, ZT], [XR2, YP, ZT], [XR2, YP, DECK + 0.2]]), flex=True,
         grilles=[dict(at=[XSB, 10.64, LOW], size=[14, 8], wall=N)])
 r["info"]["specs"] = [["Serves", "Study (low grille on its south wall) and bedroom 1 (low grille on its south wall, beside the door)"],
-                      ["Duct", "14 x 3-1/4 in wall stacks, one 7 in flex home run per room to the return plenum box"],
+                      ["Duct", "14 x 2-1/2 in wall stacks, one 7 in flex home run per room to the return plenum box"],
                       ["Crosses", "The laundry, linen and bedroom 3 trusses at 7 in. No supply runs, and they stay in the trusses, off the tall south part of the attic"]]
 r["info"]["notes"] = ["The study and bedroom 1 have low grilles (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Each room gets its own 7 in flex "
                       "back to the plenum, because one duct big enough for both would not fit through the truss webs.",

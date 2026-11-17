@@ -2545,7 +2545,7 @@
      ],
      [
       "Duct",
-      "14 x 3-1/4 in wall stacks, 7 in flex from bedroom 2 through one truss, 10 in flex south in one truss bay to the plenum"
+      "14 x 2-1/2 in wall stacks, 7 in flex from bedroom 2 through one truss, 10 in flex south in one truss bay to the plenum"
      ],
      [
       "Crosses",
@@ -2589,7 +2589,7 @@
    "shape": "rect",
    "size": [
     14,
-    3.25
+    2.5
    ],
    "info_of": "return_bed23"
   },
@@ -2701,7 +2701,7 @@
    "shape": "rect",
    "size": [
     14,
-    3.25
+    2.5
    ],
    "info_of": "return_bed23"
   },
@@ -2840,7 +2840,7 @@
      ],
      [
       "Duct",
-      "14 x 3-1/4 in wall stacks, one 7 in flex home run per room to the return plenum box"
+      "14 x 2-1/2 in wall stacks, one 7 in flex home run per room to the return plenum box"
      ],
      [
       "Crosses",
@@ -2884,7 +2884,7 @@
    "shape": "rect",
    "size": [
     14,
-    3.25
+    2.5
    ],
    "info_of": "return_study"
   },
@@ -3071,7 +3071,7 @@
    "shape": "rect",
    "size": [
     14,
-    3.25
+    2.5
    ],
    "info_of": "return_study"
   },
