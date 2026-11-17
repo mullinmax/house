@@ -281,10 +281,11 @@ back = 35.158
 facing = 1
 units = [[3.9, 7.05, "fridge"], [7.1, 9.4, "drawers3"], [9.4, 11.7, "drawer_doors2"]]
 uppers = [[7.1, 9.4, "glass", 1.1], [9.4, 11.7, "microwave", 1.5]]   # [start, end, type, depth ft]; microwave upper deepened (redline)
-microwave_spot = "counter"               # Breville Combi Wave BMO870 (Maxwell 11/17/2026). Its manual forbids a cabinet and wants 20 cm (8 in) clear
+microwave_spot = "counter"               # "counter", "shelf" or "cubby". Breville Combi Wave BMO870 (Maxwell 11/17/2026). Its manual forbids a cabinet and wants 20 cm (8 in) clear
                                          # on the sides and top, so it sits on this counter and the microwave upper above is left out.
                                          # "cubby" brings back the open cubby below, sized by microwave_opening (ft) and the upper's depth.
 microwave_opening = 1.25
+microwave_shelf = [8.67, 11.7, 1.71, 1.83] # "shelf": open shelf x0, x1, opening height, depth (ft): 36.4 W x 20.5 H x 22 D in = Combi Wave + 8 in sides and top
 pantry_door = [0.743, 3.443]             # redline: door into the pantry where Carter drew a tall cabinet. Rough opening = first clerestory passage
 pantry_door_leaf = 2.5                   # 2'-6" x 6'-8" white oak slab. ASSUMED (a 2'-8" leaf leaves no room for casing against the west wall)
 pantry_casing_east = 0.292               # 3-1/2" casing; its outer edge stops 2" (0.167 ft) short of the fridge side panel at x = 3.9

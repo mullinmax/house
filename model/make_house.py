@@ -1021,9 +1021,16 @@ for rn, run_ in RUNS.items():
     for k, (u0, u1, typ) in enumerate(run_["units"]):
         base_unit(run, rn, k, u0, u1, typ, mat, run_.get("depth", BASE_D), counter=not rn.startswith("island"))
 nr = Run("north", RUNS["north"]); UB = K.get("upper_bottom", 4.6)
-for k, up in enumerate(RUNS["north"].get("uppers", [])):
+MW_SPOT = RUNS["north"].get("microwave_spot", "cubby")
+_uppers = [list(u) for u in RUNS["north"].get("uppers", [])]
+if MW_SPOT == "shelf":                            # big open shelf: [x0, x1, opening, depth] replaces the microwave upper, the glass upper shrinks to meet it
+    sx0, sx1, sop, sdp = RUNS["north"]["microwave_shelf"]
+    for u in _uppers:
+        if u[2] == "glass": u[1] = sx0
+        if u[2] == "microwave": u[0], u[1], u[3] = sx0, sx1, sdp
+for k, up in enumerate(_uppers):
     u0, u1, typ = up[:3]; ud = up[3] if len(up) > 3 else 1.1
-    if typ == "microwave" and RUNS["north"].get("microwave_spot") == "counter":
+    if typ == "microwave" and MW_SPOT == "counter":
         continue                                  # the microwave sits on the counter below, open above (equipment.json)
     r = rec(f"cabinet.north.upper.{k}", "cabinet", "Glass door upper, fridge wall" if typ == "glass" else "Microwave upper, fridge wall", "interior", room="Kitchen",
             info=dict(model=f"{'Glass door' if typ == 'glass' else 'Microwave'} upper, {ftin(u1 - u0)} wide, {ftin(ud)} deep", specs=[["Underside", ftin(UB)], ["Top", ftin(TALL)]],
@@ -1035,7 +1042,13 @@ for k, up in enumerate(RUNS["north"].get("uppers", [])):
             nr.box("Cabinet Wood", u0 + 0.06, u1 - 0.06, 0.05, ud - 0.05, zz, zz + 0.06)
     else:
         # open microwave cubby (sized for the microwave in equipment.json), wood doors above it
-        mo = RUNS["north"].get("microwave_opening", 1.4)
+        mo = RUNS["north"]["microwave_shelf"][2] if MW_SPOT == "shelf" else RUNS["north"].get("microwave_opening", 1.4)
+        if MW_SPOT == "shelf":
+            r["name"] = "Open microwave shelf, fridge wall"
+            r["info"]["model"] = f"Open microwave shelf, {ftin(u1 - u0)} wide, {ftin(ud)} deep, doors above"
+            r["info"]["notes"] = ["Sized for the Breville Combi Wave: 20 cm (8 in) clear on each side and above, per its manual. "
+                                  "The manual also wants 20 cm from walls behind, which this depth does not give.",
+                                  "The glass door upper shrinks to make room."]
         ins = 0.06
         r["info"]["specs"].append(["Microwave opening", f"{ftin(u1 - u0 - 2 * ins)} W x {ftin(mo)} H x {ftin(ud - ins)} D"])
         nr.box("Cabinet Wood", u0, u1, 0, ud, UB, UB + ins)                       # cubby floor
