@@ -1023,6 +1023,9 @@ for rn, run_ in RUNS.items():
         base_unit(run, rn, k, u0, u1, typ, mat, run_.get("depth", BASE_D), counter=not rn.startswith("island"))
 nr = Run("north", RUNS["north"]); UB = K.get("upper_bottom", 4.6)
 MW_SPOT = RUNS["north"].get("microwave_spot", "cubby")
+COFFEE = RUNS["north"].get("coffee_station", 0)   # coffee station mockups (Maxwell 11/17/2026): 1, 2 or 3, 0 = none
+if COFFEE in (1, 3): MW_SPOT = "counter"
+if COFFEE == 2: MW_SPOT = "shelf"
 _uppers = [list(u) for u in RUNS["north"].get("uppers", [])]
 if MW_SPOT == "shelf":                            # big open shelf: [x0, x1, opening, depth] replaces the microwave upper, the glass upper shrinks to meet it
     sx0, sx1, sop, sdp = RUNS["north"]["microwave_shelf"]
@@ -1031,6 +1034,8 @@ if MW_SPOT == "shelf":                            # big open shelf: [x0, x1, ope
         if u[2] == "microwave": u[0], u[1], u[3] = sx0, sx1, sdp
 for k, up in enumerate(_uppers):
     u0, u1, typ = up[:3]; ud = up[3] if len(up) > 3 else 1.1
+    if COFFEE and (typ == "microwave" or COFFEE in (2, 3)):
+        continue                                  # built by the coffee station block below
     if typ == "microwave" and MW_SPOT == "counter":
         continue                                  # the microwave sits on the counter below, open above (equipment.json)
     r = rec(f"cabinet.north.upper.{k}", "cabinet", "Glass door upper, fridge wall" if typ == "glass" else "Microwave upper, fridge wall", "interior", room="Kitchen",
@@ -1062,6 +1067,99 @@ for k, up in enumerate(_uppers):
         CUR[0] = r["parts"]
         doors(nr, r, u0, u1, UB + mo + ins, TALL - 0.25, ud, "Cabinet Wood", 2)
     nr.box("Cabinet Wood", u0 - 0.03, u1 + 0.03, 0, ud + 0.12, TALL - 0.25, TALL)
+
+
+# ------------------------------------------------------------------ coffee station mockups (fridge wall, x 7.1 to 11.7)
+def mug(u, d, z, col):
+    """a 3.3 in mug, 3.8 in tall, handle to the right. u along the run, d out from the wall"""
+    x, y = nr.at(u, d)
+    cyl(col, x, y, z, z + 0.32, 0.137)
+    nr.box(col, u + 0.13, u + 0.19, d - 0.015, d + 0.015, z + 0.08, z + 0.25)
+
+
+def tumbler(u, d, z):
+    x, y = nr.at(u, d)
+    cyl("Glass", x, y, z, z + 0.42, 0.11, 0.125)
+
+
+def coffee_maker(u, z):
+    """drip coffee maker, about 9 W x 14 H x 11 D in, carafe on the warming plate"""
+    blk, w = paint("#1E2022"), 0.375
+    nr.box(blk, u - w, u + w, 0.12, 0.42, z, z + 1.17)                  # tower with the water tank
+    nr.box(blk, u - w, u + w, 0.12, 1.0, z + 0.88, z + 1.17)            # head over the carafe
+    nr.box(blk, u - w, u + w, 0.12, 1.0, z, z + 0.08)                   # base and warming plate
+    x, y = nr.at(u, 0.72)
+    cyl("Glass", x, y, z + 0.08, z + 0.72, 0.26, 0.2)                   # carafe
+    cyl(paint("#3B2416"), x, y, z + 0.09, z + 0.3, 0.25, 0.25)          # coffee in it
+    nr.box("Stainless", u - 0.12, u + 0.12, 1.0, 1.01, z + 0.95, z + 1.08)   # display
+
+
+def tea_box(u, z):
+    nr.box("White Oak", u - 0.36, u + 0.36, 0.15, 0.62, z, z + 0.3)     # 8.6 in tea chest
+    for j in range(4):
+        nr.box(paint("#7D8A6C") if j % 2 else paint("#C9B27A"), u - 0.32 + j * 0.17, u - 0.2 + j * 0.17, 0.2, 0.55, z + 0.3, z + 0.36)
+
+
+def canister(u, z, h=0.55):
+    x, y = nr.at(u, 0.35)
+    cyl("Stainless", x, y, z, z + h, 0.2)
+
+
+MUGS = [paint("#EDEAE2"), paint("#2F4A4F"), paint("#B5654A"), paint("#EDEAE2"), paint("#7D8A6C")]
+
+
+def mug_row(u0, u1, d, z, n=None):
+    n = n or max(1, int((u1 - u0) / 0.42))
+    for j in range(n):
+        mug(u0 + 0.22 + j * (u1 - u0 - 0.44) / max(1, n - 1), d, z, MUGS[j % len(MUGS)])
+
+
+def glass_row(u0, u1, d, z):
+    n = max(1, int((u1 - u0) / 0.34))
+    for j in range(n):
+        tumbler(u0 + 0.18 + j * (u1 - u0 - 0.36) / max(1, n - 1), d, z)
+
+
+def open_shelves(u0, u1, levels, depth=1.0, t=0.12):
+    for z in levels:
+        nr.box("Cabinet Wood", u0, u1, 0, depth, z, z + t)               # 1 1/2 in floating shelves
+
+
+if COFFEE:
+    labels = {1: "Coffee station 1: open shelves over the microwave, glass upper kept",
+              2: "Coffee station 2: two tier open unit, microwave bay plus mug bay, glasses on top",
+              3: "Coffee station 3: open shelves the whole length, microwave on the counter"}
+    rec("kitchen.coffee_station", "fixture", "Coffee station (mockup)", "interior", room="Kitchen",
+        info=dict(model=labels[COFFEE], specs=[["Coffee maker", "Drip, about 9 W x 14 H x 11 D in (placeholder)"], ["Counter", "x 7.1 to 11.7, 55 in long"]],
+                  notes=["Mockup for Maxwell (11/17/2026): drip coffee maker, tea, mugs and glasses next to the Breville Combi Wave.",
+                         "Breville wants 8 in clear on the sides and above the microwave, so nothing closed sits within 8 in of it."]))
+    CT = CTR_Z
+    coffee_maker(7.6, CT); tea_box(8.45, CT); canister(9.05, CT)
+    if COFFEE == 1:
+        z = [UB + 0.15, UB + 1.05, UB + 1.95]
+        open_shelves(9.4, 11.7, z)
+        mug_row(9.4, 11.7, 0.5, z[0] + 0.12); mug_row(9.4, 11.7, 0.5, z[1] + 0.12); glass_row(9.4, 11.7, 0.5, z[2] + 0.12)
+    elif COFFEE == 3:
+        z = [UB + 0.15, UB + 1.05, UB + 1.95]
+        open_shelves(7.1, 11.7, z)
+        mug_row(7.1, 11.7, 0.5, z[0] + 0.12); glass_row(7.1, 9.3, 0.5, z[1] + 0.12); mug_row(9.4, 11.7, 0.5, z[1] + 0.12)
+        glass_row(7.1, 11.7, 0.5, z[2] + 0.12)
+    else:
+        sx0, sx1, sop, sdp = RUNS["north"]["microwave_shelf"]
+        u0, u1, D, ins = 7.1, sx1, sdp, 0.06
+        ztier = UB + ins + sop                                           # top of the microwave bay
+        nr.box("Cabinet Wood", u0, u1, 0, D, UB, UB + ins)               # floor
+        nr.box("Cabinet Wood", u0, u1, 0, ins, UB, TALL - 0.25)          # back
+        nr.box("Cabinet Wood", u0, u0 + ins, 0, D, UB, TALL - 0.25)      # ends
+        nr.box("Cabinet Wood", u1 - ins, u1, 0, D, UB, TALL - 0.25)
+        nr.box("Cabinet Wood", sx0 - ins / 2, sx0 + ins / 2, 0, D, UB + ins, ztier)   # divider between the mug bay and the microwave bay
+        nr.box("Cabinet Wood", u0, u1, 0, D, ztier, ztier + ins)         # tier
+        nr.box("Cabinet Wood", u0, sx0, 0, D, UB + ins + sop / 2, UB + ins * 2 + sop / 2)   # mug bay shelf
+        nr.box("Cabinet Wood", u0, u1, 0, D, TALL - 0.31, TALL - 0.25)   # top
+        nr.box("Cabinet Wood", u0 - 0.03, u1 + 0.03, 0, D + 0.12, TALL - 0.25, TALL)
+        for dd in (0.45, 1.2):
+            mug_row(u0 + ins, sx0 - ins, dd, UB + ins, n=3); mug_row(u0 + ins, sx0 - ins, dd, UB + ins * 2 + sop / 2, n=3)
+        glass_row(u0 + ins, u1 - ins, 0.6, ztier + ins); glass_row(u0 + ins, u1 - ins, 1.25, ztier + ins)
 
 if RUNS["north"].get("pantry_door"):
     px0, px1, phd = min(CL["passages"], key=lambda p: p[0])

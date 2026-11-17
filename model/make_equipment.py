@@ -87,6 +87,7 @@ _NR = CFG["kitchen"]["runs"]["north"]
 _MW_D = 20.2                                      # depth with the handle (instruction book p.12)
 _MW_X = _NR["units"][-1][1] - 0.1 - 20.4 / 24    # right side 1.2 in in from the end of the fridge wall counter, open air past it
 _MW_SPOT = _NR.get("microwave_spot", "counter")
+_MW_SPOT = {1: "counter", 2: "shelf", 3: "counter"}.get(_NR.get("coffee_station", 0), _MW_SPOT)
 _MW_AT = [_MW_X, _NR["back"] + 2.5 / 12, 3.0]
 if _MW_SPOT == "shelf":                           # centred on the open shelf, floor 3/4 in above the upper's underside
     _sx0, _sx1, _sop, _sdp = _NR["microwave_shelf"]

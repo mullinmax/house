@@ -287,6 +287,7 @@ microwave_spot = "counter"               # "counter", "shelf" or "cubby". Brevil
                                          # on the sides and top, so it sits on this counter and the microwave upper above is left out.
                                          # "cubby" brings back the open cubby below, sized by microwave_opening (ft) and the upper's depth.
 microwave_opening = 1.25
+coffee_station = 0                       # coffee station mockups (Maxwell 11/17/2026): 1 open shelves over the counter microwave, 2 two tier open unit, 3 open shelves full length, 0 none
 microwave_shelf = [8.67, 11.7, 1.71, 1.83] # "shelf": open shelf x0, x1, opening height, depth (ft): 36.4 W x 20.5 H x 22 D in = Combi Wave + 8 in sides and top
 pantry_door = [0.743, 3.443]             # redline: door into the pantry where Carter drew a tall cabinet. Rough opening = first clerestory passage
 pantry_door_leaf = 2.5                   # 2'-6" x 6'-8" white oak slab. ASSUMED (a 2'-8" leaf leaves no room for casing against the west wall)
