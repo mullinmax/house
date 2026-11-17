@@ -258,6 +258,8 @@ hardware_color = "#B8B8B4"               # brushed nickel bar pulls as rendered
 wide_drawer_pulls = 1                    # Erin redline 11/12: one long pull on wide drawers (2 = Carter drawing)
 upper_bottom = 4.6                       # underside of the uppers on the fridge wall (from elevation)
 tall_height = 8.0                        # top of tall cabinets incl. crown (from elevation)
+oven_face_bottom = 1.22                  # bottom of the wall oven's face above the floor, ft. The drawer below and the doors above fit round it.
+oven_face_height_in = 50.75              # Frigidaire Gallery GCWD3067AF face height (cutout 28.5 W x 48.875 H x 23.5 D in)
 # Each run: wall it backs onto, plan coordinate of that wall face, which way the fronts face,
 # and units as [start, end, type] measured along the wall (x for S/N runs, y for W run).
 # Types: blind, door1, doors2, drawers2, drawers3, drawer_door, drawer_doors2, dishwasher,

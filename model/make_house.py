@@ -939,11 +939,12 @@ def base_unit(run, rn, k, u0, u1, typ, mat, depth=BASE_D, counter=True):
         run.box(mat, u0 - 0.05, u1 + 0.05, 0, BASE_D + 0.22, TALL - 0.25, TALL)
         df = BASE_D + 0.1
         if typ == "oven_tower":
-            stack(run, r, u0, u1, KICK, 1.25, df, mat, [1])
-            doors(run, r, u0, u1, 4.6, TALL - 0.25, df, mat, 2)
+            ob = K.get("oven_face_bottom", 1.22); ot = ob + K.get("oven_face_height_in", 50.75) / 12     # the oven's face, floor to top
+            stack(run, r, u0, u1, KICK, ob - 0.02, df, mat, [1])
+            doors(run, r, u0, u1, ot + 0.02, TALL - 0.25, df, mat, 2)
             placeholder(run, rn, k, "oven", "Double wall oven (placeholder)")
-            run.box("Stainless", u0 + 0.1, u1 - 0.1, df - 0.02, df + 0.05, 1.3, 4.55)
-            for zz in (1.45, 3.05):
+            run.box("Stainless", u0 + 0.1, u1 - 0.1, df - 0.02, df + 0.05, ob, ot)
+            for zz in (ob + 0.15, ob + (ot - ob) / 2):
                 run.box("Black Glass", u0 + 0.45, u1 - 0.45, df + 0.05, df + 0.06, zz + 0.25, zz + 1.05)
                 pull(run, (u0 + u1) / 2, zz + 1.35, u1 - u0 - 0.8, df + 0.06)
         else:

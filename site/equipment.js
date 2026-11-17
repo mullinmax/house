@@ -267,17 +267,14 @@ function drawCombo(c, w, h) {                         // GE Profile UltraFast Co
   const A = ['Smart Dispense Detergent', 'Smart Dispense Softener', 'PreWash', 'More Water', 'Extra Rinse'], B = ['Timed Dry', 'Dewrinkle', 'Wash Complete', 'More Dry', 'Wrinkle Care'];
   for (let i = 0; i < 5; i++) { const y = h * (0.38 + i * 0.105); c.textAlign = 'left'; c.fillText(A[i], w * 0.65, y); c.textAlign = 'right'; c.fillText(B[i], w * 0.96, y); }
 }
-function drawOvenPanel(c, w, h) {                     // LG wall oven glass touch controls
+function drawOvenPanel(c, w, h) {                     // Frigidaire Gallery wall oven: black glass with a small lit display in the middle
   c.fillStyle = '#050607'; c.fillRect(0, 0, w, h);
-  c.textBaseline = 'middle'; c.textAlign = 'center';
-  c.fillStyle = '#ff3b30'; c.font = 'bold 26px Helvetica, Arial, sans-serif'; c.fillText('12:30', w * 0.5, h * 0.36);
-  c.fillStyle = '#f2f2f2'; c.font = '11px Helvetica, Arial, sans-serif';
-  c.fillText('UPPER', w * 0.5 - 62, h * 0.36); c.fillText('LOWER', w * 0.5 + 62, h * 0.36);
-  const L = ['Bake', 'Conv. Bake', 'Conv. Roast', 'Air Fry', 'Broil'], R = ['Cook Time', 'Start Time', 'Probe', 'Light', 'Lock'];
-  for (let i = 0; i < 5; i++) { c.fillText(L[i], w * (0.05 + i * 0.075), h * 0.36); c.fillText(R[i], w * (0.65 + i * 0.075), h * 0.36); }
-  c.font = '10px Helvetica, Arial, sans-serif'; c.fillStyle = '#c8c8c8';
-  for (let i = 0; i < 10; i++) c.fillText(String((i + 1) % 10), w * (0.29 + i * 0.047), h * 0.74);
-  c.fillText('START', w * 0.86, h * 0.74); c.fillText('CLEAR OFF', w * 0.94, h * 0.74); c.fillText('EasyClean', w * 0.08, h * 0.74); c.fillText('Smart Diagnosis', w * 0.18, h * 0.74);
+  const dw = h * 1.75, dh = h * 0.62, x0 = (w - dw) / 2, y0 = (h - dh) / 2;
+  c.fillStyle = '#1b2026'; c.fillRect(x0, y0, dw, dh);
+  c.fillStyle = '#f4f6f8'; c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.font = `${Math.round(h * 0.36)}px Helvetica, Arial, sans-serif`; c.fillText('6:04', w / 2, h / 2 + 1);
+  c.strokeStyle = '#d7dadd'; c.lineWidth = 1.5;
+  for (const sx of [-1, 1]) for (const k of [-1, 0, 1]) { c.beginPath(); c.arc(w / 2 + sx * (dw / 2 + h * 0.3), h / 2 + k * h * 0.2, h * 0.055, 0, Math.PI * 2); c.stroke(); }
 }
 function drawCooktop(c, w, h) {                       // KitchenAid KCIT730SBL zone markings, seen from above with the front at the bottom
   c.fillStyle = '#0b0b0c'; c.fillRect(0, 0, w, h);
@@ -350,22 +347,29 @@ function printMat(key, w, h, draw, rough = 0.12, metal = 0.3) {      // a printe
 // Each returns a THREE.Group in inches (local frame above). s = item.size = [w, h, d].
 // Proportions, handles, controls and finishes follow the makers' product photos; overall sizes are the spec sheet sizes.
 const BUILD = {
-  wall_oven_double(s) {            // LG WDEP9423F: black glass doors in a stainless frame, bar handles, glass touch panel on top
-    const [w, h, d] = s, g = new THREE.Group();
-    const cz = d - 1.6, face = d - 0.2, dz = (cz + face) / 2, dt = face - cz;
-    box(g, w - 1.25, h - 0.5, cz, darkSteel(), 0, h / 2, cz / 2);                              // chassis in the cutout
-    box(g, w, 0.9, dt, steel(), 0, 0.45, dz);                                                // bottom trim
-    const ph = 5.1, lower = [1.0, 22.6], upper = [23.4, h - ph - 0.25];
-    box(g, w - 0.8, upper[0] - lower[1], 0.5, darkPlastic(), 0, (upper[0] + lower[1]) / 2, cz + 0.25);   // vent slot between the doors
+  wall_oven_double(s) {            // Frigidaire Gallery GCWD3067AF: stainless doors with wide black windows, flat bar handles, black glass control strip
+    const [w, h, d] = s, g = new THREE.Group(), k = h / 50.75;
+    const cz = d - 1.7, face = d - 0.2, dz = (cz + face) / 2, dt = face - cz;
+    box(g, w - 1.37, h - 1.9, cz, darkSteel(), 0, h / 2, cz / 2);                              // chassis in the 28.5 in cutout
+    box(g, w, 0.5 * k, dt, steel(), 0, 0.25 * k, dz);                                        // bottom trim
+    const lower = [0.55 * k, 22.4 * k], upper = [23.15 * k, 45.1 * k], py0 = 45.6 * k;
+    for (const [ya, yb] of [[lower[1], upper[0]], [upper[1], py0]]) box(g, w - 0.6, yb - ya, 0.6, darkPlastic(), 0, (ya + yb) / 2, cz + 0.3);   // vent gaps
     for (const [y0, y1] of [lower, upper]) {
-      const dh = y1 - y0, gh = dh - 3.4;
-      slab(g, w, dh, dt, steel(), 0, (y0 + y1) / 2, dz, 0.15);                                // door frame
-      slab(g, w - 1.3, gh, 0.14, glass(), 0, y0 + 0.75 + gh / 2, face + 0.05, 0.25);           // glass
-      slab(g, w - 8.6, gh * 0.66, 0.06, mat('oven window', 0x15181f, 0.03, 0.75), 0, y0 + 0.75 + gh * 0.5, face + 0.13, 0.2);   // window into the cavity
-      bar(g, w - 2.4, 0, y1 - 1.35, face, false, steelH(), 0.5, 2.0);
+      slab(g, w, y1 - y0, dt, steel(), 0, (y0 + y1) / 2, dz, 0.12);                            // door
+      const gy0 = y0 + 2.05 * k, gh = 16.5 * k;
+      slab(g, w - 4.4, gh + 0.3, 0.1, graphiteDark(), 0, gy0 + gh / 2, face + 0.02, 0.12);     // window trim
+      slab(g, w - 4.6, gh, 0.14, glass(), 0, gy0 + gh / 2, face + 0.06, 0.1);                  // window
+      slab(g, w - 4.7, 1.5, 0.7, steelH(), 0, y1 - 1.5 * k, face + 1.75, 0.3);                 // flat bar handle
+      for (const sx of [-1, 1]) box(g, 1.2, 0.9, 1.5, steelH(), sx * (w / 2 - 3.6), y1 - 1.5 * k, face + 0.75);
     }
-    slab(g, w, ph, dt, glass(), 0, h - ph / 2, dz, 0.12);                                      // control panel
-    plate(g, w - 0.8, ph - 0.7, screenMat('oven panel', 1024, 160, drawOvenPanel, 0.85), 0, h - ph / 2, face + 0.02);
+    plate(g, 4.2, 0.95, labelMat('frigidaire badge', 256, 60, (c, cw, ch) => {
+      c.strokeStyle = '#4a4d50'; c.lineWidth = 3; c.strokeRect(3, 3, cw - 6, ch - 6);
+      c.fillStyle = '#3a3d40'; c.font = 'bold 30px Helvetica, Arial, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('FRIGIDAIRE', cw / 2, ch / 2 + 2, cw - 16);
+    }), 0, lower[0] + 1.05 * k, face + 0.02);
+    const ph = h - py0;
+    slab(g, w, ph, dt, steel(), 0, py0 + ph / 2, dz, 0.12);                                    // control panel frame
+    slab(g, w - 2.2, ph - 1.5, 0.1, glass(), 0, py0 + ph / 2, face + 0.03, 0.1);
+    plate(g, w - 2.6, ph - 1.9, screenMat('oven panel', 1024, 120, drawOvenPanel, 0.85), 0, py0 + ph / 2, face + 0.09);
     return g;
   },
   cooktop_induction(s) {           // KitchenAid KCIT730SBL: frameless black glass, bridge zone on the left, three round zones, touch sliders at the front

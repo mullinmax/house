@@ -26,19 +26,25 @@ RH = 8                                            # tallest duct that passes bet
 ZTR = DECK + 8.0 / 12 + 0.02                      # centre of the 18 x 16 supply trunk sitting on the deck
 FLAT = CFG["ceilings"]["flat_rooms"]
 LOFT = CFG["loft"]["rect"]
+OVEN_Z = CFG["kitchen"].get("oven_face_bottom", 1.22)            # bottom of the wall oven's face, ft
+OVEN_H = CFG["kitchen"].get("oven_face_height_in", 50.75)
 
 items, runs, ducts = [], [], []
 APPROX = "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
 
 # ------------------------------------------------------------------ kitchen
 items += [
- dict(id="oven", name="LG double wall oven", category="Kitchen appliance", system="kitchen", room="Kitchen", layer="appliances",
-      builder="wall_oven_double", size=[29.75, 52.06, 25.0], at=[0.5417, 43.1, 0.95], facing=90,
+ dict(id="oven", name="Frigidaire Gallery double wall oven", category="Kitchen appliance", system="kitchen", room="Kitchen", layer="appliances",
+      builder="wall_oven_double", size=[29.87, OVEN_H, 25.19], at=[0.5417, 43.1, OVEN_Z], facing=90,
       cull=[dict(box=[0.5, 41.7, 0.9, 2.9, 44.5, 5.5], materials=["Stainless", "Black Glass", "Appliance Interior"])],
-      info=dict(model="LG WDEP9423F, 30 in smart double wall oven", price="About $2,095 to $2,199",
-        specs=[["Size", "29.75 W x 52.06 H x 23.38 D in"], ["Cutout", "28.5 W x 51.81 H x 24 D in"], ["Capacity", "9.4 cu ft (4.7 + 4.7)"],
-               ["Power", "240 V, 40 A"], ["Features", "EasyClean, air fry, ThinQ"]],
-        notes=["The oven tower in the Carter Lumber drawing is 33.6 in wide with a 39 in tall opening. This oven needs a 51.81 in tall cutout, so the tower's drawer and door split has to change."],
+      info=dict(model="Frigidaire Gallery GCWD3067AF, 30 in double electric wall oven with air fry", price="$2,099 at Lowe's on 11/17/2026 (list $3,599)",
+        specs=[["Size", "29.87 W x 50.75 H x 25.19 D in"], ["Cutout", "28.5 W x 48.875 H x 23.5 D in"], ["Capacity", "10.6 cu ft (5.3 + 5.3)"],
+               ["Power", "240 V, 40 A"], ["Features", "Air fry, steam cook, single fan convection with a European element, self clean and steam clean"],
+               ["Finish", "Fingerprint resistant stainless steel"]],
+        notes=["Maxwell's pick (11/17/2026), replacing the LG WDEP9423F.",
+               f"The oven tower is changed to suit it: the face starts {OVEN_Z * 12:.1f} in above the floor over one drawer, and the doors above start at {OVEN_Z * 12 + OVEN_H + 0.25:.1f} in. "
+               "The Carter Lumber drawing shows a 39 in tall opening, so the tower's drawer and door split has to change in the cabinet order. The tower is 33.6 in wide, which leaves about 2.5 in of stile each side of the 28.5 in cutout.",
+               "Size and cutout from the Lowe's listing. Confirm against the Frigidaire installation guide before the cabinets are ordered."],
         placement="West wall oven tower, per the cabinet plan.")),
  dict(id="cooktop", name="KitchenAid induction cooktop", category="Kitchen appliance", system="kitchen", room="Kitchen", layer="appliances",
       builder="cooktop_induction", size=[30.8, 3.7, 21.3], at=[0.74, 47.0, 3.127], facing=90,
