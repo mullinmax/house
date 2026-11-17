@@ -42,10 +42,11 @@ const DUCT = {
   return: new THREE.MeshStandardMaterial({ color: 0xc6aca9, roughness: 0.45, metalness: 0.6 }),
   transfer: new THREE.MeshStandardMaterial({ color: 0xc9c2a4, roughness: 0.6, metalness: 0.3 }),
   erv: new THREE.MeshStandardMaterial({ color: 0xb4c4a2, roughness: 0.6, metalness: 0.3 }),
+  exhaust: new THREE.MeshStandardMaterial({ color: 0xbcb0c6, roughness: 0.5, metalness: 0.5 }),
   grille: new THREE.MeshStandardMaterial({ color: 0xf4f4f0, roughness: 0.5, metalness: 0.1 }),
   slot: new THREE.MeshStandardMaterial({ color: 0x55585a, roughness: 0.7, metalness: 0.2 }),
 };
-const XRAY = { supply: 0x2f8be0, return: 0xe0503a, transfer: 0xe0b23a, erv: 0x6cbf4a, grille: 0xffffff, slot: 0x222222 };
+const XRAY = { supply: 0x2f8be0, return: 0xe0503a, transfer: 0xe0b23a, erv: 0x6cbf4a, exhaust: 0x9b59d0, grille: 0xffffff, slot: 0x222222 };
 for (const [k, m] of Object.entries(DUCT)) m.name = 'Duct ' + k;
 
 // ---------------------------------------------------------------- geometry helpers (inches, local frame)
@@ -134,6 +135,23 @@ const BUILD = {
     bar(g, w - 6, 0, fh - 3, dz + 1.25, false);
     bar(g, 30, w / 2 - 2.5, fh + 24, dz + 1.25, true);
     box(g, 6.5, 9, 0.1, darkSteel(), -w / 2 + 6, fh + 28, dz + 1.27);                         // filter/controls badge
+    box(g, w - 2, 3.5, 0.4, darkPlastic(), 0, 1.75, body + 0.1);                             // toe grille
+    return g;
+  },
+  fridge_french_door(s) {          // two French doors over a freezer drawer, water and ice dispenser in the left door
+    const [w, h, d] = s, g = new THREE.Group();
+    const body = d - 3.0;
+    box(g, w - 0.3, h - 0.6, body, steel(), 0, (h - 0.6) / 2, body / 2);
+    box(g, w - 0.4, 0.6, body - 1, darkPlastic(), 0, h - 0.3, body / 2 - 0.5);               // hinge cover
+    const fh = 25, dz = body + 1.25, dw = w / 2 - 0.1;
+    box(g, w, fh - 0.4, 2.5, steel(), 0, fh / 2, dz);                                        // freezer drawer
+    box(g, dw, h - fh - 0.9, 2.5, steel(), -w / 4 - 0.025, fh + (h - fh - 0.9) / 2, dz);       // left door
+    box(g, dw, h - fh - 0.9, 2.5, steel(), w / 4 + 0.025, fh + (h - fh - 0.9) / 2, dz);        // right door
+    bar(g, w - 8, 0, fh - 3, dz + 1.25, false);
+    bar(g, 26, -1.6, fh + 24, dz + 1.25, true);
+    bar(g, 26, 1.6, fh + 24, dz + 1.25, true);
+    box(g, 7, 12, 0.3, darkSteel(), -w / 4 - 1.5, fh + 21, dz + 1.3);                         // dispenser panel
+    box(g, 5.6, 7.5, 0.8, darkPlastic(), -w / 4 - 1.5, fh + 19.2, dz + 1.15);                 // dispenser recess
     box(g, w - 2, 3.5, 0.4, darkPlastic(), 0, 1.75, body + 0.1);                             // toe grille
     return g;
   },
@@ -285,7 +303,7 @@ function buildRun(run) {
   return g;
 }
 
-// ducts: { type: supply|return|transfer|erv, shape: rect|round, size: [w, h] or dia (in), points: [[x,y,z], ...] plan ft }
+// ducts: { type: supply|return|transfer|erv|exhaust, shape: rect|round, size: [w, h] or dia (in), points: [[x,y,z], ...] plan ft }
 function buildDuct(dc) {
   const g = new THREE.Group();
   const m = DUCT[dc.type] || DUCT.supply;

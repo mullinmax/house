@@ -24,6 +24,7 @@ for d in g["DOOR_GAPS"]:   # door openings: open below the head by design
     if _=="x": add(a,b,c,e,0,h)
     else: add(c,e,a,b,0,h)   # ('y', y0,y1,x0,x1)
 for da in g["FU"].get("door_add", []):
+    if da.get("t0") == "clerestory" or not da.get("header", True): continue   # in the clerestory wall, or already has its wall above
     if da["axis"]=="y": add(da["t0"],da["t1"],da["g0"],da["g1"],da.get("head",6.67),FH+FT-DK)
     else: add(da["g0"],da["g1"],da["t0"],da["t1"],da.get("head",6.67),FH+FT-DK)
 add(-1,T,-1,HD+1,0,99); add(HW-T,HW+1,-1,HD+1,0,99); add(-1,HW+1,-1,T,0,99); add(-1,HW+1,HD-T,HD+1,0,99)

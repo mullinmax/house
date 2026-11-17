@@ -1166,8 +1166,16 @@ if FU.get("enabled"):
             cx, cy = ((g0 + g1) / 2, (t0 + t1) / 2) if ax == "x" else ((t0 + t1) / 2, (g0 + g1) / 2)
             return math.hypot(cx - rx, cy - ry) < 1.5
         DOOR_GAPS[:] = [g for g in DOOR_GAPS if not _near(g)]
+    DOOR_NAMES, DOOR_NOTES = {}, {}
     for da in FU.get("door_add", []):
-        DOOR_GAPS.append((da["axis"], da["g0"], da["g1"], da["t0"], da["t1"], da.get("head", 6.67)))
+        t0_, t1_ = (YC, YC2) if da.get("t0") == "clerestory" else (da["t0"], da["t1"])
+        DOOR_GAPS.append((da["axis"], da["g0"], da["g1"], t0_, t1_, da.get("head", 6.67)))
+        if da.get("name"):
+            DOOR_NAMES[(da["g0"], da["g1"])] = da["name"]
+        if da.get("note"):
+            DOOR_NOTES[(da["g0"], da["g1"])] = da["note"]
+        if not da.get("header", True):         # a cased opening that already has its wall above: the door only
+            continue
         rec(f"wall.header.added.{len(DOOR_GAPS)}", "wall", "Wall over a doorway", "interior", info=dict(model="Drywall over the door head", notes=[da.get("note", "")]))
         if da["axis"] == "y":
             box("Drywall", da["t0"], da["t1"], da["g0"], da["g1"], da.get("head", 6.67), FH + FLOOR_T - DECK_T)
@@ -1182,10 +1190,11 @@ if FU.get("enabled"):
         a_, b_ = (room_at(gc[0], t0 - 0.8), room_at(gc[0], t1 + 0.8)) if ax == "x" else (room_at(t0 - 0.8, gc[1]), room_at(t1 + 0.8, gc[1]))
         rooms = " and ".join(n_ for n_ in dict.fromkeys([a_, b_]) if n_)
         leaves = [(g0 + 0.07, g1 - 0.07)] if wdt <= 3.3 else [(g0 + 0.07, (g0 + g1) / 2 - 0.01), ((g0 + g1) / 2 + 0.01, g1 - 0.07)]
-        r = rec(f"door.int.{nd_ + 1}", "door", f"{'Pocket door' if pocket_dir else 'Door'}{', ' + rooms if rooms else ''}", "interior",
+        dname = DOOR_NAMES.get((g0, g1)) or f"{'Pocket door' if pocket_dir else 'Door'}{', ' + rooms if rooms else ''}"
+        r = rec(f"door.int.{nd_ + 1}", "door", dname, "interior",
                 info=dict(model=f"{lab + ' ' if lab else ''}white oak {'pocket' if pocket_dir else 'slab'} door{' pair' if len(leaves) > 1 else ''}",
                           specs=[["Opening", f"{ftin(wdt)} x {ftin(h)}"], ["Hardware", "Flush pulls" if pocket_dir else "Brushed nickel levers"]],
-                          notes=["Opening found where two traced A-11 wall ends line up. Style ASSUMED (slab doors, white oak casing)."] + (["Pocket door, Maxwell 11/13/2026."] if pocket_dir else [])))
+                          notes=([DOOR_NOTES[(g0, g1)]] if (g0, g1) in DOOR_NOTES else ["Opening found where two traced A-11 wall ends line up."]) + ["Style ASSUMED (slab doors, white oak casing)."] + (["Pocket door, Maxwell 11/13/2026."] if pocket_dir else [])))
 
         def B(mat, a0, a1, b0, b1, z0, z1):
             if ax == "x":
@@ -1236,6 +1245,8 @@ if FU.get("enabled"):
     for (x0, x1, hd) in CL["passages"][1:]:
         if abs((x0 + x1) / 2 - BD.get("center_x", -99)) < 3.5:
             continue
+        if (x0, x1) in DOOR_NAMES or (x0, x1) in DOOR_NOTES:
+            continue                           # a door was hung in it, and the door brings its own jambs and casing
         for (b0, b1) in ((YC - 0.06, YC), (YC2, YC2 + 0.06)):
             box("White Oak", x0 - CW, x0 + 0.02, b0, b1, 0, hd)
             box("White Oak", x1 - 0.02, x1 + CW, b0, b1, 0, hd)
@@ -1478,30 +1489,30 @@ def web_desk_lamp(it):
 
 
 def web_l_desk(it):
-    """UPLIFT V2 L-shaped desk. facing 90: you sit facing east, the main top on the east wall, return on the right (south)."""
-    x0, y0 = it["x0"], it["y0"]
+    """UPLIFT V2 L-shaped desk. corner = the L's outer corner (plan ft), facing = the way you face sitting at the main top.
+    The main top runs from the corner to your left (side right) and the return comes back toward you at the corner end."""
     mL, mD = it["main"][0] / 12, it["main"][1] / 12
     rL, rW = it["ret"][0] / 12, it["ret"][1] / 12
     H, T = it.get("height_in", 29.0) / 12, it.get("top_in", 1.0) / 12
-    mx0, mx1, my0, my1 = x0, x0 + mD, y0, y0 + mL                                       # main top
-    if it.get("side", "right") == "right":
-        rx0, rx1, ry0, ry1 = x0 - rL, x0, my1 - rW, my1
-    else:
-        rx0, rx1, ry0, ry1 = x0 - rL, x0, my0, my0 + rW
-    box("Walnut Laminate", mx0, mx1, my0, my1, H - T, H)
-    box("Walnut Laminate", rx0, rx1, ry0, ry1, H - T, H)
+    fr0 = frame_at(it["corner"][0], it["corner"][1], it["facing"])
+    s = -1 if it.get("side", "right") == "right" else 1                                  # local a runs away from the corner along the main top
+    fr = lambda a, b: fr0(s * a, b)
+    def L(mat, a0, a1, b0, b1, z0, z1):
+        lbox(mat, fr, a0, a1, b0, b1, z0, z1)
+    L("Walnut Laminate", 0, mL, -mD, 0, H - T, H)                                          # main top, back edge at b = 0
+    L("Walnut Laminate", 0, rW, -mD - rL, -mD, H - T, H)                                   # return
     LW, LD = 80 / 304.8, 50 / 304.8                                                       # 50 x 80 mm legs
-    legs = [((mx0 + mx1) / 2 + 0.2, my0 + 0.55, "x"), ((mx0 + mx1) / 2 + 0.2, (ry0 + ry1) / 2, "x"), (rx0 + 0.55, (ry0 + ry1) / 2, "y")]
-    for (lx, ly, foot) in legs:
-        box("Black Metal", lx - LW / 2, lx + LW / 2, ly - LD / 2, ly + LD / 2, 0.08, H - T - 0.1)
-        if foot == "x":
-            box("Black Metal", mx0 + 0.15, mx1 - 0.1, ly - 0.1, ly + 0.1, 0.0, 0.08)
+    bm = -mD / 2 + 0.2
+    for (la, lb, foot) in ((mL - 0.55, bm, "b"), (rW / 2, bm, "b"), (rW / 2, -mD - rL + 0.55, "a")):
+        L("Black Metal", la - LD / 2, la + LD / 2, lb - LW / 2, lb + LW / 2, 0.08, H - T - 0.1)
+        if foot == "b":
+            L("Black Metal", la - 0.1, la + 0.1, -mD + 0.15, -0.1, 0.0, 0.08)
         else:
-            box("Black Metal", lx - 0.1, lx + 0.1, ry0 + 0.1, ry1 - 0.1, 0.0, 0.08)
-    box("Black Metal", (mx0 + mx1) / 2 + 0.1, (mx0 + mx1) / 2 + 0.3, my0 + 0.4, my1 - 0.3, H - T - 0.1, H - T)     # frame under the tops
-    box("Black Metal", rx0 + 0.4, mx0 + 0.6, (ry0 + ry1) / 2 - 0.1, (ry0 + ry1) / 2 + 0.1, H - T - 0.1, H - T)
-    box("Black Metal", mx0 - 0.02, mx0 + 0.25, ry0 - 0.35, ry0 - 0.05, H - T - 0.07, H - T)                    # keypad, front edge
-    box("Paint #1E2022", mx0 + 0.2, mx0 + 1.4, my0 + 0.6, my0 + 2.4, H, H + 0.01)                               # desk pad
+            L("Black Metal", 0.1, rW - 0.1, lb - 0.1, lb + 0.1, 0.0, 0.08)
+    L("Black Metal", 0.3, mL - 0.4, -mD / 2 + 0.1, -mD / 2 + 0.3, H - T - 0.1, H - T)     # frame under the tops
+    L("Black Metal", rW / 2 - 0.1, rW / 2 + 0.1, -mD - rL + 0.4, -mD + 0.6, H - T - 0.1, H - T)
+    L("Black Metal", rW + 0.05, rW + 0.35, -mD - 0.02, -mD + 0.25, H - T - 0.07, H - T)   # keypad, front edge
+    L("Paint #1E2022", mL - 2.4, mL - 0.6, -mD + 0.2, -mD + 1.4, H, H + 0.01)             # desk pad
     MATERIALS.setdefault("Paint #1E2022", dict(color="#1E2022", rough=0.8))
 
 
@@ -1543,6 +1554,101 @@ for it in FURN:
     for yj, d_ in ((o0, 1), (o1, -1)):                       # tile wraps the jambs, back to the drywall face
         box("Tile Wall", x0w - 0.31, x0w + 0.02, yj, yj + d_ * 0.02, 0.02, it.get("walk_in_head", 8.0))
 
+MATERIALS.update({
+    "Rubber": dict(color="#1F2121", rough=0.95),
+    "Mudroom Paint": dict(color="#C7CDBF", rough=0.55),      # light sage, ASSUMED
+    "Stone Counter": dict(color="#B8B0A4", rough=0.35),
+    "Cabinet Glass": dict(color="#AEB8B6", rough=0.05, metal=0.1, opacity=0.35),
+})
+
+
+def web_bench(it):
+    """Built-in mudroom unit filling the entry alcove, after Maxwell's reference photo (11/17/2026). Seen from the
+    front, left to right: a base cabinet with a stone counter and a tall cabinet over it, then the bench with open bays
+    (a rubber boot tray with a divider in each), a paneled back with coat hooks, open cubbies above the hooks, and glass
+    door cabinets across the top. u runs left to right seen from the front, v from the back wall out, z up."""
+    W, D, Ztop = it.get("w", 8.0), it.get("alcove_d", 1.5), it.get("top", 7.95)
+    h, d = it.get("h", 1.5), it.get("d", 1.25)
+    cw = it.get("cab_w", 2.0)                                   # left column: base cabinet + tall cabinet
+    fr0 = frame_at(it["x"], it["y"] - d / 2, it["facing"])      # origin at the back wall, centre of the unit
+    fr = lambda u, v: fr0(W / 2 - u, v)
+    M, P = "Mudroom Paint", 0.06
+
+    def L(mat, u0, u1, v0, v1, z0, z1):
+        lbox(mat, fr, u0, u1, v0, v1, z0, z1)
+
+    def knob(u, v, z):
+        L("Black Metal", u - 0.04, u + 0.04, v, v + 0.06, z - 0.04, z + 0.04)
+
+    def doors(u0, u1, v, z0, z1, n, glass=False):              # shaker doors on a carcass face at depth v
+        dw = (u1 - u0) / n
+        for k in range(n):
+            a0, a1 = u0 + k * dw + 0.01, u0 + (k + 1) * dw - 0.01
+            if glass:
+                for (p0, p1, q0, q1) in ((a0, a1, z0, z0 + 0.2), (a0, a1, z1 - 0.2, z1), (a0, a0 + 0.2, z0, z1), (a1 - 0.2, a1, z0, z1)):
+                    L(M, p0, p1, v, v + 0.06, q0, q1)
+                L("Cabinet Glass", a0 + 0.2, a1 - 0.2, v + 0.02, v + 0.04, z0 + 0.2, z1 - 0.2)
+            else:
+                L(M, a0, a1, v, v + 0.04, z0, z1)
+                for (p0, p1, q0, q1) in ((a0, a1, z0, z0 + 0.2), (a0, a1, z1 - 0.2, z1), (a0, a0 + 0.2, z0, z1), (a1 - 0.2, a1, z0, z1)):
+                    L(M, p0, p1, v + 0.04, v + 0.07, q0, q1)  # raised stiles and rails
+            knob(a1 - 0.12 if k % 2 == 0 else a0 + 0.12, v + (0.06 if glass else 0.07), z0 + 0.3 if z0 > 4 else z1 - 0.3)
+
+    # ---- left column: base cabinet with a drawer, stone counter, tall cabinet over it
+    L(M, 0, cw, 0, D - 0.25, 0.0, 0.33)                                                   # toe kick
+    L(M, 0, cw, 0, D - 0.1, 0.33, 2.9)                                                    # base carcass
+    L(M, 0.01, cw - 0.01, D - 0.1, D - 0.06, 2.45, 2.88)                                  # drawer front
+    knob(cw / 2 - 0.2, D - 0.06, 2.66); knob(cw / 2 + 0.2, D - 0.06, 2.66)
+    doors(0, cw, D - 0.1, 0.36, 2.42, 2)
+    L("Stone Counter", 0, cw, 0, D, 2.9, 3.0)
+    L("Stone Counter", 0, cw, 0, 0.06, 3.0, 3.35)                                         # backsplash
+    L(M, 0, cw, 0, 1.0, 4.5, 6.55)                                                        # tall cabinet carcass
+    doors(0, cw, 1.0, 4.5, 6.55, 2)
+    # ---- bench, open below in bays, a rubber boot tray with a divider in each bay
+    b0u = cw
+    n = max(1, int(it.get("bays", 3)))
+    bw = (W - b0u - (n + 1) * P) / n
+    L(M, b0u, W, 0, d, h - 0.12, h)                                                       # seat
+    for k in range(n + 1):
+        a0 = b0u + k * (bw + P)
+        L(M, a0, a0 + P, 0, d - 0.03, 0.0, h - 0.12)                                      # end panels and bay dividers
+    lip, rim = 0.11, 0.03                                                                 # 1 1/4 in tall rubber lip
+    for k in range(n):
+        a0 = b0u + P + k * (bw + P) + 0.04
+        a1 = a0 + bw - 0.08
+        v0, v1 = 0.05, d - 0.03
+        L("Rubber", a0, a1, v0, v1, 0.0, 0.02)
+        L("Rubber", a0, a1, v0, v0 + rim, 0.02, lip); L("Rubber", a0, a1, v1 - rim, v1, 0.02, lip)
+        L("Rubber", a0, a0 + rim, v0 + rim, v1 - rim, 0.02, lip); L("Rubber", a1 - rim, a1, v0 + rim, v1 - rim, 0.02, lip)
+        ns = int(it.get("tray_slots", 2))
+        for j in range(1, ns):                                                            # divider across the tray
+            am = a0 + j * (a1 - a0) / ns
+            L("Rubber", am - rim / 2, am + rim / 2, v0 + rim, v1 - rim, 0.02, lip - 0.02)
+        for j in range(1, 4):                                                             # low drain ridges
+            vv = v0 + j * (v1 - v0) / 4
+            L("Rubber", a0 + rim, a1 - rim, vv - 0.01, vv + 0.01, 0.02, 0.045)
+    # ---- paneled back, hooks, open cubbies, glass uppers
+    L(M, b0u, W, 0, 0.04, h, 5.75)                                                        # back panel
+    for (p0, p1, q0, q1) in ((b0u + 0.25, W - 0.25, h + 0.25, h + 0.4), (b0u + 0.25, W - 0.25, 4.7, 4.85),
+                             (b0u + 0.25, b0u + 0.4, h + 0.25, 4.85), (W - 0.4, W - 0.25, h + 0.25, 4.85)):
+        L(M, p0, p1, 0.04, 0.07, q0, q1)                                                  # raised panel frame
+    L(M, b0u, W, 0.04, 0.09, 5.05, 5.4)                                                   # hook board
+    nh = int(it.get("hooks", 5))
+    for k in range(nh):
+        u = b0u + 0.5 + k * (W - b0u - 1.0) / max(1, nh - 1)
+        L("Black Metal", u - 0.03, u + 0.03, 0.09, 0.3, 5.12, 5.18)
+        L("Black Metal", u - 0.03, u + 0.03, 0.26, 0.31, 5.0, 5.3)
+    L(M, b0u, W, 0, 1.0, 5.75, 5.83)                                                      # cubby bottom
+    L(M, b0u, W, 0, 1.0, 6.5, 6.58)                                                       # cubby top
+    nc = int(it.get("cubbies", 2))
+    for k in range(nc + 1):
+        u = b0u + k * (W - b0u - P) / nc
+        L(M, u, u + P, 0, 1.0, 5.83, 6.5)
+    L(M, 0, W, 0, 1.0, 6.58, Ztop - 0.25)                                                 # upper cabinets
+    doors(0, W, 1.0, 6.6, Ztop - 0.27, int(it.get("glass_doors", 8)), glass=True)
+    L(M, 0, W, 0, 1.12, Ztop - 0.25, Ztop)                                                # crown band
+
+
 def web_towel_warmer(it):
     """Ladder towel warmer on a wall that runs N-S (facing W): two posts with standoffs and five rails."""
     xw, y0, y1, z0, z1 = it["x"], it["y0"], it["y1"], it["z0"], it["z1"]
@@ -1560,7 +1666,7 @@ def web_towel_warmer(it):
 WEB_META["cull"].append(dict(box=[33.0, 28.8, 3.9, 35.6, 29.25, 4.1], materials=["Brushed Nickel"]))
 
 WEB_BUILD = {"bed": web_bed, "nightstand": web_nightstand, "table_lamp": web_table_lamp, "desk_lamp": web_desk_lamp,
-             "l_desk": web_l_desk, "office_chair": web_office_chair, "towel_warmer": web_towel_warmer}
+             "l_desk": web_l_desk, "office_chair": web_office_chair, "towel_warmer": web_towel_warmer, "bench": web_bench}
 WEB_INFO = {
     "bed": lambda it: dict(model="Queen bed, 60 x 80 in mattress on a white oak platform (ASSUMED)", notes=["Queen, and placed so the side tables clear both doors (Maxwell, 11/16/2026)."]),
     "nightstand": lambda it: dict(model=f"Nightstand, {ftin(it.get('w', 1.4))} wide (ASSUMED)"),
@@ -1569,11 +1675,18 @@ WEB_INFO = {
     "l_desk": lambda it: dict(model="UPLIFT V2 L-shaped standing desk", price="$1,462.85 (04/2022, order SO778262)",
                               specs=[["Size", "60\" main x 60\" return, return on the right"], ["Top", "1\" walnut laminate, main 59.6 x 30 in, return 30 x 27.5 in"],
                                      ["Frame", "V2 C-frame, 3 legs, black"], ["Controls", "Advanced keypad"], ["Shown at", "29 in, seated height (it stands up to about 50 in)"]],
-                              notes=["Maxwell's own desk, from his UPLIFT order. Placed on the east wall, off the window (Maxwell, 11/16/2026)."]),
+                              notes=["Maxwell's own desk, from his UPLIFT order. Turned 90 degrees counterclockwise so you sit facing north toward the window (Maxwell, 11/17/2026).",
+                                     "The main top stands 6 in off the north wall so it clears the window stool when raised to standing height."]),
     "office_chair": lambda it: dict(model="Office chair (stand in, ASSUMED)"),
+    "bench": lambda it: dict(model="Built-in mudroom unit, painted light sage (A-11 bench and cubbies; style from Maxwell's reference photo, details ASSUMED)",
+                             specs=[["Size", f"{ftin(it.get('w', 8.0))} wide, up to {ftin(it.get('top', 7.95))}"],
+                                    ["Bench", f"{ftin(it.get('w', 8.0) - it.get('cab_w', 2.0))} long, seat {ftin(it.get('h', 1.5))} high, {int(it.get('bays', 3))} open bays, each with a black rubber boot tray split by a divider"],
+                                    ["Left side", "base cabinet with a drawer and stone counter, tall cabinet above"],
+                                    ["Above the bench", f"paneled back, {int(it.get('hooks', 5))} black coat hooks, {int(it.get('cubbies', 2))} open cubbies, glass door cabinets across the top"]],
+                             notes=["Rubber boot trays with dividers instead of shoe cubbies, and the mudroom layout from his reference photo (Maxwell, 11/17/2026)."]),
     "towel_warmer": lambda it: dict(model="Wall mounted towel warmer (A-11, model ASSUMED)", notes=["Moved here from the WC doorway, where it hung in the air (Maxwell, 11/17/2026)."]),
 }
-WEB_NAMES = {"bed": "Queen bed", "nightstand": "Nightstand", "table_lamp": "Table lamp", "desk_lamp": "Desk lamp", "l_desk": "L-shaped standing desk", "office_chair": "Office chair", "towel_warmer": "Towel warmer"}
+WEB_NAMES = {"bench": "Mudroom bench and cabinets", "bed": "Queen bed", "nightstand": "Nightstand", "table_lamp": "Table lamp", "desk_lamp": "Desk lamp", "l_desk": "L-shaped standing desk", "office_chair": "Office chair", "towel_warmer": "Towel warmer"}
 for it in FURN:
     if it.get("moved_from"):
         ox, oy, of = it["moved_from"]
@@ -1581,6 +1694,9 @@ for it in FURN:
         WEB_META["move_nodes"][it["id"]] = mv
         if it.get("move_node"):
             WEB_META["move_nodes"][it["move_node"]] = mv   # the mesh node when the named node is an empty beside it
+    if it.get("removed"):                       # taken out of the house: drop the baked piece, build nothing
+        WEB_META["replace_nodes"].append(it["id"])
+        continue
     if not it.get("web"):
         continue
     t = it["type"]
@@ -1588,8 +1704,8 @@ for it in FURN:
     if it.get("cull_old"):
         x0, y0, x1, y1, zt = it["cull_old"]
         WEB_META["cull"].append(dict(box=[x0, y0, 0.02, x1, y1, zt], materials=FURN_MATS))
-    cx = it.get("x", it.get("x0"))
-    cy = it.get("y", it.get("y0"))
+    cx = it.get("x", it.get("x0", it.get("corner", [0, 0])[0] - 1.0))
+    cy = it.get("y", it.get("y0", it.get("corner", [0, 0])[1] + 1.0))
     rec(f"furniture.{it['id']}", "furniture", WEB_NAMES.get(t, t), "furniture", room=room_at(cx, cy),
         info=WEB_INFO.get(t, lambda i: dict(model=t))(it))
     WEB_BUILD[t](it)
