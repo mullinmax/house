@@ -1,0 +1,63 @@
+<!doctype html>
+<!-- Studio view of one appliance or piece of equipment, built by site/equipment.js. Used by tools/render_appliances.mjs
+     to check a builder against the product photos without loading the whole house. Serve the repo root, then open
+     /tools/appliance_preview.html?id=fridge -->
+<html><head><meta charset="utf-8"><title>Appliance preview</title>
+<style>html,body{margin:0;background:#e9e9e6;overflow:hidden}</style>
+<script type="importmap">
+{ "imports": { "three": "../site/vendor/three/build/three.module.js", "three/addons/": "../site/vendor/three/examples/jsm/" } }
+</script></head><body>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { buildEquipment } from '../site/equipment.js';
+
+const renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+document.body.append(renderer.domElement);
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0xe9e9e6);
+scene.add(new THREE.HemisphereLight(0xdfe8f2, 0x6d6450, 1.1), new THREE.AmbientLight(0xffffff, 0.25));
+const key = new THREE.DirectionalLight(0xfff1dc, 2.2); scene.add(key, key.target);
+const camera = new THREE.PerspectiveCamera(30, innerWidth / innerHeight, 0.02, 100);
+const controls = new OrbitControls(camera, renderer.domElement);
+
+const sky = await new THREE.TextureLoader().loadAsync('../site/models/sky.jpg');
+sky.mapping = THREE.EquirectangularReflectionMapping; sky.colorSpace = THREE.SRGBColorSpace;
+const pm = new THREE.PMREMGenerator(renderer);
+scene.environment = pm.fromEquirectangular(sky).texture; scene.environmentIntensity = 0.6;
+
+const data = await (await fetch('../site/models/equipment.json')).json();
+let root = null, frontDir = new THREE.Vector3(), center = new THREE.Vector3(), radius = 1;
+function show(id) {
+  if (root) scene.remove(root);
+  const it = data.items.find((i) => i.id === id);
+  if (!it) return false;
+  root = buildEquipment({ items: [it] }).root; scene.add(root);
+  const box = new THREE.Box3().setFromObject(root);
+  box.getCenter(center); radius = box.getSize(new THREE.Vector3()).length() / 2;
+  const a = THREE.MathUtils.degToRad(180 - (it.facing || 0));
+  frontDir.set(Math.sin(a), 0, Math.cos(a));
+  return true;
+}
+// az: degrees round the appliance from straight on (positive = to its right), el: degrees above level
+function view(az = 0, el = 0, zoom = 1) {
+  const dir = frontDir.clone().applyAxisAngle(new THREE.Vector3(0, 1, 0), THREE.MathUtils.degToRad(az));
+  const e = THREE.MathUtils.degToRad(el);
+  dir.multiplyScalar(Math.cos(e)).setY(Math.sin(e));
+  const dist = radius / Math.sin(THREE.MathUtils.degToRad(camera.fov / 2)) * 1.05 / zoom;
+  camera.position.copy(center).addScaledVector(dir, dist);
+  controls.target.copy(center); controls.update();
+  key.position.copy(center).addScaledVector(frontDir, 3).add(new THREE.Vector3(1.5, 4, 0).applyAxisAngle(new THREE.Vector3(0, 1, 0), Math.atan2(frontDir.x, frontDir.z)));
+  key.target.position.copy(center);
+  renderer.render(scene, camera);
+  return renderer.domElement.toDataURL('image/png');
+}
+const stats = () => { let meshes = 0, tris = 0; root.traverse((o) => { if (o.isMesh) { meshes++; const g = o.geometry; tris += (g.index ? g.index.count : g.attributes.position.count) / 3; } }); return { meshes, tris, ...renderer.info.render }; };
+window.__preview = { show, view, stats, ids: data.items.map((i) => i.id) };
+show(new URLSearchParams(location.search).get('id') || 'fridge'); view(28, 12);
+renderer.setAnimationLoop(() => renderer.render(scene, camera));
+window.__ready = true;
+</script></body></html>
