@@ -83,6 +83,32 @@ items += [
         placement="Under the island, facing the dining room.")),
 ]
 
+_NR = CFG["kitchen"]["runs"]["north"]
+_MW_D = 20.2                                      # depth with the handle (instruction book p.12)
+_MW_X = _NR["units"][-1][1] - 0.1 - 20.4 / 24    # right side 1.2 in in from the end of the fridge wall counter, open air past it
+_MW_SPOT = _NR.get("microwave_spot", "counter")
+_MW_SPOT = {1: "counter", 2: "shelf", 3: "counter", 4: "counter"}.get(_NR.get("coffee_station", 0), _MW_SPOT)
+if _NR.get("coffee_station", 0) == 4:            # left end of the counter, 8 in from the fridge bay's tall side panel
+    _MW_X = _NR["units"][1][0] + 8 / 12 + 20.4 / 24
+_MW_AT = [_MW_X, _NR["back"] + 2.5 / 12, 3.0]
+if _MW_SPOT == "shelf":                           # centred on the open shelf, floor 3/4 in above the upper's underside
+    _sx0, _sx1, _sop, _sdp = _NR["microwave_shelf"]
+    _MW_AT = [(_sx0 + _sx1) / 2, _NR["back"] + 0.06 + 1.0 / 12, CFG["kitchen"].get("upper_bottom", 4.6) + 0.06]
+items += [
+ dict(id="microwave", name="Breville Combi Wave 3 in 1", category="Kitchen appliance", system="kitchen", room="Kitchen", layer="appliances",
+      builder="microwave_combi", size=[20.4, 12.5, _MW_D], at=_MW_AT, facing=180,
+      info=dict(model="Breville BMO870BSS1BUC1 the Combi Wave 3 in 1, microwave, air fryer and convection oven, brushed stainless", price="$499.95 at Breville",
+        specs=[["Size", "20.4 W x 12.5 H x 20.2 D in (19.3 D without the handle)"], ["Capacity", "1.1 cu ft, 12.4 in turntable"],
+               ["Modes", "Inverter microwave, convection bake, air fry, grill, combi"], ["Clearance", "20 cm (about 8 in) from walls and above, per the manual"],
+               ["Controls", "Dial, presets and an 'A Bit More' button"]],
+        notes=["Picked by Maxwell (11/17/2026) for the simple controls, after an old LG he liked with +30 s and a swipe to change the time.",
+               "Breville's instruction book says it must not be built in or enclosed in a cabinet. "
+               + ("The microwave upper from the cabinet plan is left out here. Position on the counter is ASSUMED." if _MW_SPOT == "counter" else
+                "Here it sits on a big open shelf with 8 in clear on each side and above. Rear clearance is short of the manual's 20 cm."),
+               "The 'A Bit More' button and dial are from reviews and memory, not the spec sheet."],
+        placement="Fridge wall counter, at the east end by the opening to the dining room." if _MW_SPOT == "counter" else "Open shelf in the fridge wall uppers, at the east end.")),
+]
+
 # ------------------------------------------------------------------ laundry
 items += [
  dict(id="washer_dryer", name="GE Profile UltraFast Combo washer dryer", category="Laundry appliance", system="laundry", room="Laundry", layer="appliances",

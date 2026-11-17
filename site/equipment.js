@@ -607,6 +607,21 @@ const BUILD = {
     const [w, h, d] = s, g = new THREE.Group();
     box(g, w, h, d, greyPlastic(), 0, h / 2, d / 2); return g;
   },
+  microwave_combi(s) {             // Breville Combi Wave: brushed steel box on feet, glass door on the left, controls and dial on the right
+    const [w, h, d] = s, g = new THREE.Group();
+    const body = d - 0.9, feet = 0.5, ph = h - feet, pw = 5.2;                                  // 0.9 in handle in front of the body
+    for (const x of [-w / 2 + 1.5, w / 2 - 1.5]) for (const z of [2, body - 2]) cyl(g, 0.6, feet, rubber(), x, feet / 2, z);
+    box(g, w, ph, body - 1.2, steel(), 0, feet + ph / 2, (body - 1.2) / 2);                  // wrap
+    const dw = w - pw - 0.2, dx = -w / 2 + dw / 2;
+    box(g, dw, ph - 0.3, 1.2, steel(), dx, feet + ph / 2, body - 0.6);                         // door
+    box(g, dw - 4.2, ph - 4, 0.12, glass(), dx - 0.6, feet + ph / 2, body + 0.02);                // window
+    box(g, pw, ph - 0.3, 1.2, darkSteel(), w / 2 - pw / 2, feet + ph / 2, body - 0.6);         // control panel
+    box(g, 3.6, 1.4, 0.1, mat('lcd', 0x0c1a22, 0.2, 0, { emissive: 0x1d3a4a, emissiveIntensity: 0.5 }), w / 2 - pw / 2, feet + ph - 2.4, body + 0.02);
+    cyl(g, 1.25, 0.8, steel(), w / 2 - pw / 2, feet + ph / 2 - 0.4, body + 0.4, 'z');         // dial
+    for (let k = 0; k < 4; k++) box(g, 1.4, 0.55, 0.12, greyPlastic(), w / 2 - pw / 2 + (k % 2 ? 0.85 : -0.85), feet + 2.0 + Math.floor(k / 2) * 0.9, body + 0.03);
+    bar(g, ph - 3.5, dx + dw / 2 - 1.3, feet + ph / 2, body, true);                             // pull handle on the door's right edge
+    return g;
+  },
 };
 
 // ---------------------------------------------------------------- placement
