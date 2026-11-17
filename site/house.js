@@ -148,7 +148,8 @@ function panel(get, mat, fr, v0, v1, zbot, top, holes, grainOf) {
       if (h0 > Math.max(ca, cb) + 1e-4) piece(ca, cb, Math.min(h0, zta), Math.min(h0, ztb));
       ca = Math.max(ca, ta); cb = Math.max(cb, tb);
     }
-    if (Math.max(ca, cb) < Math.min(zta, ztb) - 1e-4) piece(ca, cb, zta, ztb);
+    // compare each end on its own: a sloped head can sit higher than the wall top at the strip's other end (loft W40-40*)
+    if (ca < zta - 1e-4 && cb < ztb - 1e-4) piece(ca, cb, zta, ztb);
   }
 }
 function polygon(get, mat, pts) {

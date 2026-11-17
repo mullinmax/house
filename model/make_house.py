@@ -293,7 +293,7 @@ def window_unit(o):
     where = " ".join(o["id"].split()[1:])
     kn = KIND_NAMES.get(kind, kind.replace("_", " "))
     info = dict(model=f"{code} {kn}", specs=[["Rough opening", f"{ftin(u1 - u0)} wide x {ftin(z1 - z0)} tall"],
-                                             ["Sill" if not door else "Threshold", ftin(z0)], ["Head", ftin(z1) if z1b == z1 else f"{ftin(z1)} sloping to {ftin(z1b)} with the roof (A-20)"], ["Wall", WALL_NAMES[wall]],
+                                             ["Sill" if not door else "Threshold", ftin(z0)], ["Head", ftin(z1) if z1b == z1 else f"{ftin(z1)} sloping to {ftin(z1b)} with the roof (A-20, A-21)"], ["Wall", WALL_NAMES[wall]],
                                              ["Finish", "Black clad outside, white oak inside" if not o.get("interior_color") else f"Black clad outside, painted {o['interior_color']} inside"]],
                 notes=["Location from the A-11 vector data, heights from the A-20 and A-21 elevations."] if not o["id"].startswith("W30-30 clerestory")
                 else ["8 W30-30 awnings, 4' 10 1/2\" on centre (A-12), sill and head from the A-20 south elevation."])
@@ -545,10 +545,13 @@ def in_flat(x, y):
     return False
 
 
-def wall_between_flats(x0, x1, y0, y1):
+def wall_between_flats(x0, x1, y0, y1, alongx=None):
+    """alongx: the direction the wall runs. Defaults to the long side of the rectangle, but a short gap or junction
+    block in a wall line is wider than it is long, so callers that know the wall's direction pass it."""
     def flat_or_out(x, y):
         return in_flat(x, y) or not (T < x < HW - T and T < y < HD - T)
-    alongx = (x1 - x0) >= (y1 - y0)
+    if alongx is None:
+        alongx = (x1 - x0) >= (y1 - y0)
     for k in range(5):
         t = (k + 0.5) / 5
         if alongx:
@@ -562,14 +565,14 @@ def wall_between_flats(x0, x1, y0, y1):
     return True
 
 
-def wall_top(x0, x1, y0, y1):
+def wall_top(x0, x1, y0, y1, alongx=None):
     cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
     in_loft = LOFT["enabled"] and LX0 - 0.05 <= cx <= LX1 + 0.05 and LY0 + 0.3 <= cy <= LY1 + 0.6
     if in_loft:
         if abs(cx - (LX0 + 0.23)) < 0.4:                    # loft edge wall (bath 1 west wall): stops level with the loft floor
             return lambda x, y: LOFT["floor_height"] + LOFT["pony_wall_height"]
         return lambda x, y: LOFT["floor_height"] - FLOOR_T
-    if C["ceilings"].get("walls_stop_at_attic") and wall_between_flats(x0, x1, y0, y1):
+    if C["ceilings"].get("walls_stop_at_attic") and wall_between_flats(x0, x1, y0, y1, alongx):
         return lambda x, y: FH + FLOOR_T - DECK_T               # stops under the attic deck
     return lambda x, y: roof_under(min(y, YC2))
 
@@ -631,7 +634,9 @@ def split_by_attic(x0, x1, y0, y1):
             pieces[-1] = ((q[0], r_[1], q[2], r_[3]), low)
         else:
             pieces.append((r_, low))
-    return [(r_, deck if low else top) for (r_, low) in pieces]
+    # a piece that is not between two flat rooms runs up to the roof even when the wall as a whole stops at the deck
+    # (the bed 3 / utility wall's east end, where it meets the vaulted hall 1, left a gap above the deck)
+    return [(r_, deck if low else wall_top(*r_, alongx=alongx)) for (r_, low) in pieces]
 
 
 WALL_PIECES = [pc for r_ in INT_RECTS for pc in split_by_attic(*r_)]
@@ -647,10 +652,11 @@ for k, ((x0, x1, y0, y1), top) in enumerate(WALL_PIECES):
 DOOR_GAPS, FIXES = [], []
 
 
-def attic_gap(x0, x1, y0, y1, crossed):
+def attic_gap(x0, x1, y0, y1, crossed, alongx):
     """A short gap between two wall ends. With nothing crossing it, fill it full height. Where a wall that stops at the
-    attic deck crosses it, the gap only shows above the deck, so fill from the deck up (the hall 1 west wall had these)."""
-    top = wall_top(x0, x1, y0, y1)
+    attic deck crosses it, the gap only shows above the deck, so fill from the deck up (the hall 1 west wall had these).
+    alongx is the direction of the wall with the gap: the gap itself is often wider than it is long."""
+    top = wall_top(x0, x1, y0, y1, alongx)
     if not crossed:
         FIXES.append(("sliver", x0, x1, y0, y1, top, 0))
     elif top((x0 + x1) / 2, (y0 + y1) / 2) > FH + FLOOR_T + 0.2:
@@ -671,7 +677,7 @@ def make_headers():
                     gap0, gap1 = lo[1], hi[0]
                     if 0.02 < gap1 - gap0 <= 1.4:
                         crossed = any(r is not a and r is not b and r[0] < gap1 - 0.01 and r[1] > gap0 + 0.01 and r[2] < a[3] and r[3] > a[2] for r in rects)
-                        attic_gap(gap0, gap1, min(a[2], b[2]), max(a[3], b[3]), crossed)
+                        attic_gap(gap0, gap1, min(a[2], b[2]), max(a[3], b[3]), crossed, True)
                         if not crossed:
                             continue
                     if not (1.4 < gap1 - gap0 < 7.0):
@@ -691,7 +697,7 @@ def make_headers():
                     gap0, gap1 = lo[3], hi[2]
                     if 0.02 < gap1 - gap0 <= 1.4:
                         crossed = any(r is not a and r is not b and r[2] < gap1 - 0.01 and r[3] > gap0 + 0.01 and r[0] < a[1] and r[1] > a[0] for r in rects)
-                        attic_gap(min(a[0], b[0]), max(a[1], b[1]), gap0, gap1, crossed)
+                        attic_gap(min(a[0], b[0]), max(a[1], b[1]), gap0, gap1, crossed, False)
                         if not crossed:
                             continue
                     if not (1.4 < gap1 - gap0 < 7.0):
