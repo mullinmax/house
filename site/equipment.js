@@ -6,13 +6,14 @@
 // The builders follow the makers' product photos (finish, handles, controls, proportions) at the spec sheet sizes.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
+import { buildCar, buildWallConnector, vehicleMaterials } from './vehicles.js';
 
 const F = 0.3048, IN = 0.0254;
 export const plan = (x, y, z = 0) => new THREE.Vector3(x * F, z * F, y * F);
 
 // ---------------------------------------------------------------- materials
 const M = {};
-function mat(name, color, rough = 0.5, metal = 0, extra = {}) {
+export function mat(name, color, rough = 0.5, metal = 0, extra = {}) {
   if (!M[name]) { M[name] = new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: metal, ...extra }); M[name].name = 'Equip ' + name; }
   return M[name];
 }
@@ -80,7 +81,7 @@ function screenMat(key, w, h, draw, glow = 0.9, rough = 0.12) {
   return M[key];
 }
 // a logo or label with a clear background, laid a hair in front of a face
-function labelMat(key, w, h, draw) {
+export function labelMat(key, w, h, draw) {
   if (!M[key]) {
     M[key] = new THREE.MeshStandardMaterial({ map: canvasTex(key, w, h, draw), transparent: true, alphaTest: 0.35, roughness: 0.5, metalness: 0.1,
       polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
@@ -603,6 +604,8 @@ const BUILD = {
     for (const x of [-w / 4, 0, w / 4]) for (const z of [d * 0.25, d * 0.75]) cyl(g, 0.22, 0.1, darkSteel(), x, h + 0.02, z, 'y', 8);   // cover screws
     return g;
   },
+  car(s, it) { return buildCar(it); },                 // Tesla Model Y and Honda Insight, in vehicles.js
+  wall_connector(s) { return buildWallConnector(s); },
   generic(s) {
     const [w, h, d] = s, g = new THREE.Group();
     box(g, w, h, d, greyPlastic(), 0, h / 2, d / 2); return g;
@@ -763,7 +766,7 @@ function buildTrusses(t) {
 // Returns one group per layer plus byId, the semantic record behind every clickable thing.
 export function buildEquipment(data) {
   const root = new THREE.Group(); root.name = 'Equipment';
-  const layers = { appliances: new THREE.Group(), mechanical: new THREE.Group(), ducts: new THREE.Group(), trusses: buildTrusses(data.trusses) };
+  const layers = { appliances: new THREE.Group(), vehicles: new THREE.Group(), mechanical: new THREE.Group(), ducts: new THREE.Group(), trusses: buildTrusses(data.trusses) };
   for (const [k, g] of Object.entries(layers)) { g.name = g.name || k; root.add(g); }
   const byId = {};
   for (const it of data.items || []) {
@@ -791,7 +794,7 @@ export function buildEquipment(data) {
   return { root, layers, byId };
 }
 
-export function equipMaterials() { return [...Object.values(M), ...Object.values(DUCT)]; }
+export function equipMaterials() { return [...Object.values(M), ...vehicleMaterials(), ...Object.values(DUCT)]; }
 
 export function setDuctXray(on) {
   for (const [k, m] of Object.entries(DUCT)) {
