@@ -477,17 +477,23 @@ export function setDuctXray(on) {
 
 // ---------------------------------------------------------------- info card
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// The card leads with what matters day to day: what it is, the model, the price, sizes and specs, and a way to the
+// product. Where a fact came from, what was assumed and why it sits where it does are kept, folded away under
+// "Notes and sources" (Maxwell, 11/17/2026).
 export function infoHTML(it) {
   const inf = it.info || {};
   const specs = (inf.specs || []).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('');
   const notes = (inf.notes || []).map((n) => `<li>${esc(n)}</li>`).join('');
-  const links = (inf.links || []).map(([t, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>`).join(' · ');
+  const linkList = (inf.links || []).map(([t, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>`);
+  // a bought product with no link on file yet: offer a web search for its model
+  if (!linkList.length && inf.model && !it.kind && it.builder) linkList.push(`<a href="https://www.google.com/search?q=${encodeURIComponent(inf.model.split(',')[0])}" target="_blank" rel="noopener">Search the web for this model</a>`);
+  const links = linkList.join(' · ');
+  const place = inf.placement ? `<p class="place"><b>Placement.</b> ${esc(inf.placement)}</p>` : '';
   return `<div class="eyebrow">${esc(it.category || it.system || '')}</div>
     <h2>${esc(it.name)}</h2>
     ${inf.model ? `<p class="model">${esc(inf.model)}</p>` : ''}
     ${inf.price ? `<p class="price">${esc(inf.price)}</p>` : ''}
     ${specs ? `<dl>${specs}</dl>` : ''}
-    ${notes ? `<ul>${notes}</ul>` : ''}
-    ${inf.placement ? `<p class="place"><b>Placement.</b> ${esc(inf.placement)}</p>` : ''}
-    ${links ? `<p class="links">${links}</p>` : ''}`;
+    ${links ? `<p class="links">${links}</p>` : ''}
+    ${notes || place ? `<details><summary>Notes and sources</summary>${place}${notes ? `<ul>${notes}</ul>` : ''}</details>` : ''}`;
 }
