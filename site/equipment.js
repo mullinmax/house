@@ -138,6 +138,23 @@ const BUILD = {
     box(g, w - 2, 3.5, 0.4, darkPlastic(), 0, 1.75, body + 0.1);                             // toe grille
     return g;
   },
+  fridge_french_door(s) {          // two French doors over a freezer drawer, water and ice dispenser in the left door
+    const [w, h, d] = s, g = new THREE.Group();
+    const body = d - 3.0;
+    box(g, w - 0.3, h - 0.6, body, steel(), 0, (h - 0.6) / 2, body / 2);
+    box(g, w - 0.4, 0.6, body - 1, darkPlastic(), 0, h - 0.3, body / 2 - 0.5);               // hinge cover
+    const fh = 25, dz = body + 1.25, dw = w / 2 - 0.1;
+    box(g, w, fh - 0.4, 2.5, steel(), 0, fh / 2, dz);                                        // freezer drawer
+    box(g, dw, h - fh - 0.9, 2.5, steel(), -w / 4 - 0.025, fh + (h - fh - 0.9) / 2, dz);       // left door
+    box(g, dw, h - fh - 0.9, 2.5, steel(), w / 4 + 0.025, fh + (h - fh - 0.9) / 2, dz);        // right door
+    bar(g, w - 8, 0, fh - 3, dz + 1.25, false);
+    bar(g, 26, -1.6, fh + 24, dz + 1.25, true);
+    bar(g, 26, 1.6, fh + 24, dz + 1.25, true);
+    box(g, 7, 12, 0.3, darkSteel(), -w / 4 - 1.5, fh + 21, dz + 1.3);                         // dispenser panel
+    box(g, 5.6, 7.5, 0.8, darkPlastic(), -w / 4 - 1.5, fh + 19.2, dz + 1.15);                 // dispenser recess
+    box(g, w - 2, 3.5, 0.4, darkPlastic(), 0, 1.75, body + 0.1);                             // toe grille
+    return g;
+  },
   dishwasher(s) {
     const [w, h, d] = s, g = new THREE.Group();
     box(g, w - 0.4, h - 4, d - 1.3, darkSteel(), 0, (h - 4) / 2 + 4, (d - 1.3) / 2);

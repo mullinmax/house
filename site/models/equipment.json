@@ -163,19 +163,19 @@
   },
   {
    "id": "fridge",
-   "name": "Frigidaire Gallery bottom freezer fridge",
+   "name": "Whirlpool counter depth French door fridge",
    "category": "Kitchen appliance",
    "system": "kitchen",
    "room": "Kitchen",
    "layer": "appliances",
-   "builder": "fridge_bottom_freezer",
+   "builder": "fridge_french_door",
    "size": [
-    29.9,
-    69.9,
-    33.5
+    35.75,
+    70,
+    31.8
    ],
    "at": [
-    5.425,
+    5.475,
     35.2,
     0
    ],
@@ -186,7 +186,7 @@
       3.96,
       35.1,
       0,
-      6.89,
+      6.99,
       37.75,
       5.99
      ],
@@ -199,21 +199,32 @@
     }
    ],
    "info": {
-    "model": "Frigidaire Gallery GRBN2012AF, 20.3 cu ft",
-    "price": "$1,399.99",
+    "model": "Whirlpool WRFC5036RZ, 36 in true counter depth, 3 door French door, 23.4 cu ft",
     "specs": [
      [
       "Size",
-      "About 30 W x 70 H x 33.5 D in"
+      "35 3/4 W x 70 H x 31 4/5 D in"
      ],
      [
       "Capacity",
-      "20.3 cu ft, bottom freezer"
+      "23.4 cu ft"
+     ],
+     [
+      "Doors",
+      "Two French doors over a bottom freezer drawer"
+     ],
+     [
+      "Dispenser",
+      "Water and ice in the left door"
+     ],
+     [
+      "Finish",
+      "Fingerprint resistant stainless"
      ]
     ],
     "notes": [
-     "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class.",
-     "The fridge bay in the cabinet plan is about 36.6 in wide. This 30 in fridge leaves roughly 3 in on each side, so the bay or the side panels should be resized with Carter Lumber."
+     "Size from the dimensioned product photo Maxwell sent (11/17/2026).",
+     "The fridge bay was 36.6 in wide with 3/4 in panels inside it, which left only about 35.1 in clear. It is widened to 37.8 in here (about 36.3 in clear) so this fridge fits. Check the exact cutout and door clearance with Carter Lumber and the Whirlpool install guide."
     ],
     "placement": "North kitchen wall, in the panelled fridge bay."
    }
