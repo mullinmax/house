@@ -119,8 +119,14 @@ kbd { font: 500 .75rem ui-monospace, Menlo, Consolas, monospace; border: 1px sol
 #hint { position: fixed; left: 50%; bottom: max(16px, env(safe-area-inset-bottom)); transform: translateX(-50%);
   background: var(--scrim); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: .85rem; pointer-events: none; }
 
-/* ---- inspect tool, toast */
-body.inspecting canvas { cursor: help; }
+/* ---- press and hold ring, toast, info card extras */
+#hold { position: fixed; width: 76px; height: 76px; margin: -38px 0 0 -38px; border-radius: 50%; pointer-events: none; z-index: 7;
+  border: 3px solid #fff; box-shadow: 0 0 0 1.5px rgba(0,0,0,.45), inset 0 0 0 1.5px rgba(0,0,0,.45); animation: hold .45s ease-out forwards; }
+@keyframes hold { from { transform: scale(.25); opacity: 0; } 30% { opacity: .9; } to { transform: scale(1); opacity: .9; } }
+#info details { border: 0; border-top: 1px solid var(--line); border-radius: 0; padding: 8px 0 0; margin-top: 10px; }
+#info details > summary { padding: 4px 0; }
+#info details ul { margin-top: 4px; }
+#info .links a { color: var(--accent); }
 #toast { position: fixed; left: 50%; top: max(14px, env(safe-area-inset-top)); transform: translateX(-50%); background: var(--scrim); color: #fff;
   padding: 7px 14px; border-radius: 999px; font-size: .85rem; pointer-events: none; z-index: 8; max-width: calc(100vw - 24px); text-align: center; }
 .sheethead, #bar, #fCrouch { display: none; }
@@ -203,7 +209,6 @@ body.compact .keys td:first-child { white-space: normal; }
   <div class="row desk" role="group" aria-label="Camera mode">
     <button data-mode="orbit" aria-pressed="true" title="Drag to turn, scroll to zoom, W A S D to slide">Orbit</button>
     <button data-mode="walk" aria-pressed="false" title="Walk through the house at eye height">Walk</button>
-    <button data-act="inspect" aria-pressed="false" title="Inspect (I): click anything to read about it. Off, clicks only open doors and drawers">Inspect</button>
   </div>
   <div class="row desk" role="group" aria-label="Go to">
     <button data-act="rooms" title="Pick a room on the floor plan">Go to a room</button>
@@ -249,13 +254,13 @@ body.compact .keys td:first-child { white-space: normal; }
 <nav id="bar" aria-label="Tools">
   <button data-mode="orbit" aria-pressed="true"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="1.8"/><ellipse cx="8" cy="8" rx="6.5" ry="3"/></svg><span>Orbit</span></button>
   <button data-mode="walk" aria-pressed="false"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8.5" cy="2.8" r="1.3"/><path d="M8.5 5v4.5l2 4.5M8.5 9.5 6 14M5.5 7.8l3-2.3 2.6 2.4"/></svg><span>Walk</span></button>
-  <button data-act="inspect" aria-pressed="false"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 7.3V11M8 4.9v.3"/></svg><span>Inspect</span></button>
   <button data-act="rooms"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2.5" width="12" height="11"/><path d="M8 2.5v5M2 8.5h4M10 8.5h4M8 10.5v3"/></svg><span>Rooms</span></button>
   <button data-sheet="layers" aria-pressed="false"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2 1.8 5.2 8 8.4l6.2-3.2z"/><path d="M1.8 8 8 11.2 14.2 8M1.8 10.8 8 14l6.2-3.2"/></svg><span>Layers</span></button>
   <button data-sheet="more" aria-pressed="false"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="8" r=".8"/><circle cx="8" cy="8" r=".8"/><circle cx="12.5" cy="8" r=".8"/></svg><span>More</span></button>
 </nav>
 <button id="fCrouch" data-act="crouch" aria-pressed="false" hidden>Crouch</button>
 <div id="toast" hidden role="status"></div>
+<div id="hold" hidden></div>
 
 <div id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="sheet">
