@@ -3,6 +3,7 @@
 // Sizes in the JSON are inches, positions are plan feet (x east, y south from the NW slab corner, z up from the slab).
 // Each item is anchored at the centre of its BACK face on its base, and "facing" is the compass direction its
 // front faces (0 north, 90 east, 180 south, 270 west).
+// The builders follow the makers' product photos (finish, handles, controls, proportions) at the spec sheet sizes.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 
@@ -15,17 +16,51 @@ function mat(name, color, rough = 0.5, metal = 0, extra = {}) {
   if (!M[name]) { M[name] = new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: metal, ...extra }); M[name].name = 'Equip ' + name; }
   return M[name];
 }
-const steel = () => mat('stainless', 0xb7babd, 0.32, 0.85);
+// A canvas drawn once and used as a texture: control panels, logos, zone markings, brushed grain.
+const TEX = {};
+function canvasTex(key, w, h, draw) {
+  if (!TEX[key]) {
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    draw(c.getContext('2d'), w, h);
+    const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+    TEX[key] = t;
+  }
+  return TEX[key];
+}
+// brushed grain: every column is one shade, so the texture tiles and stretches along the grain without seams
+function grain(key, horizontal = false) {
+  const t = canvasTex('grain ' + key, 512, 4, (c, w, h) => {
+    let v = 0.5, seed = 7;
+    const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    for (let x = 0; x < w; x++) {
+      v = Math.min(1, Math.max(0, v + (rnd() - 0.5) * 0.6)); v += (0.5 - v) * 0.3;
+      const s = Math.round(228 + v * 27); c.fillStyle = `rgb(${s},${s},${s})`; c.fillRect(x, 0, 1, h);
+    }
+  });
+  if (horizontal && !TEX['grain h ' + key]) { const r = t.clone(); r.rotation = Math.PI / 2; r.center.set(0.5, 0.5); r.needsUpdate = true; TEX['grain h ' + key] = r; }
+  const tex = horizontal ? TEX['grain h ' + key] : t;
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  return tex;
+}
+const steel = () => mat('stainless', 0xd6d8da, 0.34, 0.72, { map: grain('steel') });
+const steelH = () => mat('stainless handle', 0xd2d4d6, 0.24, 0.95);
+const steelSide = () => mat('fridge side grey', 0x8d9093, 0.5, 0.35);
 const darkSteel = () => mat('dark stainless', 0x55595c, 0.35, 0.8);
-const glass = () => mat('black glass', 0x0a0b0c, 0.06, 0.3);
-const ceramic = () => mat('ceramic top', 0x0d0e10, 0.12, 0.2);
-const zoneLine = () => mat('zone line', 0x6d7276, 0.6, 0);
+const graphite = () => mat('carbon graphite', 0x6c7077, 0.4, 0.45, { map: grain('graphite') });
+const graphiteDark = () => mat('carbon graphite trim', 0x2c2e31, 0.45, 0.5);
+const glass = () => mat('black glass', 0x08090a, 0.05, 0.4);
+const smoked = () => mat('smoked glass', 0x0b1016, 0.04, 0.6);
 const white = () => mat('enamel white', 0xeeeeea, 0.35, 0.05);
+const whitePlastic = () => mat('white plastic', 0xe9e9e4, 0.5, 0);
 const greyPlastic = () => mat('grey plastic', 0x8a8d90, 0.55, 0);
 const darkPlastic = () => mat('dark plastic', 0x232527, 0.6, 0);
+const blackMolded = () => mat('black molded', 0x161718, 0.5, 0.05);
+const charcoal = () => mat('disposer charcoal', 0x3b3f44, 0.45, 0.35);
+const tankGrey = () => mat('tank grey', 0x9a9c9c, 0.42, 0.55);
 const chrome = () => mat('chrome', 0xd8dadc, 0.15, 1);
-const galv = () => mat('galvanized', 0xa8adb1, 0.45, 0.75);
-const cabinetGrey = () => mat('unit cabinet', 0x9a9c97, 0.55, 0.25);
+const galv = () => mat('galvanized', 0xb1b6ba, 0.42, 0.8);
+const cabinetGrey = () => mat('unit cabinet', 0xa7a8a3, 0.5, 0.3);
+const seam = () => mat('panel seam', 0x4b4d4c, 0.7, 0.2);
 const pe = () => mat('PE pipe', 0x1a1a1a, 0.55, 0);
 const foam = () => mat('foam insulation', 0x202020, 0.9, 0);
 const brass = () => mat('brass', 0xb8933a, 0.3, 1);
@@ -35,6 +70,27 @@ const copper = () => mat('copper', 0xb8734a, 0.3, 1);
 const pumpRed = () => mat('pump red', 0x8f1f1f, 0.4, 0.3);
 const plywood = () => mat('plywood', 0xc9a978, 0.8, 0);
 const rubber = () => mat('rubber', 0x111111, 0.85, 0);
+// a lit screen or printed panel: the drawing is both the colour and the glow
+function screenMat(key, w, h, draw, glow = 0.9, rough = 0.12) {
+  if (!M[key]) {
+    const t = canvasTex(key, w, h, draw);
+    M[key] = new THREE.MeshStandardMaterial({ map: t, emissive: 0xffffff, emissiveMap: t, emissiveIntensity: glow, roughness: rough, metalness: 0.2 });
+    M[key].name = 'Equip ' + key;
+  }
+  return M[key];
+}
+// a logo or label with a clear background, laid a hair in front of a face
+function labelMat(key, w, h, draw) {
+  if (!M[key]) {
+    M[key] = new THREE.MeshStandardMaterial({ map: canvasTex(key, w, h, draw), transparent: true, alphaTest: 0.35, roughness: 0.5, metalness: 0.1,
+      polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+    M[key].name = 'Equip ' + key;
+  }
+  return M[key];
+}
+const word = (text, color = '#fff', font = 'bold 44px Helvetica, Arial, sans-serif') => (c, w, h) => {
+  c.fillStyle = color; c.font = font; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(text, w / 2, h / 2 + 2, w - 6);
+};
 
 // ducts get their own materials so the x-ray switch can change them without touching anything else
 const DUCT = {
@@ -51,31 +107,85 @@ for (const [k, m] of Object.entries(DUCT)) m.name = 'Duct ' + k;
 
 // ---------------------------------------------------------------- geometry helpers (inches, local frame)
 // Local frame: +x to the right when facing the front, +y up, +z out of the front. Origin = back centre, bottom.
+function add(g, geo, m, x, y, z) { const me = new THREE.Mesh(geo, m); me.position.set(x, y, z); g.add(me); return me; }
 function box(g, w, h, d, m, x, y, z) {               // x, y, z = centre of the box
-  const me = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
-  me.position.set(x, y, z); g.add(me); return me;
+  return add(g, new THREE.BoxGeometry(w, h, d), m, x, y, z);
 }
 function cyl(g, r, h, m, x, y, z, axis = 'y', seg = 28, r2 = r) {
-  const me = new THREE.Mesh(new THREE.CylinderGeometry(r, r2, h, seg), m);
+  const me = add(g, new THREE.CylinderGeometry(r, r2, h, seg), m, x, y, z);
   if (axis === 'x') me.rotation.z = Math.PI / 2;
   if (axis === 'z') me.rotation.x = Math.PI / 2;
-  me.position.set(x, y, z); g.add(me); return me;
+  return me;
 }
-function ring(g, r, t, m, x, y, z, axis = 'z') {      // torus in the plane normal to axis
-  const me = new THREE.Mesh(new THREE.TorusGeometry(r, t, 10, 40), m);
+function ring(g, r, t, m, x, y, z, axis = 'z', seg = 40) {      // torus in the plane normal to axis
+  const me = add(g, new THREE.TorusGeometry(r, t, 10, seg), m, x, y, z);
   if (axis === 'y') me.rotation.x = Math.PI / 2;
   if (axis === 'x') me.rotation.y = Math.PI / 2;
-  me.position.set(x, y, z); g.add(me); return me;
+  return me;
 }
-function bar(g, len, x, y, z, vertical, m = steel()) {   // a stand-off bar handle on a front face at depth z
-  const r = 0.4;
-  if (vertical) {
-    cyl(g, r, len, m, x, y, z + 1.3);
-    for (const s of [-1, 1]) cyl(g, 0.3, 1.3, m, x, y + s * (len / 2 - 1), z + 0.65, 'z');
-  } else {
-    cyl(g, r, len, m, x, y, z + 1.3, 'x');
-    for (const s of [-1, 1]) cyl(g, 0.3, 1.3, m, x + s * (len / 2 - 1), y, z + 0.65, 'z');
+function rrShape(w, h, r) {                           // rounded rectangle centred on the origin
+  const s = new THREE.Shape(), x = -w / 2, y = -h / 2; r = Math.min(r, w / 2, h / 2);
+  s.moveTo(x + r, y); s.lineTo(x + w - r, y); s.absarc(x + w - r, y + r, r, -Math.PI / 2, 0);
+  s.lineTo(x + w, y + h - r); s.absarc(x + w - r, y + h - r, r, 0, Math.PI / 2);
+  s.lineTo(x + r, y + h); s.absarc(x + r, y + h - r, r, Math.PI / 2, Math.PI);
+  s.lineTo(x, y + r); s.absarc(x + r, y + r, r, Math.PI, 1.5 * Math.PI);
+  return s;
+}
+function unitUV(geo) {                                // extrusions carry UVs in inches: stretch them to 0..1 like a box face
+  geo.computeBoundingBox(); const b = geo.boundingBox, uv = geo.attributes.uv, p = geo.attributes.position, nrm = geo.attributes.normal;
+  for (let i = 0; i < uv.count; i++) {
+    const facesZ = Math.abs(nrm.getZ(i)) > 0.5;
+    uv.setXY(i, facesZ ? (p.getX(i) - b.min.x) / (b.max.x - b.min.x || 1) : (p.getX(i) + p.getY(i) - b.min.x - b.min.y) / ((b.max.x - b.min.x) + (b.max.y - b.min.y) || 1),
+      facesZ ? (p.getY(i) - b.min.y) / (b.max.y - b.min.y || 1) : (p.getZ(i) - b.min.z) / (b.max.z - b.min.z || 1));
   }
+  return geo;
+}
+// a panel facing the front with rounded corners (doors, glass, badges): w x h, t thick, centred on x, y, z
+function slab(g, w, h, t, m, x, y, z, r = 0.4) {
+  const geo = unitUV(new THREE.ExtrudeGeometry(rrShape(w, h, r), { depth: t, bevelEnabled: false, curveSegments: 5 }));
+  geo.translate(0, 0, -t / 2);
+  return add(g, geo, m, x, y, z);
+}
+// a body with rounded vertical corners: w wide, h tall, d deep, centred on x, y, z
+function column(g, w, h, d, m, x, y, z, r = 0.8) {
+  const geo = unitUV(new THREE.ExtrudeGeometry(rrShape(w, d, r), { depth: h, bevelEnabled: false, curveSegments: 5 }));
+  geo.translate(0, 0, -h / 2); geo.rotateX(-Math.PI / 2);
+  return add(g, geo, m, x, y, z);
+}
+// a flat picture facing the front (or lying flat, facing up)
+function plate(g, w, h, m, x, y, z, up = false) {
+  const me = add(g, new THREE.PlaneGeometry(w, h), m, x, y, z);
+  if (up) me.rotation.x = -Math.PI / 2;
+  return me;
+}
+// a shallow dome facing the front, R across and bulge deep
+function dome(g, R, bulge, m, x, y, z) {
+  const geo = new THREE.SphereGeometry(R, 40, 8, 0, Math.PI * 2, 0, Math.PI / 2);
+  geo.scale(1, bulge / R, 1); geo.rotateX(Math.PI / 2);
+  return add(g, geo, m, x, y, z);
+}
+// a patch wrapped on a vertical cylinder of radius r: arc inches wide, h tall, centred at angle a (0 = front)
+function wrap(g, r, arc, h, m, x, y, z, a = 0, seg = 10) {
+  const th = arc / r;
+  const geo = new THREE.CylinderGeometry(r, r, h, seg, 1, true, a - th / 2, th);
+  return add(g, geo, m, x, y, z);
+}
+function bar(g, len, x, y, z, vertical, m = steelH(), r = 0.42, off = 1.5) {   // a stand-off bar handle on a front face at depth z
+  if (vertical) {
+    cyl(g, r, len, m, x, y, z + off, 'y', 14);
+    for (const s of [-1, 1]) cyl(g, r * 0.8, off, m, x, y + s * (len / 2 - 1.4), z + off / 2, 'z', 10);
+  } else {
+    cyl(g, r, len, m, x, y, z + off, 'x', 14);
+    for (const s of [-1, 1]) cyl(g, r * 0.8, off, m, x + s * (len / 2 - 1.4), y, z + off / 2, 'z', 10);
+  }
+}
+// a strap handle that leaves the door at both ends and bows out between them
+function bowHandle(g, x, y0, y1, z, bow, m, r = 0.42) {
+  const c = new THREE.CubicBezierCurve3(new THREE.Vector3(x, y0, z - 0.2), new THREE.Vector3(x, y0 + (y1 - y0) * 0.12, z + bow * 1.25),
+    new THREE.Vector3(x, y1 - (y1 - y0) * 0.12, z + bow * 1.25), new THREE.Vector3(x, y1, z - 0.2));
+  const geo = new THREE.TubeGeometry(c, 20, r, 8);
+  const me = add(g, geo, m, 0, 0, 0); me.scale.x = 1.5; me.position.x = x - x * 1.5;
+  return me;
 }
 // tube between two points (any frame), radius r
 function tube(g, a, b, r, m, seg = 14) {
@@ -86,6 +196,7 @@ function tube(g, a, b, r, m, seg = 14) {
   me.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize());
   g.add(me); return me;
 }
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
 // rectangular duct between two points, w across (horizontal), h vertical; for vertical runs w and h are both horizontal
 function rectDuct(g, a, b, w, h, m) {
   const d = new THREE.Vector3().subVectors(b, a), len = d.length();
@@ -97,120 +208,308 @@ function rectDuct(g, a, b, w, h, m) {
   else me.lookAt(me.position.clone().add(new THREE.Vector3(dir.x, 0, dir.z)));
   g.add(me); return me;
 }
+// Every builder makes many small meshes. They are merged into one mesh per material when the item is placed,
+// so a detailed appliance costs a handful of draw calls.
+function bake(g) {
+  g.updateMatrixWorld(true);
+  const by = new Map();
+  g.traverse((o) => { if (o.isMesh) { if (!by.has(o.material)) by.set(o.material, []); by.get(o.material).push(o); } });
+  const out = new THREE.Group();
+  for (const [m, list] of by) {
+    const geos = list.map((o) => {
+      const ge = o.geometry.index ? o.geometry.toNonIndexed() : o.geometry.clone();
+      for (const k of Object.keys(ge.attributes)) if (!['position', 'normal', 'uv'].includes(k)) ge.deleteAttribute(k);
+      ge.applyMatrix4(o.matrixWorld);
+      if (o.matrixWorld.determinant() < 0) {                       // a mirrored piece: restore the winding
+        const p = ge.attributes.position.array, n = ge.attributes.normal.array, u = ge.attributes.uv.array;
+        for (let i = 0; i < p.length / 9; i++) for (const [arr, k] of [[p, 3], [n, 3], [u, 2]]) for (let c = 0; c < k; c++) { const a = i * 3 * k + k + c, b = a + k; const t = arr[a]; arr[a] = arr[b]; arr[b] = t; }
+      }
+      return ge;
+    });
+    out.add(new THREE.Mesh(mergeGeometries(geos), m));
+    for (const ge of geos) ge.dispose();
+  }
+  return out;
+}
+
+// ---------------------------------------------------------------- drawings for screens and markings
+const ink = (c, s, lw = 1) => { c.strokeStyle = s; c.lineWidth = lw; };
+function drawCombo(c, w, h) {                         // GE Profile UltraFast Combo touch panel
+  c.fillStyle = '#060708'; c.fillRect(0, 0, w, h);
+  const cx = w * 0.3, cy = h * 0.56, R = h * 0.3;
+  const g = c.createLinearGradient(cx - R, 0, cx + R, 0); g.addColorStop(0, '#19b5e6'); g.addColorStop(1, '#e6198f');
+  ink(c, g, 7); c.beginPath(); c.arc(cx, cy, R, 0, Math.PI * 2); c.stroke();
+  c.fillStyle = '#fff'; c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.font = '15px Helvetica, Arial, sans-serif'; c.fillText('NORMAL', cx, cy - R * 0.5);
+  c.font = 'bold 36px Helvetica, Arial, sans-serif'; c.fillText('1:55', cx, cy - R * 0.12);
+  c.fillStyle = '#1773c9'; c.fillRect(cx - R * 0.7, cy + R * 0.22, R * 0.68, R * 0.26);
+  c.fillStyle = '#d81b79'; c.fillRect(cx + R * 0.02, cy + R * 0.22, R * 0.68, R * 0.26);
+  c.fillStyle = '#fff'; c.font = '12px Helvetica, Arial, sans-serif'; c.fillText('Wash', cx - R * 0.36, cy + R * 0.36); c.fillText('Sensor Dry', cx + R * 0.36, cy + R * 0.36);
+  c.font = '11px Helvetica, Arial, sans-serif'; c.fillText('SELECT', cx, cy + R * 0.7);
+  ink(c, '#fff', 3); c.beginPath(); c.arc(w * 0.1, h * 0.14, 11, -Math.PI * 0.35, Math.PI * 1.35); c.moveTo(w * 0.1, h * 0.14 - 14); c.lineTo(w * 0.1, h * 0.14 - 2); c.stroke();
+  c.font = 'bold 13px Helvetica, Arial, sans-serif';
+  ink(c, '#19b5e6', 2); c.strokeRect(w * 0.18, h * 0.08, w * 0.11, h * 0.12); c.fillText('WASH', w * 0.235, h * 0.142);
+  ink(c, '#e6198f', 2); c.strokeRect(w * 0.31, h * 0.08, w * 0.11, h * 0.12); c.fillText('DRY', w * 0.365, h * 0.142);
+  c.beginPath(); c.moveTo(w * 0.46, h * 0.09); c.lineTo(w * 0.495, h * 0.14); c.lineTo(w * 0.46, h * 0.19); c.fill(); c.fillRect(w * 0.505, h * 0.09, 5, h * 0.1); c.fillRect(w * 0.525, h * 0.09, 5, h * 0.1);
+  c.font = '11px Helvetica, Arial, sans-serif'; c.fillStyle = '#e8e8e8';
+  const L = ['NORMAL', 'DELICATES', 'TOWELS', 'BULKY Bedding', 'SANITIZE with Oxi', 'DOWNLOADED'], Rr = ['ACTIVE WEAR', 'QUICK CYCLE', 'WHITES', 'RINSE & DRY', 'ECO COOL', 'SELF CLEAN'];
+  for (let i = 0; i < 6; i++) {
+    const y = h * (0.3 + i * 0.105);
+    c.textAlign = 'left'; c.fillText(L[i], w * 0.025, y); c.textAlign = 'right'; c.fillText(Rr[i], w * 0.575, y);
+  }
+  c.textAlign = 'left';
+  for (const [i, t] of ['Menu', 'SOIL', 'TEMP', 'SPIN'].entries()) { const x = w * (0.025 + (i ? 0.13 + i * 0.09 : 0)); c.fillText(t, x, h * 0.93); c.fillRect(x, h * 0.965, c.measureText(t).width, 1.5); }
+  ink(c, '#19b5e6', 2); c.beginPath(); c.moveTo(w * 0.63, h * 0.27); c.lineTo(w * 0.63, h * 0.82); c.stroke();
+  ink(c, '#e6198f', 2); c.beginPath(); c.moveTo(w * 0.975, h * 0.27); c.lineTo(w * 0.975, h * 0.82); c.stroke();
+  c.font = 'bold 11px Helvetica, Arial, sans-serif'; c.fillStyle = '#19b5e6'; c.fillText('Wash Options', w * 0.65, h * 0.28);
+  c.fillStyle = '#e6198f'; c.textAlign = 'right'; c.fillText('Dry Options', w * 0.96, h * 0.28);
+  c.font = '10px Helvetica, Arial, sans-serif'; c.fillStyle = '#e8e8e8';
+  const A = ['Smart Dispense Detergent', 'Smart Dispense Softener', 'PreWash', 'More Water', 'Extra Rinse'], B = ['Timed Dry', 'Dewrinkle', 'Wash Complete', 'More Dry', 'Wrinkle Care'];
+  for (let i = 0; i < 5; i++) { const y = h * (0.38 + i * 0.105); c.textAlign = 'left'; c.fillText(A[i], w * 0.65, y); c.textAlign = 'right'; c.fillText(B[i], w * 0.96, y); }
+}
+function drawOvenPanel(c, w, h) {                     // Frigidaire Gallery wall oven: black glass with a small lit display in the middle
+  c.fillStyle = '#050607'; c.fillRect(0, 0, w, h);
+  const dw = h * 1.75, dh = h * 0.62, x0 = (w - dw) / 2, y0 = (h - dh) / 2;
+  c.fillStyle = '#1b2026'; c.fillRect(x0, y0, dw, dh);
+  c.fillStyle = '#f4f6f8'; c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.font = `${Math.round(h * 0.36)}px Helvetica, Arial, sans-serif`; c.fillText('6:04', w / 2, h / 2 + 1);
+  c.strokeStyle = '#d7dadd'; c.lineWidth = 1.5;
+  for (const sx of [-1, 1]) for (const k of [-1, 0, 1]) { c.beginPath(); c.arc(w / 2 + sx * (dw / 2 + h * 0.3), h / 2 + k * h * 0.2, h * 0.055, 0, Math.PI * 2); c.stroke(); }
+}
+function drawCooktop(c, w, h) {                       // KitchenAid KCIT730SBL zone markings, seen from above with the front at the bottom
+  c.fillStyle = '#0b0b0c'; c.fillRect(0, 0, w, h);
+  const X = (px) => (px - 894) / 541 * w, Y = (py) => (py - 232) / 375 * h, S = w / 541;
+  ink(c, '#8d9093', 1.6);
+  c.strokeRect(X(937), Y(260), 138 * S, 264 * S);
+  c.beginPath(); c.moveTo(X(942), Y(392)); c.lineTo(X(1070), Y(392)); c.stroke();
+  for (const [x, y, r] of [[1176, 358, 87], [1338, 320, 53], [1326, 451, 62]]) { c.beginPath(); c.arc(X(x), Y(y), r * S, 0, Math.PI * 2); c.stroke(); }
+  c.fillStyle = '#b9bcbf'; c.textBaseline = 'middle'; c.textAlign = 'left';
+  c.font = `bold ${Math.round(9 * S)}px Georgia, serif`; c.fillText('KitchenAid', X(908), Y(591));
+  ink(c, '#9a9da0', 1);
+  for (const y of [563, 577]) for (const [x0, x1] of [[1038, 1100], [1232, 1294]]) {     // slider tracks
+    c.beginPath(); c.setLineDash([2, 3]); c.moveTo(X(x0), Y(y)); c.lineTo(X(x1), Y(y)); c.stroke(); c.setLineDash([]);
+    c.beginPath(); c.arc(X(x0 - 6), Y(y), 2.2 * S, 0, Math.PI * 2); c.stroke();
+  }
+  c.font = `${Math.round(8 * S)}px Helvetica, Arial, sans-serif`; c.textAlign = 'center';
+  for (const [x, y] of [[1122, 563], [1122, 577], [1205, 563], [1205, 577], [1163, 537]]) c.fillText('88', X(x), Y(y));
+  for (const x of [1152, 1165, 1178]) { c.beginPath(); c.arc(X(x), Y(564), 2.6 * S, 0, Math.PI * 2); c.stroke(); c.fillRect(X(x) - 3 * S, Y(577) - 1.5 * S, 6 * S, 3 * S); }
+  c.beginPath(); c.arc(X(1419), Y(248), 2 * S, 0, Math.PI * 2); c.stroke();
+}
+function drawDispenser(c, w, h) {                     // Whirlpool in-door dispenser controls
+  c.fillStyle = '#07080a'; c.fillRect(0, 0, w, h);
+  c.fillStyle = '#e9e9e9'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = '9px Helvetica, Arial, sans-serif';
+  const L = ['Water', 'Crushed', 'Cubed', 'Light', 'Lock'];
+  for (let i = 0; i < 5; i++) { const x = w * (0.14 + i * 0.18); c.fillText(L[i], x, h * 0.3); c.beginPath(); c.arc(x, h * 0.66, 4.5, 0, Math.PI * 2); ink(c, '#e9e9e9', 1.3); c.stroke(); }
+}
+function drawBeverage(c, w, h) {                      // what shows through the glass door: lit shelves of cans
+  const g = c.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#16222e'); g.addColorStop(1, '#070b10');
+  c.fillStyle = g; c.fillRect(0, 0, w, h);
+  const rows = 5, top = h * 0.09, rh = (h * 0.9) / rows;
+  for (let r = 0; r < rows; r++) {
+    const y1 = top + (r + 1) * rh - 6, ch = rh * 0.66, cw = w / 9.4;
+    for (let k = 0; k < 9; k++) {
+      const x = w * 0.02 + k * (cw + 1.2), redCan = r % 2 === 0;
+      const cg = c.createLinearGradient(x, 0, x + cw, 0);
+      cg.addColorStop(0, redCan ? '#4a0d10' : '#0d2450'); cg.addColorStop(0.45, redCan ? '#b3212a' : '#2a62c4'); cg.addColorStop(1, redCan ? '#3a0a0c' : '#0a1b3d');
+      c.fillStyle = cg; c.fillRect(x, y1 - ch, cw, ch);
+      c.fillStyle = '#9aa0a6'; c.fillRect(x + 1, y1 - ch - 2, cw - 2, 3);
+    }
+    c.fillStyle = '#c9cdd1'; c.fillRect(0, y1, w, 3);
+    c.fillStyle = '#20262c'; c.fillRect(0, y1 + 3, w, 3);
+  }
+  c.fillStyle = '#0a0c0e'; c.fillRect(0, 0, w, top * 0.8);
+  c.fillStyle = '#e9e9e9'; c.font = 'bold 15px Helvetica, Arial, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('Hisense', w / 2, top * 0.4);
+}
+function drawFan(c, w, h) {                           // round fan guard on the water heater's heat pump section
+  c.fillStyle = '#8f9192'; c.fillRect(0, 0, w, h);
+  c.fillStyle = '#17181a'; c.beginPath(); c.arc(w / 2, h / 2, w * 0.46, 0, Math.PI * 2); c.fill();
+  ink(c, '#55585b', 3);
+  for (const r of [0.12, 0.22, 0.32, 0.42]) { c.beginPath(); c.arc(w / 2, h / 2, w * r, 0, Math.PI * 2); c.stroke(); }
+  for (let k = 0; k < 12; k++) { const a = k * Math.PI / 6; c.beginPath(); c.moveTo(w / 2 + Math.cos(a) * w * 0.06, h / 2 + Math.sin(a) * w * 0.06); c.lineTo(w / 2 + Math.cos(a + 0.5) * w * 0.44, h / 2 + Math.sin(a + 0.5) * w * 0.44); c.stroke(); }
+}
+function drawHeaterPanel(c, w, h) {
+  c.fillStyle = '#131416'; c.fillRect(0, 0, w, h);
+  c.fillStyle = '#24313a'; c.fillRect(w * 0.14, h * 0.1, w * 0.72, h * 0.3);
+  c.fillStyle = '#9fd8ff'; c.font = 'bold 22px Helvetica, Arial, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('120°F', w / 2, h * 0.25);
+  c.fillStyle = '#d9d9d9'; c.font = '9px Helvetica, Arial, sans-serif';
+  for (const [i, t] of ['Energy Saver', 'Heat Pump', 'High Demand', 'Electric', 'Vacation'].entries()) c.fillText(t, w / 2, h * (0.5 + i * 0.09));
+}
+const roundBadge = (bg, fg, text, font) => (c, w, h) => {
+  c.fillStyle = bg; c.beginPath(); c.arc(w / 2, h / 2, w / 2 - 1, 0, Math.PI * 2); c.fill();
+  c.fillStyle = fg; c.font = font; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(text, w / 2, h / 2 + 1, w - 10);
+};
+function printMat(key, w, h, draw, rough = 0.12, metal = 0.3) {      // a printed, unlit surface (cooktop glass, fan guard)
+  if (!M[key]) { M[key] = new THREE.MeshStandardMaterial({ map: canvasTex(key, w, h, draw), roughness: rough, metalness: metal }); M[key].name = 'Equip ' + key; }
+  return M[key];
+}
 
 // ---------------------------------------------------------------- builders
 // Each returns a THREE.Group in inches (local frame above). s = item.size = [w, h, d].
+// Proportions, handles, controls and finishes follow the makers' product photos; overall sizes are the spec sheet sizes.
 const BUILD = {
-  wall_oven_double(s) {
-    const [w, h, d] = s, g = new THREE.Group();
-    box(g, w - 1.25, h - 0.5, d - 1.2, darkSteel(), 0, h / 2, (d - 1.2) / 2);               // chassis in the cutout
-    const fz = d - 0.6;
-    box(g, w, 4.2, 1.2, glass(), 0, h - 2.1, fz);                                            // control panel
-    const dh = (h - 4.4) / 2;
-    for (let k = 0; k < 2; k++) {
-      const y0 = k * dh;
-      box(g, w, dh - 0.2, 1.2, steel(), 0, y0 + dh / 2, fz);                                  // door
-      box(g, w - 7, dh * 0.5, 0.15, glass(), 0, y0 + dh * 0.45, fz + 0.62);                   // window
-      bar(g, w - 5, 0, y0 + dh - 2.6, fz + 0.6, false);
+  wall_oven_double(s) {            // Frigidaire Gallery GCWD3067AF: stainless doors with wide black windows, flat bar handles, black glass control strip
+    const [w, h, d] = s, g = new THREE.Group(), k = h / 50.75;
+    const cz = d - 1.7, face = d - 0.2, dz = (cz + face) / 2, dt = face - cz;
+    box(g, w - 1.37, h - 1.9, cz, darkSteel(), 0, h / 2, cz / 2);                              // chassis in the 28.5 in cutout
+    box(g, w, 0.5 * k, dt, steel(), 0, 0.25 * k, dz);                                        // bottom trim
+    const lower = [0.55 * k, 22.4 * k], upper = [23.15 * k, 45.1 * k], py0 = 45.6 * k;
+    for (const [ya, yb] of [[lower[1], upper[0]], [upper[1], py0]]) box(g, w - 0.6, yb - ya, 0.6, darkPlastic(), 0, (ya + yb) / 2, cz + 0.3);   // vent gaps
+    for (const [y0, y1] of [lower, upper]) {
+      slab(g, w, y1 - y0, dt, steel(), 0, (y0 + y1) / 2, dz, 0.12);                            // door
+      const gy0 = y0 + 2.05 * k, gh = 16.5 * k;
+      slab(g, w - 4.4, gh + 0.3, 0.1, graphiteDark(), 0, gy0 + gh / 2, face + 0.02, 0.12);     // window trim
+      slab(g, w - 4.6, gh, 0.14, glass(), 0, gy0 + gh / 2, face + 0.06, 0.1);                  // window
+      slab(g, w - 4.7, 1.5, 0.7, steelH(), 0, y1 - 1.5 * k, face + 1.75, 0.3);                 // flat bar handle
+      for (const sx of [-1, 1]) box(g, 1.2, 0.9, 1.5, steelH(), sx * (w / 2 - 3.6), y1 - 1.5 * k, face + 0.75);
     }
+    plate(g, 4.2, 0.95, labelMat('frigidaire badge', 256, 60, (c, cw, ch) => {
+      c.strokeStyle = '#4a4d50'; c.lineWidth = 3; c.strokeRect(3, 3, cw - 6, ch - 6);
+      c.fillStyle = '#3a3d40'; c.font = 'bold 30px Helvetica, Arial, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('FRIGIDAIRE', cw / 2, ch / 2 + 2, cw - 16);
+    }), 0, lower[0] + 1.05 * k, face + 0.02);
+    const ph = h - py0;
+    slab(g, w, ph, dt, steel(), 0, py0 + ph / 2, dz, 0.12);                                    // control panel frame
+    slab(g, w - 2.2, ph - 1.5, 0.1, glass(), 0, py0 + ph / 2, face + 0.03, 0.1);
+    plate(g, w - 2.6, ph - 1.9, screenMat('oven panel', 1024, 120, drawOvenPanel, 0.85), 0, py0 + ph / 2, face + 0.09);
     return g;
   },
-  cooktop_induction(s) {
+  cooktop_induction(s) {           // KitchenAid KCIT730SBL: frameless black glass, bridge zone on the left, three round zones, touch sliders at the front
     const [w, , d] = s, g = new THREE.Group();
-    box(g, w, 0.25, d, ceramic(), 0, 0.125, d / 2);                                          // glass top on the counter
+    box(g, w, 0.25, d, glass(), 0, 0.125, d / 2);                                            // glass on the counter
+    plate(g, w - 0.1, d - 0.1, printMat('cooktop markings', 1024, 708, drawCooktop, 0.1, 0.35), 0, 0.262, d / 2, true);
     box(g, 29.2, 3.4, 20.2, darkPlastic(), 0, -1.7, d / 2);                                  // body below the counter
-    const zones = [[-8.3, d - 7, 4.2], [-8.3, 6.5, 3.7], [0, d / 2, 5], [8.3, d - 7, 4.2], [8.3, 6.5, 3.3]];
-    for (const [x, z, r] of zones) ring(g, r, 0.08, zoneLine(), x, 0.27, z, 'y');
-    box(g, 14, 0.02, 1.4, zoneLine(), 0, 0.26, d - 1.6);                                     // touch control strip
     return g;
   },
-  fridge_bottom_freezer(s) {
+  fridge_french_door(s) {          // Whirlpool WRFC5036RZ: two doors with bowed strap handles, dispenser in the left door, pocket handle freezer drawer
     const [w, h, d] = s, g = new THREE.Group();
-    const body = d - 3.2;
-    box(g, w - 0.3, h - 0.6, body, steel(), 0, (h - 0.6) / 2, body / 2);
-    box(g, w - 0.4, 0.6, body - 1, darkPlastic(), 0, h - 0.3, body / 2 - 0.5);               // hinge cover
-    const fh = 26, dz = body + 1.25;
-    box(g, w, fh - 0.3, 2.5, steel(), 0, fh / 2, dz);                                        // freezer drawer
-    box(g, w, h - fh - 0.9, 2.5, steel(), 0, fh + (h - fh - 0.9) / 2, dz);                    // fresh food door
-    bar(g, w - 6, 0, fh - 3, dz + 1.25, false);
-    bar(g, 30, w / 2 - 2.5, fh + 24, dz + 1.25, true);
-    box(g, 6.5, 9, 0.1, darkSteel(), -w / 2 + 6, fh + 28, dz + 1.27);                         // filter/controls badge
-    box(g, w - 2, 3.5, 0.4, darkPlastic(), 0, 1.75, body + 0.1);                             // toe grille
-    return g;
-  },
-  fridge_french_door(s) {          // two French doors over a freezer drawer, water and ice dispenser in the left door
-    const [w, h, d] = s, g = new THREE.Group();
-    const body = d - 3.0;
-    box(g, w - 0.3, h - 0.6, body, steel(), 0, (h - 0.6) / 2, body / 2);
-    box(g, w - 0.4, 0.6, body - 1, darkPlastic(), 0, h - 0.3, body / 2 - 0.5);               // hinge cover
-    const fh = 25, dz = body + 1.25, dw = w / 2 - 0.1;
-    box(g, w, fh - 0.4, 2.5, steel(), 0, fh / 2, dz);                                        // freezer drawer
-    box(g, dw, h - fh - 0.9, 2.5, steel(), -w / 4 - 0.025, fh + (h - fh - 0.9) / 2, dz);       // left door
-    box(g, dw, h - fh - 0.9, 2.5, steel(), w / 4 + 0.025, fh + (h - fh - 0.9) / 2, dz);        // right door
-    bar(g, w - 8, 0, fh - 3, dz + 1.25, false);
-    bar(g, 26, -1.6, fh + 24, dz + 1.25, true);
-    bar(g, 26, 1.6, fh + 24, dz + 1.25, true);
-    box(g, 7, 12, 0.3, darkSteel(), -w / 4 - 1.5, fh + 21, dz + 1.3);                         // dispenser panel
-    box(g, 5.6, 7.5, 0.8, darkPlastic(), -w / 4 - 1.5, fh + 19.2, dz + 1.15);                 // dispenser recess
-    box(g, w - 2, 3.5, 0.4, darkPlastic(), 0, 1.75, body + 0.1);                             // toe grille
-    return g;
-  },
-  dishwasher(s) {
-    const [w, h, d] = s, g = new THREE.Group();
-    box(g, w - 0.4, h - 4, d - 1.3, darkSteel(), 0, (h - 4) / 2 + 4, (d - 1.3) / 2);
-    box(g, w, h - 4.4, 1.2, steel(), 0, 4.4 + (h - 4.4) / 2, d - 0.6);                       // door
-    box(g, 8, 1.2, 1.0, darkPlastic(), 0, h - 3.2, d + 0.05);                                // pocket handle
-    box(g, w - 0.6, 3.8, 0.5, darkPlastic(), 0, 1.9, d - 2.5);                               // toe kick
-    box(g, 0.6, 0.6, 0.1, mat('led', 0x2f6fd1, 0.4, 0, { emissive: 0x1f4fb0, emissiveIntensity: 0.6 }), 0, 4.8, d + 0.01); // InfoLight
-    return g;
-  },
-  disposal(s) {
-    const [w, h] = s, g = new THREE.Group(), r = w / 2;
-    cyl(g, r, h * 0.62, darkPlastic(), 0, h * 0.31, r);                                     // motor housing
-    cyl(g, r * 0.92, h * 0.3, greyPlastic(), 0, h * 0.62 + h * 0.15, r);                     // grind chamber
-    cyl(g, 3.4, h * 0.08, steel(), 0, h - h * 0.04, r);                                      // mount
-    cyl(g, 0.75, 6, greyPlastic(), r + 2.5, h * 0.7, r, 'x');                                // discharge elbow
-    return g;
-  },
-  beverage_center(s) {
-    const [w, h, d] = s, g = new THREE.Group();
-    box(g, w - 0.4, h - 0.2, d - 1.6, darkSteel(), 0, h / 2, (d - 1.6) / 2);
-    box(g, w, h - 4.4, 1.6, steel(), 0, 4.4 + (h - 4.4) / 2, d - 0.8);                       // door frame
-    box(g, w - 4, h - 9, 0.2, glass(), 0, 4.4 + (h - 4.4) / 2, d + 0.02);                    // glass
-    box(g, w - 0.6, 3.6, 0.5, darkPlastic(), 0, 2.3, d - 1.2);                               // front vent grille
-    for (let k = 0; k < 6; k++) box(g, w - 2, 0.3, 0.2, greyPlastic(), 0, 1.2 + k * 0.55, d - 0.9);
-    bar(g, 24, -w / 2 + 2, 4.4 + (h - 4.4) / 2, d, true);
-    return g;
-  },
-  front_load_laundry(s, it) {
-    const [w, h, d] = s, g = new THREE.Group();
-    const dark = it.finish === 'graphite';
-    const body = dark ? darkSteel() : white();
-    box(g, w, h - 1, d - 2.4, body, 0, (h - 1) / 2 + 1, (d - 2.4) / 2);
-    box(g, w - 1, 1, d - 3, darkPlastic(), 0, 0.5, (d - 3) / 2);                              // feet
-    box(g, w, 6.5, 1.6, body, 0, h - 3.25, d - 2.4 + 0.8);                                   // control panel
-    box(g, 11, 2.8, 0.1, glass(), 2, h - 3.4, d - 0.75);                                     // display
-    cyl(g, 1.6, 1.0, chrome(), -8.5, h - 3.3, d - 0.3, 'z');                                 // dial
-    const dz = d - 2.4;
-    ring(g, 8.6, 1.2, it.kind_ring === 'dark' ? darkSteel() : chrome(), 0, 19, dz + 1.2);    // door ring
-    cyl(g, 7.6, 0.6, it.label === 'dryer' ? darkSteel() : glass(), 0, 19, dz + 0.6, 'z');    // dryer door is solid, washer glass
-    box(g, 1.3, 4.5, 1.3, chrome(), 7.6, 19, dz + 1.6);                                      // door handle
-    return g;
-  },
-  hpwh(s) {
-    const [dia, h] = s, g = new THREE.Group(), r = dia / 2;
-    box(g, dia + 4, 2, dia + 4, galv(), 0, 1, r + 2);                                       // 2" drain pan (U-11 detail)
-    cyl(g, r, h - 14, white(), 0, 2 + (h - 14) / 2, r + 2, 'y', 40);                         // tank
-    cyl(g, r + 0.3, 12, greyPlastic(), 0, h - 6, r + 2, 'y', 40);                            // heat pump section
-    cyl(g, r - 1.5, 0.6, darkPlastic(), 0, h + 0.1, r + 2, 'y', 40);                         // top grille, standing proud of the cap (a shared top face flickered)
-    box(g, 6, 3.5, 0.6, darkPlastic(), 0, h - 9, dia + 2.2);                                 // display
-    for (const [x, m] of [[-5.5, blue()], [5.5, red()]]) {                                   // cold in, hot out
-      cyl(g, 0.55, 30, m === blue() ? copper() : copper(), x, h + 15, r + 2);
-      ring(g, 0.9, 0.25, m, x, h + 3, r + 2, 'y');
+    const cd = d - 5.4, dt = 3.0, zf = cd + dt, dzc = cd + dt / 2;
+    box(g, w - 0.3, h - 2.0, cd, steelSide(), 0, 1.1 + (h - 2.0) / 2, cd / 2);                // case
+    for (const x of [-1, 1]) {
+      box(g, 4.2, 0.9, 3.4, darkPlastic(), x * (w / 2 - 2.4), h - 0.45, cd - 0.9);            // hinge covers
+      cyl(g, 0.8, 1.2, darkPlastic(), x * (w / 2 - 2.2), 0.6, cd + 0.6, 'y', 10);             // front feet
     }
-    box(g, 4.2, 4.2, 5.5, pumpRed(), 5.5, h + 14, r + 5.4);                                  // recirculation pump (U-11)
-    cyl(g, 4, 9, galv(), -5.5, h + 22, r + 2 - 7.5);                                         // expansion tank (U-11 detail)
-    cyl(g, 0.35, h - 6, mat('condensate', 0xe9eef2, 0.4, 0, { transparent: true, opacity: 0.8 }), r - 1, (h - 6) / 2 + 2, r + 2 + r * 0.7); // condensate line
+    const fy0 = 1.4, fy1 = 22.9, dy0 = 24.5, dy1 = h - 0.3;
+    slab(g, w, fy1 - fy0, dt, steel(), 0, (fy0 + fy1) / 2, dzc, 0.3);                         // freezer drawer
+    box(g, w - 0.5, dy0 - fy1, dt - 1.3, graphiteDark(), 0, (fy1 + dy0) / 2, cd + (dt - 1.3) / 2);   // shadow gap: the drawer's pocket handle
+    box(g, w, 0.35, 0.9, steelH(), 0, fy1 - 0.1, zf - 0.45);                                  // grip lip on the drawer's top edge
+    const dw = w / 2 - 0.12;
+    for (const sx of [-1, 1]) {
+      slab(g, dw, dy1 - dy0, dt, steel(), sx * (dw / 2 + 0.12), (dy0 + dy1) / 2, dzc, 0.3);   // doors
+      bowHandle(g, sx * 1.8, 28.3, 64, zf, 2.0, steelH());
+    }
+    const px = -8.9, py = 45.2;                                                               // dispenser, 9 x 15 in
+    slab(g, 9, 15, 0.24, mat('dispenser bezel', 0xa9acaf, 0.4, 0.5), px, py, zf + 0.1, 0.45);
+    plate(g, 8.3, 3.7, screenMat('fridge dispenser', 256, 112, drawDispenser, 0.8), px, py + 5.3, zf + 0.23);
+    slab(g, 7.6, 10.2, 0.1, mat('dispenser cavity', 0x5d6165, 0.45, 0.4), px, py - 2.0, zf + 0.2, 0.35);
+    box(g, 2.4, 5.6, 0.5, mat('dispenser paddle', 0xc9ccce, 0.35, 0.3), px, py - 1.4, zf + 0.4);
+    cyl(g, 0.5, 1.2, darkPlastic(), px, py + 2.6, zf + 0.6, 'y', 10);                         // spout
+    box(g, 7.6, 0.5, 1.0, darkPlastic(), px, py - 6.9, zf + 0.5);                             // drip tray
+    plate(g, 3.4, 0.85, labelMat('whirlpool logo', 256, 64, word('Whirlpool', '#34373a', 'italic bold 40px Helvetica, Arial, sans-serif')), w / 2 - 3.6, h - 3.4, zf + 0.02);
+    return g;
+  },
+  dishwasher(s) {                  // Bosch SHP65DP5N: flat stainless door with a recessed pocket handle, controls hidden on the top edge
+    const [w, h, d] = s, g = new THREE.Group();
+    box(g, w - 0.4, h - 4.2, d - 1.4, darkSteel(), 0, 4.2 + (h - 4.2) / 2, (d - 1.4) / 2);
+    const y0 = 4.4, y1 = h - 0.45;
+    slab(g, w, y1 - y0, 1.3, steel(), 0, (y0 + y1) / 2, d - 0.65, 0.2);                      // door
+    box(g, w - 0.2, 0.45, 1.3, glass(), 0, h - 0.225, d - 0.65);                             // top control strip
+    slab(g, 17.6, 1.9, 0.08, graphiteDark(), 0, h - 3.2, d + 0.03, 0.9);                      // pocket handle recess
+    slab(g, 17.0, 0.5, 0.2, steelH(), 0, h - 2.42, d + 0.1, 0.2);                             // its grip edge
+    box(g, w - 0.6, 4.0, 0.5, blackMolded(), 0, 2.0, d - 3.0);                               // toe kick
+    plate(g, 2.6, 0.6, labelMat('bosch logo', 192, 48, word('BOSCH', '#2f3235', 'bold 36px Helvetica, Arial, sans-serif')), -w / 2 + 2.3, h - 1.25, d + 0.02);
+    box(g, 0.5, 0.05, 0.5, mat('info light', 0xd12f2f, 0.4, 0, { emissive: 0xc01f1f, emissiveIntensity: 0.8 }), w / 2 - 4, 0.03, d + 1.2);   // InfoLight on the floor
+    return g;
+  },
+  disposal(s) {                    // InSinkErator Evolution Septic Assist: charcoal body, stainless mount, Bio-Charge bottle on the front
+    const [w, h] = s, g = new THREE.Group(), r = w / 2, k = h / 12.63;
+    const prof = [[0, 0], [3.2, 0], [4.1, 0.5], [4.5, 1.6], [4.5, 5.6], [4.3, 6.1], [4.3, 6.6], [4.5, 7.0], [4.5, 9.6], [3.9, 10.6], [2.7, 11.2], [2.5, 11.5], [0, 11.5]];
+    add(g, new THREE.LatheGeometry(prof.map(([a, b]) => new THREE.Vector2(a / 4.5 * r, b * k)), 32), charcoal(), 0, 0, r);
+    cyl(g, 4.34 / 4.5 * r, 0.3 * k, mat('disposer band', 0x9a9da0, 0.35, 0.8), 0, 6.35 * k, r, 'y', 32);
+    cyl(g, 2.9, 0.45 * k, steelH(), 0, 11.72 * k, r); cyl(g, 2.2, 0.5 * k, steelH(), 0, 12.15 * k, r);     // quick lock mount
+    cyl(g, 3.3, 0.16 * k, chrome(), 0, h - 0.08 * k, r);                                       // sink flange
+    cyl(g, 0.8, 0.12, chrome(), 0, 8.6 * k, 2 * r + 0.02, 'z', 20);                           // badge
+    box(g, 3.8, 1.3, 2.4, greyPlastic(), 0, 1.25 * k, 2 * r + 0.9);                            // bottle holder
+    box(g, 3.0, 4.0, 1.8, mat('bio charge bottle', 0x3d8fd1, 0.3, 0, { transparent: true, opacity: 0.85 }), 0, 4.0 * k, 2 * r + 1.0);
+    box(g, 3.04, 2.2, 1.84, mat('bio charge label', 0x4f9a3a, 0.5), 0, 3.5 * k, 2 * r + 1.0);
+    cyl(g, 0.55, 0.9, whitePlastic(), 0, 6.3 * k, 2 * r + 1.0, 'y', 12);                       // bottle cap
+    tube(g, V(r - 0.3, 7.8 * k, r), V(r + 2.6, 7.8 * k, r), 0.8, blackMolded());               // discharge elbow
+    tube(g, V(r + 2.6, 7.8 * k, r), V(r + 3.2, 5.6 * k, r), 0.8, blackMolded());
+    return g;
+  },
+  beverage_center(s) {             // Hisense HBC164N6SS: black cabinet, stainless framed glass door, bar handle, front vent
+    const [w, h, d] = s, g = new THREE.Group();
+    box(g, w - 0.3, h - 0.3, d - 2.0, blackMolded(), 0, 0.3 + (h - 0.3) / 2, (d - 2.0) / 2);
+    const y0 = 4.3, dh = h - y0;
+    slab(g, w, dh, 1.9, steel(), 0, y0 + dh / 2, d - 0.95, 0.2);                             // door frame
+    slab(g, w - 4.0, dh - 4.0, 0.1, smoked(), 0, y0 + dh / 2, d + 0.01, 0.2);                // glass edge
+    plate(g, w - 4.4, dh - 4.4, screenMat('beverage inside', 256, 384, drawBeverage, 0.22, 0.05), 0, y0 + dh / 2, d + 0.07);
+    bar(g, 20, -w / 2 + 1.1, y0 + dh / 2, d, true, steelH(), 0.45, 1.6);
+    box(g, w - 0.4, y0 - 0.5, 0.6, blackMolded(), 0, y0 / 2 + 0.1, d - 1.7);                 // front vent grille
+    for (let k = 0; k < 5; k++) box(g, w - 2.4, 0.22, 0.25, mat('vent slat', 0x3c3f42, 0.6), 0, 1.0 + k * 0.62, d - 1.32);
+    return g;
+  },
+  front_load_laundry(s) {          // GE Profile UltraFast Combo PFQ97HSPVDS, Carbon Graphite
+    const [w, h, d] = s, g = new THREE.Group();
+    const bd = d - 2.2, mh = 11.8, band = 1.4, yT = h - mh, z1 = bd + 0.35;
+    box(g, w - 2.4, 0.6, bd - 3, blackMolded(), 0, 0.3, (bd - 3) / 2 + 1);                    // levelling feet zone
+    column(g, w, yT - band - 0.6, bd, graphite(), 0, 0.6 + (yT - band - 0.6) / 2, bd / 2, 1.1);   // lower body
+    box(g, w - 0.5, band, bd - 0.4, graphiteDark(), 0, yT - band / 2, (bd - 0.4) / 2);        // recessed band under the control module
+    column(g, w, mh - 0.25, z1, graphite(), 0, yT + (mh - 0.25) / 2, z1 / 2, 1.3);            // dispenser and control module
+    slab(g, w - 3.2, z1 - 3.6, 0.25, graphiteDark(), 0, 0, 0, 1.2).rotation.x = -Math.PI / 2; // raised top panel
+    g.children[g.children.length - 1].position.set(0, h - 0.125, z1 / 2);
+    // door: 25.8 in across, smoked glass bowl in a dark bezel
+    const cy = 19.5, R = 12.9;
+    cyl(g, R, 1.2, graphiteDark(), 0, cy, bd + 0.6, 'z', 48);
+    ring(g, R - 0.25, 0.3, darkSteel(), 0, cy, bd + 1.2, 'z', 56);
+    const bowl = printMat('combo door glass', 4, 64, (c, cw, ch) => {
+      const gr = c.createLinearGradient(0, 0, 0, ch);
+      gr.addColorStop(0, '#0e1c38'); gr.addColorStop(0.5, '#0a1428'); gr.addColorStop(0.62, '#010203'); gr.addColorStop(0.66, '#0a0c10'); gr.addColorStop(1, '#050607');
+      c.fillStyle = gr; c.fillRect(0, 0, cw, ch);
+    }, 0.04, 0.55);
+    dome(g, R - 0.55, 1.0, bowl, 0, cy, bd + 1.2);
+    // control module front: two dispenser drawers and a pocket handle on the left, glass touch panel on the right
+    const sx = -3.86;
+    box(g, 0.1, mh - 1.2, 0.06, graphiteDark(), sx, yT + mh / 2 - 0.1, z1 + 0.01);            // seam beside the drawers
+    box(g, w / 2 + sx - 1.4 - 1.0, 0.1, 0.06, graphiteDark(), (-w / 2 + 0.8 + (-6.9)) / 2, yT + 4.9, z1 + 0.01);   // seam between the drawers
+    slab(g, 1.7, 8.8, 0.08, glass(), -6.0, yT + 6.1, z1 + 0.03, 0.8);                         // pocket handle
+    slab(g, 0.8, 7.9, 0.08, graphite(), -6.0, yT + 6.1, z1 + 0.08, 0.4);
+    plate(g, 5.0, 1.25, labelMat('profile logo', 256, 64, (c, cw, ch) => {
+      c.strokeStyle = '#e6e7e8'; c.lineWidth = 3; c.beginPath(); c.arc(30, ch / 2, 20, 0, Math.PI * 2); c.stroke();
+      c.fillStyle = '#e6e7e8'; c.font = 'italic bold 20px Georgia, serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('GE', 30, ch / 2 + 1);
+      c.font = '34px Helvetica, Arial, sans-serif'; c.textAlign = 'left'; c.fillText('Profile', 62, ch / 2 + 2);
+    }), -10.6, yT + 9.2, z1 + 0.02);
+    const pw = 12.6, pH = 7.1, pcx = sx + 0.35 + pw / 2, pcy = yT + 1.6 + pH / 2;
+    slab(g, pw, pH, 0.12, glass(), pcx, pcy, z1 + 0.04, 0.45);
+    plate(g, pw - 0.5, pH - 0.5, screenMat('combo panel', 768, 420, drawCombo, 0.9), pcx, pcy, z1 + 0.12);
+    slab(g, 1.5, 1.5, 0.06, mat('combo badge', 0xe8e9ea, 0.4, 0.1), 11.2, 30.4, bd + 0.03, 0.25);   // FlexDispense badge
+    slab(g, 5.2, 2.9, 0.06, graphiteDark(), 3.95, 2.2, bd + 0.02, 0.2);                       // lint filter door outline
+    slab(g, 4.9, 2.6, 0.06, graphite(), 3.95, 2.2, bd + 0.05, 0.15);
+    return g;
+  },
+  hpwh(s) {                        // Rheem ProTerra hybrid: grey tank, heat pump section on top with a fan guard and control panel, side water connections
+    const [dia, h] = s, g = new THREE.Group(), r = dia / 2, cz = r + 2, split = h - 15.5;
+    box(g, dia + 4, 2, dia + 4, galv(), 0, 1, cz);                                           // 2" drain pan (U-11 detail)
+    cyl(g, r, h - 0.9, tankGrey(), 0, 0.6 + (h - 0.9) / 2, cz, 'y', 48);                      // tank and heat pump jacket
+    cyl(g, r - 2.2, 0.3, blackMolded(), 0, h - 0.15, cz, 'y', 40);                            // top air intake
+    cyl(g, r + 0.06, 0.3, seam(), 0, split, cz, 'y', 48);                                     // joint between the tank and the heat pump section
+    cyl(g, r + 0.06, 1.2, mat('tank base ring', 0x55585a, 0.6, 0.3), 0, 1.2, cz, 'y', 48);
+    wrap(g, r + 0.1, 5.2, 8, screenMat('hpwh panel', 128, 192, drawHeaterPanel, 0.6, 0.2), 0, h - 7.5, cz, 0);
+    wrap(g, r + 0.1, 9.5, 9.5, printMat('hpwh fan', 128, 128, drawFan, 0.6, 0.2), 0, h - 7.5, cz, 0.95);
+    wrap(g, r + 0.12, 2.8, 2.8, labelMat('rheem badge', 128, 128, roundBadge('#c8102e', '#fff', 'Rheem', 'italic bold 34px Georgia, serif')), 0, split - 4, cz, 0, 6);
+    for (const y of [15, 38]) wrap(g, r + 0.08, 5.6, 7.6, mat('tank cover', 0x8a8c8c, 0.5, 0.5), 0, y, cz, 0);   // element access covers
+    cyl(g, 0.5, 2.2, brass(), -4.6, 5.2, cz + r * 0.92 + 0.6, 'z', 12);                       // drain valve
+    // side connections: cold in low, hot out high, then up to the overhead piping
+    const px = -(r + 2.6);
+    for (const [y, m, zo] of [[9, blue(), -1.6], [split - 4, red(), 1.6]]) {
+      cyl(g, 0.7, 2.8, brass(), -(r + 1.2), y, cz + zo, 'x', 12);
+      cyl(g, 0.55, h + 30 - y, copper(), px, y + (h + 30 - y) / 2, cz + zo, 'y', 12);
+      ring(g, 0.9, 0.25, m, px, h + 3, cz + zo, 'y', 20);
+    }
+    box(g, 4.2, 5.5, 4.2, pumpRed(), px, h + 14, cz + 1.6);                                   // recirculation pump (U-11)
+    cyl(g, 4, 9, galv(), px - 5.2, h + 20, cz - 1.6);                                         // expansion tank (U-11 detail)
+    cyl(g, 0.4, 5.2, copper(), px - 2.6, h + 22, cz - 1.6, 'x', 10);
+    cyl(g, 0.7, 2.6, brass(), r + 1.1, split - 3, cz, 'x', 12);                               // T&P relief valve and its drop
+    cyl(g, 0.4, split - 9, copper(), r + 2.2, (split - 3 + 6) / 2, cz, 'y', 10);
+    cyl(g, 0.35, h - 6, mat('condensate', 0xe9eef2, 0.4, 0, { transparent: true, opacity: 0.8 }), r - 1, (h - 6) / 2 + 2, cz - r * 0.75); // condensate line, on the wall side
     return g;
   },
   geo_horizontal(s) {
@@ -221,31 +520,52 @@ const BUILD = {
     for (const x of [-len / 2 + 4, len / 2 - 4]) box(g, 4, 4, w + 2, rubber(), x, -2, w / 2);   // vibration isolation rails
     box(g, len + 8, 1.5, w + 10, plywood(), 0, -4.75, w / 2);                                // service platform
     box(g, len, h, w, cabinetGrey(), 0, h / 2, w / 2);
-    for (const x of [-len / 2 + 10, 6]) box(g, 5, 1.4, 0.4, darkPlastic(), x, h * 0.72, w + 0.2);   // access panel pulls
+    // service side: three access panels with seams and pulls, corner posts, maker's badge
+    for (const x of [-len / 2 + 0.6, -len / 2 + 19, 7, len / 2 - 0.6]) box(g, 0.25, h - 0.6, 0.12, seam(), x, h / 2, w + 0.03);
+    for (const y of [0.4, h - 0.4]) box(g, len - 0.6, 0.25, 0.12, seam(), 0, y, w + 0.03);
+    for (const x of [-len / 2 + 10, -6, 20]) {
+      box(g, 4.6, 1.3, 0.35, darkPlastic(), x, h - 3.2, w + 0.18);                           // panel pulls
+      for (const sx of [-1, 1]) for (const y of [1.6, h - 1.6]) cyl(g, 0.28, 0.14, galv(), x + sx * 7.2, y, w + 0.05, 'z', 8);   // panel screws
+    }
+    plate(g, 5.2, 5.2, labelMat('geocomfort badge', 160, 160, roundBadge('#f4f5f2', '#1f6b3a', 'GeoComfort', 'bold 24px Helvetica, Arial, sans-serif')), -len / 2 + 9.6, h * 0.5, w + 0.2);
+    box(g, 9, 3.2, 0.06, mat('rating label', 0xe9e9e2, 0.6), 20, 5, w + 0.06);                // rating plate
     box(g, 36, 18, 2.4, galv(), -len / 2 + 2 + 18, h / 2, -1.2);                             // AFR1836A 18 x 36 filter rack on the return side
     box(g, 34.5, 16.5, 0.3, mat('filter media', 0xe8e6da, 0.9), -len / 2 + 2 + 18, h / 2, -2.45);
+    box(g, 1.2, 13.7, 12.8, galv(), len / 2 + 0.6, h - 1.5 - 6.25, w / 2);                   // supply collar flange
     box(g, 9, 12.5, 11.6, galv(), len / 2 + 4.5, h - 1.5 - 6.25, w / 2);                     // 15 kW heater on the 11.6 x 12.5 supply opening
     box(g, 4, 5, 0.5, darkPlastic(), len / 2 + 4.5, h - 1.5 - 6.25, w / 2 + 6.05);
     for (const [y, m] of [[5.6, blue()], [17.6, red()]]) {                                   // source water in/out, hose kit and ball valves
+      cyl(g, 1.25, 0.8, brass(), -len / 2 - 0.4, y, w * 0.3, 'x', 6);                         // FPT fitting on the cabinet
       cyl(g, 0.75, 9, rubber(), -len / 2 - 4.5, y, w * 0.3, 'x');
       cyl(g, 0.95, 2.6, brass(), -len / 2 - 10.3, y, w * 0.3, 'x');
       box(g, 0.6, 0.6, 3, m, -len / 2 - 10.3, y + 1.2, w * 0.3);
     }
+    for (const y of [9.6, 13.6]) cyl(g, 0.8, 0.9, brass(), -len / 2 - 0.45, y, w * 0.3, 'x', 6);   // hot water generator ports, capped
+    for (const y of [h - 3, h - 6.5]) cyl(g, 0.7, 0.2, darkPlastic(), -len / 2 - 0.1, y, w * 0.2, 'x', 12);   // electrical knockouts
     box(g, 0.4, 7, 5, darkPlastic(), -len / 2 - 0.2, h - 6, w * 0.72);                       // control box cover
     cyl(g, 0.5, 6, mat('condensate', 0xe9eef2, 0.4, 0, { transparent: true, opacity: 0.8 }), len / 2 - 6, 1.5, w + 3, 'z');   // condensate to the EZ-Trap
     return g;
   },
-  flow_center(s) {
+  flow_center(s) {                 // Geo-Flo NP series: black moulded canister, pumps and brass ports on the front, fill cap on top
     const [w, h, d] = s, g = new THREE.Group();
-    box(g, w, h, d, foam(), 0, h / 2, d / 2);                                                 // insulated cabinet
-    box(g, w - 2, 1, d - 2, darkPlastic(), 0, h + 0.5, d / 2);                               // fill cap deck
-    cyl(g, 1.6, 1.2, darkPlastic(), 0, h + 1.6, d / 2);
-    for (const x of [-w / 4, w / 4]) {                                                       // two UPS26-99 pumps under it
-      cyl(g, 3.2, 5.5, pumpRed(), x, -4, d / 2 + 1, 'z');
-      box(g, 4, 3, 3, darkPlastic(), x, -4, d / 2 + 4.6);
+    column(g, w - 1, h, d - 1, blackMolded(), 0, h / 2, d / 2, 1.6);
+    box(g, w - 3, 0.6, d - 3, blackMolded(), 0, h + 0.3, d / 2);                              // lid
+    cyl(g, 2.3, 1.3, blackMolded(), 0, h + 1.2, d / 2, 'y', 8);                               // fill cap
+    const fz = d - 0.5;
+    for (const [x, y] of [[-2.9, h * 0.6], [2.9, h * 0.28]]) {                               // two circulators
+      cyl(g, 2.5, 0.9, blackMolded(), x, y, fz + 0.45, 'z', 20);
+      cyl(g, 2.05, 3.4, blackMolded(), x, y, fz + 2.5, 'z', 20);
+      cyl(g, 1.35, 0.1, chrome(), x, y, fz + 4.22, 'z', 20);
+      box(g, 2.4, 2.6, 2.6, blackMolded(), x + (x < 0 ? -2.6 : 2.6), y, fz + 2.2);            // terminal box
     }
-    box(g, w - 2, 2, 4, pe(), 0, -8, d / 2);
-    box(g, 3, 3, 0.4, mat('flo link label', 0xd0d4d7, 0.5), 0, h * 0.6, d + 0.2);
+    for (const x of [-3.2, 3.2]) { cyl(g, 1.15, 0.9, brass(), x, h - 2.4, fz + 0.4, 'z', 16); cyl(g, 0.75, 0.95, blackMolded(), x, h - 2.4, fz + 0.42, 'z', 16); }   // loop ports
+    cyl(g, 1.15, 0.9, brass(), -3.2, h * 0.2, fz + 0.4, 'z', 16);
+    plate(g, 4.6, 2.3, labelMat('np series logo', 256, 128, (c, cw, ch) => {
+      c.fillStyle = '#f2f2f2'; c.textAlign = 'center'; c.textBaseline = 'middle';
+      c.font = 'bold 62px Helvetica, Arial, sans-serif'; c.fillText('NP', cw / 2, ch * 0.36);
+      c.font = 'bold 30px Helvetica, Arial, sans-serif'; c.fillText('SERIES', cw / 2, ch * 0.78);
+    }), 2.6, h * 0.62, fz + 0.03);
+    box(g, w - 5, 3.6, 4, pe(), 0, -1.8, d / 2);                                              // fusion header below
     return g;
   },
   pe_manifold(s, it) {
@@ -268,11 +588,19 @@ const BUILD = {
     for (const x of [-w / 3, w / 6]) cyl(g, 2.25, 3, mat('pvc grey', 0x8e9193, 0.6), x, 1.5, z);           // 4" sweeps at the slab
     return g;
   },
-  erv(s) {
+  erv(s) {                         // Panasonic Intelli-Balance 100: galvanized steel box, two white duct adapters on each end
     const [w, h, d] = s, g = new THREE.Group();
-    box(g, w, h, d, mat('erv cabinet', 0xd8d8d2, 0.5, 0.2), 0, h / 2, d / 2);
-    for (const [x, z] of [[-w / 4, d / 4], [w / 4, d / 4], [-w / 4, 3 * d / 4], [w / 4, 3 * d / 4]]) cyl(g, 3, 3, galv(), x, h + 1.5, z);
-    box(g, 6, 4, 0.5, darkPlastic(), w / 2 - 6, h - 5, d + 0.25);
+    box(g, w, h, d, galv(), 0, h / 2, d / 2);
+    for (const z of [-1.0, d + 1.0]) for (const x of [-w / 4, w / 4]) {
+      cyl(g, 3.0, 2.0, whitePlastic(), x, h / 2, z, 'z', 24);                                // 6 in adapters
+      cyl(g, 3.6, 0.25, whitePlastic(), x, h / 2, z < 0 ? -0.12 : d + 0.12, 'z', 24);
+    }
+    box(g, 0.14, h - 1.6, d * 0.62, mat('erv access panel', 0xc3c7ca, 0.38, 0.8), w / 2 + 0.07, h / 2, d / 2);   // core and filter access panel
+    for (const z of [d / 2 - d * 0.24, d / 2 + d * 0.24]) box(g, 0.3, 1.6, 1.0, darkPlastic(), w / 2 + 0.2, h / 2, z);   // latches
+    box(g, 0.3, 3.2, 4.2, darkPlastic(), w / 2 + 0.15, h - 2.4, d - 3.2);                     // airflow dials
+    box(g, 0.05, 2.6, 4.4, mat('rating label', 0xe9e9e2, 0.6), w / 2 + 0.16, 2.2, d / 2);
+    for (const x of [-1, 1]) for (const z of [2.5, d - 2.5]) box(g, 1.4, 0.2, 2.2, galv(), x * (w / 2 + 0.7), h - 0.1, z);   // hanging brackets
+    for (const x of [-w / 4, 0, w / 4]) for (const z of [d * 0.25, d * 0.75]) cyl(g, 0.22, 0.1, darkSteel(), x, h + 0.02, z, 'y', 8);   // cover screws
     return g;
   },
   generic(s) {
@@ -455,7 +783,7 @@ export function buildEquipment(data) {
   const byId = {};
   for (const it of data.items || []) {
     const fn = BUILD[it.builder] || BUILD.generic;
-    const obj = place(fn(it.size, it), it);
+    const obj = place(bake(fn(it.size, it)), it);
     obj.name = it.id;
     obj.traverse((o) => { o.userData.equipId = it.id; });
     (layers[it.layer] || layers.mechanical).add(obj);
@@ -492,17 +820,23 @@ export function setDuctXray(on) {
 
 // ---------------------------------------------------------------- info card
 const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+// The card leads with what matters day to day: what it is, the model, the price, sizes and specs, and a way to the
+// product. Where a fact came from, what was assumed and why it sits where it does are kept, folded away under
+// "Notes and sources" (Maxwell, 11/17/2026).
 export function infoHTML(it) {
   const inf = it.info || {};
   const specs = (inf.specs || []).map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join('');
   const notes = (inf.notes || []).map((n) => `<li>${esc(n)}</li>`).join('');
-  const links = (inf.links || []).map(([t, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>`).join(' · ');
+  const linkList = (inf.links || []).map(([t, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>`);
+  // a bought product with no link on file yet: offer a web search for its model
+  if (!linkList.length && inf.model && !it.kind && it.builder) linkList.push(`<a href="https://www.google.com/search?q=${encodeURIComponent(inf.model.split(',')[0])}" target="_blank" rel="noopener">Search the web for this model</a>`);
+  const links = linkList.join(' · ');
+  const place = inf.placement ? `<p class="place"><b>Placement.</b> ${esc(inf.placement)}</p>` : '';
   return `<div class="eyebrow">${esc(it.category || it.system || '')}</div>
     <h2>${esc(it.name)}</h2>
     ${inf.model ? `<p class="model">${esc(inf.model)}</p>` : ''}
     ${inf.price ? `<p class="price">${esc(inf.price)}</p>` : ''}
     ${specs ? `<dl>${specs}</dl>` : ''}
-    ${notes ? `<ul>${notes}</ul>` : ''}
-    ${inf.placement ? `<p class="place"><b>Placement.</b> ${esc(inf.placement)}</p>` : ''}
-    ${links ? `<p class="links">${links}</p>` : ''}`;
+    ${links ? `<p class="links">${links}</p>` : ''}
+    ${notes || place ? `<details><summary>Notes and sources</summary>${place}${notes ? `<ul>${notes}</ul>` : ''}</details>` : ''}`;
 }
