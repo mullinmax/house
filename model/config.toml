@@ -163,10 +163,11 @@ head = 8.08
 id = "W40-40 Loft"
 wall = "E"
 kind = "fixed"
-start = 27.5
-end = 31.5
-sill = 13.67
-head = 17.67
+start = 26.71                   # 4'-0" RO centred 28'-8" from the north wall (A-12 dimension); A-21 vectors give 26.71 to 30.71
+end = 30.71
+sill = 13.67                    # A-21 east elevation: RO bottom 13'-8" above the floor line
+head = 16.37                    # north jamb. W40-40* is a trapezoid on A-21: the head follows the roof about 13" below its underside
+head_end = 17.67                # south jamb (was a square head at 17.67 over y 27.5 to 31.5, so the north end hit the roof)
 [[openings]]
 id = "W60-50 Kitchen folding"
 wall = "S"
