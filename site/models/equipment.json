@@ -34,21 +34,21 @@
  "items": [
   {
    "id": "oven",
-   "name": "LG double wall oven",
+   "name": "Frigidaire Gallery double wall oven",
    "category": "Kitchen appliance",
    "system": "kitchen",
    "room": "Kitchen",
    "layer": "appliances",
    "builder": "wall_oven_double",
    "size": [
-    29.75,
-    52.06,
-    25.0
+    29.87,
+    50.75,
+    25.19
    ],
    "at": [
     0.5417,
     43.1,
-    0.95
+    1.22
    ],
    "facing": 90,
    "cull": [
@@ -69,20 +69,20 @@
     }
    ],
    "info": {
-    "model": "LG WDEP9423F, 30 in smart double wall oven",
-    "price": "About $2,095 to $2,199",
+    "model": "Frigidaire Gallery GCWD3067AF, 30 in double electric wall oven with air fry",
+    "price": "$2,099 at Lowe's on 11/17/2026 (list $3,599)",
     "specs": [
      [
       "Size",
-      "29.75 W x 52.06 H x 23.38 D in"
+      "29.87 W x 50.75 H x 25.19 D in"
      ],
      [
       "Cutout",
-      "28.5 W x 51.81 H x 24 D in"
+      "28.5 W x 48.875 H x 23.5 D in"
      ],
      [
       "Capacity",
-      "9.4 cu ft (4.7 + 4.7)"
+      "10.6 cu ft (5.3 + 5.3)"
      ],
      [
       "Power",
@@ -90,11 +90,17 @@
      ],
      [
       "Features",
-      "EasyClean, air fry, ThinQ"
+      "Air fry, steam cook, single fan convection with a European element, self clean and steam clean"
+     ],
+     [
+      "Finish",
+      "Fingerprint resistant stainless steel"
      ]
     ],
     "notes": [
-     "The oven tower in the Carter Lumber drawing is 33.6 in wide with a 39 in tall opening. This oven needs a 51.81 in tall cutout, so the tower's drawer and door split has to change."
+     "Maxwell's pick (11/17/2026), replacing the LG WDEP9423F.",
+     "The oven tower is changed to suit it: the face starts 14.6 in above the floor over one drawer, and the doors above start at 65.6 in. The Carter Lumber drawing shows a 39 in tall opening, so the tower's drawer and door split has to change in the cabinet order. The tower is 33.6 in wide, which leaves about 2.5 in of stile each side of the 28.5 in cutout.",
+     "Size and cutout from the Lowe's listing. Confirm against the Frigidaire installation guide before the cabinets are ordered."
     ],
     "placement": "West wall oven tower, per the cabinet plan."
    }
@@ -699,9 +705,9 @@
    "layer": "mechanical",
    "builder": "erv",
    "size": [
-    26.6,
+    19.9,
     11.4,
-    19.9
+    26.6
    ],
    "at": [
     0.75,
@@ -2816,7 +2822,7 @@
     ],
     [
      3.3,
-     29.6,
+     29.32,
      10.302083333333334
     ]
    ],
@@ -2872,13 +2878,13 @@
     ],
     [
      3.3,
-     29.6,
+     29.32,
      10.302083333333334
     ],
     [
-     2.45,
-     29.6,
-     10.302083333333334
+     2.966666666666667,
+     29.32,
+     10.577083333333334
     ]
    ],
    "name": "Bath exhaust main",
@@ -2941,13 +2947,13 @@
    "points": [
     [
      0.75,
-     28.2,
-     11.202083333333334
+     28.485,
+     10.577083333333334
     ],
     [
      -0.05,
-     28.2,
-     11.202083333333334
+     28.485,
+     10.577083333333334
     ]
    ]
   },
@@ -2960,13 +2966,13 @@
    "points": [
     [
      0.75,
-     29.6,
-     11.202083333333334
+     29.314999999999998,
+     10.577083333333334
     ],
     [
      -0.05,
-     29.6,
-     11.202083333333334
+     29.314999999999998,
+     10.577083333333334
     ]
    ]
   },
@@ -2978,13 +2984,18 @@
    "size": 6,
    "points": [
     [
-     2.95,
-     28.9,
-     11.202083333333334
+     2.966666666666667,
+     28.485,
+     10.577083333333334
     ],
     [
      4.4,
-     28.9,
+     28.485,
+     10.577083333333334
+    ],
+    [
+     4.4,
+     27.5,
      11.202083333333334
     ],
     [

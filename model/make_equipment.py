@@ -26,19 +26,25 @@ RH = 8                                            # tallest duct that passes bet
 ZTR = DECK + 8.0 / 12 + 0.02                      # centre of the 18 x 16 supply trunk sitting on the deck
 FLAT = CFG["ceilings"]["flat_rooms"]
 LOFT = CFG["loft"]["rect"]
+OVEN_Z = CFG["kitchen"].get("oven_face_bottom", 1.22)            # bottom of the wall oven's face, ft
+OVEN_H = CFG["kitchen"].get("oven_face_height_in", 50.75)
 
 items, runs, ducts = [], [], []
 APPROX = "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
 
 # ------------------------------------------------------------------ kitchen
 items += [
- dict(id="oven", name="LG double wall oven", category="Kitchen appliance", system="kitchen", room="Kitchen", layer="appliances",
-      builder="wall_oven_double", size=[29.75, 52.06, 25.0], at=[0.5417, 43.1, 0.95], facing=90,
+ dict(id="oven", name="Frigidaire Gallery double wall oven", category="Kitchen appliance", system="kitchen", room="Kitchen", layer="appliances",
+      builder="wall_oven_double", size=[29.87, OVEN_H, 25.19], at=[0.5417, 43.1, OVEN_Z], facing=90,
       cull=[dict(box=[0.5, 41.7, 0.9, 2.9, 44.5, 5.5], materials=["Stainless", "Black Glass", "Appliance Interior"])],
-      info=dict(model="LG WDEP9423F, 30 in smart double wall oven", price="About $2,095 to $2,199",
-        specs=[["Size", "29.75 W x 52.06 H x 23.38 D in"], ["Cutout", "28.5 W x 51.81 H x 24 D in"], ["Capacity", "9.4 cu ft (4.7 + 4.7)"],
-               ["Power", "240 V, 40 A"], ["Features", "EasyClean, air fry, ThinQ"]],
-        notes=["The oven tower in the Carter Lumber drawing is 33.6 in wide with a 39 in tall opening. This oven needs a 51.81 in tall cutout, so the tower's drawer and door split has to change."],
+      info=dict(model="Frigidaire Gallery GCWD3067AF, 30 in double electric wall oven with air fry", price="$2,099 at Lowe's on 11/17/2026 (list $3,599)",
+        specs=[["Size", "29.87 W x 50.75 H x 25.19 D in"], ["Cutout", "28.5 W x 48.875 H x 23.5 D in"], ["Capacity", "10.6 cu ft (5.3 + 5.3)"],
+               ["Power", "240 V, 40 A"], ["Features", "Air fry, steam cook, single fan convection with a European element, self clean and steam clean"],
+               ["Finish", "Fingerprint resistant stainless steel"]],
+        notes=["Maxwell's pick (11/17/2026), replacing the LG WDEP9423F.",
+               f"The oven tower is changed to suit it: the face starts {OVEN_Z * 12:.1f} in above the floor over one drawer, and the doors above start at {OVEN_Z * 12 + OVEN_H + 0.25:.1f} in. "
+               "The Carter Lumber drawing shows a 39 in tall opening, so the tower's drawer and door split has to change in the cabinet order. The tower is 33.6 in wide, which leaves about 2.5 in of stile each side of the 28.5 in cutout.",
+               "Size and cutout from the Lowe's listing. Confirm against the Frigidaire installation guide before the cabinets are ordered."],
         placement="West wall oven tower, per the cabinet plan.")),
  dict(id="cooktop", name="KitchenAid induction cooktop", category="Kitchen appliance", system="kitchen", room="Kitchen", layer="appliances",
       builder="cooktop_induction", size=[30.8, 3.7, 21.3], at=[0.74, 47.0, 3.127], facing=90,
@@ -144,7 +150,7 @@ items += [
                "Turned so the supply leaves the west end and heads straight for the north wall trunk, with the return on the south side. Orientation is ASSUMED."],
         placement="On the attic deck over the utility room, where Andy drew HP-01, directly above the manifolds and flow center.")),
  dict(id="erv", name="Energy recovery ventilator", category="HVAC", system="hvac.ventilation", room="Attic", layer="mechanical",
-      builder="erv", size=[26.6, 11.4, 19.9], at=[0.75, 28.9, DECK + 0.05], facing=90,
+      builder="erv", size=[19.9, 11.4, 26.6], at=[0.75, 28.9, DECK + 0.05], facing=90,
       info=dict(model="Panasonic Intelli-Balance 100 (ERV-01 on M-10)", specs=[["Airflow", "50 to 100 CFM balanced, boost from a bath timer switch"], ["Ducts", "Intake and exhaust through the west wall"],
                ["Stale air from", "Bath 1, bath 2 and powder exhaust grilles, 20 CFM each continuous, about 50 CFM on boost"], ["Fresh air to", "The heat pump return"]],
         notes=["Greg's alternative: RenewAire EV Premium M, about $1,800.", APPROX,
@@ -265,6 +271,8 @@ ret("return_plenum", None, [36, 20], [[5.2, 24.92, DECK + 5.5 / 12 + 10.6 / 12],
 
 # Bath exhaust (Maxwell, 11/17/2026): ceiling or high wall grilles in bath 1, bath 2 and the powder room, ducted to the ERV's stale air inlet
 # instead of separate fans. The run hugs the supply trunk's south side on the deck so it stays in the low, north part of the attic.
+ERV_Z = DECK + 0.05 + 5.7 / 12                    # centre of the ERV's duct adapters
+ERV_F = 0.75 + 26.6 / 12                          # the ERV's room end
 EX = DECK + 0.25                                  # centre of a 6 in round lying on the deck
 ENOTE = ("Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. "
          "Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED.")
@@ -279,9 +287,9 @@ exhaust("ex_bath1", "Bath 1 exhaust", 4, [[37.2, 30.0, ZT], [37.2, 17.8, ZT], [3
         grilles=[dict(at=[37.2, 30.0, CEIL - 0.02], size=[10, 10])], note=ENOTE + " Runs north in the loft floor trusses between the loft and family supply drops, then up onto the deck.")
 exhaust("ex_bath2", "Bath 2 exhaust", 4, [[19.8, 10.62, 11.7], [19.8, 13.5, 11.7], [19.8, 13.5, EX]], room="Bath 2",
         grilles=[dict(at=[19.8, 10.6, 11.7], size=[10, 6], wall=N)], note=ENOTE + " High on the bath 2 wall through the attic wall, over the supply trunk.")
-exhaust("ex_powder", "Powder exhaust", 4, [[10.2, 32.8, ZT], [10.2, 31.8, ZT], [3.3, 31.8, ZT], [3.3, 31.8, EX], [3.3, 29.6, EX]], room="Powder",
+exhaust("ex_powder", "Powder exhaust", 4, [[10.2, 32.8, ZT], [10.2, 31.8, ZT], [3.3, 31.8, ZT], [3.3, 31.8, EX], [3.3, 29.32, EX]], room="Powder",
         grilles=[dict(at=[10.2, 32.8, CEIL - 0.02], size=[8, 8])], note=ENOTE + " Runs west in the pantry trusses, then up to the ERV.")
-exhaust("ex_main", "Bath exhaust main", 6, [[37.2, 17.8, EX], [25.6, 17.8, EX], [25.6, 13.5, EX], [3.3, 13.5, EX], [3.3, 29.6, EX], [2.45, 29.6, EX]],
+exhaust("ex_main", "Bath exhaust main", 6, [[37.2, 17.8, EX], [25.6, 17.8, EX], [25.6, 13.5, EX], [3.3, 13.5, EX], [3.3, 29.32, EX], [ERV_F, 29.32, ERV_Z]],
         note="Collects the three bathroom exhausts on the attic deck along the south side of the supply trunk and down the west side to the ERV stale air inlet. ASSUMED route and size.")
 # Range hood: its own duct straight out the west wall. IRC M1503: range hood ducts discharge outdoors, independent of every other exhaust system,
 # smooth metal with a backdraft damper. A hood over 400 CFM also needs makeup air (M1503.6), so 400 CFM or less is assumed.
@@ -290,10 +298,12 @@ exhaust("ex_hood", "Range hood duct", 6, [[0.99, 47.0, 7.2], [-0.75, 47.0, 7.2]]
         note="Straight out through the west wall behind the hood's chimney cover to a wall cap with a backdraft damper. A range hood may not connect to the ERV or the return: "
              "IRC M1503 (adopted in the Ohio residential code) requires its own duct to the outdoors. Hood not picked yet, 400 CFM or less ASSUMED so no makeup air is required.")
 
-# ERV ducts
-for k, (y, nm) in enumerate([(28.2, "outdoor air in"), (29.6, "exhaust air out")]):
-    ducts.append(dict(id=f"erv_wall_{k}", info_of="erv", type="erv", shape="round", size=6, points=[[0.75, y, DECK + 1.15], [-0.05, y, DECK + 1.15]]))
-ducts.append(dict(id="erv_to_return", info_of="erv", type="erv", shape="round", size=6, points=[[2.95, 28.9, DECK + 1.15], [4.4, 28.9, DECK + 1.15], [4.4, 26.4, DECK + 1.15]]))
+# ERV ducts. The Intelli-Balance 100 has two 6 in adapters on each end: outdoor air and exhaust air on the wall end,
+# stale air in and fresh air out on the room end. The unit lies with its long side east-west so the wall end meets the west wall.
+for k, (y, nm) in enumerate([(28.9 - 0.415, "outdoor air in"), (28.9 + 0.415, "exhaust air out")]):
+    ducts.append(dict(id=f"erv_wall_{k}", info_of="erv", type="erv", shape="round", size=6, points=[[0.75, y, ERV_Z], [-0.05, y, ERV_Z]]))
+ducts.append(dict(id="erv_to_return", info_of="erv", type="erv", shape="round", size=6,
+                  points=[[ERV_F, 28.485, ERV_Z], [4.4, 28.485, ERV_Z], [4.4, 27.5, DECK + 1.15], [4.4, 26.4, DECK + 1.15]]))
 
 trusses = dict(id="floor_trusses", name="Open web floor trusses", category="Structure", system="structure.floor", regions=FLAT, loft_regions=[LOFT],
     z0=CEIL, depth_in=TRUSS_IN, spacing_in=CFG["floor_trusses"]["spacing_in"], deck_in=DECK_IN,

@@ -88,6 +88,8 @@ python model/make_equipment.py
 ```
 
 - Every thing is a record with an id, a name, a `system` (`hvac.supply`, `geothermal.loop`, `plumbing.dhw`, ...), a room, a layer, its geometry (a builder and true size, or a duct or pipe path) and an `info` block for the card. Positions are plan feet, sizes are inches.
+- The appliance and equipment builders in `site/equipment.js` follow the makers' product photos at the spec sheet sizes: door and handle style, control panels, finish and visible details. Screens, logos, the cooktop's zone markings and the brushed grain are small canvas drawings made in the browser, so no image files are downloaded. Each item's pieces are merged into one mesh per material, so a detailed appliance costs a handful of draw calls.
+- To check a builder without loading the house, `node tools/render_appliances.mjs out_dir [id ...]` renders each item alone, front and three quarter views, using `tools/appliance_preview.html` (needs Playwright with Chromium). The page also opens by hand: serve the repo root and visit `/tools/appliance_preview.html?id=fridge`.
 - `cull` boxes and `replaces_nodes` remove the generic appliance boxes from the old Blender model (with `?baked`) so the real ones take their place.
 - The duct layout starts from Andy Roehl's M-10 (07/30/2026) and changes two things at Maxwell's direction: the supply trunk runs along the north wall of the attic, and every bedroom gets a ducted return through open web floor trusses in place of transfer grilles. The trusses are 11-7/8 in deep (set in `[floor_trusses]` in `config.toml`, which also raises the attic deck and the loft floor). Truss spacing and direction, duct sizes off the trunk and the heat pump orientation are marked ASSUMED in the data and on the cards.
 
