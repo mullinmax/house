@@ -451,7 +451,26 @@ function targetAt(ndc) {
   return null;
 }
 function opAt(ndc) { const t = targetAt(ndc); return t && t.op ? t.op : null; }
-function act(ndc) { const t = targetAt(ndc); if (!t) return; if (t.op) toggle(t.op); else showInfo(t.equip); }
+// A click or a tap always works doors and drawers. Info cards only answer while the Inspect tool is on, so turning
+// the view can never open one by accident (Maxwell, 11/17/2026). With Inspect on, a tap on nothing closes the card.
+let inspect = false;
+function act(ndc) {
+  const t = targetAt(ndc);
+  if (t && t.op) return toggle(t.op);
+  if (!inspect) return;
+  if (t) showInfo(t.equip); else hideInfo();
+}
+function setInspect(on) {
+  inspect = on;
+  for (const b of document.querySelectorAll('[data-act="inspect"]')) b.setAttribute('aria-pressed', on);
+  document.body.classList.toggle('inspecting', on);
+  if (on) { openSheet(null); toast(`Inspect is on. ${touch ? 'Tap' : 'Click'} anything to read about it`); } else { hideInfo(); toast('Inspect is off'); }
+}
+let toastTimer = 0;
+function toast(msg) {
+  $('toast').textContent = msg; $('toast').hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => { $('toast').hidden = true; }, 2200);
+}
 function toggle(op) { if (op) op.target = op.target ? 0 : 1; }
 
 // ---------------------------------------------------------------- camera modes
@@ -464,11 +483,11 @@ orbit.minDistance = 3; orbit.maxDistance = 600;
 
 function setMode(m) {
   mode = m;
-  $('mWalk').setAttribute('aria-pressed', m === 'walk'); $('mOrbit').setAttribute('aria-pressed', m === 'orbit');
+  for (const b of document.querySelectorAll('[data-mode]')) b.setAttribute('aria-pressed', b.dataset.mode === m);
   orbit.enabled = m === 'orbit';
   $('cross').hidden = m !== 'walk'; $('stick').hidden = !(touch && m === 'walk');
   $('hint').hidden = !(m === 'walk' && !touch && !look.isLocked);
-  $('tCrouch').hidden = m !== 'walk';
+  for (const b of document.querySelectorAll('[data-act="crouch"]')) b.hidden = m !== 'walk';
   if (m === 'orbit') {
     if (look.isLocked) look.unlock();
     orbit.target.copy(plan(21.5, 26, 4));
@@ -479,8 +498,7 @@ function setMode(m) {
     if (!jumping) { jumping = true; jump(lastRoom || 'Outside_SW'); jumping = false; }
   }
 }
-$('mWalk').onclick = () => setMode('walk');
-$('mOrbit').onclick = () => setMode('orbit');
+for (const b of document.querySelectorAll('[data-mode]')) b.onclick = () => { if (mode !== b.dataset.mode) setMode(b.dataset.mode); openSheet(null); };
 
 function jump(name) {
   if (!name) return;
@@ -533,7 +551,6 @@ function applyToggles() {
 }
 for (const k of LAYERS) $('l' + k).onchange = applyToggles;
 if (LITE) $('lFarTrees').checked = false;
-if (innerWidth < 700) $('layers').open = false;      // keep the panel short on a phone
 
 // Walls off: walls, floors and furniture go faint so the systems inside read clearly.
 let ghost = false, xray = false;
@@ -601,10 +618,14 @@ function openModal(kind) {
       b.onclick = () => { how = k; for (const x of tools.children) x.setAttribute('aria-pressed', x === b); };
       tools.append(b);
     }
-    const svg = planSvg(); addRoomShapes(svg, (R) => { closeModal(); goRoom(R, how); });
+    // on a phone the plan shows the house alone, so the rooms are big enough for a thumb; the garage and porch become buttons
+    const pick = (R) => { closeModal(); goRoom(R, how); };
+    const svg = planSvg(!compact); addRoomShapes(svg, pick);
     body.append(svg);
     const row = document.createElement('div'); row.className = 'row';
-    const out = document.createElement('button'); out.textContent = 'Outside, southwest'; out.onclick = () => { closeModal(); if (how === 'walk') jump('Outside_SW'); else setMode('orbit'), orbitHome(); };
+    const hx = (houseMeta.outline || { house: [0, 0, 43.0833, 52] }).house[2];
+    if (compact) for (const R of planRooms().filter((r) => r.rect[0] >= hx)) { const b = document.createElement('button'); b.textContent = R.name; b.onclick = () => pick(R); row.append(b); }
+    const out = document.createElement('button'); out.textContent = 'Outside, southwest'; out.onclick = () => { closeModal(); if (how === 'walk') jump('Outside_SW'); else { if (mode !== 'orbit') setMode('orbit'); orbitHome(); } };
     row.append(out);
     const p = document.createElement('p'); p.className = 'note'; p.textContent = 'The dashed outline is the loft, upstairs over Bath 1.';
     body.append(row, p);
@@ -639,15 +660,16 @@ function openModal(kind) {
     $('modalTitle').textContent = 'Controls';
     const K = (k) => k.split(' ').map((x) => `<kbd>${x}</kbd>`).join(' ');
     const sect = (title, rows) => `<div><h3>${title}</h3><table>${rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</table></div>`;
-    body.innerHTML = `<div class="keys">${
-      sect('Orbit (the default)', [['Drag', 'Turn around the house'], ['Right drag', 'Slide the view'], ['Scroll', 'Zoom'], [K('W A S D'), 'Slide the point you turn around'], [K('Shift'), 'Slide faster'], ['Click', 'Open a door, or read about what you click']])
+    const phone = sect('Phone or tablet', [['Drag', 'Turn the view (Orbit), or look around (Walk)'], ['Pinch', 'Zoom (in Orbit)'], ['Two finger drag', 'Slide the view (in Orbit)'], ['Left stick', 'Move (in Walk)'],
+      ['Tap', 'Open or close a door or a drawer'], ['Inspect, then tap', 'Read about what you tap. Swiping never opens a card'], ['Layers', 'Height slice, and show or hide parts of the model'], ['More', 'Find equipment, day and night, no clip']]);
+    body.innerHTML = `<div class="keys">${touch || compact ? phone : ''}${
+      sect('Orbit (the default)', [['Drag', 'Turn around the house'], ['Right drag', 'Slide the view'], ['Scroll', 'Zoom'], [K('W A S D'), 'Slide the point you turn around'], [K('Shift'), 'Slide faster'], ['Click', 'Open or close a door or a drawer'], [K('I'), 'Inspect: click anything to read about it']])
     }${
-      sect('Walk', [['Click the view', 'Look with the mouse'], [K('W A S D'), 'Move'], [K('Shift'), 'Walk faster'], [K('C'), 'Crouch. You also duck under low roofs on your own'], [K('E'), 'Open or close, or read about what is under the dot'], [K('N'), 'No clip: fly through walls'], [K('Space') + ' ' + K('C'), 'Up and down while flying'], [K('Esc'), 'Free the mouse']])
+      sect('Walk', [['Click the view', 'Look with the mouse'], [K('W A S D'), 'Move'], [K('Shift'), 'Walk faster'], [K('C'), 'Crouch. You also duck under low roofs on your own'], [K('E'), 'Open or close what is under the dot. With Inspect on, read about it'], [K('N'), 'No clip: fly through walls'], [K('Space') + ' ' + K('C'), 'Up and down while flying'], [K('Esc'), 'Free the mouse']])
     }${
-      sect('Anywhere', [[K('H'), 'This page'], ['Go to a room', 'Pick a room on the plan'], ['Find equipment', 'Pick a piece of equipment on the plan'], ['Height slice', 'Cut the house at any height'], ['Layers', 'Show or hide parts of the model']])
+      sect('Anywhere', [[K('H'), 'This page'], [K('I'), 'Inspect on or off'], ['Go to a room', 'Pick a room on the plan'], ['Find equipment', 'Pick a piece of equipment on the plan'], ['Height slice', 'Cut the house at any height'], ['Layers', 'Show or hide parts of the model']])
     }${
-      sect('Phone or tablet', [['Left stick', 'Move (in Walk)'], ['Drag', 'Look or turn'], ['Pinch', 'Zoom (in Orbit)'], ['Tap', 'Open a door, or read about what you tap']])
-    }</div><p class="note">Slow? Turn off Distant trees in Layers, or add <kbd>?lite</kbd> to the address.</p>`;
+touch || compact ? '' : phone}</div><p class="note">Slow? Turn off Distant trees in Layers, or add <kbd>?lite</kbd> to the address.</p>`;
   }
   $('modal').hidden = false;
   $('modalClose').focus();
@@ -655,9 +677,31 @@ function openModal(kind) {
 function closeModal() { $('modal').hidden = true; modalKind = null; }
 $('modalClose').onclick = closeModal;
 $('modal').addEventListener('click', (e) => { if (e.target === $('modal')) closeModal(); });
-$('bRooms').onclick = () => openModal('rooms');
-$('bEquip').onclick = () => openModal('equip');
-$('bControls').onclick = () => openModal('controls');
+for (const k of ['rooms', 'equip', 'controls']) for (const b of document.querySelectorAll(`[data-act="${k}"]`)) b.onclick = () => { openSheet(null); openModal(k); };
+for (const b of document.querySelectorAll('[data-act="inspect"]')) b.onclick = () => setInspect(!inspect);
+
+// ---------------------------------------------------------------- compact layout (phones)
+// On a phone the side panel would cover most of the model, so a toolbar runs along the bottom instead and the
+// panel's sections open above it as sheets: Layers (height slice and layers) and More.
+const compactMQ = matchMedia('(max-width: 700px), (pointer: coarse) and (max-height: 520px)');
+let compact = false, sheet = null;
+const SHEETS = { layers: 'Layers', more: 'More' };
+function openSheet(name) {
+  sheet = name && compact ? name : null;
+  $('panel').dataset.sheet = sheet || '';
+  if (sheet) { $('sheetTitle').textContent = SHEETS[sheet]; $('panel').scrollTop = 0; hideInfo(); }
+  for (const b of document.querySelectorAll('#bar [data-sheet]')) b.setAttribute('aria-pressed', b.dataset.sheet === sheet);
+}
+function setCompact() {
+  compact = compactMQ.matches;
+  document.body.classList.toggle('compact', compact);
+  if (compact) { $('layers').open = true; $('panel').classList.remove('min'); }
+  openSheet(null);
+}
+compactMQ.addEventListener('change', setCompact);
+for (const b of document.querySelectorAll('#bar [data-sheet]')) b.onclick = () => openSheet(sheet === b.dataset.sheet ? null : b.dataset.sheet);
+$('sheetClose').onclick = () => openSheet(null);
+setCompact();
 
 function orbitHome() {
   orbit.target.copy(plan(21.5, 26, 4)); camera.position.copy(plan(-60, 110, 70)); orbit.update();
@@ -734,7 +778,7 @@ function addEquipment() {
     pickables.push(o);
     if (!o.userData.pass) colliders.push(o);
   });
-  $('bEquip').hidden = false;
+  for (const b of document.querySelectorAll('[data-act="equip"]')) b.hidden = false;
   applyToggles();
   console.log(`equipment: ${Object.keys(equip.byId).length} things with info`);
 }
@@ -742,7 +786,8 @@ function addEquipment() {
 let selBox = null;
 function showInfo(it) {
   $('infoBody').innerHTML = infoHTML(it);
-  $('info').hidden = false;
+  if (compact) openSheet(null);         // one sheet at a time above the toolbar
+  $('info').hidden = false; $('info').scrollTop = 0;
   if (selBox) { scene.remove(selBox); selBox = null; }
   const bb = it.box ? it.box.clone() : it.obj ? new THREE.Box3().setFromObject(it.obj) : null;
   if (bb && !bb.isEmpty() && !it.type && it.id !== 'floor_trusses' && !/^(roof|ceiling|slab)$/.test(it.kind || '')) {   // outline single things, not whole runs
@@ -917,7 +962,7 @@ function blocked(origin, dir, dist) {
   return null;
 }
 
-function setCrouch(on) { crouch = on; $('tCrouch').setAttribute('aria-pressed', on); }
+function setCrouch(on) { crouch = on; for (const b of document.querySelectorAll('[data-act="crouch"]')) b.setAttribute('aria-pressed', on); }
 function setNoclip(on) {
   noclip = on; $('tClip').setAttribute('aria-pressed', on); vy = 0;
   if (!on) {   // land on whatever is below your eyes
@@ -926,7 +971,7 @@ function setNoclip(on) {
   }
 }
 $('tClip').onclick = () => { if (mode !== 'walk') setMode('walk'); setNoclip(!noclip); };
-$('tCrouch').onclick = () => setCrouch(!crouch);
+for (const b of document.querySelectorAll('[data-act="crouch"]')) b.onclick = () => setCrouch(!crouch);
 
 function fly(dt) {
   const fwd = new THREE.Vector3(); camera.getWorldDirection(fwd);
@@ -1012,7 +1057,8 @@ addEventListener('keydown', (e) => {
   if (modalKind && e.code !== 'Escape') return;
   keys.add(e.code);
   if (e.code === 'KeyE') act(center);
-  if (e.code === 'Escape') { if (modalKind) closeModal(); else hideInfo(); }
+  if (e.code === 'Escape') { if (modalKind) closeModal(); else if (sheet) openSheet(null); else hideInfo(); }
+  if (e.code === 'KeyI') setInspect(!inspect);
   if (e.code === 'KeyN') { if (mode !== 'walk') setMode('walk'); setNoclip(!noclip); }
   if (e.code === 'KeyC' && mode === 'walk' && !noclip) setCrouch(!crouch);
   if (e.code === 'KeyH' || e.key === '?') openModal('controls');
@@ -1020,19 +1066,39 @@ addEventListener('keydown', (e) => {
 });
 addEventListener('keyup', (e) => keys.delete(e.code));
 addEventListener('blur', () => keys.clear());
-renderer.domElement.addEventListener('click', (e) => {
-  if (touch) return;
-  if (mode === 'walk' && !look.isLocked) { look.lock(); return; }
-  if (mode === 'walk') { act(center); return; }
-  if (mode === 'orbit' && !orbitDragged) {
-    const ndc = new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
-    act(ndc);
-  }
+// A tap or a click is one pointer that went down and came back up quickly without moving. Anything else is a
+// gesture on the view: a swipe that turns it, a pinch, a second finger landing. Those never act on the model.
+// (Before 11/17/2026 every finger lift in Orbit counted as a tap, so swiping kept opening doors and cards.)
+const canvas = renderer.domElement;
+const TAP_MS = 500, slop = (type) => (type === 'mouse' ? 4 : 9);
+const fingers = new Set();
+let gesture = null, clickOK = false;
+canvas.addEventListener('pointerdown', (e) => {
+  fingers.add(e.pointerId);
+  if (fingers.size === 1) gesture = { id: e.pointerId, x: e.clientX, y: e.clientY, t: performance.now(), moved: false, multi: false };
+  else if (gesture) gesture.multi = true;
 });
-// a drag that turns the orbit view is not a click on what happens to be under it
-let orbitDragged = false, downAt = null;
-renderer.domElement.addEventListener('pointerdown', (e) => { downAt = [e.clientX, e.clientY]; orbitDragged = false; });
-renderer.domElement.addEventListener('pointermove', (e) => { if (downAt && Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) > 5) orbitDragged = true; });
+canvas.addEventListener('pointermove', (e) => {
+  if (gesture && e.pointerId === gesture.id && Math.hypot(e.clientX - gesture.x, e.clientY - gesture.y) > slop(e.pointerType)) gesture.moved = true;
+});
+const ndcOf = (e) => new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+canvas.addEventListener('pointerup', (e) => {
+  fingers.delete(e.pointerId);
+  const g = gesture;
+  if (!fingers.size) gesture = null;
+  const tap = !!g && g.id === e.pointerId && !g.moved && !g.multi && performance.now() - g.t < TAP_MS;
+  if (e.pointerType === 'mouse') { clickOK = tap; return; }       // the click event that follows does the work
+  clickOK = false;
+  if (tap) act(ndcOf(e));
+});
+canvas.addEventListener('pointercancel', (e) => { fingers.delete(e.pointerId); if (gesture) gesture.multi = true; if (!fingers.size) gesture = null; });
+canvas.addEventListener('click', (e) => {
+  if (mode === 'walk' && look.isLocked) { act(center); return; }
+  if (!clickOK) return;
+  clickOK = false;
+  if (mode === 'walk') { if (!touch) look.lock(); return; }
+  act(ndcOf(e));
+});
 look.addEventListener('lock', () => { $('hint').hidden = true; });
 look.addEventListener('unlock', () => { if (mode === 'walk' && !touch) $('hint').hidden = false; });
 
@@ -1050,28 +1116,19 @@ function moveStick(e) {
   const l = Math.hypot(dx, dy); if (l > 1) { dx /= l; dy /= l; }
   stick.x = dx; stick.y = dy; knob.style.transform = `translate(${dx * 36}px, ${dy * 36}px)`;
 }
-renderer.domElement.addEventListener('pointerdown', (e) => {
-  if (!touch || mode !== 'walk') return;
-  lookTouch = { id: e.pointerId, x: e.clientX, y: e.clientY, x0: e.clientX, y0: e.clientY, t: performance.now() };
+canvas.addEventListener('pointerdown', (e) => {
+  if (e.pointerType === 'mouse' || mode !== 'walk' || lookTouch) return;
+  lookTouch = { id: e.pointerId, x: e.clientX, y: e.clientY };
 });
-renderer.domElement.addEventListener('pointermove', (e) => {
-  if (!lookTouch || e.pointerId !== lookTouch.id) return;
+canvas.addEventListener('pointermove', (e) => {
+  if (!lookTouch || e.pointerId !== lookTouch.id || mode !== 'walk') return;
   const eul = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
   eul.y -= (e.clientX - lookTouch.x) * 0.005; eul.x -= (e.clientY - lookTouch.y) * 0.005;
   eul.x = THREE.MathUtils.clamp(eul.x, -1.45, 1.45); camera.quaternion.setFromEuler(eul);
   lookTouch.x = e.clientX; lookTouch.y = e.clientY;
 });
-renderer.domElement.addEventListener('pointerup', (e) => {
-  if (touch && (mode === 'walk' || mode === 'orbit')) {
-    const t = lookTouch;
-    const tap = !t || (Math.hypot(e.clientX - t.x0, e.clientY - t.y0) < 10 && performance.now() - t.t < 350);
-    if (tap) {
-      const ndc = new THREE.Vector2((e.clientX / innerWidth) * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
-      act(ndc);
-    }
-  }
-  lookTouch = null;
-});
+const endLook = (e) => { if (lookTouch && e.pointerId === lookTouch.id) lookTouch = null; };
+canvas.addEventListener('pointerup', endLook); canvas.addEventListener('pointercancel', endLook);
 
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
@@ -1113,7 +1170,7 @@ renderer.setAnimationLoop(() => {
   placeLights(false);
   if (mode === 'walk' && !touch && (++promptFrame % 6 === 0)) {
     const t = targetAt(center);
-    const shown = t && !t.house;                 // walls and trim answer a click, but do not prompt
+    const shown = t && (t.op || (inspect && !t.house));     // info is offered only while Inspect is on; walls and trim answer, but do not prompt
     $('prompt').hidden = !shown;
     if (shown) $('promptTxt').textContent = t.op ? (t.op.target ? 'Close' : 'Open') : `About: ${t.equip.name}`;
   } else if (mode !== 'walk') $('prompt').hidden = true;
@@ -1122,4 +1179,4 @@ renderer.setAnimationLoop(() => {
 
 loadAll().catch((e) => { console.error(e); $('loadmsg').textContent = 'The model could not be loaded.'; });
 window.__B = THREE.Box3; window.__T = THREE; window.__walk = { orbit, setSlice, setGhost, applyToggles, goRoom, closeModal,
-  simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, showInfo, goTo, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };
+  simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, setInspect, openSheet, act, get inspect() { return inspect; }, showInfo, goTo, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };

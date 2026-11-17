@@ -101,7 +101,6 @@ kbd { font: 500 .75rem ui-monospace, Menlo, Consolas, monospace; border: 1px sol
 #info li { margin: 3px 0; }
 #info .place { font-size: .82rem; color: var(--muted); }
 #infoClose { position: absolute; top: 8px; right: 8px; padding: 0 8px; font-size: 1.1rem; line-height: 1.5; }
-@media (max-width: 700px) { #info { top: auto; bottom: max(12px, env(safe-area-inset-bottom)); max-height: 45dvh; } }
 #collapse { position: absolute; top: 8px; right: 8px; padding: 2px 8px; }
 #panel.min > :not(#collapse):not(h1) { display: none; }
 #cross { position: fixed; left: 50%; top: 50%; width: 6px; height: 6px; margin: -3px 0 0 -3px; border-radius: 50%;
@@ -119,6 +118,67 @@ kbd { font: 500 .75rem ui-monospace, Menlo, Consolas, monospace; border: 1px sol
 #stick > div { position: absolute; left: 50%; top: 50%; width: 48px; height: 48px; margin: -24px 0 0 -24px; border-radius: 50%; background: rgba(255,255,255,.7); }
 #hint { position: fixed; left: 50%; bottom: max(16px, env(safe-area-inset-bottom)); transform: translateX(-50%);
   background: var(--scrim); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: .85rem; pointer-events: none; }
+
+/* ---- inspect tool, toast */
+body.inspecting canvas { cursor: help; }
+#toast { position: fixed; left: 50%; top: max(14px, env(safe-area-inset-top)); transform: translateX(-50%); background: var(--scrim); color: #fff;
+  padding: 7px 14px; border-radius: 999px; font-size: .85rem; pointer-events: none; z-index: 8; max-width: calc(100vw - 24px); text-align: center; }
+.sheethead, #bar, #fCrouch { display: none; }
+.biglist { display: none; }
+canvas, #bar, #stick, #fCrouch { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent; }
+
+/* ---- compact layout: phones, and tablets or phones held sideways. The model fills the screen, a toolbar sits along
+   the bottom, and Layers and More open as sheets above it. */
+body.compact { --bar: calc(58px + env(safe-area-inset-bottom)); }
+body.compact #bar { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
+  height: var(--bar); padding: 0 max(4px, env(safe-area-inset-right)) env(safe-area-inset-bottom) max(4px, env(safe-area-inset-left));
+  background: var(--panel); border-top: 1px solid var(--line); backdrop-filter: blur(8px); touch-action: manipulation; }
+#bar button { border: 0; border-radius: 10px; margin: 5px 2px; padding: 0; display: grid; justify-items: center; align-content: center; gap: 2px;
+  font-size: .68rem; color: var(--muted); min-width: 0; }
+#bar button .ic { width: 22px; height: 22px; color: inherit; }
+#bar button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); }
+body.compact .desk, body.compact #collapse { display: none !important; }
+body.compact #panel { display: none; top: auto; left: 8px; right: 8px; width: auto; bottom: calc(var(--bar) + 8px);
+  max-height: 66dvh; border-radius: 14px; padding: 10px 14px 14px; gap: 12px; z-index: 9; touch-action: pan-y; overscroll-behavior: contain; }
+body.compact #panel[data-sheet="layers"], body.compact #panel[data-sheet="more"] { display: grid; }
+body.compact #panel > [data-sec] { display: none; }
+body.compact #panel[data-sheet="layers"] > [data-sec="layers"], body.compact #panel[data-sheet="more"] > [data-sec="more"] { display: grid; }
+body.compact #panel[data-sheet="more"] > .row[data-sec="more"] { display: flex; }
+body.compact .sheethead { display: flex; align-items: center; }
+.sheethead h2 { font: 600 1rem var(--display); margin: 0; flex: 1; }
+#sheetClose { font-size: 1.2rem; line-height: 1; padding: 6px 12px; }
+body.compact #panel button, body.compact #modal button { min-height: 40px; padding: 8px 14px; font-size: .9rem; }
+body.compact #panel .row { gap: 8px; }
+body.compact #detents { display: grid; grid-template-columns: 1fr 1fr; }
+body.compact #detents button { font-size: .85rem; }
+body.compact input[type=range] { height: 32px; }
+body.compact details#layers { border: 0; padding: 0; }
+body.compact details#layers > summary { display: none; }
+body.compact #panel fieldset { border: 0; padding: 0; gap: 4px; position: relative; }
+body.compact #slicelbl { position: absolute; right: 0; top: -21px; }
+body.compact #panel fieldset legend { padding: 0; }
+body.compact #detents { gap: 6px; }
+body.compact #detents button { min-height: 36px; padding: 4px 8px; }
+body.compact details#layers > summary::-webkit-details-marker { display: none; }
+body.compact .layers { grid-template-columns: 1fr 1fr; gap: 2px 8px; }
+body.compact .layer { min-height: 36px; padding: 4px 6px; font-size: .9rem; }
+body.compact .layer.sub { margin-left: 0; }
+body.compact .layer input { width: 20px; height: 20px; }
+body.compact .biglist { display: grid; gap: 8px; }
+body.compact .biglist button { text-align: left; }
+body.compact #info { top: auto; left: 8px; right: 8px; width: auto; bottom: calc(var(--bar) + 8px); max-height: 42dvh; border-radius: 14px; z-index: 9; overscroll-behavior: contain; }
+body.compact #infoClose { padding: 6px 12px; font-size: 1.2rem; line-height: 1; }
+body.compact #info h2 { margin-right: 44px; }
+body.compact #stick { bottom: calc(var(--bar) + 18px); left: max(18px, env(safe-area-inset-left)); touch-action: none; }
+body.compact #fCrouch:not([hidden]) { display: block; position: fixed; right: max(14px, env(safe-area-inset-right)); bottom: calc(var(--bar) + 18px); z-index: 4;
+  min-height: 44px; padding: 8px 16px; border-radius: 999px; background: var(--panel); backdrop-filter: blur(6px); }
+body.compact #modal { padding: 8px; align-items: end; }
+body.compact .plan text { font-size: 1.7px; }
+body.compact .plan text.small { font-size: 1.25px; }
+body.compact #modal .sheet { max-height: calc(100dvh - 16px - env(safe-area-inset-top)); padding: 12px; }
+body.compact #modalClose { font-size: 1.3rem; padding: 4px 14px; }
+body.compact .keys td:first-child { white-space: normal; }
+@media (max-height: 520px) { body.compact #panel, body.compact #info { left: auto; width: min(380px, calc(100vw - 16px)); max-height: calc(100dvh - var(--bar) - 16px); } }
 </style>
 <script type="importmap">
 { "imports": {
@@ -137,46 +197,65 @@ kbd { font: 500 .75rem ui-monospace, Menlo, Consolas, monospace; border: 1px sol
 
 <div id="panel">
   <button id="collapse" title="Collapse panel">–</button>
-  <div class="eyebrow">Interactive model</div>
-  <h1>House walkthrough</h1>
-  <div class="row" role="group" aria-label="Camera mode">
-    <button id="mOrbit" aria-pressed="true" title="Drag to turn, scroll to zoom, W A S D to slide">Orbit</button>
-    <button id="mWalk" aria-pressed="false" title="Walk through the house at eye height">Walk</button>
-    <button id="tCrouch" aria-pressed="false" title="Crouch (C)">Crouch</button>
-    <button id="tClip" aria-pressed="false" title="Fly through walls (N)">No clip</button>
+  <div class="eyebrow desk">Interactive model</div>
+  <h1 class="desk">House walkthrough</h1>
+  <div class="sheethead"><h2 id="sheetTitle"></h2><button id="sheetClose" aria-label="Close">×</button></div>
+  <div class="row desk" role="group" aria-label="Camera mode">
+    <button data-mode="orbit" aria-pressed="true" title="Drag to turn, scroll to zoom, W A S D to slide">Orbit</button>
+    <button data-mode="walk" aria-pressed="false" title="Walk through the house at eye height">Walk</button>
+    <button data-act="inspect" aria-pressed="false" title="Inspect (I): click anything to read about it. Off, clicks only open doors and drawers">Inspect</button>
   </div>
-  <div class="row" role="group" aria-label="Go to">
-    <button id="bRooms" title="Pick a room on the floor plan">Go to a room</button>
-    <button id="bEquip" title="Pick an appliance or a piece of equipment on the plan" hidden>Find equipment</button>
-    <button id="bControls" title="Keys and gestures (H)">Controls</button>
+  <div class="row desk" role="group" aria-label="Go to">
+    <button data-act="rooms" title="Pick a room on the floor plan">Go to a room</button>
+    <button data-act="equip" title="Pick an appliance or a piece of equipment on the plan" hidden>Find equipment</button>
+    <button data-act="controls" title="Keys and gestures (H)">Controls</button>
   </div>
-  <fieldset>
+  <fieldset data-sec="layers">
     <legend>Height slice</legend>
     <label class="stack"><input id="slice" type="range" min="0.5" max="23" step="0.05" value="23" list="sliceticks" aria-label="Cut the house at this height"> <span id="slicelbl">Whole house</span></label>
     <datalist id="sliceticks"></datalist>
     <div class="row" id="detents" role="group" aria-label="Levels"></div>
   </fieldset>
-  <details id="layers" open>
+  <details id="layers" open data-sec="layers">
     <summary>Layers</summary>
     <div class="layers">
       <label class="layer" id="rowRoof" title="Roof, fascia, gutters and ceilings"><input type="checkbox" id="lRoof" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 8.5 8 2.5l6.5 6"/><path d="M4 7.5V13h8V7.5"/></svg> <span>Roof</span></label>
       <label class="layer" id="rowWalls" title="Off: walls, floors and furniture fade so the systems read"><input type="checkbox" id="lWalls" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="10"/><path d="M2 6.5h12M2 10h12M6 3v3.5M10 6.5V10M6 10v3"/></svg> <span>Walls</span></label>
       <label class="layer" id="rowFurniture" title=""><input type="checkbox" id="lFurniture" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 7V12M13.5 7V12M2.5 9.5h11M4 9.5V5.5h8v4"/></svg> <span>Furniture</span></label>
+      <label class="layer" id="rowAppliances" title=""><input type="checkbox" id="lAppliances" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="1.8" width="8" height="12.4" rx="1"/><path d="M4 6.5h8M6 3.8v1.4M6 8.5v2"/></svg> <span>Appliances</span></label>
       <label class="layer" id="rowTrees" title="Every tree: off hides the near trees and the distant woods"><input type="checkbox" id="lTrees" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.8 3.5 9h9z"/><path d="M8 9v5"/></svg> <span>Trees</span></label>
       <label class="layer sub" id="rowFarTrees" title="The woods further out, shown while Trees is on. Off is faster on slow devices"><input type="checkbox" id="lFarTrees" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 5 1.8 9h4.4zM12 5 9.8 9h4.4zM8 3.5 5.6 8h4.8z"/><path d="M1 13h14"/></svg> <span>Distant trees</span></label>
-      <label class="layer" id="rowAppliances" title=""><input type="checkbox" id="lAppliances" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="1.8" width="8" height="12.4" rx="1"/><path d="M4 6.5h8M6 3.8v1.4M6 8.5v2"/></svg> <span>Appliances</span></label>
-      <label class="layer" id="rowMechanical" title="Heat pump, ERV, water heater, geothermal"><input type="checkbox" id="lMechanical" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/><path d="M8 8 8 3.2M8 8l4.2 2.4M8 8l-4.2 2.4"/></svg> <span>Mechanical</span></label>
       <label class="layer" id="rowDucts" title="Supply, return and fresh air ducts"><input type="checkbox" id="lDucts" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 6h9v4h-9z"/><path d="M10.5 8H15M12.8 5.8 15 8l-2.2 2.2"/></svg> <span>Ducts</span></label>
       <label class="layer sub" id="rowXray" title="Colour the ducts (blue supply, red return, green fresh air, purple exhaust) and show them through everything"><input type="checkbox" id="lXray"> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12" stroke="#3B82C4"/><path d="M2 8h12" stroke="#C4473B"/><path d="M2 12h12" stroke="#3F9B57"/></svg> <span>Duct x-ray</span></label>
+      <label class="layer" id="rowMechanical" title="Heat pump, ERV, water heater, geothermal"><input type="checkbox" id="lMechanical" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/><path d="M8 8 8 3.2M8 8l4.2 2.4M8 8l-4.2 2.4"/></svg> <span>Mechanical</span></label>
       <label class="layer" id="rowTrusses" title=""><input type="checkbox" id="lTrusses" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 4h14M1 12h14M1.5 12 4.5 4 7.5 12 10.5 4 13.5 12"/></svg> <span>Floor trusses</span></label>
       <label class="layer" id="rowUtil" title="Geothermal loops and septic"><input type="checkbox" id="lUtil" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M1 5h14"/><path d="M2 10h12" stroke-dasharray="2 1.6"/><path d="M3 5v2M8 5v2M13 5v2" stroke-width="1"/></svg> <span>Buried lines</span></label>
     </div>
   </details>
-  <div class="row" role="group" aria-label="Time of day">
+  <div class="biglist" data-sec="more">
+    <button data-act="equip" hidden>Find equipment</button>
+    <button data-act="controls">Controls and gestures</button>
+  </div>
+  <div class="row" data-sec="more" role="group" aria-label="Time of day">
     <button id="tDay" aria-pressed="true">Day</button>
     <button id="tNight" aria-pressed="false" title="Turn the sun off and the room lights on">Night</button>
   </div>
+  <div class="row" data-sec="more" role="group" aria-label="Movement">
+    <button data-act="crouch" aria-pressed="false" title="Crouch (C)" hidden>Crouch</button>
+    <button id="tClip" aria-pressed="false" title="Fly through walls (N)">No clip</button>
+  </div>
 </div>
+
+<nav id="bar" aria-label="Tools">
+  <button data-mode="orbit" aria-pressed="true"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="1.8"/><ellipse cx="8" cy="8" rx="6.5" ry="3"/></svg><span>Orbit</span></button>
+  <button data-mode="walk" aria-pressed="false"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8.5" cy="2.8" r="1.3"/><path d="M8.5 5v4.5l2 4.5M8.5 9.5 6 14M5.5 7.8l3-2.3 2.6 2.4"/></svg><span>Walk</span></button>
+  <button data-act="inspect" aria-pressed="false"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M8 7.3V11M8 4.9v.3"/></svg><span>Inspect</span></button>
+  <button data-act="rooms"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2.5" width="12" height="11"/><path d="M8 2.5v5M2 8.5h4M10 8.5h4M8 10.5v3"/></svg><span>Rooms</span></button>
+  <button data-sheet="layers" aria-pressed="false"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2 1.8 5.2 8 8.4l6.2-3.2z"/><path d="M1.8 8 8 11.2 14.2 8M1.8 10.8 8 14l6.2-3.2"/></svg><span>Layers</span></button>
+  <button data-sheet="more" aria-pressed="false"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><circle cx="3.5" cy="8" r=".8"/><circle cx="8" cy="8" r=".8"/><circle cx="12.5" cy="8" r=".8"/></svg><span>More</span></button>
+</nav>
+<button id="fCrouch" data-act="crouch" aria-pressed="false" hidden>Crouch</button>
+<div id="toast" hidden role="status"></div>
 
 <div id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modalTitle">
   <div class="sheet">
