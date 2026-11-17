@@ -824,8 +824,9 @@ const WARM = 0xffd6a0;
 
 function roomLights() {
   if (lightSpots) return lightSpots;
-  const out = [], moved = houseMeta.lights_moved || {};
+  const out = [], moved = houseMeta.lights_moved || {}, gone = new Set(houseMeta.lights_removed || []);
   for (const L of manifest.lights || []) {        // Blender world metres, Z up
+    if (gone.has(L.name)) continue;               // its lamp was taken out
     let p = L.pos || [0, 0, 0];
     const mv = moved[L.name];
     const pos = mv ? plan(mv[0], mv[1], mv[2]) : new THREE.Vector3(p[0], p[2], -p[1]);

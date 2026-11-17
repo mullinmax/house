@@ -48,6 +48,7 @@ LOFT = C["loft"]
 LX0, LY0, LX1, LY1 = LOFT["rect"]
 _ft = C.get("floor_trusses")
 FLOOR_T = (_ft["depth_in"] + _ft.get("deck_in", 0.75)) / 12 if _ft else 0.86    # attic deck and loft floor build-up
+LOFT_FIN = 0.0625          # 3/4" oak finish floor of the loft: it caps the loft edge wall, so the drywall runs right up under the railing
 FH = C["ceilings"]["flat_height"]
 DECK_T = 0.06                                  # attic decking shown on top of the flat ceilings
 GROUND_Z = -0.62                               # graded pad just outside the slab (8 in reveal)
@@ -572,7 +573,7 @@ def wall_top(x0, x1, y0, y1, alongx=None):
     in_loft = LOFT["enabled"] and LX0 - 0.05 <= cx <= LX1 + 0.05 and LY0 + 0.3 <= cy <= LY1 + 0.6
     if in_loft:
         if abs(cx - (LX0 + 0.23)) < 0.4:                    # loft edge wall (bath 1 west wall): stops level with the loft floor
-            return lambda x, y: LOFT["floor_height"] + LOFT["pony_wall_height"]
+            return lambda x, y: LOFT["floor_height"] + LOFT["pony_wall_height"] - (LOFT_FIN if not LOFT["pony_wall_height"] else 0)
         return lambda x, y: LOFT["floor_height"] - FLOOR_T
     if C["ceilings"].get("walls_stop_at_attic") and wall_between_flats(x0, x1, y0, y1, alongx):
         return lambda x, y: FH + FLOOR_T - DECK_T               # stops under the attic deck
@@ -585,6 +586,14 @@ for poly in G["interior_walls_from_plan_A11"]:
         if r_[2] > YC - 0.15 and r_[3] < YC2 + 0.15:          # the clerestory wall is its own record
             continue
         INT_RECTS.append(r_)
+for ed in C.get("plan_edits", {}).get("wall_shift", []):      # partitions moved off A-11 by a decision, [[plan_edits]] in config.toml
+    px, py = ed["at"]
+    for i_, (x0, x1, y0, y1) in enumerate(INT_RECTS):
+        if x0 - 0.01 <= px <= x1 + 0.01 and y0 - 0.01 <= py <= y1 + 0.01:
+            INT_RECTS[i_] = (x0 + ed.get("dx", 0), x1 + ed.get("dx", 0), y0 + ed.get("dy", 0), y1 + ed.get("dy", 0))
+            break
+    else:
+        raise SystemExit(f"plan_edits.wall_shift: no interior wall at {ed['at']}")
 DOORS = G.get("door_labels_A11", [])
 
 
@@ -787,7 +796,16 @@ if LOFT["enabled"]:
         info=dict(model="134 sq ft loft over bath 1 (A-12)", specs=[["Floor", f"{ftin(FL)} above the slab"], ["Build up", f"9' plate + {_ft['depth_in'] if _ft else ''}\" open web trusses + {_ft['deck_in'] if _ft else ''}\" subfloor"],
                                                                      ["Finish", "White oak"]],
                   notes=["Raised from 9' 10 3/4\" (2x10 floor on A-30) to the 11 7/8\" trusses, Maxwell 11/16/2026."]))
-    box("White Oak", LX0, LX1, LY0, LY1, FL - FLOOR_T, FL)
+    # The loft edge wall's drywall face runs up to the finish floor. The floor structure and the ceiling under it start
+    # inside that wall, so nothing of the floor shows in front of the drywall from the living room (Maxwell 11/17/2026:
+    # the floor edge used to stand a hair proud of the wall and read as wood between the drywall and the railing).
+    EDGE_X = min([r_[0] for r_ in INT_RECTS if abs(r_[0] - LX0) < 0.3 and r_[3] > LY0 + 1] or [LX0])
+    IN_X = EDGE_X + 0.25
+    box("White Oak", IN_X, LX1, LY0, LY1, FL - FLOOR_T + 0.04, FL)                       # trusses and subfloor
+    box("White Oak", EDGE_X, IN_X, LY0, LY1, FL - LOFT_FIN, FL)                         # finish floor over the edge wall
+    rec("ceiling.loft", "ceiling", "Flat ceiling under the loft", "ceiling",
+        info=dict(model=f"Drywall on the underside of the loft floor, {ftin(FL - FLOOR_T)}", specs=[["Rooms", "Bath 1, the mudroom cubby and the entry closet"]]))
+    box("Drywall", IN_X, LX1, LY0, LY1, FL - FLOOR_T, FL - FLOOR_T + 0.04)
     lx0, ly0, lx1, ly1 = LOFT["ships_ladder"]
     n = 11
     rec("loft.ladder", "stair", "Ships ladder to the loft", "interior", room="Loft",
@@ -1254,10 +1272,16 @@ if FU.get("enabled"):
             continue
         if (x0, x1) in DOOR_NAMES or (x0, x1) in DOOR_NOTES:
             continue                           # a door was hung in it, and the door brings its own jambs and casing
+        # an opening whose jambs are partitions running north (the mudroom cubby) has no wall face on its north side to
+        # trim: casings there stood in the cubby and poked through its side walls (Maxwell 11/17/2026)
+        abut = lambda xj: any(r_[1] > r_[0] + 0.1 and r_[0] - 0.05 <= xj <= r_[1] + 0.05 and r_[3] >= YC - 0.05 and r_[2] < YC - 0.3 for r_ in INT_RECTS)
         for (b0, b1) in ((YC - 0.06, YC), (YC2, YC2 + 0.06)):
-            box("White Oak", x0 - CW, x0 + 0.02, b0, b1, 0, hd)
-            box("White Oak", x1 - 0.02, x1 + CW, b0, b1, 0, hd)
-            box("White Oak", x0 - CW, x1 + CW, b0, b1, hd, hd + CW)
+            if b1 <= YC and abut(x0) and abut(x1):
+                continue
+            RV = 0.016                         # 3/16" reveal: the casing stops short of the opening, so its edge never shows inside
+            box("White Oak", x0 - CW - RV, x0 - RV, b0, b1, 0, hd + RV)
+            box("White Oak", x1 + RV, x1 + CW + RV, b0, b1, 0, hd + RV)
+            box("White Oak", x0 - CW - RV, x1 + CW + RV, b0, b1, hd + RV, hd + RV + CW)
 
 # ------------------------------------------------------------------ exterior details: fascia, soffits, gutters, fixtures
 if FU.get("enabled"):
@@ -1302,7 +1326,7 @@ if FU.get("enabled"):
         nm = {"light": "Exterior wall light", "outlet": "Exterior outlet", "hose_bib": "Hose bib"}.get(t_, t_)
         rec(f"shell.fixture.{k}", "fixture", f"{nm}, {WALL_NAMES[w_]}", "shell",
             info=dict(model={"light": "Black barn style wall light (Blender used Poly Haven industrial_wall_lamp)", "outlet": "Weatherproof GFCI outlet with in use cover",
-                             "hose_bib": "Frost free hose bib"}.get(t_, t_), specs=[["Height", ftin(z_)]], notes=["Location ASSUMED."]))
+                             "hose_bib": "Frost free hose bib"}.get(t_, t_), specs=[["Height", ftin(z_)]], notes=[fx["note"]] if fx.get("note") else ["Location ASSUMED."]))
         if t_ == "light":
             fr = wall_frame(w_)
             wbox("Black Metal", w_, u_ - 0.18, u_ + 0.18, -BAT_T - 0.06, -BAT_T, z_ - 0.25, z_ + 0.25)            # back plate
@@ -1710,6 +1734,11 @@ for it in FURN:
             WEB_META["move_nodes"][it["move_node"]] = mv   # the mesh node when the named node is an empty beside it
     if it.get("removed"):                       # taken out of the house: drop the baked piece, build nothing
         WEB_META["replace_nodes"].append(it["id"])
+        if it["type"] in ("table_lamp", "desk_lamp"):            # and its night light
+            WEB_META.setdefault("lights_removed", []).append(f"{it['id']} bulb")
+        if it.get("cull_old"):                                  # pieces merged into per material meshes go by box
+            x0, y0, x1, y1, zt = it["cull_old"]
+            WEB_META["cull"].append(dict(box=[x0, y0, 0.02, x1, y1, zt], materials=FURN_MATS))
         continue
     if not it.get("web"):
         continue

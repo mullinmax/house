@@ -204,7 +204,13 @@ sill = 16.0                     # A-20 south elevation
 head = 19.0
 # Openings through the clerestory wall at floor level (A-11): [x_start, x_end, head]
 # First (pantry) opening narrowed from A-11 [0.5, 4.414] to fit a 2'-6" door that stops 2" short of the fridge panel. ASSUMED
-passages = [[0.743, 3.443, 6.67],[12.122, 16.206, 8.0], [20.914, 26.914, 8.0], [31.581, 39.664, 8.0], [40.164, 42.289, 6.67]]
+# Mudroom cubby and entry closet (Maxwell 11/17/2026): the partition between them moved 6" west (closet 2'-6 1/2" to 3'-0 1/2"
+# inside, cubby 8'-1" to 7'-7"), and the closet door is now 2'-6" x 8'-0", the same height as the cubby opening. Was [31.581, 39.664, 8.0], [40.164, 42.289, 6.67]
+passages = [[0.743, 3.443, 6.67],[12.122, 16.206, 8.0], [20.914, 26.914, 8.0], [31.581, 39.164, 8.0], [39.789, 42.289, 8.0]]
+
+[plan_edits]                    # interior walls moved from where A-11 draws them, by decision
+# at = a plan point inside the wall (ft, as traced), dx/dy = how far it moves
+wall_shift = [ { at = [39.81, 34.0], dx = -0.5, note = "cubby / entry closet partition, 6 in west so the closet is wider (Maxwell 11/17/2026)" } ]
 
 [barn_door]                     # living room "large French barn door" (Maxwell 11/12/2026), D60-80 on A-11
 enabled = true
@@ -442,7 +448,7 @@ casing_width_in = 3.5
 gutters = true
 exterior_lights = true
 door_add = [ { axis = "y", g0 = 15.491, g1 = 18.158, t0 = 31.122, t1 = 31.581, head = 6.67, note = "laundry to Closet 1, A-11 D28-68" },   # ASSUMED leaf 2'-4"
-             { axis = "x", g0 = 40.164, g1 = 42.289, t0 = "clerestory", head = 6.67, header = false, name = "Door, broom closet", note = "Broom closet by the entry, A-11 D20-68: 2'-0\" x 6'-8\" swing door, hinged on the east jamb, opening out into the entry (Maxwell 11/17/2026)" } ]
+             { axis = "x", g0 = 39.789, g1 = 42.289, t0 = "clerestory", head = 8.0, header = false, name = "Door, entry closet", note = "Entry closet, A-11 D20-68 made 2'-6\" x 8'-0\" to match the cubby opening's height, with the closet 6\" wider (Maxwell 11/17/2026). Swing door hinged on the east jamb, opening out into the entry" } ]
 door_remove = [ [37.19, 19.99], [38.27, 25.45] ]   # 2nd: Bath 1 wet-room opening (x 38.12-38.41, y 23.95-26.95) is open, no leaf
 door_pocket = [ [14.16, 22.64, -1], [22.08, 15.26, 1], [16.43, 24.97, 1], [35.7, 29.18, -1], [35.7, 15.26, -1], [31.35, 16.82, 1] ]   # first: Maxwell 11/13. The rest are drawn as pocket doors on A-11 (leaf in the opening, pocket in the wall): laundry, living, bath 1 water closet, closet 1 north and west (11/17/2026)
 # hinge side and swing from the A-11 door arcs (11/17/2026): [x, y near the opening, hinge end N/S/E/W, swings toward N/S/E/W]
@@ -472,11 +478,11 @@ items = [
   { id = "dchair_s3", type = "model", model = "gallinera_chair", x = 25.7, y = 45.5, facing = 0, len = 1.6 },
   { id = "dining_pendant", type = "pendant", model = "modern_ceiling_lamp_01", x = 23.9, y = 43.3, z = 6.6, len = 1.5 },
   { id = "vase_dining", type = "model", model = "ceramic_vase_02", x = 23.9, y = 43.3, on = "dining_table", facing = 0, len = 0.6 },
-  # built-in entry bench filling the north-wall alcove by the entry (x 31.58-39.66, back wall y 33.12). Maxwell 11/13, ASSUMED 15" deep, 18" seat.
+  # built-in entry bench filling the north-wall alcove by the entry (x 31.58-39.16 since 11/17/2026, was to 39.66; back wall y 33.12). Maxwell 11/13, ASSUMED 15" deep, 18" seat.
   # Mudroom unit after Maxwell's reference photo (11/17/2026), adapted to the 8'-1" x 1'-6" alcove under its 8'-0" head:
   # 2 ft base cabinet + stone counter + tall cabinet on the west (left seen from the entry), 6 ft bench open below in 3 bays
   # with rubber boot trays and dividers, paneled back, 5 hooks, 2 open cubbies, glass door uppers. Painted light sage. ASSUMED sizes
-  { id = "entry_bench", type = "bench", web = true, x = 35.62, y = 33.75, w = 8.0, d = 1.25, h = 1.5, facing = 180, alcove_d = 1.5, top = 7.95, cab_w = 2.0, bays = 3, tray_slots = 2, hooks = 5, cubbies = 2, glass_doors = 8, cull_old = [31.55, 33.05, 39.7, 34.65, 8.0] },
+  { id = "entry_bench", type = "bench", web = true, x = 35.37, y = 33.75, w = 7.5, d = 1.25, h = 1.5, facing = 180, alcove_d = 1.5, top = 7.95, cab_w = 2.0, bays = 3, tray_slots = 2, hooks = 5, cubbies = 2, glass_doors = 8, cull_old = [31.55, 33.05, 39.7, 34.65, 8.0] },
   # ---- reading nook, great room SE corner (Maxwell 11/13). ASSUMED
   { id = "nook_rug", type = "rug", x = 40.0, y = 48.6, w = 5.0, l = 6.0, facing = 180, color = "#9C8F78" },
   { id = "nook_chair", type = "model", model = "mid_century_lounge_chair", x = 39.9, y = 48.4, facing = 135, len = 2.8 },
@@ -496,7 +502,7 @@ items = [
   # ---- bedroom 1 (x 31.4-42.5, y 0.5-11.0): bed headboard on the east wall under the high awning windows
   { id = "bed1", type = "bed", x = 38.8, y = 6.0, w = 5.3, l = 7.0, facing = 270, color = "#F1EEE8", accent = "#56614A" },
   { id = "ns1_n", type = "model", model = "painted_wooden_nightstand", x = 41.75, y = 2.55, facing = 270, len = 1.7 },
-  { id = "ns1_s", type = "model", model = "painted_wooden_nightstand", x = 41.75, y = 9.45, facing = 270, len = 1.7 },
+  { id = "ns1_s", type = "model", model = "painted_wooden_nightstand", x = 41.75, y = 9.45, facing = 270, len = 1.7 },   # the master keeps both (Maxwell 11/17/2026)
   { id = "lamp1_n", type = "table_lamp", x = 41.75, y = 2.55, on = "ns1_n" },
   { id = "lamp1_s", type = "table_lamp", x = 41.75, y = 9.45, on = "ns1_s" },
   { id = "dresser1", type = "model", model = "modern_wooden_cabinet", x = 32.3, y = 5.0, facing = 90, len = 5.0 },
@@ -505,17 +511,17 @@ items = [
   # east wall (Bath 2 side) so the closet door (west wall, y 1.86-4.18) and the hall door (south wall, hinge x 12.9)
   # swing free. web = true: built in the browser by make_house.py; cull_old = [x0, y0, x1, y1, z_top] removes the old
   # piece from the baked furniture export; moved_from = the old [x, y, facing] of a baked piece that is only moved.
-  { id = "bed2", type = "bed", web = true, size = "queen", x = 12.46, y = 4.6, w = 5.25, l = 7.0, facing = 270, color = "#F1EEE8", accent = "#9A6B4A", cull_old = [5.9, 1.2, 13.2, 9.2, 4.6] },
-  { id = "ns2_n", type = "nightstand", web = true, x = 15.3, y = 1.3, w = 1.4, d = 1.3, h = 2.0, facing = 270 },
-  { id = "ns2_s", type = "nightstand", web = true, x = 15.3, y = 7.9, w = 1.4, d = 1.3, h = 2.0, facing = 270 },
-  { id = "lamp2", type = "table_lamp", web = true, x = 15.3, y = 1.3, on = "ns2_n" },
+  { id = "bed2", type = "bed", web = true, size = "queen", x = 12.46, y = 3.23, w = 5.25, l = 7.0, facing = 270, color = "#F1EEE8", accent = "#9A6B4A", cull_old = [5.9, 1.2, 13.2, 9.2, 4.6] },
+  { id = "ns2_n", type = "nightstand", web = true, x = 15.3, y = 1.3, w = 1.4, d = 1.3, h = 2.0, facing = 270, removed = true },
+  { id = "ns2_s", type = "nightstand", web = true, x = 15.3, y = 6.6, w = 1.4, d = 1.3, h = 2.0, facing = 270 },   # bedrooms 2 and 3: one bedside table, bed pushed into the corner (Maxwell 11/17/2026)
+  { id = "lamp2", type = "table_lamp", web = true, x = 15.3, y = 6.6, on = "ns2_s" },
   { id = "dresser2", type = "model", model = "modern_wooden_cabinet", x = 6.7, y = 8.4, facing = 90, len = 4.2, moved_from = [15.2, 3.2, 270] },
   # ---- bedroom 3 (x 0.5-12.1, y 11.0-22.4): queen, headboard on the east wall, slid south so the north nightstand clears
   # the hall door (east wall, y 11.75-14.23). Maxwell 11/16
-  { id = "bed3", type = "bed", web = true, size = "queen", x = 8.33, y = 18.4, w = 5.25, l = 7.0, facing = 270, color = "#F1EEE8", accent = "#7D8A6C", cull_old = [4.4, 12.4, 11.9, 20.4, 4.6] },
-  { id = "ns3_n", type = "nightstand", web = true, x = 11.18, y = 15.1, w = 1.4, d = 1.3, h = 2.0, facing = 270 },
-  { id = "ns3_s", type = "nightstand", web = true, x = 11.18, y = 21.7, w = 1.4, d = 1.3, h = 2.0, facing = 270 },
-  { id = "lamp3", type = "table_lamp", web = true, x = 11.18, y = 15.1, on = "ns3_n" },
+  { id = "bed3", type = "bed", web = true, size = "queen", x = 8.33, y = 19.75, w = 5.25, l = 7.0, facing = 270, color = "#F1EEE8", accent = "#7D8A6C", cull_old = [4.4, 12.4, 11.9, 20.4, 4.6] },
+  { id = "ns3_n", type = "nightstand", web = true, x = 11.18, y = 16.38, w = 1.4, d = 1.3, h = 2.0, facing = 270 },
+  { id = "ns3_s", type = "nightstand", web = true, x = 11.18, y = 21.7, w = 1.4, d = 1.3, h = 2.0, facing = 270, removed = true },   # one bedside table per bed (Maxwell 11/17/2026)
+  { id = "lamp3", type = "table_lamp", web = true, x = 11.18, y = 16.38, on = "ns3_n" },
   { id = "dresser3", type = "model", model = "modern_wooden_cabinet", x = 2.7, y = 21.65, facing = 0, len = 4.0, moved_from = [5.6, 21.65, 0] },
   { id = "plant_bed3", type = "model", model = "potted_plant_01", x = 1.2, y = 16.55, facing = 90, len = 1.8, moved_from = [1.4, 21.4, 90] },
   # ---- study (x 23.0-31.1, y 0.5-10.7): Maxwell's own desk, off the window (Maxwell 11/16). UPLIFT V2 L-shaped standing
@@ -563,7 +569,7 @@ exterior_fixtures = [
   { type = "outlet", wall = "W", u = 36.6, z = 1.5 },
   { type = "outlet", wall = "N", u = 21.0, z = 1.5 },
   { type = "hose_bib", wall = "W", u = 30.0, z = 1.3 },
-  { type = "hose_bib", wall = "N", u = 4.0, z = 1.3 },
+  { type = "hose_bib", wall = "N", u = 22.35, z = 1.3, note = "Tapped off the bath 2 tub and shower supply in the pipe chase at the tub's valve end (x 22.12-22.58), since nothing comes up through the slab at the old spot by the NW corner (Maxwell 11/17/2026)" },
   { type = "hose_bib", wall = "E", u = 20.0, z = 1.3 },
 ]
 

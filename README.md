@@ -76,6 +76,7 @@ python model/make_house.py            # add --check to list faces that still ove
 - Where `equipment.json` has a real model of an appliance, the placeholder box for it is skipped.
 - Coplanar faces are nudged a hair apart when the file is written so nothing flickers.
 - Furniture the browser builds (the queen beds and nightstands in bedrooms 2 and 3, the Uplift L desk and office chair in the Study) is listed in `[furnishings]` with `web = true`. Its records go on the furniture layer, and `house.json` `meta` tells the viewer how to edit the Blender furniture and site GLBs to match: `replace_nodes` (named nodes to drop), `cull` (boxes of triangles to drop, by material and part), `move_nodes` (nodes to shift and turn) and `lights_moved`.
+- `[plan_edits]` in `config.toml` moves an interior wall off where A-11 draws it (`wall_shift`, by a point inside the wall), for decisions made after the plans. A `[furnishings]` item with `removed = true` drops its baked piece (and a lamp's night light); `cull_old` takes out pieces merged into shared meshes.
 - `meta` also carries `rooms` and `outline` for the room picker plan, `climbs` (the ship's ladder ramp) and `eye_ft`.
 - `?baked` in the address loads the old Blender `shell.glb` and `interior.glb` in place of the generated house, for comparison.
 
