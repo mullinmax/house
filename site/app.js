@@ -829,7 +829,6 @@ function roomLights() {
   for (const L of manifest.lights || []) {        // Blender world metres, Z up
     let p = L.pos || [0, 0, 0];
     const mv = moved[L.name];
-    if (mv === null) continue;                     // its lamp was taken out
     const pos = mv ? plan(mv[0], mv[1], mv[2]) : new THREE.Vector3(p[0], p[2], -p[1]);
     out.push({ pos, fixed: L.room === 'exterior' || L.room === 'Porch', color: L.color || WARM, cd: Math.min(14, Math.max(3, Math.min(L.intensity_lm || 800, 1600) / (L.room === 'lamp' ? 200 : 110))) });
   }

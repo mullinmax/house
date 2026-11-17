@@ -496,9 +496,9 @@ items = [
   # ---- bedroom 1 (x 31.4-42.5, y 0.5-11.0): bed headboard on the east wall under the high awning windows
   { id = "bed1", type = "bed", x = 38.8, y = 6.0, w = 5.3, l = 7.0, facing = 270, color = "#F1EEE8", accent = "#56614A" },
   { id = "ns1_n", type = "model", model = "painted_wooden_nightstand", x = 41.75, y = 2.55, facing = 270, len = 1.7 },
-  { id = "ns1_s", type = "model", model = "painted_wooden_nightstand", x = 41.75, y = 9.45, facing = 270, len = 1.7, removed = true },   # one nightstand per bed (Maxwell 11/17/2026)
+  { id = "ns1_s", type = "model", model = "painted_wooden_nightstand", x = 41.75, y = 9.45, facing = 270, len = 1.7 },
   { id = "lamp1_n", type = "table_lamp", x = 41.75, y = 2.55, on = "ns1_n" },
-  { id = "lamp1_s", type = "table_lamp", x = 41.75, y = 9.45, on = "ns1_s", removed = true },
+  { id = "lamp1_s", type = "table_lamp", x = 41.75, y = 9.45, on = "ns1_s" },
   { id = "dresser1", type = "model", model = "modern_wooden_cabinet", x = 32.3, y = 5.0, facing = 90, len = 5.0 },
   { id = "art_bed1", type = "model", model = "hanging_picture_frame_02", x = 31.45, y = 5.0, z = 4.9, facing = 90, len = 2.6, wall = true },
   # ---- bedroom 2 (x 5.9-16.0, y 0.5-10.7). Maxwell 11/16: queen bed, nightstands clear of the doors. Headboard on the
@@ -507,14 +507,14 @@ items = [
   # piece from the baked furniture export; moved_from = the old [x, y, facing] of a baked piece that is only moved.
   { id = "bed2", type = "bed", web = true, size = "queen", x = 12.46, y = 4.6, w = 5.25, l = 7.0, facing = 270, color = "#F1EEE8", accent = "#9A6B4A", cull_old = [5.9, 1.2, 13.2, 9.2, 4.6] },
   { id = "ns2_n", type = "nightstand", web = true, x = 15.3, y = 1.3, w = 1.4, d = 1.3, h = 2.0, facing = 270 },
-  { id = "ns2_s", type = "nightstand", web = true, x = 15.3, y = 7.9, w = 1.4, d = 1.3, h = 2.0, facing = 270, removed = true },   # one nightstand per bed (Maxwell 11/17/2026)
+  { id = "ns2_s", type = "nightstand", web = true, x = 15.3, y = 7.9, w = 1.4, d = 1.3, h = 2.0, facing = 270 },
   { id = "lamp2", type = "table_lamp", web = true, x = 15.3, y = 1.3, on = "ns2_n" },
   { id = "dresser2", type = "model", model = "modern_wooden_cabinet", x = 6.7, y = 8.4, facing = 90, len = 4.2, moved_from = [15.2, 3.2, 270] },
   # ---- bedroom 3 (x 0.5-12.1, y 11.0-22.4): queen, headboard on the east wall, slid south so the north nightstand clears
   # the hall door (east wall, y 11.75-14.23). Maxwell 11/16
   { id = "bed3", type = "bed", web = true, size = "queen", x = 8.33, y = 18.4, w = 5.25, l = 7.0, facing = 270, color = "#F1EEE8", accent = "#7D8A6C", cull_old = [4.4, 12.4, 11.9, 20.4, 4.6] },
   { id = "ns3_n", type = "nightstand", web = true, x = 11.18, y = 15.1, w = 1.4, d = 1.3, h = 2.0, facing = 270 },
-  { id = "ns3_s", type = "nightstand", web = true, x = 11.18, y = 21.7, w = 1.4, d = 1.3, h = 2.0, facing = 270, removed = true },   # one nightstand per bed (Maxwell 11/17/2026)
+  { id = "ns3_s", type = "nightstand", web = true, x = 11.18, y = 21.7, w = 1.4, d = 1.3, h = 2.0, facing = 270 },
   { id = "lamp3", type = "table_lamp", web = true, x = 11.18, y = 15.1, on = "ns3_n" },
   { id = "dresser3", type = "model", model = "modern_wooden_cabinet", x = 2.7, y = 21.65, facing = 0, len = 4.0, moved_from = [5.6, 21.65, 0] },
   { id = "plant_bed3", type = "model", model = "potted_plant_01", x = 1.2, y = 16.55, facing = 90, len = 1.8, moved_from = [1.4, 21.4, 90] },

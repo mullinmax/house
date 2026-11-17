@@ -1710,8 +1710,6 @@ for it in FURN:
             WEB_META["move_nodes"][it["move_node"]] = mv   # the mesh node when the named node is an empty beside it
     if it.get("removed"):                       # taken out of the house: drop the baked piece, build nothing
         WEB_META["replace_nodes"].append(it["id"])
-        if it["type"] in ("table_lamp", "desk_lamp"):
-            WEB_META.setdefault("lights_moved", {})[f"{it['id']} bulb"] = None   # and its night light
         continue
     if not it.get("web"):
         continue
