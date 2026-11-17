@@ -909,18 +909,18 @@
      10.73875
     ],
     [
-     22.5,
+     27.07,
      12.0,
      10.73875
     ],
     [
-     22.5,
-     16.3,
+     27.07,
+     16.1,
      10.73875
     ],
     [
-     38.6,
-     16.3,
+     41.2,
+     16.1,
      10.73875
     ]
    ],
@@ -937,7 +937,7 @@
      ]
     ],
     "notes": [
-     "Rerouted from M-10. Andy drew this trunk down the middle of the attic at y about 21.6 ft. Maxwell asked for it along the north wall of the attic, so it now hugs the west wall, the north attic wall and the wall behind bedroom 1. Size is Andy's 18 x 16 throughout, no reductions modelled."
+     "Rerouted from M-10. Andy drew this trunk down the middle of the attic at y about 21.6 ft. Maxwell asked for it along the north wall of the attic, so it now hugs the west wall and the north attic wall all the way to bedroom 1's west wall, follows that wall south, then runs east along bedroom 1's south wall (Maxwell, 11/17/2026: keep the middle of the attic free for storage). Size is Andy's 18 x 16 throughout, no reductions modelled."
     ]
    }
   },
@@ -991,7 +991,7 @@
      9.494791666666666
     ],
     [
-     11.0,
+     11.75,
      33.9,
      9.494791666666666
     ]
@@ -1007,6 +1007,18 @@
       10,
       6
      ]
+    },
+    {
+     "at": [
+      12.15,
+      33.9,
+      9.494791666666666
+     ],
+     "size": [
+      10,
+      6
+     ],
+     "wall": "E"
     }
    ],
    "info": {
@@ -1014,7 +1026,7 @@
     "specs": [
      [
       "Serves",
-      "Kitchen and dining 3 x 127 CFM, pantry 22, powder 15, utility 18"
+      "Kitchen and dining 3 x 127 CFM, hall 1 48, pantry 22, powder 15, utility 18"
      ]
     ],
     "notes": [
@@ -1246,13 +1258,8 @@
    "size": 7,
    "points": [
     [
-     23.2,
-     11.7,
-     11.0
-    ],
-    [
      26.9,
-     11.7,
+     11.4,
      11.0
     ],
     [
@@ -1274,7 +1281,7 @@
      ]
     ],
     "notes": [
-     "The study does not touch the attic, so this runs exposed for about 3 ft along the hall wall. ASSUMED."
+     "High sidewall register through the attic wall."
     ]
    },
    "grilles": [
@@ -1397,63 +1404,6 @@
       8,
       6
      ]
-    }
-   ]
-  },
-  {
-   "id": "s_hall1",
-   "name": "Supply to Hall 1",
-   "category": "HVAC supply duct",
-   "system": "hvac.supply",
-   "room": "Hall 1",
-   "type": "supply",
-   "shape": "round",
-   "size": 6,
-   "points": [
-    [
-     13.2,
-     12.75,
-     10.502083333333333
-    ],
-    [
-     13.2,
-     13.0,
-     9.494791666666666
-    ],
-    [
-     13.2,
-     22.62,
-     9.494791666666666
-    ]
-   ],
-   "info": {
-    "model": "6 in round, 48 CFM",
-    "specs": [
-     [
-      "Airflow",
-      "48 CFM (M-10)"
-     ],
-     [
-      "Duct",
-      "6 in round"
-     ]
-    ],
-    "notes": [
-     "High sidewall register above the door."
-    ]
-   },
-   "grilles": [
-    {
-     "at": [
-      13.2,
-      22.9,
-      9.494791666666666
-     ],
-     "size": [
-      10,
-      6
-     ],
-     "wall": "S"
     }
    ]
   },
@@ -1780,13 +1730,23 @@
    "size": 6,
    "points": [
     [
-     24.5,
-     17.05,
+     26.6,
+     16.85,
      10.502083333333333
     ],
     [
+     26.6,
+     17.1,
+     9.494791666666666
+    ],
+    [
+     26.6,
+     20.6,
+     9.494791666666666
+    ],
+    [
      24.5,
-     17.3,
+     20.6,
      9.494791666666666
     ],
     [
@@ -1807,7 +1767,9 @@
       "6 in round"
      ]
     ],
-    "notes": []
+    "notes": [
+     "Leaves the trunk corner, then jogs west in the trusses to keep the register where M-10 has it."
+    ]
    },
    "grilles": [
     {
@@ -1836,12 +1798,12 @@
    "points": [
     [
      28.5,
-     17.05,
+     16.85,
      10.502083333333333
     ],
     [
      28.5,
-     17.3,
+     17.1,
      9.494791666666666
     ],
     [
@@ -1890,17 +1852,17 @@
    "size": 6,
    "points": [
     [
-     26.5,
-     17.05,
+     27.6,
+     16.85,
      10.502083333333333
     ],
     [
-     26.5,
-     17.3,
+     27.6,
+     17.1,
      9.494791666666666
     ],
     [
-     26.5,
+     27.6,
      19.0,
      9.494791666666666
     ]
@@ -1922,7 +1884,7 @@
    "grilles": [
     {
      "at": [
-      26.5,
+      27.6,
       19.0,
       8.98
      ],
@@ -1945,12 +1907,12 @@
    "points": [
     [
      33.4,
-     17.05,
+     16.85,
      10.502083333333333
     ],
     [
      33.4,
-     17.3,
+     17.1,
      9.494791666666666
     ],
     [
@@ -1999,12 +1961,12 @@
    "points": [
     [
      34.6,
-     17.05,
+     16.85,
      10.502083333333333
     ],
     [
      34.6,
-     17.3,
+     17.1,
      9.494791666666666
     ],
     [
@@ -2055,12 +2017,12 @@
    "points": [
     [
      36.0,
-     17.05,
+     16.85,
      10.502083333333333
     ],
     [
      36.0,
-     17.3,
+     17.1,
      9.494791666666666
     ],
     [
@@ -2111,12 +2073,12 @@
    "points": [
     [
      32.3,
-     17.05,
+     16.85,
      10.502083333333333
     ],
     [
      32.3,
-     17.3,
+     17.1,
      9.494791666666666
     ],
     [
@@ -2168,12 +2130,12 @@
    "points": [
     [
      38.0,
-     17.05,
+     16.85,
      10.502083333333333
     ],
     [
      38.0,
-     17.3,
+     17.1,
      9.494791666666666
     ],
     [
@@ -2225,7 +2187,7 @@
    "points": [
     [
      40.4,
-     15.700000000000001,
+     15.500000000000002,
      11.0
     ],
     [
@@ -2362,12 +2324,7 @@
     ],
     [
      7.5,
-     25.6,
-     9.494791666666666
-    ],
-    [
-     5.2,
-     25.6,
+     21.049999999999997,
      9.494791666666666
     ]
    ],
@@ -2440,7 +2397,7 @@
      9.494791666666666
     ],
     [
-     14.4,
+     8.35,
      21.9,
      9.494791666666666
     ]
@@ -2448,7 +2405,7 @@
    "info": {
     "model": "12 x 8 in, in the floor truss space",
     "notes": [
-     "New, in addition to Andy's main return. The study and bedroom 1 are vaulted, so their grilles sit high on the walls they share with the hall 2 east leg, where the floor trusses are. The duct crosses under the supply trunk once at a right angle, stays clear of every supply drop, and only comes up onto the attic deck west of the laundry, along the south edge of the attic, to join the main return. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
+     "New, in addition to Andy's main return. The study and bedroom 1 are vaulted, so their grilles sit high on the walls they share with the hall 2 east leg, where the floor trusses are. The duct stays in the trusses the whole way: it crosses under the supply trunk once at a right angle, runs west behind every supply drop and joins the bedroom 2 and 3 return at x 7.5, which grows to 20 x 8 from there to the riser. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
     ],
     "specs": [
      [
@@ -2457,11 +2414,11 @@
      ],
      [
       "Duct",
-      "10 x 8 in branch, 12 x 8 in spine in the trusses, 14 x 8 in on the deck"
+      "10 x 8 in branch, 12 x 8 in spine, all in the floor trusses"
      ],
      [
       "Crosses",
-      "Under the trunk's east leg once, no supply runs"
+      "Under the supply trunk once, no supply runs"
      ]
     ]
    },
@@ -2494,12 +2451,12 @@
    "points": [
     [
      28.06,
-     12.3,
+     13.6,
      9.494791666666666
     ],
     [
      23.6,
-     12.3,
+     13.6,
      9.494791666666666
     ]
    ],
@@ -2508,7 +2465,7 @@
     {
      "at": [
       28.14,
-      12.3,
+      13.6,
       9.494791666666666
      ],
      "size": [
@@ -2520,59 +2477,34 @@
    ]
   },
   {
-   "id": "return_east_riser",
+   "id": "return_truss_s",
    "name": null,
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
    "shape": "rect",
    "size": [
-    14,
+    20,
     8
    ],
    "points": [
     [
-     14.4,
-     21.9,
+     7.5,
+     21.049999999999997,
      9.494791666666666
     ],
     [
-     14.4,
-     21.9,
-     10.385416666666668
-    ]
-   ],
-   "info_of": "return_east"
-  },
-  {
-   "id": "return_east_deck",
-   "name": null,
-   "category": "HVAC return duct",
-   "system": "hvac.return",
-   "type": "return",
-   "shape": "rect",
-   "size": [
-    14,
-    8
-   ],
-   "points": [
-    [
-     14.4,
-     21.9,
-     10.385416666666668
+     7.5,
+     25.6,
+     9.494791666666666
     ],
     [
-     10.6,
-     21.9,
-     10.385416666666668
-    ],
-    [
-     10.6,
-     26.1,
-     10.385416666666668
+     5.2,
+     25.6,
+     9.494791666666666
     ]
    ],
-   "info_of": "return_east"
+   "info_of": "return_truss"
   },
   {
    "id": "return_riser",
