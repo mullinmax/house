@@ -531,7 +531,7 @@ function jump(name) {
 const show = (o, on) => o.traverse((m) => m.layers.set(on ? 0 : 1));
 // Every view switch is a layer: Walls off fades the house so the systems read, Duct x-ray colours the ducts and
 // shows them through everything, Trees and Distant trees stand in for the old slider.
-const LAYERS = ['Roof', 'Walls', 'Furniture', 'Trees', 'FarTrees', 'Appliances', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
+const LAYERS = ['Roof', 'Walls', 'Furniture', 'Trees', 'FarTrees', 'Appliances', 'Vehicles', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
 const layerOn = (k) => $('l' + k).checked;
 let sliced = false;
 function applyToggles() {
@@ -542,6 +542,7 @@ function applyToggles() {
   for (const o of treeMeshes) show(o, layerOn('Trees') && (o.userData.fullCount < 80 || layerOn('FarTrees')));
   if (equip) {
     show(equip.layers.appliances, layerOn('Appliances'));
+    show(equip.layers.vehicles, layerOn('Vehicles'));
     show(equip.layers.mechanical, layerOn('Mechanical'));
     show(equip.layers.ducts, layerOn('Ducts'));
     show(equip.layers.trusses, layerOn('Trusses'));
