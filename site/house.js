@@ -240,6 +240,7 @@ export function buildHouse(data, { skip = new Set() } = {}) {
     const u = { operable: o.type };
     if (o.angle !== undefined) { u.open_angle = o.angle; u.axis = 'z'; }
     if (o.slide) u.slide = [o.slide[0] * F, -o.slide[1] * F, o.slide[2] * F];
+    if (o.type === 'overhead') { u.door_h = o.height * F; u.inward = [o.inward[0], 0, o.inward[1]]; }
     Object.assign(piv.userData, u);
     for (const bk of local.values()) {
       if (!bk.tris) continue;

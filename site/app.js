@@ -261,7 +261,10 @@ function prepare(roots, first) {
     let pass = !!o.userData.pass;
     if (!pass) for (let p = o; p; p = p.parent) if (RE_NOCOLLIDE.test(p.name || '')) { pass = true; break; }
     o.userData.pass = pass;
-    o.geometry.computeBoundsTree();
+    // The generated house maps a hit's faceIndex to its record through triangle ranges. A plain BVH reorders the
+    // triangles, so a click could land on another record's range (the bi-parting door read as a clerestory window).
+    // 'indirect' keeps the triangle order.
+    o.geometry.computeBoundsTree(o.userData.house ? { indirect: true } : undefined);
     pickables.push(o);
     if (!pass) colliders.push(o);
   });
@@ -380,7 +383,12 @@ function bakeMerge(list) {
 function makeOperable(o) {
   const u = o.userData;
   const op = { obj: o, type: u.operable, t: 0, target: 0, pos0: o.position.clone(), quat0: o.quaternion.clone() };
-  if (op.type === 'swing' || op.type === 'bifold') {
+  if (op.type === 'overhead') {
+    // sectional garage door: the bottom edge rides up the jamb track while the top edge runs back along the ceiling track,
+    // so the door ends flat under the ceiling instead of lifting through the roof
+    op.h = u.door_h; op.dir = new THREE.Vector3(...u.inward).normalize();
+    op.tilt = new THREE.Vector3(0, 1, 0).cross(op.dir).normalize();
+  } else if (op.type === 'swing' || op.type === 'bifold') {
     const ax = (u.axis || 'z').toLowerCase();
     op.axis = ax === 'x' ? new THREE.Vector3(1, 0, 0) : ax === 'y' ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(0, 1, 0);
     op.angle = THREE.MathUtils.degToRad(u.open_angle ?? 90);
@@ -404,7 +412,11 @@ function makeOperable(o) {
 
 function applyOp(op) {
   const e = op.t < 0.5 ? 2 * op.t * op.t : 1 - Math.pow(-2 * op.t + 2, 2) / 2;
-  if (op.axis) {
+  if (op.tilt) {
+    const d = op.h * e, rise = op.h - Math.sqrt(Math.max(0, op.h * op.h - d * d));
+    op.obj.position.copy(op.pos0).y += rise;
+    op.obj.quaternion.copy(op.quat0).premultiply(new THREE.Quaternion().setFromAxisAngle(op.tilt, Math.atan2(d, op.h - rise)));
+  } else if (op.axis) {
     op.obj.quaternion.copy(op.quat0).multiply(new THREE.Quaternion().setFromAxisAngle(op.axis, op.angle * e));
   } else {
     op.obj.position.copy(op.pos0).addScaledVector(op.slide, e);
@@ -713,7 +725,10 @@ function addEquipment() {
   equip.root.traverse((o) => {
     if (!o.isMesh) return;
     o.castShadow = !o.userData.duct; o.receiveShadow = true;
-    o.geometry.computeBoundsTree();
+    // The generated house maps a hit's faceIndex to its record through triangle ranges. A plain BVH reorders the
+    // triangles, so a click could land on another record's range (the bi-parting door read as a clerestory window).
+    // 'indirect' keeps the triangle order.
+    o.geometry.computeBoundsTree(o.userData.house ? { indirect: true } : undefined);
     pickables.push(o);
     if (!o.userData.pass) colliders.push(o);
   });

@@ -37,7 +37,7 @@ flat_height = 9.0               # 9'-0" CLG rooms (A-11). Everything else is vau
 flat_rooms = [
   [0.5, 10.95, 12.12, 22.41],   # Bed 3
   [12.12, 10.95, 23.4, 15.03],  # Hall 2
-  [23.4, 10.95, 31.12, 15.03],  # Hall 2 east leg to the master bedroom door: 9' ceiling + attic over it (Maxwell 11/13). ASSUMED
+  [23.4, 10.95, 28.12, 15.03],  # Hall 2 east leg to the master bedroom door: 9' ceiling + attic over it (Maxwell 11/13). Stops at bedroom 1's west wall (x 28.12, A-11/A-12, Maxwell 11/17/2026)
   [12.12, 15.03, 16.66, 22.87], # Hall 2 / linen
   [16.66, 15.03, 31.12, 22.87], # Laundry (mech platform above)
   [31.12, 15.03, 42.5, 22.87],  # Closet 1
@@ -124,7 +124,7 @@ kind = "door_glass"
 start = 37.866
 end = 41.033
 sill = 0.0
-head = 8.0
+head = 8.08                      # 8'-1" rough opening head, in line with the casement heads on the A-20 west elevation
 [[openings]]
 id = "W30-30 Kitchen transom"
 wall = "W"
@@ -214,7 +214,7 @@ lites_high = 1                  # panels stacked per leaf (rails between them). 
 [garage]                        # delegated design, A-11 / A-22
 enabled = true
 rect = [63.0833, 15.0, 95.0833, 43.0]
-south_wall_height = 10.0        # ASSUMED from A-20 elevation scale
+south_wall_height = 9.0         # A-31 section 2: 9'-0" south, 13'-8" north at 2:12 (was 10.0 ASSUMED from the A-20 scale)
 pitch = 2.0                     # 2:12 down to the south (A-13)
 overhead_doors = [[5.5, 9.0], [17.5, 9.0]]   # [start from garage west, width], 8' tall (D90-80)
 north_windows = [5.5, 11.5, 17.5, 23.5]      # W30-30 awnings, start from garage west
