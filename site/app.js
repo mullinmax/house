@@ -215,6 +215,7 @@ function applyHouseEdits(roots) {
         o.userData._moved = true;
         o.position.x += mv[0] * F; o.position.z += mv[1] * F;
         if (mv[2]) o.rotateY(THREE.MathUtils.degToRad(mv[2]));
+        if (mv[3]) o.position.y += mv[3] * F;              // optional 4th value: up (feet), to part flush faces
       }
     });
     for (const o of drop) o.removeFromParent();

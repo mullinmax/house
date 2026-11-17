@@ -1,0 +1,26 @@
+name: Coplanar face check
+# Fails when two surfaces of different materials lie flush, face the same way and can be seen: they flicker in the
+# walkthrough (z-fighting). The log lists each pair with where it is in plan feet. Run it locally the same way:
+#   node tools/coplanar_audit.mjs
+
+on:
+  pull_request:
+    paths: ["site/**", "model/**", "tools/**", ".github/workflows/coplanar.yml"]
+  push:
+    branches: [main]
+    paths: ["site/**", "model/**", "tools/**", ".github/workflows/coplanar.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  coplanar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Look for flush faces that flicker
+        run: node tools/coplanar_audit.mjs
