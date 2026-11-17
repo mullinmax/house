@@ -1023,18 +1023,30 @@ for rn, run_ in RUNS.items():
 nr = Run("north", RUNS["north"]); UB = K.get("upper_bottom", 4.6)
 for k, up in enumerate(RUNS["north"].get("uppers", [])):
     u0, u1, typ = up[:3]; ud = up[3] if len(up) > 3 else 1.1
+    if typ == "microwave" and RUNS["north"].get("microwave_spot") == "counter":
+        continue                                  # the microwave sits on the counter below, open above (equipment.json)
     r = rec(f"cabinet.north.upper.{k}", "cabinet", "Glass door upper, fridge wall" if typ == "glass" else "Microwave upper, fridge wall", "interior", room="Kitchen",
             info=dict(model=f"{'Glass door' if typ == 'glass' else 'Microwave'} upper, {ftin(u1 - u0)} wide, {ftin(ud)} deep", specs=[["Underside", ftin(UB)], ["Top", ftin(TALL)]],
                       notes=["Microwave upper deepened per Erin's redline."] if typ != "glass" else []))
-    nr.box("Cabinet Wood", u0, u1, 0, ud, UB, TALL - 0.25)
     if typ == "glass":
+        nr.box("Cabinet Wood", u0, u1, 0, ud, UB, TALL - 0.25)
         doors(nr, r, u0, u1, UB, TALL - 0.25, ud, "Cabinet Wood", 2, glass=True)
         for zz in (5.7, 6.75):
             nr.box("Cabinet Wood", u0 + 0.06, u1 - 0.06, 0.05, ud - 0.05, zz, zz + 0.06)
     else:
-        nr.box("Stainless", u0 + 0.15, u1 - 0.15, ud - 0.05, ud + 0.02, UB + 0.05, UB + 1.45)
-        nr.box("Black Glass", u0 + 0.3, u1 - 0.9, ud + 0.02, ud + 0.03, UB + 0.25, UB + 1.25)
-        doors(nr, r, u0, u1, UB + 1.55, TALL - 0.25, ud, "Cabinet Wood", 2)
+        # open microwave cubby (sized for the microwave in equipment.json), wood doors above it
+        mo = RUNS["north"].get("microwave_opening", 1.4)
+        ins = 0.06
+        r["info"]["specs"].append(["Microwave opening", f"{ftin(u1 - u0 - 2 * ins)} W x {ftin(mo)} H x {ftin(ud - ins)} D"])
+        nr.box("Cabinet Wood", u0, u1, 0, ud, UB, UB + ins)                       # cubby floor
+        nr.box("Cabinet Wood", u0, u0 + ins, 0, ud, UB, UB + mo + ins)              # sides
+        nr.box("Cabinet Wood", u1 - ins, u1, 0, ud, UB, UB + mo + ins)
+        nr.box("Cabinet Wood", u0, u1, 0, ins, UB, UB + mo + ins)                   # back
+        nr.box("Cabinet Wood", u0, u1, 0, ud, UB + mo + ins, TALL - 0.25)           # box above the cubby
+        placeholder(nr, "north", k, "microwave", "Microwave (placeholder)")
+        nr.box("Stainless", (u0 + u1) / 2 - 0.85, (u0 + u1) / 2 + 0.85, ins + 0.1, ud - 0.05, UB + ins, UB + ins + 1.05)
+        CUR[0] = r["parts"]
+        doors(nr, r, u0, u1, UB + mo + ins, TALL - 0.25, ud, "Cabinet Wood", 2)
     nr.box("Cabinet Wood", u0 - 0.03, u1 + 0.03, 0, ud + 0.12, TALL - 0.25, TALL)
 
 if RUNS["north"].get("pantry_door"):

@@ -77,6 +77,23 @@ items += [
         placement="Under the island, facing the dining room.")),
 ]
 
+_NR = CFG["kitchen"]["runs"]["north"]
+_MW_D = 20.2                                      # depth with the handle (instruction book p.12)
+_MW_X = _NR["units"][-1][1] - 0.1 - 20.4 / 24    # right side 1.2 in in from the end of the fridge wall counter, open air past it
+items += [
+ dict(id="microwave", name="Breville Combi Wave 3 in 1", category="Kitchen appliance", system="kitchen", room="Kitchen", layer="appliances",
+      builder="microwave_combi", size=[20.4, 12.5, _MW_D], at=[_MW_X, _NR["back"] + 2.5 / 12, 3.0], facing=180,
+      info=dict(model="Breville BMO870BSS1BUC1 the Combi Wave 3 in 1, microwave, air fryer and convection oven, brushed stainless", price="$499.95 at Breville",
+        specs=[["Size", "20.4 W x 12.5 H x 20.2 D in (19.3 D without the handle)"], ["Capacity", "1.1 cu ft, 12.4 in turntable"],
+               ["Modes", "Inverter microwave, convection bake, air fry, grill, combi"], ["Clearance", "20 cm (about 8 in) from walls and above, per the manual"],
+               ["Controls", "Dial, presets and an 'A Bit More' button"]],
+        notes=["Picked by Maxwell (11/17/2026) for the simple controls, after an old LG he liked with +30 s and a swipe to change the time.",
+               "Breville's instruction book says it must not be built in or enclosed in a cabinet, so it sits on the counter with nothing closed above it. "
+               "The microwave upper from the cabinet plan is left out here. Position on the counter is ASSUMED.",
+               "The 'A Bit More' button and dial are from reviews and memory, not the spec sheet."],
+        placement="Fridge wall counter, at the east end by the opening to the dining room.")),
+]
+
 # ------------------------------------------------------------------ laundry
 items += [
  dict(id="washer_dryer", name="GE Profile UltraFast Combo washer dryer", category="Laundry appliance", system="laundry", room="Laundry", layer="appliances",
