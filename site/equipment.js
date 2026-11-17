@@ -102,8 +102,9 @@ const DUCT = {
   exhaust: new THREE.MeshStandardMaterial({ color: 0xbcb0c6, roughness: 0.5, metalness: 0.5 }),
   grille: new THREE.MeshStandardMaterial({ color: 0xf4f4f0, roughness: 0.5, metalness: 0.1 }),
   slot: new THREE.MeshStandardMaterial({ color: 0x55585a, roughness: 0.7, metalness: 0.2 }),
+  flex_return: new THREE.MeshStandardMaterial({ color: 0x8f9396, roughness: 0.55, metalness: 0.35 }),    // uninsulated flex: silver grey jacket
 };
-const XRAY = { supply: 0x2f8be0, return: 0xe0503a, transfer: 0xe0b23a, erv: 0x6cbf4a, exhaust: 0x9b59d0, grille: 0xffffff, slot: 0x222222 };
+const XRAY = { supply: 0x2f8be0, return: 0xe0503a, flex_return: 0xe0503a, transfer: 0xe0b23a, erv: 0x6cbf4a, exhaust: 0x9b59d0, grille: 0xffffff, slot: 0x222222 };
 for (const [k, m] of Object.entries(DUCT)) m.name = 'Duct ' + k;
 
 // ---------------------------------------------------------------- geometry helpers (inches, local frame)
@@ -277,30 +278,38 @@ function drawOvenPanel(c, w, h) {                     // Frigidaire Gallery wall
   c.strokeStyle = '#d7dadd'; c.lineWidth = 1.5;
   for (const sx of [-1, 1]) for (const k of [-1, 0, 1]) { c.beginPath(); c.arc(w / 2 + sx * (dw / 2 + h * 0.3), h / 2 + k * h * 0.2, h * 0.055, 0, Math.PI * 2); c.stroke(); }
 }
-function drawCooktop(c, w, h) {                       // KitchenAid KCIT730SBL zone markings, seen from above with the front at the bottom
+function drawCooktop(c, w, h) {                       // LG CBIH3013BE zone markings, seen from above with the front at the bottom
   c.fillStyle = '#0b0b0c'; c.fillRect(0, 0, w, h);
-  const X = (px) => (px - 894) / 541 * w, Y = (py) => (py - 232) / 375 * h, S = w / 541;
-  ink(c, '#8d9093', 1.6);
-  c.strokeRect(X(937), Y(260), 138 * S, 264 * S);
-  c.beginPath(); c.moveTo(X(942), Y(392)); c.lineTo(X(1070), Y(392)); c.stroke();
-  for (const [x, y, r] of [[1176, 358, 87], [1338, 320, 53], [1326, 451, 62]]) { c.beginPath(); c.arc(X(x), Y(y), r * S, 0, Math.PI * 2); c.stroke(); }
-  c.fillStyle = '#b9bcbf'; c.textBaseline = 'middle'; c.textAlign = 'left';
-  c.font = `bold ${Math.round(9 * S)}px Georgia, serif`; c.fillText('KitchenAid', X(908), Y(591));
-  ink(c, '#9a9da0', 1);
-  for (const y of [563, 577]) for (const [x0, x1] of [[1038, 1100], [1232, 1294]]) {     // slider tracks
-    c.beginPath(); c.setLineDash([2, 3]); c.moveTo(X(x0), Y(y)); c.lineTo(X(x1), Y(y)); c.stroke(); c.setLineDash([]);
-    c.beginPath(); c.arc(X(x0 - 6), Y(y), 2.2 * S, 0, Math.PI * 2); c.stroke();
+  const X = (px) => (px - 12) / 566 * w, Y = (py) => (py - 8) / 388 * h, S = w / 566;
+  ink(c, '#85888b', 1.5);
+  for (const [x, y, r] of [[122, 101, 58], [327, 138, 91], [128, 275, 67], [480, 262, 60]]) {
+    c.beginPath(); c.arc(X(x), Y(y), r * S, 0, Math.PI * 2); c.stroke();
+    for (const [dx, dy] of [[1, 0], [0, 1]]) { c.beginPath(); c.moveTo(X(x) - dx * 5 * S, Y(y) - dy * 5 * S); c.lineTo(X(x) + dx * 5 * S, Y(y) + dy * 5 * S); c.stroke(); }   // centre cross
   }
-  c.font = `${Math.round(8 * S)}px Helvetica, Arial, sans-serif`; c.textAlign = 'center';
-  for (const [x, y] of [[1122, 563], [1122, 577], [1205, 563], [1205, 577], [1163, 537]]) c.fillText('88', X(x), Y(y));
-  for (const x of [1152, 1165, 1178]) { c.beginPath(); c.arc(X(x), Y(564), 2.6 * S, 0, Math.PI * 2); c.stroke(); c.fillRect(X(x) - 3 * S, Y(577) - 1.5 * S, 6 * S, 3 * S); }
-  c.beginPath(); c.arc(X(1419), Y(248), 2 * S, 0, Math.PI * 2); c.stroke();
+  c.textBaseline = 'middle'; c.textAlign = 'center';
+  c.fillStyle = '#e2392c'; c.font = `bold ${Math.round(11 * S)}px Helvetica, Arial, sans-serif`;
+  for (const x of [262, 296, 330, 364]) c.fillText('5', X(x), Y(308));                         // one power level per zone
+  c.fillStyle = '#a4a7aa'; c.font = `${Math.round(6.5 * S)}px Helvetica, Arial, sans-serif`;
+  for (let i = 0; i < 10; i++) c.fillText(String(i), X(250 + i * 11.4), Y(328));              // level row
+  c.fillText('Boost', X(374), Y(328));
+  ink(c, '#a4a7aa', 1);
+  for (const x of [262, 296, 330, 364]) { c.beginPath(); c.moveTo(X(x - 9), Y(317)); c.lineTo(X(x + 9), Y(317)); c.stroke(); }
+  for (const x of [256, 284, 340, 368]) { c.beginPath(); c.arc(X(x), Y(343), 3.2 * S, 0, Math.PI * 2); c.stroke(); }   // power, lock, timer, pause
+  c.fillText('0:00', X(312), Y(343));
+  c.fillStyle = '#b9bcbf'; c.textAlign = 'left';
+  c.font = `bold ${Math.round(11 * S)}px Helvetica, Arial, sans-serif`; c.fillText('LG', X(30), Y(378));
+  c.textAlign = 'right'; c.font = `${Math.round(7.5 * S)}px Helvetica, Arial, sans-serif`; c.fillText('ThinQ', X(562), Y(378));
+  c.textAlign = 'left'; c.font = `${Math.round(5.5 * S)}px Helvetica, Arial, sans-serif`; c.fillText('INDUCTION', X(26), Y(22));
 }
-function drawDispenser(c, w, h) {                     // Whirlpool in-door dispenser controls
-  c.fillStyle = '#07080a'; c.fillRect(0, 0, w, h);
-  c.fillStyle = '#e9e9e9'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.font = '9px Helvetica, Arial, sans-serif';
-  const L = ['Water', 'Crushed', 'Cubed', 'Light', 'Lock'];
-  for (let i = 0; i < 5; i++) { const x = w * (0.14 + i * 0.18); c.fillText(L[i], x, h * 0.3); c.beginPath(); c.arc(x, h * 0.66, 4.5, 0, Math.PI * 2); ink(c, '#e9e9e9', 1.3); c.stroke(); }
+function drawDispenser(c, w, h) {                     // Frigidaire Gallery in-door display: silver panel, white temperatures
+  const g = c.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#8f9499'); g.addColorStop(1, '#7c8186');
+  c.fillStyle = g; c.fillRect(0, 0, w, h);
+  c.fillStyle = '#ffffff'; c.textAlign = 'center'; c.textBaseline = 'middle';
+  c.font = `${Math.round(h * 0.3)}px Helvetica, Arial, sans-serif`;
+  c.fillText('0°', w * 0.3, h * 0.36); c.fillText('37°', w * 0.7, h * 0.36);
+  c.font = `${Math.round(h * 0.085)}px Helvetica, Arial, sans-serif`;
+  const L = ['Water', 'Cubes', 'Crush', 'Light', 'Lock'];
+  for (let i = 0; i < 5; i++) c.fillText(L[i], w * (0.14 + i * 0.18), h * 0.78);
 }
 function drawBeverage(c, w, h) {                      // what shows through the glass door: lit shelves of cans
   const g = c.createLinearGradient(0, 0, 0, h); g.addColorStop(0, '#16222e'); g.addColorStop(1, '#070b10');
@@ -373,41 +382,49 @@ const BUILD = {
     plate(g, w - 2.6, ph - 1.9, screenMat('oven panel', 1024, 120, drawOvenPanel, 0.85), 0, py0 + ph / 2, face + 0.12);   // 1 mm in front of the glass
     return g;
   },
-  cooktop_induction(s) {           // KitchenAid KCIT730SBL: frameless black glass, bridge zone on the left, three round zones, touch sliders at the front
+  cooktop_induction(s) {           // LG CBIH3013BE: frameless black glass, 10 in centre zone with three smaller zones around it, touch controls at the front
     const [w, , d] = s, g = new THREE.Group();
     box(g, w, 0.25, d, glass(), 0, 0.125, d / 2);                                            // glass on the counter
-    plate(g, w - 0.1, d - 0.1, printMat('cooktop markings', 1024, 708, drawCooktop, 0.1, 0.35), 0, 0.29, d / 2, true);   // 1 mm over the glass so it never flickers
-    box(g, 29.2, 3.4, 20.2, darkPlastic(), 0, -1.7, d / 2);                                  // body below the counter
+    plate(g, w - 0.1, d - 0.1, printMat('cooktop markings', 1024, 702, drawCooktop, 0.1, 0.35), 0, 0.29, d / 2, true);   // 1 mm over the glass so it never flickers
+    box(g, 28.0, 3.4, 19.2, darkPlastic(), 0, -1.7, d / 2);                                  // body below the counter, inside the 28 1/2 x 19 5/8 in cutout
     return g;
   },
-  fridge_french_door(s) {          // Whirlpool WRFC5036RZ: two doors with bowed strap handles, dispenser in the left door, pocket handle freezer drawer
+  fridge_french_door(s) {          // Frigidaire Gallery GRFC2353AF: two doors with flat bar handles, silver dispenser in the left door, bar handle on the freezer drawer
     const [w, h, d] = s, g = new THREE.Group();
-    const cd = d - 5.4, dt = 3.0, zf = cd + dt, dzc = cd + dt / 2;
+    const dt = 4.1, zf = d - 2.3, cd = zf - dt, dzc = cd + dt / 2;                            // 30.8 in deep with handles, 28.5 without
     box(g, w - 0.3, h - 2.0, cd, steelSide(), 0, 1.1 + (h - 2.0) / 2, cd / 2);                // case
     for (const x of [-1, 1]) {
       box(g, 4.2, 0.9, 3.4, darkPlastic(), x * (w / 2 - 2.4), h - 0.45, cd - 0.9);            // hinge covers
       cyl(g, 0.8, 1.2, darkPlastic(), x * (w / 2 - 2.2), 0.6, cd + 0.6, 'y', 10);             // front feet
     }
-    const fy0 = 1.4, fy1 = 22.9, dy0 = 24.5, dy1 = h - 0.3;
+    const fy0 = 1.3, fy1 = 26.5, dy0 = 27.4, dy1 = h - 0.4;
     slab(g, w, fy1 - fy0, dt, steel(), 0, (fy0 + fy1) / 2, dzc, 0.3);                         // freezer drawer
-    box(g, w - 0.5, dy0 - fy1, dt - 1.3, graphiteDark(), 0, (fy1 + dy0) / 2, cd + (dt - 1.3) / 2);   // shadow gap: the drawer's pocket handle
-    box(g, w, 0.35, 0.9, steelH(), 0, fy1 - 0.1, zf - 0.41);   // stands 1 mm proud of the drawer face                                  // grip lip on the drawer's top edge
+    box(g, w - 0.5, dy0 - fy1, dt - 1.3, graphiteDark(), 0, (fy1 + dy0) / 2, cd + (dt - 1.3) / 2);   // shadow gap between drawer and doors
+    const flat = (len, x, y, vertical) => {                                                   // flat bar handle on two posts
+      const a = vertical ? [1.5, len, 0.6] : [len, 1.5, 0.6];
+      slab(g, a[0], a[1], a[2], steelH(), x, y, zf + 2.0, 0.22);
+      for (const k of [-1, 1]) {
+        const o = k * (len / 2 - 2.2);
+        box(g, 1.0, 1.0, 1.7, steelH(), x + (vertical ? 0 : o), y + (vertical ? o : 0), zf + 0.85);
+      }
+    };
+    flat(32.5, 0, 23.9, false);
     const dw = w / 2 - 0.12;
     for (const sx of [-1, 1]) {
       slab(g, dw, dy1 - dy0, dt, steel(), sx * (dw / 2 + 0.12), (dy0 + dy1) / 2, dzc, 0.3);   // doors
-      bowHandle(g, sx * 1.8, 28.3, 64, zf, 2.0, steelH());
+      flat(28.7, sx * 2.4, 48.25, true);
     }
-    const px = -8.9, py = 45.2;                                                               // dispenser, 9 x 15 in
-    slab(g, 9, 15, 0.24, mat('dispenser bezel', 0xa9acaf, 0.4, 0.5), px, py, zf + 0.1, 0.45);
-    plate(g, 8.3, 3.7, screenMat('fridge dispenser', 256, 112, drawDispenser, 0.8), px, py + 5.3, zf + 0.26);   // 1 mm in front of the bezel
-    slab(g, 7.6, 10.2, 0.1, mat('dispenser cavity', 0x5d6165, 0.45, 0.4), px, py - 2.0, zf + 0.2, 0.35);
-    box(g, 2.4, 5.6, 0.5, mat('dispenser paddle', 0xc9ccce, 0.35, 0.3), px, py - 1.4, zf + 0.4);
-    cyl(g, 0.5, 1.2, darkPlastic(), px, py + 2.6, zf + 0.6, 'y', 10);                         // spout
-    box(g, 7.6, 0.5, 1.0, darkPlastic(), px, py - 6.9, zf + 0.5);                             // drip tray
-    plate(g, 3.4, 0.85, labelMat('whirlpool logo', 256, 64, word('Whirlpool', '#34373a', 'italic bold 40px Helvetica, Arial, sans-serif')), w / 2 - 3.6, h - 3.4, zf + 0.02);
+    const px = -10.6, py = 44.4;                                                              // dispenser, 9.4 x 16.4 in, silver throughout
+    slab(g, 9.4, 16.4, 0.24, mat('dispenser bezel', 0x9a9fa4, 0.4, 0.55), px, py, zf + 0.1, 0.5);
+    plate(g, 8.8, 4.6, screenMat('fridge dispenser', 256, 134, drawDispenser, 0.55), px, py + 5.6, zf + 0.26);   // 1 mm in front of the bezel
+    slab(g, 8.2, 10.4, 0.1, mat('dispenser cavity', 0x6c7176, 0.45, 0.45), px, py - 2.6, zf + 0.2, 0.4);
+    box(g, 2.6, 5.4, 0.5, mat('dispenser paddle', 0xb4b8bc, 0.35, 0.4), px, py - 2.2, zf + 0.4);
+    cyl(g, 0.5, 1.2, greyPlastic(), px, py + 2.0, zf + 0.6, 'y', 10);                         // spout
+    box(g, 8.2, 0.5, 1.0, greyPlastic(), px, py - 7.6, zf + 0.5);                             // drip tray
+    plate(g, 3.1, 1.2, labelMat('frigidaire logo', 256, 100, word('FRIGIDAIRE', '#f4f5f6', 'bold 34px Helvetica, Arial, sans-serif')), 14.6, 66, zf + 0.02);
     return g;
   },
-  dishwasher(s) {                  // Bosch SHP65DP5N: flat stainless door with a recessed pocket handle, controls hidden on the top edge
+  dishwasher(s) {                  // Bosch 500 Series SHP65DM5N: flat stainless door with a recessed pocket handle, controls hidden on the top edge
     const [w, h, d] = s, g = new THREE.Group();
     box(g, w - 0.4, h - 4.2, d - 1.4, darkSteel(), 0, 4.2 + (h - 4.2) / 2, (d - 1.4) / 2);
     const y0 = 4.4, y1 = h - 0.45;
@@ -604,6 +621,24 @@ const BUILD = {
     for (const x of [-w / 4, 0, w / 4]) for (const z of [d * 0.25, d * 0.75]) cyl(g, 0.22, 0.1, darkSteel(), x, h + 0.02, z, 'y', 8);   // cover screws
     return g;
   },
+  silencer(s) {                    // round duct silencer: galvanized shell, rolled end rings, 8 in collars each end. Vertical, base at the origin.
+    const [od, len] = s, g = new THREE.Group(), r = od / 2;
+    cyl(g, r, len - 4, galv(), 0, len / 2, 0, 'y', 28);
+    for (const y of [2.6, len - 2.6]) cyl(g, r - 0.6, 1.4, galv(), 0, y, 0, 'y', 28, r - 1.6);   // tapered shoulders
+    for (const y of [1, len - 1]) cyl(g, r - 2.0, 2, galv(), 0, y, 0, 'y', 24);                   // duct collars
+    for (const y of [len * 0.3, len * 0.7]) ring(g, r + 0.05, 0.18, galv(), 0, y, 0, 'y', 32);  // seams
+    box(g, 0.05, 3.2, 5.2, mat('rating label', 0xe9e9e2, 0.6), r + 0.03, len / 2, 0);
+    return g;
+  },
+  roof_blower(s) {                 // low profile exterior range hood blower on a roof curb: square curb, flat base, louvred band, domed hood
+    const [w, h, d] = s, g = new THREE.Group(), flash = mat('curb flashing', 0x2a2d2f, 0.5, 0.4);
+    box(g, w + 3, 9, d + 3, flash, 0, 0.5, 0);                                                // curb, flashed into the standing seam (runs into the roof on the uphill side)
+    box(g, w + 1.2, 0.6, d + 1.2, darkSteel(), 0, 5.3, 0);                                     // base flange
+    box(g, w - 2, 3.0, d - 2, darkSteel(), 0, 7.1, 0);                                         // fan housing
+    box(g, w - 2.2, 1.6, d - 2.2, mat('louvre shadow', 0x111213, 0.8), 0, 9.3, 0);             // discharge band
+    cyl(g, (w - 7) / 2, h - 10.6, darkSteel(), 0, 10.1 + (h - 10.6) / 2, 0, 'y', 4, (w - 1.5) / 2).rotation.y = Math.PI / 4;   // hood
+    return g;
+  },
   car(s, it) { return buildCar(it); },                 // Tesla Model Y and Honda Insight, in vehicles.js
   wall_connector(s) { return buildWallConnector(s); },
   generic(s) {
@@ -641,8 +676,18 @@ function buildDuct(dc) {
   const pts = dc.points.map((p) => plan(p[0], p[1], p[2]));
   if (dc.shape === 'round' || typeof dc.size === 'number') {
     const r = (typeof dc.size === 'number' ? dc.size : dc.size[0]) / 2 * IN;
-    for (let i = 0; i < pts.length - 1; i++) tube(g, pts[i], pts[i + 1], r, m, 18);
-    for (let i = 1; i < pts.length - 1; i++) { const s = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 10), m); s.position.copy(pts[i]); g.add(s); }
+    const fm = dc.flex ? (DUCT['flex_' + dc.type] || m) : m;
+    for (let i = 0; i < pts.length - 1; i++) tube(g, pts[i], pts[i + 1], dc.flex ? r * 0.94 : r, fm, 18);
+    for (let i = 1; i < pts.length - 1; i++) { const s = new THREE.Mesh(new THREE.SphereGeometry(dc.flex ? r * 0.94 : r, 16, 10), fm); s.position.copy(pts[i]); g.add(s); }
+    if (dc.flex) {                                  // flex duct: the wire helix shows as a rib every 3 in or so
+      const rib = new THREE.TorusGeometry(r * 0.97, r * 0.06, 4, 16), z = new THREE.Vector3(0, 0, 1);
+      for (let i = 0; i < pts.length - 1; i++) {
+        const d = pts[i + 1].clone().sub(pts[i]), len = d.length(), n = Math.floor(len / (3 * IN));
+        if (!n) continue;
+        const q = new THREE.Quaternion().setFromUnitVectors(z, d.clone().normalize());
+        for (let k = 1; k <= n; k++) { const me = new THREE.Mesh(rib, fm); me.position.copy(pts[i]).addScaledVector(d, k / (n + 1)); me.quaternion.copy(q); g.add(me); }
+      }
+    }
   } else {
     const [w, h] = dc.size.map((v) => v * IN);
     for (let i = 0; i < pts.length - 1; i++) {
@@ -725,9 +770,14 @@ function buildTrusses(t) {
   const E = 0.05, zb = 0.07, zt = 0.01;
   for (const [rx0, ry0, rx1, ry1] of [...t.regions, ...(t.loft_regions || [])]) {
     const x0 = rx0 + E, x1 = rx1 - E, y0 = ry0 + E, y1 = ry1 - E;
-    const n = Math.max(1, Math.round((x1 - x0) / sp)), L = y1 - y0;
-    for (let i = 0; i <= n; i++) {
-      const x = Math.min(x1 - CW / 2, Math.max(x0 + CW / 2, x0 + i * (x1 - x0) / n));
+    const L = y1 - y0, xs = [];
+    if (t.grid_x0 != null) {                       // one grid across the house: trusses run continuous over the walls, so the bays line up
+      for (let k = Math.ceil((x0 + CW / 2 - t.grid_x0) / sp - 1e-6); t.grid_x0 + k * sp <= x1 - CW / 2 + 1e-6; k++) xs.push(t.grid_x0 + k * sp);
+    } else {
+      const n = Math.max(1, Math.round((x1 - x0) / sp));
+      for (let i = 0; i <= n; i++) xs.push(Math.min(x1 - CW / 2, Math.max(x0 + CW / 2, x0 + i * (x1 - x0) / n)));
+    }
+    for (const x of xs) {
       for (const zc of [z0 + zb + CH / 2, z0 + D - zt - CH / 2]) {                         // bottom and top chords
         m4.makeTranslation(...plan(x, y0 + L / 2, zc).toArray());
         push(new THREE.BoxGeometry(CW * F, CH * F, L * F), m4.clone());

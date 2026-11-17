@@ -52,6 +52,7 @@ depth_in = 11.875               # 11-7/8" (Maxwell 11/16/2026)
 deck_in = 0.75                  # ASSUMED 3/4" decking
 spacing_in = 24.0               # ASSUMED
 span = "ns"                     # ASSUMED north to south, until the truss drawings exist
+grid_x0 = 0.7                   # ASSUMED: every truss on one 24 in grid from here (plan ft), so the bays line up house wide
 
 [loft]                          # 134 sf loft over Bath 1 (A-12)
 enabled = true
@@ -293,7 +294,7 @@ pantry_door = [0.743, 3.443]             # redline: door into the pantry where C
 pantry_door_leaf = 2.5                   # 2'-6" x 6'-8" white oak slab. ASSUMED (a 2'-8" leaf leaves no room for casing against the west wall)
 pantry_casing_east = 0.292               # 3-1/2" casing; its outer edge stops 2" (0.167 ft) short of the fridge side panel at x = 3.9
 pantry_casing_west = 0.20                # trimmed to 2-3/8" so it dies into the west wall face at x = 0.542
-fridge_panels = 0.06                     # 3/4" oak side panels inside the fridge bay [3.9, 7.05], stainless unit between them. ASSUMED. Bay widened from 6.95 (36.6 in) to 7.05 (37.8 in) so the 35 3/4 in Whirlpool WRFC5036RZ gets about 36.3 in clear between the panels (Maxwell 11/17/2026)
+fridge_panels = 0.06                     # 3/4" oak side panels inside the fridge bay [3.9, 7.05], stainless unit between them. ASSUMED. Bay widened from 6.95 (36.6 in) to 7.05 (37.8 in) which leaves about 36.3 in clear between the panels. The 36 in Frigidaire Gallery GRFC2353AF (Erin's list, 11/17/2026) has under 3/16 in each side
 [kitchen.runs.island]                    # island working side faces south (elevation 4)
 axis = "x"
 back = 43.77

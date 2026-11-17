@@ -100,23 +100,30 @@
     "notes": [
      "Maxwell's pick (11/17/2026), replacing the LG WDEP9423F.",
      "The oven tower is changed to suit it: the face starts 14.6 in above the floor over one drawer, and the doors above start at 65.6 in. The Carter Lumber drawing shows a 39 in tall opening, so the tower's drawer and door split has to change in the cabinet order. The tower is 33.6 in wide, which leaves about 2.5 in of stile each side of the 28.5 in cutout.",
-     "Size and cutout from the Lowe's listing. Confirm against the Frigidaire installation guide before the cabinets are ordered."
+     "Size and cutout from the Lowe's listing. Confirm against the Frigidaire installation guide before the cabinets are ordered.",
+     "Erin's list (11/17/2026) has this at $2,199 as GCWD3067AD. The AD suffix is the black stainless finish ($2,799 at Lowe's); the AF modelled here is the stainless one the list's link points to."
+    ],
+    "links": [
+     [
+      "Lowe's product page",
+      "https://www.lowes.com/pd/Frigidaire-30-in-Self-cleaning-Air-Fry-Single-fan-European-Element-Double-Electric-Wall-Oven-Smudge-proof-Stainless-Steel/5013113761"
+     ]
     ],
     "placement": "West wall oven tower, per the cabinet plan."
    }
   },
   {
    "id": "cooktop",
-   "name": "KitchenAid induction cooktop",
+   "name": "LG smart induction cooktop",
    "category": "Kitchen appliance",
    "system": "kitchen",
    "room": "Kitchen",
    "layer": "appliances",
    "builder": "cooktop_induction",
    "size": [
-    30.8,
-    3.7,
-    21.3
+    30.69,
+    3.69,
+    21.06
    ],
    "at": [
     0.74,
@@ -140,28 +147,42 @@
     }
    ],
    "info": {
-    "model": "KitchenAid KCIT730SBL, 30 in, 5 zones",
-    "price": "About $1,899",
+    "model": "LG CBIH3013BE, 30 in smart induction cooktop, 4 elements, black ceramic glass",
+    "price": "$999 at LG on 11/17/2026 ($899 on Erin's list)",
     "specs": [
      [
       "Size",
-      "30.8 W x 21.3 D x 3.7 H in"
+      "30 11/16 W x 21 1/16 D x 3 11/16 H in"
      ],
      [
       "Cutout",
-      "29.5 W x 20.44 D in"
+      "28 1/2 W x 19 5/8 D in, 5 3/4 in deep"
      ],
      [
-      "Zones",
-      "Centre 10 in 2,600 W (3,700 boost), four more from 1,500 to 2,500 W"
+      "Elements",
+      "Centre 10 in 2,400 W (4,300 boost), left front 7 in 2,100 W (3,200 boost), left rear and right front 6 in 1,300 W (1,800 boost)"
      ],
      [
       "Power",
-      "240 V, 50 A circuit"
+      "240/208 V, 29.6 A at 240 V"
+     ],
+     [
+      "Weight",
+      "35.7 lb"
      ],
      [
       "Features",
-      "Temp Cook, Even-Heat bridge"
+      "ThinQ app, touch controls with a boost level on every element"
+     ]
+    ],
+    "notes": [
+     "From Erin's list (11/17/2026), replacing the KitchenAid KCIT730SBL.",
+     "The cutout is 1 in narrower and about 0.8 in shallower than the KitchenAid's (29.5 x 20.44 in), so tell the countertop fabricator. Size, cutout and element ratings are from LG's spec sheet, which does not state a breaker size: confirm that with the installation guide."
+    ],
+    "links": [
+     [
+      "LG product page",
+      "https://www.lg.com/us/cooking-appliances/lg-cbih3013be"
      ]
     ],
     "placement": "West counter run, centred on the cooktop bay in the cabinet plan."
@@ -169,16 +190,16 @@
   },
   {
    "id": "fridge",
-   "name": "Whirlpool counter depth French door fridge",
+   "name": "Frigidaire Gallery counter depth French door fridge",
    "category": "Kitchen appliance",
    "system": "kitchen",
    "room": "Kitchen",
    "layer": "appliances",
    "builder": "fridge_french_door",
    "size": [
-    35.75,
+    36,
     70,
-    31.8
+    30.8
    ],
    "at": [
     5.475,
@@ -205,15 +226,20 @@
     }
    ],
    "info": {
-    "model": "Whirlpool WRFC5036RZ, 36 in true counter depth, 3 door French door, 23.4 cu ft",
+    "model": "Frigidaire Gallery GRFC2353AF, 36 in counter depth French door, 22.6 cu ft",
+    "price": "$2,899 at Lowe's on 11/17/2026 (list $3,299)",
     "specs": [
      [
       "Size",
-      "35 3/4 W x 70 H x 31 4/5 D in"
+      "36 W x 70 H x 30.8 D in with handles"
+     ],
+     [
+      "Depth",
+      "28.5 in without handles, 23.6 in without doors"
      ],
      [
       "Capacity",
-      "23.4 cu ft"
+      "22.6 cu ft"
      ],
      [
       "Doors",
@@ -221,16 +247,31 @@
      ],
      [
       "Dispenser",
-      "Water and ice in the left door"
+      "Water and ice in the left door, dual ice maker"
      ],
      [
       "Finish",
-      "Fingerprint resistant stainless"
+      "Fingerprint resistant stainless steel"
+     ],
+     [
+      "Weight",
+      "334 lb"
      ]
     ],
     "notes": [
-     "Size from the dimensioned product photo Maxwell sent (11/17/2026).",
-     "The fridge bay was 36.6 in wide with 3/4 in panels inside it, which left only about 35.1 in clear. It is widened to 37.8 in here (about 36.3 in clear) so this fridge fits. Check the exact cutout and door clearance with Carter Lumber and the Whirlpool install guide."
+     "From Erin's list (11/17/2026), replacing the Whirlpool WRFC5036RZ. Size from the Lowe's listing.",
+     "Erin's note prices the fridge at $1,699 as FRFC2323AS, which is the plain Frigidaire version of this fridge: same 36 x 70 x 30.8 in and 22.6 cu ft, also with a door dispenser, $1,899 at Lowe's on 11/17/2026. The link on the list points to the Gallery GRFC2353AF, so that is what is modelled. Either one fits the same bay.",
+     "The fridge bay is 37.8 in wide with 3/4 in panels inside it, which leaves about 36.3 in clear, so this 36 in fridge has under 3/16 in each side. Check the opening width in the Frigidaire install guide with Carter Lumber. It is 1 in shallower than the Whirlpool, so the pantry door beside it has no less room than before."
+    ],
+    "links": [
+     [
+      "Lowe's product page (GRFC2353AF)",
+      "https://www.lowes.com/pd/Frigidaire-22-6-Cu-Ft-Counter-Depth-French-Door-Refrigerator/5013011561"
+     ],
+     [
+      "Lowe's product page (FRFC2323AS)",
+      "https://www.lowes.com/pd/Frigidaire-22-6-cu-ft-Counter-depth-French-Door-Refrigerator-with-Ice-Maker-Stainless-Steel-ENERGY-STAR/5013990507"
+     ]
     ],
     "placement": "North kitchen wall, in the panelled fridge bay."
    }
@@ -270,8 +311,8 @@
     }
    ],
    "info": {
-    "model": "Bosch SHP65DP5N, 24 in pocket handle",
-    "price": "$1,129 to $1,249",
+    "model": "Bosch 500 Series SHP65DM5N, 24 in top control, pocket handle, stainless steel",
+    "price": "$1,129 at Lowe's on 11/17/2026 (list $1,249)",
     "specs": [
      [
       "Size",
@@ -295,7 +336,16 @@
      ],
      [
       "Features",
-      "AutoAir dry, Home Connect"
+      "AutoAir dry, third rack, Zone Wash, Home Connect"
+     ]
+    ],
+    "notes": [
+     "From Erin's list (11/17/2026). The model number is corrected from SHP65DP5N to SHP65DM5N. The size, energy and capacity figures were not shown on the Lowe's page, so they are carried over from the 500 Series pocket handle spec: confirm them with the Bosch install guide."
+    ],
+    "links": [
+     [
+      "Lowe's product page",
+      "https://www.lowes.com/pd/Bosch-500-Series-24-in-Top-Control-Built-In-Pocket-Handle-Dishwasher-in-Stainless-Steel/5016131451"
      ]
     ],
     "placement": "South counter run, left of the sink."
@@ -383,6 +433,7 @@
    ],
    "info": {
     "model": "Hisense HBC164N6SS, 24 in beverage centre",
+    "price": "$599 at Lowe's on 11/17/2026 (list $899)",
     "specs": [
      [
       "Size",
@@ -403,6 +454,15 @@
      [
       "Install",
       "Built in or freestanding, reversible door"
+     ]
+    ],
+    "notes": [
+     "Confirmed against Erin's list (11/17/2026)."
+    ],
+    "links": [
+     [
+      "Lowe's product page",
+      "https://www.lowes.com/pd/Hisense-23-43-in-W-Smart-140-Can-Capacity-Stainless-Steel-Built-In-Freestanding-Beverage-Refrigerator-with-Glass-Door/5015197291"
      ]
     ],
     "placement": "Under the island, facing the dining room."
@@ -454,7 +514,7 @@
    ],
    "info": {
     "model": "GE Profile PFQ97HSPVDS UltraFast Combo, 4.8 cu ft all in one washer dryer, Carbon Graphite",
-    "price": "$2,199 at Lowe's",
+    "price": "$2,099 at Lowe's on 11/17/2026 (list $2,999; $1,994.05 on Erin's list)",
     "specs": [
      [
       "Size",
@@ -488,6 +548,12 @@
     "notes": [
      "One combo unit replaces the separate washer and dryer (Maxwell, 11/17/2026). Lowe's lists this listing as model PFQ97HSPVDS.",
      "Size from AJ Madison and the GE spec sheet. It is 7 1/2 in taller than a standard front loader, so check any counter or shelf planned above it."
+    ],
+    "links": [
+     [
+      "Lowe's product page",
+      "https://www.lowes.com/pd/GE-Profile-UltraFast-Combo-4-8-cu-ft-Ventless-All-In-One-Washer-Dryer-Combo-Carbon-Graphite/5014255941"
+     ]
     ],
     "placement": "Laundry south wall, centred where the washer and dryer pair stood."
    }
@@ -920,6 +986,91 @@
     ],
     "placement": "Attic deck at the west wall, south of the heat pump. Andy drew it west of HP-01."
    }
+  },
+  {
+   "id": "hood_silencer",
+   "name": "Range hood duct silencer",
+   "category": "Ventilation",
+   "system": "hvac.exhaust",
+   "room": "Kitchen",
+   "layer": "mechanical",
+   "builder": "silencer",
+   "size": [
+    12,
+    36
+   ],
+   "at": [
+    1.1417,
+    47.0,
+    7.4
+   ],
+   "facing": 90,
+   "info": {
+    "model": "Fantech LD 8 round duct silencer, or similar (ASSUMED)",
+    "specs": [
+     [
+      "Duct",
+      "8 in, galvanized, perforated liner with about 2 in of acoustic lining"
+     ],
+     [
+      "Size",
+      "About 12 in outside, 3 ft long (approximate)"
+     ]
+    ],
+    "notes": [
+     "A duct muffler: it soaks up fan noise travelling down the duct with very little added resistance. Fantech's kitchen guidance puts it between the hood and the fan, in any orientation, and puts the fan as far from the hood as possible.",
+     "Hidden inside the hood's chimney cover. Use no clip or the slice slider to see it.",
+     "Hood not picked yet. It needs to be a liner or insert sold for a remote blower (no fan inside the hood), 400 CFM or less ASSUMED so no makeup air is required. The chimney cover is drawn 14-3/8 in square so the silencer fits inside it; a stock chimney is usually narrower, so it may need to be a custom or extended cover."
+    ],
+    "placement": "Inside the hood's chimney cover, above the hood."
+   }
+  },
+  {
+   "id": "hood_blower",
+   "name": "Range hood roof blower",
+   "category": "Ventilation",
+   "system": "hvac.exhaust",
+   "room": "Roof",
+   "layer": "mechanical",
+   "builder": "roof_blower",
+   "size": [
+    22,
+    13,
+    22
+   ],
+   "at": [
+    1.1417,
+    47.0,
+    12.77911320014578
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Low profile exterior roof blower for range hoods, about 400 CFM (ASSUMED), for example Fantech's RE series or the hood maker's own roof blower",
+    "specs": [
+     [
+      "Size",
+      "About 22 x 22 in on its curb, about 13 in tall above the roof (approximate)"
+     ],
+     [
+      "Duct",
+      "8 in"
+     ],
+     [
+      "Damper",
+      "Built in gravity backdraft damper"
+     ],
+     [
+      "Control",
+      "Speed from the hood's controls"
+     ]
+    ],
+    "notes": [
+     "The fan sits outside on the roof, the furthest point from the kitchen, so most of its noise stays outdoors (Maxwell, 11/17/2026). Replaces the wall cap on the west wall, which stuck out about 9 in.",
+     "On a curb flashed into the standing seam roof, just in from the west eave. The roofer and the SIP maker should agree on the curb and the 8 in hole through the panel.",
+     "Hood not picked yet. It needs to be a liner or insert sold for a remote blower (no fan inside the hood), 400 CFM or less ASSUMED so no makeup air is required. The chimney cover is drawn 14-3/8 in square so the silencer fits inside it; a stock chimney is usually narrower, so it may need to be a custom or extended cover."
+    ],
+    "placement": "Low roof, about 1 ft in from the west wall, straight above the cooktop."
+   }
   }
  ],
  "runs": [
@@ -1160,65 +1311,6 @@
      11.052083333333334
     ]
    ]
-  },
-  {
-   "id": "supply_south_main",
-   "name": "South supply main",
-   "category": "HVAC supply duct",
-   "system": "hvac.supply",
-   "type": "supply",
-   "shape": "rect",
-   "size": [
-    14,
-    8
-   ],
-   "points": [
-    [
-     1.654,
-     24.6,
-     10.252083333333333
-    ],
-    [
-     1.654,
-     24.6,
-     9.494791666666666
-    ],
-    [
-     1.654,
-     33.9,
-     9.494791666666666
-    ],
-    [
-     11.0,
-     33.9,
-     9.494791666666666
-    ]
-   ],
-   "grilles": [
-    {
-     "at": [
-      1.654,
-      31.0,
-      8.98
-     ],
-     "size": [
-      10,
-      6
-     ]
-    }
-   ],
-   "info": {
-    "model": "14 x 8 in, in the truss space",
-    "specs": [
-     [
-      "Serves",
-      "Kitchen and dining 3 x 127 CFM, pantry 22, powder 15, utility 18"
-     ]
-    ],
-    "notes": [
-     "New. On M-10 these rooms were fed by branches crossing the attic floor. Here one main runs in the floor trusses so nothing sits on the deck. Sizes are schematic."
-    ]
-   }
   },
   {
    "id": "s_closet3",
@@ -1496,17 +1588,17 @@
    "size": 6,
    "points": [
     [
-     14.4,
+     13.7,
      12.75,
      10.502083333333333
     ],
     [
-     14.4,
+     13.7,
      13.0,
      9.494791666666666
     ],
     [
-     14.4,
+     13.7,
      17.8,
      9.494791666666666
     ]
@@ -1528,7 +1620,7 @@
    "grilles": [
     {
      "at": [
-      14.4,
+      13.7,
       17.8,
       8.98
      ],
@@ -1550,17 +1642,17 @@
    "size": 6,
    "points": [
     [
-     20.5,
+     19.7,
      12.75,
      10.502083333333333
     ],
     [
-     20.5,
+     19.7,
      13.0,
      9.494791666666666
     ],
     [
-     20.5,
+     19.7,
      13.8,
      9.494791666666666
     ]
@@ -1582,7 +1674,7 @@
    "grilles": [
     {
      "at": [
-      20.5,
+      19.7,
       13.8,
       8.98
      ],
@@ -1604,17 +1696,17 @@
    "size": 7,
    "points": [
     [
-     2.404,
+     2.25,
      14.5,
-     10.502083333333333
+     10.352083333333335
     ],
     [
-     2.654,
+     2.25,
      14.5,
      9.494791666666666
     ],
     [
-     6.3,
+     5.7,
      14.5,
      9.494791666666666
     ]
@@ -1632,13 +1724,13 @@
      ]
     ],
     "notes": [
-     "Ceiling register moved west from x 8.5 to 6.3 ft so this run stops short of the secondary return's truss bay."
+     "Bottom takeoff from the trunk into the first truss bay, then crosses two trusses to a ceiling register in the next bay west of the bedroom 3 return."
     ]
    },
    "grilles": [
     {
      "at": [
-      6.3,
+      5.7,
       14.5,
       8.98
      ],
@@ -1648,6 +1740,60 @@
      ]
     }
    ]
+  },
+  {
+   "id": "supply_south_main",
+   "name": "South supply main",
+   "category": "HVAC supply duct",
+   "system": "hvac.supply",
+   "type": "supply",
+   "shape": "rect",
+   "size": [
+    14,
+    8
+   ],
+   "points": [
+    [
+     1.7,
+     24.6,
+     10.252083333333333
+    ],
+    [
+     1.7,
+     24.6,
+     9.494791666666666
+    ],
+    [
+     1.7,
+     34.3,
+     9.494791666666666
+    ]
+   ],
+   "grilles": [
+    {
+     "at": [
+      1.7,
+      31.0,
+      8.98
+     ],
+     "size": [
+      10,
+      6
+     ]
+    }
+   ],
+   "info": {
+    "model": "14 x 8 in in the first truss bay, then 6 and 7 in round branches",
+    "specs": [
+     [
+      "Serves",
+      "Kitchen and dining 3 x 127 CFM, pantry 22, powder 15, utility 18"
+     ]
+    ],
+    "notes": [
+     "New. On M-10 these rooms were fed by branches crossing the attic floor. Here the main runs south in the truss bay along the west wall, which is parallel to the trusses so a rectangular duct fits, and each register gets its own round branch through the truss webs. Sizes are schematic."
+    ]
+   }
   },
   {
    "id": "s_utility",
@@ -1660,7 +1806,7 @@
    "size": 6,
    "points": [
     [
-     1.654,
+     1.7,
      26.5,
      9.494791666666666
     ],
@@ -1711,13 +1857,13 @@
    "size": 6,
    "points": [
     [
-     8.5,
-     33.9,
+     1.7,
+     32.2,
      9.494791666666666
     ],
     [
-     8.5,
-     32.4,
+     9.1,
+     32.2,
      9.494791666666666
     ]
    ],
@@ -1733,13 +1879,15 @@
       "6 in round"
      ]
     ],
-    "notes": []
+    "notes": [
+     "Round branch off the south main through the pantry trusses."
+    ]
    },
    "grilles": [
     {
      "at": [
-      8.5,
-      32.4,
+      9.1,
+      32.2,
       8.98
      ],
      "size": [
@@ -1760,12 +1908,17 @@
    "size": 7,
    "points": [
     [
-     3.0,
-     33.9,
+     1.7,
+     34.15,
      9.494791666666666
     ],
     [
-     3.0,
+     3.7,
+     34.15,
+     9.494791666666666
+    ],
+    [
+     3.7,
      35.0,
      9.494791666666666
     ]
@@ -1783,13 +1936,13 @@
      ]
     ],
     "notes": [
-     "High sidewall register in the clerestory wall. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
+     "High sidewall register in the clerestory wall, on its own 7 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
     ]
    },
    "grilles": [
     {
      "at": [
-      3.0,
+      3.7,
       35.1,
       9.494791666666666
      ],
@@ -1812,12 +1965,17 @@
    "size": 7,
    "points": [
     [
-     7.0,
-     33.9,
+     1.7,
+     33.5,
      9.494791666666666
     ],
     [
-     7.0,
+     7.7,
+     33.5,
+     9.494791666666666
+    ],
+    [
+     7.7,
      35.0,
      9.494791666666666
     ]
@@ -1835,13 +1993,13 @@
      ]
     ],
     "notes": [
-     "High sidewall register in the clerestory wall. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
+     "High sidewall register in the clerestory wall, on its own 7 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
     ]
    },
    "grilles": [
     {
      "at": [
-      7.0,
+      7.7,
       35.1,
       9.494791666666666
      ],
@@ -1864,12 +2022,17 @@
    "size": 7,
    "points": [
     [
-     11.0,
-     33.9,
+     1.7,
+     32.85,
      9.494791666666666
     ],
     [
-     11.0,
+     11.7,
+     32.85,
+     9.494791666666666
+    ],
+    [
+     11.7,
      35.0,
      9.494791666666666
     ]
@@ -1887,13 +2050,13 @@
      ]
     ],
     "notes": [
-     "High sidewall register in the clerestory wall. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
+     "High sidewall register in the clerestory wall, on its own 7 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
     ]
    },
    "grilles": [
     {
      "at": [
-      11.0,
+      11.7,
       35.1,
       9.494791666666666
      ],
@@ -1902,6 +2065,60 @@
       6
      ],
      "wall": "S"
+    }
+   ]
+  },
+  {
+   "id": "s_laundry",
+   "name": "Supply to Laundry",
+   "category": "HVAC supply duct",
+   "system": "hvac.supply",
+   "room": "Laundry",
+   "type": "supply",
+   "shape": "round",
+   "size": 6,
+   "points": [
+    [
+     27.349999999999998,
+     16.85,
+     10.502083333333333
+    ],
+    [
+     27.349999999999998,
+     17.1,
+     9.494791666666666
+    ],
+    [
+     27.349999999999998,
+     19.0,
+     9.494791666666666
+    ]
+   ],
+   "info": {
+    "model": "6 in round, 40 CFM",
+    "specs": [
+     [
+      "Airflow",
+      "40 CFM (M-10)"
+     ],
+     [
+      "Duct",
+      "6 in round"
+     ]
+    ],
+    "notes": []
+   },
+   "grilles": [
+    {
+     "at": [
+      27.349999999999998,
+      19.0,
+      8.98
+     ],
+     "size": [
+      10,
+      6
+     ]
     }
    ]
   },
@@ -1916,27 +2133,27 @@
    "size": 7,
    "points": [
     [
-     26.6,
+     28.05,
      16.85,
      10.502083333333333
     ],
     [
-     26.6,
+     28.05,
      17.1,
      9.494791666666666
     ],
     [
-     26.6,
-     20.6,
+     28.05,
+     21.4,
      9.494791666666666
     ],
     [
-     24.5,
-     20.6,
+     23.7,
+     21.4,
      9.494791666666666
     ],
     [
-     24.5,
+     23.7,
      22.62,
      9.494791666666666
     ]
@@ -1954,13 +2171,13 @@
      ]
     ],
     "notes": [
-     "Leaves the trunk corner, then jogs west in the trusses to keep the register where M-10 has it."
+     "Drops in the laundry bay, then crosses the trusses west under the study and bedroom 1 returns to keep the register near where M-10 has it."
     ]
    },
    "grilles": [
     {
      "at": [
-      24.5,
+      23.7,
       22.9,
       9.494791666666666
      ],
@@ -1983,17 +2200,17 @@
    "size": 7,
    "points": [
     [
-     28.5,
+     29.7,
      16.85,
      10.502083333333333
     ],
     [
-     28.5,
+     29.7,
      17.1,
      9.494791666666666
     ],
     [
-     28.5,
+     29.7,
      22.62,
      9.494791666666666
     ]
@@ -2017,7 +2234,7 @@
    "grilles": [
     {
      "at": [
-      28.5,
+      29.7,
       22.9,
       9.494791666666666
      ],
@@ -2026,60 +2243,6 @@
       6
      ],
      "wall": "S"
-    }
-   ]
-  },
-  {
-   "id": "s_laundry",
-   "name": "Supply to Laundry",
-   "category": "HVAC supply duct",
-   "system": "hvac.supply",
-   "room": "Laundry",
-   "type": "supply",
-   "shape": "round",
-   "size": 6,
-   "points": [
-    [
-     27.6,
-     16.85,
-     10.502083333333333
-    ],
-    [
-     27.6,
-     17.1,
-     9.494791666666666
-    ],
-    [
-     27.6,
-     19.0,
-     9.494791666666666
-    ]
-   ],
-   "info": {
-    "model": "6 in round, 40 CFM",
-    "specs": [
-     [
-      "Airflow",
-      "40 CFM (M-10)"
-     ],
-     [
-      "Duct",
-      "6 in round"
-     ]
-    ],
-    "notes": []
-   },
-   "grilles": [
-    {
-     "at": [
-      27.6,
-      19.0,
-      8.98
-     ],
-     "size": [
-      10,
-      6
-     ]
     }
    ]
   },
@@ -2094,17 +2257,17 @@
    "size": 6,
    "points": [
     [
-     33.4,
+     33.7,
      16.85,
      10.502083333333333
     ],
     [
-     33.4,
+     33.7,
      17.1,
      9.494791666666666
     ],
     [
-     33.4,
+     33.7,
      18.9,
      9.494791666666666
     ]
@@ -2126,7 +2289,7 @@
    "grilles": [
     {
      "at": [
-      33.4,
+      33.7,
       18.9,
       8.98
      ],
@@ -2148,17 +2311,17 @@
    "size": 6,
    "points": [
     [
-     34.6,
+     35.35,
      16.85,
      10.502083333333333
     ],
     [
-     34.6,
+     35.35,
      17.1,
      9.494791666666666
     ],
     [
-     34.6,
+     35.35,
      27.6,
      9.494791666666666
     ]
@@ -2182,7 +2345,7 @@
    "grilles": [
     {
      "at": [
-      34.6,
+      35.35,
       27.6,
       8.98
      ],
@@ -2204,19 +2367,24 @@
    "size": 6,
    "points": [
     [
-     36.0,
+     36.050000000000004,
      16.85,
      10.502083333333333
     ],
     [
-     36.0,
+     36.050000000000004,
      17.1,
      9.494791666666666
     ],
     [
-     36.0,
+     36.050000000000004,
      24.6,
      9.494791666666666
+    ],
+    [
+     36.050000000000004,
+     24.6,
+     10.062083333333334
     ]
    ],
    "info": {
@@ -2238,7 +2406,7 @@
    "grilles": [
     {
      "at": [
-      36.0,
+      36.050000000000004,
       24.6,
       10.062083333333334
      ],
@@ -2260,17 +2428,17 @@
    "size": 7,
    "points": [
     [
-     32.3,
+     31.7,
      16.85,
      10.502083333333333
     ],
     [
-     32.3,
+     31.7,
      17.1,
      9.494791666666666
     ],
     [
-     32.3,
+     31.7,
      35.0,
      9.494791666666666
     ]
@@ -2294,7 +2462,7 @@
    "grilles": [
     {
      "at": [
-      32.3,
+      31.7,
       35.1,
       9.494791666666666
      ],
@@ -2317,17 +2485,17 @@
    "size": 7,
    "points": [
     [
-     38.0,
+     37.7,
      16.85,
      10.502083333333333
     ],
     [
-     38.0,
+     37.7,
      17.1,
      9.494791666666666
     ],
     [
-     38.0,
+     37.7,
      35.0,
      9.494791666666666
     ]
@@ -2351,7 +2519,7 @@
    "grilles": [
     {
      "at": [
-      38.0,
+      37.7,
       35.1,
       9.494791666666666
      ],
@@ -2421,11 +2589,6 @@
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
-   "shape": "rect",
-   "size": [
-    34,
-    10
-   ],
    "points": [
     [
      11.95,
@@ -2433,36 +2596,18 @@
      9.494791666666666
     ],
     [
-     10.6,
+     10.95,
      30.6,
      9.494791666666666
-    ],
-    [
-     10.6,
-     30.6,
-     10.46875
-    ],
-    [
-     10.6,
-     27.6,
-     10.46875
-    ],
-    [
-     5.2,
-     27.6,
-     10.46875
-    ],
-    [
-     5.2,
-     26.4,
-     10.46875
     ]
+   ],
+   "shape": "rect",
+   "size": [
+    34,
+    10
    ],
    "info": {
     "model": "34 x 10 in grille and trunk, 1,368 CFM system (M-10)",
-    "notes": [
-     "Andy's M-10 return: one 34 x 10 grille in hall 1 and a 34 x 10 return trunk over the utility, pantry and powder rooms to HP-01. The grille sits high on the hall 1 wall above the powder room door and opens into the truss bay over the powder ceiling, then the trunk rises onto the attic deck. Route on the deck is ASSUMED to suit the heat pump position in this model."
-    ],
     "specs": [
      [
       "Serves",
@@ -2473,9 +2618,16 @@
       "34 x 10 in, hall 1 (M-10)"
      ],
      [
+      "Boot",
+      "34 x 10 in box in one truss bay over the powder room, parallel to the trusses"
+     ],
+     [
       "Trunk",
       "34 x 10 in on the attic deck (M-10)"
      ]
+    ],
+    "notes": [
+     "Andy's M-10 return: one 34 x 10 grille in hall 1 and a 34 x 10 return trunk over the utility, pantry and powder rooms to HP-01. The grille sits high on the hall 1 wall above the powder room door. Behind it a boot box sits inside one truss bay, so nothing crosses the trusses, and rises straight up through the deck. The trunk runs on the deck from there to the return plenum. Route on the deck is ASSUMED to suit the heat pump position in this model."
     ]
    },
    "grilles": [
@@ -2494,52 +2646,273 @@
    ]
   },
   {
-   "id": "return_truss",
-   "name": "Secondary return (floor trusses)",
+   "id": "return_main_riser",
+   "name": null,
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
-   "shape": "rect",
-   "size": [
-    14,
-    8
-   ],
    "points": [
     [
-     9.5,
-     10.8,
+     11.45,
+     30.6,
      9.494791666666666
     ],
     [
-     9.5,
-     21.049999999999997,
-     9.494791666666666
+     11.45,
+     30.6,
+     10.46875
     ]
    ],
+   "shape": "rect",
+   "size": [
+    14,
+    30
+   ],
+   "info_of": "return_main"
+  },
+  {
+   "id": "return_main_deck",
+   "name": null,
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     11.45,
+     30.6,
+     10.46875
+    ],
+    [
+     5.2,
+     30.6,
+     10.46875
+    ],
+    [
+     5.2,
+     26.0,
+     10.46875
+    ]
+   ],
+   "shape": "rect",
+   "size": [
+    34,
+    10
+   ],
+   "info_of": "return_main"
+  },
+  {
+   "id": "return_plenum",
+   "name": "Return plenum box",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     3.62,
+     25.51,
+     11.052083333333334
+    ],
+    [
+     11.85,
+     25.51,
+     11.052083333333334
+    ]
+   ],
+   "shape": "rect",
+   "size": [
+    14,
+    24
+   ],
    "info": {
-    "model": "14 x 8 in, in the floor truss space",
+    "model": "14 x 24 in return plenum box on the deck, against the heat pump's filter rack",
     "notes": [
-     "New, in addition to Andy's main return. Each bedroom has a low grille near the floor (Maxwell, 11/17/2026) with a wall stack up the stud bay into the trusses. The builder plans open web floor trusses, so bedrooms 2 and 3 get a ducted return in the truss space instead of relying only on transfer grilles. It runs north to south in one truss bay at x 7.5 ft, parallel to the trusses, so it never crosses a supply run: every supply drop in the trusses leaves the trunk south side further east, and the bedroom 3 supply stops short of this bay. Trusses are 11-7/8 in deep with about 8-7/8 in clear between the chords, so the duct is 8 in tall. Size, truss direction and bay are ASSUMED until Andy or the HVAC installer sizes them."
+     "Every return lands here: the M-10 trunk from the south, and the bedroom flex runs from below, each through its own collar in the bottom of the box. The box sits on the deck against the AFR1836A filter rack on the heat pump's return side. Size ASSUMED."
+    ]
+   }
+  },
+  {
+   "id": "return_bed23",
+   "name": "Bedrooms 2 and 3 return",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     7.7,
+     10.85,
+     9.494791666666666
+    ],
+    [
+     7.7,
+     25.121,
+     9.495
+    ],
+    [
+     7.7,
+     25.287,
+     9.518
+    ],
+    [
+     7.7,
+     25.405,
+     9.589
+    ],
+    [
+     7.7,
+     25.476,
+     9.708
+    ],
+    [
+     7.7,
+     25.5,
+     9.873
+    ],
+    [
+     7.7,
+     25.5,
+     10.252083333333333
+    ]
+   ],
+   "shape": "round",
+   "size": 10,
+   "flex": true,
+   "info": {
+    "model": "10 in round flex",
+    "notes": [
+     "Bedroom 3's grille moved from its south wall, next to the bed, to its north wall (Maxwell, 11/17/2026). It shares that wall with bedroom 2, so the two stacks rise side by side into the trusses over bedroom 3 and join there: bedroom 2's 7 in flex crosses one truss into bedroom 3's bay and tees into a 10 in flex that runs south in that bay, parallel to the trusses, to the return plenum box at the heat pump.",
+     "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 7 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
     ],
     "specs": [
      [
       "Serves",
-      "Bedrooms 2 and 3, low wall grilles"
+      "Bedroom 3 (low grille on its north wall) and bedroom 2 (low grille on its south wall)"
      ],
      [
       "Duct",
-      "14 x 3-1/4 in wall stacks, 14 x 8 in in one truss bay"
+      "14 x 2-1/2 in wall stacks, 7 in flex from bedroom 2 through one truss, 10 in flex south in one truss bay to the plenum"
      ],
      [
       "Crosses",
-      "No supply runs"
+      "One truss, at 7 in. No supply runs"
      ]
     ]
    },
    "grilles": [
     {
      "at": [
-      9.5,
+      7.7,
+      11.02,
+      1.0
+     ],
+     "size": [
+      14,
+      8
+     ],
+     "wall": "S"
+    }
+   ]
+  },
+  {
+   "id": "return_bed3_stack",
+   "name": null,
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     7.7,
+     10.8,
+     0.6699999999999999
+    ],
+    [
+     7.7,
+     10.8,
+     9.494791666666666
+    ]
+   ],
+   "shape": "rect",
+   "size": [
+    14,
+    2.5
+   ],
+   "info_of": "return_bed23"
+  },
+  {
+   "id": "return_bed2",
+   "name": null,
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     9.7,
+     10.85,
+     9.494791666666666
+    ],
+    [
+     9.7,
+     11.5,
+     9.495
+    ],
+    [
+     9.677,
+     11.686,
+     9.495
+    ],
+    [
+     9.61,
+     11.843,
+     9.495
+    ],
+    [
+     9.496,
+     11.971,
+     9.495
+    ],
+    [
+     9.338,
+     12.07,
+     9.495
+    ],
+    [
+     8.264,
+     12.576,
+     9.495
+    ],
+    [
+     8.139,
+     12.646,
+     9.495
+    ],
+    [
+     8.028,
+     12.731,
+     9.495
+    ],
+    [
+     7.932,
+     12.833,
+     9.495
+    ],
+    [
+     7.85,
+     12.95,
+     9.495
+    ],
+    [
+     7.7,
+     13.2,
+     9.494791666666666
+    ]
+   ],
+   "shape": "round",
+   "size": 7,
+   "flex": true,
+   "info_of": "return_bed23",
+   "grilles": [
+    {
+     "at": [
+      9.7,
       10.64,
       1.0
      ],
@@ -2557,132 +2930,172 @@
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
-   "shape": "rect",
-   "size": [
-    14,
-    3.25
-   ],
    "points": [
     [
-     9.5,
+     9.7,
      10.8,
      0.6699999999999999
     ],
     [
-     9.5,
+     9.7,
      10.8,
      9.494791666666666
     ]
    ],
-   "info_of": "return_truss"
-  },
-  {
-   "id": "return_bed3_stack",
-   "name": null,
-   "category": "HVAC return duct",
-   "system": "hvac.return",
-   "type": "return",
    "shape": "rect",
    "size": [
     14,
-    3.25
+    2.5
    ],
-   "points": [
-    [
-     9.5,
-     22.64,
-     0.6699999999999999
-    ],
-    [
-     9.5,
-     22.64,
-     9.494791666666666
-    ]
-   ],
-   "info_of": "return_truss"
+   "info_of": "return_bed23"
   },
   {
-   "id": "return_east",
-   "name": "Study and bedroom 1 return",
+   "id": "return_study",
+   "name": "Study and bedroom 1 returns",
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
-   "shape": "rect",
-   "size": [
-    12,
-    8
-   ],
    "points": [
     [
-     23.6,
-     11.2,
+     25.7,
+     10.85,
      9.494791666666666
     ],
     [
-     23.6,
-     21.9,
-     9.494791666666666
+     25.525,
+     11.125,
+     9.495
     ],
     [
-     10.35,
-     21.9,
-     9.494791666666666
+     25.448,
+     11.266,
+     9.495
+    ],
+    [
+     25.394,
+     11.413,
+     9.495
+    ],
+    [
+     25.361,
+     11.566,
+     9.495
+    ],
+    [
+     25.35,
+     11.726,
+     9.495
+    ],
+    [
+     25.35,
+     19.05,
+     9.495
+    ],
+    [
+     25.316,
+     19.291,
+     9.495
+    ],
+    [
+     25.212,
+     19.462,
+     9.495
+    ],
+    [
+     25.041,
+     19.566,
+     9.495
+    ],
+    [
+     24.8,
+     19.6,
+     9.495
+    ],
+    [
+     10.25,
+     19.6,
+     9.495
+    ],
+    [
+     10.009,
+     19.634,
+     9.495
+    ],
+    [
+     9.837,
+     19.738,
+     9.495
+    ],
+    [
+     9.734,
+     19.909,
+     9.495
+    ],
+    [
+     9.7,
+     20.15,
+     9.495
+    ],
+    [
+     9.7,
+     25.121,
+     9.495
+    ],
+    [
+     9.7,
+     25.287,
+     9.518
+    ],
+    [
+     9.7,
+     25.405,
+     9.589
+    ],
+    [
+     9.7,
+     25.476,
+     9.708
+    ],
+    [
+     9.7,
+     25.5,
+     9.873
+    ],
+    [
+     9.7,
+     25.5,
+     10.252083333333333
     ]
    ],
+   "shape": "round",
+   "size": 7,
+   "flex": true,
    "info": {
-    "model": "12 x 8 in, in the floor truss space",
+    "model": "7 in round flex",
     "notes": [
-     "New, in addition to Andy's main return. The study and bedroom 1 have low grilles (Maxwell, 11/17/2026) on walls that back onto the floor trusses, with a stack up the stud bay. The duct stays in the trusses the whole way: it crosses under the supply trunk once at a right angle, runs west behind every supply drop and joins the bedroom 2 and 3 return at x 7.5, which grows to 20 x 8 from there to the riser. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
+     "The study and bedroom 1 have low grilles (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Each room gets its own 7 in flex back to the plenum, because one duct big enough for both would not fit through the truss webs.",
+     "A 7 in flex carries roughly 90 to 100 CFM at return duct friction, a little under bedroom 1's 138 CFM supply. Andy may want a second run or a bigger chase for bedroom 1.",
+     "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 7 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
     ],
     "specs": [
      [
       "Serves",
-      "Study and bedroom 1, low wall grilles (bedroom 1's is on its south wall, beside the door)"
+      "Study (low grille on its south wall) and bedroom 1 (low grille on its south wall, beside the door)"
      ],
      [
       "Duct",
-      "14 x 3-1/4 in wall stacks, 10 x 8 in branches, 12 x 8 in spine, all in the floor trusses"
+      "14 x 2-1/2 in wall stacks, one 7 in flex home run per room to the return plenum box"
      ],
      [
       "Crosses",
-      "Under the supply trunk once, no supply runs"
+      "The laundry, linen and bedroom 3 trusses at 7 in. No supply runs, and they stay in the trusses, off the tall south part of the attic"
      ]
     ]
-   }
-  },
-  {
-   "id": "return_study",
-   "name": null,
-   "category": "HVAC return duct",
-   "system": "hvac.return",
-   "type": "return",
-   "shape": "rect",
-   "size": [
-    10,
-    8
-   ],
-   "points": [
-    [
-     26.9,
-     10.8,
-     9.494791666666666
-    ],
-    [
-     26.9,
-     11.2,
-     9.494791666666666
-    ],
-    [
-     23.6,
-     11.2,
-     9.494791666666666
-    ]
-   ],
-   "info_of": "return_east",
+   },
    "grilles": [
     {
      "at": [
-      26.9,
+      25.7,
       10.64,
       1.0
      ],
@@ -2700,24 +3113,24 @@
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
-   "shape": "rect",
-   "size": [
-    14,
-    3.25
-   ],
    "points": [
     [
-     26.9,
+     25.7,
      10.8,
      0.6699999999999999
     ],
     [
-     26.9,
+     25.7,
      10.8,
      9.494791666666666
     ]
    ],
-   "info_of": "return_east"
+   "shape": "rect",
+   "size": [
+    14,
+    2.5
+   ],
+   "info_of": "return_study"
   },
   {
    "id": "return_bed1",
@@ -2725,28 +3138,151 @@
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
-   "shape": "rect",
-   "size": [
-    10,
-    8
-   ],
    "points": [
     [
-     28.9,
-     15.26,
+     29.7,
+     15.3,
      9.494791666666666
     ],
     [
-     23.6,
-     15.26,
-     9.494791666666666
+     29.7,
+     15.525,
+     9.495
+    ],
+    [
+     29.686,
+     15.623,
+     9.495
+    ],
+    [
+     29.644,
+     15.694,
+     9.495
+    ],
+    [
+     29.573,
+     15.736,
+     9.495
+    ],
+    [
+     29.475,
+     15.75,
+     9.495
+    ],
+    [
+     26.6,
+     15.75,
+     9.495
+    ],
+    [
+     26.359,
+     15.784,
+     9.495
+    ],
+    [
+     26.188,
+     15.887,
+     9.495
+    ],
+    [
+     26.084,
+     16.059,
+     9.495
+    ],
+    [
+     26.05,
+     16.3,
+     9.495
+    ],
+    [
+     26.05,
+     19.75,
+     9.495
+    ],
+    [
+     26.016,
+     19.991,
+     9.495
+    ],
+    [
+     25.913,
+     20.163,
+     9.495
+    ],
+    [
+     25.741,
+     20.266,
+     9.495
+    ],
+    [
+     25.5,
+     20.3,
+     9.495
+    ],
+    [
+     12.05,
+     20.3,
+     9.495
+    ],
+    [
+     11.809,
+     20.334,
+     9.495
+    ],
+    [
+     11.637,
+     20.438,
+     9.495
+    ],
+    [
+     11.534,
+     20.609,
+     9.495
+    ],
+    [
+     11.5,
+     20.85,
+     9.495
+    ],
+    [
+     11.5,
+     25.121,
+     9.495
+    ],
+    [
+     11.5,
+     25.287,
+     9.518
+    ],
+    [
+     11.5,
+     25.405,
+     9.589
+    ],
+    [
+     11.5,
+     25.476,
+     9.708
+    ],
+    [
+     11.5,
+     25.5,
+     9.873
+    ],
+    [
+     11.5,
+     25.5,
+     10.252083333333333
     ]
    ],
-   "info_of": "return_east",
+   "shape": "round",
+   "size": 7,
+   "flex": true,
+   "info_of": "return_study",
    "grilles": [
     {
      "at": [
-      28.9,
+      29.7,
       15.01,
       1.0
      ],
@@ -2764,118 +3300,24 @@
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
-   "shape": "rect",
-   "size": [
-    14,
-    3.25
-   ],
    "points": [
     [
-     28.9,
+     29.7,
      15.26,
      0.6699999999999999
     ],
     [
-     28.9,
+     29.7,
      15.26,
      9.494791666666666
     ]
    ],
-   "info_of": "return_east"
-  },
-  {
-   "id": "return_truss_s",
-   "name": null,
-   "category": "HVAC return duct",
-   "system": "hvac.return",
-   "type": "return",
    "shape": "rect",
    "size": [
-    20,
-    8
+    14,
+    2.5
    ],
-   "points": [
-    [
-     9.5,
-     21.049999999999997,
-     9.494791666666666
-    ],
-    [
-     9.5,
-     25.6,
-     9.494791666666666
-    ],
-    [
-     5.2,
-     25.6,
-     9.494791666666666
-    ]
-   ],
-   "info_of": "return_truss",
-   "grilles": [
-    {
-     "at": [
-      9.5,
-      22.39,
-      1.0
-     ],
-     "size": [
-      14,
-      8
-     ],
-     "wall": "N"
-    }
-   ]
-  },
-  {
-   "id": "return_riser",
-   "name": null,
-   "category": "HVAC return duct",
-   "system": "hvac.return",
-   "type": "return",
-   "shape": "rect",
-   "size": [
-    30,
-    8
-   ],
-   "points": [
-    [
-     5.2,
-     25.6,
-     9.494791666666666
-    ],
-    [
-     5.2,
-     25.6,
-     10.652083333333334
-    ]
-   ],
-   "info_of": "return_truss"
-  },
-  {
-   "id": "return_plenum",
-   "name": null,
-   "category": "HVAC return duct",
-   "system": "hvac.return",
-   "type": "return",
-   "shape": "rect",
-   "size": [
-    36,
-    20
-   ],
-   "points": [
-    [
-     5.2,
-     24.92,
-     11.39375
-    ],
-    [
-     5.2,
-     26.4,
-     11.39375
-    ]
-   ],
-   "info_of": "return_main"
+   "info_of": "return_study"
   },
   {
    "id": "ex_bath1",
@@ -2886,17 +3328,17 @@
    "size": 4,
    "points": [
     [
-     37.2,
+     39.7,
      30.0,
      9.494791666666666
     ],
     [
-     37.2,
+     39.7,
      17.8,
      9.494791666666666
     ],
     [
-     37.2,
+     39.7,
      17.8,
      10.302083333333334
     ]
@@ -2906,13 +3348,13 @@
    "info": {
     "model": "4 in round exhaust",
     "notes": [
-     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Runs north in the loft floor trusses between the loft and family supply drops, then up onto the deck."
+     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Runs north in one loft floor truss bay, east of the family supply drop, then up onto the deck."
     ]
    },
    "grilles": [
     {
      "at": [
-      37.2,
+      39.7,
       30.0,
       8.98
      ],
@@ -2980,22 +3422,17 @@
    "points": [
     [
      10.2,
-     32.8,
-     9.494791666666666
-    ],
-    [
-     10.2,
-     31.8,
+     31.3,
      9.494791666666666
     ],
     [
      3.3,
-     31.8,
+     31.3,
      9.494791666666666
     ],
     [
      3.3,
-     31.8,
+     31.3,
      10.302083333333334
     ],
     [
@@ -3009,14 +3446,14 @@
    "info": {
     "model": "4 in round exhaust",
     "notes": [
-     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Runs west in the pantry trusses, then up to the ERV."
+     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Runs west through the pantry truss webs, then up to the ERV."
     ]
    },
    "grilles": [
     {
      "at": [
       10.2,
-      32.8,
+      31.3,
       8.98
      ],
      "size": [
@@ -3035,7 +3472,7 @@
    "size": 6,
    "points": [
     [
-     37.2,
+     39.7,
      17.8,
      10.302083333333334
     ],
@@ -3080,41 +3517,41 @@
    "system": "hvac.exhaust",
    "type": "exhaust",
    "shape": "round",
-   "size": 6,
+   "size": 8,
    "points": [
     [
-     0.99,
+     1.1417,
      47.0,
-     7.2
+     6.369999999999999
     ],
     [
-     -0.75,
+     1.1417,
      47.0,
-     7.2
+     12.92911320014578
     ]
    ],
    "name": "Range hood duct",
    "room": "Kitchen",
    "info": {
-    "model": "6 in round exhaust",
+    "model": "8 in round exhaust",
     "notes": [
-     "Straight out through the west wall behind the hood's chimney cover to a wall cap with a backdraft damper. A range hood may not connect to the ERV or the return: IRC M1503 (adopted in the Ohio residential code) requires its own duct to the outdoors. Hood not picked yet, 400 CFM or less ASSUMED so no makeup air is required."
+     "8 in smooth galvanized duct straight up inside the hood's chimney cover, through the roof to the roof mounted blower. One straight run with no elbows is the quietest and moves the most air. A range hood may not connect to the ERV or the return: IRC M1503 (adopted in the Ohio residential code) requires its own duct to the outdoors. The blower's own gravity damper closes it when off; an insulated backdraft damper at the hood is worth adding in a house this tight. Hood not picked yet. It needs to be a liner or insert sold for a remote blower (no fan inside the hood), 400 CFM or less ASSUMED so no makeup air is required. The chimney cover is drawn 14-3/8 in square so the silencer fits inside it; a stock chimney is usually narrower, so it may need to be a custom or extended cover."
+    ],
+    "specs": [
+     [
+      "Duct",
+      "8 in round, smooth galvanized"
+     ],
+     [
+      "Fan",
+      "Exterior roof blower, about 11 ft above the cooktop"
+     ],
+     [
+      "Silencer",
+      "In the chimney cover, between the hood and the fan"
+     ]
     ]
-   },
-   "grilles": [
-    {
-     "at": [
-      -0.78,
-      47.0,
-      7.2
-     ],
-     "size": [
-      10,
-      10
-     ],
-     "wall": "W"
-    }
-   ]
+   }
   },
   {
    "id": "erv_wall_0",
@@ -3167,19 +3604,19 @@
      10.577083333333334
     ],
     [
-     4.4,
+     3.1,
+     28.485,
+     10.902083333333334
+    ],
+    [
+     3.6,
+     28.485,
+     10.902083333333334
+    ],
+    [
+     3.95,
      28.485,
      10.577083333333334
-    ],
-    [
-     4.4,
-     27.5,
-     11.202083333333334
-    ],
-    [
-     4.4,
-     26.4,
-     11.202083333333334
     ]
    ]
   }
@@ -3251,6 +3688,7 @@
   "depth_in": 11.875,
   "spacing_in": 24.0,
   "deck_in": 0.75,
+  "grid_x0": 0.7,
   "info": {
    "model": "11-7/8 in open web floor trusses",
    "specs": [
@@ -3268,11 +3706,11 @@
     ],
     [
      "Spacing",
-     "24 in on centre, ASSUMED"
+     "24 in on centre on one grid across the house, ASSUMED"
     ],
     [
      "Span",
-     "North to south, ASSUMED"
+     "North to south, continuous over the interior walls, ASSUMED"
     ]
    ],
    "notes": [
