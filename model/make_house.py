@@ -1070,9 +1070,13 @@ wr = Run("west", RUNS["west"]); cy0, cy1 = RUNS["west"]["cooktop_y"]
 rec("kitchen.cooktop.placeholder", "appliance", "Cooktop (placeholder)", "interior", placeholder_for="cooktop", info=dict(model="Placeholder"))
 wr.box("Black Glass", cy0, cy1, 0.15, 1.85, CTR_Z + 0.004, CTR_Z + 0.035)
 rec("kitchen.hood", "fixture", "Range hood", "interior", room="Kitchen",
-    info=dict(model="Stainless chimney hood", specs=[["Width", ftin(cy1 - cy0 - 0.2)], ["Underside", "6' 0\""]], notes=["Model not picked yet."]))
+    info=dict(model="Stainless chimney hood, remote blower", specs=[["Width", ftin(cy1 - cy0 - 0.2)], ["Underside", "6' 0\""], ["Chimney cover", "14-3/8 in square, to the ceiling"],
+              ["Fan", "On the roof, with a silencer in the chimney (Maxwell, 11/17/2026)"]],
+              notes=["Model not picked yet. It needs to be a liner or insert sold for a remote blower, with no fan inside the hood, so the kitchen stays quiet.",
+                     "The chimney cover is wider than a stock one so the duct silencer fits inside it. Hide the duct x-ray or use no clip to see the duct, silencer and roof blower."]))
 wr.box("Stainless", cy0 + 0.1, cy1 - 0.1, 0, 1.9, 6.0, 6.35)
-wr.box("Stainless", (cy0 + cy1) / 2 - 0.45, (cy0 + cy1) / 2 + 0.45, 0, 0.9, 6.35, 11.6)
+_cc = (cy0 + cy1) / 2
+wr.box("Stainless", _cc - 0.6, _cc + 0.6, 0, 1.2, 6.35, south_roof_z(_cc + 0.6) - 0.01)
 ix0, iy0, ix1, iy1 = K["island"]
 ir = RUNS["island"]
 rec("kitchen.island", "cabinet", "Kitchen island top and panels", "interior", room="Kitchen",
@@ -1706,6 +1710,8 @@ for it in FURN:
             WEB_META["move_nodes"][it["move_node"]] = mv   # the mesh node when the named node is an empty beside it
     if it.get("removed"):                       # taken out of the house: drop the baked piece, build nothing
         WEB_META["replace_nodes"].append(it["id"])
+        if it["type"] in ("table_lamp", "desk_lamp"):
+            WEB_META.setdefault("lights_moved", {})[f"{it['id']} bulb"] = None   # and its night light
         continue
     if not it.get("web"):
         continue

@@ -101,8 +101,9 @@ const DUCT = {
   exhaust: new THREE.MeshStandardMaterial({ color: 0xbcb0c6, roughness: 0.5, metalness: 0.5 }),
   grille: new THREE.MeshStandardMaterial({ color: 0xf4f4f0, roughness: 0.5, metalness: 0.1 }),
   slot: new THREE.MeshStandardMaterial({ color: 0x55585a, roughness: 0.7, metalness: 0.2 }),
+  flex_return: new THREE.MeshStandardMaterial({ color: 0x8f9396, roughness: 0.55, metalness: 0.35 }),    // uninsulated flex: silver grey jacket
 };
-const XRAY = { supply: 0x2f8be0, return: 0xe0503a, transfer: 0xe0b23a, erv: 0x6cbf4a, exhaust: 0x9b59d0, grille: 0xffffff, slot: 0x222222 };
+const XRAY = { supply: 0x2f8be0, return: 0xe0503a, flex_return: 0xe0503a, transfer: 0xe0b23a, erv: 0x6cbf4a, exhaust: 0x9b59d0, grille: 0xffffff, slot: 0x222222 };
 for (const [k, m] of Object.entries(DUCT)) m.name = 'Duct ' + k;
 
 // ---------------------------------------------------------------- geometry helpers (inches, local frame)
@@ -603,6 +604,24 @@ const BUILD = {
     for (const x of [-w / 4, 0, w / 4]) for (const z of [d * 0.25, d * 0.75]) cyl(g, 0.22, 0.1, darkSteel(), x, h + 0.02, z, 'y', 8);   // cover screws
     return g;
   },
+  silencer(s) {                    // round duct silencer: galvanized shell, rolled end rings, 8 in collars each end. Vertical, base at the origin.
+    const [od, len] = s, g = new THREE.Group(), r = od / 2;
+    cyl(g, r, len - 4, galv(), 0, len / 2, 0, 'y', 28);
+    for (const y of [2.6, len - 2.6]) cyl(g, r - 0.6, 1.4, galv(), 0, y, 0, 'y', 28, r - 1.6);   // tapered shoulders
+    for (const y of [1, len - 1]) cyl(g, r - 2.0, 2, galv(), 0, y, 0, 'y', 24);                   // duct collars
+    for (const y of [len * 0.3, len * 0.7]) ring(g, r + 0.05, 0.18, galv(), 0, y, 0, 'y', 32);  // seams
+    box(g, 0.05, 3.2, 5.2, mat('rating label', 0xe9e9e2, 0.6), r + 0.03, len / 2, 0);
+    return g;
+  },
+  roof_blower(s) {                 // low profile exterior range hood blower on a roof curb: square curb, flat base, louvred band, domed hood
+    const [w, h, d] = s, g = new THREE.Group(), flash = mat('curb flashing', 0x2a2d2f, 0.5, 0.4);
+    box(g, w + 3, 9, d + 3, flash, 0, 0.5, 0);                                                // curb, flashed into the standing seam (runs into the roof on the uphill side)
+    box(g, w + 1.2, 0.6, d + 1.2, darkSteel(), 0, 5.3, 0);                                     // base flange
+    box(g, w - 2, 3.0, d - 2, darkSteel(), 0, 7.1, 0);                                         // fan housing
+    box(g, w - 2.2, 1.6, d - 2.2, mat('louvre shadow', 0x111213, 0.8), 0, 9.3, 0);             // discharge band
+    cyl(g, (w - 7) / 2, h - 10.6, darkSteel(), 0, 10.1 + (h - 10.6) / 2, 0, 'y', 4, (w - 1.5) / 2).rotation.y = Math.PI / 4;   // hood
+    return g;
+  },
   generic(s) {
     const [w, h, d] = s, g = new THREE.Group();
     box(g, w, h, d, greyPlastic(), 0, h / 2, d / 2); return g;
@@ -638,8 +657,18 @@ function buildDuct(dc) {
   const pts = dc.points.map((p) => plan(p[0], p[1], p[2]));
   if (dc.shape === 'round' || typeof dc.size === 'number') {
     const r = (typeof dc.size === 'number' ? dc.size : dc.size[0]) / 2 * IN;
-    for (let i = 0; i < pts.length - 1; i++) tube(g, pts[i], pts[i + 1], r, m, 18);
-    for (let i = 1; i < pts.length - 1; i++) { const s = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 10), m); s.position.copy(pts[i]); g.add(s); }
+    const fm = dc.flex ? (DUCT['flex_' + dc.type] || m) : m;
+    for (let i = 0; i < pts.length - 1; i++) tube(g, pts[i], pts[i + 1], dc.flex ? r * 0.94 : r, fm, 18);
+    for (let i = 1; i < pts.length - 1; i++) { const s = new THREE.Mesh(new THREE.SphereGeometry(dc.flex ? r * 0.94 : r, 16, 10), fm); s.position.copy(pts[i]); g.add(s); }
+    if (dc.flex) {                                  // flex duct: the wire helix shows as a rib every 3 in or so
+      const rib = new THREE.TorusGeometry(r * 0.97, r * 0.06, 4, 16), z = new THREE.Vector3(0, 0, 1);
+      for (let i = 0; i < pts.length - 1; i++) {
+        const d = pts[i + 1].clone().sub(pts[i]), len = d.length(), n = Math.floor(len / (3 * IN));
+        if (!n) continue;
+        const q = new THREE.Quaternion().setFromUnitVectors(z, d.clone().normalize());
+        for (let k = 1; k <= n; k++) { const me = new THREE.Mesh(rib, fm); me.position.copy(pts[i]).addScaledVector(d, k / (n + 1)); me.quaternion.copy(q); g.add(me); }
+      }
+    }
   } else {
     const [w, h] = dc.size.map((v) => v * IN);
     for (let i = 0; i < pts.length - 1; i++) {
@@ -722,9 +751,14 @@ function buildTrusses(t) {
   const E = 0.05, zb = 0.07, zt = 0.01;
   for (const [rx0, ry0, rx1, ry1] of [...t.regions, ...(t.loft_regions || [])]) {
     const x0 = rx0 + E, x1 = rx1 - E, y0 = ry0 + E, y1 = ry1 - E;
-    const n = Math.max(1, Math.round((x1 - x0) / sp)), L = y1 - y0;
-    for (let i = 0; i <= n; i++) {
-      const x = Math.min(x1 - CW / 2, Math.max(x0 + CW / 2, x0 + i * (x1 - x0) / n));
+    const L = y1 - y0, xs = [];
+    if (t.grid_x0 != null) {                       // one grid across the house: trusses run continuous over the walls, so the bays line up
+      for (let k = Math.ceil((x0 + CW / 2 - t.grid_x0) / sp - 1e-6); t.grid_x0 + k * sp <= x1 - CW / 2 + 1e-6; k++) xs.push(t.grid_x0 + k * sp);
+    } else {
+      const n = Math.max(1, Math.round((x1 - x0) / sp));
+      for (let i = 0; i <= n; i++) xs.push(Math.min(x1 - CW / 2, Math.max(x0 + CW / 2, x0 + i * (x1 - x0) / n)));
+    }
+    for (const x of xs) {
       for (const zc of [z0 + zb + CH / 2, z0 + D - zt - CH / 2]) {                         // bottom and top chords
         m4.makeTranslation(...plan(x, y0 + L / 2, zc).toArray());
         push(new THREE.BoxGeometry(CW * F, CH * F, L * F), m4.clone());
