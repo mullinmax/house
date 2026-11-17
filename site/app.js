@@ -530,18 +530,19 @@ function jump(name) {
 // Hidden things move to layer 1: the camera, the shadow pass and every raycast (walking, picking) only see layer 0.
 const show = (o, on) => o.traverse((m) => m.layers.set(on ? 0 : 1));
 // Every view switch is a layer: Walls off fades the house so the systems read, Duct x-ray colours the ducts and
-// shows them through everything, Trees and Distant trees stand in for the old slider.
-const LAYERS = ['Roof', 'Walls', 'Furniture', 'Trees', 'FarTrees', 'Appliances', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
+// shows them through everything, and Trees is every tree and shrub, near and far.
+const LAYERS = ['Roof', 'Walls', 'Furniture', 'Trees', 'Appliances', 'Vehicles', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
 const layerOn = (k) => $('l' + k).checked;
 let sliced = false;
 function applyToggles() {
   for (const o of roofNodes) show(o, layerOn('Roof') && !sliced);     // a slice lifts the roof off too, or it would cover the cut
   for (const o of utilNodes) show(o, layerOn('Util'));
   for (const o of furnitureMeshes) show(o, layerOn('Furniture'));
-  // Trees is the master switch (Maxwell, 11/17/2026: trees stayed with it off); Distant trees only thins the woods while it is on
-  for (const o of treeMeshes) show(o, layerOn('Trees') && (o.userData.fullCount < 80 || layerOn('FarTrees')));
+  // One Trees layer for everything that grows (Maxwell, 11/17/2026: no separate Distant trees). ?lite still leaves the far woods out, for slow devices
+  for (const o of treeMeshes) show(o, layerOn('Trees') && !(LITE && o.userData.fullCount >= 80));
   if (equip) {
     show(equip.layers.appliances, layerOn('Appliances'));
+    show(equip.layers.vehicles, layerOn('Vehicles'));
     show(equip.layers.mechanical, layerOn('Mechanical'));
     show(equip.layers.ducts, layerOn('Ducts'));
     show(equip.layers.trusses, layerOn('Trusses'));
@@ -550,11 +551,9 @@ function applyToggles() {
   if (ghost !== !layerOn('Walls')) setGhost(!layerOn('Walls'));
   if (xray !== layerOn('Xray')) { xray = layerOn('Xray'); setDuctXray(xray); }
   $('rowXray').classList.toggle('off', !layerOn('Ducts'));
-  $('rowFarTrees').classList.toggle('off', !layerOn('Trees'));
   shadowDirty = true;
 }
 for (const k of LAYERS) $('l' + k).onchange = applyToggles;
-if (LITE) $('lFarTrees').checked = false;
 
 // Walls off: walls, floors and furniture go faint so the systems inside read clearly.
 let ghost = false, xray = false;
@@ -667,13 +666,13 @@ function openModal(kind) {
     const phone = sect('Phone or tablet', [['Drag', 'Turn the view (Orbit), or look around (Walk)'], ['Pinch', 'Zoom (in Orbit)'], ['Two finger drag', 'Slide the view (in Orbit)'], ['Left stick', 'Move (in Walk)'],
       ['Tap', 'Open or close a door or a drawer'], ['Press and hold', 'Read about what is under your finger. Tap elsewhere to put the card away'], ['Layers', 'Height slice, and show or hide parts of the model'], ['More', 'Find equipment, day and night, no clip']]);
     body.innerHTML = `<div class="keys">${touch || compact ? phone : ''}${
-      sect('Orbit (the default)', [['Drag', 'Turn around the house'], ['Right drag', 'Slide the view'], ['Scroll', 'Zoom'], [K('W A S D'), 'Slide the point you turn around'], [K('Shift'), 'Slide faster'], ['Click', 'Open a door, or read about what you click'], ['Press and hold', 'Read about a door instead of opening it']])
+      sect('Orbit (the default)', [['Drag', 'Turn around the house'], ['Right drag', 'Slide the view'], ['Scroll', 'Zoom'], [K('W A S D'), 'Slide the point you turn around'], [K('Space') + ' ' + K('Shift'), 'Raise or lower that point'], ['Click', 'Open a door, or read about what you click'], ['Press and hold', 'Read about a door instead of opening it']])
     }${
       sect('Walk', [['Click the view', 'Look with the mouse'], [K('W A S D'), 'Move'], [K('Shift'), 'Walk faster'], [K('C'), 'Crouch. You also duck under low roofs on your own'], [K('E'), 'Open or close, or read about what is under the dot'], [K('N'), 'No clip: fly through walls'], [K('Space') + ' ' + K('C'), 'Up and down while flying'], [K('Esc'), 'Free the mouse']])
     }${
       sect('Anywhere', [[K('H'), 'This page'], ['Go to a room', 'Pick a room on the plan'], ['Find equipment', 'Pick a piece of equipment on the plan'], ['Height slice', 'Cut the house at any height'], ['Layers', 'Show or hide parts of the model']])
     }${
-touch || compact ? '' : phone}</div><p class="note">Slow? Turn off Distant trees in Layers, or add <kbd>?lite</kbd> to the address.</p>`;
+touch || compact ? '' : phone}</div><p class="note">Slow? Add <kbd>?lite</kbd> to the address: no shadows and no far woods.</p>`;
   }
   $('modal').hidden = false;
   $('modalClose').focus();
@@ -866,7 +865,14 @@ function placeLights(force) {
   const k = Math.min(1, (now - (placeLights.t || now)) / 350); placeLights.t = now;
   for (const e of pool) e.L.intensity += (e.want - e.L.intensity) * (force ? 1 : k);
 }
-$('collapse').onclick = () => { $('panel').classList.toggle('min'); $('collapse').textContent = $('panel').classList.contains('min') ? '+' : '–'; };
+$('collapse').onclick = () => {
+  const min = $('panel').classList.toggle('min');
+  $('collapse').setAttribute('aria-expanded', !min); $('collapse').title = min ? 'Show the menu' : 'Hide the menu';
+};
+// A button or a checkbox that keeps the focus after a click would swallow the keys: Space would press it again and
+// W A S D would stop moving the view. Hand the focus back once it has done its job.
+document.addEventListener('click', (e) => { const b = e.target.closest && e.target.closest('#panel button, #bar button, #fCrouch'); if (b) b.blur(); });
+$('panel').addEventListener('change', (e) => { if (e.target.tagName === 'INPUT') e.target.blur(); });
 
 const glow = new Map();
 function setFixtureGlow(on) {
@@ -993,21 +999,28 @@ function fly(dt) {
   camera.position.addScaledVector(vel, dt);
 }
 
-// Orbit: W A S D slide the point you orbit around across the ground, relative to the way you face; Shift is faster.
+// Orbit: W A S D slide the point you orbit around across the ground, relative to the way you face. Space raises
+// that point and Shift lowers it, like flying up and down (Maxwell, 11/17/2026). The pace grows with the distance.
+const ORBIT_TOP = 60 * F;
 function panOrbit(dt) {
-  let f = 0, r = 0;
+  let f = 0, r = 0, u = 0;
   if (keys.has('KeyW') || keys.has('ArrowUp')) f++;
   if (keys.has('KeyS') || keys.has('ArrowDown')) f--;
   if (keys.has('KeyD') || keys.has('ArrowRight')) r++;
   if (keys.has('KeyA') || keys.has('ArrowLeft')) r--;
-  if (!f && !r) return;
+  if (keys.has('Space')) u++;
+  if (keys.has('ShiftLeft') || keys.has('ShiftRight')) u--;
+  if (!f && !r && !u) return;
   const fwd = orbit.target.clone().sub(camera.position); fwd.y = 0;
   if (fwd.lengthSq() < 1e-6) camera.getWorldDirection(fwd), fwd.y = 0;
   fwd.normalize();
   const right = new THREE.Vector3().crossVectors(fwd, UP).normalize();
   const dist = camera.position.distanceTo(orbit.target);
-  const speed = Math.max(2, dist * 0.6) * (keys.has('ShiftLeft') || keys.has('ShiftRight') ? 3 : 1);
-  const mv = fwd.multiplyScalar(f).addScaledVector(right, r).normalize().multiplyScalar(speed * dt);
+  const speed = Math.max(2, dist * 0.6);
+  const mv = fwd.multiplyScalar(f).addScaledVector(right, r);
+  if (mv.lengthSq()) mv.normalize().multiplyScalar(speed * dt);
+  const y = THREE.MathUtils.clamp(orbit.target.y + u * speed * 0.6 * dt, 0, ORBIT_TOP);     // from the slab up to well over the ridge
+  mv.y = y - orbit.target.y;
   orbit.target.add(mv); camera.position.add(mv);
 }
 
@@ -1204,4 +1217,4 @@ renderer.setAnimationLoop(() => {
 
 loadAll().catch((e) => { console.error(e); $('loadmsg').textContent = 'The model could not be loaded.'; });
 window.__B = THREE.Box3; window.__T = THREE; window.__walk = { orbit, setSlice, setGhost, applyToggles, goRoom, closeModal,
-  simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, openSheet, act, inspectAt, showInfo, goTo, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };
+  simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, openSheet, act, inspectAt, showInfo, goTo, panOrbit, keys, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };
