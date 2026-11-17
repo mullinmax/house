@@ -138,15 +138,17 @@ function panel(get, mat, fr, v0, v1, zbot, top, holes, grainOf) {
     if (!seg) continue;
     const zAt = (u) => seg[1] + (seg[3] - seg[1]) * (u - seg[0]) / ((seg[2] - seg[0]) || 1);
     const zta = zAt(ua), ztb = zAt(ub);
-    const hs = holes.filter((h) => h[0] < um && h[1] > um).map((h) => [Math.max(h[2], zbot), h[3]]).sort((a, b) => a[0] - b[0]);
-    let cur = zbot;
+    // a hole's optional 5th value is its head at h[1]: the head then slopes from h[3] at h[0] (transoms under the roof)
+    const hTop = (h, u) => (h.length > 4 ? h[3] + (h[4] - h[3]) * (u - h[0]) / ((h[1] - h[0]) || 1) : h[3]);
+    const hs = holes.filter((h) => h[0] < um && h[1] > um).map((h) => [Math.max(h[2], zbot), hTop(h, ua), hTop(h, ub)]).sort((a, b) => a[0] - b[0]);
+    let ca = zbot, cb = zbot;
     const piece = (za0, zb0, za1, zb1) => hexa(get, [P(ua, v0, za0), P(ub, v0, zb0), P(ub, v1, zb0), P(ua, v1, za0),
       P(ua, v0, za1), P(ub, v0, zb1), P(ub, v1, zb1), P(ua, v1, za1)], Array(6).fill(mat), grainOf);
-    for (const [h0, h1] of hs) {
-      if (h0 > cur + 1e-4) piece(cur, cur, Math.min(h0, zta), Math.min(h0, ztb));
-      cur = Math.max(cur, h1);
+    for (const [h0, ta, tb] of hs) {
+      if (h0 > Math.max(ca, cb) + 1e-4) piece(ca, cb, Math.min(h0, zta), Math.min(h0, ztb));
+      ca = Math.max(ca, ta); cb = Math.max(cb, tb);
     }
-    if (cur < Math.min(zta, ztb) - 1e-4) piece(cur, cur, zta, ztb);
+    if (Math.max(ca, cb) < Math.min(zta, ztb) - 1e-4) piece(ca, cb, zta, ztb);
   }
 }
 function polygon(get, mat, pts) {
@@ -240,6 +242,7 @@ export function buildHouse(data, { skip = new Set() } = {}) {
     const u = { operable: o.type };
     if (o.angle !== undefined) { u.open_angle = o.angle; u.axis = 'z'; }
     if (o.slide) u.slide = [o.slide[0] * F, -o.slide[1] * F, o.slide[2] * F];
+    if (o.type === 'overhead') { u.door_h = o.height * F; u.inward = [o.inward[0], 0, o.inward[1]]; }
     Object.assign(piv.userData, u);
     for (const bk of local.values()) {
       if (!bk.tris) continue;

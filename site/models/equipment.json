@@ -1478,7 +1478,7 @@
      9.494791666666666
     ],
     [
-     8.5,
+     6.3,
      14.5,
      9.494791666666666
     ]
@@ -1495,12 +1495,14 @@
       "7 in round"
      ]
     ],
-    "notes": []
+    "notes": [
+     "Ceiling register moved west from x 8.5 to 6.3 ft so this run stops short of the secondary return's truss bay."
+    ]
    },
    "grilles": [
     {
      "at": [
-      8.5,
+      6.3,
       14.5,
       8.98
      ],
@@ -2265,44 +2267,102 @@
   },
   {
    "id": "return_main",
-   "name": "Return main",
+   "name": "Main return (M-10)",
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
    "shape": "rect",
    "size": [
-    28,
+    34,
+    10
+   ],
+   "points": [
+    [
+     11.95,
+     30.6,
+     9.494791666666666
+    ],
+    [
+     10.6,
+     30.6,
+     9.494791666666666
+    ],
+    [
+     10.6,
+     30.6,
+     10.46875
+    ],
+    [
+     10.6,
+     27.6,
+     10.46875
+    ],
+    [
+     5.2,
+     27.6,
+     10.46875
+    ],
+    [
+     5.2,
+     26.4,
+     10.46875
+    ]
+   ],
+   "info": {
+    "model": "34 x 10 in grille and trunk, 1,368 CFM system (M-10)",
+    "notes": [
+     "Andy's M-10 return: one 34 x 10 grille in hall 1 and a 34 x 10 return trunk over the utility, pantry and powder rooms to HP-01. The grille sits high on the hall 1 wall above the powder room door and opens into the truss bay over the powder ceiling, then the trunk rises onto the attic deck. Route on the deck is ASSUMED to suit the heat pump position in this model."
+    ],
+    "specs": [
+     [
+      "Serves",
+      "Living, kitchen, dining, family and the halls, plus any room on transfer grilles"
+     ],
+     [
+      "Grille",
+      "34 x 10 in, hall 1 (M-10)"
+     ],
+     [
+      "Trunk",
+      "34 x 10 in on the attic deck (M-10)"
+     ]
+    ]
+   },
+   "grilles": [
+    {
+     "at": [
+      12.15,
+      30.6,
+      9.494791666666666
+     ],
+     "size": [
+      34,
+      10
+     ],
+     "wall": "E"
+    }
+   ]
+  },
+  {
+   "id": "return_truss",
+   "name": "Secondary return (floor trusses)",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "shape": "rect",
+   "size": [
+    14,
     8
    ],
    "points": [
     [
-     39.5,
-     16.3,
+     7.5,
+     10.72,
      9.494791666666666
     ],
     [
-     22.5,
-     16.3,
-     9.494791666666666
-    ],
-    [
-     22.5,
-     12.0,
-     9.494791666666666
-    ],
-    [
-     1.654,
-     12.0,
-     9.494791666666666
-    ],
-    [
-     1.654,
-     22.3,
-     9.494791666666666
-    ],
-    [
-     5.2,
-     22.3,
+     7.5,
+     25.6,
      9.494791666666666
     ],
     [
@@ -2312,34 +2372,207 @@
     ]
    ],
    "info": {
-    "model": "28 x 8 in, in the floor truss space",
+    "model": "14 x 8 in, in the floor truss space",
     "notes": [
-     "New. M-10 returned all air to one 34 x 10 grille in hall 1 through transfer grilles and door undercuts. The builder plans open web floor trusses, so each bedroom and the study gets its own ducted return here. The return main runs in the trusses directly under the supply trunk, which keeps supply branches and returns from crossing. The trusses are 11-7/8 in deep, which leaves about 8-7/8 in clear between the chords, so every duct in the floor is 8 in tall or less. Duct sizes and truss direction are ASSUMED until Andy or the HVAC installer sizes them."
+     "New, in addition to Andy's main return. The builder plans open web floor trusses, so bedrooms 2 and 3 get a ducted return in the truss space instead of relying only on transfer grilles. It runs north to south in one truss bay at x 7.5 ft, parallel to the trusses, so it never crosses a supply run: every supply drop in the trusses leaves the trunk south side further east, and the bedroom 3 supply now stops short of this bay. Trusses are 11-7/8 in deep with about 8-7/8 in clear between the chords, so the duct is 8 in tall. Size, truss direction and bay are ASSUMED until Andy or the HVAC installer sizes them."
     ],
     "specs": [
      [
       "Serves",
-      "Bedrooms 1, 2 and 3, the study, and the common area return"
+      "Bedroom 2 (high wall grille) and bedroom 3 (ceiling grille)"
      ],
      [
-      "Bedroom 3",
-      "Ceiling grille straight into the main"
+      "Duct",
+      "14 x 8 in in one truss bay"
+     ],
+     [
+      "Crosses",
+      "No supply runs"
      ]
     ]
    },
    "grilles": [
     {
      "at": [
-      1.654,
-      19.5,
+      7.5,
+      10.66,
+      9.494791666666666
+     ],
+     "size": [
+      16,
+      8
+     ],
+     "wall": "N"
+    },
+    {
+     "at": [
+      7.5,
+      18.6,
       8.98
      ],
      "size": [
       20,
-      8
+      10
      ]
     }
    ]
+  },
+  {
+   "id": "return_east",
+   "name": "Study and bedroom 1 return",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "shape": "rect",
+   "size": [
+    12,
+    8
+   ],
+   "points": [
+    [
+     23.6,
+     10.72,
+     9.494791666666666
+    ],
+    [
+     23.6,
+     21.9,
+     9.494791666666666
+    ],
+    [
+     14.4,
+     21.9,
+     9.494791666666666
+    ]
+   ],
+   "info": {
+    "model": "12 x 8 in, in the floor truss space",
+    "notes": [
+     "New, in addition to Andy's main return. The study and bedroom 1 are vaulted, so their grilles sit high on the walls they share with the hall 2 east leg, where the floor trusses are. The duct crosses under the supply trunk once at a right angle, stays clear of every supply drop, and only comes up onto the attic deck west of the laundry, along the south edge of the attic, to join the main return. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
+    ],
+    "specs": [
+     [
+      "Serves",
+      "Study (high wall grille) and bedroom 1 (high grille over its door)"
+     ],
+     [
+      "Duct",
+      "10 x 8 in branch, 12 x 8 in spine in the trusses, 14 x 8 in on the deck"
+     ],
+     [
+      "Crosses",
+      "Under the trunk's east leg once, no supply runs"
+     ]
+    ]
+   },
+   "grilles": [
+    {
+     "at": [
+      23.6,
+      10.66,
+      9.494791666666666
+     ],
+     "size": [
+      16,
+      8
+     ],
+     "wall": "N"
+    }
+   ]
+  },
+  {
+   "id": "return_bed1",
+   "name": null,
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "shape": "rect",
+   "size": [
+    10,
+    8
+   ],
+   "points": [
+    [
+     28.06,
+     12.3,
+     9.494791666666666
+    ],
+    [
+     23.6,
+     12.3,
+     9.494791666666666
+    ]
+   ],
+   "info_of": "return_east",
+   "grilles": [
+    {
+     "at": [
+      28.14,
+      12.3,
+      9.494791666666666
+     ],
+     "size": [
+      16,
+      8
+     ],
+     "wall": "E"
+    }
+   ]
+  },
+  {
+   "id": "return_east_riser",
+   "name": null,
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "shape": "rect",
+   "size": [
+    14,
+    8
+   ],
+   "points": [
+    [
+     14.4,
+     21.9,
+     9.494791666666666
+    ],
+    [
+     14.4,
+     21.9,
+     10.385416666666668
+    ]
+   ],
+   "info_of": "return_east"
+  },
+  {
+   "id": "return_east_deck",
+   "name": null,
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "shape": "rect",
+   "size": [
+    14,
+    8
+   ],
+   "points": [
+    [
+     14.4,
+     21.9,
+     10.385416666666668
+    ],
+    [
+     10.6,
+     21.9,
+     10.385416666666668
+    ],
+    [
+     10.6,
+     26.1,
+     10.385416666666668
+    ]
+   ],
+   "info_of": "return_east"
   },
   {
    "id": "return_riser",
@@ -2364,7 +2597,7 @@
      10.652083333333334
     ]
    ],
-   "info_of": "return_main"
+   "info_of": "return_truss"
   },
   {
    "id": "return_plenum",
@@ -2390,192 +2623,6 @@
     ]
    ],
    "info_of": "return_main"
-  },
-  {
-   "id": "r_bed1",
-   "name": "Return from bedroom 1",
-   "category": "HVAC return duct",
-   "system": "hvac.return",
-   "type": "return",
-   "shape": "rect",
-   "size": [
-    14,
-    8
-   ],
-   "points": [
-    [
-     39.5,
-     15.05,
-     9.494791666666666
-    ],
-    [
-     39.5,
-     16.3,
-     9.494791666666666
-    ]
-   ],
-   "info": {
-    "model": "14 x 8 in, in the floor truss space",
-    "notes": [
-     "High wall grille, ducted through the trusses to the return main."
-    ]
-   },
-   "grilles": [
-    {
-     "at": [
-      39.5,
-      15.0,
-      9.494791666666666
-     ],
-     "size": [
-      20,
-      8
-     ],
-     "wall": "N"
-    }
-   ]
-  },
-  {
-   "id": "r_bed2",
-   "name": "Return from bedroom 2",
-   "category": "HVAC return duct",
-   "system": "hvac.return",
-   "type": "return",
-   "shape": "rect",
-   "size": [
-    14,
-    8
-   ],
-   "points": [
-    [
-     13.6,
-     10.68,
-     9.494791666666666
-    ],
-    [
-     13.6,
-     12.0,
-     9.494791666666666
-    ]
-   ],
-   "info": {
-    "model": "14 x 8 in, in the floor truss space",
-    "notes": [
-     "High wall grille above the door, ducted through the trusses to the return main."
-    ]
-   },
-   "grilles": [
-    {
-     "at": [
-      13.6,
-      10.63,
-      9.494791666666666
-     ],
-     "size": [
-      16,
-      8
-     ],
-     "wall": "N"
-    }
-   ]
-  },
-  {
-   "id": "r_study",
-   "name": "Return from bedroom 4 / study",
-   "category": "HVAC return duct",
-   "system": "hvac.return",
-   "type": "return",
-   "shape": "rect",
-   "size": [
-    10,
-    8
-   ],
-   "points": [
-    [
-     23.02,
-     9.9,
-     9.494791666666666
-    ],
-    [
-     22.8,
-     9.9,
-     9.494791666666666
-    ],
-    [
-     22.8,
-     12.0,
-     9.494791666666666
-    ]
-   ],
-   "info": {
-    "model": "10 x 8 in, in the floor truss space",
-    "notes": [
-     "The study does not touch the attic. This uses the wall chase at its southwest corner to reach the trusses. ASSUMED."
-    ]
-   },
-   "grilles": [
-    {
-     "at": [
-      23.07,
-      9.9,
-      9.494791666666666
-     ],
-     "size": [
-      14,
-      8
-     ],
-     "wall": "E"
-    }
-   ]
-  },
-  {
-   "id": "r_common",
-   "name": "Return from living and common areas",
-   "category": "HVAC return duct",
-   "system": "hvac.return",
-   "type": "return",
-   "shape": "rect",
-   "size": [
-    28,
-    8
-   ],
-   "points": [
-    [
-     12.1,
-     27.4,
-     9.494791666666666
-    ],
-    [
-     5.2,
-     27.4,
-     9.494791666666666
-    ],
-    [
-     5.2,
-     25.6,
-     9.494791666666666
-    ]
-   ],
-   "info": {
-    "model": "28 x 8 in, in the floor truss space",
-    "notes": [
-     "One grille high on the hall 1 wall serves the open living, kitchen, dining and family space. It takes the place of M-10's 34 x 10 hall return."
-    ]
-   },
-   "grilles": [
-    {
-     "at": [
-      12.15,
-      27.4,
-      9.494791666666666
-     ],
-     "size": [
-      30,
-      8
-     ],
-     "wall": "E"
-    }
-   ]
   },
   {
    "id": "erv_wall_0",
@@ -2661,7 +2708,7 @@
    [
     23.4,
     10.95,
-    31.12,
+    28.12,
     15.03
    ],
    [

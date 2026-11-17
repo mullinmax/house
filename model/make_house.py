@@ -167,6 +167,9 @@ def wbox(mat, wall, u0, u1, v0, v1, z0, z1):
     box(mat, a[0], b[0], a[1], b[1], z0, z1)
 
 
+WBOX = wbox
+
+
 def panel(mat, frame, v0, v1, zbot, top, holes):
     CUR[0].append(["w", mat, list(frame), rnd(v0), rnd(v1), rnd(zbot), [[rnd(v) for v in s] for s in top],
                    [[rnd(v) for v in h] for h in holes]])
@@ -179,9 +182,12 @@ MATERIALS = {
                              canvas="slab", cut_pattern=MM.get("floor_cut_pattern", "diamond"), cut_spacing=MM.get("floor_cut_spacing", 9.0),
                              cut_origin=MM.get("floor_cut_origin", [0, 0]), size=[HW, HD]),
     "Concrete": dict(color="#FFFFFF", rough=0.8, map="concrete.jpg", tile=2.0),
-    "Siding": dict(color=MM["siding_color"], rough=0.735, normal="siding_normal.jpg", normal_scale=0.5, tile=0.9, grain="vertical"),
+    "OSB": dict(color="#C9A46A", rough=0.85),
+    "EPS Foam": dict(color="#EEECE2", rough=0.95),
+    "Siding": dict(color=MM.get("siding_albedo", MM["siding_color"]), rough=0.735, normal="siding_normal.jpg", normal_scale=0.5, tile=0.9, grain="vertical"),
     "Drywall": dict(color="#FFFFFF", rough=0.84, map="plaster.jpg", tile=1.5),
-    "Trim": dict(color=MM["trim_color"], rough=0.5),
+    "Tile Wall": dict(color="#FFFFFF", rough=0.17, map="tile_wall.jpg", tile=1.0),   # same texture as the baked wet room tile
+    "Trim": dict(color=MM.get("trim_albedo", MM["trim_color"]), rough=0.5),
     "Window Frame": dict(color=MM["window_exterior_color"], rough=0.35, metal=0.3),
     "White Oak": dict(color="#FFFFFF", rough=0.425, map="white_oak.jpg", normal="oak_normal.jpg", normal_scale=0.5, tile=0.8, grain="long"),
     "Cabinet Wood": dict(color="#FFFFFF", rough=0.45, map="cabinet_oak.jpg", normal="oak_normal.jpg", normal_scale=0.5, tile=0.8, grain="long"),
@@ -194,7 +200,7 @@ MATERIALS = {
     "Brushed Nickel": dict(color=K.get("hardware_color", "#B8B8B4"), rough=0.3, metal=1.0),
     "Black Metal": dict(color="#151515", rough=0.4, metal=0.6),
     "Aluminum": dict(color="#B9BCBE", rough=0.35, metal=1.0),
-    "Gutter": dict(color=MM["trim_color"], rough=0.45, metal=0.4),
+    "Gutter": dict(color=MM.get("trim_albedo", MM["trim_color"]), rough=0.45, metal=0.4),
     "Standing Seam": dict(color=MM["roof_color"], rough=0.41, metal=0.6),
     "Garage Door": dict(color="#2A2A2A", rough=0.5),
     "Plastic Grey": dict(color="#9A9A96", rough=0.5),
@@ -211,9 +217,9 @@ def paint(hexc):
     return nm
 
 
-ROOMS = [("Bedroom 1", 31.1, 0.5, 42.6, 11.0), ("Bedroom 2", 5.9, 0.5, 16.1, 10.7), ("Bath 2", 16.1, 0.5, 22.7, 10.7), ("Bedroom 4 / study", 22.7, 0.5, 31.1, 10.7),
-         ("Closet 2", 0.5, 0.5, 5.9, 5.5), ("Closet 3", 0.5, 5.5, 5.9, 10.9), ("Bedroom 3", 0.5, 10.95, 12.12, 22.41), ("Hall 2", 12.12, 10.95, 31.12, 15.03),
-         ("Linen", 12.12, 15.03, 16.66, 22.87), ("Laundry", 16.66, 15.03, 31.12, 22.87), ("Closet 1", 31.12, 11.0, 42.5, 22.87), ("Utility", 0.5, 22.87, 12.12, 29.03),
+ROOMS = [("Bedroom 1", 31.1, 0.5, 42.6, 15.03), ("Bedroom 2", 5.9, 0.5, 16.1, 10.7), ("Bath 2", 16.1, 0.5, 22.7, 10.7), ("Bedroom 4 / study", 22.7, 0.5, 31.1, 10.7),
+         ("Closet 2", 0.5, 0.5, 5.9, 5.5), ("Closet 3", 0.5, 5.5, 5.9, 10.9), ("Bedroom 3", 0.5, 10.95, 12.12, 22.41), ("Hall 2", 12.12, 10.95, 28.12, 15.03),
+         ("Linen", 12.12, 15.03, 16.66, 22.87), ("Laundry", 16.66, 15.03, 31.12, 22.87), ("Closet 1", 31.12, 15.49, 42.5, 22.87), ("Utility", 0.5, 22.87, 12.12, 29.03),
          ("Pantry", 0.5, 29.03, 5.6, 34.62), ("Powder", 5.6, 29.03, 12.12, 34.62), ("Hall 1", 12.12, 22.87, 16.66, 34.62), ("Living", 16.66, 22.87, 31.12, 34.62),
          ("Bath 1", 31.12, 22.87, 42.5, 34.62), ("Kitchen", 0.5, 35.16, 16.0, 51.5), ("Dining", 16.0, 35.16, 31.5, 51.5), ("Entry / family", 31.5, 35.16, 42.6, 51.5)]
 
@@ -236,7 +242,16 @@ for (a0, a1, b0, b1) in ((-0.02, HW + 0.02, -0.02, 0.0), (-0.02, HW + 0.02, HD, 
     box("Concrete", a0, a1, b0, b1, -0.62, 0.0)                 # exposed slab edge is plain concrete
 
 # ------------------------------------------------------------------ openings
-SKIN = 0.06                                                  # siding layer
+# Exterior wall build up, outside to inside (A-41 wall type 1 and the S.I.P. notes on A-12):
+#   LP SmartSide 3/8" + TamlynWrap rain screen | 6 1/2" SIP: 7/16" OSB, 5 5/8" EPS, 7/16" OSB | 1/2" gypsum
+# The finished inside face stays at T (6 1/2" in from the slab edge), where the traced A-11 rooms put it,
+# so the SIP's outside face lands 1/2" outside the slab edge. ASSUMED: which face the plan dimensions run to.
+GYP = 0.5 / 12                                               # gypsum board
+OSB = 7 / 192                                                # 7/16" OSB skins
+SIP_T = 6.5 / 12                                             # 6 1/2" panel
+E0 = T - GYP - SIP_T                                         # outside face of the SIP (frame v, negative = outside the slab)
+SKIN = (0.375 + 0.0625) / 12                                 # siding panel + rain screen
+VF = E0 - SKIN                                               # outside face of the siding (battens and trim sit on it)
 BAT_T = MM.get("batten_thickness_in", 0.75) / 12
 BAT_SP, BAT_W = MM["batten_spacing_in"] / 12, MM["batten_width_in"] / 12
 TRIM_W = 4 / 12
@@ -254,7 +269,7 @@ def is_door(o):
 
 
 def cuts_for(wall):
-    hs = [(o["start"], o["end"], o["sill"], o["head"]) for o in OPEN + CLER if o["wall"] == wall]
+    hs = [(o["start"], o["end"], o["sill"], o["head"]) + ((o["head_end"],) if "head_end" in o else ()) for o in OPEN + CLER if o["wall"] == wall]
     if wall == "C":
         hs += [(x0, x1, -0.1, hd) for (x0, x1, hd) in CL["passages"]]
     return hs
@@ -263,12 +278,22 @@ def cuts_for(wall):
 def window_unit(o):
     wall, kind = o["wall"], o["kind"]
     u0, u1, z0, z1 = o["start"], o["end"], o["sill"], o["head"]
+    z1b = o.get("head_end", z1)                              # head at the end jamb: transoms that follow the roof (A-20)
     door = is_door(o)
+
+    def wbox(mat, wall_, a, b, va, vb, za, zb):
+        """the module's wbox, but anything in the upper half of the opening follows a sloped head"""
+        if z1b == z1:
+            return WBOX(mat, wall_, a, b, va, vb, za, zb)
+        f, zm = wall_frame(wall_), (z0 + z1) / 2
+        adj = lambda z, u: z + (z1b - z1) * (u - u0) / (u1 - u0) if z > zm else z
+        ring = [(a, va), (b, va), (b, vb), (a, vb)]
+        hexa(mat, [f(u, v) + (adj(za, u),) for u, v in ring] + [f(u, v) + (adj(zb, u),) for u, v in ring])
     code = o["id"].split()[0]
     where = " ".join(o["id"].split()[1:])
     kn = KIND_NAMES.get(kind, kind.replace("_", " "))
     info = dict(model=f"{code} {kn}", specs=[["Rough opening", f"{ftin(u1 - u0)} wide x {ftin(z1 - z0)} tall"],
-                                             ["Sill" if not door else "Threshold", ftin(z0)], ["Head", ftin(z1)], ["Wall", WALL_NAMES[wall]],
+                                             ["Sill" if not door else "Threshold", ftin(z0)], ["Head", ftin(z1) if z1b == z1 else f"{ftin(z1)} sloping to {ftin(z1b)} with the roof (A-20)"], ["Wall", WALL_NAMES[wall]],
                                              ["Finish", "Black clad outside, white oak inside" if not o.get("interior_color") else f"Black clad outside, painted {o['interior_color']} inside"]],
                 notes=["Location from the A-11 vector data, heights from the A-20 and A-21 elevations."] if not o["id"].startswith("W30-30 clerestory")
                 else ["8 W30-30 awnings, 4' 10 1/2\" on centre (A-12), sill and head from the A-20 south elevation."])
@@ -280,14 +305,15 @@ def window_unit(o):
     r = rec(("door." if door else "window.") + o["id"].lower().replace(" ", "_"), "door" if door else "window", f"{where} {kn}" if where else kn[0].upper() + kn[1:],
             "shell", info=info, room=where or None)
     fw, fd = 0.18, 0.30
-    v0 = SKIN + 0.05
+    v0 = E0 + 0.05
     vm = v0 + fd * 0.5
     inner = paint(o["interior_color"]) if o.get("interior_color") else "White Oak"
     leaf = None
     if kind == "door_glass":
         fr = wall_frame(wall)
-        hx, hy = fr(u0, SKIN + 0.2)
-        ax = fr(u0 + 1, 0); a0 = fr(u0, 0); inn = fr(u0, 1)
+        hu, hd = (u1, -1) if o.get("hinge") == "end" else (u0, 1)   # hinge jamb: the opening's start, or its end when the plan says so
+        hx, hy = fr(hu, E0 + 0.2)
+        ax = fr(hu + hd, 0); a0 = fr(hu, 0); inn = fr(hu, 1)
         axv, inv = (ax[0] - a0[0], -(ax[1] - a0[1])), (inn[0] - a0[0], -(inn[1] - a0[1]))      # Blender frame (y north)
         sgn = 1 if axv[0] * inv[1] - axv[1] * inv[0] > 0 else -1
         leaf = op(r, r["id"] + ".leaf", r["name"], "swing", (hx, hy, 0), angle=90 * sgn)
@@ -330,11 +356,11 @@ def window_unit(o):
         with into(leaf["parts"] if leaf else CUR[0]):
             wbox("Glass", wall, u0 + fw * 0.5, u1 - fw * 0.5, v0 + fd * 0.45, v0 + fd * 0.55, z0 + 0.05, z1 - 0.05)
     tw = 4 / 12                                             # 4" Abyss Black exterior trim
-    wbox("Trim", wall, u0 - tw, u0, -BAT_T - 0.02, SKIN, z0, z1)
-    wbox("Trim", wall, u1, u1 + tw, -BAT_T - 0.02, SKIN, z0, z1)
-    wbox("Trim", wall, u0 - tw, u1 + tw, -BAT_T - 0.02, SKIN, z1, z1 + tw)
+    wbox("Trim", wall, u0 - tw, u0, VF - BAT_T - 0.02, E0, z0, z1)
+    wbox("Trim", wall, u1, u1 + tw, VF - BAT_T - 0.02, E0, z0, z1)
+    wbox("Trim", wall, u0 - tw, u1 + tw, VF - BAT_T - 0.02, E0, z1, z1 + tw)
     if not door:
-        wbox("Trim", wall, u0 - tw, u1 + tw, -BAT_T - 0.04, SKIN, z0 - tw, z0)
+        wbox("Trim", wall, u0 - tw, u1 + tw, VF - BAT_T - 0.04, E0, z0 - tw, z0)
     jd0, jd1 = v0 + fd, T                                   # white oak jamb liner, stool, casing, apron
     wbox(inner, wall, u0, u0 + 0.06, jd0, jd1, z0, z1 - 0.06)
     wbox(inner, wall, u1 - 0.06, u1, jd0, jd1, z0, z1 - 0.06)
@@ -362,7 +388,10 @@ def battens(mat, frame, u_lo, u_hi, z_bot, top, holes, v_face=0.0):
     while u + BAT_W / 2 < u_hi - 0.25:
         ua, ub = u - BAT_W / 2, u + BAT_W / 2
         segs = [(z_bot, min(top(ua), top(ub)))]
-        for (h0, h1, hz0, hz1) in holes:
+        for hh in holes:
+            h0, h1, hz0, hz1 = hh[:4]
+            if len(hh) > 4:                                  # sloped head: its height at this batten
+                hz1 = hz1 + (hh[4] - hz1) * (max(ua, h0) - h0) / (h1 - h0)
             if h0 < ub and h1 > ua:
                 nxt = []
                 for (a, b) in segs:
@@ -388,7 +417,8 @@ def holes_for(wall, extra=()):
     for o in OPEN + list(extra):
         if o["wall"] != wall:
             continue
-        hs.append((o["start"] - TRIM_W, o["end"] + TRIM_W, -1 if is_door(o) else o["sill"] - TRIM_W, o["head"] + TRIM_W))
+        hs.append((o["start"] - TRIM_W, o["end"] + TRIM_W, -1 if is_door(o) else o["sill"] - TRIM_W, o["head"] + TRIM_W)
+                  + ((o["head_end"] + TRIM_W,) if "head_end" in o else ()))
     return hs
 
 
@@ -396,39 +426,75 @@ def ew_top(y):
     return north_roof_z(y) if y < YC2 else H_CL + (y - YC2) * (H_S - H_CL) / (HD - YC2)
 
 
-SIP = dict(model='6 1/2" structural insulated panels (A-11 notes)', specs=[["Siding", f"LP SmartSide board and batten, {MM['siding_color']} (Garden Sage)"],
-           ["Battens", f"{MM['batten_width_in']:g}\" wide, {MM['batten_spacing_in']:g}\" on centre (spacing ASSUMED)"], ["Trim", f"LP Abyss Black {MM['trim_color']}"],
-           ["Inside", f"Drywall, {MM['wall_paint']}"]])
+SIP = dict(model='6 1/2" structural insulated panel (Insulspan, A-12 S.I.P. notes)',
+           specs=[["Build up", 'Outside to inside: LP SmartSide, TamlynWrap rain screen, 7/16" OSB, 5 5/8" EPS foam, 7/16" OSB, 1/2" gypsum (A-41, A-12)'],
+                  ["R-value", "R-24 (A-41)"],
+                  ["Siding", f"LP SmartSide board and batten, {MM['siding_color']} (Garden Sage)"],
+                  ["Battens", f"{MM['batten_width_in']:g}\" wide, {MM['batten_spacing_in']:g}\" on centre (spacing ASSUMED)"], ["Trim", f"LP Abyss Black {MM['trim_color']}"],
+                  ["Inside", f"Drywall, {MM['wall_paint']}"]],
+           notes=["Layers from the S.I.P. notes on A-12 and wall type 1 on A-41. Siding and rain screen thicknesses are typical values, ASSUMED.",
+                  "The inside face sits where the A-11 plan puts it, so the panel's outside face is 1/2\" past the slab edge. ASSUMED until the Insulspan shop drawings."])
+
+
+def sip_layers(frame, zbot, top, holes, top_in=None, u_ext=(0, 0)):
+    """siding, OSB, EPS foam, OSB and gypsum for one exterior wall; top_in is the gypsum's top (it can stop at the roof's underside)"""
+    ext = [[s_[0] + (u_ext[0] if k == 0 else 0), s_[1], s_[2] + (u_ext[1] if k == len(top) - 1 else 0), s_[3]] for k, s_ in enumerate(top)]
+    panel("Siding", frame, VF, E0, zbot, ext, holes)
+    panel("OSB", frame, E0, E0 + OSB, zbot, top, holes)
+    panel("EPS Foam", frame, E0 + OSB, E0 + SIP_T - OSB, zbot, top, holes)
+    panel("OSB", frame, E0 + SIP_T - OSB, E0 + SIP_T, zbot, top, holes)
+    panel("Drywall", frame, T - GYP, T, zbot, top_in or top, holes)
+
+
+def ext_top(segs, u0, u1, zf):
+    """stretch the first and last top segment out to u0 and u1 (siding past the corners), heights from zf"""
+    out = [list(s_) for s_ in segs]
+    out[0][0], out[0][1] = u0, zf(u0)
+    out[-1][2], out[-1][3] = u1, zf(u1)
+    return out
+
+
 for wall, nm, length, top in (("N", "North exterior wall", HW, [[0, H_N, HW, H_N]]), ("S", "South exterior wall", HW, [[0, H_S, HW, H_S]]),
                               ("W", "West exterior wall", HD, ew_top_segs()), ("E", "East exterior wall", HD, ew_top_segs())):
     inf = json.loads(json.dumps(SIP))
     inf["specs"] = [["Length", ftin(length)], ["Height", f"{ftin(H_N)} north, {ftin(H_S)} south (A-30)" if wall in "EW" else ftin(H_N if wall == "N" else H_S) + " panel (A-30)"]] + inf["specs"]
     rec(f"wall.ext.{wall}", "wall", nm, "shell", info=inf)
-    holes = [(a, b, c, d) for (a, b, c, d) in cuts_for(wall)]
-    if wall == "N":
-        panel("Siding", FRAMES["N"], 0, SKIN, 0, top, holes)
-        panel("Drywall", FRAMES["N"], SKIN, T, 0, [[0, north_roof_z(T), HW, north_roof_z(T)]], holes)
+    holes = cuts_for(wall)
+    if wall in "NS":            # the north and south walls run past the corners to close them, the siding on out to its own face
+        zc = H_N if wall == "N" else H_S
+        sip_layers(FRAMES[wall], 0, [[E0, zc, HW - E0, zc]], holes, top_in=[[0, north_roof_z(T), HW, north_roof_z(T)]] if wall == "N" else [[0, south_roof_z(HD - T), HW, south_roof_z(HD - T)]], u_ext=(VF - E0, E0 - VF))
     else:
-        panel("Siding", FRAMES[wall], 0, SKIN, 0, top, holes)
-        panel("Drywall", FRAMES[wall], SKIN, T, 0, top, holes)
+        sip_layers(FRAMES[wall], 0, top, holes, u_ext=(VF, -VF))
     if MM["siding_style"] == "board_and_batten":
         topf = (lambda u: H_N) if wall == "N" else (lambda u: H_S) if wall == "S" else ew_top
-        battens("Siding", wall_frame(wall), 0, length, 0, topf, holes_for(wall))
+        battens("Siding", wall_frame(wall), 0, length, 0, topf, holes_for(wall), v_face=VF)
     if MM["siding_style"] == "board_and_batten":            # corner boards at this wall's two corners (N and S walls carry them)
         for (x, y, sx, sy) in ((0, 0, 1, 1), (HW, 0, -1, 1), (HW, HD, -1, -1), (0, HD, 1, -1)):
             if (wall == "N" and y == 0) or (wall == "S" and y == HD):
                 zt = H_N if y == 0 else H_S
-                box("Trim", x - sx * BAT_T, x + sx * TRIM_W, y - sy * BAT_T, y, 0, zt)
-                box("Trim", x - sx * BAT_T, x, y - sy * BAT_T, y + sy * TRIM_W, 0, zt)
+                box("Trim", x + sx * (VF - BAT_T), x + sx * TRIM_W, y + sy * (VF - BAT_T), y + sy * VF, 0, zt)
+                box("Trim", x + sx * (VF - BAT_T), x + sx * VF, y + sy * (VF - BAT_T), y + sy * TRIM_W, 0, zt)
 
 inf = json.loads(json.dumps(SIP))
 inf["specs"] = [["Location", f"{ftin(YC)} from the north wall (A-11 and A-12)"], ["Clerestory", f"{CL['count']} W30-30 awnings, sill {ftin(CL['sill'])}"],
-                ["Openings below", f"{len(CL['passages'])}: pantry, hall, living (barn door), entry, coat closet"]] + inf["specs"]
+                ["Openings below", f"{len(CL['passages'])}: pantry, hall, living (barn door), entry, coat closet"],
+                ["Below the low roof", "2x6 stud bearing wall with gypsum both sides (A-41). SIP above it."]] + inf["specs"]
 rec("wall.ext.C", "wall", "Clerestory bearing wall", "shell", info=inf)
-panel("Siding", FRAMES["C"], 0, SKIN, H_CL, [[T, north_roof_z(YC2), HW - T, north_roof_z(YC2)]], [h for h in cuts_for("C") if h[3] > H_CL])
-panel("Drywall", FRAMES["C"], SKIN, T, 0, [[T, north_roof_z(YC2 - SKIN), HW - T, north_roof_z(YC2 - SKIN)]], cuts_for("C"))
+ZCT = north_roof_z(YC2)
+CH = [h for h in cuts_for("C") if h[3] > H_CL]
+# above the low roof: a SIP, its siding running out past both ends to cover the east and west walls' end grain
+panel("Siding", FRAMES["C"], VF, E0, H_CL, [[VF, ZCT, HW - VF, ZCT]], CH)
+panel("OSB", FRAMES["C"], E0, E0 + OSB, H_CL, [[T, ZCT, HW - T, ZCT]], CH)
+panel("EPS Foam", FRAMES["C"], E0 + OSB, E0 + SIP_T - OSB, H_CL, [[T, ZCT, HW - T, ZCT]], CH)
+panel("OSB", FRAMES["C"], E0 + SIP_T - OSB, T - GYP, H_CL, [[T, ZCT, HW - T, ZCT]], CH)
+# below it: the stud wall between the north rooms and the kitchen side, finished both faces
+panel("Drywall", FRAMES["C"], 0, T - GYP, 0, [[T, H_CL, HW - T, H_CL]], [h for h in cuts_for("C") if h[2] < H_CL])
+panel("Drywall", FRAMES["C"], T - GYP, T, 0, [[T, north_roof_z(YC2 - T), HW - T, north_roof_z(YC2 - T)]], cuts_for("C"))
 if MM["siding_style"] == "board_and_batten":
-    battens("Siding", wall_frame("C"), T, HW - T, H_CL, lambda u: north_roof_z(YC2), holes_for("C", CLER))
+    battens("Siding", wall_frame("C"), T, HW - T, H_CL, lambda u: ZCT, holes_for("C", CLER), v_face=VF)
+    for (x, sx) in ((0, 1), (HW, -1)):                       # black corner boards at both ends, like the other corners
+        box("Trim", x + sx * (VF - BAT_T), x + sx * TRIM_W, YC2 - VF, YC2 - VF + BAT_T, H_CL, ZCT)
+        box("Trim", x + sx * (VF - BAT_T), x + sx * VF, YC2 - TRIM_W, YC2 - VF + BAT_T, H_CL, ZCT)
 
 for o in OPEN:
     window_unit(o)
@@ -544,8 +610,32 @@ def between(x0, x1, y0, y1):
     return f"in {names[0]}" if names else ""
 
 
-for k, (x0, x1, y0, y1) in enumerate(INT_RECTS):
+def split_by_attic(x0, x1, y0, y1):
+    """A wall that runs past the edge of a flat ceiling room only stops at the attic deck where both sides are flat.
+    Split it at the flat room edges so the part between two flat rooms stops at the deck and the rest runs up to the roof."""
     top = wall_top(x0, x1, y0, y1)
+    if not C["ceilings"].get("walls_stop_at_attic"):
+        return [((x0, x1, y0, y1), top)]
+    alongx = (x1 - x0) >= (y1 - y0)
+    a, b = (x0, x1) if alongx else (y0, y1)
+    cuts = sorted({e for r_ in C["ceilings"]["flat_rooms"] for e in ((r_[0], r_[2]) if alongx else (r_[1], r_[3])) if a + 0.3 < e < b - 0.3})
+    if not cuts:
+        return [((x0, x1, y0, y1), top)]
+    deck = lambda x, y: FH + FLOOR_T - DECK_T
+    pieces, edges = [], [a] + cuts + [b]
+    for u0, u1 in zip(edges[:-1], edges[1:]):
+        r_ = (u0, u1, y0, y1) if alongx else (x0, x1, u0, u1)
+        low = wall_between_flats(*r_) and wall_top(*r_)((r_[0] + r_[1]) / 2, (r_[2] + r_[3]) / 2) <= FH + FLOOR_T
+        if pieces and pieces[-1][1] == low:                      # merge neighbours of the same kind
+            q = pieces[-1][0]
+            pieces[-1] = ((q[0], r_[1], q[2], r_[3]), low)
+        else:
+            pieces.append((r_, low))
+    return [(r_, deck if low else top) for (r_, low) in pieces]
+
+
+WALL_PIECES = [pc for r_ in INT_RECTS for pc in split_by_attic(*r_)]
+for k, ((x0, x1, y0, y1), top) in enumerate(WALL_PIECES):
     ln, th = max(x1 - x0, y1 - y0), min(x1 - x0, y1 - y0)
     zt = top((x0 + x1) / 2, (y0 + y1) / 2)
     rec(f"wall.int.{k}", "wall", f"Interior wall {between(x0, x1, y0, y1)}".strip(), "interior",
@@ -555,6 +645,16 @@ for k, (x0, x1, y0, y1) in enumerate(INT_RECTS):
     box("Drywall", x0, x1, y0, y1, 0, 9, ztop=top)
 
 DOOR_GAPS, FIXES = [], []
+
+
+def attic_gap(x0, x1, y0, y1, crossed):
+    """A short gap between two wall ends. With nothing crossing it, fill it full height. Where a wall that stops at the
+    attic deck crosses it, the gap only shows above the deck, so fill from the deck up (the hall 1 west wall had these)."""
+    top = wall_top(x0, x1, y0, y1)
+    if not crossed:
+        FIXES.append(("sliver", x0, x1, y0, y1, top, 0))
+    elif top((x0 + x1) / 2, (y0 + y1) / 2) > FH + FLOOR_T + 0.2:
+        FIXES.append(("sliver", x0, x1, y0, y1, top, FH + FLOOR_T - DECK_T))
 
 
 def make_headers():
@@ -569,9 +669,11 @@ def make_headers():
                         continue
                     lo, hi = (a, b) if a[1] <= b[0] else (b, a)
                     gap0, gap1 = lo[1], hi[0]
-                    if 0.02 < gap1 - gap0 <= 1.4 and not any(r is not a and r is not b and r[0] < gap1 - 0.01 and r[1] > gap0 + 0.01 and r[2] < a[3] and r[3] > a[2] for r in rects):
-                        FIXES.append(("sliver", gap0, gap1, min(a[2], b[2]), max(a[3], b[3]), wall_top(gap0, gap1, a[2], a[3])))
-                        continue
+                    if 0.02 < gap1 - gap0 <= 1.4:
+                        crossed = any(r is not a and r is not b and r[0] < gap1 - 0.01 and r[1] > gap0 + 0.01 and r[2] < a[3] and r[3] > a[2] for r in rects)
+                        attic_gap(gap0, gap1, min(a[2], b[2]), max(a[3], b[3]), crossed)
+                        if not crossed:
+                            continue
                     if not (1.4 < gap1 - gap0 < 7.0):
                         continue
                     if any(r is not a and r is not b and r[0] < gap1 - 0.01 and r[1] > gap0 + 0.01 and r[2] < a[3] and r[3] > a[2] for r in rects):
@@ -587,9 +689,11 @@ def make_headers():
                         continue
                     lo, hi = (a, b) if a[3] <= b[2] else (b, a)
                     gap0, gap1 = lo[3], hi[2]
-                    if 0.02 < gap1 - gap0 <= 1.4 and not any(r is not a and r is not b and r[2] < gap1 - 0.01 and r[3] > gap0 + 0.01 and r[0] < a[1] and r[1] > a[0] for r in rects):
-                        FIXES.append(("sliver", min(a[0], b[0]), max(a[1], b[1]), gap0, gap1, wall_top(a[0], a[1], gap0, gap1)))
-                        continue
+                    if 0.02 < gap1 - gap0 <= 1.4:
+                        crossed = any(r is not a and r is not b and r[2] < gap1 - 0.01 and r[3] > gap0 + 0.01 and r[0] < a[1] and r[1] > a[0] for r in rects)
+                        attic_gap(min(a[0], b[0]), max(a[1], b[1]), gap0, gap1, crossed)
+                        if not crossed:
+                            continue
                     if not (1.4 < gap1 - gap0 < 7.0):
                         continue
                     if any(r is not a and r is not b and r[2] < gap1 - 0.01 and r[3] > gap0 + 0.01 and r[0] < a[1] and r[1] > a[0] for r in rects):
@@ -606,10 +710,10 @@ make_headers()
 nh = 0
 for f_ in FIXES:
     if f_[0] == "sliver":
-        _, x0, x1, y0, y1, top = f_
+        _, x0, x1, y0, y1, top, z0 = f_
         rec(f"wall.fill.{nh}", "wall", f"Interior wall {between(x0, x1, y0, y1)}".strip(), "interior",
-            info=dict(model="Short wall piece", notes=["Fills a gap of under 1' 5\" between two traced wall ends."]))
-        box("Drywall", x0, x1, y0, y1, 0, 9, ztop=top)
+            info=dict(model="Short wall piece", notes=["Fills a gap of under 1' 5\" between two traced wall ends" + (", above the attic deck." if z0 else ".")]))
+        box("Drywall", x0, x1, y0, y1, z0, 9, ztop=top)
     else:
         _, x0, x1, y0, y1, top, h = f_
         rec(f"wall.header.{nh}", "wall", "Wall over a doorway", "interior",
@@ -1101,8 +1205,17 @@ if FU.get("enabled"):
                         B("Brushed Nickel", px_ - 0.05, px_ + 0.05, min(b0, b1), max(b0, b1), 3.0, 3.4)
             else:
                 ha = l0 if k_ == 0 else l1
-                hp = (ha, tm) if ax == "x" else (tm, ha)
                 sgn_ = (-1 if ax == "x" else 1) * (1 if k_ == 0 else -1)
+                sw = next((s_ for s_ in FU.get("door_swing", []) if math.hypot(s_[0] - gc[0], s_[1] - gc[1]) < 1.5), None)
+                if sw and len(leaves) == 1:        # hinge side and swing from the A-11 door arcs
+                    ha = l1 if sw[2] in ("E", "S") else l0
+                    dv = (1, 0) if ax == "x" else (0, 1)
+                    if ha == l1:
+                        dv = (-dv[0], -dv[1])
+                    ov = {"N": (0, -1), "S": (0, 1), "E": (1, 0), "W": (-1, 0)}[sw[3]]
+                    sgn_ = 1 if dv[0] * (-ov[1]) - (-dv[1]) * ov[0] > 0 else -1     # turn sense in the Blender frame (y north)
+                    k_ = 0 if ha == l0 else 1
+                hp = (ha, tm) if ax == "x" else (tm, ha)
                 lf = op(r, f"{r['id']}.leaf{suffix}", r["name"], "swing", (hp[0], hp[1], 0), angle=90 * sgn_)
                 with into(lf["parts"]):
                     B("White Oak", l0, l1, tm - 0.07, tm + 0.07, 0.04, h - 0.08)
@@ -1192,7 +1305,7 @@ if GA["enabled"]:
     my0, my1 = GA["man_door_y"]
     rec("garage.walls", "wall", "Garage walls", "shell",
         info=dict(model=f"{ftin(gx1 - gx0)} x {ftin(gy1 - gy0)} detached garage, delegated design (A-11, A-22)",
-                  specs=[["South wall", f"{ftin(GA['south_wall_height'])} (ASSUMED from the A-20 scale)"], ["Roof", f"{GA['pitch']:g}:12 down to the south"],
+                  specs=[["South wall", f"{ftin(GA['south_wall_height'])} (A-31 section 2)"], ["Roof", f"{GA['pitch']:g}:12 down to the south"],
                          ["Siding", "Board and batten to match the house"]]))
     fN, fS, fW, fE = (gx0, gy0, 1, 0, 0, 1), (gx0, gy1, 1, 0, 0, -1), (gx0, gy0, 0, 1, 1, 0), (gx1, gy0, 0, 1, -1, 0)
     holesN = [(s0, s0 + 3, GA["north_window_sill"], GA["north_window_sill"] + GWH) for s0 in GA["north_windows"]]
@@ -1212,7 +1325,13 @@ if GA["enabled"]:
     box("Concrete", gx0, gx1, gy0, gy1, -0.4, -0.05)
     for k, (s0, w) in enumerate(GA["overhead_doors"]):
         r = rec(f"garage.door.{k + 1}", "door", f"Garage overhead door {k + 1}", "shell", info=dict(model=f"D90-80 overhead door, {ftin(w)} x 8' 0\"", specs=[["Colour", "Black, with a row of lites"]]))
-        lf = op(r, f"garage.door.{k + 1}.panel", r["name"], "rollup", (gx0 + s0 + w / 2, gy1 - 0.35, 0))
+        r["info"]["specs"].append(["Opens", "Sectional, rolls up and back on horizontal tracks under the ceiling"])
+        for xt in (gx0 + s0 - 0.12, gx0 + s0 + w + 0.04):         # steel tracks: up the jambs, then back into the garage
+            box("Black Metal", xt, xt + 0.08, gy1 - 0.45, gy1 - 0.25, 0, 8.1)
+            box("Black Metal", xt, xt + 0.08, gy1 - 8.6, gy1 - 0.25, 8.1, 8.25)
+        lf = op(r, f"garage.door.{k + 1}.panel", r["name"], "overhead", (gx0 + s0 + w / 2, gy1 - 0.35, 0))
+        lf["height"] = 8.0
+        lf["inward"] = [0, -1]                                  # rolls back to the north, into the garage
         with into(lf["parts"]):
             box("Garage Door", gx0 + s0, gx0 + s0 + w, gy1 - 0.4, gy1 - 0.3, 0, 8)
             for j in range(1, 4):
@@ -1284,7 +1403,7 @@ FURN = FU.get("items", []) if FU.get("enabled") else []
 BYFID = {it["id"]: it for it in FURN}
 WEB_META = dict(replace_nodes=[], cull=[], move_nodes={})
 FURN_MATS = ["Bedding", "Fabric #F1EEE8", "Fabric #9A6B4A", "Fabric #7D8A6C", "Fabric #56614A", "White Oak", "Upholstery", "Black Metal",
-             "Brushed Nickel", "Cabinet Wood", "Plastic Grey", "painted_wooden_nightstand", "Lamp Shade"]
+             "Brushed Nickel", "Cabinet Wood", "Plastic Grey", "painted_wooden_nightstand", "Lamp Shade", "Porcelain"]
 
 
 def frame_at(cx, cy, facing):
@@ -1403,8 +1522,39 @@ def web_office_chair(it):
 # 11/16/2026). The pads at the bi-parting door and the west door stay.
 WEB_META["cull"].append(dict(box=[6.9, 51.9, -1.0, 13.1, 56.1, 0.2], materials=["Concrete"], parts="site"))
 
+# The baked bath 1 wet room tiled its whole west wall, straight across the A-11 walk in opening (x 38.12-38.41,
+# y 23.59-26.95; Maxwell, 11/17/2026). Drop that slab and tile the wall here with the opening left open.
+for it in FURN:
+    if it.get("type") != "wetroom" or not it.get("walk_in"):
+        continue
+    x0w, y0w, y1w = it["x0"], it["y0"], it["y1"]
+    o0, o1 = it["walk_in"]
+    WEB_META["cull"].append(dict(box=[x0w - 0.02, y0w - 0.05, -0.1, x0w + 0.04, y1w + 0.05, 9.2], materials=["Tile Wall"]))
+    rec(f"furniture.{it['id']}.west_tile", "furniture", "Shower wall tile", "furniture", room=room_at(x0w + 1, (o0 + o1) / 2),
+        info=dict(model="Wall tile, wet room west wall (ASSUMED finish)", notes=["Open between the jambs per A-11 so you can walk into the shower."]))
+    for a, b_ in ((y0w, o0), (o1, y1w)):
+        box("Tile Wall", x0w, x0w + 0.02, a, b_, 0.02, it.get("ceiling", 9.0))
+    for yj, d_ in ((o0, 1), (o1, -1)):                       # tile wraps the jambs, back to the drywall face
+        box("Tile Wall", x0w - 0.31, x0w + 0.02, yj, yj + d_ * 0.02, 0.02, it.get("walk_in_head", 8.0))
+
+def web_towel_warmer(it):
+    """Ladder towel warmer on a wall that runs N-S (facing W): two posts with standoffs and five rails."""
+    xw, y0, y1, z0, z1 = it["x"], it["y0"], it["y1"], it["z0"], it["z1"]
+    xr = xw - 0.17
+    for y in (y0, y1):
+        box("Brushed Nickel", xr - 0.03, xr + 0.03, y - 0.03, y + 0.03, z0, z1)
+        for z in (z0 + 0.3, z1 - 0.3):
+            box("Brushed Nickel", xr, xw - 0.03, y - 0.02, y + 0.02, z - 0.02, z + 0.02)
+    for k in range(5):
+        z = z0 + 0.25 + k * (z1 - z0 - 0.4) / 4
+        box("Brushed Nickel", xr - 0.025, xr + 0.025, y0, y1, z - 0.025, z + 0.025)
+
+
+# the old towel bar (merged into the baked Brushed Nickel mesh) hung in the WC pocket door opening
+WEB_META["cull"].append(dict(box=[33.0, 28.8, 3.9, 35.6, 29.25, 4.1], materials=["Brushed Nickel"]))
+
 WEB_BUILD = {"bed": web_bed, "nightstand": web_nightstand, "table_lamp": web_table_lamp, "desk_lamp": web_desk_lamp,
-             "l_desk": web_l_desk, "office_chair": web_office_chair}
+             "l_desk": web_l_desk, "office_chair": web_office_chair, "towel_warmer": web_towel_warmer}
 WEB_INFO = {
     "bed": lambda it: dict(model="Queen bed, 60 x 80 in mattress on a white oak platform (ASSUMED)", notes=["Queen, and placed so the side tables clear both doors (Maxwell, 11/16/2026)."]),
     "nightstand": lambda it: dict(model=f"Nightstand, {ftin(it.get('w', 1.4))} wide (ASSUMED)"),
@@ -1415,12 +1565,16 @@ WEB_INFO = {
                                      ["Frame", "V2 C-frame, 3 legs, black"], ["Controls", "Advanced keypad"], ["Shown at", "29 in, seated height (it stands up to about 50 in)"]],
                               notes=["Maxwell's own desk, from his UPLIFT order. Placed on the east wall, off the window (Maxwell, 11/16/2026)."]),
     "office_chair": lambda it: dict(model="Office chair (stand in, ASSUMED)"),
+    "towel_warmer": lambda it: dict(model="Wall mounted towel warmer (A-11, model ASSUMED)", notes=["Moved here from the WC doorway, where it hung in the air (Maxwell, 11/17/2026)."]),
 }
-WEB_NAMES = {"bed": "Queen bed", "nightstand": "Nightstand", "table_lamp": "Table lamp", "desk_lamp": "Desk lamp", "l_desk": "L-shaped standing desk", "office_chair": "Office chair"}
+WEB_NAMES = {"bed": "Queen bed", "nightstand": "Nightstand", "table_lamp": "Table lamp", "desk_lamp": "Desk lamp", "l_desk": "L-shaped standing desk", "office_chair": "Office chair", "towel_warmer": "Towel warmer"}
 for it in FURN:
     if it.get("moved_from"):
         ox, oy, of = it["moved_from"]
-        WEB_META["move_nodes"][it["id"]] = [rnd(it["x"] - ox), rnd(it["y"] - oy), -(it.get("facing", 0) - of)]
+        mv = [rnd(it["x"] - ox), rnd(it["y"] - oy), -(it.get("facing", 0) - of)]
+        WEB_META["move_nodes"][it["id"]] = mv
+        if it.get("move_node"):
+            WEB_META["move_nodes"][it["move_node"]] = mv   # the mesh node when the named node is an empty beside it
     if not it.get("web"):
         continue
     t = it["type"]

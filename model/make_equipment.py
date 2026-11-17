@@ -193,7 +193,8 @@ supply("s_hall2a", "Hall 2", 15, 6, drop(14.4, YN + 0.75, 17.8), dict(at=[14.4, 
 supply("s_hall2b", "Hall 2", 16, 6, drop(20.5, YN + 0.75, 13.8), dict(at=[20.5, 13.8, CEIL - 0.02], size=[8, 6]))
 supply("s_hall1", "Hall 1", 48, 6, drop(13.2, YN + 0.75, 22.62), dict(at=[13.2, 22.9, ZT], size=[10, 6], wall=S), "High sidewall register above the door.")
 # west leg
-supply("s_bed3", "Bedroom 3", 127, 7, [[XW + 0.75, 14.5, DECK + 0.45], [XW + 1.0, 14.5, ZT], [8.5, 14.5, ZT]], dict(at=[8.5, 14.5, CEIL - 0.02], size=[12, 8]))
+supply("s_bed3", "Bedroom 3", 127, 7, [[XW + 0.75, 14.5, DECK + 0.45], [XW + 1.0, 14.5, ZT], [6.3, 14.5, ZT]], dict(at=[6.3, 14.5, CEIL - 0.02], size=[12, 8]),
+       "Ceiling register moved west from x 8.5 to 6.3 ft so this run stops short of the secondary return's truss bay.")
 supply("s_utility", "Utility", 18, 6, [[XW, 26.5, ZT], [3.1, 26.5, ZT]], dict(at=[3.1, 26.5, CEIL - 0.02], size=[8, 6]), "Extra capacity for the utility room computers is on Maxwell's wish list and not sized yet.")
 supply("s_powder", "Powder", 15, 6, [[8.5, 33.9, ZT], [8.5, 32.4, ZT]], dict(at=[8.5, 32.4, CEIL - 0.02], size=[8, 6]))
 for k, x in enumerate([3.0, 7.0, 11.0]):
@@ -211,22 +212,45 @@ for k, x in enumerate([32.3, 38.0]):
     supply(f"s_family{k+1}", "Entry / family", 112, 7, drop(x, YS, 35.0), dict(at=[x, 35.1, ZT], size=[14, 6], wall=S), "Runs in the loft floor to a high sidewall register.")
 supply("s_bed1", "Bedroom 1", 138, 8, [[40.4, YE - 0.6, 11.0], [40.4, 14.95, 11.0]], dict(at=[40.4, 14.97, 11.0], size=[14, 8], wall=N), "High sidewall register through the attic wall.")
 
-# returns: every one of these is ducted in the open web truss space instead of M-10's transfer grilles and hall return
-RNOTE = ("New. M-10 returned all air to one 34 x 10 grille in hall 1 through transfer grilles and door undercuts. The builder plans open web floor trusses, "
-         "so each bedroom and the study gets its own ducted return here. The return main runs in the trusses directly under the supply trunk, which keeps "
-         "supply branches and returns from crossing. The trusses are 11-7/8 in deep, which leaves about 8-7/8 in clear between the chords, so every duct in the floor is "
-         "8 in tall or less. Duct sizes and truss direction are ASSUMED until Andy or the HVAC installer sizes them.")
-ret("return_main", "Return main", [28, RH], [[39.5, YE, ZT], [XJ, YE, ZT], [XJ, YN, ZT], [XW, YN, ZT], [XW, 22.3, ZT], [5.2, 22.3, ZT], [5.2, 25.6, ZT]],
-    grilles=[dict(at=[XW, 19.5, CEIL - 0.02], size=[20, 8])], note=RNOTE)
-ducts[-1]["info"]["specs"] = [["Serves", "Bedrooms 1, 2 and 3, the study, and the common area return"], ["Bedroom 3", "Ceiling grille straight into the main"]]
-ret("return_riser", None, [30, RH], [[5.2, 25.6, ZT], [5.2, 25.6, DECK + 0.6]], info_of="return_main")
+# returns. Main: Andy's M-10 return, a 34 x 10 grille high on the hall 1 west wall and a 34 x 10 trunk on the attic deck back to the heat pump.
+# Secondary: a spine in the open web floor trusses for bedrooms 2 and 3 (Maxwell, 11/17/2026), kept clear of every supply run.
+DK = DECK + 5 / 12                                # centre of a 10 in tall duct lying on the deck
+ret("return_main", "Main return (M-10)", [34, 10],
+    [[11.95, 30.6, ZT], [10.6, 30.6, ZT], [10.6, 30.6, DK], [10.6, 27.6, DK], [5.2, 27.6, DK], [5.2, 26.4, DK]],
+    grilles=[dict(at=[12.15, 30.6, ZT], size=[34, 10], wall="E")],
+    note="Andy's M-10 return: one 34 x 10 grille in hall 1 and a 34 x 10 return trunk over the utility, pantry and powder rooms to HP-01. "
+         "The grille sits high on the hall 1 wall above the powder room door and opens into the truss bay over the powder ceiling, then the trunk "
+         "rises onto the attic deck. Route on the deck is ASSUMED to suit the heat pump position in this model.")
+ducts[-1]["info"]["model"] = "34 x 10 in grille and trunk, 1,368 CFM system (M-10)"
+ducts[-1]["info"]["specs"] = [["Serves", "Living, kitchen, dining, family and the halls, plus any room on transfer grilles"], ["Grille", "34 x 10 in, hall 1 (M-10)"], ["Trunk", "34 x 10 in on the attic deck (M-10)"]]
+RNOTE = ("New, in addition to Andy's main return. The builder plans open web floor trusses, so bedrooms 2 and 3 get a ducted return in the truss space "
+         "instead of relying only on transfer grilles. It runs north to south in one truss bay at x 7.5 ft, parallel to the trusses, so it never crosses a "
+         "supply run: every supply drop in the trusses leaves the trunk south side further east, and the bedroom 3 supply now stops short of this bay. "
+         "Trusses are 11-7/8 in deep with about 8-7/8 in clear between the chords, so the duct is 8 in tall. Size, truss direction and bay are ASSUMED until "
+         "Andy or the HVAC installer sizes them.")
+XR = 7.5
+ret("return_truss", "Secondary return (floor trusses)", [14, RH], [[XR, 10.72, ZT], [XR, 25.6, ZT], [5.2, 25.6, ZT]],
+    grilles=[dict(at=[XR, 10.66, ZT], size=[16, 8], wall=N), dict(at=[XR, 18.6, CEIL - 0.02], size=[20, 10])], note=RNOTE)
+ducts[-1]["info"]["specs"] = [["Serves", "Bedroom 2 (high wall grille) and bedroom 3 (ceiling grille)"], ["Duct", "14 x 8 in in one truss bay"], ["Crosses", "No supply runs"]]
+# Study and bedroom 1 (Maxwell, 11/17/2026: "give them returns, find a route that makes sense"). Both vaulted rooms back onto the hall 2 east leg,
+# so each gets a high wall grille into that truss space. A spine runs south in one bay at x 23.6, passes under the trunk's east leg (crossing it,
+# not following it), turns west in the laundry and linen trusses at y 21.9 behind every supply drop, then rises onto the deck at x 14.4 because the
+# hall 1 supply drop (x 13.2) fills the truss depth. On the deck it hugs the south edge of the attic and tees into the main return trunk.
+XS, YW, XU = 23.6, 21.9, 14.4
+DR = DECK + RH / 24                               # centre of an 8 in tall duct lying on the deck
+SNOTE = ("New, in addition to Andy's main return. The study and bedroom 1 are vaulted, so their grilles sit high on the walls they share with the "
+         "hall 2 east leg, where the floor trusses are. The duct crosses under the supply trunk once at a right angle, stays clear of every supply drop, "
+         "and only comes up onto the attic deck west of the laundry, along the south edge of the attic, to join the main return. Sizes are ASSUMED until "
+         "Andy or the HVAC installer sizes them.")
+ret("return_east", "Study and bedroom 1 return", [12, RH], [[XS, 10.72, ZT], [XS, YW, ZT], [XU, YW, ZT]],
+    grilles=[dict(at=[XS, 10.66, ZT], size=[16, 8], wall=N)], note=SNOTE)
+ducts[-1]["info"]["specs"] = [["Serves", "Study (high wall grille) and bedroom 1 (high grille over its door)"], ["Duct", "10 x 8 in branch, 12 x 8 in spine in the trusses, 14 x 8 in on the deck"],
+                              ["Crosses", "Under the trunk's east leg once, no supply runs"]]
+ret("return_bed1", None, [10, RH], [[28.06, 12.3, ZT], [XS, 12.3, ZT]], grilles=[dict(at=[28.14, 12.3, ZT], size=[16, 8], wall="E")], info_of="return_east")
+ret("return_east_riser", None, [14, RH], [[XU, YW, ZT], [XU, YW, DR]], info_of="return_east")
+ret("return_east_deck", None, [14, RH], [[XU, YW, DR], [10.6, YW, DR], [10.6, 27.6 - 1.5, DR]], info_of="return_east")
+ret("return_riser", None, [30, RH], [[5.2, 25.6, ZT], [5.2, 25.6, DECK + 0.6]], info_of="return_truss")
 ret("return_plenum", None, [36, 20], [[5.2, 24.92, DECK + 5.5 / 12 + 10.6 / 12], [5.2, 26.4, DECK + 5.5 / 12 + 10.6 / 12]], info_of="return_main")
-ret("r_bed1", "Return from bedroom 1", [14, 8], [[39.5, 15.05, ZT], [39.5, YE, ZT]], grilles=[dict(at=[39.5, 15.0, ZT], size=[20, 8], wall=N)], note="High wall grille, ducted through the trusses to the return main.")
-ret("r_bed2", "Return from bedroom 2", [14, 8], [[13.6, 10.68, ZT], [13.6, YN, ZT]], grilles=[dict(at=[13.6, 10.63, ZT], size=[16, 8], wall=N)], note="High wall grille above the door, ducted through the trusses to the return main.")
-ret("r_study", "Return from bedroom 4 / study", [10, 8], [[23.02, 9.9, ZT], [22.8, 9.9, ZT], [22.8, YN, ZT]], grilles=[dict(at=[23.07, 9.9, ZT], size=[14, 8], wall="E")],
-    note="The study does not touch the attic. This uses the wall chase at its southwest corner to reach the trusses. ASSUMED.")
-ret("r_common", "Return from living and common areas", [28, RH], [[12.1, 27.4, ZT], [5.2, 27.4, ZT], [5.2, 25.6, ZT]], grilles=[dict(at=[12.15, 27.4, ZT], size=[30, 8], wall="E")],
-    note="One grille high on the hall 1 wall serves the open living, kitchen, dining and family space. It takes the place of M-10's 34 x 10 hall return.")
 
 # ERV ducts
 for k, (y, nm) in enumerate([(28.2, "outdoor air in"), (29.6, "exhaust air out")]):
