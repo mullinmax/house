@@ -192,7 +192,7 @@ function loadSky(file) {
 }
 
 const RE_UTIL = /geothermal|septic|utilit|marker/i;
-const RE_ROOF = /roof|seam|fascia|soffit|gutter|downspout|rafter|ceiling|loft floor|ridge/i;
+const RE_ROOF = /roof|seam|fascia|soffit|gutter|downspout|rafter|ceiling|loft floor|\bridge/i;   // \b keeps "fridge wall" cabinets out of the roof layer
 const RE_NOCOLLIDE = /utilit|geothermal|septic|marker|leaf|leaves|crown|canopy|foliage|curtain|shade|rug|towel|light|lamp|glass pane|^Ground$/i;
 const roofNodes = [], utilNodes = [], treeMeshes = [];
 const LITE = /[?&]lite\b/.test(location.search);
