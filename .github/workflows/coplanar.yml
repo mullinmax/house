@@ -24,3 +24,5 @@ jobs:
           node-version: 22
       - name: Look for flush faces that flicker
         run: node tools/coplanar_audit.mjs
+      - name: Check ducts against the floor trusses
+        run: python3 tools/truss_clash.py
