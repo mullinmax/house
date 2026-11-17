@@ -20,7 +20,8 @@ const server = http.createServer((req, res) => {
 }).listen(0);
 const port = server.address().port;
 const browser = await chromium.launch({ args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--ignore-gpu-blocklist'] });
-const VIEWS = { default: [[0, 0], [32, 14]], cooktop: [[0, 89], [25, 40]], disposal: [[0, 5], [35, 15]], heat_pump: [[0, 8], [140, 18]], erv: [[0, 20], [40, 30]] };
+const VIEWS = { default: [[0, 0], [32, 14]], cooktop: [[0, 89], [25, 40]], disposal: [[0, 5], [35, 15]], heat_pump: [[0, 8], [140, 18]], erv: [[0, 20], [40, 30]],
+  car_model_y: [[35, 12], [90, 2], [150, 14]], car_insight: [[35, 12], [90, 2], [150, 14]], wall_connector: [[0, 5], [35, 15]] };
 const page = await browser.newPage({ viewport: { width: 700, height: 700 }, deviceScaleFactor: 1 });
 page.on('pageerror', (e) => console.error('page error:', e.message));
 page.on('console', (m) => { if (m.type() === 'error') console.error('console:', m.text()); });
