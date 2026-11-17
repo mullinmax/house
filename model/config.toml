@@ -524,6 +524,8 @@ items = [
   { id = "desk_lamp", type = "desk_lamp", web = true, x = 30.7, y = 1.5, on = "desk" },
   { id = "art_study", type = "model", model = "hanging_picture_frame_03", x = 23.1, y = 5.5, z = 4.6, facing = 90, len = 2.2, wall = true },
   # ---- laundry
+  # one GE Profile UltraFast Combo washer dryer replaces the pair (Maxwell 11/17/2026); it is modeled in model/make_equipment.py,
+  # which also drops the baked washer and dryer. These two entries only feed the archived Blender build.
   { id = "washer", type = "washer", x = 26.15, y = 21.25, facing = 0 },
   { id = "dryer", type = "dryer", x = 28.75, y = 21.25, facing = 0 },
   # ---- bath 2 (x 16.3-22.6, y 0.6-10.7): alcove tub on the north wall
