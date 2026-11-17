@@ -97,6 +97,47 @@ items += [
         placement="Laundry south wall, centred where the washer and dryer pair stood.")),
 ]
 
+# ------------------------------------------------------------------ garage: the cars and the charger
+# Both cars park nose in (facing north). The Model Y takes the east bay: its charge port is at the left rear, so it
+# ends up beside the Wall Connector on the pier between the doors. Rear bumpers sit 3 ft inside the doors. ASSUMED.
+GA = CFG["garage"]
+GX0, GY0, GX1, GY1 = GA["rect"]
+G_IN = GY1 - 0.5                                   # inside face of the garage's south wall
+G_FLOOR = -0.05                                    # garage slab top, an inch below the house slab
+bay = [GX0 + s0 + w / 2 for s0, w in GA["overhead_doors"]]
+pier = (GX0 + GA["overhead_doors"][0][0] + GA["overhead_doors"][0][1] + GX0 + GA["overhead_doors"][1][0]) / 2
+REAR_Y = G_IN - 3.0
+items += [
+ dict(id="car_model_y", name="Tesla Model Y", category="Car", system="vehicles", room="Garage", layer="vehicles",
+      builder="car", car="model_y", size=[75.6, 63.9, 187.0], at=[round(bay[1], 3), round(REAR_Y, 3), G_FLOOR], facing=0,
+      info=dict(model="Tesla Model Y, 2020 to 2024, Solid Black",
+        specs=[["Size", "187.0 L x 75.6 W x 63.9 H in (83.8 in wide with mirrors, 77.9 in folded)"], ["Wheelbase", "113.8 in"], ["Track", "64.4 in"],
+               ["Ground clearance", "6.6 in"], ["Tyres", "255/45 R19 on 19 in Gemini wheels with aero covers"], ["Charge port", "Left rear"]],
+        notes=["The original 2020 to 2024 body (Maxwell, 11/17/2026). Dimensions from the 2023 and 2024 Model Y Long Range listings on evspecifications.com and carexpert.co.nz. The body curves between those numbers are drawn from photos, so they are close but not surveyed.",
+               "Parked nose in, in the east bay, so the charge port on the left rear lands about 2 ft from the Wall Connector."],
+        placement=f"East garage bay, centred on the door, rear bumper 3 ft inside the door. ASSUMED.")),
+ dict(id="car_insight", name="Honda Insight", category="Car", system="vehicles", room="Garage", layer="vehicles",
+      builder="car", car="insight", size=[71.6, 55.6, 183.6], at=[round(bay[0], 3), round(REAR_Y, 3), G_FLOOR], facing=0,
+      info=dict(model="Honda Insight, 2019 to 2022 hybrid sedan, Touring, Crystal Black Pearl",
+        specs=[["Size", "183.6 L x 71.6 W x 55.6 H in"], ["Wheelbase", "106.3 in"], ["Track", "60.9 in front, 61.6 in rear"],
+               ["Tyres", "215/50 R17 (Touring; the EX has 215/55 R16)"], ["Curb weight", "3,078 lb (Touring)"]],
+        links=[["2022 Insight specifications", "https://www.hondainfocenter.com/2022/Insight/Feature-Guide/Specifications/"]],
+        notes=["Dimensions from Honda's 2022 Insight specifications. The trim is ASSUMED to be the Touring, for its 17 in two tone wheels.",
+               "The body curves between those numbers are drawn from photos, so they are close but not surveyed."],
+        placement="West garage bay, centred on the door, rear bumper 3 ft inside the door. ASSUMED.")),
+ dict(id="wall_connector", name="Tesla Universal Wall Connector", category="EV charger", system="electrical.ev", room="Garage", layer="appliances",
+      builder="wall_connector", size=[6.1, 13.6, 5.9], at=[round(pier, 3), G_IN, 1.5], facing=0,
+      info=dict(model="Tesla Universal Wall Connector, NACS handle with a built in J1772 adapter", price="$720 at the Tesla shop (out of stock on 11/17/2026)",
+        specs=[["Size", "13.6 H x 6.1 W x 5.9 D in, about 13 lb"], ["Output", "12 to 48 A at 208 to 240 V, up to 11.5 kW"],
+               ["Circuit", "48 A needs a 60 A breaker"], ["Cable", "24 ft"], ["Enclosure", "Type 3R, IP54, indoor or outdoor"], ["Network", "Wi-Fi 2.4 GHz"]],
+        links=[["Tesla shop", "https://shop.tesla.com/product/universal-wall-connector"],
+               ["Product specifications", "https://energylibrary.tesla.com/docs/Public/Charging/WallConnector/Gen3/Install/UniversalWC/en-us/GUID-4A3BDFAA-7DBB-48CB-852C-BF1473EC4945.html"]],
+        notes=["Size, output and cable from Tesla's install manual. The 60 A breaker follows the usual 125 percent rule for a 48 A continuous load; confirm with the electrician.",
+               "Tesla's shop notes that a Model Y draws at most 32 A (7.7 kW) from this unit.",
+               "Unit face about 3'-7\" to 4'-7\" above the floor. The wall holster and cable hook are ASSUMED accessories."],
+        placement="Inside face of the garage south wall, on the 3 ft pier between the two overhead doors.")),
+]
+
 # ------------------------------------------------------------------ utility room: geothermal and hot water
 MAN_Y, FC_Y = 24.4, 26.9
 items += [
