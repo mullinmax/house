@@ -516,7 +516,8 @@ function applyToggles() {
   for (const o of roofNodes) show(o, layerOn('Roof') && !sliced);     // a slice lifts the roof off too, or it would cover the cut
   for (const o of utilNodes) show(o, layerOn('Util'));
   for (const o of furnitureMeshes) show(o, layerOn('Furniture'));
-  for (const o of treeMeshes) show(o, layerOn(o.userData.fullCount >= 80 ? 'FarTrees' : 'Trees'));
+  // Trees is the master switch (Maxwell, 11/17/2026: trees stayed with it off); Distant trees only thins the woods while it is on
+  for (const o of treeMeshes) show(o, layerOn('Trees') && (o.userData.fullCount < 80 || layerOn('FarTrees')));
   if (equip) {
     show(equip.layers.appliances, layerOn('Appliances'));
     show(equip.layers.mechanical, layerOn('Mechanical'));
@@ -527,6 +528,7 @@ function applyToggles() {
   if (ghost !== !layerOn('Walls')) setGhost(!layerOn('Walls'));
   if (xray !== layerOn('Xray')) { xray = layerOn('Xray'); setDuctXray(xray); }
   $('rowXray').classList.toggle('off', !layerOn('Ducts'));
+  $('rowFarTrees').classList.toggle('off', !layerOn('Trees'));
   shadowDirty = true;
 }
 for (const k of LAYERS) $('l' + k).onchange = applyToggles;
