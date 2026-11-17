@@ -232,6 +232,23 @@ XR = 7.5
 ret("return_truss", "Secondary return (floor trusses)", [14, RH], [[XR, 10.72, ZT], [XR, 25.6, ZT], [5.2, 25.6, ZT]],
     grilles=[dict(at=[XR, 10.66, ZT], size=[16, 8], wall=N), dict(at=[XR, 18.6, CEIL - 0.02], size=[20, 10])], note=RNOTE)
 ducts[-1]["info"]["specs"] = [["Serves", "Bedroom 2 (high wall grille) and bedroom 3 (ceiling grille)"], ["Duct", "14 x 8 in in one truss bay"], ["Crosses", "No supply runs"]]
+# Study and bedroom 1 (Maxwell, 11/17/2026: "give them returns, find a route that makes sense"). Both vaulted rooms back onto the hall 2 east leg,
+# so each gets a high wall grille into that truss space. A spine runs south in one bay at x 23.6, passes under the trunk's east leg (crossing it,
+# not following it), turns west in the laundry and linen trusses at y 21.9 behind every supply drop, then rises onto the deck at x 14.4 because the
+# hall 1 supply drop (x 13.2) fills the truss depth. On the deck it hugs the south edge of the attic and tees into the main return trunk.
+XS, YW, XU = 23.6, 21.9, 14.4
+DR = DECK + RH / 24                               # centre of an 8 in tall duct lying on the deck
+SNOTE = ("New, in addition to Andy's main return. The study and bedroom 1 are vaulted, so their grilles sit high on the walls they share with the "
+         "hall 2 east leg, where the floor trusses are. The duct crosses under the supply trunk once at a right angle, stays clear of every supply drop, "
+         "and only comes up onto the attic deck west of the laundry, along the south edge of the attic, to join the main return. Sizes are ASSUMED until "
+         "Andy or the HVAC installer sizes them.")
+ret("return_east", "Study and bedroom 1 return", [12, RH], [[XS, 10.72, ZT], [XS, YW, ZT], [XU, YW, ZT]],
+    grilles=[dict(at=[XS, 10.66, ZT], size=[16, 8], wall=N)], note=SNOTE)
+ducts[-1]["info"]["specs"] = [["Serves", "Study (high wall grille) and bedroom 1 (high grille over its door)"], ["Duct", "10 x 8 in branch, 12 x 8 in spine in the trusses, 14 x 8 in on the deck"],
+                              ["Crosses", "Under the trunk's east leg once, no supply runs"]]
+ret("return_bed1", None, [10, RH], [[28.06, 12.3, ZT], [XS, 12.3, ZT]], grilles=[dict(at=[28.14, 12.3, ZT], size=[16, 8], wall="E")], info_of="return_east")
+ret("return_east_riser", None, [14, RH], [[XU, YW, ZT], [XU, YW, DR]], info_of="return_east")
+ret("return_east_deck", None, [14, RH], [[XU, YW, DR], [10.6, YW, DR], [10.6, 27.6 - 1.5, DR]], info_of="return_east")
 ret("return_riser", None, [30, RH], [[5.2, 25.6, ZT], [5.2, 25.6, DECK + 0.6]], info_of="return_truss")
 ret("return_plenum", None, [36, 20], [[5.2, 24.92, DECK + 5.5 / 12 + 10.6 / 12], [5.2, 26.4, DECK + 5.5 / 12 + 10.6 / 12]], info_of="return_main")
 

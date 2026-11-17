@@ -132,7 +132,8 @@ kind = "fixed"
 start = 37.866
 end = 41.033
 sill = 9.04
-head = 12.07
+head = 12.07                     # north jamb
+head_end = 11.58                 # south jamb: the top follows the roof slope on the A-20 west elevation (Maxwell, 11/17/2026)
 [[openings]]
 id = "W60-20 Bed 1 east"
 wall = "E"
@@ -145,6 +146,7 @@ head = 8.08
 id = "D30-80 Entry"
 wall = "E"
 kind = "door_glass"
+hinge = "end"                   # A-11: hinged on the south jamb, swings in
 start = 37.866
 end = 41.033
 sill = 0.0
@@ -303,12 +305,14 @@ depth = 0.9
 
 # ---------------------------------------------------------------- MATERIALS
 [materials]
-siding_color = "#7D8A6C"        # LP SmartSide "Garden Sage" (approximate on screen)
+siding_color = "#5D6250"        # LP SmartSide "Garden Sage", hex from LP's site (Maxwell, 11/17/2026)
+siding_albedo = "#4E5545"       # material colour tuned so a sunlit wall renders as siding_color
 siding_style = "board_and_batten"
 batten_spacing_in = 12.0        # ASSUMED 12" o.c.
 batten_width_in = 2.5
 batten_thickness_in = 0.75      # battens are modeled as real geometry
-trim_color = "#1E2022"          # LP "Abyss Black"
+trim_color = "#1D2222"          # LP "Abyss Black", hex from LP's site (Maxwell, 11/17/2026)
+trim_albedo = "#212928"         # material colour tuned so sunlit trim renders as trim_color
 roof_color = "#2B2D2F"          # standing seam, charcoal (Maxwell OK 11/12/2026)
 window_exterior_color = "#141414"   # black clad
 window_interior = "white_oak"       # natural white oak, clear topcoat. Sash, jambs and casing all oak inside; black clad shows only outside
@@ -435,7 +439,11 @@ gutters = true
 exterior_lights = true
 door_add = [ { axis = "y", g0 = 15.491, g1 = 18.158, t0 = 31.122, t1 = 31.581, head = 6.67, note = "laundry to Closet 1, A-11 D28-68" } ]   # ASSUMED leaf 2'-4"
 door_remove = [ [37.19, 19.99], [38.27, 25.45] ]   # 2nd: Bath 1 wet-room opening (x 38.12-38.41, y 23.95-26.95) is open, no leaf
-door_pocket = [ [14.16, 22.64, -1] ]   # door between the bedroom wing and the common space: pocket door sliding west into the wall (Maxwell 11/13)   # opening inside Closet 1: left open, no door (Maxwell 11/13)
+door_pocket = [ [14.16, 22.64, -1], [22.08, 15.26, 1], [16.43, 24.97, 1], [35.7, 29.18, -1], [35.7, 15.26, -1], [31.35, 16.82, 1] ]   # first: Maxwell 11/13. The rest are drawn as pocket doors on A-11 (leaf in the opening, pocket in the wall): laundry, living, bath 1 water closet, closet 1 north and west (11/17/2026)
+# hinge side and swing from the A-11 door arcs (11/17/2026): [x, y near the opening, hinge end N/S/E/W, swings toward N/S/E/W]
+# doors not listed keep the default: hinge at the west or north jamb, swinging south or east (closets 2 and 3 already match A-11)
+door_swing = [ [14.14, 10.8, "E", "N"], [17.9, 10.8, "W", "N"], [24.7, 10.8, "W", "N"], [28.27, 13.0, "S", "E"], [16.43, 20.64, "S", "W"],
+               [11.97, 12.99, "N", "W"], [11.89, 25.1, "N", "W"], [11.89, 30.6, "N", "W"] ]   # door between the bedroom wing and the common space: pocket door sliding west into the wall (Maxwell 11/13)   # opening inside Closet 1: left open, no door (Maxwell 11/13)
 items = [
   # ---- living room (vaulted, x 16.7-31.1, y 22.9-34.6)
   { id = "living_rug", type = "rug", x = 26.4, y = 27.8, w = 7.5, l = 9.0, facing = 270, color = "#B9AE9A" },
@@ -522,8 +530,9 @@ items = [
   { id = "vanity1", type = "vanity", x = 32.46, y = 26.0, w = 5.4, d = 1.75, sinks = 2, facing = 90 },
   { id = "mirror1", type = "mirror", x = 31.62, y = 26.0, z = 3.9, w = 4.8, h = 3.0, facing = 90 },
   { id = "toilet1", type = "toilet", x = 32.75, y = 31.1, facing = 90 },   # toilet room south of the D28-68 door (A-11 position)
-  { id = "wetroom1", type = "wetroom", x0 = 38.41, x1 = 42.5, y0 = 22.87, y1 = 32.82, drain_y = 27.1, wet_from = 22.87, head_x = 40.45, bench = "north", bench_h = 1.5, bench_d = 1.25, ceiling = 9.0, entry_tile = false },   # Maxwell 11/13: open doorway (A-11 D28-68 gap x 34.37-37.04 at y 29.4), linear drain E-W at its south edge, tiled wet zone south of it with shower on the south wall + tiled bench. ASSUMED
-  { id = "towel1", type = "towel", x = 34.3, y = 28.9, z = 4.0, w = 2.0, facing = 180, color = "#E9E4DA" },
+  { id = "wetroom1", type = "wetroom", x0 = 38.41, x1 = 42.5, y0 = 22.87, y1 = 32.82, drain_y = 27.1, wet_from = 22.87, head_x = 40.45, bench = "north", bench_h = 1.5, bench_d = 1.25, ceiling = 9.0, entry_tile = false, walk_in = [23.95, 26.95], walk_in_head = 9.0 },   # Maxwell 11/13: open doorway (A-11 D28-68 gap x 34.37-37.04 at y 29.4), linear drain E-W at its south edge, tiled wet zone south of it with shower on the south wall + tiled bench. ASSUMED
+  { id = "towel1", type = "towel", x = 42.45, y = 25.2, z = 4.0, w = 2.0, facing = 270, color = "#E9E4DA", moved_from = [34.3, 28.9, 180], move_node = "towel001" },   # was floating in the WC pocket door opening; now on the A-11 towel warmer, bath 1 east wall (Maxwell, 11/17/2026)
+  { id = "warmer1", type = "towel_warmer", web = true, x = 42.5, y0 = 24.15, y1 = 26.25, z0 = 2.0, z1 = 4.9, facing = 270 },   # A-11 towel warmer on the bath 1 east wall (ASSUMED model); its old bar in the WC doorway is culled
   # ---- powder room
   { id = "vanity_p", type = "vanity", x = 7.6, y = 29.4, w = 2.6, d = 1.6, sinks = 1, facing = 180 },
   { id = "mirror_p", type = "mirror", x = 7.6, y = 28.57, z = 3.9, w = 2.2, h = 2.8, facing = 180 },

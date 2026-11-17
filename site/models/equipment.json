@@ -2418,6 +2418,163 @@
    ]
   },
   {
+   "id": "return_east",
+   "name": "Study and bedroom 1 return",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "shape": "rect",
+   "size": [
+    12,
+    8
+   ],
+   "points": [
+    [
+     23.6,
+     10.72,
+     9.494791666666666
+    ],
+    [
+     23.6,
+     21.9,
+     9.494791666666666
+    ],
+    [
+     14.4,
+     21.9,
+     9.494791666666666
+    ]
+   ],
+   "info": {
+    "model": "12 x 8 in, in the floor truss space",
+    "notes": [
+     "New, in addition to Andy's main return. The study and bedroom 1 are vaulted, so their grilles sit high on the walls they share with the hall 2 east leg, where the floor trusses are. The duct crosses under the supply trunk once at a right angle, stays clear of every supply drop, and only comes up onto the attic deck west of the laundry, along the south edge of the attic, to join the main return. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
+    ],
+    "specs": [
+     [
+      "Serves",
+      "Study (high wall grille) and bedroom 1 (high grille over its door)"
+     ],
+     [
+      "Duct",
+      "10 x 8 in branch, 12 x 8 in spine in the trusses, 14 x 8 in on the deck"
+     ],
+     [
+      "Crosses",
+      "Under the trunk's east leg once, no supply runs"
+     ]
+    ]
+   },
+   "grilles": [
+    {
+     "at": [
+      23.6,
+      10.66,
+      9.494791666666666
+     ],
+     "size": [
+      16,
+      8
+     ],
+     "wall": "N"
+    }
+   ]
+  },
+  {
+   "id": "return_bed1",
+   "name": null,
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "shape": "rect",
+   "size": [
+    10,
+    8
+   ],
+   "points": [
+    [
+     28.06,
+     12.3,
+     9.494791666666666
+    ],
+    [
+     23.6,
+     12.3,
+     9.494791666666666
+    ]
+   ],
+   "info_of": "return_east",
+   "grilles": [
+    {
+     "at": [
+      28.14,
+      12.3,
+      9.494791666666666
+     ],
+     "size": [
+      16,
+      8
+     ],
+     "wall": "E"
+    }
+   ]
+  },
+  {
+   "id": "return_east_riser",
+   "name": null,
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "shape": "rect",
+   "size": [
+    14,
+    8
+   ],
+   "points": [
+    [
+     14.4,
+     21.9,
+     9.494791666666666
+    ],
+    [
+     14.4,
+     21.9,
+     10.385416666666668
+    ]
+   ],
+   "info_of": "return_east"
+  },
+  {
+   "id": "return_east_deck",
+   "name": null,
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "shape": "rect",
+   "size": [
+    14,
+    8
+   ],
+   "points": [
+    [
+     14.4,
+     21.9,
+     10.385416666666668
+    ],
+    [
+     10.6,
+     21.9,
+     10.385416666666668
+    ],
+    [
+     10.6,
+     26.1,
+     10.385416666666668
+    ]
+   ],
+   "info_of": "return_east"
+  },
+  {
    "id": "return_riser",
    "name": null,
    "category": "HVAC return duct",
