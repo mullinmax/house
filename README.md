@@ -92,6 +92,8 @@ python model/make_equipment.py
 - To check a builder without loading the house, `node tools/render_appliances.mjs out_dir [id ...]` renders each item alone, front and three quarter views, using `tools/appliance_preview.html` (needs Playwright with Chromium). The page also opens by hand: serve the repo root and visit `/tools/appliance_preview.html?id=fridge`.
 - `cull` boxes and `replaces_nodes` remove the generic appliance boxes from the old Blender model (with `?baked`) so the real ones take their place.
 - The duct layout starts from Andy Roehl's M-10 (07/30/2026) and changes two things at Maxwell's direction: the supply trunk runs along the north wall of the attic, and every bedroom gets a ducted return through open web floor trusses in place of transfer grilles. The trusses are 11-7/8 in deep (set in `[floor_trusses]` in `config.toml`, which also raises the attic deck and the loft floor). Truss spacing and direction, duct sizes off the trunk and the heat pump orientation are marked ASSUMED in the data and on the cards.
+- The floor trusses sit on one 24 in grid across the house (`grid_x0` in `[floor_trusses]`), so the bays line up from room to room. A duct in the truss space either runs north to south inside a bay, at any size that fits, or crosses the trusses through the web openings as round duct of 7 in or less (the bedroom returns are round flex). `python3 tools/truss_clash.py` checks every duct against that rule and runs with the coplanar check on each pull request.
+- The range hood has no fan of its own: an 8 in duct rises inside the chimney cover, through a silencer, to a blower on the roof.
 
 ## Blender (archived)
 
