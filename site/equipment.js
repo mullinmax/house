@@ -369,13 +369,13 @@ const BUILD = {
     const ph = h - py0;
     slab(g, w, ph, dt, steel(), 0, py0 + ph / 2, dz, 0.12);                                    // control panel frame
     slab(g, w - 2.2, ph - 1.5, 0.1, glass(), 0, py0 + ph / 2, face + 0.03, 0.1);
-    plate(g, w - 2.6, ph - 1.9, screenMat('oven panel', 1024, 120, drawOvenPanel, 0.85), 0, py0 + ph / 2, face + 0.09);
+    plate(g, w - 2.6, ph - 1.9, screenMat('oven panel', 1024, 120, drawOvenPanel, 0.85), 0, py0 + ph / 2, face + 0.12);   // 1 mm in front of the glass
     return g;
   },
   cooktop_induction(s) {           // KitchenAid KCIT730SBL: frameless black glass, bridge zone on the left, three round zones, touch sliders at the front
     const [w, , d] = s, g = new THREE.Group();
     box(g, w, 0.25, d, glass(), 0, 0.125, d / 2);                                            // glass on the counter
-    plate(g, w - 0.1, d - 0.1, printMat('cooktop markings', 1024, 708, drawCooktop, 0.1, 0.35), 0, 0.262, d / 2, true);
+    plate(g, w - 0.1, d - 0.1, printMat('cooktop markings', 1024, 708, drawCooktop, 0.1, 0.35), 0, 0.29, d / 2, true);   // 1 mm over the glass so it never flickers
     box(g, 29.2, 3.4, 20.2, darkPlastic(), 0, -1.7, d / 2);                                  // body below the counter
     return g;
   },
@@ -390,7 +390,7 @@ const BUILD = {
     const fy0 = 1.4, fy1 = 22.9, dy0 = 24.5, dy1 = h - 0.3;
     slab(g, w, fy1 - fy0, dt, steel(), 0, (fy0 + fy1) / 2, dzc, 0.3);                         // freezer drawer
     box(g, w - 0.5, dy0 - fy1, dt - 1.3, graphiteDark(), 0, (fy1 + dy0) / 2, cd + (dt - 1.3) / 2);   // shadow gap: the drawer's pocket handle
-    box(g, w, 0.35, 0.9, steelH(), 0, fy1 - 0.1, zf - 0.45);                                  // grip lip on the drawer's top edge
+    box(g, w, 0.35, 0.9, steelH(), 0, fy1 - 0.1, zf - 0.41);   // stands 1 mm proud of the drawer face                                  // grip lip on the drawer's top edge
     const dw = w / 2 - 0.12;
     for (const sx of [-1, 1]) {
       slab(g, dw, dy1 - dy0, dt, steel(), sx * (dw / 2 + 0.12), (dy0 + dy1) / 2, dzc, 0.3);   // doors
@@ -398,7 +398,7 @@ const BUILD = {
     }
     const px = -8.9, py = 45.2;                                                               // dispenser, 9 x 15 in
     slab(g, 9, 15, 0.24, mat('dispenser bezel', 0xa9acaf, 0.4, 0.5), px, py, zf + 0.1, 0.45);
-    plate(g, 8.3, 3.7, screenMat('fridge dispenser', 256, 112, drawDispenser, 0.8), px, py + 5.3, zf + 0.23);
+    plate(g, 8.3, 3.7, screenMat('fridge dispenser', 256, 112, drawDispenser, 0.8), px, py + 5.3, zf + 0.26);   // 1 mm in front of the bezel
     slab(g, 7.6, 10.2, 0.1, mat('dispenser cavity', 0x5d6165, 0.45, 0.4), px, py - 2.0, zf + 0.2, 0.35);
     box(g, 2.4, 5.6, 0.5, mat('dispenser paddle', 0xc9ccce, 0.35, 0.3), px, py - 1.4, zf + 0.4);
     cyl(g, 0.5, 1.2, darkPlastic(), px, py + 2.6, zf + 0.6, 'y', 10);                         // spout
@@ -441,7 +441,7 @@ const BUILD = {
     const y0 = 4.3, dh = h - y0;
     slab(g, w, dh, 1.9, steel(), 0, y0 + dh / 2, d - 0.95, 0.2);                             // door frame
     slab(g, w - 4.0, dh - 4.0, 0.1, smoked(), 0, y0 + dh / 2, d + 0.01, 0.2);                // glass edge
-    plate(g, w - 4.4, dh - 4.4, screenMat('beverage inside', 256, 384, drawBeverage, 0.22, 0.05), 0, y0 + dh / 2, d + 0.07);
+    plate(g, w - 4.4, dh - 4.4, screenMat('beverage inside', 256, 384, drawBeverage, 0.22, 0.05), 0, y0 + dh / 2, d + 0.1);   // 1 mm in front of the glass edge
     bar(g, 20, -w / 2 + 1.1, y0 + dh / 2, d, true, steelH(), 0.45, 1.6);
     box(g, w - 0.4, y0 - 0.5, 0.6, blackMolded(), 0, y0 / 2 + 0.1, d - 1.7);                 // front vent grille
     for (let k = 0; k < 5; k++) box(g, w - 2.4, 0.22, 0.25, mat('vent slat', 0x3c3f42, 0.6), 0, 1.0 + k * 0.62, d - 1.32);
@@ -558,7 +558,7 @@ const BUILD = {
       cyl(g, 1.35, 0.1, chrome(), x, y, fz + 4.22, 'z', 20);
       box(g, 2.4, 2.6, 2.6, blackMolded(), x + (x < 0 ? -2.6 : 2.6), y, fz + 2.2);            // terminal box
     }
-    for (const x of [-3.2, 3.2]) { cyl(g, 1.15, 0.9, brass(), x, h - 2.4, fz + 0.4, 'z', 16); cyl(g, 0.75, 0.95, blackMolded(), x, h - 2.4, fz + 0.42, 'z', 16); }   // loop ports
+    for (const x of [-3.2, 3.2]) { cyl(g, 1.15, 0.9, brass(), x, h - 2.4, fz + 0.4, 'z', 16); cyl(g, 0.75, 0.95, blackMolded(), x, h - 2.4, fz + 0.47, 'z', 16); }   // loop ports
     cyl(g, 1.15, 0.9, brass(), -3.2, h * 0.2, fz + 0.4, 'z', 16);
     plate(g, 4.6, 2.3, labelMat('np series logo', 256, 128, (c, cw, ch) => {
       c.fillStyle = '#f2f2f2'; c.textAlign = 'center'; c.textBaseline = 'middle';

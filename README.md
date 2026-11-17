@@ -36,6 +36,8 @@ Open the site, then:
   Without `-vpf` the site's kilometre-wide ground skirt makes the shared quantization grid coarse enough to push the terrain up through the slab.
 - `.github/workflows/pages.yml`: publishes `site/` to GitHub Pages on every push to `main`. It must be the only Pages workflow: a second one (such as GitHub's starter `static.yml`, which uploads the whole repo) races it, and whichever finishes last wins. When the starter won, https://mullinmax.github.io/house/ showed a 404 and the viewer was only at `/house/site/`.
 
+- `.github/workflows/coplanar.yml`: on every pull request, `node tools/coplanar_audit.mjs` builds the house and equipment with the viewer's own code, loads the furniture and site `.glb` parts, and fails if two surfaces of different materials lie flush, face the same way and can be seen (they flicker). The log says which records and where, in plan feet. `model/make_house.py` already nudges most flush boxes 1/32 in apart when it builds; fix anything left in the geometry, or list a pair you accept in `tools/coplanar_allow.txt` with the reason.
+
 **Site address:** https://mullinmax.github.io/house/ (Settings, Pages, Source must be "GitHub Actions").
 
 ## Performance notes

@@ -166,7 +166,7 @@ function cylinder(get, mat, cx, cy, z0, z1, r0, r1, seg = 20) {
   for (let i = 0; i < seg; i++) {
     const j = (i + 1) % seg;
     tri(bk, b[i], t[i], t[j]); tri(bk, b[i], t[j], b[j]);
-    tri(bk, cb, b[j], b[i]); tri(bk, ct, t[i], t[j]);
+    tri(bk, cb, b[i], b[j]); tri(bk, ct, t[j], t[i]);            // caps wound to face out (down, up), like the sides
   }
 }
 function shape(get, s, grainOf) {

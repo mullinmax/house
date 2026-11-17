@@ -3,7 +3,8 @@
 porch, greenhouse) as records the walkthrough builds in the browser (site/house.js). Plain Python, no Blender.
 
     python model/make_house.py              (then reload the site)
-    python model/make_house.py --check      (also lists coplanar faces that would flicker)
+    python model/make_house.py --check      (also lists coplanar faces the nudge could not move)
+    node tools/coplanar_audit.mjs           (finds every visible flicker in the built scene; GitHub runs it on each PR)
 
 Every record has an id, a name, a kind, a layer and an info card, and lists the shapes it is made of. Shapes are in
 plan feet (x east, y south from the outside NW slab corner, z up from the slab top):
@@ -358,7 +359,8 @@ def window_unit(o):
     tw = 4 / 12                                             # 4" Abyss Black exterior trim
     wbox("Trim", wall, u0 - tw, u0, VF - BAT_T - 0.02, E0, z0, z1)
     wbox("Trim", wall, u1, u1 + tw, VF - BAT_T - 0.02, E0, z0, z1)
-    wbox("Trim", wall, u0 - tw, u1 + tw, VF - BAT_T - 0.02, E0, z1, z1 + tw)
+    # under a sloped head the trim's sloped underside would lie in the wall opening's own sloped face: drop it 1/32 in
+    wbox("Trim", wall, u0 - tw, u1 + tw, VF - BAT_T - 0.02, E0, z1 - (0.0026 if z1b != z1 else 0), z1 + tw)
     if not door:
         wbox("Trim", wall, u0 - tw, u1 + tw, VF - BAT_T - 0.04, E0, z0 - tw, z0)
     jd0, jd1 = v0 + fd, T                                   # white oak jamb liner, stool, casing, apron
@@ -1543,6 +1545,13 @@ MATERIALS.update({
 FURN = FU.get("items", []) if FU.get("enabled") else []
 BYFID = {it["id"]: it for it in FURN}
 WEB_META = dict(replace_nodes=[], cull=[], move_nodes={})
+# Baked pieces that sat flush with another and flickered (tools/coplanar_audit.mjs): move_nodes [dx, dy, turn, dz] in plan
+# feet. The chairs' rails were flush with the dining table's stretchers (two also with its doors), and the kitchen light's
+# lens with its trim ring. Moves are 1/16 to 1/8 in.
+for _n, _mv in {"gallinera_chair": [0, 0, 0, -0.005], "gallinera_chair_1": [0, -0.01, 0, -0.005], "gallinera_chair_2": [0, 0, 0, -0.005],
+                "gallinera_chair_3": [0, 0, 0, -0.005], "gallinera_chair_4": [0, 0.01, 0, -0.005], "gallinera_chair_5": [0, 0, 0, -0.005],
+                "Light_Kitchen_1_lens": [0, 0, 0, -0.005]}.items():
+    WEB_META["move_nodes"][_n] = _mv
 FURN_MATS = ["Bedding", "Fabric #F1EEE8", "Fabric #9A6B4A", "Fabric #7D8A6C", "Fabric #56614A", "White Oak", "Upholstery", "Black Metal",
              "Brushed Nickel", "Cabinet Wood", "Plastic Grey", "painted_wooden_nightstand", "Lamp Shade", "Porcelain"]
 
@@ -1846,13 +1855,77 @@ SPAWNS = C.get("web", {}).get("spawns", {
 
 
 # ------------------------------------------------------------------ check: coplanar faces facing the same way (they flicker)
+def panel_boxes(s):
+    """the solid pieces of a "w" wall panel as plan boxes, split the way site/house.js panel() splits them. A strip with a
+    sloped top keeps its lower top, so the box stays inside the real piece."""
+    _, mat, fr, v0, v1, zbot, top, holes = s
+    ox, oy, ux, uy, vx, vy = fr
+    P = lambda u, v: (ox + u * ux + v * vx, oy + u * uy + v * vy)
+    ulo, uhi = min(t[0] for t in top), max(t[2] for t in top)
+    cuts = {ulo, uhi} | {t[0] for t in top} | {t[2] for t in top}
+    cuts |= {h[k] for h in holes for k in (0, 1) if ulo < h[k] < uhi}
+    us, out = sorted(cuts), []
+    for ua, ub in zip(us, us[1:]):
+        if ub - ua < 1e-4:
+            continue
+        um = (ua + ub) / 2
+        seg = next((t for t in top if t[0] <= um <= t[2]), None)
+        if not seg:
+            continue
+        zt = lambda u: seg[1] + (seg[3] - seg[1]) * (u - seg[0]) / ((seg[2] - seg[0]) or 1)
+        ztop = min(zt(ua), zt(ub))
+        head = lambda h, u: h[3] + (h[4] - h[3]) * (u - h[0]) / ((h[1] - h[0]) or 1) if len(h) > 4 else h[3]
+        hs = sorted((max(h[2], zbot), min(head(h, ua), head(h, ub))) for h in holes if h[0] < um < h[1])
+        z = zbot
+        pieces = []
+        for h0, h1 in hs:
+            if h0 > z + 1e-4:
+                pieces.append((z, min(h0, ztop)))
+            z = max(z, h1)
+        if z < ztop - 1e-4:
+            pieces.append((z, ztop))
+        for za, zb in pieces:
+            (xa, ya), (xb, yb) = P(ua, v0), P(ub, v1)
+            out.append((min(xa, xb), max(xa, xb), min(ya, yb), max(ya, yb), za, zb))
+    return out
+
+
+X_FACES = [(0, 3, 2, 1), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]   # as HEX_FACES in site/house.js
+
+
+def x_faces(s):
+    """the faces of a six sided solid that lie flat on an axis plane: (axis, sign, plane, rect, corner indices)"""
+    a = s[2]
+    pts = [a[i * 3:i * 3 + 3] for i in range(8)]
+    c = [sum(p[k] for p in pts) / 8 for k in range(3)]
+    out = []
+    for f in X_FACES:
+        q = [pts[k] for k in f]
+        for ax in range(3):
+            if max(p[ax] for p in q) - min(p[ax] for p in q) < 1e-4:
+                o = [k for k in range(3) if k != ax]
+                rect = (min(p[o[0]] for p in q), max(p[o[0]] for p in q), min(p[o[1]] for p in q), max(p[o[1]] for p in q))
+                if rect[1] - rect[0] > 1e-4 and rect[3] - rect[2] > 1e-4:
+                    out.append((ax, 1 if q[0][ax] > c[ax] else -1, q[0][ax], rect, f))
+                break
+    return out
+
+
 def faces_of(s):
-    """axis aligned faces of box shapes: (axis, sign, plane, rect)"""
-    if s[0] != "b":
+    """axis aligned faces of box shapes, six sided solids and wall panel pieces: (axis, sign, plane, rect)"""
+    if s[0] == "x":
+        return [f[:4] for f in x_faces(s)]
+    if s[0] == "b":
+        bxs = [s[2:8]]
+    elif s[0] == "w" and all(abs(c) in (0, 1) for c in s[2][2:]):
+        bxs = panel_boxes(s)
+    else:
         return []
-    x0, x1, y0, y1, z0, z1 = s[2:8]
-    return [(0, -1, x0, (y0, y1, z0, z1)), (0, 1, x1, (y0, y1, z0, z1)), (1, -1, y0, (x0, x1, z0, z1)), (1, 1, y1, (x0, x1, z0, z1)),
-            (2, -1, z0, (x0, x1, y0, y1)), (2, 1, z1, (x0, x1, y0, y1))]
+    out = []
+    for x0, x1, y0, y1, z0, z1 in bxs:
+        out += [(0, -1, x0, (y0, y1, z0, z1)), (0, 1, x1, (y0, y1, z0, z1)), (1, -1, y0, (x0, x1, z0, z1)), (1, 1, y1, (x0, x1, z0, z1)),
+                (2, -1, z0, (x0, x1, y0, y1)), (2, 1, z1, (x0, x1, y0, y1))]
+    return out
 
 
 def zfight_pairs():
@@ -1881,7 +1954,25 @@ def zfight_pairs():
 
 
 def vol(s):
+    if s[0] == "x":
+        a = s[2]
+        return math.prod(max(a[k::3]) - min(a[k::3]) for k in range(3))
+    if s[0] != "b":
+        return float("inf")                      # wall panels never move: the box against them does
     return (s[3] - s[2]) * (s[5] - s[4]) * (s[7] - s[6])
+
+
+def grow(s, ax, sg, pl):
+    """move the face of s on plane pl (axis ax, facing sg) 1/32 in outward"""
+    if s[0] == "b":
+        i = 2 + 2 * ax + (1 if sg > 0 else 0)
+        s[i] = rnd(s[i] + sg * 0.0026)
+        return
+    for f in x_faces(s):
+        if f[0] == ax and f[1] == sg and abs(f[2] - pl) < 1e-3:
+            for k in f[4]:
+                s[2][k * 3 + ax] = rnd(s[2][k * 3 + ax] + sg * 0.0026)
+            return
 
 
 def nudge():
@@ -1894,11 +1985,10 @@ def nudge():
         done = set()
         for (ax, sg, pl), a, b in pairs:
             small = a[3] if vol(a[3]) <= vol(b[3]) else b[3]
-            if (id(small), ax, sg) in done:
+            if small[0] not in "bx" or (id(small), ax, sg) in done:
                 continue
             done.add((id(small), ax, sg))
-            i = 2 + 2 * ax + (1 if sg > 0 else 0)
-            small[i] = rnd(small[i] + sg * 0.0026)
+            grow(small, ax, sg, pl)
             moved += 1
     return moved, len(zfight_pairs())
 
@@ -1928,7 +2018,7 @@ with open(OUT, "w") as f:
 nparts = sum(len(r.get("parts", [])) + sum(len(o["parts"]) for o in r.get("ops", [])) for r in RECS)
 nops = sum(len(r.get("ops", [])) for r in RECS)
 print(f"wrote {os.path.normpath(OUT)}: {len(RECS)} records, {nparts} shapes, {nops} moving parts, {os.path.getsize(OUT) / 1e3:.0f} kB")
-print(f"coplanar faces nudged apart: {NUDGED[0]}, left: {NUDGED[1]}")
+print(f"coplanar faces nudged apart: {NUDGED[0]}, left between wall panels: {NUDGED[1]} (node tools/coplanar_audit.mjs says which can be seen)")
 if "--check" in sys.argv:
     for (key, a, b) in zfight_pairs()[:60]:
         print("  ", key, a[0], a[1], b[0], b[1])
