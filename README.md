@@ -14,6 +14,7 @@ Open the site, then:
 - **Height slice:** a slider cuts the house at any height. It catches at detents just under each level's ceiling (main floor, floor trusses, loft and attic), and lifts the roof off while it is cutting.
 - **Layers**, each with an icon: roof, walls, furniture, trees, distant trees, appliances, mechanical, ducts, duct x-ray, floor trusses and buried lines. Walls off fades the house so the systems read. Duct x-ray colours the ducts (blue supply, red return, green fresh air) and shows them through everything.
 - **Day and Night:** at night the room lights come on. The porch and exterior lights stay on, and the nearest six interior lights fade in as you move.
+- **Share this view** (in the menu's View section, or More on a phone) copies a link that opens exactly what you see: orbit, walk or no clip, where the camera is and where it looks, the room, day or night, the height slice, crouching, any layers you changed and an open info card. On a phone it opens the share sheet. Picking a room still writes a short `?room=` link into the address bar.
 - **Slow device?** Add `?lite` to the address to start without shadows or the distant trees.
 - **Phones:** the left stick moves, drag anywhere else to look, tap a door to open it.
 
