@@ -286,12 +286,12 @@ function prepare(roots, first) {
   else if (mode === 'walk') $('hint').hidden = false;
   $('cross').hidden = mode !== 'walk';
   console.log(`walkthrough ready: ${colliders.length} colliders, ${operables.length} operable, ${Object.keys(spawns).length} spawns`);
-  openLinkedRoom();
+  if (!openSharedView()) openLinkedRoom();
 }
 
 // ---------------------------------------------------------------- shareable room links
 // ?room=utility drops a visitor straight into that room, walking (add &view=orbit for the overhead view).
-// Picking a room writes the same parameters into the address bar, so the link there can be copied and shared.
+// Picking a room writes the same parameters into the address bar. The Share button (below) captures the whole view.
 const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 function openLinkedRoom() {
   const q = new URLSearchParams(location.search), want = q.get('room');
@@ -305,10 +305,103 @@ function linkRoom(R, how) {
     const q = new URLSearchParams(location.search);
     if (R) { q.set('room', slug(R.name)); if (how === 'orbit') q.set('view', 'orbit'); else q.delete('view'); }
     else { q.delete('room'); q.delete('view'); }
+    for (const k of SHARE_KEYS) q.delete(k);                  // a shared camera would override the room just picked
     const s = q.toString().replace(/=(?=&|$)/g, '');           // keep bare flags like ?lite as they were
     history.replaceState(null, '', location.pathname + (s ? '?' + s : '') + location.hash);
   } catch (e) { /* a sandboxed frame may refuse; the link is only a convenience */ }
 }
+
+// ---------------------------------------------------------------- share this exact view
+// Share builds a link that captures everything on screen: the mode (orbit, walk or no clip), where the camera is and
+// where it looks, the orbit centre, the room, day or night, the height slice, crouching, every layer that differs from
+// its default, and an open info card. Positions are in plan feet to one decimal (about an inch), angles in whole
+// degrees, so the link stays short. Opening the link puts the visitor in the same view.
+//   v=o|w|n  mode     p=x,y,z  camera (plan feet, z up)     t=x,y,z  orbit centre     a=yaw,pitch  walk look (deg)
+//   room=    room     night    cut=ft  height slice         crouch   hide=,show=  layers   info=  equipment id
+const SHARE_KEYS = ['v', 'p', 't', 'a', 'night', 'cut', 'crouch', 'hide', 'show', 'info'];
+const LAYERS_ALL = () => ['Roof', 'Walls', 'Furniture', 'Trees', 'Appliances', 'Vehicles', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
+const LAYER_DEFAULT = {};
+for (const k of LAYERS_ALL()) LAYER_DEFAULT[k] = $('l' + k).checked;
+const r1 = (n) => String(Math.round(n * 10) / 10);
+const toPlan = (v) => [v.x / F, v.z / F, v.y / F].map(r1).join(',');
+const fromPlan = (s) => { const n = String(s || '').split(',').map(Number); return n.length === 3 && n.every(Number.isFinite) ? plan(n[0], n[1], n[2]) : null; };
+let infoItem = null;
+
+function shareURL() {
+  const q = new URLSearchParams(location.search);
+  for (const k of SHARE_KEYS) q.delete(k);
+  q.delete('view');
+  const R = q.has('room') && planRooms().find((r) => slug(r.name) === slug(q.get('room')));
+  const at = mode === 'orbit' ? orbit.target : camera.position, ax = at.x / F, ay = at.z / F;
+  if (!R || ax < R.rect[0] || ax > R.rect[2] || ay < R.rect[1] || ay > R.rect[3]) q.delete('room');   // the room stays only while you are in it
+  q.set('v', mode === 'orbit' ? 'o' : noclip ? 'n' : 'w');
+  q.set('p', toPlan(camera.position));
+  if (mode === 'orbit') q.set('t', toPlan(orbit.target));
+  else {
+    const e = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
+    q.set('a', [e.y, e.x].map((r) => Math.round(THREE.MathUtils.radToDeg(r))).join(','));
+    if (crouch && !noclip) q.set('crouch', '');
+  }
+  if (night) q.set('night', '');
+  if (upperPlane.constant < 1e5) q.set('cut', String(Math.round(parseFloat($('slice').value) * 100) / 100));
+  const hide = [], showL = [];
+  for (const k of LAYERS_ALL()) { const on = $('l' + k).checked; if (on !== LAYER_DEFAULT[k]) (on ? showL : hide).push(k.toLowerCase()); }
+  if (hide.length) q.set('hide', hide.join(','));
+  if (showL.length) q.set('show', showL.join(','));
+  if (infoItem && !$('info').hidden && infoItem.id) q.set('info', infoItem.id);
+  const s = q.toString().replace(/=(?=&|$)/g, '').replace(/%2C/gi, ',');
+  return location.origin + location.pathname + (s ? '?' + s : '');
+}
+
+// Restores a shared view once the house is in. Returns true when the link carried a camera.
+function openSharedView() {
+  const q = new URLSearchParams(location.search);
+  if (q.has('hide') || q.has('show')) {
+    const hide = new Set((q.get('hide') || '').toLowerCase().split(',')), showL = new Set((q.get('show') || '').toLowerCase().split(','));
+    for (const k of LAYERS_ALL()) { const n = k.toLowerCase(); if (hide.has(n)) $('l' + k).checked = false; if (showL.has(n)) $('l' + k).checked = true; }
+    applyToggles();
+  }
+  if (q.has('night')) setNight(true);
+  if (q.has('cut')) { const c = parseFloat(q.get('cut')); if (Number.isFinite(c)) setSlice(c, false); }
+  const pos = fromPlan(q.get('p'));
+  if (!pos) return false;
+  const v = q.get('v') || 'o';
+  if (v === 'o') {
+    if (mode !== 'orbit') setMode('orbit');
+    orbit.target.copy(fromPlan(q.get('t')) || plan(21.5, 26, 4));
+    camera.position.copy(pos); orbit.update();
+  } else {
+    if (mode !== 'walk') { jumping = true; setMode('walk'); jumping = false; }
+    lastRoom = null; vel.set(0, 0, 0);
+    if (v === 'n') setNoclip(true);
+    else { if (noclip) setNoclip(false); if (q.has('crouch')) setCrouch(true); eyeH = crouch ? CROUCH : EYE; }
+    camera.position.copy(pos);
+    const a = String(q.get('a') || '0,0').split(',').map(Number);
+    camera.quaternion.setFromEuler(new THREE.Euler(THREE.MathUtils.degToRad(a[1] || 0), THREE.MathUtils.degToRad(a[0] || 0), 0, 'YXZ'));
+  }
+  const id = q.get('info');
+  if (id && equip && equip.byId[id]) showInfo(equip.byId[id]);
+  shadowDirty = true;
+  return true;
+}
+
+async function share() {
+  const url = shareURL();
+  try { history.replaceState(null, '', url); } catch (e) { /* only a convenience */ }
+  if (touch && navigator.share) {
+    try { await navigator.share({ title: document.title, url }); return; }
+    catch (e) { if (e && e.name === 'AbortError') return; }       // cancelled: nothing else to do
+  }
+  let ok = false;
+  try { await navigator.clipboard.writeText(url); ok = true; } catch (e) {
+    const ta = document.createElement('textarea'); ta.value = url; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.append(ta); ta.select();
+    try { ok = document.execCommand('copy'); } catch (e2) { ok = false; }
+    ta.remove();
+  }
+  toast(ok ? 'Link to this view copied' : 'Copy this link from the address bar', 2600);
+}
+for (const b of document.querySelectorAll('[data-act="share"]')) b.onclick = () => share();
 
 // ---------------------------------------------------------------- static merge
 // Thousands of small meshes cost one draw call each. Static meshes that share a material (and part,
@@ -810,6 +903,7 @@ function addEquipment() {
 
 let selBox = null;
 function showInfo(it) {
+  infoItem = it;
   $('infoBody').innerHTML = infoHTML(it);
   if (compact) openSheet(null);         // one sheet at a time above the toolbar
   $('info').hidden = false; $('info').scrollTop = 0;
