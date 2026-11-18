@@ -203,32 +203,77 @@ HP_E = HP_AT[0] + 56 / 24                          # east (front, water connecti
 for k, (dz, dy) in enumerate([(3.67, -0.12), (2.67, 0.12)]):
     runs.append(dict(id=f"geo_main_{k}", info_of="geo_manifold", dia=1.66, mat="pe",
                      points=[[0.9, MAN_Y + 1.5, dz], [0.9, FC_Y - 0.75 + k * 0.4, dz], [0.9, FC_Y - 0.3 + k * 0.6, 2.6]]))
+# source piping (Maxwell, 11/18/2026): straight up from the flow center through the ceiling and deck, then across the attic
+# just above the heat pump's top and down to its water connections
+ZG = DECK + 2.45                                   # over the return plenum box (deck + 2 ft) and the water heater's duct grilles
 for k, (zc, off) in enumerate([(5.6, 0.0), (17.6, 0.35)]):
     z = HP_AT[2] + zc / 12
+    y = FC_Y - 0.2 + off
     runs.append(dict(id=f"geo_riser_{k}", name="Heat pump source piping", category="Geothermal", system="geothermal.loop", dia=2.4, mat="foam",
         info_of=None if k == 0 else "geo_riser_0",
-        points=[[0.95, FC_Y - 0.2 + off, 4.75], [0.95, FC_Y - 0.2 + off, 8.55 - off], [8.9 + off, FC_Y - 0.2 + off, 8.55 - off], [8.9 + off, 24.36, 8.55 - off],
-                [8.9 + off, 24.36, z], [HP_E + 0.95, 24.36, z]],
+        points=[[0.95, y, 4.75], [0.95, y, ZG + off], [8.9 + off, y, ZG + off], [8.9 + off, 24.36, ZG + off], [8.9 + off, 24.36, z], [HP_E + 0.95, 24.36, z]],
         info=dict(model="1-1/4 in PE with Aeroflex elastomeric insulation", specs=[["From", "Flow center in the utility room"], ["To", "Heat pump in the attic, through 1 in ball valves and the GF-1366 rubber hose kit"]],
-                  notes=["Route is ASSUMED. Greg's summary only says the piping goes up through the ceiling to the unit."])))
-# desuperheater: two insulated 3/4 in lines from the heat pump's hot water connections down through the ceiling to the preheat tank
+                  notes=["Straight up from the flow center through the utility ceiling and the attic deck, then across to the heat pump (Maxwell, 11/18/2026). Exact route is set on site."])))
+
+# ---- domestic water in the utility room. All horizontal piping runs high on the south wall in three lanes, behind the tanks
+# and clear of the water heater's ducts:  cold y 28.75 at 8.6 ft, hot y 28.4 at 8.35 ft, preheated y 28.05 at 8.0 ft.
 PH_Y = 28.22 - (PH_D / 2 + 2) / 12                 # preheat tank centre (the builders put the tank 2 in off its back point)
-PH_TOP = 59.0 / 12
-for k, (dz, off) in enumerate([(3.0, -0.18), (8.0, 0.18)]):
-    z = HP_AT[2] + dz / 12
+PH_TOP = 59.0 / 12 + 3 / 12                        # top of its brass nipples
+WR = 24.25 / 24                                    # water heater radius, ft
+WH_CY = 28.22 - (WR * 12 + 2) / 12                 # water heater centre
+WPX = WH_X - (WR * 12 + 2.6) / 12                  # x of the pipes beside the water heater's side connections (west side)
+YC, YH, YP = 28.75, 28.4, 28.05
+ZC, ZH, ZP = 8.6, 8.35, 8.0
+XIN = 11.6                                         # cold service riser and the hot and cold mains to the house, at the utility room's east end
+def dhw(id, name, dia, mat, points, model, notes, specs=None, info_of=None):
+    r = dict(id=id, name=name, category="Hot water", system="plumbing.dhw", dia=dia, mat=mat, points=points)
+    if info_of: r["info_of"] = info_of; r.pop("name")
+    else: r["info"] = dict(model=model, specs=specs or [], notes=notes)
+    runs.append(r)
+dhw("dhw_cold", "Cold water to the preheat tank", 1.1, "copper",
+    [[XIN, YC, 0.2], [XIN, YC, ZC], [PH_X + 0.3, YC, ZC], [PH_X + 0.3, PH_Y, ZC], [PH_X + 0.3, PH_Y, PH_TOP]],
+    "3/4 in copper", ["Cold service comes up through the slab at the east end of the south wall, runs west high on the wall and drops into the preheat tank's cold inlet. "
+                      "The desuperheater return tees into the drop. Service entry point and valves ASSUMED."],
+    specs=[["Valves", "Main shutoff at the riser, shutoff and union at the tank"], ["Expansion tank", "Hangs from this line, as U-11 shows"]])
+dhw("dhw_cold_house", None, 1.1, "copper", [[XIN, YC, ZC], [XIN, YC, CEIL + 0.3]], None, None, info_of="dhw_cold")
+dhw("dhw_preheat", "Preheated water to the heat pump water heater", 1.1, "copper",
+    [[PH_X - 0.3, PH_Y, PH_TOP], [PH_X - 0.3, PH_Y, ZP], [PH_X - 0.3, YP, ZP], [WPX, YP, ZP], [WPX, WH_CY + 0.133, ZP], [WPX, WH_CY + 0.133, 0.75], [WPX + 0.1, WH_CY + 0.133, 0.75]],
+    "3/4 in copper, insulated", ["Preheat tank hot outlet, up and along the wall, then down beside the heat pump water heater to its low side cold inlet. "
+                                 "The recirculation return tees in on the wall. Bypass valves so either tank can be isolated are ASSUMED."])
+dhw("dhw_hot", "Hot water to the house", 1.1, "copper",
+    [[WPX + 0.1, WH_CY - 0.133, 4.56], [WPX, WH_CY - 0.133, 4.56], [WPX, WH_CY - 0.133, ZH], [WPX, YH, ZH], [XIN - 0.35, YH, ZH], [XIN - 0.35, YH, CEIL + 0.3]],
+    "3/4 in copper, insulated", ["Heat pump water heater high side hot outlet, up through a thermostatic mixing valve, along the wall and up into the ceiling to the fixtures."])
+dhw("dhw_recirc", "Hot water recirculation return", 0.9, "copper",
+    [[7.0, YP, CEIL + 0.3], [7.0, YP, ZP]],
+    "1/2 in copper, insulated", ["Return from the far end of the hot main (U-11 shows a recirculation pump). Comes down from the ceiling and tees into the preheated "
+                                 "line ahead of the heat pump water heater. A check valve and a timer or demand control are ASSUMED."])
+items += [
+ dict(id="recirc_pump", name="Hot water recirculation pump", category="Hot water", system="plumbing.dhw", room="Utility", layer="mechanical",
+      builder="circ_pump", size=[5, 5, 5], at=[7.0, YP, 8.55], facing=0,
+      info=dict(model="Small inline circulator, bronze or stainless body (U-11)", specs=[["On", "The recirculation return, just above where it tees into the cold side of the water heater"]],
+                notes=["Model not picked. A timer or a push button demand control keeps it from running all day.", APPROX])),
+ dict(id="expansion_tank", name="Thermal expansion tank", category="Hot water", system="plumbing.dhw", room="Utility", layer="mechanical",
+      builder="expansion_tank", size=[8, 11], at=[10.4, YC, ZC], facing=0,
+      info=dict(model="2 gal potable thermal expansion tank (U-11 detail)", specs=[["On", "The cold line, after the main shutoff and any check valve"]], notes=[APPROX])),
+ dict(id="mixing_valve", name="Thermostatic mixing valve", category="Hot water", system="plumbing.dhw", room="Utility", layer="mechanical",
+      builder="mixing_valve", size=[3, 3, 3], at=[WPX, WH_CY - 0.133, 6.6], facing=0,
+      info=dict(model="3/4 in thermostatic mixing valve", specs=[["Why", "Lets both tanks store water hotter for more capacity while the taps get a safe 120 F"]],
+                notes=["Its cold side tees off the cold line; that small tee is not drawn.", APPROX])),
+]
+# desuperheater: two insulated 3/4 in lines from the heat pump's hot water connections down through the ceiling to the preheat tank.
+# Supply to the geo leaves the tank's bottom drain port; the return tees into the cold drop above the tank.
+for k, off in enumerate([-0.18, 0.18]):
+    z = HP_AT[2] + (3.0 if k == 0 else 8.0) / 12
+    xd = PH_X + 1.25 + off * 0.5
+    tail = ([[xd, PH_Y + 0.4, 0.45], [PH_X + 0.95, PH_Y + 0.4, 0.45]] if k == 0 else
+            [[xd, PH_Y, 7.3], [PH_X + 0.3, PH_Y, 7.3]])
     runs.append(dict(id=f"dsh_{k}", name="Desuperheater lines", category="Hot water", system="plumbing.dhw", dia=1.6, mat="foam",
         info_of=None if k == 0 else "dsh_0",
-        points=[[HP_E + 0.2, 24.0 + off, z], [HP_E + 0.75, 24.0 + off, z], [HP_E + 0.75, 24.0 + off, 8.75 + off * 0.5], [PH_X + 1.2 + off * 0.5, 24.0 + off, 8.75 + off * 0.5],
-                [PH_X + 1.2 + off * 0.5, PH_Y + 0.55, 8.75 + off * 0.5]] + ([[PH_X + 1.2 + off * 0.5, PH_Y + 0.55, 0.45], [PH_X + 0.95, PH_Y + 0.55, 0.45]] if k == 0 else
-                [[PH_X + 0.35, PH_Y + 0.55, 8.75 + off * 0.5], [PH_X + 0.35, PH_Y + 0.55, PH_TOP + 0.05]]),
+        points=[[HP_E + 0.2, 24.0 + off, z], [HP_E + 0.75, 24.0 + off, z], [HP_E + 0.75, 24.0 + off, 8.75 + off * 0.5], [xd, 24.0 + off, 8.75 + off * 0.5],
+                [xd, PH_Y + (0.4 if k == 0 else 0), 8.75 + off * 0.5]] + tail,
         info=dict(model="3/4 in copper or PEX with pipe insulation, to and from the geo's built in desuperheater pump",
-                  specs=[["Supply to the geo", "From the preheat tank's bottom drain port"], ["Return from the geo", "Into the preheat tank's cold inlet through a tee"]],
+                  specs=[["Supply to the geo", "From the preheat tank's bottom drain port"], ["Return from the geo", "Tees into the cold drop just above the preheat tank"]],
                   notes=["Route is ASSUMED. Line size and the maximum run come from the GZT installation manual; the run here is short because the geo sits right above the utility room."])))
-# preheat tank hot out to the heat pump water heater's cold inlet, along the ceiling
-WH_CY = 28.22 - (24.25 / 2 + 2 - 1.6) / 12
-runs.append(dict(id="preheat_xfer", name="Preheated water to the heat pump water heater", category="Hot water", system="plumbing.dhw", dia=1.3, mat="copper",
-    points=[[PH_X - 0.3, PH_Y - 0.05, PH_TOP + 0.05], [PH_X - 0.3, PH_Y - 0.05, 8.68], [WH_X - (24.25 / 2 + 2.6) / 12, PH_Y - 0.05, 8.68], [WH_X - (24.25 / 2 + 2.6) / 12, WH_CY, 8.68]],
-    info=dict(model="3/4 in copper, insulated", notes=["Feeds the heat pump water heater's cold inlet with preheated water. Bypass and isolation valves ASSUMED."])))
 for r in runs:
     if r.get("info_of") is None: r.pop("info_of", None)
 

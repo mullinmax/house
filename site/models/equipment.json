@@ -954,6 +954,103 @@
    }
   },
   {
+   "id": "recirc_pump",
+   "name": "Hot water recirculation pump",
+   "category": "Hot water",
+   "system": "plumbing.dhw",
+   "room": "Utility",
+   "layer": "mechanical",
+   "builder": "circ_pump",
+   "size": [
+    5,
+    5,
+    5
+   ],
+   "at": [
+    7.0,
+    28.05,
+    8.55
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Small inline circulator, bronze or stainless body (U-11)",
+    "specs": [
+     [
+      "On",
+      "The recirculation return, just above where it tees into the cold side of the water heater"
+     ]
+    ],
+    "notes": [
+     "Model not picked. A timer or a push button demand control keeps it from running all day.",
+     "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
+    ]
+   }
+  },
+  {
+   "id": "expansion_tank",
+   "name": "Thermal expansion tank",
+   "category": "Hot water",
+   "system": "plumbing.dhw",
+   "room": "Utility",
+   "layer": "mechanical",
+   "builder": "expansion_tank",
+   "size": [
+    8,
+    11
+   ],
+   "at": [
+    10.4,
+    28.75,
+    8.6
+   ],
+   "facing": 0,
+   "info": {
+    "model": "2 gal potable thermal expansion tank (U-11 detail)",
+    "specs": [
+     [
+      "On",
+      "The cold line, after the main shutoff and any check valve"
+     ]
+    ],
+    "notes": [
+     "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
+    ]
+   }
+  },
+  {
+   "id": "mixing_valve",
+   "name": "Thermostatic mixing valve",
+   "category": "Hot water",
+   "system": "plumbing.dhw",
+   "room": "Utility",
+   "layer": "mechanical",
+   "builder": "mixing_valve",
+   "size": [
+    3,
+    3,
+    3
+   ],
+   "at": [
+    4.472916666666666,
+    26.909916666666668,
+    6.6
+   ],
+   "facing": 0,
+   "info": {
+    "model": "3/4 in thermostatic mixing valve",
+    "specs": [
+     [
+      "Why",
+      "Lets both tanks store water hotter for more capacity while the taps get a safe 120 F"
+     ]
+    ],
+    "notes": [
+     "Its cold side tees off the cold line; that small tee is not drawn.",
+     "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
+    ]
+   }
+  },
+  {
    "id": "heat_pump",
    "name": "Geothermal heat pump",
    "category": "HVAC",
@@ -1208,17 +1305,17 @@
     [
      0.95,
      26.7,
-     8.55
+     12.502083333333335
     ],
     [
      8.9,
      26.7,
-     8.55
+     12.502083333333335
     ],
     [
      8.9,
      24.36,
-     8.55
+     12.502083333333335
     ],
     [
      8.9,
@@ -1244,7 +1341,7 @@
      ]
     ],
     "notes": [
-     "Route is ASSUMED. Greg's summary only says the piping goes up through the ceiling to the unit."
+     "Straight up from the flow center through the utility ceiling and the attic deck, then across to the heat pump (Maxwell, 11/18/2026). Exact route is set on site."
     ]
    }
   },
@@ -1265,17 +1362,17 @@
     [
      0.95,
      27.05,
-     8.200000000000001
+     12.852083333333335
     ],
     [
      9.25,
      27.05,
-     8.200000000000001
+     12.852083333333335
     ],
     [
      9.25,
      24.36,
-     8.200000000000001
+     12.852083333333335
     ],
     [
      9.25,
@@ -1301,7 +1398,204 @@
      ]
     ],
     "notes": [
-     "Route is ASSUMED. Greg's summary only says the piping goes up through the ceiling to the unit."
+     "Straight up from the flow center through the utility ceiling and the attic deck, then across to the heat pump (Maxwell, 11/18/2026). Exact route is set on site."
+    ]
+   }
+  },
+  {
+   "id": "dhw_cold",
+   "name": "Cold water to the preheat tank",
+   "category": "Hot water",
+   "system": "plumbing.dhw",
+   "dia": 1.1,
+   "mat": "copper",
+   "points": [
+    [
+     11.6,
+     28.75,
+     0.2
+    ],
+    [
+     11.6,
+     28.75,
+     8.6
+    ],
+    [
+     8.510416666666668,
+     28.75,
+     8.6
+    ],
+    [
+     8.510416666666668,
+     27.136666666666667,
+     8.6
+    ],
+    [
+     8.510416666666668,
+     27.136666666666667,
+     5.166666666666667
+    ]
+   ],
+   "info": {
+    "model": "3/4 in copper",
+    "specs": [
+     [
+      "Valves",
+      "Main shutoff at the riser, shutoff and union at the tank"
+     ],
+     [
+      "Expansion tank",
+      "Hangs from this line, as U-11 shows"
+     ]
+    ],
+    "notes": [
+     "Cold service comes up through the slab at the east end of the south wall, runs west high on the wall and drops into the preheat tank's cold inlet. The desuperheater return tees into the drop. Service entry point and valves ASSUMED."
+    ]
+   }
+  },
+  {
+   "id": "dhw_cold_house",
+   "category": "Hot water",
+   "system": "plumbing.dhw",
+   "dia": 1.1,
+   "mat": "copper",
+   "points": [
+    [
+     11.6,
+     28.75,
+     8.6
+    ],
+    [
+     11.6,
+     28.75,
+     9.3
+    ]
+   ],
+   "info_of": "dhw_cold"
+  },
+  {
+   "id": "dhw_preheat",
+   "name": "Preheated water to the heat pump water heater",
+   "category": "Hot water",
+   "system": "plumbing.dhw",
+   "dia": 1.1,
+   "mat": "copper",
+   "points": [
+    [
+     7.910416666666667,
+     27.136666666666667,
+     5.166666666666667
+    ],
+    [
+     7.910416666666667,
+     27.136666666666667,
+     8.0
+    ],
+    [
+     7.910416666666667,
+     28.05,
+     8.0
+    ],
+    [
+     4.472916666666666,
+     28.05,
+     8.0
+    ],
+    [
+     4.472916666666666,
+     27.175916666666666,
+     8.0
+    ],
+    [
+     4.472916666666666,
+     27.175916666666666,
+     0.75
+    ],
+    [
+     4.572916666666666,
+     27.175916666666666,
+     0.75
+    ]
+   ],
+   "info": {
+    "model": "3/4 in copper, insulated",
+    "specs": [],
+    "notes": [
+     "Preheat tank hot outlet, up and along the wall, then down beside the heat pump water heater to its low side cold inlet. The recirculation return tees in on the wall. Bypass valves so either tank can be isolated are ASSUMED."
+    ]
+   }
+  },
+  {
+   "id": "dhw_hot",
+   "name": "Hot water to the house",
+   "category": "Hot water",
+   "system": "plumbing.dhw",
+   "dia": 1.1,
+   "mat": "copper",
+   "points": [
+    [
+     4.572916666666666,
+     26.909916666666668,
+     4.56
+    ],
+    [
+     4.472916666666666,
+     26.909916666666668,
+     4.56
+    ],
+    [
+     4.472916666666666,
+     26.909916666666668,
+     8.35
+    ],
+    [
+     4.472916666666666,
+     28.4,
+     8.35
+    ],
+    [
+     11.25,
+     28.4,
+     8.35
+    ],
+    [
+     11.25,
+     28.4,
+     9.3
+    ]
+   ],
+   "info": {
+    "model": "3/4 in copper, insulated",
+    "specs": [],
+    "notes": [
+     "Heat pump water heater high side hot outlet, up through a thermostatic mixing valve, along the wall and up into the ceiling to the fixtures."
+    ]
+   }
+  },
+  {
+   "id": "dhw_recirc",
+   "name": "Hot water recirculation return",
+   "category": "Hot water",
+   "system": "plumbing.dhw",
+   "dia": 0.9,
+   "mat": "copper",
+   "points": [
+    [
+     7.0,
+     28.05,
+     9.3
+    ],
+    [
+     7.0,
+     28.05,
+     8.0
+    ]
+   ],
+   "info": {
+    "model": "1/2 in copper, insulated",
+    "specs": [],
+    "notes": [
+     "Return from the far end of the hot main (U-11 shows a recirculation pump). Comes down from the ceiling and tees into the preheated line ahead of the heat pump water heater. A check valve and a timer or demand control are ASSUMED."
     ]
    }
   },
@@ -1329,23 +1623,23 @@
      8.66
     ],
     [
-     9.320416666666667,
+     9.370416666666667,
      23.82,
      8.66
     ],
     [
-     9.320416666666667,
-     27.686666666666667,
+     9.370416666666667,
+     27.536666666666665,
      8.66
     ],
     [
-     9.320416666666667,
-     27.686666666666667,
+     9.370416666666667,
+     27.536666666666665,
      0.45
     ],
     [
      9.160416666666666,
-     27.686666666666667,
+     27.536666666666665,
      0.45
     ]
    ],
@@ -1358,7 +1652,7 @@
      ],
      [
       "Return from the geo",
-      "Into the preheat tank's cold inlet through a tee"
+      "Tees into the cold drop just above the preheat tank"
      ]
     ],
     "notes": [
@@ -1391,24 +1685,24 @@
      8.84
     ],
     [
-     9.500416666666666,
+     9.550416666666667,
      24.18,
      8.84
     ],
     [
-     9.500416666666666,
-     27.686666666666667,
+     9.550416666666667,
+     27.136666666666667,
      8.84
     ],
     [
-     8.560416666666667,
-     27.686666666666667,
-     8.84
+     9.550416666666667,
+     27.136666666666667,
+     7.3
     ],
     [
-     8.560416666666667,
-     27.686666666666667,
-     4.966666666666667
+     8.510416666666668,
+     27.136666666666667,
+     7.3
     ]
    ],
    "info": {
@@ -1420,47 +1714,11 @@
      ],
      [
       "Return from the geo",
-      "Into the preheat tank's cold inlet through a tee"
+      "Tees into the cold drop just above the preheat tank"
      ]
     ],
     "notes": [
      "Route is ASSUMED. Line size and the maximum run come from the GZT installation manual; the run here is short because the geo sits right above the utility room."
-    ]
-   }
-  },
-  {
-   "id": "preheat_xfer",
-   "name": "Preheated water to the heat pump water heater",
-   "category": "Hot water",
-   "system": "plumbing.dhw",
-   "dia": 1.3,
-   "mat": "copper",
-   "points": [
-    [
-     7.910416666666667,
-     27.086666666666666,
-     4.966666666666667
-    ],
-    [
-     7.910416666666667,
-     27.086666666666666,
-     8.68
-    ],
-    [
-     4.472916666666666,
-     27.086666666666666,
-     8.68
-    ],
-    [
-     4.472916666666666,
-     27.17625,
-     8.68
-    ]
-   ],
-   "info": {
-    "model": "3/4 in copper, insulated",
-    "notes": [
-     "Feeds the heat pump water heater's cold inlet with preheated water. Bypass and isolation valves ASSUMED."
     ]
    }
   }

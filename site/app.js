@@ -286,6 +286,28 @@ function prepare(roots, first) {
   else if (mode === 'walk') $('hint').hidden = false;
   $('cross').hidden = mode !== 'walk';
   console.log(`walkthrough ready: ${colliders.length} colliders, ${operables.length} operable, ${Object.keys(spawns).length} spawns`);
+  openLinkedRoom();
+}
+
+// ---------------------------------------------------------------- shareable room links
+// ?room=utility drops a visitor straight into that room, walking (add &view=orbit for the overhead view).
+// Picking a room writes the same parameters into the address bar, so the link there can be copied and shared.
+const slug = (s) => String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+function openLinkedRoom() {
+  const q = new URLSearchParams(location.search), want = q.get('room');
+  if (!want) return;
+  const R = planRooms().find((r) => slug(r.name) === slug(want));
+  if (!R) { console.warn('no room called', want); return; }
+  goRoom(R, q.get('view') === 'orbit' ? 'orbit' : 'walk');
+}
+function linkRoom(R, how) {
+  try {
+    const q = new URLSearchParams(location.search);
+    if (R) { q.set('room', slug(R.name)); if (how === 'orbit') q.set('view', 'orbit'); else q.delete('view'); }
+    else { q.delete('room'); q.delete('view'); }
+    const s = q.toString().replace(/=(?=&|$)/g, '');           // keep bare flags like ?lite as they were
+    history.replaceState(null, '', location.pathname + (s ? '?' + s : '') + location.hash);
+  } catch (e) { /* a sandboxed frame may refuse; the link is only a convenience */ }
 }
 
 // ---------------------------------------------------------------- static merge
@@ -628,7 +650,7 @@ function openModal(kind) {
     const row = document.createElement('div'); row.className = 'row';
     const hx = (houseMeta.outline || { house: [0, 0, 43.0833, 52] }).house[2];
     if (compact) for (const R of planRooms().filter((r) => r.rect[0] >= hx)) { const b = document.createElement('button'); b.textContent = R.name; b.onclick = () => pick(R); row.append(b); }
-    const out = document.createElement('button'); out.textContent = 'Outside, southwest'; out.onclick = () => { closeModal(); if (how === 'walk') jump('Outside_SW'); else { if (mode !== 'orbit') setMode('orbit'); orbitHome(); } };
+    const out = document.createElement('button'); out.textContent = 'Outside, southwest'; out.onclick = () => { closeModal(); linkRoom(null); if (how === 'walk') jump('Outside_SW'); else { if (mode !== 'orbit') setMode('orbit'); orbitHome(); } };
     row.append(out);
     const p = document.createElement('p'); p.className = 'note'; p.textContent = 'The dashed outline is the loft, upstairs over Bath 1.';
     body.append(row, p);
@@ -710,6 +732,7 @@ function orbitHome() {
 }
 // Walk into a room (a spawn inside it if there is one), or look down into it with the slice at that level.
 function goRoom(R, how) {
+  linkRoom(R, how);
   const [a, b, c, d] = R.rect, cx = (a + c) / 2, cy = (b + d) / 2, floor = R.floor || 0;
   if (how === 'walk') {
     const sp = Object.entries(houseSpawns).find(([, s2]) => s2.pos[0] >= a && s2.pos[0] <= c && s2.pos[1] >= b && s2.pos[1] <= d && Math.abs((s2.pos[2] - (houseMeta.eye_ft || 5.58)) - floor) < 1);
