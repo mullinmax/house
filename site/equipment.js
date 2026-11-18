@@ -503,9 +503,10 @@ const BUILD = {
     slab(g, 4.9, 2.6, 0.06, graphite(), 3.95, 2.2, bd + 0.05, 0.15);
     return g;
   },
-  hpwh(s) {                        // Rheem ProTerra hybrid: grey tank, heat pump section on top with a fan guard and control panel, side water connections
-    const [dia, h] = s, g = new THREE.Group(), r = dia / 2, cz = r + 2, split = h - 15.5;
-    box(g, dia + 4, 2, dia + 4, galv(), 0, 1, cz);                                           // 2" drain pan (U-11 detail)
+  hpwh(s, it = {}) {               // Rheem ProTerra hybrid: grey tank, heat pump section on top with a fan guard and control panel, side water connections
+    // flip puts the water connections on the other side (they face the preheat tank), with the relief valve opposite them
+    const [dia, h] = s, g = new THREE.Group(), r = dia / 2, cz = r + 2, split = h - 15.5, sx = it.flip ? -1 : 1;
+    cyl(g, r + 2, 2, galv(), 0, 1, cz, 'y', 40);                                             // 2" round drain pan (U-11 detail)
     cyl(g, r, h - 0.9, tankGrey(), 0, 0.6 + (h - 0.9) / 2, cz, 'y', 48);                      // tank and heat pump jacket
     cyl(g, r - 2.2, 0.3, blackMolded(), 0, h - 0.15, cz, 'y', 40);                            // top air intake
     cyl(g, r + 0.06, 0.3, seam(), 0, split, cz, 'y', 48);                                     // joint between the tank and the heat pump section
@@ -517,29 +518,29 @@ const BUILD = {
     cyl(g, 0.5, 2.2, brass(), -4.6, 5.2, cz + r * 0.92 + 0.6, 'z', 12);                       // drain valve
     // side connections: cold in low, hot out high (brass unions); the piping itself is drawn as pipe runs
     for (const [y, m, zo] of [[9, blue(), -1.6], [split - 4, red(), 1.6]]) {
-      cyl(g, 0.7, 2.8, brass(), -(r + 1.2), y, cz + zo, 'x', 12);
-      ring(g, 0.9, 0.25, m, -(r + 2.2), y, cz + zo, 'x', 20);
+      cyl(g, 0.7, 2.8, brass(), -sx * (r + 1.2), y, cz + zo, 'x', 12);
+      ring(g, 0.9, 0.25, m, -sx * (r + 2.2), y, cz + zo, 'x', 20);
     }
-    cyl(g, 0.7, 2.6, brass(), r + 1.1, split - 3, cz, 'x', 12);                               // T&P relief valve and its drop
-    cyl(g, 0.4, split - 9, copper(), r + 2.2, (split - 3 + 6) / 2, cz, 'y', 10);
-    cyl(g, 0.35, h - 6, mat('condensate', 0xe9eef2, 0.4, 0, { transparent: true, opacity: 0.8 }), r - 1, (h - 6) / 2 + 2, cz - r * 0.75); // condensate line, on the wall side
+    cyl(g, 0.7, 2.6, brass(), sx * (r + 1.1), split - 3, cz, 'x', 12);                          // T&P relief valve and its drop
+    cyl(g, 0.4, split - 9, copper(), sx * (r + 2.2), (split - 3 + 6) / 2, cz, 'y', 10);
+    cyl(g, 0.35, h - 6, mat('condensate', 0xe9eef2, 0.4, 0, { transparent: true, opacity: 0.8 }), sx * (r - 1), (h - 6) / 2 + 2, cz - r * 0.75); // condensate line, on the wall side
     return g;
   },
   storage_tank(s) {                // plain electric tank used as the desuperheater preheat tank: white jacket, top connections, drain on the east side
     const [dia, h] = s, g = new THREE.Group(), r = dia / 2, cz = r + 2;
-    box(g, dia + 4, 2, dia + 4, galv(), 0, 1, cz);                                           // drain pan
+    cyl(g, r + 2, 2, galv(), 0, 1, cz, 'y', 40);                                             // round drain pan
     cyl(g, r, h - 0.9, mat('tank white', 0xe9e8e3, 0.55, 0.05), 0, 0.6 + (h - 0.9) / 2, cz, 'y', 48);
     cyl(g, r - 0.4, 0.4, mat('tank top', 0xd9d8d3, 0.6, 0.05), 0, h - 0.1, cz, 'y', 40);
     cyl(g, r + 0.06, 1.2, mat('tank base ring', 0x55585a, 0.6, 0.3), 0, 1.2, cz, 'y', 48);
     for (const y of [15, 42]) wrap(g, r + 0.08, 5.6, 7.6, mat('tank cover', 0xb9bab6, 0.5, 0.3), 0, y, cz, 0);   // element covers (not wired)
     wrap(g, r + 0.12, 2.8, 2.8, labelMat('rheem badge', 128, 128, roundBadge('#c8102e', '#fff', 'Rheem', 'italic bold 34px Georgia, serif')), 0, h - 10, cz, 0, 6);
-    cyl(g, 0.5, 2.6, brass(), r + 1.0, 5.4, cz - 4.8, 'x', 12);                              // drain port, tee to the desuperheater supply
+    cyl(g, 0.5, 2.6, brass(), -(r + 1.0), 5.4, cz - 4.8, 'x', 12);                           // drain port, tee to the desuperheater supply
     for (const [x, m] of [[3.6, blue()], [-3.6, red()]]) {                                     // cold in, hot out on top: short nipples, the pipe runs carry on
       cyl(g, 0.7, 3, brass(), x, h + 1.5, cz, 'y', 12);
       ring(g, 0.9, 0.25, m, x, h + 2.2, cz, 'y', 20);
     }
-    cyl(g, 0.7, 2.6, brass(), -(r + 1.1), h - 8, cz, 'x', 12);                                // T&P relief valve and its drop
-    cyl(g, 0.4, h - 14, copper(), -(r + 2.2), (h - 8 + 6) / 2, cz, 'y', 10);
+    cyl(g, 0.7, 2.6, brass(), r + 1.1, h - 8, cz, 'x', 12);                                   // T&P relief valve and its drop, on the far side from the water heater
+    cyl(g, 0.4, h - 14, copper(), r + 2.2, (h - 8 + 6) / 2, cz, 'y', 10);
     return g;
   },
   circ_pump(s) {                   // inline hot water recirculation pump on a vertical pipe (U-11): red volute, motor and box off the side
@@ -563,10 +564,11 @@ const BUILD = {
     cyl(g, 1.1, 0.8, mat('valve knob', 0x2f6db5, 0.5, 0.1), 0, 0, 1.5, 'z', 18);
     return g;
   },
-  geo_horizontal(s) {
-    // GeoComfort ZT 048 horizontal, left hand return, end discharge: [A width, C height, B length] = 21.7 x 21.2 x 56 in.
+  geo_horizontal(s, it = {}) {
+    // GeoComfort ZT 048 horizontal, end discharge: [A width, C height, B length] = 21.7 x 21.2 x 56 in.
     // Local: length along x. +x end = supply discharge, -x end = front (water and electrical connections).
-    // Left hand return = the return opening is on your left as you face the front end, which is the back (z = 0) side here.
+    // As built here it is a left hand return: the return opening is on your left as you face the front end, which is the back
+    // (z = 0) side. mirror: true on the item makes it the right hand return unit.
     const [w, h, len] = s, g = new THREE.Group();
     for (const x of [-len / 2 + 4, len / 2 - 4]) box(g, 4, 4, w + 2, rubber(), x, -2, w / 2);   // vibration isolation rails
     box(g, len + 8, 1.5, w + 10, plywood(), 0, -4.75, w / 2);                                // service platform
@@ -578,7 +580,8 @@ const BUILD = {
       box(g, 4.6, 1.3, 0.35, darkPlastic(), x, h - 3.2, w + 0.18);                           // panel pulls
       for (const sx of [-1, 1]) for (const y of [1.6, h - 1.6]) cyl(g, 0.28, 0.14, galv(), x + sx * 7.2, y, w + 0.05, 'z', 8);   // panel screws
     }
-    plate(g, 5.2, 5.2, labelMat('geocomfort badge', 160, 160, roundBadge('#f4f5f2', '#1f6b3a', 'GeoComfort', 'bold 24px Helvetica, Arial, sans-serif')), -len / 2 + 9.6, h * 0.5, w + 0.2);
+    const badge = plate(g, 5.2, 5.2, labelMat('geocomfort badge', 160, 160, roundBadge('#f4f5f2', '#1f6b3a', 'GeoComfort', 'bold 24px Helvetica, Arial, sans-serif')), -len / 2 + 9.6, h * 0.5, w + 0.2);
+    if (it.mirror) badge.scale.x = -1;                                                       // keep the lettering readable on a mirrored unit
     box(g, 9, 3.2, 0.06, mat('rating label', 0xe9e9e2, 0.6), 20, 5, w + 0.06);                // rating plate
     box(g, 36, 18, 2.4, galv(), -len / 2 + 2 + 18, h / 2, -1.2);                             // AFR1836A 18 x 36 filter rack on the return side
     box(g, 34.5, 16.5, 0.3, mat('filter media', 0xe8e6da, 0.9), -len / 2 + 2 + 18, h / 2, -2.45);
@@ -610,21 +613,25 @@ const BUILD = {
       box(g, 2.4, 2.6, 2.6, blackMolded(), x + (x < 0 ? -2.6 : 2.6), y, fz + 2.2);            // terminal box
     }
     for (const x of [-3.2, 3.2]) { cyl(g, 1.15, 0.9, brass(), x, h - 2.4, fz + 0.4, 'z', 16); cyl(g, 0.75, 0.95, blackMolded(), x, h - 2.4, fz + 0.47, 'z', 16); }   // loop ports
-    cyl(g, 1.15, 0.9, brass(), -3.2, h * 0.2, fz + 0.4, 'z', 16);
+    for (const [y, z] of [[20, 2.6], [8, 5.4]]) {                                             // loop ports on the side facing the manifolds, level with its two headers
+      cyl(g, 1.15, 0.9, brass(), w / 2 - 0.05, y, z, 'x', 16); cyl(g, 0.75, 0.95, blackMolded(), w / 2 - 0.02, y, z, 'x', 16);
+    }
     plate(g, 4.6, 2.3, labelMat('np series logo', 256, 128, (c, cw, ch) => {
       c.fillStyle = '#f2f2f2'; c.textAlign = 'center'; c.textBaseline = 'middle';
       c.font = 'bold 62px Helvetica, Arial, sans-serif'; c.fillText('NP', cw / 2, ch * 0.36);
       c.font = 'bold 30px Helvetica, Arial, sans-serif'; c.fillText('SERIES', cw / 2, ch * 0.78);
     }), 2.6, h * 0.62, fz + 0.03);
-    box(g, w - 5, 3.6, 4, pe(), 0, -1.8, d / 2);                                              // fusion header below
     return g;
   },
   pe_manifold(s, it) {
-    // Pair of 1-1/4" PE headers, 5 x 3/4" circuits each with a 1" ball valve; loops drop to the slab sweeps.
+    // Pair of 1-1/4" PE headers, 5 x 3/4" circuits each with a 1" ball valve. The supply header sits on the wall and the return
+    // header in front of it, so the supply legs pass behind the return header. Each leg ends at the bottom (y = 0), where the loop
+    // pipe from the slab sleeve is fused on; those pipes are drawn as runs.
     const [w, h, d] = s, g = new THREE.Group();
-    const R_H = 0.83, R_C = 0.525, n = 5, z = d / 2;
-    const rows = [{ y: h - 4, m: blue(), lbl: 'supply' }, { y: h - 16, m: red(), lbl: 'return' }];
+    const R_H = 0.83, R_C = 0.525, n = 5;
+    const rows = [{ y: h - 4, z: 2.6, m: blue(), lbl: 'supply' }, { y: h - 16, z: 5.4, m: red(), lbl: 'return' }];
     for (const [ri, row] of rows.entries()) {
+      const z = row.z;
       cyl(g, R_H, w, pe(), 0, row.y, z, 'x');
       for (let k = 0; k < n; k++) {
         const x = -w / 2 + 3 + k * ((w - 6) / (n - 1)) + (ri ? 1.4 : 0);
@@ -636,7 +643,7 @@ const BUILD = {
       cyl(g, R_H, 6, pe(), w / 2 + 3, row.y, z, 'x');                                        // main out toward the flow center
     }
     for (const x of [-w / 4, w / 4]) box(g, 1.2, h, 1.6, mat('strut', 0x9fa3a6, 0.5, 0.7), x, h / 2, 0.8);   // unistrut
-    for (const x of [-w / 3, w / 6]) cyl(g, 2.25, 3, mat('pvc grey', 0x8e9193, 0.6), x, 1.5, z);           // 4" sweeps at the slab
+    for (const row of rows) for (const x of [-9, 9]) box(g, 1.4, 1.4, row.z, mat('strut', 0x9fa3a6, 0.5, 0.7), x, row.y, row.z / 2);   // header brackets
     return g;
   },
   erv(s) {                         // Panasonic Intelli-Balance 100: galvanized steel box, two white duct adapters on each end
