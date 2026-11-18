@@ -808,7 +808,7 @@
    ],
    "at": [
     0.56,
-    27.5,
+    27.15,
     3.0
    ],
    "facing": 90,
@@ -831,6 +831,7 @@
     ],
     "notes": [
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class.",
+     "Service: 2 ft of open floor in front for swapping a pump or hooking up flush hoses, and its fill cap on top is about 5 ft off the floor with nothing over it. Geo-Flo gives no clearance numbers; it says only to check the fluid level in the canister, mostly in the first days after a fill. OPEN QUESTION for Greg: a non pressurized flow center normally sits level with or above the heat pump, and here the heat pump is about 9 ft above it.",
      "Kept on the west wall, which is an outside wall, so pump hum does not pass into bedroom 3 behind the north wall. It sits under the heat pump's water connections, so the insulated lines go straight up and only cross about 3 ft of attic."
     ],
     "placement": "Utility room west wall, south of the manifolds. 1-1/4 in insulated pipes run from here straight up through the ceiling to the heat pump."
@@ -849,7 +850,7 @@
     74.2
    ],
    "at": [
-    9.2,
+    7.7,
     27.987666666666666,
     0
    ],
@@ -905,7 +906,7 @@
      "Shown with the U-11 details: 2 in drain pan, expansion tank, recirculation pump.",
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
     ],
-    "placement": "South wall of the utility room (Maxwell, 11/15/2026), 5 in off the wall so the piping runs behind it. It stays clear of the hall door's swing, and its two ducts rise in one truss bay to open grilles on the attic deck."
+    "placement": "South wall of the utility room (Maxwell, 11/15/2026), 5 in off the wall so the piping runs behind it. It stands 16 in east of the preheat tank so the valves, the recirculation pump and the mixing valve between the tanks can be reached. Its two ducts rise in one truss bay and come out on the attic deck east of the return plenum."
    }
   },
   {
@@ -921,7 +922,7 @@
     59.0
    ],
    "at": [
-    6.689583333333333,
+    4.439583333333334,
     27.987666666666666,
     0
    ],
@@ -958,7 +959,7 @@
      "The GeoComfort GZT048J11LM1CCS has hot water code 1: desuperheater with a factory installed pump.",
      "Size is ASSUMED (about 22 in x 59 in for a 50 gal tall tank)."
     ],
-    "placement": "South wall of the utility room, just west of the heat pump water heater."
+    "placement": "South wall of the utility room, as far west as it can go while leaving 2 ft of working room in front of the flow center. The desuperheater lines come down the wall just west of it."
    }
   },
   {
@@ -975,7 +976,7 @@
     5
    ],
    "at": [
-    9.0,
+    5.199583333333334,
     28.051,
     3.9
    ],
@@ -1007,8 +1008,8 @@
     11
    ],
    "at": [
-    10.95,
-    27.881,
+    2.7495833333333337,
+    27.851,
     6.9
    ],
    "facing": 0,
@@ -1039,7 +1040,7 @@
     3
    ],
    "at": [
-    7.90625,
+    6.47625,
     26.67725,
     6.3
    ],
@@ -1072,9 +1073,9 @@
     56
    ],
    "at": [
-    4.56,
+    4.31,
     25.235,
-    10.510416666666668
+    10.59375
    ],
    "facing": 270,
    "mirror": true,
@@ -1114,6 +1115,8 @@
     "notes": [
      "Andy's plan names a ClimateMaster Tranquility 30 as the basis of design and assumes a downflow unit. This is the unit Greg quoted and Maxwell sent Andy on 8/14/2026.",
      "Greg's quote MMUL8476-4 is for GZT048J11LM1CCS, which is a left hand return. This layout needs the right hand return version: standing at the water connection end, the return and filter are on the right. The unit is not ordered yet, so ask Greg to quote the right hand model and confirm which side the service panels are on.",
+     "Service access from the GZT manual (p.17): 2 ft clear in front of the controls and compressor panel, which is the south (connection) end; 2 ft beside the blower door, which with end discharge is on the west side at the north end; working room for the reversing valve and heat exchanger on the west side and for the TXV and filter drier on the east side, both near the south end. The west aisle is 2 ft, the return plenum stops at the coil so the TXV corner is open, and the ERV intake duct on the west wall runs up under the roof. STILL SHORT: the ERV hangs 17 in in front of the controls end and has to move.",
+     "Condensate: the drain is at the north end, the EZ-Trap needs 6-1/2 in of height so the unit sits on a 6-1/2 in pad, and the unit tilts 1/4 to 1/2 in toward the drain (p.19, p.35). Over a finished ceiling a secondary drain pan under the unit is the usual code answer; the manual shows it as optional.",
      "Turned 90 degrees (Maxwell, 11/18/2026): supply out the north end toward the trunk, water and desuperheater connections on the south end right above the flow center, return and filter on the east side, service panels facing a 2 ft aisle along the west wall."
     ],
     "placement": "On the attic deck over the utility room, where Andy drew HP-01, lengthwise north to south."
@@ -1133,11 +1136,12 @@
     26.6
    ],
    "at": [
-    0.75,
-    30.885,
-    10.102083333333335
+    3.405833333333333,
+    29.01833333333333,
+    12.285416666666666
    ],
-   "facing": 90,
+   "facing": 180,
+   "hang": 53.4,
    "info": {
     "model": "Panasonic Intelli-Balance 100 (ERV-01 on M-10)",
     "specs": [
@@ -1147,7 +1151,7 @@
      ],
      [
       "Ducts",
-      "Intake and exhaust through the west wall"
+      "Exhaust through the west wall beside the unit, intake through the west wall 10 ft further north"
      ],
      [
       "Stale air from",
@@ -1155,15 +1159,27 @@
      ],
      [
       "Fresh air to",
-      "The heat pump return"
+      "The supply plenum at the heat pump, so it reaches every room through the supply registers"
+     ],
+     [
+      "Mounting",
+      "Hung level on four chains from the roof framing, about 2 ft above the deck (the manual's chain mount)"
+     ],
+     [
+      "Controls",
+      "Runs continuously on low; a timer switch in each bathroom boosts it; blower interlock wire to the heat pump"
      ]
     ],
     "notes": [
      "Greg's alternative: RenewAire EV Premium M, about $1,800.",
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class.",
-     "The bathrooms exhaust through this unit instead of separate fans (Maxwell, 11/17/2026). The code allows it because the ERV sends that air outdoors; it has to run continuously at 20 CFM or more per bathroom. Three baths plus whole house ventilation (about 75 CFM for this size and bedroom count) is near the top of a 100 CFM unit, so Andy should confirm the size. The range hood cannot connect here, it has its own duct outdoors."
+     "The bathrooms exhaust through this unit instead of separate fans (Maxwell, 11/17/2026). The code allows it because the ERV sends that air outdoors; it has to run continuously at 20 CFM or more per bathroom (IRC table M1505.4.4).",
+     "Fresh air goes into the supply plenum, not the attic (Maxwell, 11/18/2026). Panasonic's instructions say the furnace blower should run whenever the ERV runs when it is tied into the ductwork, and Building Science Corp. calls for an interlock and a motorized damper on a supply side connection. The heat pump's ECM blower can idle at low speed for this. Andy should confirm the ERV can push against the supply plenum's pressure; the fallback is the return plenum, which the code also counts as supply ventilation (IRC M1505.4.1).",
+     "One fan pulls from all three bathrooms, so the whole exhaust duct is under suction and air cannot be pushed from one bathroom into another. Backdraft dampers are for separate fans that share a duct. Each branch gets a balancing damper to set its airflow.",
+     "Set out to Panasonic's installation instructions (Maxwell, 11/18/2026): the two outdoor hoods are more than 10 ft apart, every duct connection has 2 ft or more of straight run before its first elbow, the outdoor ducts are insulated, the unit hangs level on chains inside the conditioned attic, and the intake is well over 6 ft from the dryer and range hood outlets.",
+     "A backdraft damper in the fresh air duct stops the heat pump's blower from pushing supply air backward through the ERV. With the blower off, the ERV's own fan still sends the fresh air down the supply trunk to every register, so it works without the heat pump running. Three baths plus whole house ventilation (about 75 CFM for this size and bedroom count) is near the top of a 100 CFM unit, so Andy should confirm the size. The range hood cannot connect here, it has its own duct outdoors."
     ],
-    "placement": "Attic deck at the west wall over the pantry, south of the heat pump and its piping. Andy drew it west of HP-01."
+    "placement": "In line with the heat pump, just south of it, hung at the height of its top. Andy drew it west of HP-01."
    }
   },
   {
@@ -1632,7 +1648,7 @@
     ],
     [
      0.7766666666666667,
-     26.925,
+     26.575,
      4.666666666666666
     ]
    ]
@@ -1650,7 +1666,7 @@
     ],
     [
      1.01,
-     26.925,
+     26.575,
      3.666666666666667
     ]
    ]
@@ -1666,43 +1682,43 @@
    "points": [
     [
      1.5,
-     27.766666666666666,
+     27.416666666666664,
      4.633333333333334
     ],
     [
      1.68,
-     27.766666666666666,
+     27.416666666666664,
      4.633333333333334
     ],
     [
      1.68,
-     27.766666666666666,
+     27.416666666666664,
      5.2
     ],
     [
      1.0,
-     27.766666666666666,
+     27.416666666666664,
      5.2
     ],
     [
      1.0,
-     27.766666666666666,
-     11.977083333333335
+     27.416666666666664,
+     12.060416666666667
     ],
     [
      1.0,
      28.798333333333332,
-     11.977083333333335
+     12.060416666666667
     ],
     [
-     4.0175,
+     3.7674999999999996,
      28.798333333333332,
-     11.977083333333335
+     12.060416666666667
     ],
     [
-     4.0175,
+     3.7674999999999996,
      28.53833333333333,
-     11.977083333333335
+     12.060416666666667
     ]
    ],
    "info": {
@@ -1719,6 +1735,10 @@
      [
       "Length",
       "About 6 ft up and 5 ft across the attic, each"
+     ],
+     [
+      "Beside them",
+      "The desuperheater lines drop through the deck 3 ft away, at the heat pump's connection end"
      ]
     ],
     "notes": [
@@ -1737,48 +1757,48 @@
    "points": [
     [
      1.5,
-     27.233333333333334,
+     26.883333333333333,
      4.633333333333334
     ],
     [
      1.68,
-     27.233333333333334,
+     26.883333333333333,
      4.633333333333334
     ],
     [
      1.68,
-     27.233333333333334,
+     26.883333333333333,
      5.2
     ],
     [
      1.0,
-     27.233333333333334,
+     26.883333333333333,
      5.2
     ],
     [
      1.0,
-     27.233333333333334,
-     10.977083333333335
+     26.883333333333333,
+     11.060416666666667
     ],
     [
      1.3,
-     27.233333333333334,
-     10.977083333333335
+     26.883333333333333,
+     11.060416666666667
     ],
     [
      1.3,
      28.798333333333332,
-     10.977083333333335
+     11.060416666666667
     ],
     [
-     4.0175,
+     3.7674999999999996,
      28.798333333333332,
-     10.977083333333335
+     11.060416666666667
     ],
     [
-     4.0175,
+     3.7674999999999996,
      28.53833333333333,
-     10.977083333333335
+     11.060416666666667
     ]
    ],
    "info": {
@@ -1795,6 +1815,10 @@
      [
       "Length",
       "About 6 ft up and 5 ft across the attic, each"
+     ],
+     [
+      "Beside them",
+      "The desuperheater lines drop through the deck 3 ft away, at the heat pump's connection end"
      ]
     ],
     "notes": [
@@ -1811,27 +1835,27 @@
    "mat": "copper",
    "points": [
     [
-     11.45,
-     27.881,
+     3.699583333333334,
+     27.851,
      0.2
     ],
     [
-     11.45,
-     27.881,
+     3.699583333333334,
+     27.851,
      6.9
     ],
     [
-     6.389583333333333,
-     27.881,
+     4.139583333333334,
+     27.851,
      6.9
     ],
     [
-     6.389583333333333,
+     4.139583333333334,
      26.904333333333334,
      6.9
     ],
     [
-     6.389583333333333,
+     4.139583333333334,
      26.904333333333334,
      5.166666666666667
     ]
@@ -1845,11 +1869,11 @@
      ],
      [
       "Expansion tank",
-      "Hangs from this line, as U-11 shows"
+      "Hangs from a short stub off this line, as U-11 shows"
      ]
     ],
     "notes": [
-     "Cold service comes up through the slab at the east end of the south wall, runs west behind and above the tanks and drops into the preheat tank's cold inlet. The desuperheater return tees into the drop. Service entry point and valves ASSUMED."
+     "Cold service comes up through the slab behind the preheat tank, rises, and drops into the tank's cold inlet, about 9 ft of pipe. The desuperheater return tees into the drop. Service entry point and valves ASSUMED."
     ]
    }
   },
@@ -1861,14 +1885,34 @@
    "mat": "copper",
    "points": [
     [
-     11.45,
-     27.881,
+     3.699583333333334,
+     27.851,
      6.9
     ],
     [
-     11.45,
-     27.881,
-     9.3
+     3.699583333333334,
+     27.851,
+     9.0
+    ]
+   ],
+   "info_of": "dhw_cold"
+  },
+  {
+   "id": "dhw_cold_stub",
+   "category": "Hot water",
+   "system": "plumbing.dhw",
+   "dia": 1.1,
+   "mat": "copper",
+   "points": [
+    [
+     3.699583333333334,
+     27.851,
+     6.9
+    ],
+    [
+     2.699583333333334,
+     27.851,
+     6.9
     ]
    ],
    "info_of": "dhw_cold"
@@ -1882,27 +1926,27 @@
    "mat": "foam",
    "points": [
     [
-     6.989583333333333,
+     4.739583333333334,
      26.904333333333334,
      5.166666666666667
     ],
     [
-     6.989583333333333,
+     4.739583333333334,
      26.904333333333334,
      5.5
     ],
     [
-     7.90625,
+     6.47625,
      26.943916666666667,
      5.5
     ],
     [
-     7.90625,
+     6.47625,
      26.943916666666667,
      0.75
     ],
     [
-     8.00625,
+     6.5062500000000005,
      26.943916666666667,
      0.75
     ]
@@ -1924,19 +1968,19 @@
    "mat": "foam",
    "points": [
     [
-     8.00625,
+     6.5062500000000005,
      26.67725,
      4.558333333333334
     ],
     [
-     7.90625,
+     6.47625,
      26.67725,
      4.558333333333334
     ],
     [
-     7.90625,
+     6.47625,
      26.67725,
-     9.3
+     9.0
     ]
    ],
    "info": {
@@ -1956,22 +2000,22 @@
    "mat": "foam",
    "points": [
     [
-     9.0,
+     5.199583333333334,
      28.051,
-     9.3
+     9.0
     ],
     [
-     9.0,
-     28.051,
-     1.2
-    ],
-    [
-     7.90625,
+     5.199583333333334,
      28.051,
      1.2
     ],
     [
-     7.90625,
+     6.47625,
+     28.051,
+     1.2
+    ],
+    [
+     6.47625,
      26.943916666666667,
      1.2
     ]
@@ -1980,7 +2024,7 @@
     "model": "1/2 in copper, insulated",
     "specs": [],
     "notes": [
-     "Return from the far end of the hot main (U-11 shows a recirculation pump). Comes down the south wall behind the water heater, through the pump at chest height, and tees into the water heater's cold inlet pipe. A check valve and a timer or demand control are ASSUMED.",
+     "Return from the far end of the hot main (U-11 shows a recirculation pump). Comes down the south wall between the two tanks, through the pump at chest height, and tees into the water heater's cold inlet pipe. A check valve and a timer or demand control are ASSUMED.",
      "Insulated like the hot line: a recirculation loop is hot whenever it runs, so bare pipe would give that heat away all day."
     ]
    }
@@ -1995,37 +2039,37 @@
    "info_of": null,
    "points": [
     [
-     4.0175,
+     3.7674999999999996,
      27.638333333333332,
-     11.310416666666669
+     11.39375
     ],
     [
-     4.0175,
-     27.741,
-     11.310416666666669
+     3.7674999999999996,
+     27.74833333333333,
+     11.39375
     ],
     [
-     8.14,
-     27.741,
-     11.310416666666669
+     3.4974999999999996,
+     27.74833333333333,
+     11.39375
     ],
     [
-     8.14,
-     27.581,
-     11.310416666666669
+     3.4974999999999996,
+     28.001,
+     11.39375
     ],
     [
-     8.14,
-     27.581,
+     3.4974999999999996,
+     28.001,
      0.45
     ],
     [
-     8.14,
-     27.304333333333332,
+     5.497916666666668,
+     28.001,
      0.45
     ],
     [
-     7.797916666666667,
+     5.497916666666668,
      27.304333333333332,
      0.45
     ]
@@ -2043,11 +2087,11 @@
      ],
      [
       "Length",
-      "About 4 ft across the attic and 6 to 9 ft down to the tank, each"
+      "About 5 ft and 10 ft: straight down from the heat pump's connections to the tank"
      ]
     ],
     "notes": [
-     "Route is ASSUMED. Line size and the maximum run come from the GZT installation manual; the run here is short because the geo sits right above the utility room."
+     "The lines drop straight through the attic deck from the heat pump's hot water connections and down the wall just west of the preheat tank (Maxwell, 11/18/2026). Service parts from the GZT manual (p.39): a shutoff valve on each line at the tank, an air vent at the high point, which here is at the heat pump in the attic, and drain valves for flushing and purging the circuit. Copper only, 5/8 in OD or larger, 50 ft at most, 3/8 in wall insulation. Route is ASSUMED. Line size and the maximum run come from the GZT installation manual."
     ]
    }
   },
@@ -2061,32 +2105,37 @@
    "info_of": "dsh_0",
    "points": [
     [
-     4.0175,
+     3.7674999999999996,
      27.638333333333332,
-     11.64375
+     11.727083333333333
     ],
     [
-     4.0175,
-     27.741,
-     11.64375
+     3.7674999999999996,
+     27.74833333333333,
+     11.727083333333333
     ],
     [
-     8.44,
-     27.741,
-     11.64375
+     4.0375,
+     27.74833333333333,
+     11.727083333333333
     ],
     [
-     8.44,
-     27.741,
+     4.0375,
+     28.001,
+     11.727083333333333
+    ],
+    [
+     4.0375,
+     28.001,
      6.15
     ],
     [
-     6.389583333333333,
-     27.741,
+     4.139583333333334,
+     28.001,
      6.15
     ],
     [
-     6.389583333333333,
+     4.139583333333334,
      26.904333333333334,
      6.15
     ]
@@ -2104,11 +2153,11 @@
      ],
      [
       "Length",
-      "About 4 ft across the attic and 6 to 9 ft down to the tank, each"
+      "About 5 ft and 10 ft: straight down from the heat pump's connections to the tank"
      ]
     ],
     "notes": [
-     "Route is ASSUMED. Line size and the maximum run come from the GZT installation manual; the run here is short because the geo sits right above the utility room."
+     "The lines drop straight through the attic deck from the heat pump's hot water connections and down the wall just west of the preheat tank (Maxwell, 11/18/2026). Service parts from the GZT manual (p.39): a shutoff valve on each line at the tank, an air vent at the high point, which here is at the heat pump in the attic, and drain valves for flushing and purging the circuit. Copper only, 5/8 in OD or larger, 50 ft at most, 3/8 in wall insulation. Route is ASSUMED. Line size and the maximum run come from the GZT installation manual."
     ]
    }
   }
@@ -2127,17 +2176,12 @@
    ],
    "points": [
     [
-     3.005833333333333,
-     21.401666666666667,
+     3.405833333333333,
+     20.901666666666667,
      10.73875
     ],
     [
-     1.654,
-     21.401666666666667,
-     10.73875
-    ],
-    [
-     1.654,
+     3.405833333333333,
      12.0,
      10.73875
     ],
@@ -2170,7 +2214,7 @@
      ]
     ],
     "notes": [
-     "Rerouted from M-10. Andy drew this trunk down the middle of the attic at y about 21.6 ft. Maxwell asked for it along the north wall of the attic, so it now hugs the west wall and the north attic wall all the way to bedroom 1's west wall, follows that wall south, then runs east along bedroom 1's south wall (Maxwell, 11/17/2026: keep the middle of the attic free for storage). Size is Andy's 18 x 16 throughout, no reductions modelled."
+     "Rerouted from M-10. Andy drew this trunk down the middle of the attic at y about 21.6 ft. Maxwell asked for it along the north wall of the attic, so it runs straight north from the heat pump with no turn (Maxwell, 11/18/2026), then along the north attic wall all the way to bedroom 1's west wall, follows that wall south, then runs east along bedroom 1's south wall (Maxwell, 11/17/2026: keep the middle of the attic free for storage). Size is Andy's 18 x 16 throughout, no reductions modelled."
     ]
    }
   },
@@ -2185,12 +2229,12 @@
    ],
    "points": [
     [
-     3.655833333333333,
+     3.405833333333333,
      22.151666666666667,
      11.052083333333334
     ],
     [
-     3.655833333333333,
+     3.405833333333333,
      20.851666666666667,
      11.052083333333334
     ]
@@ -2525,15 +2569,15 @@
    "room": "Bedroom 3",
    "type": "supply",
    "shape": "round",
-   "size": 7,
+   "size": 6,
    "points": [
     [
-     2.25,
+     3.7,
      14.5,
      10.352083333333335
     ],
     [
-     2.25,
+     3.7,
      14.5,
      9.494791666666666
     ],
@@ -2544,7 +2588,7 @@
     ]
    ],
    "info": {
-    "model": "7 in round, 127 CFM",
+    "model": "6 in round, 127 CFM",
     "specs": [
      [
       "Airflow",
@@ -2552,11 +2596,11 @@
      ],
      [
       "Duct",
-      "7 in round"
+      "6 in round"
      ]
     ],
     "notes": [
-     "Bottom takeoff from the trunk into the first truss bay, then crosses two trusses to a ceiling register in the next bay west of the bedroom 3 return."
+     "Bottom takeoff from the trunk into the truss bay below it, then crosses one truss to a ceiling register in the next bay west of the bedroom 3 return."
     ]
    },
    "grilles": [
@@ -2586,17 +2630,17 @@
    ],
    "points": [
     [
-     1.8499999999999999,
-     21.401666666666667,
+     1.9,
+     21.50166666666667,
      10.252083333333333
     ],
     [
-     1.8499999999999999,
-     21.401666666666667,
+     1.9,
+     21.50166666666667,
      9.494791666666666
     ],
     [
-     1.8499999999999999,
+     1.9,
      34.3,
      9.494791666666666
     ]
@@ -2604,7 +2648,7 @@
    "grilles": [
     {
      "at": [
-      1.8499999999999999,
+      1.9,
       31.0,
       8.98
      ],
@@ -2638,7 +2682,7 @@
    "size": 6,
    "points": [
     [
-     1.8499999999999999,
+     1.9,
      26.5,
      9.494791666666666
     ],
@@ -2689,7 +2733,7 @@
    "size": 6,
    "points": [
     [
-     1.8499999999999999,
+     1.9,
      29.2,
      9.494791666666666
     ],
@@ -2737,10 +2781,10 @@
    "room": "Kitchen / dining",
    "type": "supply",
    "shape": "round",
-   "size": 7,
+   "size": 6,
    "points": [
     [
-     1.8499999999999999,
+     1.9,
      34.15,
      9.494791666666666
     ],
@@ -2756,7 +2800,7 @@
     ]
    ],
    "info": {
-    "model": "7 in round, 127 CFM",
+    "model": "6 in round, 127 CFM",
     "specs": [
      [
       "Airflow",
@@ -2764,11 +2808,11 @@
      ],
      [
       "Duct",
-      "7 in round"
+      "6 in round"
      ]
     ],
     "notes": [
-     "High sidewall register in the clerestory wall, on its own 7 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
+     "High sidewall register in the clerestory wall, on its own 6 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
     ]
    },
    "grilles": [
@@ -2794,10 +2838,10 @@
    "room": "Kitchen / dining",
    "type": "supply",
    "shape": "round",
-   "size": 7,
+   "size": 6,
    "points": [
     [
-     1.8499999999999999,
+     1.9,
      33.5,
      9.494791666666666
     ],
@@ -2813,7 +2857,7 @@
     ]
    ],
    "info": {
-    "model": "7 in round, 127 CFM",
+    "model": "6 in round, 127 CFM",
     "specs": [
      [
       "Airflow",
@@ -2821,11 +2865,11 @@
      ],
      [
       "Duct",
-      "7 in round"
+      "6 in round"
      ]
     ],
     "notes": [
-     "High sidewall register in the clerestory wall, on its own 7 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
+     "High sidewall register in the clerestory wall, on its own 6 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
     ]
    },
    "grilles": [
@@ -2851,10 +2895,10 @@
    "room": "Kitchen / dining",
    "type": "supply",
    "shape": "round",
-   "size": 7,
+   "size": 6,
    "points": [
     [
-     1.8499999999999999,
+     1.9,
      32.85,
      9.494791666666666
     ],
@@ -2870,7 +2914,7 @@
     ]
    ],
    "info": {
-    "model": "7 in round, 127 CFM",
+    "model": "6 in round, 127 CFM",
     "specs": [
      [
       "Airflow",
@@ -2878,11 +2922,11 @@
      ],
      [
       "Duct",
-      "7 in round"
+      "6 in round"
      ]
     ],
     "notes": [
-     "High sidewall register in the clerestory wall, on its own 7 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
+     "High sidewall register in the clerestory wall, on its own 6 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
     ]
    },
    "grilles": [
@@ -2962,7 +3006,7 @@
    "room": "Living",
    "type": "supply",
    "shape": "round",
-   "size": 7,
+   "size": 6,
    "points": [
     [
      28.05,
@@ -2991,7 +3035,7 @@
     ]
    ],
    "info": {
-    "model": "7 in round, 70 CFM",
+    "model": "6 in round, 70 CFM",
     "specs": [
      [
       "Airflow",
@@ -2999,7 +3043,7 @@
      ],
      [
       "Duct",
-      "7 in round"
+      "6 in round"
      ]
     ],
     "notes": [
@@ -3424,12 +3468,12 @@
    "points": [
     [
      11.95,
-     30.6,
+     24.8,
      9.494791666666666
     ],
     [
      10.95,
-     30.6,
+     24.8,
      9.494791666666666
     ]
    ],
@@ -3451,7 +3495,7 @@
      ],
      [
       "Boot",
-      "34 x 10 in box in one truss bay over the powder room, parallel to the trusses"
+      "34 x 10 in box in one truss bay over the utility room, parallel to the trusses"
      ],
      [
       "Trunk",
@@ -3459,14 +3503,14 @@
      ]
     ],
     "notes": [
-     "Andy's M-10 return: one 34 x 10 grille in hall 1 and a 34 x 10 return trunk over the utility, pantry and powder rooms to HP-01. The grille sits high on the hall 1 wall above the powder room door. Behind it a boot box sits inside one truss bay, so nothing crosses the trusses, and rises straight up through the deck. The trunk runs on the deck from there to the return plenum. Route on the deck is ASSUMED to suit the heat pump position in this model."
+     "Andy's M-10 return: one 34 x 10 grille in hall 1 and a 34 x 10 return trunk over the utility, pantry and powder rooms to HP-01. Moved about 6 ft north along the same hall 1 wall (Maxwell, 11/18/2026), so the trunk runs straight west into the heat pump's return plenum with no turns: about 5 ft of trunk instead of 11. The grille sits high on the hall 1 wall above the utility room door. Behind it a boot box sits inside one truss bay, so nothing crosses the trusses, and rises straight up through the deck. The trunk runs on the deck from there to the return plenum. Route on the deck is ASSUMED to suit the heat pump position in this model."
     ]
    },
    "grilles": [
     {
      "at": [
       12.15,
-      30.6,
+      24.8,
       9.494791666666666
      ],
      "size": [
@@ -3485,12 +3529,12 @@
    "points": [
     [
      11.45,
-     30.6,
+     24.8,
      9.494791666666666
     ],
     [
      11.45,
-     30.6,
+     24.8,
      10.46875
     ]
    ],
@@ -3509,17 +3553,12 @@
    "points": [
     [
      11.45,
-     30.6,
+     24.8,
      10.46875
     ],
     [
-     6.196666666666666,
-     30.6,
-     10.46875
-    ],
-    [
-     6.196666666666666,
-     27.45,
+     5.696666666666666,
+     24.8,
      10.46875
     ]
    ],
@@ -3538,25 +3577,25 @@
    "type": "return",
    "points": [
     [
-     6.488333333333332,
-     27.45,
+     5.113333333333333,
+     26.4,
      11.052083333333334
     ],
     [
-     6.488333333333332,
+     5.113333333333333,
      23.2,
      11.052083333333334
     ]
    ],
    "shape": "rect",
    "size": [
-    41,
+    14,
     24
    ],
    "info": {
-    "model": "41 x 24 in return plenum box on the deck, along the heat pump's filter rack",
+    "model": "14 x 24 in return plenum box on the deck, along the heat pump's filter rack",
     "notes": [
-     "Every return lands here: the M-10 trunk from the south, and the bedroom flex runs from below, each through its own collar in the bottom of the box. The box sits on the deck along the AFR1836A filter rack on the heat pump's east side. Size ASSUMED."
+     "The return trunk comes straight into its east face. The bedroom flex runs come up through collars in the bottom of the trunk just east of it. The box sits on the deck along the AFR1836A filter rack on the heat pump's east side. Size ASSUMED."
     ]
    }
   },
@@ -3574,32 +3613,32 @@
     ],
     [
      7.7,
-     23.571,
+     23.721,
      9.495
     ],
     [
      7.7,
-     23.737,
+     23.887,
      9.518
     ],
     [
      7.7,
-     23.855,
+     24.005,
      9.589
     ],
     [
      7.7,
-     23.926,
+     24.076,
      9.708
     ],
     [
      7.7,
-     23.95,
+     24.1,
      9.873
     ],
     [
      7.7,
-     23.95,
+     24.1,
      10.252083333333333
     ]
    ],
@@ -3609,8 +3648,8 @@
    "info": {
     "model": "10 in round flex",
     "notes": [
-     "Bedroom 3's grille moved from its south wall, next to the bed, to its north wall (Maxwell, 11/17/2026). It shares that wall with bedroom 2, so the two stacks rise side by side into the trusses over bedroom 3 and join there: bedroom 2's 7 in flex crosses one truss into bedroom 3's bay and tees into a 10 in flex that runs south in that bay, parallel to the trusses, to the return plenum box at the heat pump.",
-     "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 7 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
+     "Bedroom 3's grille moved from its south wall, next to the bed, to its north wall (Maxwell, 11/17/2026). It shares that wall with bedroom 2, so the two stacks rise side by side into the trusses over bedroom 3 and join there: bedroom 2's 6 in flex crosses one truss into bedroom 3's bay and tees into a 10 in flex that runs south in that bay, parallel to the trusses, to the return plenum box at the heat pump.",
+     "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 6 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
     ],
     "specs": [
      [
@@ -3619,11 +3658,11 @@
      ],
      [
       "Duct",
-      "14 x 2-1/2 in wall stacks, 7 in flex from bedroom 2 through one truss, 10 in flex south in one truss bay to the plenum"
+      "14 x 2-1/2 in wall stacks, 6 in flex from bedroom 2 through one truss, 10 in flex south in one truss bay to the plenum"
      ],
      [
       "Crosses",
-      "One truss, at 7 in. No supply runs"
+      "One truss, at 6 in. No supply runs"
      ]
     ]
    },
@@ -3734,7 +3773,7 @@
     ]
    ],
    "shape": "round",
-   "size": 7,
+   "size": 6,
    "flex": true,
    "info_of": "return_bed23",
    "grilles": [
@@ -3865,69 +3904,69 @@
     ],
     [
      9.7,
-     24.15,
+     24.75,
      9.495
     ],
     [
      9.666,
-     24.391,
+     24.991,
      9.495
     ],
     [
      9.562,
-     24.562,
+     25.162,
      9.495
     ],
     [
      9.391,
-     24.666,
+     25.266,
      9.495
     ],
     [
      9.15,
-     24.7,
+     25.3,
      9.495
     ],
     [
      8.079,
-     24.7,
+     25.3,
      9.495
     ],
     [
      7.913,
-     24.7,
+     25.3,
      9.518
     ],
     [
      7.795,
-     24.7,
+     25.3,
      9.589
     ],
     [
      7.724,
-     24.7,
+     25.3,
      9.708
     ],
     [
      7.7,
-     24.7,
+     25.3,
      9.873
     ],
     [
      7.7,
-     24.7,
+     25.3,
      10.252083333333333
     ]
    ],
    "shape": "round",
-   "size": 7,
+   "size": 6,
    "flex": true,
    "info": {
-    "model": "7 in round flex",
+    "model": "6 in round flex",
     "notes": [
-     "The study and bedroom 1 have low grilles (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Each room gets its own 7 in flex back to the plenum, because one duct big enough for both would not fit through the truss webs.",
-     "A 7 in flex carries roughly 90 to 100 CFM at return duct friction, a little under bedroom 1's 138 CFM supply. Andy may want a second run or a bigger chase for bedroom 1.",
-     "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 7 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
+     "The study and bedroom 1 have low grilles (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Each room gets its own 6 in flex back to the plenum, because one duct big enough for both would not fit through the truss webs.",
+     "A 6 in flex carries roughly 65 to 75 CFM at return duct friction (6 in is the most the builder is sure fits the installed trusses, 11/18/2026), about half of bedroom 1's 138 CFM supply. Andy may want a second run or a bigger chase for bedroom 1.",
+     "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 6 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
     ],
     "specs": [
      [
@@ -3936,11 +3975,11 @@
      ],
      [
       "Duct",
-      "14 x 2-1/2 in wall stacks, one 7 in flex home run per room to the return plenum box"
+      "14 x 2-1/2 in wall stacks, one 6 in flex home run per room to the return plenum box"
      ],
      [
       "Crosses",
-      "The laundry, linen and bedroom 3 trusses at 7 in. No supply runs, and they stay in the trusses, off the tall south part of the attic"
+      "The laundry, linen and bedroom 3 trusses at 6 in. No supply runs, and they stay in the trusses, off the tall south part of the attic"
      ]
     ]
    },
@@ -4096,62 +4135,12 @@
     ],
     [
      11.5,
-     24.8,
-     9.495
-    ],
-    [
-     11.466,
-     25.041,
-     9.495
-    ],
-    [
-     11.363,
-     25.212,
-     9.495
-    ],
-    [
-     11.191,
-     25.316,
-     9.495
-    ],
-    [
-     10.95,
-     25.35,
-     9.495
-    ],
-    [
-     8.079,
-     25.35,
-     9.495
-    ],
-    [
-     7.913,
-     25.35,
-     9.518
-    ],
-    [
-     7.795,
-     25.35,
-     9.589
-    ],
-    [
-     7.724,
-     25.35,
-     9.708
-    ],
-    [
-     7.7,
-     25.35,
-     9.873
-    ],
-    [
-     7.7,
-     25.349999999999998,
-     10.252083333333333
+     23.5,
+     9.494791666666666
     ]
    ],
    "shape": "round",
-   "size": 7,
+   "size": 6,
    "flex": true,
    "info_of": "return_study",
    "grilles": [
@@ -4301,7 +4290,7 @@
    "info": {
     "model": "4 in round exhaust",
     "notes": [
-     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Runs north in one loft floor truss bay, east of the family supply drop, then up onto the deck."
+     "ERV pickup grille: the ERV pulls 20 CFM from it continuously. The bathrooms with showers also have their own switched fan for steam. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Runs north in one loft floor truss bay, east of the family supply drop, then up onto the deck."
     ]
    },
    "grilles": [
@@ -4329,17 +4318,12 @@
     [
      21.9,
      10.62,
-     11.7
+     11.675416666666665
     ],
     [
      21.9,
-     13.5,
-     11.7
-    ],
-    [
-     21.9,
-     13.5,
-     10.302083333333334
+     12.0,
+     11.675416666666665
     ]
    ],
    "name": "Bath 2 exhaust",
@@ -4347,7 +4331,7 @@
    "info": {
     "model": "4 in round exhaust",
     "notes": [
-     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. High on the east end of the bath 2 south wall, through the attic wall and over the supply trunk. It was right beside the supply; the supply now comes in low at the west end of the same wall (Maxwell, 11/18/2026)."
+     "ERV pickup grille: the ERV pulls 20 CFM from it continuously. The bathrooms with showers also have their own switched fan for steam. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. High on the east end of the bath 2 south wall, through the attic wall and into the main on top of the supply trunk. It was right beside the supply; the supply now comes in low at the west end of the same wall (Maxwell, 11/18/2026)."
     ]
    },
    "grilles": [
@@ -4355,7 +4339,7 @@
      "at": [
       21.9,
       10.6,
-      11.7
+      11.675416666666665
      ],
      "size": [
       10,
@@ -4379,19 +4363,29 @@
      9.494791666666666
     ],
     [
-     10.2,
+     7.2,
      32.2,
-     9.494791666666666
+     10.222083333333334
     ],
     [
-     10.2,
-     28.3,
-     9.494791666666666
+     4.9,
+     32.2,
+     10.222083333333334
     ],
     [
-     10.2,
-     28.3,
-     10.102083333333335
+     4.9,
+     28.56833333333333,
+     10.222083333333334
+    ],
+    [
+     4.9,
+     28.56833333333333,
+     12.760416666666666
+    ],
+    [
+     3.920833333333333,
+     28.56833333333333,
+     12.760416666666666
     ]
    ],
    "name": "Powder exhaust",
@@ -4399,7 +4393,7 @@
    "info": {
     "model": "4 in round exhaust",
     "notes": [
-     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Over the toilet, about 4 ft from the supply by the door (Maxwell, 11/18/2026). Runs east through the truss webs, north in its own truss bay, then up into the main on the deck."
+     "ERV pickup grille: the ERV pulls 20 CFM from it continuously. The bathrooms with showers also have their own switched fan for steam. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Comes up through the deck, runs along it and rises into the main just before the ERV."
     ]
    },
    "grilles": [
@@ -4436,43 +4430,38 @@
     ],
     [
      25.6,
-     13.5,
+     13.3,
      10.302083333333334
     ],
     [
-     10.2,
-     13.5,
-     10.302083333333334
+     25.6,
+     13.3,
+     11.675416666666665
     ],
     [
-     10.2,
-     28.3,
-     10.302083333333334
+     25.6,
+     12.0,
+     11.675416666666665
     ],
     [
-     10.2,
-     28.65,
-     11.202083333333334
+     3.820833333333333,
+     12.0,
+     11.675416666666665
     ],
     [
-     10.2,
-     31.3,
-     11.202083333333334
+     3.820833333333333,
+     20.401666666666667,
+     11.675416666666665
     ],
     [
-     4.3,
-     31.3,
-     11.202083333333334
+     3.820833333333333,
+     20.401666666666667,
+     12.760416666666666
     ],
     [
-     3.7,
-     31.3,
-     10.577083333333334
-    ],
-    [
-     2.966666666666667,
-     31.3,
-     10.577083333333334
+     3.820833333333333,
+     29.01833333333333,
+     12.760416666666666
     ]
    ],
    "name": "Bath exhaust main",
@@ -4480,7 +4469,110 @@
    "info": {
     "model": "6 in round exhaust",
     "notes": [
-     "Collects the three bathroom exhausts on the attic deck along the south side of the supply trunk, turns south east of the water heater's grilles, hops over the low return trunk and comes into the ERV's stale air inlet from the east. ASSUMED route and size."
+     "Collects the three bathroom exhausts. It rides on top of the supply trunk along the north attic wall and down to the heat pump, crosses over the heat pump's top and goes straight into the ERV's stale air inlet, so it takes no floor space (Maxwell, 11/18/2026). ASSUMED route and size."
+    ]
+   }
+  },
+  {
+   "id": "fan_bath1",
+   "name": "Bath 1 shower fan",
+   "category": "Ventilation",
+   "system": "hvac.exhaust.fan",
+   "type": "exhaust",
+   "shape": "round",
+   "size": 4,
+   "room": "Bath 1",
+   "points": [
+    [
+     41.3,
+     30.6,
+     9.494791666666666
+    ],
+    [
+     43.05,
+     30.6,
+     9.494791666666666
+    ]
+   ],
+   "grilles": [
+    {
+     "at": [
+      41.3,
+      30.6,
+      8.98
+     ],
+     "size": [
+      10,
+      10
+     ]
+    }
+   ],
+   "info": {
+    "model": "Bath exhaust fan, 80 to 110 CFM class, 4 in duct",
+    "specs": [
+     [
+      "Runs",
+      "Only when switched on for a shower"
+     ],
+     [
+      "Duct",
+      "About 2 ft east through the floor trusses to a hood on the east wall. ASSUMED"
+     ]
+    ],
+    "notes": [
+     "Its own duct straight outdoors with a backdraft damper at the hood, not tied into the ERV duct. Switched on for showers, on a timer or humidity control. 50 CFM or more meets the code's intermittent rate (IRC table M1505.4.4); 80 to 110 CFM clears steam faster. The ERV pickup in the same room keeps running at a low rate. Model not picked."
+    ]
+   }
+  },
+  {
+   "id": "fan_bath2",
+   "name": "Bath 2 shower fan",
+   "category": "Ventilation",
+   "system": "hvac.exhaust.fan",
+   "type": "exhaust",
+   "shape": "round",
+   "size": 4,
+   "room": "Bath 2",
+   "points": [
+    [
+     21.2,
+     0.55,
+     8.3
+    ],
+    [
+     21.2,
+     -0.05,
+     8.3
+    ]
+   ],
+   "grilles": [
+    {
+     "at": [
+      21.2,
+      0.52,
+      8.3
+     ],
+     "size": [
+      10,
+      10
+     ],
+     "wall": "S"
+    }
+   ],
+   "info": {
+    "model": "Bath exhaust fan, 80 to 110 CFM class, 4 in duct",
+    "specs": [
+     [
+      "Runs",
+      "Only when switched on for a shower"
+     ],
+     [
+      "Duct",
+      "Through the wall fan high on the north wall at the tub's valve end, east of the window: the vaulted SIP roof has no cavity for a ceiling fan. ASSUMED"
+     ]
+    ],
+    "notes": [
+     "Its own duct straight outdoors with a backdraft damper at the hood, not tied into the ERV duct. Switched on for showers, on a timer or humidity control. 50 CFM or more meets the code's intermittent rate (IRC table M1505.4.4); 80 to 110 CFM clears steam faster. The ERV pickup in the same room keeps running at a low rate. Model not picked."
     ]
    }
   },
@@ -4496,39 +4588,31 @@
    "room": "Utility",
    "points": [
     [
-     9.25,
-     26.410583333333335,
+     7.7,
+     26.660583333333335,
      6.233333333333333
     ],
     [
-     9.25,
-     26.410583333333335,
-     10.652083333333334
+     7.7,
+     26.660583333333335,
+     11.052083333333334
+    ],
+    [
+     8.5,
+     26.660583333333335,
+     11.052083333333334
     ]
-   ],
-   "grilles": [
-    {
-     "at": [
-      9.25,
-      26.410583333333335,
-      10.672083333333333
-     ],
-     "size": [
-      10,
-      10
-     ]
-    }
    ],
    "info": {
     "model": "8 in insulated flex, Rheem duct kit (SP20889 flex, SP20890 elbows, SP17829 outlet adaptor)",
     "specs": [
      [
       "Intake",
-      "Top of the water heater to a grille on the attic deck"
+      "Top of the water heater up through the deck to an elbow facing east, 1 ft up"
      ],
      [
       "Exhaust",
-      "Side outlet to a grille on the attic deck, cold air"
+      "Up through the deck, then an elbow and 3 ft along the deck, so the cold air leaves about 4 ft from the intake and points away from it"
      ],
      [
       "Limit",
@@ -4552,28 +4636,20 @@
    "room": "Utility",
    "points": [
     [
-     9.25,
-     27.210583333333332,
+     7.7,
+     27.430583333333335,
      6.233333333333333
     ],
     [
-     9.25,
-     27.210583333333332,
-     10.652083333333334
+     7.7,
+     27.430583333333335,
+     10.452083333333334
+    ],
+    [
+     7.7,
+     30.410583333333335,
+     10.452083333333334
     ]
-   ],
-   "grilles": [
-    {
-     "at": [
-      9.25,
-      27.210583333333332,
-      10.672083333333333
-     ],
-     "size": [
-      10,
-      10
-     ]
-    }
    ],
    "info_of": "hpwh_intake"
   },
@@ -4627,14 +4703,34 @@
    "size": 6,
    "points": [
     [
-     0.75,
-     30.470000000000002,
-     10.577083333333334
+     2.990833333333333,
+     31.235,
+     12.760416666666666
+    ],
+    [
+     2.990833333333333,
+     33.235,
+     12.760416666666666
+    ],
+    [
+     0.85,
+     33.235,
+     12.760416666666666
+    ],
+    [
+     0.85,
+     33.235,
+     18.479975
+    ],
+    [
+     0.85,
+     23.035,
+     15.232974999999998
     ],
     [
      -0.05,
-     30.470000000000002,
-     10.577083333333334
+     23.035,
+     15.232974999999998
     ]
    ]
   },
@@ -4646,33 +4742,43 @@
    "size": 6,
    "points": [
     [
-     0.75,
-     31.3,
-     10.577083333333334
+     3.820833333333333,
+     31.235,
+     12.760416666666666
+    ],
+    [
+     3.820833333333333,
+     33.835,
+     12.760416666666666
     ],
     [
      -0.05,
-     31.3,
-     10.577083333333334
+     33.835,
+     12.760416666666666
     ]
    ]
   },
   {
-   "id": "erv_to_return",
+   "id": "erv_to_supply",
    "info_of": "erv",
    "type": "erv",
    "shape": "round",
    "size": 6,
    "points": [
     [
-     2.966666666666667,
-     30.470000000000002,
-     10.577083333333334
+     2.990833333333333,
+     29.01833333333333,
+     12.760416666666666
     ],
     [
-     4.829999999999999,
-     30.470000000000002,
-     10.577083333333334
+     2.990833333333333,
+     21.50166666666667,
+     12.760416666666666
+    ],
+    [
+     2.990833333333333,
+     21.50166666666667,
+     11.952083333333334
     ]
    ]
   }
@@ -4745,6 +4851,7 @@
   "spacing_in": 24.0,
   "deck_in": 0.75,
   "grid_x0": 0.7,
+  "max_cross_in": 6.0,
   "info": {
    "model": "11-7/8 in open web floor trusses",
    "specs": [

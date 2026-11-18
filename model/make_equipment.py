@@ -163,18 +163,20 @@ CON_X, CON_Y = 2.5, UN + 0.32
 MAN_Y, MAN_Z = 24.3, 2.5                           # manifold centre along the wall, and the bottom of its valve legs
 MAN_XS, MAN_XR = 0.56 + 2.6 / 12, 0.56 + 5.4 / 12  # supply header on the wall, return header in front of it
 MAN_ZS, MAN_ZR = MAN_Z + 26 / 12, MAN_Z + 14 / 12  # header heights
-FC_Y, FC_Z = 27.5, 3.0
-# Hot water: both tanks stand off the south wall with a 5 in pipe lane behind them. The hall door swings into the room
-# (hinge at the north jamb), so the tanks stay west of its arc. The water heater's two ducts rise in truss bay 9.7.
-WH_X, PH_D = 9.2, 22.0
+FC_Y, FC_Z = 27.15, 3.0
+# Hot water: both tanks stand off the south wall with a 5 in pipe lane behind them. The preheat tank is as far west as it can
+# go while leaving 2 ft of working room in front of the flow center (pump swaps, flush hoses, topping up), so the desuperheater
+# lines drop down the wall just west of it (Maxwell, 11/18/2026). The water heater is 16 in east of it so the valves, pump and
+# mixing valve between the tanks can be reached, and its two ducts rise in the middle of truss bay 7.7.
+WH_X, PH_D = 7.7, 22.0
 TANK_Y = US - 0.42 + 2 / 12                        # the tanks' back point (the builders put each tank 2 in in front of it)
-PH_X = WH_X - ((24.25 + 4) / 24 + 0.25 + (PH_D + 4) / 24)   # preheat tank just west, drain pans 3 in apart
-WH_DUCT_X = 9.25
+PH_X = WH_X - ((24.25 + 4) / 24 + 1.0 + (PH_D + 4) / 24)    # preheat tank to the west, drain pans 12 in apart: a 16 in service gap between the tanks
+WH_DUCT_X = WH_X
 # Heat pump: on the attic deck with its length north to south. Supply leaves the north end, the water, desuperheater and
 # electrical connections are on the south end, the return and filter are on the east side, and the service panels face a
-# 2 ft aisle along the west wall. Seen from the connection end the return is on the right: a right hand return unit.
-HP_X, HP_Y = 4.56, 25.235                          # centre of the unit's east (return) face
-HP_Z = DECK + 5.5 / 12
+# 2 ft aisle along the west wall (exactly 2 ft from the wall face to the cabinet). Seen from the connection end the return is on the right: a right hand return unit.
+HP_X, HP_Y = 4.31, 25.235                          # centre of the unit's east (return) face
+HP_Z = DECK + 6.5 / 12                             # on a pad: the EZ-Trap on the condensate drain needs 6-1/2 in of height (GZT manual p.35)
 HP_AT = [HP_X, HP_Y, HP_Z]
 HP_S, HP_N = HP_Y + 28 / 12, HP_Y - 28 / 12        # south (connection) end and north (supply) end
 HP_CX = HP_X - 21.7 / 24                           # centreline of the cabinet
@@ -194,7 +196,10 @@ items += [
       builder="flow_center", size=[13, 22, 11], at=[0.56, FC_Y, FC_Z], facing=90,
       info=dict(model="Geo-Flo GF-1272 NP2, non pressurized, 2 pumps", price="$1,367.52 (quote MMUL8476-5)",
         specs=[["Pumps", "Two circulators"], ["Connections", "GF-2911 Flo-Link fusion set, 1-1/4 in"], ["Location", "First floor, per Greg's design summary"]],
-        notes=[APPROX, "Kept on the west wall, which is an outside wall, so pump hum does not pass into bedroom 3 behind the north wall. "
+        notes=[APPROX, "Service: 2 ft of open floor in front for swapping a pump or hooking up flush hoses, and its fill cap on top is about 5 ft off the floor with nothing over it. "
+                      "Geo-Flo gives no clearance numbers; it says only to check the fluid level in the canister, mostly in the first days after a fill. "
+                      "OPEN QUESTION for Greg: a non pressurized flow center normally sits level with or above the heat pump, and here the heat pump is about 9 ft above it.",
+               "Kept on the west wall, which is an outside wall, so pump hum does not pass into bedroom 3 behind the north wall. "
                       "It sits under the heat pump's water connections, so the insulated lines go straight up and only cross about 3 ft of attic."],
         placement="Utility room west wall, south of the manifolds. 1-1/4 in insulated pipes run from here straight up through the ceiling to the heat pump.")),
  dict(id="water_heater", name="Heat pump water heater", category="Hot water", system="plumbing.dhw", room="Utility", layer="mechanical",
@@ -210,8 +215,7 @@ items += [
                "Sheet U-11 names a Rheem Performance Platinum 50 gal hybrid with a recirculation pump; this is the same family, one size up.",
                "Runner up: A.O. Smith Signature 900 HPS10-80H45DV (45 dBA published, 69 in tall).",
                "Shown with the U-11 details: 2 in drain pan, expansion tank, recirculation pump.", APPROX],
-        placement="South wall of the utility room (Maxwell, 11/15/2026), 5 in off the wall so the piping runs behind it. It stays clear of the hall door's swing, "
-                  "and its two ducts rise in one truss bay to open grilles on the attic deck.")),
+        placement="South wall of the utility room (Maxwell, 11/15/2026), 5 in off the wall so the piping runs behind it. It stands 16 in east of the preheat tank so the valves, the recirculation pump and the mixing valve between the tanks can be reached. Its two ducts rise in one truss bay and come out on the attic deck east of the return plenum.")),
  dict(id="preheat_tank", name="Desuperheater preheat tank", category="Hot water", system="plumbing.dhw", room="Utility", layer="mechanical",
       builder="storage_tank", size=[PH_D, 59.0], at=[PH_X, TANK_Y, 0], facing=0,
       info=dict(model="Rheem Professional Classic 50 gal electric (PROE50 T2 RH95), elements left unwired", price="$744 at HVACDirect (11/18/2026)",
@@ -223,7 +227,7 @@ items += [
                "Enertech's install guidance says a preheat tank gets the most out of the desuperheater.",
                "The GeoComfort GZT048J11LM1CCS has hot water code 1: desuperheater with a factory installed pump.",
                "Size is ASSUMED (about 22 in x 59 in for a 50 gal tall tank)."],
-        placement="South wall of the utility room, just west of the heat pump water heater.")),
+        placement="South wall of the utility room, as far west as it can go while leaving 2 ft of working room in front of the flow center. The desuperheater lines come down the wall just west of it.")),
 ]
 # ---- geothermal piping. Loop entry sleeve, the ten loop pipes fanning out to the valve legs, the two mains to the flow
 # center, then insulated 1-1/4 in lines straight up through the ceiling and deck and a short way across the attic.
@@ -251,7 +255,7 @@ for k, (zc, dy, jog) in enumerate([(17.6, 3.2 / 12, []), (5.6, -3.2 / 12, [1.3])
         points=[[1.5, y, FC_PZ], [1.68, y, FC_PZ], [1.68, y, FC_Z + 2.2], [GX, y, FC_Z + 2.2], [GX, y, z]] + [[x, y, z] for x in jog] +
                [[jog[0] if jog else GX, GEO_Y, z], [HP_PX, GEO_Y, z], [HP_PX, HP_S + 0.97, z]],
         info=dict(model="1-1/4 in PE with Aeroflex elastomeric insulation", specs=[["From", "Flow center in the utility room"], ["To", "Heat pump in the attic, through 1 in ball valves and the GF-1366 rubber hose kit"],
-                                                                                    ["Length", "About 6 ft up and 5 ft across the attic, each"]],
+                                                                                    ["Length", "About 6 ft up and 5 ft across the attic, each"], ["Beside them", "The desuperheater lines drop through the deck 3 ft away, at the heat pump's connection end"]],
                   notes=["Straight up the west wall from the flow center, through the ceiling and the attic deck, then across to the heat pump's connection end (Maxwell, 11/18/2026). "
                          "The heat pump was turned so its connections sit right above the flow center. Exact route is set on site."])))
 
@@ -262,10 +266,10 @@ WCX = WH_X - (WR * 12 + 2.2) / 12                  # the water heater's side con
 WC_Y, WHOT_Y = WH_CY + 1.6 / 12, WH_CY - 1.6 / 12  # cold in (low) and hot out (high)
 WHOT_Z = (74.2 - 15.5 - 4) / 12
 PH_TOP = 59.0 / 12 + 3 / 12                        # top of the preheat tank's brass nipples
-GAP_X = WCX - 0.1                                  # the vertical pipes in the gap between the tanks
-Y_COLD, Y_WALL = US - 0.36, US - 0.19              # cold line above and behind the tanks; recirculation return on the wall
+GAP_X = WCX - 0.03                                 # the vertical pipes in the gap between the tanks
+Y_COLD, Y_WALL = US - 0.39, US - 0.19              # cold line behind the preheat tank; recirculation return on the wall
 Z_COLD = 6.9
-X_SVC = 11.45                                      # cold service riser, east end of the south wall
+X_SVC = PH_X - 0.74                                # cold service riser, at the preheat tank's west side where its shutoff can be reached
 HOT, HOT_R = 1.9, 1.5                              # 3/4 in and 1/2 in copper with pipe insulation, outside diameter
 def dhw(id, name, dia, mat, points, model, notes, specs=None, info_of=None):
     r = dict(id=id, name=name, category="Hot water", system="plumbing.dhw", dia=dia, mat=mat, points=points)
@@ -274,21 +278,22 @@ def dhw(id, name, dia, mat, points, model, notes, specs=None, info_of=None):
     runs.append(r)
 dhw("dhw_cold", "Cold water to the preheat tank", 1.1, "copper",
     [[X_SVC, Y_COLD, 0.2], [X_SVC, Y_COLD, Z_COLD], [PH_X - 0.3, Y_COLD, Z_COLD], [PH_X - 0.3, PH_Y, Z_COLD], [PH_X - 0.3, PH_Y, PH_TOP]],
-    "3/4 in copper", ["Cold service comes up through the slab at the east end of the south wall, runs west behind and above the tanks and drops into the preheat tank's cold inlet. "
+    "3/4 in copper", ["Cold service comes up through the slab behind the preheat tank, rises, and drops into the tank's cold inlet, about 9 ft of pipe. "
                       "The desuperheater return tees into the drop. Service entry point and valves ASSUMED."],
-    specs=[["Valves", "Main shutoff at the riser, shutoff and union at the tank"], ["Expansion tank", "Hangs from this line, as U-11 shows"]])
-dhw("dhw_cold_house", None, 1.1, "copper", [[X_SVC, Y_COLD, Z_COLD], [X_SVC, Y_COLD, CEIL + 0.3]], None, None, info_of="dhw_cold")
+    specs=[["Valves", "Main shutoff at the riser, shutoff and union at the tank"], ["Expansion tank", "Hangs from a short stub off this line, as U-11 shows"]])
+dhw("dhw_cold_house", None, 1.1, "copper", [[X_SVC, Y_COLD, Z_COLD], [X_SVC, Y_COLD, CEIL]], None, None, info_of="dhw_cold")
+dhw("dhw_cold_stub", None, 1.1, "copper", [[X_SVC, Y_COLD, Z_COLD], [X_SVC - 1.0, Y_COLD, Z_COLD]], None, None, info_of="dhw_cold")
 dhw("dhw_preheat", "Preheated water to the heat pump water heater", HOT, "foam",
     [[PH_X + 0.3, PH_Y, PH_TOP], [PH_X + 0.3, PH_Y, 5.5], [GAP_X, WC_Y, 5.5], [GAP_X, WC_Y, 0.75], [WCX, WC_Y, 0.75]],
     "3/4 in copper, insulated", ["Preheat tank hot outlet, across the gap between the tanks and down to the heat pump water heater's low side cold inlet, about 6 ft of pipe. "
                                  "The recirculation return tees in near the bottom. Bypass valves so either tank can be isolated are ASSUMED."])
 dhw("dhw_hot", "Hot water to the house", HOT, "foam",
-    [[WCX, WHOT_Y, WHOT_Z], [GAP_X, WHOT_Y, WHOT_Z], [GAP_X, WHOT_Y, CEIL + 0.3]],
+    [[WCX, WHOT_Y, WHOT_Z], [GAP_X, WHOT_Y, WHOT_Z], [GAP_X, WHOT_Y, CEIL]],
     "3/4 in copper, insulated", ["Heat pump water heater high side hot outlet, straight up through a thermostatic mixing valve into the ceiling and on to the fixtures."])
-X_RC = 9.0
+X_RC = PH_X + 0.76                                 # between the desuperheater drop and the gap between the tanks
 dhw("dhw_recirc", "Hot water recirculation return", HOT_R, "foam",
-    [[X_RC, Y_WALL, CEIL + 0.3], [X_RC, Y_WALL, 1.2], [GAP_X, Y_WALL, 1.2], [GAP_X, WC_Y, 1.2]],
-    "1/2 in copper, insulated", ["Return from the far end of the hot main (U-11 shows a recirculation pump). Comes down the south wall behind the water heater, through the pump at "
+    [[X_RC, Y_WALL, CEIL], [X_RC, Y_WALL, 1.2], [GAP_X, Y_WALL, 1.2], [GAP_X, WC_Y, 1.2]],
+    "1/2 in copper, insulated", ["Return from the far end of the hot main (U-11 shows a recirculation pump). Comes down the south wall between the two tanks, through the pump at "
                                  "chest height, and tees into the water heater's cold inlet pipe. A check valve and a timer or demand control are ASSUMED.",
                                  "Insulated like the hot line: a recirculation loop is hot whenever it runs, so bare pipe would give that heat away all day."])
 items += [
@@ -297,32 +302,41 @@ items += [
       info=dict(model="Small inline circulator, bronze or stainless body (U-11)", specs=[["On", "The recirculation return where it comes down the south wall, about 4 ft off the floor"]],
                 notes=["Model not picked. A timer or a push button demand control keeps it from running all day.", APPROX])),
  dict(id="expansion_tank", name="Thermal expansion tank", category="Hot water", system="plumbing.dhw", room="Utility", layer="mechanical",
-      builder="expansion_tank", size=[8, 11], at=[10.95, Y_COLD, Z_COLD], facing=0,
+      builder="expansion_tank", size=[8, 11], at=[X_SVC - 0.95, Y_COLD, Z_COLD], facing=0,
       info=dict(model="2 gal potable thermal expansion tank (U-11 detail)", specs=[["On", "The cold line, after the main shutoff and any check valve"]], notes=[APPROX])),
  dict(id="mixing_valve", name="Thermostatic mixing valve", category="Hot water", system="plumbing.dhw", room="Utility", layer="mechanical",
       builder="mixing_valve", size=[3, 3, 3], at=[GAP_X, WHOT_Y, 6.3], facing=0,
       info=dict(model="3/4 in thermostatic mixing valve", specs=[["Why", "Lets both tanks store water hotter for more capacity while the taps get a safe 120 F"]],
                 notes=["Its cold side tees off the cold line; that small tee is not drawn.", APPROX])),
 ]
-# Desuperheater (Maxwell, 11/18/2026: through the attic, not under the ceiling). Two insulated 3/4 in lines leave the heat pump's
-# hot water connections, cross the attic over the low return trunk, and drop through the deck into the lane behind the tanks.
-# One goes to the preheat tank's drain port (water to the geo), the other tees into the cold drop above the tank (water back).
-DSH_Y = US - 0.5
-PH_DRAIN = [PH_X + (PH_D / 2 + 2.3) / 12, TANK_Y - (PH_D / 2 + 2 - 4.8) / 12, 5.4 / 12]
+# Desuperheater (Maxwell, 11/18/2026). The preheat tank stands just east of the heat pump's hot water connections, so the two
+# insulated 3/4 in lines step sideways off the ports and drop straight through the deck into the lane behind the tank.
+# One goes to the tank's drain port (water to the geo), the other tees into the cold drop above the tank (water back).
+DSH_Y = US - 0.24
+PH_DRAIN = [PH_X + (PH_D / 2 + 1.7) / 12, TANK_Y - (PH_D / 2 + 2 - 4.8) / 12, 5.4 / 12]
 for k in range(2):
     z = HP_Z + (9.6, 13.6)[k] / 12
-    start = [[HP_PX, HP_S + 0.07, z], [HP_PX, DSH_Y, z]]
-    if k == 0: pts = start + [[8.14, DSH_Y, z], [8.14, DSH_Y - 0.16, z], [8.14, DSH_Y - 0.16, PH_DRAIN[2]], [8.14, PH_DRAIN[1], PH_DRAIN[2]], PH_DRAIN]
-    else: pts = start + [[8.44, DSH_Y, z], [8.44, DSH_Y, 6.15], [PH_X - 0.3, DSH_Y, 6.15], [PH_X - 0.3, PH_Y, 6.15]]
+    x = HP_PX + (-0.27, 0.27)[k]
+    start = [[HP_PX, HP_S + 0.07, z], [HP_PX, HP_S + 0.18, z], [x, HP_S + 0.18, z], [x, DSH_Y, z]]
+    if k == 0: pts = start + [[x, DSH_Y, PH_DRAIN[2]], [PH_DRAIN[0], DSH_Y, PH_DRAIN[2]], PH_DRAIN]
+    else: pts = start + [[x, DSH_Y, 6.15], [PH_X - 0.3, DSH_Y, 6.15], [PH_X - 0.3, PH_Y, 6.15]]
     runs.append(dict(id=f"dsh_{k}", name="Desuperheater lines", category="Hot water", system="plumbing.dhw", dia=1.6, mat="foam",
         info_of=None if k == 0 else "dsh_0", points=pts,
         info=dict(model="3/4 in copper or PEX with pipe insulation, to and from the geo's built in desuperheater pump",
                   specs=[["Supply to the geo", "From the preheat tank's bottom drain port"], ["Return from the geo", "Tees into the cold drop just above the preheat tank"],
-                         ["Length", "About 4 ft across the attic and 6 to 9 ft down to the tank, each"]],
-                  notes=["Route is ASSUMED. Line size and the maximum run come from the GZT installation manual; the run here is short because the geo sits right above the utility room."])))
+                         ["Length", "About 5 ft and 10 ft: straight down from the heat pump's connections to the tank"]],
+                  notes=["The lines drop straight through the attic deck from the heat pump's hot water connections and down the wall just west of the preheat tank (Maxwell, 11/18/2026). "
+                         "Service parts from the GZT manual (p.39): a shutoff valve on each line at the tank, an air vent at the high point, which here is at the heat pump in the attic, "
+                         "and drain valves for flushing and purging the circuit. Copper only, 5/8 in OD or larger, 50 ft at most, 3/8 in wall insulation. "
+                         "Route is ASSUMED. Line size and the maximum run come from the GZT installation manual."])))
 
 # ------------------------------------------------------------------ attic: heat pump, ERV
-ERV_Y = 30.885                                    # centreline of the ERV, clear of the heat pump piping to its north
+# ERV: raised to the height of the heat pump's top, in line with it and just south of its piping, so its two room side ducts run
+# straight over the top of the heat pump with no bends (Maxwell, 11/18/2026: it can go up, and the ducts should stay off the floor).
+ERV_Z = HP_Z + 21.2 / 12 + 0.4                    # centre of the ERV's duct adapters, and of the two ducts over the heat pump
+ERV_N = HP_S + 1.45                               # its room (north) end
+ERV_S = ERV_N + 26.6 / 12                         # its outdoor (south) end
+ERV_XF, ERV_XS = HP_CX - 0.415, HP_CX + 0.415     # fresh air adapter (west) and stale air adapter (east)
 items += [
  dict(id="heat_pump", name="Geothermal heat pump", category="HVAC", system="hvac.air", room="Attic", layer="mechanical",
       builder="geo_horizontal", size=[21.7, 21.2, 56], at=HP_AT, facing=270, mirror=True,
@@ -333,18 +347,34 @@ items += [
         notes=["Andy's plan names a ClimateMaster Tranquility 30 as the basis of design and assumes a downflow unit. This is the unit Greg quoted and Maxwell sent Andy on 8/14/2026.",
                "Greg's quote MMUL8476-4 is for GZT048J11LM1CCS, which is a left hand return. This layout needs the right hand return version: standing at the "
                "water connection end, the return and filter are on the right. The unit is not ordered yet, so ask Greg to quote the right hand model and confirm which side the service panels are on.",
+               "Service access from the GZT manual (p.17): 2 ft clear in front of the controls and compressor panel, which is the south (connection) end; 2 ft beside the blower door, "
+               "which with end discharge is on the west side at the north end; working room for the reversing valve and heat exchanger on the west side and for the TXV and filter drier "
+               "on the east side, both near the south end. The west aisle is 2 ft, the return plenum stops at the coil so the TXV corner is open, and the ERV intake duct on the west wall "
+               "runs up under the roof. STILL SHORT: the ERV hangs 17 in in front of the controls end and has to move.",
+               "Condensate: the drain is at the north end, the EZ-Trap needs 6-1/2 in of height so the unit sits on a 6-1/2 in pad, and the unit tilts 1/4 to 1/2 in toward the drain (p.19, p.35). "
+               "Over a finished ceiling a secondary drain pan under the unit is the usual code answer; the manual shows it as optional.",
                "Turned 90 degrees (Maxwell, 11/18/2026): supply out the north end toward the trunk, water and desuperheater connections on the south end right above the flow center, "
                "return and filter on the east side, service panels facing a 2 ft aisle along the west wall."],
         placement="On the attic deck over the utility room, where Andy drew HP-01, lengthwise north to south.")),
  dict(id="erv", name="Energy recovery ventilator", category="HVAC", system="hvac.ventilation", room="Attic", layer="mechanical",
-      builder="erv", size=[19.9, 11.4, 26.6], at=[0.75, ERV_Y, DECK + 0.05], facing=90,
-      info=dict(model="Panasonic Intelli-Balance 100 (ERV-01 on M-10)", specs=[["Airflow", "50 to 100 CFM balanced, boost from a bath timer switch"], ["Ducts", "Intake and exhaust through the west wall"],
-               ["Stale air from", "Bath 1, bath 2 and powder exhaust grilles, 20 CFM each continuous, about 50 CFM on boost"], ["Fresh air to", "The heat pump return"]],
+      builder="erv", size=[19.9, 11.4, 26.6], at=[HP_CX, ERV_N, ERV_Z - 5.7 / 12], facing=180, hang=round((CFG["roof"]["north_wall_height"] + (ERV_N + 1.1) * CFG["roof"]["north_pitch"] / 12 - 0.9 - (ERV_Z + 5.7 / 12)) * 12, 1),
+      info=dict(model="Panasonic Intelli-Balance 100 (ERV-01 on M-10)", specs=[["Airflow", "50 to 100 CFM balanced, boost from a bath timer switch"], ["Ducts", "Exhaust through the west wall beside the unit, intake through the west wall 10 ft further north"],
+               ["Stale air from", "Bath 1, bath 2 and powder exhaust grilles, 20 CFM each continuous, about 50 CFM on boost"], ["Fresh air to", "The supply plenum at the heat pump, so it reaches every room through the supply registers"], ["Mounting", "Hung level on four chains from the roof framing, about 2 ft above the deck (the manual's chain mount)"],
+               ["Controls", "Runs continuously on low; a timer switch in each bathroom boosts it; blower interlock wire to the heat pump"]],
         notes=["Greg's alternative: RenewAire EV Premium M, about $1,800.", APPROX,
                "The bathrooms exhaust through this unit instead of separate fans (Maxwell, 11/17/2026). The code allows it because the ERV sends that air outdoors; "
-               "it has to run continuously at 20 CFM or more per bathroom. Three baths plus whole house ventilation (about 75 CFM for this size and bedroom count) "
+               "it has to run continuously at 20 CFM or more per bathroom (IRC table M1505.4.4).",
+               "Fresh air goes into the supply plenum, not the attic (Maxwell, 11/18/2026). Panasonic's instructions say the furnace blower should run whenever the ERV runs when it is tied into "
+               "the ductwork, and Building Science Corp. calls for an interlock and a motorized damper on a supply side connection. The heat pump's ECM blower can idle at low speed for this. "
+               "Andy should confirm the ERV can push against the supply plenum's pressure; the fallback is the return plenum, which the code also counts as supply ventilation (IRC M1505.4.1).",
+               "One fan pulls from all three bathrooms, so the whole exhaust duct is under suction and air cannot be pushed from one bathroom into another. Backdraft dampers are for "
+               "separate fans that share a duct. Each branch gets a balancing damper to set its airflow.",
+               "Set out to Panasonic's installation instructions (Maxwell, 11/18/2026): the two outdoor hoods are more than 10 ft apart, every duct connection has 2 ft or more of straight run "
+               "before its first elbow, the outdoor ducts are insulated, the unit hangs level on chains inside the conditioned attic, and the intake is well over 6 ft from the dryer and range hood outlets.",
+               "A backdraft damper in the fresh air duct stops the heat pump's blower from pushing supply air backward through the ERV. With the blower off, the ERV's own fan still sends the fresh air "
+               "down the supply trunk to every register, so it works without the heat pump running. Three baths plus whole house ventilation (about 75 CFM for this size and bedroom count) "
                "is near the top of a 100 CFM unit, so Andy should confirm the size. The range hood cannot connect here, it has its own duct outdoors."],
-        placement="Attic deck at the west wall over the pantry, south of the heat pump and its piping. Andy drew it west of HP-01.")),
+        placement="In line with the heat pump, just south of it, hung at the height of its top. Andy drew it west of HP-01.")),
 ]
 
 # ------------------------------------------------------------------ ducts
@@ -354,12 +384,11 @@ def supply(id, room, cfm, dia, points, grille=None, note=None, name=None):
     if grille: d["grilles"] = [grille]
     ducts.append(d)
 
-SP_Y = HP_N - 1.5                                  # the trunk leaves the west side of the supply plenum at the heat pump's north end
-XW, YN, YE, XJ = 1.654, 12.0, 16.1, 27.07     # west leg x, north leg y, east leg y, jog x (against bedroom 1's west wall, x 28.12)
+XW, YN, YE, XJ = HP_CX, 12.0, 16.1, 27.07        # west leg x, north leg y, east leg y, jog x (against bedroom 1's west wall, x 28.12)
 TRUNK_NOTE = ("Rerouted from M-10. Andy drew this trunk down the middle of the attic at y about 21.6 ft. Maxwell asked for it along the north wall of the attic, "
-              "so it now hugs the west wall and the north attic wall all the way to bedroom 1's west wall, follows that wall south, then runs east along bedroom 1's south wall (Maxwell, 11/17/2026: keep the middle of the attic free for storage). Size is Andy's 18 x 16 throughout, no reductions modelled.")
+              "so it runs straight north from the heat pump with no turn (Maxwell, 11/18/2026), then along the north attic wall all the way to bedroom 1's west wall, follows that wall south, then runs east along bedroom 1's south wall (Maxwell, 11/17/2026: keep the middle of the attic free for storage). Size is Andy's 18 x 16 throughout, no reductions modelled.")
 ducts.append(dict(id="supply_trunk", name="Supply trunk", category="HVAC supply duct", system="hvac.supply", type="supply", shape="rect", size=[18, 16],
-    points=[[HP_CX - 0.65, SP_Y, ZTR], [XW, SP_Y, ZTR], [XW, YN, ZTR], [XJ, YN, ZTR], [XJ, YE, ZTR], [41.2, YE, ZTR]],
+    points=[[XW, HP_N - 2.0, ZTR], [XW, YN, ZTR], [XJ, YN, ZTR], [XJ, YE, ZTR], [41.2, YE, ZTR]],
     info=dict(model="18 x 16 in main trunk, 1,368 CFM", specs=[["Airflow", "1,368 CFM total"], ["Location", "On the attic deck against the north attic wall"]], notes=[TRUNK_NOTE])))
 ducts.append(dict(id="supply_plenum", info_of="supply_trunk", type="supply", shape="rect", size=[26, 24], points=[[HP_CX, HP_N - 0.75, DECK + 1.0], [HP_CX, HP_N - 2.05, DECK + 1.0]]))
 def drop(x, y0, ys, zt=ZT):      # leave the trunk's side, drop into the truss space, run to ys
@@ -368,7 +397,7 @@ def drop(x, y0, ys, zt=ZT):      # leave the trunk's side, drop into the truss s
 # The floor trusses sit on one 24 in grid across the house (they run continuous over the interior walls), so every
 # truss bay lines up from room to room: trusses at x = TG + 2k, bays centred on TG + 1 + 2k (1.7, 3.7, 5.7, ...).
 # A duct may run north to south inside a bay at any size that fits, but anything crossing the trusses goes through
-# the web openings, so it is round and 7 in or less (tools/truss_clash.py checks both).
+# the web openings, so it is round and 6 in or less (tools/truss_clash.py checks both).
 TG = CFG["floor_trusses"].get("grid_x0", 0.7)
 def bay(x):                       # centre of the truss bay nearest x
     return round(TG + 1 + 2 * round((x - TG - 1) / 2), 3)
@@ -383,15 +412,15 @@ supply("s_study", "Bedroom 4 / study", 104, 7, [[26.9, YN - 0.6, 11.0], [26.9, 1
 supply("s_hall2a", "Hall 2", 15, 6, drop(bay(14.4), YN + 0.75, 17.8), dict(at=[bay(14.4), 17.8, CEIL - 0.02], size=[8, 6]))
 supply("s_hall2b", "Hall 2", 16, 6, drop(bay(20.5), YN + 0.75, 13.8), dict(at=[bay(20.5), 13.8, CEIL - 0.02], size=[8, 6]))
 # west leg
-XB3 = bay(1.7) + 0.55                             # bottom takeoff under the trunk, in the first truss bay
-supply("s_bed3", "Bedroom 3", 127, 7, [[XB3, 14.5, DECK + 0.3], [XB3, 14.5, ZT], [bay(5.7), 14.5, ZT]], dict(at=[bay(5.7), 14.5, CEIL - 0.02], size=[12, 8]),
-       "Bottom takeoff from the trunk into the first truss bay, then crosses two trusses to a ceiling register in the next bay west of the bedroom 3 return.")
-# south main: drops from the trunk beside the plenum into the first truss bay at the west wall and runs south in it. Each kitchen and powder
+XB3 = bay(3.7)                                    # bottom takeoff under the trunk, in the truss bay below it
+supply("s_bed3", "Bedroom 3", 127, 6, [[XB3, 14.5, DECK + 0.3], [XB3, 14.5, ZT], [bay(5.7), 14.5, ZT]], dict(at=[bay(5.7), 14.5, CEIL - 0.02], size=[12, 8]),
+       "Bottom takeoff from the trunk into the truss bay below it, then crosses one truss to a ceiling register in the next bay west of the bedroom 3 return.")
+# south main: drops from the west side of the supply plenum into the first truss bay at the west wall and runs south in it. Each kitchen and powder
 # register then gets its own round branch through the truss webs (a rectangular main cannot cross the trusses).
-XM = bay(1.7) + 0.15                              # east of centre in the bay, so the geo risers pass on its west side
+XM = bay(1.7) + 0.2                               # east of centre in the bay, so the geo risers pass on its west side
 SMAIN_END = 34.3
 ducts.append(dict(id="supply_south_main", name="South supply main", category="HVAC supply duct", system="hvac.supply", type="supply", shape="rect", size=[14, 8],
-    points=[[XM, SP_Y, DECK + 0.2], [XM, SP_Y, ZT], [XM, SMAIN_END, ZT]],
+    points=[[XM, HP_N - 1.4, DECK + 0.2], [XM, HP_N - 1.4, ZT], [XM, SMAIN_END, ZT]],
     grilles=[dict(at=[XM, 31.0, CEIL - 0.02], size=[10, 6])],
     info=dict(model="14 x 8 in in the first truss bay, then 6 and 7 in round branches", specs=[["Serves", "Kitchen and dining 3 x 127 CFM, pantry 22, powder 15, utility 18"]],
       notes=["New. On M-10 these rooms were fed by branches crossing the attic floor. Here the main runs south in the truss bay along the west wall, "
@@ -401,13 +430,13 @@ supply("s_powder", "Powder", 15, 6, [[XM, 29.2, ZT], [9.5, 29.2, ZT]], dict(at=[
        "Round branch off the south main through the pantry trusses. Ceiling register in the northeast corner by the door, about 4 ft from the "
        "exhaust over the toilet (Maxwell, 11/18/2026: move them apart; the 9 ft flat ceiling leaves no way to bring this one in low).")
 for k, (x, yb) in enumerate([(bay(3.0), 34.15), (bay(7.0), 33.5), (bay(11.0), 32.85)]):
-    supply(f"s_kitchen{k+1}", "Kitchen / dining", 127, 7, [[XM, yb, ZT], [x, yb, ZT], [x, 35.0, ZT]], dict(at=[x, 35.1, ZT], size=[14, 6], wall=S),
-           "High sidewall register in the clerestory wall, on its own 7 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west.")
+    supply(f"s_kitchen{k+1}", "Kitchen / dining", 127, 6, [[XM, yb, ZT], [x, yb, ZT], [x, 35.0, ZT]], dict(at=[x, 35.1, ZT], size=[14, 6], wall=S),
+           "High sidewall register in the clerestory wall, on its own 6 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west.")
 # east leg
 YS = YE + 0.75
 XL = bay(27.6)                                     # laundry and living 1 share one bay, side by side
 supply("s_laundry", "Laundry", 40, 6, drop(XL - 0.35, YS, 19.0), dict(at=[XL - 0.35, 19.0, CEIL - 0.02], size=[10, 6]))
-supply("s_living1", "Living", 70, 7, drop(XL + 0.35, YS, 21.4) + [[bay(23.7), 21.4, ZT], [bay(23.7), 22.62, ZT]], dict(at=[bay(23.7), 22.9, ZT], size=[10, 6], wall=S),
+supply("s_living1", "Living", 70, 6, drop(XL + 0.35, YS, 21.4) + [[bay(23.7), 21.4, ZT], [bay(23.7), 22.62, ZT]], dict(at=[bay(23.7), 22.9, ZT], size=[10, 6], wall=S),
        "Drops in the laundry bay, then crosses the trusses west under the study and bedroom 1 returns to keep the register near where M-10 has it.")
 supply("s_living2", "Living", 70, 7, drop(bay(29.7), YS, 22.62), dict(at=[bay(29.7), 22.9, ZT], size=[12, 6], wall=S),
        "Hall 1 has no supply of its own (Maxwell, 11/17/2026): one 3 ft from the main return would short circuit into it. Its 48 CFM from M-10 is split between the two living registers, which open onto the hall through the 8 ft wide cased opening.")
@@ -424,7 +453,7 @@ supply("s_bed1", "Bedroom 1", 138, 8, [[40.4, YE - 0.6, 11.0], [40.4, 14.95, 11.
 # (parallel to the trusses, so it fits), rises straight up through the deck, and a 34 x 10 trunk on the deck runs to the
 # return plenum at the heat pump.
 # Bedrooms: low grilles with a stack up the stud bay into the trusses, then round flex. Flex runs north to south in a bay
-# where it can, and crosses the trusses only at 7 in or less, through the web openings. Every run ends at the return
+# where it can, and crosses the trusses only at 6 in or less, through the web openings. Every run ends at the return
 # plenum box on the deck at the heat pump.
 DK = DECK + 5 / 12                                # centre of a 10 in tall duct lying on the deck
 LOW = 1.0                                         # centre of a low return grille, 8 in tall, its bottom 8 in above the floor
@@ -462,64 +491,66 @@ def bend(pts, r=0.55):
 
 RFLEX = ("Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. "
          "Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through "
-         "the web openings at 7 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep "
+         "the web openings at 6 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep "
          "truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a "
          "duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED "
          "until Andy or the HVAC installer sizes them.")
 
-ret("return_main", "Main return (M-10)", [34, 10], [[11.95, 30.6, ZT], [10.95, 30.6, ZT]],
-    grilles=[dict(at=[12.15, 30.6, ZT], size=[34, 10], wall="E")])
+RY = 24.8                                          # the main return's centreline: above the utility room door, in line with the heat pump's filter side
+ret("return_main", "Main return (M-10)", [34, 10], [[11.95, RY, ZT], [10.95, RY, ZT]],
+    grilles=[dict(at=[12.15, RY, ZT], size=[34, 10], wall="E")])
 ducts[-1]["info"] = dict(model="34 x 10 in grille and trunk, 1,368 CFM system (M-10)",
     specs=[["Serves", "Living, kitchen, dining, family and the halls, plus any room on transfer grilles"], ["Grille", "34 x 10 in, hall 1 (M-10)"],
-           ["Boot", "34 x 10 in box in one truss bay over the powder room, parallel to the trusses"], ["Trunk", "34 x 10 in on the attic deck (M-10)"]],
+           ["Boot", "34 x 10 in box in one truss bay over the utility room, parallel to the trusses"], ["Trunk", "34 x 10 in on the attic deck (M-10)"]],
     notes=["Andy's M-10 return: one 34 x 10 grille in hall 1 and a 34 x 10 return trunk over the utility, pantry and powder rooms to HP-01. "
-           "The grille sits high on the hall 1 wall above the powder room door. Behind it a boot box sits inside one truss bay, so nothing crosses the trusses, "
+           "Moved about 6 ft north along the same hall 1 wall (Maxwell, 11/18/2026), so the trunk runs straight west into the heat pump's return plenum with no turns: about 5 ft of trunk instead of 11. "
+           "The grille sits high on the hall 1 wall above the utility room door. Behind it a boot box sits inside one truss bay, so nothing crosses the trusses, "
            "and rises straight up through the deck. The trunk runs on the deck from there to the return plenum. Route on the deck is ASSUMED to suit the heat pump position in this model."])
 XMR = 11.45
-RP_S, RP_N = HP_Y + 2.215, HP_Y - 2.035            # the plenum box covers the 36 in filter rack and the flex collars north of it
-RP_X = HP_X + 0.22 + 41 / 24
-RPX = bay(7.7)                                     # the bedroom flex runs all come up into the box in this truss bay
-ret("return_main_riser", None, [14, 30], [[XMR, 30.6, ZT], [XMR, 30.6, DK]], info_of="return_main")
-RT_X = HP_X + 0.22 + 17 / 12                      # the trunk runs north against the filter rack side of the heat pump
-ret("return_main_deck", None, [34, 10], [[XMR, 30.6, DK], [RT_X, 30.6, DK], [RT_X, RP_S, DK]], info_of="return_main")
-ret("return_plenum", "Return plenum box", [41, 24], [[RP_X, RP_S, PZ], [RP_X, RP_N, PZ]],
-    model="41 x 24 in return plenum box on the deck, along the heat pump's filter rack",
-    note="Every return lands here: the M-10 trunk from the south, and the bedroom flex runs from below, each through its own collar in the bottom of the box. "
+RP_N = HP_Y - 2.035                                # the plenum box covers the 36 in filter rack on the coil (north) half of the unit
+RP_S = RP_N + 3.2                                  # and stops there, so the TXV and filter drier access south of it stays open (GZT manual p.17, area A-2)
+RP_E = HP_X + 0.22 + 14 / 12                       # its east face, where the trunk comes in
+RPX = bay(7.7)                                     # the bedroom flex runs come up into the bottom of the trunk in this truss bay
+ret("return_main_riser", None, [14, 30], [[XMR, RY, ZT], [XMR, RY, DK]], info_of="return_main")
+ret("return_main_deck", None, [34, 10], [[XMR, RY, DK], [RP_E, RY, DK]], info_of="return_main")
+ret("return_plenum", "Return plenum box", [14, 24], [[RP_E - 7 / 12, RP_S, PZ], [RP_E - 7 / 12, RP_N, PZ]],
+    model="14 x 24 in return plenum box on the deck, along the heat pump's filter rack",
+    note="The return trunk comes straight into its east face. The bedroom flex runs come up through collars in the bottom of the trunk just east of it. "
          "The box sits on the deck along the AFR1836A filter rack on the heat pump's east side. Size ASSUMED.")
 
 # Bedrooms 2 and 3 (Maxwell, 11/17/2026): bedroom 3's grille moved from beside the bed to its north wall. Both grilles are in
 # the wall the two rooms share, in neighbouring stud bays, and both stacks rise into the trusses over bedroom 3, where they join.
 XR3, XR2 = bay(7.7), bay(9.7)
-r = ret("return_bed23", "Bedrooms 2 and 3 return", 10, bend([[XR3, 10.85, ZT], [XR3, RP_N + 0.75, ZT], [XR3, RP_N + 0.75, DECK + 0.2]]), flex=True,
+r = ret("return_bed23", "Bedrooms 2 and 3 return", 10, bend([[XR3, 10.85, ZT], [XR3, RY - 0.7, ZT], [XR3, RY - 0.7, DECK + 0.2]]), flex=True,
         grilles=[dict(at=[XR3, 11.02, LOW], size=[14, 8], wall=S)])
 r["info"]["specs"] = [["Serves", "Bedroom 3 (low grille on its north wall) and bedroom 2 (low grille on its south wall)"],
-                      ["Duct", "14 x 2-1/2 in wall stacks, 7 in flex from bedroom 2 through one truss, 10 in flex south in one truss bay to the plenum"],
-                      ["Crosses", "One truss, at 7 in. No supply runs"]]
+                      ["Duct", "14 x 2-1/2 in wall stacks, 6 in flex from bedroom 2 through one truss, 10 in flex south in one truss bay to the plenum"],
+                      ["Crosses", "One truss, at 6 in. No supply runs"]]
 r["info"]["notes"] = ["Bedroom 3's grille moved from its south wall, next to the bed, to its north wall (Maxwell, 11/17/2026). It shares that wall with bedroom 2, "
-                      "so the two stacks rise side by side into the trusses over bedroom 3 and join there: bedroom 2's 7 in flex crosses one truss into bedroom 3's bay and "
+                      "so the two stacks rise side by side into the trusses over bedroom 3 and join there: bedroom 2's 6 in flex crosses one truss into bedroom 3's bay and "
                       "tees into a 10 in flex that runs south in that bay, parallel to the trusses, to the return plenum box at the heat pump.", RFLEX]
 stack("return_bed3_stack", XR3, 10.8, "return_bed23")
-ret("return_bed2", None, 7, bend([[XR2, 10.85, ZT], [XR2, 11.9, ZT], [XR3 + 0.3, 12.7, ZT], [XR3, 13.2, ZT]], 0.4), flex=True,
+ret("return_bed2", None, 6, bend([[XR2, 10.85, ZT], [XR2, 11.9, ZT], [XR3 + 0.3, 12.7, ZT], [XR3, 13.2, ZT]], 0.4), flex=True,
     grilles=[dict(at=[XR2, 10.64, LOW], size=[14, 8], wall=N)], info_of="return_bed23")
 stack("return_bed2_stack", XR2, 10.8, "return_bed23")
 
-# Study and bedroom 1: one 7 in flex home run each. They come down side by side in one hall 2 bay, cross the laundry and
+# Study and bedroom 1: one 6 in flex home run each. They come down side by side in one hall 2 bay, cross the laundry and
 # linen trusses west (the study's run first, further north, so the two never cross), and drop south in their own bays to the plenum.
 XSB, XB1R = bay(25.7), bay(29.7)
 YSW, YBW = 19.6, 20.3
-r = ret("return_study", "Study and bedroom 1 returns", 7,
-        bend([[XSB, 10.85, ZT], [XSB - 0.35, 11.4, ZT], [XSB - 0.35, YSW, ZT], [XR2, YSW, ZT], [XR2, RP_N + 1.5, ZT], [RPX, RP_N + 1.5, ZT], [RPX, RP_N + 1.5, DECK + 0.2]]), flex=True,
+r = ret("return_study", "Study and bedroom 1 returns", 6,
+        bend([[XSB, 10.85, ZT], [XSB - 0.35, 11.4, ZT], [XSB - 0.35, YSW, ZT], [XR2, YSW, ZT], [XR2, RY + 0.5, ZT], [RPX, RY + 0.5, ZT], [RPX, RY + 0.5, DECK + 0.2]]), flex=True,
         grilles=[dict(at=[XSB, 10.64, LOW], size=[14, 8], wall=N)])
 r["info"]["specs"] = [["Serves", "Study (low grille on its south wall) and bedroom 1 (low grille on its south wall, beside the door)"],
-                      ["Duct", "14 x 2-1/2 in wall stacks, one 7 in flex home run per room to the return plenum box"],
-                      ["Crosses", "The laundry, linen and bedroom 3 trusses at 7 in. No supply runs, and they stay in the trusses, off the tall south part of the attic"]]
-r["info"]["notes"] = ["The study and bedroom 1 have low grilles (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Each room gets its own 7 in flex "
+                      ["Duct", "14 x 2-1/2 in wall stacks, one 6 in flex home run per room to the return plenum box"],
+                      ["Crosses", "The laundry, linen and bedroom 3 trusses at 6 in. No supply runs, and they stay in the trusses, off the tall south part of the attic"]]
+r["info"]["notes"] = ["The study and bedroom 1 have low grilles (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Each room gets its own 6 in flex "
                       "back to the plenum, because one duct big enough for both would not fit through the truss webs.",
-                      "A 7 in flex carries roughly 90 to 100 CFM at return duct friction, a little under bedroom 1's 138 CFM supply. Andy may want a second run "
+                      "A 6 in flex carries roughly 65 to 75 CFM at return duct friction (6 in is the most the builder is sure fits the installed trusses, 11/18/2026), about half of bedroom 1's 138 CFM supply. Andy may want a second run "
                       "or a bigger chase for bedroom 1.", RFLEX]
 stack("return_study_stack", XSB, 10.8, "return_study")
-ret("return_bed1", None, 7, bend([[XB1R, 15.3, ZT], [XB1R, 15.75, ZT], [XSB + 0.35, 15.75, ZT], [XSB + 0.35, YBW, ZT], [bay(11.7) - 0.2, YBW, ZT],
-                                  [bay(11.7) - 0.2, RP_N + 2.15, ZT], [RPX, RP_N + 2.15, ZT], [RPX, RP_N + 2.15, DECK + 0.2]]), flex=True,
+ret("return_bed1", None, 6, bend([[XB1R, 15.3, ZT], [XB1R, 15.75, ZT], [XSB + 0.35, 15.75, ZT], [XSB + 0.35, YBW, ZT], [bay(11.7) - 0.2, YBW, ZT],
+                                  [bay(11.7) - 0.2, RY - 1.3, ZT]]), flex=True,
     grilles=[dict(at=[XB1R, 15.01, LOW], size=[14, 8], wall=N)], info_of="return_study")
 stack("return_bed1_stack", XB1R, 15.26, "return_study")
 
@@ -535,10 +566,9 @@ ducts.append(dict(id="s_bath2_stack", info_of="s_bath2", type="supply", shape="r
 
 # Bath exhaust (Maxwell, 11/17/2026): ceiling or high wall grilles in bath 1, bath 2 and the powder room, ducted to the ERV's stale air inlet
 # instead of separate fans. The run hugs the supply trunk's south side on the deck so it stays in the low, north part of the attic.
-ERV_Z = DECK + 0.05 + 5.7 / 12                    # centre of the ERV's duct adapters
-ERV_F = 0.75 + 26.6 / 12                          # the ERV's room end
+ZTOP = ZTR + 8 / 12 + 0.27                        # centre of a 6 in round lying on top of the 18 x 16 supply trunk
 EX = DECK + 0.25                                  # centre of a 6 in round lying on the deck
-ENOTE = ("Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. "
+ENOTE = ("ERV pickup grille: the ERV pulls 20 CFM from it continuously. The bathrooms with showers also have their own switched fan for steam. "
          "Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED.")
 def exhaust(id, name, dia, points, grilles=None, note=None, info_of=None, room=None):
     d = dict(id=id, category="Ventilation", system="hvac.exhaust", type="exhaust", shape="round", size=dia, points=points)
@@ -551,29 +581,40 @@ XE1 = bay(39.7)
 exhaust("ex_bath1", "Bath 1 exhaust", 4, [[XE1, 30.0, ZT], [XE1, 17.8, ZT], [XE1, 17.8, EX]], room="Bath 1",
         grilles=[dict(at=[XE1, 30.0, CEIL - 0.02], size=[10, 10])], note=ENOTE + " Runs north in one loft floor truss bay, east of the family supply drop, then up onto the deck.")
 XE2 = 21.9                                        # east end of the south wall, over the toilet and vanity, away from the low supply
-exhaust("ex_bath2", "Bath 2 exhaust", 4, [[XE2, 10.62, 11.7], [XE2, 13.5, 11.7], [XE2, 13.5, EX]], room="Bath 2",
-        grilles=[dict(at=[XE2, 10.6, 11.7], size=[10, 6], wall=N)], note=ENOTE + " High on the east end of the bath 2 south wall, through the attic wall and over the supply trunk. "
+exhaust("ex_bath2", "Bath 2 exhaust", 4, [[XE2, 10.62, ZTOP], [XE2, YN, ZTOP]], room="Bath 2",
+        grilles=[dict(at=[XE2, 10.6, ZTOP], size=[10, 6], wall=N)], note=ENOTE + " High on the east end of the bath 2 south wall, through the attic wall and into the main on top of the supply trunk. "
         "It was right beside the supply; the supply now comes in low at the west end of the same wall (Maxwell, 11/18/2026).")
-XEM, ZOV = 10.2, DECK + 1.15                       # the main's north to south leg, and its height where it hops over the return trunk
-exhaust("ex_powder", "Powder exhaust", 4, [[7.2, 32.2, ZT], [XEM, 32.2, ZT], [XEM, 28.3, ZT], [XEM, 28.3, EX - 0.2]], room="Powder",
-        grilles=[dict(at=[7.2, 32.2, CEIL - 0.02], size=[8, 8])], note=ENOTE + " Over the toilet, about 4 ft from the supply by the door (Maxwell, 11/18/2026). "
-        "Runs east through the truss webs, north in its own truss bay, then up into the main on the deck.")
-exhaust("ex_main", "Bath exhaust main", 6, [[XE1, 17.8, EX], [25.6, 17.8, EX], [25.6, 13.5, EX], [XEM, 13.5, EX], [XEM, 28.3, EX], [XEM, 28.65, ZOV], [XEM, ERV_Y + 0.415, ZOV],
-                                           [4.3, ERV_Y + 0.415, ZOV], [3.7, ERV_Y + 0.415, ERV_Z], [ERV_F, ERV_Y + 0.415, ERV_Z]],
-        note="Collects the three bathroom exhausts on the attic deck along the south side of the supply trunk, turns south east of the water heater's grilles, "
-             "hops over the low return trunk and comes into the ERV's stale air inlet from the east. ASSUMED route and size.")
+PWX, PWY = 7.2, 32.2                               # powder room exhaust grille, over the toilet, about 4 ft from the supply by the door (Maxwell, 11/18/2026)
+exhaust("ex_powder", "Powder exhaust", 4, [[PWX, PWY, ZT], [PWX, PWY, EX - 0.08], [4.9, PWY, EX - 0.08], [4.9, HP_S + 1.0, EX - 0.08], [4.9, HP_S + 1.0, ERV_Z], [ERV_XS + 0.1, HP_S + 1.0, ERV_Z]], room="Powder",
+        grilles=[dict(at=[PWX, PWY, CEIL - 0.02], size=[8, 8])], note=ENOTE + " Comes up through the deck, runs along it and rises into the main just before the ERV.")
+exhaust("ex_main", "Bath exhaust main", 6, [[XE1, 17.8, EX], [25.6, 17.8, EX], [25.6, 13.3, EX], [25.6, 13.3, ZTOP], [25.6, YN, ZTOP], [ERV_XS, YN, ZTOP], [ERV_XS, HP_N - 2.5, ZTOP],
+                                           [ERV_XS, HP_N - 2.5, ERV_Z], [ERV_XS, ERV_N, ERV_Z]],
+        note="Collects the three bathroom exhausts. It rides on top of the supply trunk along the north attic wall and down to the heat pump, crosses over the heat pump's top "
+             "and goes straight into the ERV's stale air inlet, so it takes no floor space (Maxwell, 11/18/2026). ASSUMED route and size.")
+# Shower fans (Maxwell, 11/18/2026): the two bathrooms with showers each get their own switched fan on its own short duct straight
+# outdoors, as well as the continuous ERV pickup. A fan must not blow into the ERV's duct: that is against the ERV makers'
+# instructions, unbalances the ERV and can push air out of the other bathrooms' grilles. The powder room stays on the ERV alone.
+FNOTE = ("Its own duct straight outdoors with a backdraft damper at the hood, not tied into the ERV duct. Switched on for showers, on a timer or humidity control. "
+         "50 CFM or more meets the code's intermittent rate (IRC table M1505.4.4); 80 to 110 CFM clears steam faster. The ERV pickup in the same room keeps running at a low rate. Model not picked.")
+def fan(id, name, room, points, grille, how):
+    ducts.append(dict(id=id, name=name, category="Ventilation", system="hvac.exhaust.fan", type="exhaust", shape="round", size=4, room=room, points=points, grilles=[grille],
+                      info=dict(model="Bath exhaust fan, 80 to 110 CFM class, 4 in duct", specs=[["Runs", "Only when switched on for a shower"], ["Duct", how]], notes=[FNOTE])))
+fan("fan_bath1", "Bath 1 shower fan", "Bath 1", [[41.3, 30.6, ZT], [43.05, 30.6, ZT]], dict(at=[41.3, 30.6, CEIL - 0.02], size=[10, 10]),
+    "About 2 ft east through the floor trusses to a hood on the east wall. ASSUMED")
+fan("fan_bath2", "Bath 2 shower fan", "Bath 2", [[21.2, 0.55, 8.3], [21.2, -0.05, 8.3]], dict(at=[21.2, 0.52, 8.3], size=[10, 10], wall=S),
+    "Through the wall fan high on the north wall at the tub's valve end, east of the window: the vaulted SIP roof has no cavity for a ceiling fan. ASSUMED")
 # Heat pump water heater air (Maxwell, 11/18/2026): the utility door stays solid, so the water heater's intake and exhaust are both
 # ducted up into the attic, which is inside the SIP roof. Rheem allows any size room when both are ducted and says never to tie
-# the unit into other ductwork. Both rise straight up in truss bay 9.7, north to south of each other, to grilles on open deck
-# east of the return plenum (Maxwell, 11/18/2026: open to the attic, not up through the return).
+# the unit into other ductwork. Both rise straight up in truss bay 7.7, north to south of each other, and come out on open deck
+# in the corner between the return plenum and the return trunk. Each ends in an elbow, pointing apart (Maxwell, 11/18/2026).
 HPWH_TOP = 74.2 / 12
-for k, (nm, yy) in enumerate([("intake", WH_CY - 0.4), ("exhaust", WH_CY + 0.4)]):
+for k, (nm, yy, tail) in enumerate([("intake", WH_CY - 0.15, [[WH_DUCT_X, WH_CY - 0.15, DECK + 1.0], [WH_DUCT_X + 0.8, WH_CY - 0.15, DECK + 1.0]]),
+                                   ("exhaust", WH_CY + 0.62, [[WH_DUCT_X, WH_CY + 0.62, DECK + 0.4], [WH_DUCT_X, WH_CY + 3.6, DECK + 0.4]])]):
     ducts.append(dict(id=f"hpwh_{nm}", name=f"Water heater {nm} duct" if k == 0 else None, category="Hot water", system="plumbing.dhw.air", type="exhaust",
         shape="round", size=8, flex=True, room="Utility",
-        points=[[WH_DUCT_X, yy, HPWH_TOP + 0.05], [WH_DUCT_X, yy, DECK + 0.6]],
-        grilles=[dict(at=[WH_DUCT_X, yy, DECK + 0.62], size=[10, 10])],
+        points=[[WH_DUCT_X, yy, HPWH_TOP + 0.05]] + tail,
         **({"info": dict(model="8 in insulated flex, Rheem duct kit (SP20889 flex, SP20890 elbows, SP17829 outlet adaptor)",
-                         specs=[["Intake", "Top of the water heater to a grille on the attic deck"], ["Exhaust", "Side outlet to a grille on the attic deck, cold air"],
+                         specs=[["Intake", "Top of the water heater up through the deck to an elbow facing east, 1 ft up"], ["Exhaust", "Up through the deck, then an elbow and 3 ft along the deck, so the cold air leaves about 4 ft from the intake and points away from it"],
                                 ["Limit", "125 ft equivalent, intake plus exhaust; each elbow counts 5 ft"]],
                          notes=["Rheem: 'DO NOT connect this water heater to existing duct work; it must be ducted separately from other appliances.'",
                                 "Insulated because the exhaust air is cold and would sweat. The newest Rheem manual uses a 10 in exhaust collar; 8 in shown. Route ASSUMED."])}
@@ -622,14 +663,23 @@ items += [
 
 # ERV ducts. The Intelli-Balance 100 has two 6 in adapters on each end: outdoor air and exhaust air on the wall end,
 # stale air in and fresh air out on the room end. The unit lies with its long side east-west so the wall end meets the west wall.
-for k, (y, nm) in enumerate([(ERV_Y - 0.415, "outdoor air in"), (ERV_Y + 0.415, "exhaust air out")]):
-    ducts.append(dict(id=f"erv_wall_{k}", info_of="erv", type="erv", shape="round", size=6, points=[[0.75, y, ERV_Z], [-0.05, y, ERV_Z]]))
-# Fresh air leaves the room end and goes straight into the west side of the return trunk, 2 ft away.
-ducts.append(dict(id="erv_to_return", info_of="erv", type="erv", shape="round", size=6,
-                  points=[[ERV_F, ERV_Y - 0.415, ERV_Z], [RT_X - 17 / 12 + 0.05, ERV_Y - 0.415, ERV_Z]]))
+# Outdoor side (Panasonic: 2 to 3 ft straight off each adapter, insulated ducts, separate hoods at least 10 ft apart). Both ducts
+# run 2 ft straight south. The exhaust then turns west and out through the wall. The intake turns west to the wall and runs
+# north along it, above the heat pump piping, to a hood 10 ft 10 in north of the exhaust hood (Maxwell, 11/18/2026).
+OA_Y = ERV_S + 2.6 - 10.8
+# The run along the wall is tucked up under the roof so it stays out of the 2 ft service aisle beside the heat pump.
+ROOF_U = lambda y: CFG["roof"]["north_wall_height"] + (y + 1.1) * CFG["roof"]["north_pitch"] / 12 - 0.9 - 0.55
+ducts.append(dict(id="erv_wall_0", info_of="erv", type="erv", shape="round", size=6,
+                  points=[[ERV_XF, ERV_S, ERV_Z], [ERV_XF, ERV_S + 2.0, ERV_Z], [0.85, ERV_S + 2.0, ERV_Z], [0.85, ERV_S + 2.0, ROOF_U(ERV_S + 2.0)], [0.85, OA_Y, ROOF_U(OA_Y)], [-0.05, OA_Y, ROOF_U(OA_Y)]]))
+ducts.append(dict(id="erv_wall_1", info_of="erv", type="erv", shape="round", size=6,
+                  points=[[ERV_XS, ERV_S, ERV_Z], [ERV_XS, ERV_S + 2.6, ERV_Z], [-0.05, ERV_S + 2.6, ERV_Z]]))
+# Fresh air leaves the room end, runs over the top of the heat pump beside the exhaust main, and drops into the supply plenum
+# through a backdraft damper.
+ducts.append(dict(id="erv_to_supply", info_of="erv", type="erv", shape="round", size=6,
+                  points=[[ERV_XF, ERV_N, ERV_Z], [ERV_XF, HP_N - 1.4, ERV_Z], [ERV_XF, HP_N - 1.4, DECK + 1.9]]))
 
 trusses = dict(id="floor_trusses", name="Open web floor trusses", category="Structure", system="structure.floor", regions=FLAT, loft_regions=[LOFT],
-    z0=CEIL, depth_in=TRUSS_IN, spacing_in=CFG["floor_trusses"]["spacing_in"], deck_in=DECK_IN, grid_x0=TG,
+    z0=CEIL, depth_in=TRUSS_IN, spacing_in=CFG["floor_trusses"]["spacing_in"], deck_in=DECK_IN, grid_x0=TG, max_cross_in=CFG["floor_trusses"]["max_round_duct_in"],
     info=dict(model="11-7/8 in open web floor trusses",
       specs=[["Depth", "11-7/8 in (Maxwell, 11/16/2026)"], ["Clear for ducts", "About 8-7/8 in between the chords"], ["Floor top", f"{DECK:.2f} ft above the slab with 3/4 in decking"],
              ["Spacing", "24 in on centre on one grid across the house, ASSUMED"], ["Span", "North to south, continuous over the interior walls, ASSUMED"]],

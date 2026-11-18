@@ -646,14 +646,17 @@ const BUILD = {
     for (const row of rows) for (const x of [-9, 9]) box(g, 1.4, 1.4, row.z, mat('strut', 0x9fa3a6, 0.5, 0.7), x, row.y, row.z / 2);   // header brackets
     return g;
   },
-  erv(s) {                         // Panasonic Intelli-Balance 100: galvanized steel box, two white duct adapters on each end
+  erv(s, it = {}) {                // Panasonic Intelli-Balance 100: galvanized steel box, two white duct adapters on each end
     const [w, h, d] = s, g = new THREE.Group();
+    if (it.hang) {                                                                           // hung level on four chains from the roof framing, hang = chain length in inches
+      for (const x of [-w / 2 - 0.7, w / 2 + 0.7]) for (const z of [2.5, d - 2.5]) cyl(g, 0.16, it.hang, darkSteel(), x, h + it.hang / 2, z, 'y', 6);
+    }
     box(g, w, h, d, galv(), 0, h / 2, d / 2);
     for (const z of [-1.0, d + 1.0]) for (const x of [-w / 4, w / 4]) {
       cyl(g, 3.0, 2.0, whitePlastic(), x, h / 2, z, 'z', 24);                                // 6 in adapters
       cyl(g, 3.6, 0.25, whitePlastic(), x, h / 2, z < 0 ? -0.12 : d + 0.12, 'z', 24);
     }
-    box(g, 0.14, h - 1.6, d * 0.62, mat('erv access panel', 0xc3c7ca, 0.38, 0.8), w / 2 + 0.07, h / 2, d / 2);   // core and filter access panel
+    box(g, 0.14, h - 1.6, d * 0.62, mat('erv access panel', 0xc3c7ca, 0.38, 0.8), w / 2 + 0.09, h / 2, d / 2);   // core and filter access panel
     for (const z of [d / 2 - d * 0.24, d / 2 + d * 0.24]) box(g, 0.3, 1.6, 1.0, darkPlastic(), w / 2 + 0.2, h / 2, z);   // latches
     box(g, 0.3, 3.2, 4.2, darkPlastic(), w / 2 + 0.15, h - 2.4, d - 3.2);                     // airflow dials
     box(g, 0.05, 2.6, 4.4, mat('rating label', 0xe9e9e2, 0.6), w / 2 + 0.16, 2.2, d / 2);

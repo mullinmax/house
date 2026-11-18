@@ -9,10 +9,10 @@ Prints every offender and exits 1 if there is one.
 """
 import json, os, sys
 
-MAX_CROSS = 7.0                                    # largest round duct assumed to pass the web openings of an 11-7/8 in truss
 HERE = os.path.dirname(os.path.abspath(__file__))
 D = json.load(open(os.path.join(HERE, "..", "site", "models", "equipment.json")))
 T = D["trusses"]
+MAX_CROSS = T.get("max_cross_in", 6.0)               # largest round duct that passes the web openings ([floor_trusses] in config.toml)
 DEP, SP, Z0 = T["depth_in"] / 12, T["spacing_in"] / 12, T["z0"]
 CW, E = 3.5 / 12, 0.05
 
