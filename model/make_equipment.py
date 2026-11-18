@@ -155,6 +155,8 @@ items += [
 
 # ------------------------------------------------------------------ utility room: geothermal and hot water
 MAN_Y, FC_Y = 24.4, 26.9
+WH_X, PH_D = 5.7, 22.0                     # heat pump water heater under truss bay 5.7; preheat tank diameter (in)
+PH_X = WH_X + (24.25 + 4) / 24 + 0.25 + (PH_D + 4) / 24   # preheat tank just east, drain pans 3 in apart
 items += [
  dict(id="geo_manifold", name="Geothermal loop manifolds", category="Geothermal", system="geothermal.loop", room="Utility", layer="mechanical",
       builder="pe_manifold", size=[30, 48, 8], at=[0.56, MAN_Y, 0], facing=90, mirror=True,
@@ -169,13 +171,31 @@ items += [
         specs=[["Pumps", "Two circulators"], ["Connections", "GF-2911 Flo-Link fusion set, 1-1/4 in"], ["Location", "First floor, per Greg's design summary"]],
         notes=[APPROX], placement="Utility room west wall, just south of the manifolds. 1-1/4 in insulated pipes run from here up through the ceiling to the heat pump.")),
  dict(id="water_heater", name="Heat pump water heater", category="Hot water", system="plumbing.dhw", room="Utility", layer="mechanical",
-      builder="hpwh", size=[22.25, 61.4], at=[4.5, 28.22, 0], facing=0,
-      info=dict(model="Rheem ProTerra 50 gal hybrid (PROPH50 T2 RH375-30)", price="Not priced yet",
-        specs=[["Tank", "50 gal"], ["Efficiency", "UEF 3.88"], ["Size", "About 22.25 in diameter x 61.4 in tall"], ["Power", "240 V, 30 A"], ["Setpoint", "37 to 145 F"]],
-        notes=["Picked because sheet U-11 names the Rheem Performance Platinum 50 gal hybrid with a recirculation pump as the basis of design, and this is the same family.",
-               "Alternative: A.O. Smith Signature 900 HPS10-50H45DV, 50 gal, UEF 3.80, 63 H x 22 W in, 45 dBA, built in leak detection. It wants 450 cu ft of room air. The utility room is about 540 cu ft.",
+      builder="hpwh", size=[24.25, 74.2], at=[WH_X, 28.22, 0], facing=0,
+      info=dict(model="Rheem ProTerra 80 gal hybrid with LeakGuard (PROPH80 T2 RH400-SO)", price="$3,467 at US Supply (pickup only, 11/18/2026); check Lowe's and Home Depot",
+        specs=[["Tank", "80 gal, 87 gal first hour rating"], ["Efficiency", "UEF 4.07"], ["Size", "24-1/4 in diameter x 74-3/16 in tall, 6 in clear above for the filter"],
+               ["Power", "240 V, 30 A, 10 AWG"], ["Air", "Intake and exhaust both ducted to the attic, so the solid utility door needs no louvers"],
+               ["Fed by", "The 50 gal desuperheater preheat tank next to it"]],
+        links=[["Spec sheet", "https://files.rheem.com/blobazrheem/wp-content/uploads/sites/2/Hybrid-Electric-HPWH-with-LeakGuard-Spec-Sheet.pdf"],
+               ["US Supply", "https://www.ussupply.com/80-gal-professional-prestige-proterra-hybrid-electric-heat-pump-4-5kw-amp-ef4-07-2047131.html"],
+               ["Research doc", "https://claude.ai/artifact/49L6BApM9Yqx434FQv1fWF"]],
+        notes=["Maxwell (11/18/2026): plan for 4 people and err on the big side, keep the utility door solid so the hall stays quiet, use two tanks, and keep a heat pump unit because the house is meant to go off grid.",
+               "Sheet U-11 names a Rheem Performance Platinum 50 gal hybrid with a recirculation pump; this is the same family, one size up.",
+               "Runner up: A.O. Smith Signature 900 HPS10-80H45DV (45 dBA published, 69 in tall).",
                "Shown with the U-11 details: 2 in drain pan, expansion tank, recirculation pump.", APPROX],
-        placement="South wall of the utility room (Maxwell, 11/15/2026), near the floor drain on U-11.")),
+        placement="South wall of the utility room (Maxwell, 11/15/2026), near the floor drain on U-11. Sits under truss bay 5.7 so its two ducts rise straight into the attic.")),
+ dict(id="preheat_tank", name="Desuperheater preheat tank", category="Hot water", system="plumbing.dhw", room="Utility", layer="mechanical",
+      builder="storage_tank", size=[PH_D, 59.0], at=[PH_X, 28.22, 0], facing=0,
+      info=dict(model="Rheem Professional Classic 50 gal electric (PROE50 T2 RH95), elements left unwired", price="$744 at HVACDirect (11/18/2026)",
+        specs=[["Tank", "50 gal, no power: only the geothermal desuperheater heats it"], ["Piping", "Cold supply in, preheated water out to the heat pump water heater's cold inlet"],
+               ["Desuperheater", "The geo's built in pump pulls from the bottom drain port and returns through a tee at the cold inlet"],
+               ["Bypass", "Valves so the heat pump water heater can run on its own"]],
+        links=[["HVACDirect", "https://hvacdirect.com/rheem-professional-classic-electric-water-heater-50-gal-tall-240-vac-4500-watt-proe50-t2-rh95.html"]],
+        notes=["Two tanks because a desuperheater works best on cold water, and a heat pump tank also heats from the bottom, so in one tank they compete. "
+               "Enertech's install guidance says a preheat tank gets the most out of the desuperheater.",
+               "The GeoComfort GZT048J11LM1CCS has hot water code 1: desuperheater with a factory installed pump.",
+               "Size is ASSUMED (about 22 in x 59 in for a 50 gal tall tank)."],
+        placement="South wall of the utility room, just east of the heat pump water heater.")),
 ]
 # manifold mains to the flow center, then insulated 1-1/4 in lines up through the ceiling to the heat pump's water connections
 HP_AT = [5.535, 24.9, DECK + 5.5 / 12]            # back (return side) centre of the unit base
@@ -191,6 +211,24 @@ for k, (zc, off) in enumerate([(5.6, 0.0), (17.6, 0.35)]):
                 [8.9 + off, 24.36, z], [HP_E + 0.95, 24.36, z]],
         info=dict(model="1-1/4 in PE with Aeroflex elastomeric insulation", specs=[["From", "Flow center in the utility room"], ["To", "Heat pump in the attic, through 1 in ball valves and the GF-1366 rubber hose kit"]],
                   notes=["Route is ASSUMED. Greg's summary only says the piping goes up through the ceiling to the unit."])))
+# desuperheater: two insulated 3/4 in lines from the heat pump's hot water connections down through the ceiling to the preheat tank
+PH_Y = 28.22 - (PH_D / 2 + 2) / 12                 # preheat tank centre (the builders put the tank 2 in off its back point)
+PH_TOP = 59.0 / 12
+for k, (dz, off) in enumerate([(3.0, -0.18), (8.0, 0.18)]):
+    z = HP_AT[2] + dz / 12
+    runs.append(dict(id=f"dsh_{k}", name="Desuperheater lines", category="Hot water", system="plumbing.dhw", dia=1.6, mat="foam",
+        info_of=None if k == 0 else "dsh_0",
+        points=[[HP_E + 0.2, 24.0 + off, z], [HP_E + 0.75, 24.0 + off, z], [HP_E + 0.75, 24.0 + off, 8.75 + off * 0.5], [PH_X + 1.2 + off * 0.5, 24.0 + off, 8.75 + off * 0.5],
+                [PH_X + 1.2 + off * 0.5, PH_Y + 0.55, 8.75 + off * 0.5]] + ([[PH_X + 1.2 + off * 0.5, PH_Y + 0.55, 0.45], [PH_X + 0.95, PH_Y + 0.55, 0.45]] if k == 0 else
+                [[PH_X + 0.35, PH_Y + 0.55, 8.75 + off * 0.5], [PH_X + 0.35, PH_Y + 0.55, PH_TOP + 0.05]]),
+        info=dict(model="3/4 in copper or PEX with pipe insulation, to and from the geo's built in desuperheater pump",
+                  specs=[["Supply to the geo", "From the preheat tank's bottom drain port"], ["Return from the geo", "Into the preheat tank's cold inlet through a tee"]],
+                  notes=["Route is ASSUMED. Line size and the maximum run come from the GZT installation manual; the run here is short because the geo sits right above the utility room."])))
+# preheat tank hot out to the heat pump water heater's cold inlet, along the ceiling
+WH_CY = 28.22 - (24.25 / 2 + 2 - 1.6) / 12
+runs.append(dict(id="preheat_xfer", name="Preheated water to the heat pump water heater", category="Hot water", system="plumbing.dhw", dia=1.3, mat="copper",
+    points=[[PH_X - 0.3, PH_Y - 0.05, PH_TOP + 0.05], [PH_X - 0.3, PH_Y - 0.05, 8.68], [WH_X - (24.25 / 2 + 2.6) / 12, PH_Y - 0.05, 8.68], [WH_X - (24.25 / 2 + 2.6) / 12, WH_CY, 8.68]],
+    info=dict(model="3/4 in copper, insulated", notes=["Feeds the heat pump water heater's cold inlet with preheated water. Bypass and isolation valves ASSUMED."])))
 for r in runs:
     if r.get("info_of") is None: r.pop("info_of", None)
 
@@ -410,6 +448,24 @@ exhaust("ex_powder", "Powder exhaust", 4, [[10.2, 31.3, ZT], [3.3, 31.3, ZT], [3
         grilles=[dict(at=[10.2, 31.3, CEIL - 0.02], size=[8, 8])], note=ENOTE + " Runs west through the pantry truss webs, then up to the ERV.")
 exhaust("ex_main", "Bath exhaust main", 6, [[XE1, 17.8, EX], [25.6, 17.8, EX], [25.6, 13.5, EX], [3.3, 13.5, EX], [3.3, 29.32, EX], [ERV_F, 29.32, ERV_Z]],
         note="Collects the three bathroom exhausts on the attic deck along the south side of the supply trunk and down the west side to the ERV stale air inlet. ASSUMED route and size.")
+# Heat pump water heater air (Maxwell, 11/18/2026): the utility door stays solid, so the water heater's intake and exhaust are both
+# ducted up into the attic, which is inside the SIP roof. Rheem allows any size room when both are ducted and says never to tie
+# the unit into other ductwork. Both rise straight up in truss bay 5.7, north to south of each other.
+HPWH_TOP = 74.2 / 12
+for k, (nm, yy) in enumerate([("intake", 26.75), ("exhaust", 27.55)]):
+    ducts.append(dict(id=f"hpwh_{nm}", name=f"Water heater {nm} duct" if k == 0 else None, category="Hot water", system="plumbing.dhw.air", type="exhaust",
+        shape="round", size=8, flex=True, room="Utility",
+        points=[[bay(WH_X), yy, HPWH_TOP + 0.05], [bay(WH_X), yy, DECK + 0.6]],
+        grilles=[dict(at=[bay(WH_X), yy, DECK + 0.62], size=[10, 10])],
+        **({"info": dict(model="8 in insulated flex, Rheem duct kit (SP20889 flex, SP20890 elbows, SP17829 outlet adaptor)",
+                         specs=[["Intake", "Top of the water heater to a grille on the attic deck"], ["Exhaust", "Side outlet to a grille on the attic deck, cold air"],
+                                ["Limit", "125 ft equivalent, intake plus exhaust; each elbow counts 5 ft"]],
+                         notes=["Rheem: 'DO NOT connect this water heater to existing duct work; it must be ducted separately from other appliances.'",
+                                "Insulated because the exhaust air is cold and would sweat. The newest Rheem manual uses a 10 in exhaust collar; 8 in shown. Route ASSUMED."])}
+           if k == 0 else {"info_of": "hpwh_intake"})))
+for d in ducts:
+    if d.get("name", 1) is None: d.pop("name")
+
 # Range hood (Maxwell, 11/17/2026): quiet inside, so the fan is as far from the kitchen as it can be, on the roof, and a
 # silencer sits in the duct between the hood and the fan. The hood is a liner or insert with no blower of its own. The duct
 # rises inside the chimney cover, through the 10-1/4 in SIP roof, to a low profile exterior blower on a curb, so nothing sticks

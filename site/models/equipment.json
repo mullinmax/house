@@ -838,47 +838,119 @@
    "layer": "mechanical",
    "builder": "hpwh",
    "size": [
-    22.25,
-    61.4
+    24.25,
+    74.2
    ],
    "at": [
-    4.5,
+    5.7,
     28.22,
     0
    ],
    "facing": 0,
    "info": {
-    "model": "Rheem ProTerra 50 gal hybrid (PROPH50 T2 RH375-30)",
-    "price": "Not priced yet",
+    "model": "Rheem ProTerra 80 gal hybrid with LeakGuard (PROPH80 T2 RH400-SO)",
+    "price": "$3,467 at US Supply (pickup only, 11/18/2026); check Lowe's and Home Depot",
     "specs": [
      [
       "Tank",
-      "50 gal"
+      "80 gal, 87 gal first hour rating"
      ],
      [
       "Efficiency",
-      "UEF 3.88"
+      "UEF 4.07"
      ],
      [
       "Size",
-      "About 22.25 in diameter x 61.4 in tall"
+      "24-1/4 in diameter x 74-3/16 in tall, 6 in clear above for the filter"
      ],
      [
       "Power",
-      "240 V, 30 A"
+      "240 V, 30 A, 10 AWG"
      ],
      [
-      "Setpoint",
-      "37 to 145 F"
+      "Air",
+      "Intake and exhaust both ducted to the attic, so the solid utility door needs no louvers"
+     ],
+     [
+      "Fed by",
+      "The 50 gal desuperheater preheat tank next to it"
+     ]
+    ],
+    "links": [
+     [
+      "Spec sheet",
+      "https://files.rheem.com/blobazrheem/wp-content/uploads/sites/2/Hybrid-Electric-HPWH-with-LeakGuard-Spec-Sheet.pdf"
+     ],
+     [
+      "US Supply",
+      "https://www.ussupply.com/80-gal-professional-prestige-proterra-hybrid-electric-heat-pump-4-5kw-amp-ef4-07-2047131.html"
+     ],
+     [
+      "Research doc",
+      "https://claude.ai/artifact/49L6BApM9Yqx434FQv1fWF"
      ]
     ],
     "notes": [
-     "Picked because sheet U-11 names the Rheem Performance Platinum 50 gal hybrid with a recirculation pump as the basis of design, and this is the same family.",
-     "Alternative: A.O. Smith Signature 900 HPS10-50H45DV, 50 gal, UEF 3.80, 63 H x 22 W in, 45 dBA, built in leak detection. It wants 450 cu ft of room air. The utility room is about 540 cu ft.",
+     "Maxwell (11/18/2026): plan for 4 people and err on the big side, keep the utility door solid so the hall stays quiet, use two tanks, and keep a heat pump unit because the house is meant to go off grid.",
+     "Sheet U-11 names a Rheem Performance Platinum 50 gal hybrid with a recirculation pump; this is the same family, one size up.",
+     "Runner up: A.O. Smith Signature 900 HPS10-80H45DV (45 dBA published, 69 in tall).",
      "Shown with the U-11 details: 2 in drain pan, expansion tank, recirculation pump.",
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
     ],
-    "placement": "South wall of the utility room (Maxwell, 11/15/2026), near the floor drain on U-11."
+    "placement": "South wall of the utility room (Maxwell, 11/15/2026), near the floor drain on U-11. Sits under truss bay 5.7 so its two ducts rise straight into the attic."
+   }
+  },
+  {
+   "id": "preheat_tank",
+   "name": "Desuperheater preheat tank",
+   "category": "Hot water",
+   "system": "plumbing.dhw",
+   "room": "Utility",
+   "layer": "mechanical",
+   "builder": "storage_tank",
+   "size": [
+    22.0,
+    59.0
+   ],
+   "at": [
+    8.210416666666667,
+    28.22,
+    0
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Rheem Professional Classic 50 gal electric (PROE50 T2 RH95), elements left unwired",
+    "price": "$744 at HVACDirect (11/18/2026)",
+    "specs": [
+     [
+      "Tank",
+      "50 gal, no power: only the geothermal desuperheater heats it"
+     ],
+     [
+      "Piping",
+      "Cold supply in, preheated water out to the heat pump water heater's cold inlet"
+     ],
+     [
+      "Desuperheater",
+      "The geo's built in pump pulls from the bottom drain port and returns through a tee at the cold inlet"
+     ],
+     [
+      "Bypass",
+      "Valves so the heat pump water heater can run on its own"
+     ]
+    ],
+    "links": [
+     [
+      "HVACDirect",
+      "https://hvacdirect.com/rheem-professional-classic-electric-water-heater-50-gal-tall-240-vac-4500-watt-proe50-t2-rh95.html"
+     ]
+    ],
+    "notes": [
+     "Two tanks because a desuperheater works best on cold water, and a heat pump tank also heats from the bottom, so in one tank they compete. Enertech's install guidance says a preheat tank gets the most out of the desuperheater.",
+     "The GeoComfort GZT048J11LM1CCS has hot water code 1: desuperheater with a factory installed pump.",
+     "Size is ASSUMED (about 22 in x 59 in for a 50 gal tall tank)."
+    ],
+    "placement": "South wall of the utility room, just east of the heat pump water heater."
    }
   },
   {
@@ -1230,6 +1302,165 @@
     ],
     "notes": [
      "Route is ASSUMED. Greg's summary only says the piping goes up through the ceiling to the unit."
+    ]
+   }
+  },
+  {
+   "id": "dsh_0",
+   "name": "Desuperheater lines",
+   "category": "Hot water",
+   "system": "plumbing.dhw",
+   "dia": 1.6,
+   "mat": "foam",
+   "points": [
+    [
+     8.068333333333333,
+     23.82,
+     10.760416666666668
+    ],
+    [
+     8.618333333333334,
+     23.82,
+     10.760416666666668
+    ],
+    [
+     8.618333333333334,
+     23.82,
+     8.66
+    ],
+    [
+     9.320416666666667,
+     23.82,
+     8.66
+    ],
+    [
+     9.320416666666667,
+     27.686666666666667,
+     8.66
+    ],
+    [
+     9.320416666666667,
+     27.686666666666667,
+     0.45
+    ],
+    [
+     9.160416666666666,
+     27.686666666666667,
+     0.45
+    ]
+   ],
+   "info": {
+    "model": "3/4 in copper or PEX with pipe insulation, to and from the geo's built in desuperheater pump",
+    "specs": [
+     [
+      "Supply to the geo",
+      "From the preheat tank's bottom drain port"
+     ],
+     [
+      "Return from the geo",
+      "Into the preheat tank's cold inlet through a tee"
+     ]
+    ],
+    "notes": [
+     "Route is ASSUMED. Line size and the maximum run come from the GZT installation manual; the run here is short because the geo sits right above the utility room."
+    ]
+   }
+  },
+  {
+   "id": "dsh_1",
+   "name": "Desuperheater lines",
+   "category": "Hot water",
+   "system": "plumbing.dhw",
+   "dia": 1.6,
+   "mat": "foam",
+   "info_of": "dsh_0",
+   "points": [
+    [
+     8.068333333333333,
+     24.18,
+     11.177083333333334
+    ],
+    [
+     8.618333333333334,
+     24.18,
+     11.177083333333334
+    ],
+    [
+     8.618333333333334,
+     24.18,
+     8.84
+    ],
+    [
+     9.500416666666666,
+     24.18,
+     8.84
+    ],
+    [
+     9.500416666666666,
+     27.686666666666667,
+     8.84
+    ],
+    [
+     8.560416666666667,
+     27.686666666666667,
+     8.84
+    ],
+    [
+     8.560416666666667,
+     27.686666666666667,
+     4.966666666666667
+    ]
+   ],
+   "info": {
+    "model": "3/4 in copper or PEX with pipe insulation, to and from the geo's built in desuperheater pump",
+    "specs": [
+     [
+      "Supply to the geo",
+      "From the preheat tank's bottom drain port"
+     ],
+     [
+      "Return from the geo",
+      "Into the preheat tank's cold inlet through a tee"
+     ]
+    ],
+    "notes": [
+     "Route is ASSUMED. Line size and the maximum run come from the GZT installation manual; the run here is short because the geo sits right above the utility room."
+    ]
+   }
+  },
+  {
+   "id": "preheat_xfer",
+   "name": "Preheated water to the heat pump water heater",
+   "category": "Hot water",
+   "system": "plumbing.dhw",
+   "dia": 1.3,
+   "mat": "copper",
+   "points": [
+    [
+     7.910416666666667,
+     27.086666666666666,
+     4.966666666666667
+    ],
+    [
+     7.910416666666667,
+     27.086666666666666,
+     8.68
+    ],
+    [
+     4.472916666666666,
+     27.086666666666666,
+     8.68
+    ],
+    [
+     4.472916666666666,
+     27.17625,
+     8.68
+    ]
+   ],
+   "info": {
+    "model": "3/4 in copper, insulated",
+    "notes": [
+     "Feeds the heat pump water heater's cold inlet with preheated water. Bypass and isolation valves ASSUMED."
     ]
    }
   }
@@ -2647,7 +2878,6 @@
   },
   {
    "id": "return_main_riser",
-   "name": null,
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
@@ -2672,7 +2902,6 @@
   },
   {
    "id": "return_main_deck",
-   "name": null,
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
@@ -2814,7 +3043,6 @@
   },
   {
    "id": "return_bed3_stack",
-   "name": null,
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
@@ -2839,7 +3067,6 @@
   },
   {
    "id": "return_bed2",
-   "name": null,
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
@@ -2926,7 +3153,6 @@
   },
   {
    "id": "return_bed2_stack",
-   "name": null,
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
@@ -3109,7 +3335,6 @@
   },
   {
    "id": "return_study_stack",
-   "name": null,
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
@@ -3134,7 +3359,6 @@
   },
   {
    "id": "return_bed1",
-   "name": null,
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
@@ -3296,7 +3520,6 @@
   },
   {
    "id": "return_bed1_stack",
-   "name": null,
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
@@ -3510,6 +3733,99 @@
      "Collects the three bathroom exhausts on the attic deck along the south side of the supply trunk and down the west side to the ERV stale air inlet. ASSUMED route and size."
     ]
    }
+  },
+  {
+   "id": "hpwh_intake",
+   "name": "Water heater intake duct",
+   "category": "Hot water",
+   "system": "plumbing.dhw.air",
+   "type": "exhaust",
+   "shape": "round",
+   "size": 8,
+   "flex": true,
+   "room": "Utility",
+   "points": [
+    [
+     5.7,
+     26.75,
+     6.233333333333333
+    ],
+    [
+     5.7,
+     26.75,
+     10.652083333333334
+    ]
+   ],
+   "grilles": [
+    {
+     "at": [
+      5.7,
+      26.75,
+      10.672083333333333
+     ],
+     "size": [
+      10,
+      10
+     ]
+    }
+   ],
+   "info": {
+    "model": "8 in insulated flex, Rheem duct kit (SP20889 flex, SP20890 elbows, SP17829 outlet adaptor)",
+    "specs": [
+     [
+      "Intake",
+      "Top of the water heater to a grille on the attic deck"
+     ],
+     [
+      "Exhaust",
+      "Side outlet to a grille on the attic deck, cold air"
+     ],
+     [
+      "Limit",
+      "125 ft equivalent, intake plus exhaust; each elbow counts 5 ft"
+     ]
+    ],
+    "notes": [
+     "Rheem: 'DO NOT connect this water heater to existing duct work; it must be ducted separately from other appliances.'",
+     "Insulated because the exhaust air is cold and would sweat. The newest Rheem manual uses a 10 in exhaust collar; 8 in shown. Route ASSUMED."
+    ]
+   }
+  },
+  {
+   "id": "hpwh_exhaust",
+   "category": "Hot water",
+   "system": "plumbing.dhw.air",
+   "type": "exhaust",
+   "shape": "round",
+   "size": 8,
+   "flex": true,
+   "room": "Utility",
+   "points": [
+    [
+     5.7,
+     27.55,
+     6.233333333333333
+    ],
+    [
+     5.7,
+     27.55,
+     10.652083333333334
+    ]
+   ],
+   "grilles": [
+    {
+     "at": [
+      5.7,
+      27.55,
+      10.672083333333333
+     ],
+     "size": [
+      10,
+      10
+     ]
+    }
+   ],
+   "info_of": "hpwh_intake"
   },
   {
    "id": "ex_hood",

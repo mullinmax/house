@@ -530,6 +530,23 @@ const BUILD = {
     cyl(g, 0.35, h - 6, mat('condensate', 0xe9eef2, 0.4, 0, { transparent: true, opacity: 0.8 }), r - 1, (h - 6) / 2 + 2, cz - r * 0.75); // condensate line, on the wall side
     return g;
   },
+  storage_tank(s) {                // plain electric tank used as the desuperheater preheat tank: white jacket, top connections, drain on the east side
+    const [dia, h] = s, g = new THREE.Group(), r = dia / 2, cz = r + 2;
+    box(g, dia + 4, 2, dia + 4, galv(), 0, 1, cz);                                           // drain pan
+    cyl(g, r, h - 0.9, mat('tank white', 0xe9e8e3, 0.55, 0.05), 0, 0.6 + (h - 0.9) / 2, cz, 'y', 48);
+    cyl(g, r - 0.4, 0.4, mat('tank top', 0xd9d8d3, 0.6, 0.05), 0, h - 0.1, cz, 'y', 40);
+    cyl(g, r + 0.06, 1.2, mat('tank base ring', 0x55585a, 0.6, 0.3), 0, 1.2, cz, 'y', 48);
+    for (const y of [15, 42]) wrap(g, r + 0.08, 5.6, 7.6, mat('tank cover', 0xb9bab6, 0.5, 0.3), 0, y, cz, 0);   // element covers (not wired)
+    wrap(g, r + 0.12, 2.8, 2.8, labelMat('rheem badge', 128, 128, roundBadge('#c8102e', '#fff', 'Rheem', 'italic bold 34px Georgia, serif')), 0, h - 10, cz, 0, 6);
+    cyl(g, 0.5, 2.6, brass(), r + 1.0, 5.4, cz - 4.8, 'x', 12);                              // drain port, tee to the desuperheater supply
+    for (const [x, m] of [[3.6, blue()], [-3.6, red()]]) {                                     // cold in, hot out on top
+      cyl(g, 0.55, 30, copper(), x, h + 15, cz - 0.6, 'y', 12);
+      ring(g, 0.9, 0.25, m, x, h + 3, cz - 0.6, 'y', 20);
+    }
+    cyl(g, 0.7, 2.6, brass(), -(r + 1.1), h - 8, cz, 'x', 12);                                // T&P relief valve and its drop
+    cyl(g, 0.4, h - 14, copper(), -(r + 2.2), (h - 8 + 6) / 2, cz, 'y', 10);
+    return g;
+  },
   geo_horizontal(s) {
     // GeoComfort ZT 048 horizontal, left hand return, end discharge: [A width, C height, B length] = 21.7 x 21.2 x 56 in.
     // Local: length along x. +x end = supply discharge, -x end = front (water and electrical connections).
