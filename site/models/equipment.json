@@ -1138,7 +1138,7 @@
     12.202083333333334
    ],
    "facing": 180,
-   "stand": 25.8,
+   "hang": 54.4,
    "info": {
     "model": "Panasonic Intelli-Balance 100 (ERV-01 on M-10)",
     "specs": [
@@ -1148,7 +1148,7 @@
      ],
      [
       "Ducts",
-      "Intake and exhaust through the west wall"
+      "Exhaust through the west wall beside the unit, intake through the west wall 10 ft further north"
      ],
      [
       "Stale air from",
@@ -1160,7 +1160,11 @@
      ],
      [
       "Mounting",
-      "On a stand or hung on chains, about 2 ft above the deck"
+      "Hung level on four chains from the roof framing, about 2 ft above the deck (the manual's chain mount)"
+     ],
+     [
+      "Controls",
+      "Runs continuously on low; a timer switch in each bathroom boosts it; blower interlock wire to the heat pump"
      ]
     ],
     "notes": [
@@ -1169,9 +1173,10 @@
      "The bathrooms exhaust through this unit instead of separate fans (Maxwell, 11/17/2026). The code allows it because the ERV sends that air outdoors; it has to run continuously at 20 CFM or more per bathroom (IRC table M1505.4.4).",
      "Fresh air goes into the supply plenum, not the attic (Maxwell, 11/18/2026). Panasonic's instructions say the furnace blower should run whenever the ERV runs when it is tied into the ductwork, and Building Science Corp. calls for an interlock and a motorized damper on a supply side connection. The heat pump's ECM blower can idle at low speed for this. Andy should confirm the ERV can push against the supply plenum's pressure; the fallback is the return plenum, which the code also counts as supply ventilation (IRC M1505.4.1).",
      "One fan pulls from all three bathrooms, so the whole exhaust duct is under suction and air cannot be pushed from one bathroom into another. Backdraft dampers are for separate fans that share a duct. Each branch gets a balancing damper to set its airflow.",
-     "Panasonic: separate outdoor hoods go at least 10 ft apart, each duct connection wants 2 to 3 ft of straight run, and the unit must sit in conditioned space above 50 F. The two wall ducts are drawn 7 in apart here, so they need a combined hood made for the purpose or one of them moved. Open item. Three baths plus whole house ventilation (about 75 CFM for this size and bedroom count) is near the top of a 100 CFM unit, so Andy should confirm the size. The range hood cannot connect here, it has its own duct outdoors."
+     "Set out to Panasonic's installation instructions (Maxwell, 11/18/2026): the two outdoor hoods are more than 10 ft apart, every duct connection has 2 ft or more of straight run before its first elbow, the outdoor ducts are insulated, the unit hangs level on chains inside the conditioned attic, and the intake is well over 6 ft from the dryer and range hood outlets.",
+     "A backdraft damper in the fresh air duct stops the heat pump's blower from pushing supply air backward through the ERV. With the blower off, the ERV's own fan still sends the fresh air down the supply trunk to every register, so it works without the heat pump running. Three baths plus whole house ventilation (about 75 CFM for this size and bedroom count) is near the top of a 100 CFM unit, so Andy should confirm the size. The range hood cannot connect here, it has its own duct outdoors."
     ],
-    "placement": "In line with the heat pump, just south of it and raised to the height of its top. Andy drew it west of HP-01."
+    "placement": "In line with the heat pump, just south of it, hung at the height of its top. Andy drew it west of HP-01."
    }
   },
   {
@@ -2394,58 +2399,6 @@
    ]
   },
   {
-   "id": "s_bath2",
-   "name": "Supply to Bath 2",
-   "category": "HVAC supply duct",
-   "system": "hvac.supply",
-   "room": "Bath 2",
-   "type": "supply",
-   "shape": "round",
-   "size": 6,
-   "points": [
-    [
-     19.0,
-     11.4,
-     11.0
-    ],
-    [
-     19.0,
-     10.6,
-     11.0
-    ]
-   ],
-   "info": {
-    "model": "6 in round, 37 CFM",
-    "specs": [
-     [
-      "Airflow",
-      "37 CFM (M-10)"
-     ],
-     [
-      "Duct",
-      "6 in round"
-     ]
-    ],
-    "notes": [
-     "High sidewall register through the attic wall."
-    ]
-   },
-   "grilles": [
-    {
-     "at": [
-      19.0,
-      10.62,
-      11.0
-     ],
-     "size": [
-      10,
-      6
-     ],
-     "wall": "N"
-    }
-   ]
-  },
-  {
    "id": "s_study",
    "name": "Supply to Bedroom 4 / study",
    "category": "HVAC supply duct",
@@ -2778,12 +2731,12 @@
    "points": [
     [
      1.9,
-     32.2,
+     29.2,
      9.494791666666666
     ],
     [
-     9.1,
-     32.2,
+     9.5,
+     29.2,
      9.494791666666666
     ]
    ],
@@ -2800,14 +2753,14 @@
      ]
     ],
     "notes": [
-     "Round branch off the south main through the pantry trusses."
+     "Round branch off the south main through the pantry trusses. Ceiling register in the northeast corner by the door, about 4 ft from the exhaust over the toilet (Maxwell, 11/18/2026: move them apart; the 9 ft flat ceiling leaves no way to bring this one in low)."
     ]
    },
    "grilles": [
     {
      "at": [
-      9.1,
-      32.2,
+      9.5,
+      29.2,
       8.98
      ],
      "size": [
@@ -4227,6 +4180,85 @@
    "info_of": "return_study"
   },
   {
+   "id": "s_bath2",
+   "name": "Supply to Bath 2",
+   "category": "HVAC supply duct",
+   "system": "hvac.supply",
+   "room": "Bath 2",
+   "type": "supply",
+   "shape": "round",
+   "size": 6,
+   "points": [
+    [
+     20.1,
+     12.0,
+     10.352083333333335
+    ],
+    [
+     20.1,
+     12.0,
+     9.494791666666666
+    ],
+    [
+     20.1,
+     10.85,
+     9.494791666666666
+    ]
+   ],
+   "info": {
+    "model": "6 in round, 37 CFM",
+    "specs": [
+     [
+      "Airflow",
+      "37 CFM (M-10)"
+     ],
+     [
+      "Duct",
+      "6 in round"
+     ]
+    ],
+    "notes": [
+     "Low sidewall register on the south wall (Maxwell, 11/18/2026): supply low, exhaust high on the other end of the same wall, so fresh air sweeps across the room before the exhaust takes it. Bottom takeoff from the trunk, 6 in round north in one hall 2 truss bay, then a 12 x 2-1/2 in stack down the stud bay of the interior wall. The register sits east of the door and west of the vanity. ASSUMED sizes."
+    ]
+   },
+   "grilles": [
+    {
+     "at": [
+      20.1,
+      10.64,
+      1.0
+     ],
+     "size": [
+      10,
+      6
+     ],
+     "wall": "N"
+    }
+   ]
+  },
+  {
+   "id": "s_bath2_stack",
+   "info_of": "s_bath2",
+   "type": "supply",
+   "shape": "rect",
+   "size": [
+    12,
+    2.5
+   ],
+   "points": [
+    [
+     20.1,
+     10.8,
+     0.75
+    ],
+    [
+     20.1,
+     10.8,
+     9.494791666666666
+    ]
+   ]
+  },
+  {
    "id": "ex_bath1",
    "category": "Ventilation",
    "system": "hvac.exhaust",
@@ -4281,12 +4313,12 @@
    "size": 4,
    "points": [
     [
-     19.8,
+     21.9,
      10.62,
      11.675416666666665
     ],
     [
-     19.8,
+     21.9,
      12.0,
      11.675416666666665
     ]
@@ -4296,13 +4328,13 @@
    "info": {
     "model": "4 in round exhaust",
     "notes": [
-     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. High on the bath 2 wall through the attic wall, over the supply trunk."
+     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. High on the east end of the bath 2 south wall, through the attic wall and into the main on top of the supply trunk. It was right beside the supply; the supply now comes in low at the west end of the same wall (Maxwell, 11/18/2026)."
     ]
    },
    "grilles": [
     {
      "at": [
-      19.8,
+      21.9,
       10.6,
       11.675416666666665
      ],
@@ -4323,18 +4355,18 @@
    "size": 4,
    "points": [
     [
-     10.2,
-     31.3,
+     7.2,
+     32.2,
      9.494791666666666
     ],
     [
-     10.2,
-     31.3,
+     7.2,
+     32.2,
      10.222083333333334
     ],
     [
      4.9,
-     31.3,
+     32.2,
      10.222083333333334
     ],
     [
@@ -4364,8 +4396,8 @@
    "grilles": [
     {
      "at": [
-      10.2,
-      31.3,
+      7.2,
+      32.2,
       8.98
      ],
      "size": [
@@ -4571,12 +4603,22 @@
     ],
     [
      2.990833333333333,
-     31.835,
+     33.235,
+     12.677083333333334
+    ],
+    [
+     0.85,
+     33.235,
+     12.677083333333334
+    ],
+    [
+     0.85,
+     23.035,
      12.677083333333334
     ],
     [
      -0.05,
-     31.835,
+     23.035,
      12.677083333333334
     ]
    ]
@@ -4595,12 +4637,12 @@
     ],
     [
      3.820833333333333,
-     32.435,
+     33.835,
      12.677083333333334
     ],
     [
      -0.05,
-     32.435,
+     33.835,
      12.677083333333334
     ]
    ]

@@ -648,9 +648,8 @@ const BUILD = {
   },
   erv(s, it = {}) {                // Panasonic Intelli-Balance 100: galvanized steel box, two white duct adapters on each end
     const [w, h, d] = s, g = new THREE.Group();
-    if (it.stand) {                                                                          // raised on a simple angle iron stand, stand = its height in inches
-      for (const x of [-w / 2 + 0.8, w / 2 - 0.8]) for (const z of [2, d - 2]) box(g, 1.5, it.stand, 1.5, darkSteel(), x, -it.stand / 2, z);
-      for (const z of [2, d - 2]) box(g, w, 1.5, 1.5, darkSteel(), 0, -0.75, z);
+    if (it.hang) {                                                                           // hung level on four chains from the roof framing, hang = chain length in inches
+      for (const x of [-w / 2 - 0.7, w / 2 + 0.7]) for (const z of [2.5, d - 2.5]) cyl(g, 0.16, it.hang, darkSteel(), x, h + it.hang / 2, z, 'y', 6);
     }
     box(g, w, h, d, galv(), 0, h / 2, d / 2);
     for (const z of [-1.0, d + 1.0]) for (const x of [-w / 4, w / 4]) {
