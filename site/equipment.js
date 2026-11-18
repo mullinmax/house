@@ -515,19 +515,52 @@ const BUILD = {
     wrap(g, r + 0.12, 2.8, 2.8, labelMat('rheem badge', 128, 128, roundBadge('#c8102e', '#fff', 'Rheem', 'italic bold 34px Georgia, serif')), 0, split - 4, cz, 0, 6);
     for (const y of [15, 38]) wrap(g, r + 0.08, 5.6, 7.6, mat('tank cover', 0x8a8c8c, 0.5, 0.5), 0, y, cz, 0);   // element access covers
     cyl(g, 0.5, 2.2, brass(), -4.6, 5.2, cz + r * 0.92 + 0.6, 'z', 12);                       // drain valve
-    // side connections: cold in low, hot out high, then up to the overhead piping
-    const px = -(r + 2.6);
+    // side connections: cold in low, hot out high (brass unions); the piping itself is drawn as pipe runs
     for (const [y, m, zo] of [[9, blue(), -1.6], [split - 4, red(), 1.6]]) {
       cyl(g, 0.7, 2.8, brass(), -(r + 1.2), y, cz + zo, 'x', 12);
-      cyl(g, 0.55, h + 30 - y, copper(), px, y + (h + 30 - y) / 2, cz + zo, 'y', 12);
-      ring(g, 0.9, 0.25, m, px, h + 3, cz + zo, 'y', 20);
+      ring(g, 0.9, 0.25, m, -(r + 2.2), y, cz + zo, 'x', 20);
     }
-    box(g, 4.2, 5.5, 4.2, pumpRed(), px, h + 14, cz + 1.6);                                   // recirculation pump (U-11)
-    cyl(g, 4, 9, galv(), px - 5.2, h + 20, cz - 1.6);                                         // expansion tank (U-11 detail)
-    cyl(g, 0.4, 5.2, copper(), px - 2.6, h + 22, cz - 1.6, 'x', 10);
     cyl(g, 0.7, 2.6, brass(), r + 1.1, split - 3, cz, 'x', 12);                               // T&P relief valve and its drop
     cyl(g, 0.4, split - 9, copper(), r + 2.2, (split - 3 + 6) / 2, cz, 'y', 10);
     cyl(g, 0.35, h - 6, mat('condensate', 0xe9eef2, 0.4, 0, { transparent: true, opacity: 0.8 }), r - 1, (h - 6) / 2 + 2, cz - r * 0.75); // condensate line, on the wall side
+    return g;
+  },
+  storage_tank(s) {                // plain electric tank used as the desuperheater preheat tank: white jacket, top connections, drain on the east side
+    const [dia, h] = s, g = new THREE.Group(), r = dia / 2, cz = r + 2;
+    box(g, dia + 4, 2, dia + 4, galv(), 0, 1, cz);                                           // drain pan
+    cyl(g, r, h - 0.9, mat('tank white', 0xe9e8e3, 0.55, 0.05), 0, 0.6 + (h - 0.9) / 2, cz, 'y', 48);
+    cyl(g, r - 0.4, 0.4, mat('tank top', 0xd9d8d3, 0.6, 0.05), 0, h - 0.1, cz, 'y', 40);
+    cyl(g, r + 0.06, 1.2, mat('tank base ring', 0x55585a, 0.6, 0.3), 0, 1.2, cz, 'y', 48);
+    for (const y of [15, 42]) wrap(g, r + 0.08, 5.6, 7.6, mat('tank cover', 0xb9bab6, 0.5, 0.3), 0, y, cz, 0);   // element covers (not wired)
+    wrap(g, r + 0.12, 2.8, 2.8, labelMat('rheem badge', 128, 128, roundBadge('#c8102e', '#fff', 'Rheem', 'italic bold 34px Georgia, serif')), 0, h - 10, cz, 0, 6);
+    cyl(g, 0.5, 2.6, brass(), r + 1.0, 5.4, cz - 4.8, 'x', 12);                              // drain port, tee to the desuperheater supply
+    for (const [x, m] of [[3.6, blue()], [-3.6, red()]]) {                                     // cold in, hot out on top: short nipples, the pipe runs carry on
+      cyl(g, 0.7, 3, brass(), x, h + 1.5, cz, 'y', 12);
+      ring(g, 0.9, 0.25, m, x, h + 2.2, cz, 'y', 20);
+    }
+    cyl(g, 0.7, 2.6, brass(), -(r + 1.1), h - 8, cz, 'x', 12);                                // T&P relief valve and its drop
+    cyl(g, 0.4, h - 14, copper(), -(r + 2.2), (h - 8 + 6) / 2, cz, 'y', 10);
+    return g;
+  },
+  circ_pump(s) {                   // inline hot water recirculation pump on a vertical pipe (U-11): red volute, motor and box off the side
+    const g = new THREE.Group();
+    cyl(g, 1.0, 5.5, brass(), 0, 0, 0, 'y', 14);                                             // flanges and body on the pipe
+    cyl(g, 2.1, 2.6, pumpRed(), 0, 0, 0, 'y', 24);                                           // volute
+    cyl(g, 1.7, 4.2, pumpRed(), 0, 0, 2.6, 'z', 20);                                         // motor sticking out from the wall side
+    box(g, 2.4, 2.0, 1.6, mat('pump box', 0x2c2c2c, 0.6, 0.1), 0, 2.0, 3.4);
+    return g;
+  },
+  expansion_tank(s) {              // thermal expansion tank hanging under the cold line
+    const [d, h] = s, g = new THREE.Group();
+    cyl(g, 0.4, 3, brass(), 0, -1.5, 0, 'y', 10);
+    cyl(g, d / 2, h, galv(), 0, -3 - h / 2, 0, 'y', 28);
+    cyl(g, 0.4, 0.8, brass(), 0, -3 - h - 0.4, 0, 'y', 8);                                   // air valve
+    return g;
+  },
+  mixing_valve(s) {                // thermostatic mixing valve on the hot riser, tempered water out the top
+    const g = new THREE.Group();
+    box(g, 2.6, 3.2, 2.2, brass(), 0, 0, 0);
+    cyl(g, 1.1, 0.8, mat('valve knob', 0x2f6db5, 0.5, 0.1), 0, 0, 1.5, 'z', 18);
     return g;
   },
   geo_horizontal(s) {
