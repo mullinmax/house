@@ -656,7 +656,7 @@ const BUILD = {
       cyl(g, 3.0, 2.0, whitePlastic(), x, h / 2, z, 'z', 24);                                // 6 in adapters
       cyl(g, 3.6, 0.25, whitePlastic(), x, h / 2, z < 0 ? -0.12 : d + 0.12, 'z', 24);
     }
-    box(g, 0.14, h - 1.6, d * 0.62, mat('erv access panel', 0xc3c7ca, 0.38, 0.8), w / 2 + 0.07, h / 2, d / 2);   // core and filter access panel
+    box(g, 0.14, h - 1.6, d * 0.62, mat('erv access panel', 0xc3c7ca, 0.38, 0.8), w / 2 + 0.09, h / 2, d / 2);   // core and filter access panel
     for (const z of [d / 2 - d * 0.24, d / 2 + d * 0.24]) box(g, 0.3, 1.6, 1.0, darkPlastic(), w / 2 + 0.2, h / 2, z);   // latches
     box(g, 0.3, 3.2, 4.2, darkPlastic(), w / 2 + 0.15, h - 2.4, d - 3.2);                     // airflow dials
     box(g, 0.05, 2.6, 4.4, mat('rating label', 0xe9e9e2, 0.6), w / 2 + 0.16, 2.2, d / 2);

@@ -831,6 +831,7 @@
     ],
     "notes": [
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class.",
+     "Service: 2 ft of open floor in front for swapping a pump or hooking up flush hoses, and its fill cap on top is about 5 ft off the floor with nothing over it. Geo-Flo gives no clearance numbers; it says only to check the fluid level in the canister, mostly in the first days after a fill. OPEN QUESTION for Greg: a non pressurized flow center normally sits level with or above the heat pump, and here the heat pump is about 9 ft above it.",
      "Kept on the west wall, which is an outside wall, so pump hum does not pass into bedroom 3 behind the north wall. It sits under the heat pump's water connections, so the insulated lines go straight up and only cross about 3 ft of attic."
     ],
     "placement": "Utility room west wall, south of the manifolds. 1-1/4 in insulated pipes run from here straight up through the ceiling to the heat pump."
@@ -849,7 +850,7 @@
     74.2
    ],
    "at": [
-    6.2,
+    7.7,
     27.987666666666666,
     0
    ],
@@ -905,7 +906,7 @@
      "Shown with the U-11 details: 2 in drain pan, expansion tank, recirculation pump.",
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
     ],
-    "placement": "South wall of the utility room (Maxwell, 11/15/2026), 5 in off the wall so the piping runs behind it. Its two ducts rise in one truss bay and come out on the attic deck just east of the return plenum."
+    "placement": "South wall of the utility room (Maxwell, 11/15/2026), 5 in off the wall so the piping runs behind it. It stands 16 in east of the preheat tank so the valves, the recirculation pump and the mixing valve between the tanks can be reached. Its two ducts rise in one truss bay and come out on the attic deck east of the return plenum."
    }
   },
   {
@@ -921,7 +922,7 @@
     59.0
    ],
    "at": [
-    3.6895833333333337,
+    4.439583333333334,
     27.987666666666666,
     0
    ],
@@ -958,7 +959,7 @@
      "The GeoComfort GZT048J11LM1CCS has hot water code 1: desuperheater with a factory installed pump.",
      "Size is ASSUMED (about 22 in x 59 in for a 50 gal tall tank)."
     ],
-    "placement": "South wall of the utility room, as far west as the flow center allows and directly under the heat pump's hot water connections."
+    "placement": "South wall of the utility room, as far west as it can go while leaving 2 ft of working room in front of the flow center. The desuperheater lines come down the wall just west of it."
    }
   },
   {
@@ -975,7 +976,7 @@
     5
    ],
    "at": [
-    4.449583333333334,
+    5.199583333333334,
     28.051,
     3.9
    ],
@@ -1007,7 +1008,7 @@
     11
    ],
    "at": [
-    2.449583333333334,
+    2.7495833333333337,
     27.851,
     6.9
    ],
@@ -1039,7 +1040,7 @@
     3
    ],
    "at": [
-    4.97625,
+    6.47625,
     26.67725,
     6.3
    ],
@@ -1074,7 +1075,7 @@
    "at": [
     4.31,
     25.235,
-    10.510416666666668
+    10.59375
    ],
    "facing": 270,
    "mirror": true,
@@ -1114,6 +1115,8 @@
     "notes": [
      "Andy's plan names a ClimateMaster Tranquility 30 as the basis of design and assumes a downflow unit. This is the unit Greg quoted and Maxwell sent Andy on 8/14/2026.",
      "Greg's quote MMUL8476-4 is for GZT048J11LM1CCS, which is a left hand return. This layout needs the right hand return version: standing at the water connection end, the return and filter are on the right. The unit is not ordered yet, so ask Greg to quote the right hand model and confirm which side the service panels are on.",
+     "Service access from the GZT manual (p.17): 2 ft clear in front of the controls and compressor panel, which is the south (connection) end; 2 ft beside the blower door, which with end discharge is on the west side at the north end; working room for the reversing valve and heat exchanger on the west side and for the TXV and filter drier on the east side, both near the south end. The west aisle is 2 ft, the return plenum stops at the coil so the TXV corner is open, and the ERV intake duct on the west wall runs up under the roof. STILL SHORT: the ERV hangs 17 in in front of the controls end and has to move.",
+     "Condensate: the drain is at the north end, the EZ-Trap needs 6-1/2 in of height so the unit sits on a 6-1/2 in pad, and the unit tilts 1/4 to 1/2 in toward the drain (p.19, p.35). Over a finished ceiling a secondary drain pan under the unit is the usual code answer; the manual shows it as optional.",
      "Turned 90 degrees (Maxwell, 11/18/2026): supply out the north end toward the trunk, water and desuperheater connections on the south end right above the flow center, return and filter on the east side, service panels facing a 2 ft aisle along the west wall."
     ],
     "placement": "On the attic deck over the utility room, where Andy drew HP-01, lengthwise north to south."
@@ -1135,10 +1138,10 @@
    "at": [
     3.405833333333333,
     29.01833333333333,
-    12.202083333333334
+    12.285416666666666
    ],
    "facing": 180,
-   "hang": 54.4,
+   "hang": 53.4,
    "info": {
     "model": "Panasonic Intelli-Balance 100 (ERV-01 on M-10)",
     "specs": [
@@ -1700,22 +1703,22 @@
     [
      1.0,
      27.416666666666664,
-     11.977083333333335
+     12.060416666666667
     ],
     [
      1.0,
      28.798333333333332,
-     11.977083333333335
+     12.060416666666667
     ],
     [
      3.7674999999999996,
      28.798333333333332,
-     11.977083333333335
+     12.060416666666667
     ],
     [
      3.7674999999999996,
      28.53833333333333,
-     11.977083333333335
+     12.060416666666667
     ]
    ],
    "info": {
@@ -1775,27 +1778,27 @@
     [
      1.0,
      26.883333333333333,
-     10.977083333333335
+     11.060416666666667
     ],
     [
      1.3,
      26.883333333333333,
-     10.977083333333335
+     11.060416666666667
     ],
     [
      1.3,
      28.798333333333332,
-     10.977083333333335
+     11.060416666666667
     ],
     [
      3.7674999999999996,
      28.798333333333332,
-     10.977083333333335
+     11.060416666666667
     ],
     [
      3.7674999999999996,
      28.53833333333333,
-     10.977083333333335
+     11.060416666666667
     ]
    ],
    "info": {
@@ -1832,27 +1835,27 @@
    "mat": "copper",
    "points": [
     [
-     2.949583333333334,
+     3.699583333333334,
      27.851,
      0.2
     ],
     [
-     2.949583333333334,
+     3.699583333333334,
      27.851,
      6.9
     ],
     [
-     3.389583333333334,
+     4.139583333333334,
      27.851,
      6.9
     ],
     [
-     3.389583333333334,
+     4.139583333333334,
      26.904333333333334,
      6.9
     ],
     [
-     3.389583333333334,
+     4.139583333333334,
      26.904333333333334,
      5.166666666666667
     ]
@@ -1882,12 +1885,12 @@
    "mat": "copper",
    "points": [
     [
-     2.949583333333334,
+     3.699583333333334,
      27.851,
      6.9
     ],
     [
-     2.949583333333334,
+     3.699583333333334,
      27.851,
      9.0
     ]
@@ -1902,12 +1905,12 @@
    "mat": "copper",
    "points": [
     [
-     2.949583333333334,
+     3.699583333333334,
      27.851,
      6.9
     ],
     [
-     2.349583333333334,
+     2.699583333333334,
      27.851,
      6.9
     ]
@@ -1923,27 +1926,27 @@
    "mat": "foam",
    "points": [
     [
-     3.9895833333333335,
+     4.739583333333334,
      26.904333333333334,
      5.166666666666667
     ],
     [
-     3.9895833333333335,
+     4.739583333333334,
      26.904333333333334,
      5.5
     ],
     [
-     4.97625,
+     6.47625,
      26.943916666666667,
      5.5
     ],
     [
-     4.97625,
+     6.47625,
      26.943916666666667,
      0.75
     ],
     [
-     5.0062500000000005,
+     6.5062500000000005,
      26.943916666666667,
      0.75
     ]
@@ -1965,17 +1968,17 @@
    "mat": "foam",
    "points": [
     [
-     5.0062500000000005,
+     6.5062500000000005,
      26.67725,
      4.558333333333334
     ],
     [
-     4.97625,
+     6.47625,
      26.67725,
      4.558333333333334
     ],
     [
-     4.97625,
+     6.47625,
      26.67725,
      9.0
     ]
@@ -1997,22 +2000,22 @@
    "mat": "foam",
    "points": [
     [
-     4.449583333333334,
+     5.199583333333334,
      28.051,
      9.0
     ],
     [
-     4.449583333333334,
+     5.199583333333334,
      28.051,
      1.2
     ],
     [
-     4.97625,
+     6.47625,
      28.051,
      1.2
     ],
     [
-     4.97625,
+     6.47625,
      26.943916666666667,
      1.2
     ]
@@ -2038,35 +2041,35 @@
     [
      3.7674999999999996,
      27.638333333333332,
-     11.310416666666669
+     11.39375
     ],
     [
      3.7674999999999996,
      27.74833333333333,
-     11.310416666666669
+     11.39375
     ],
     [
-     4.0375,
+     3.4974999999999996,
      27.74833333333333,
-     11.310416666666669
+     11.39375
     ],
     [
-     4.0375,
-     27.951,
-     11.310416666666669
+     3.4974999999999996,
+     28.001,
+     11.39375
     ],
     [
-     4.0375,
-     27.951,
+     3.4974999999999996,
+     28.001,
      0.45
     ],
     [
-     4.747916666666667,
-     27.951,
+     5.497916666666668,
+     28.001,
      0.45
     ],
     [
-     4.747916666666667,
+     5.497916666666668,
      27.304333333333332,
      0.45
     ]
@@ -2088,7 +2091,7 @@
      ]
     ],
     "notes": [
-     "The preheat tank stands directly under the heat pump's hot water connections, so the lines drop straight through the attic deck into the lane behind the tank (Maxwell, 11/18/2026). Route is ASSUMED. Line size and the maximum run come from the GZT installation manual."
+     "The lines drop straight through the attic deck from the heat pump's hot water connections and down the wall just west of the preheat tank (Maxwell, 11/18/2026). Service parts from the GZT manual (p.39): a shutoff valve on each line at the tank, an air vent at the high point, which here is at the heat pump in the attic, and drain valves for flushing and purging the circuit. Copper only, 5/8 in OD or larger, 50 ft at most, 3/8 in wall insulation. Route is ASSUMED. Line size and the maximum run come from the GZT installation manual."
     ]
    }
   },
@@ -2104,35 +2107,35 @@
     [
      3.7674999999999996,
      27.638333333333332,
-     11.64375
+     11.727083333333333
     ],
     [
      3.7674999999999996,
      27.74833333333333,
-     11.64375
+     11.727083333333333
     ],
     [
-     3.4974999999999996,
+     4.0375,
      27.74833333333333,
-     11.64375
+     11.727083333333333
     ],
     [
-     3.4974999999999996,
-     27.951,
-     11.64375
+     4.0375,
+     28.001,
+     11.727083333333333
     ],
     [
-     3.4974999999999996,
-     27.951,
+     4.0375,
+     28.001,
      6.15
     ],
     [
-     3.389583333333334,
-     27.951,
+     4.139583333333334,
+     28.001,
      6.15
     ],
     [
-     3.389583333333334,
+     4.139583333333334,
      26.904333333333334,
      6.15
     ]
@@ -2154,7 +2157,7 @@
      ]
     ],
     "notes": [
-     "The preheat tank stands directly under the heat pump's hot water connections, so the lines drop straight through the attic deck into the lane behind the tank (Maxwell, 11/18/2026). Route is ASSUMED. Line size and the maximum run come from the GZT installation manual."
+     "The lines drop straight through the attic deck from the heat pump's hot water connections and down the wall just west of the preheat tank (Maxwell, 11/18/2026). Service parts from the GZT manual (p.39): a shutoff valve on each line at the tank, an air vent at the high point, which here is at the heat pump in the attic, and drain valves for flushing and purging the circuit. Copper only, 5/8 in OD or larger, 50 ft at most, 3/8 in wall insulation. Route is ASSUMED. Line size and the maximum run come from the GZT installation manual."
     ]
    }
   }
@@ -3575,7 +3578,7 @@
    "points": [
     [
      5.113333333333333,
-     27.45,
+     26.4,
      11.052083333333334
     ],
     [
@@ -4377,12 +4380,12 @@
     [
      4.9,
      28.56833333333333,
-     12.677083333333334
+     12.760416666666666
     ],
     [
      3.920833333333333,
      28.56833333333333,
-     12.677083333333334
+     12.760416666666666
     ]
    ],
    "name": "Powder exhaust",
@@ -4453,12 +4456,12 @@
     [
      3.820833333333333,
      20.401666666666667,
-     12.677083333333334
+     12.760416666666666
     ],
     [
      3.820833333333333,
      29.01833333333333,
-     12.677083333333334
+     12.760416666666666
     ]
    ],
    "name": "Bath exhaust main",
@@ -4585,17 +4588,17 @@
    "room": "Utility",
    "points": [
     [
-     6.2,
+     7.7,
      26.660583333333335,
      6.233333333333333
     ],
     [
-     6.2,
+     7.7,
      26.660583333333335,
      11.052083333333334
     ],
     [
-     7.0,
+     8.5,
      26.660583333333335,
      11.052083333333334
     ]
@@ -4633,17 +4636,17 @@
    "room": "Utility",
    "points": [
     [
-     6.2,
+     7.7,
      27.430583333333335,
      6.233333333333333
     ],
     [
-     6.2,
+     7.7,
      27.430583333333335,
      10.452083333333334
     ],
     [
-     6.2,
+     7.7,
      30.410583333333335,
      10.452083333333334
     ]
@@ -4702,27 +4705,32 @@
     [
      2.990833333333333,
      31.235,
-     12.677083333333334
+     12.760416666666666
     ],
     [
      2.990833333333333,
      33.235,
-     12.677083333333334
+     12.760416666666666
     ],
     [
      0.85,
      33.235,
-     12.677083333333334
+     12.760416666666666
+    ],
+    [
+     0.85,
+     33.235,
+     18.479975
     ],
     [
      0.85,
      23.035,
-     12.677083333333334
+     15.232974999999998
     ],
     [
      -0.05,
      23.035,
-     12.677083333333334
+     15.232974999999998
     ]
    ]
   },
@@ -4736,17 +4744,17 @@
     [
      3.820833333333333,
      31.235,
-     12.677083333333334
+     12.760416666666666
     ],
     [
      3.820833333333333,
      33.835,
-     12.677083333333334
+     12.760416666666666
     ],
     [
      -0.05,
      33.835,
-     12.677083333333334
+     12.760416666666666
     ]
    ]
   },
@@ -4760,12 +4768,12 @@
     [
      2.990833333333333,
      29.01833333333333,
-     12.677083333333334
+     12.760416666666666
     ],
     [
      2.990833333333333,
      21.50166666666667,
-     12.677083333333334
+     12.760416666666666
     ],
     [
      2.990833333333333,

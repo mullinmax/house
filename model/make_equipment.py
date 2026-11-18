@@ -164,18 +164,19 @@ MAN_Y, MAN_Z = 24.3, 2.5                           # manifold centre along the w
 MAN_XS, MAN_XR = 0.56 + 2.6 / 12, 0.56 + 5.4 / 12  # supply header on the wall, return header in front of it
 MAN_ZS, MAN_ZR = MAN_Z + 26 / 12, MAN_Z + 14 / 12  # header heights
 FC_Y, FC_Z = 27.15, 3.0
-# Hot water: both tanks stand off the south wall with a 5 in pipe lane behind them. The preheat tank is as far west as the flow
-# center allows, right under the heat pump's hot water connections, so the desuperheater lines drop straight down behind it
-# (Maxwell, 11/18/2026). The water heater is next to it, and its two ducts rise in truss bay 5.7, just east of the return plenum.
-WH_X, PH_D = 6.2, 22.0
+# Hot water: both tanks stand off the south wall with a 5 in pipe lane behind them. The preheat tank is as far west as it can
+# go while leaving 2 ft of working room in front of the flow center (pump swaps, flush hoses, topping up), so the desuperheater
+# lines drop down the wall just west of it (Maxwell, 11/18/2026). The water heater is 16 in east of it so the valves, pump and
+# mixing valve between the tanks can be reached, and its two ducts rise in the middle of truss bay 7.7.
+WH_X, PH_D = 7.7, 22.0
 TANK_Y = US - 0.42 + 2 / 12                        # the tanks' back point (the builders put each tank 2 in in front of it)
-PH_X = WH_X - ((24.25 + 4) / 24 + 0.25 + (PH_D + 4) / 24)   # preheat tank just west, drain pans 3 in apart
+PH_X = WH_X - ((24.25 + 4) / 24 + 1.0 + (PH_D + 4) / 24)    # preheat tank to the west, drain pans 12 in apart: a 16 in service gap between the tanks
 WH_DUCT_X = WH_X
 # Heat pump: on the attic deck with its length north to south. Supply leaves the north end, the water, desuperheater and
 # electrical connections are on the south end, the return and filter are on the east side, and the service panels face a
 # 2 ft aisle along the west wall (exactly 2 ft from the wall face to the cabinet). Seen from the connection end the return is on the right: a right hand return unit.
 HP_X, HP_Y = 4.31, 25.235                          # centre of the unit's east (return) face
-HP_Z = DECK + 5.5 / 12
+HP_Z = DECK + 6.5 / 12                             # on a pad: the EZ-Trap on the condensate drain needs 6-1/2 in of height (GZT manual p.35)
 HP_AT = [HP_X, HP_Y, HP_Z]
 HP_S, HP_N = HP_Y + 28 / 12, HP_Y - 28 / 12        # south (connection) end and north (supply) end
 HP_CX = HP_X - 21.7 / 24                           # centreline of the cabinet
@@ -195,7 +196,10 @@ items += [
       builder="flow_center", size=[13, 22, 11], at=[0.56, FC_Y, FC_Z], facing=90,
       info=dict(model="Geo-Flo GF-1272 NP2, non pressurized, 2 pumps", price="$1,367.52 (quote MMUL8476-5)",
         specs=[["Pumps", "Two circulators"], ["Connections", "GF-2911 Flo-Link fusion set, 1-1/4 in"], ["Location", "First floor, per Greg's design summary"]],
-        notes=[APPROX, "Kept on the west wall, which is an outside wall, so pump hum does not pass into bedroom 3 behind the north wall. "
+        notes=[APPROX, "Service: 2 ft of open floor in front for swapping a pump or hooking up flush hoses, and its fill cap on top is about 5 ft off the floor with nothing over it. "
+                      "Geo-Flo gives no clearance numbers; it says only to check the fluid level in the canister, mostly in the first days after a fill. "
+                      "OPEN QUESTION for Greg: a non pressurized flow center normally sits level with or above the heat pump, and here the heat pump is about 9 ft above it.",
+               "Kept on the west wall, which is an outside wall, so pump hum does not pass into bedroom 3 behind the north wall. "
                       "It sits under the heat pump's water connections, so the insulated lines go straight up and only cross about 3 ft of attic."],
         placement="Utility room west wall, south of the manifolds. 1-1/4 in insulated pipes run from here straight up through the ceiling to the heat pump.")),
  dict(id="water_heater", name="Heat pump water heater", category="Hot water", system="plumbing.dhw", room="Utility", layer="mechanical",
@@ -211,7 +215,7 @@ items += [
                "Sheet U-11 names a Rheem Performance Platinum 50 gal hybrid with a recirculation pump; this is the same family, one size up.",
                "Runner up: A.O. Smith Signature 900 HPS10-80H45DV (45 dBA published, 69 in tall).",
                "Shown with the U-11 details: 2 in drain pan, expansion tank, recirculation pump.", APPROX],
-        placement="South wall of the utility room (Maxwell, 11/15/2026), 5 in off the wall so the piping runs behind it. Its two ducts rise in one truss bay and come out on the attic deck just east of the return plenum.")),
+        placement="South wall of the utility room (Maxwell, 11/15/2026), 5 in off the wall so the piping runs behind it. It stands 16 in east of the preheat tank so the valves, the recirculation pump and the mixing valve between the tanks can be reached. Its two ducts rise in one truss bay and come out on the attic deck east of the return plenum.")),
  dict(id="preheat_tank", name="Desuperheater preheat tank", category="Hot water", system="plumbing.dhw", room="Utility", layer="mechanical",
       builder="storage_tank", size=[PH_D, 59.0], at=[PH_X, TANK_Y, 0], facing=0,
       info=dict(model="Rheem Professional Classic 50 gal electric (PROE50 T2 RH95), elements left unwired", price="$744 at HVACDirect (11/18/2026)",
@@ -223,7 +227,7 @@ items += [
                "Enertech's install guidance says a preheat tank gets the most out of the desuperheater.",
                "The GeoComfort GZT048J11LM1CCS has hot water code 1: desuperheater with a factory installed pump.",
                "Size is ASSUMED (about 22 in x 59 in for a 50 gal tall tank)."],
-        placement="South wall of the utility room, as far west as the flow center allows and directly under the heat pump's hot water connections.")),
+        placement="South wall of the utility room, as far west as it can go while leaving 2 ft of working room in front of the flow center. The desuperheater lines come down the wall just west of it.")),
 ]
 # ---- geothermal piping. Loop entry sleeve, the ten loop pipes fanning out to the valve legs, the two mains to the flow
 # center, then insulated 1-1/4 in lines straight up through the ceiling and deck and a short way across the attic.
@@ -265,7 +269,7 @@ PH_TOP = 59.0 / 12 + 3 / 12                        # top of the preheat tank's b
 GAP_X = WCX - 0.03                                 # the vertical pipes in the gap between the tanks
 Y_COLD, Y_WALL = US - 0.39, US - 0.19              # cold line behind the preheat tank; recirculation return on the wall
 Z_COLD = 6.9
-X_SVC = PH_X - 0.74                                # cold service riser, behind the preheat tank's west side
+X_SVC = PH_X - 0.74                                # cold service riser, at the preheat tank's west side where its shutoff can be reached
 HOT, HOT_R = 1.9, 1.5                              # 3/4 in and 1/2 in copper with pipe insulation, outside diameter
 def dhw(id, name, dia, mat, points, model, notes, specs=None, info_of=None):
     r = dict(id=id, name=name, category="Hot water", system="plumbing.dhw", dia=dia, mat=mat, points=points)
@@ -278,7 +282,7 @@ dhw("dhw_cold", "Cold water to the preheat tank", 1.1, "copper",
                       "The desuperheater return tees into the drop. Service entry point and valves ASSUMED."],
     specs=[["Valves", "Main shutoff at the riser, shutoff and union at the tank"], ["Expansion tank", "Hangs from a short stub off this line, as U-11 shows"]])
 dhw("dhw_cold_house", None, 1.1, "copper", [[X_SVC, Y_COLD, Z_COLD], [X_SVC, Y_COLD, CEIL]], None, None, info_of="dhw_cold")
-dhw("dhw_cold_stub", None, 1.1, "copper", [[X_SVC, Y_COLD, Z_COLD], [X_SVC - 0.6, Y_COLD, Z_COLD]], None, None, info_of="dhw_cold")
+dhw("dhw_cold_stub", None, 1.1, "copper", [[X_SVC, Y_COLD, Z_COLD], [X_SVC - 1.0, Y_COLD, Z_COLD]], None, None, info_of="dhw_cold")
 dhw("dhw_preheat", "Preheated water to the heat pump water heater", HOT, "foam",
     [[PH_X + 0.3, PH_Y, PH_TOP], [PH_X + 0.3, PH_Y, 5.5], [GAP_X, WC_Y, 5.5], [GAP_X, WC_Y, 0.75], [WCX, WC_Y, 0.75]],
     "3/4 in copper, insulated", ["Preheat tank hot outlet, across the gap between the tanks and down to the heat pump water heater's low side cold inlet, about 6 ft of pipe. "
@@ -298,21 +302,21 @@ items += [
       info=dict(model="Small inline circulator, bronze or stainless body (U-11)", specs=[["On", "The recirculation return where it comes down the south wall, about 4 ft off the floor"]],
                 notes=["Model not picked. A timer or a push button demand control keeps it from running all day.", APPROX])),
  dict(id="expansion_tank", name="Thermal expansion tank", category="Hot water", system="plumbing.dhw", room="Utility", layer="mechanical",
-      builder="expansion_tank", size=[8, 11], at=[X_SVC - 0.5, Y_COLD, Z_COLD], facing=0,
+      builder="expansion_tank", size=[8, 11], at=[X_SVC - 0.95, Y_COLD, Z_COLD], facing=0,
       info=dict(model="2 gal potable thermal expansion tank (U-11 detail)", specs=[["On", "The cold line, after the main shutoff and any check valve"]], notes=[APPROX])),
  dict(id="mixing_valve", name="Thermostatic mixing valve", category="Hot water", system="plumbing.dhw", room="Utility", layer="mechanical",
       builder="mixing_valve", size=[3, 3, 3], at=[GAP_X, WHOT_Y, 6.3], facing=0,
       info=dict(model="3/4 in thermostatic mixing valve", specs=[["Why", "Lets both tanks store water hotter for more capacity while the taps get a safe 120 F"]],
                 notes=["Its cold side tees off the cold line; that small tee is not drawn.", APPROX])),
 ]
-# Desuperheater (Maxwell, 11/18/2026). The preheat tank stands right under the heat pump's hot water connections, so the two
+# Desuperheater (Maxwell, 11/18/2026). The preheat tank stands just east of the heat pump's hot water connections, so the two
 # insulated 3/4 in lines step sideways off the ports and drop straight through the deck into the lane behind the tank.
 # One goes to the tank's drain port (water to the geo), the other tees into the cold drop above the tank (water back).
-DSH_Y = US - 0.29
+DSH_Y = US - 0.24
 PH_DRAIN = [PH_X + (PH_D / 2 + 1.7) / 12, TANK_Y - (PH_D / 2 + 2 - 4.8) / 12, 5.4 / 12]
 for k in range(2):
     z = HP_Z + (9.6, 13.6)[k] / 12
-    x = HP_PX + (0.27, -0.27)[k]
+    x = HP_PX + (-0.27, 0.27)[k]
     start = [[HP_PX, HP_S + 0.07, z], [HP_PX, HP_S + 0.18, z], [x, HP_S + 0.18, z], [x, DSH_Y, z]]
     if k == 0: pts = start + [[x, DSH_Y, PH_DRAIN[2]], [PH_DRAIN[0], DSH_Y, PH_DRAIN[2]], PH_DRAIN]
     else: pts = start + [[x, DSH_Y, 6.15], [PH_X - 0.3, DSH_Y, 6.15], [PH_X - 0.3, PH_Y, 6.15]]
@@ -321,7 +325,9 @@ for k in range(2):
         info=dict(model="3/4 in copper or PEX with pipe insulation, to and from the geo's built in desuperheater pump",
                   specs=[["Supply to the geo", "From the preheat tank's bottom drain port"], ["Return from the geo", "Tees into the cold drop just above the preheat tank"],
                          ["Length", "About 5 ft and 10 ft: straight down from the heat pump's connections to the tank"]],
-                  notes=["The preheat tank stands directly under the heat pump's hot water connections, so the lines drop straight through the attic deck into the lane behind the tank (Maxwell, 11/18/2026). "
+                  notes=["The lines drop straight through the attic deck from the heat pump's hot water connections and down the wall just west of the preheat tank (Maxwell, 11/18/2026). "
+                         "Service parts from the GZT manual (p.39): a shutoff valve on each line at the tank, an air vent at the high point, which here is at the heat pump in the attic, "
+                         "and drain valves for flushing and purging the circuit. Copper only, 5/8 in OD or larger, 50 ft at most, 3/8 in wall insulation. "
                          "Route is ASSUMED. Line size and the maximum run come from the GZT installation manual."])))
 
 # ------------------------------------------------------------------ attic: heat pump, ERV
@@ -341,6 +347,12 @@ items += [
         notes=["Andy's plan names a ClimateMaster Tranquility 30 as the basis of design and assumes a downflow unit. This is the unit Greg quoted and Maxwell sent Andy on 8/14/2026.",
                "Greg's quote MMUL8476-4 is for GZT048J11LM1CCS, which is a left hand return. This layout needs the right hand return version: standing at the "
                "water connection end, the return and filter are on the right. The unit is not ordered yet, so ask Greg to quote the right hand model and confirm which side the service panels are on.",
+               "Service access from the GZT manual (p.17): 2 ft clear in front of the controls and compressor panel, which is the south (connection) end; 2 ft beside the blower door, "
+               "which with end discharge is on the west side at the north end; working room for the reversing valve and heat exchanger on the west side and for the TXV and filter drier "
+               "on the east side, both near the south end. The west aisle is 2 ft, the return plenum stops at the coil so the TXV corner is open, and the ERV intake duct on the west wall "
+               "runs up under the roof. STILL SHORT: the ERV hangs 17 in in front of the controls end and has to move.",
+               "Condensate: the drain is at the north end, the EZ-Trap needs 6-1/2 in of height so the unit sits on a 6-1/2 in pad, and the unit tilts 1/4 to 1/2 in toward the drain (p.19, p.35). "
+               "Over a finished ceiling a secondary drain pan under the unit is the usual code answer; the manual shows it as optional.",
                "Turned 90 degrees (Maxwell, 11/18/2026): supply out the north end toward the trunk, water and desuperheater connections on the south end right above the flow center, "
                "return and filter on the east side, service panels facing a 2 ft aisle along the west wall."],
         placement="On the attic deck over the utility room, where Andy drew HP-01, lengthwise north to south.")),
@@ -495,7 +507,8 @@ ducts[-1]["info"] = dict(model="34 x 10 in grille and trunk, 1,368 CFM system (M
            "The grille sits high on the hall 1 wall above the utility room door. Behind it a boot box sits inside one truss bay, so nothing crosses the trusses, "
            "and rises straight up through the deck. The trunk runs on the deck from there to the return plenum. Route on the deck is ASSUMED to suit the heat pump position in this model."])
 XMR = 11.45
-RP_S, RP_N = HP_Y + 2.215, HP_Y - 2.035            # the plenum box covers the 36 in filter rack
+RP_N = HP_Y - 2.035                                # the plenum box covers the 36 in filter rack on the coil (north) half of the unit
+RP_S = RP_N + 3.2                                  # and stops there, so the TXV and filter drier access south of it stays open (GZT manual p.17, area A-2)
 RP_E = HP_X + 0.22 + 14 / 12                       # its east face, where the trunk comes in
 RPX = bay(7.7)                                     # the bedroom flex runs come up into the bottom of the trunk in this truss bay
 ret("return_main_riser", None, [14, 30], [[XMR, RY, ZT], [XMR, RY, DK]], info_of="return_main")
@@ -592,7 +605,7 @@ fan("fan_bath2", "Bath 2 shower fan", "Bath 2", [[21.2, 0.55, 8.3], [21.2, -0.05
     "Through the wall fan high on the north wall at the tub's valve end, east of the window: the vaulted SIP roof has no cavity for a ceiling fan. ASSUMED")
 # Heat pump water heater air (Maxwell, 11/18/2026): the utility door stays solid, so the water heater's intake and exhaust are both
 # ducted up into the attic, which is inside the SIP roof. Rheem allows any size room when both are ducted and says never to tie
-# the unit into other ductwork. Both rise straight up in truss bay 5.7, north to south of each other, and come out on open deck
+# the unit into other ductwork. Both rise straight up in truss bay 7.7, north to south of each other, and come out on open deck
 # in the corner between the return plenum and the return trunk. Each ends in an elbow, pointing apart (Maxwell, 11/18/2026).
 HPWH_TOP = 74.2 / 12
 for k, (nm, yy, tail) in enumerate([("intake", WH_CY - 0.15, [[WH_DUCT_X, WH_CY - 0.15, DECK + 1.0], [WH_DUCT_X + 0.8, WH_CY - 0.15, DECK + 1.0]]),
@@ -654,8 +667,10 @@ items += [
 # run 2 ft straight south. The exhaust then turns west and out through the wall. The intake turns west to the wall and runs
 # north along it, above the heat pump piping, to a hood 10 ft 10 in north of the exhaust hood (Maxwell, 11/18/2026).
 OA_Y = ERV_S + 2.6 - 10.8
+# The run along the wall is tucked up under the roof so it stays out of the 2 ft service aisle beside the heat pump.
+ROOF_U = lambda y: CFG["roof"]["north_wall_height"] + (y + 1.1) * CFG["roof"]["north_pitch"] / 12 - 0.9 - 0.55
 ducts.append(dict(id="erv_wall_0", info_of="erv", type="erv", shape="round", size=6,
-                  points=[[ERV_XF, ERV_S, ERV_Z], [ERV_XF, ERV_S + 2.0, ERV_Z], [0.85, ERV_S + 2.0, ERV_Z], [0.85, OA_Y, ERV_Z], [-0.05, OA_Y, ERV_Z]]))
+                  points=[[ERV_XF, ERV_S, ERV_Z], [ERV_XF, ERV_S + 2.0, ERV_Z], [0.85, ERV_S + 2.0, ERV_Z], [0.85, ERV_S + 2.0, ROOF_U(ERV_S + 2.0)], [0.85, OA_Y, ROOF_U(OA_Y)], [-0.05, OA_Y, ROOF_U(OA_Y)]]))
 ducts.append(dict(id="erv_wall_1", info_of="erv", type="erv", shape="round", size=6,
                   points=[[ERV_XS, ERV_S, ERV_Z], [ERV_XS, ERV_S + 2.6, ERV_Z], [-0.05, ERV_S + 2.6, ERV_Z]]))
 # Fresh air leaves the room end, runs over the top of the heat pump beside the exhaust main, and drops into the supply plenum
