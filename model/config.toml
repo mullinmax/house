@@ -52,6 +52,7 @@ depth_in = 11.875               # 11-7/8" (Maxwell 11/16/2026)
 deck_in = 0.75                  # ASSUMED 3/4" decking
 spacing_in = 24.0               # ASSUMED
 span = "ns"                     # ASSUMED north to south, until the truss drawings exist
+max_round_duct_in = 6.0        # largest round duct through the webs. Builder, 11/18/2026: the trusses are in, 6 in fits, 7 in only maybe
 grid_x0 = 0.7                   # ASSUMED: every truss on one 24 in grid from here (plan ft), so the bays line up house wide
 
 [loft]                          # 134 sf loft over Bath 1 (A-12)

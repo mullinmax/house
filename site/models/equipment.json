@@ -2569,7 +2569,7 @@
    "room": "Bedroom 3",
    "type": "supply",
    "shape": "round",
-   "size": 7,
+   "size": 6,
    "points": [
     [
      3.7,
@@ -2588,7 +2588,7 @@
     ]
    ],
    "info": {
-    "model": "7 in round, 127 CFM",
+    "model": "6 in round, 127 CFM",
     "specs": [
      [
       "Airflow",
@@ -2596,7 +2596,7 @@
      ],
      [
       "Duct",
-      "7 in round"
+      "6 in round"
      ]
     ],
     "notes": [
@@ -2781,7 +2781,7 @@
    "room": "Kitchen / dining",
    "type": "supply",
    "shape": "round",
-   "size": 7,
+   "size": 6,
    "points": [
     [
      1.9,
@@ -2800,7 +2800,7 @@
     ]
    ],
    "info": {
-    "model": "7 in round, 127 CFM",
+    "model": "6 in round, 127 CFM",
     "specs": [
      [
       "Airflow",
@@ -2808,11 +2808,11 @@
      ],
      [
       "Duct",
-      "7 in round"
+      "6 in round"
      ]
     ],
     "notes": [
-     "High sidewall register in the clerestory wall, on its own 7 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
+     "High sidewall register in the clerestory wall, on its own 6 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
     ]
    },
    "grilles": [
@@ -2838,7 +2838,7 @@
    "room": "Kitchen / dining",
    "type": "supply",
    "shape": "round",
-   "size": 7,
+   "size": 6,
    "points": [
     [
      1.9,
@@ -2857,7 +2857,7 @@
     ]
    ],
    "info": {
-    "model": "7 in round, 127 CFM",
+    "model": "6 in round, 127 CFM",
     "specs": [
      [
       "Airflow",
@@ -2865,11 +2865,11 @@
      ],
      [
       "Duct",
-      "7 in round"
+      "6 in round"
      ]
     ],
     "notes": [
-     "High sidewall register in the clerestory wall, on its own 7 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
+     "High sidewall register in the clerestory wall, on its own 6 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
     ]
    },
    "grilles": [
@@ -2895,7 +2895,7 @@
    "room": "Kitchen / dining",
    "type": "supply",
    "shape": "round",
-   "size": 7,
+   "size": 6,
    "points": [
     [
      1.9,
@@ -2914,7 +2914,7 @@
     ]
    ],
    "info": {
-    "model": "7 in round, 127 CFM",
+    "model": "6 in round, 127 CFM",
     "specs": [
      [
       "Airflow",
@@ -2922,11 +2922,11 @@
      ],
      [
       "Duct",
-      "7 in round"
+      "6 in round"
      ]
     ],
     "notes": [
-     "High sidewall register in the clerestory wall, on its own 7 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
+     "High sidewall register in the clerestory wall, on its own 6 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
     ]
    },
    "grilles": [
@@ -3006,7 +3006,7 @@
    "room": "Living",
    "type": "supply",
    "shape": "round",
-   "size": 7,
+   "size": 6,
    "points": [
     [
      28.05,
@@ -3035,7 +3035,7 @@
     ]
    ],
    "info": {
-    "model": "7 in round, 70 CFM",
+    "model": "6 in round, 70 CFM",
     "specs": [
      [
       "Airflow",
@@ -3043,7 +3043,7 @@
      ],
      [
       "Duct",
-      "7 in round"
+      "6 in round"
      ]
     ],
     "notes": [
@@ -3648,8 +3648,8 @@
    "info": {
     "model": "10 in round flex",
     "notes": [
-     "Bedroom 3's grille moved from its south wall, next to the bed, to its north wall (Maxwell, 11/17/2026). It shares that wall with bedroom 2, so the two stacks rise side by side into the trusses over bedroom 3 and join there: bedroom 2's 7 in flex crosses one truss into bedroom 3's bay and tees into a 10 in flex that runs south in that bay, parallel to the trusses, to the return plenum box at the heat pump.",
-     "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 7 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
+     "Bedroom 3's grille moved from its south wall, next to the bed, to its north wall (Maxwell, 11/17/2026). It shares that wall with bedroom 2, so the two stacks rise side by side into the trusses over bedroom 3 and join there: bedroom 2's 6 in flex crosses one truss into bedroom 3's bay and tees into a 10 in flex that runs south in that bay, parallel to the trusses, to the return plenum box at the heat pump.",
+     "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 6 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
     ],
     "specs": [
      [
@@ -3658,11 +3658,11 @@
      ],
      [
       "Duct",
-      "14 x 2-1/2 in wall stacks, 7 in flex from bedroom 2 through one truss, 10 in flex south in one truss bay to the plenum"
+      "14 x 2-1/2 in wall stacks, 6 in flex from bedroom 2 through one truss, 10 in flex south in one truss bay to the plenum"
      ],
      [
       "Crosses",
-      "One truss, at 7 in. No supply runs"
+      "One truss, at 6 in. No supply runs"
      ]
     ]
    },
@@ -3773,7 +3773,7 @@
     ]
    ],
    "shape": "round",
-   "size": 7,
+   "size": 6,
    "flex": true,
    "info_of": "return_bed23",
    "grilles": [
@@ -3959,14 +3959,14 @@
     ]
    ],
    "shape": "round",
-   "size": 7,
+   "size": 6,
    "flex": true,
    "info": {
-    "model": "7 in round flex",
+    "model": "6 in round flex",
     "notes": [
-     "The study and bedroom 1 have low grilles (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Each room gets its own 7 in flex back to the plenum, because one duct big enough for both would not fit through the truss webs.",
-     "A 7 in flex carries roughly 90 to 100 CFM at return duct friction, a little under bedroom 1's 138 CFM supply. Andy may want a second run or a bigger chase for bedroom 1.",
-     "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 7 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
+     "The study and bedroom 1 have low grilles (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Each room gets its own 6 in flex back to the plenum, because one duct big enough for both would not fit through the truss webs.",
+     "A 6 in flex carries roughly 65 to 75 CFM at return duct friction (6 in is the most the builder is sure fits the installed trusses, 11/18/2026), about half of bedroom 1's 138 CFM supply. Andy may want a second run or a bigger chase for bedroom 1.",
+     "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 6 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
     ],
     "specs": [
      [
@@ -3975,11 +3975,11 @@
      ],
      [
       "Duct",
-      "14 x 2-1/2 in wall stacks, one 7 in flex home run per room to the return plenum box"
+      "14 x 2-1/2 in wall stacks, one 6 in flex home run per room to the return plenum box"
      ],
      [
       "Crosses",
-      "The laundry, linen and bedroom 3 trusses at 7 in. No supply runs, and they stay in the trusses, off the tall south part of the attic"
+      "The laundry, linen and bedroom 3 trusses at 6 in. No supply runs, and they stay in the trusses, off the tall south part of the attic"
      ]
     ]
    },
@@ -4140,7 +4140,7 @@
     ]
    ],
    "shape": "round",
-   "size": 7,
+   "size": 6,
    "flex": true,
    "info_of": "return_study",
    "grilles": [
@@ -4851,6 +4851,7 @@
   "spacing_in": 24.0,
   "deck_in": 0.75,
   "grid_x0": 0.7,
+  "max_cross_in": 6.0,
   "info": {
    "model": "11-7/8 in open web floor trusses",
    "specs": [
