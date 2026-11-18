@@ -349,8 +349,8 @@ items += [
                "water connection end, the return and filter are on the right. The unit is not ordered yet, so ask Greg to quote the right hand model and confirm which side the service panels are on.",
                "Service access from the GZT manual (p.17): 2 ft clear in front of the controls and compressor panel, which is the south (connection) end; 2 ft beside the blower door, "
                "which with end discharge is on the west side at the north end; working room for the reversing valve and heat exchanger on the west side and for the TXV and filter drier "
-               "on the east side, both near the south end. The west aisle is 2 ft, the return plenum stops at the coil so the TXV corner is open, and the ERV intake duct on the west wall "
-               "runs up under the roof. STILL SHORT: the ERV hangs 17 in in front of the controls end and has to move.",
+               "on the east side, both near the south end. The west aisle is 2 ft, the return plenum stops at the coil so the TXV corner is open, and the ERV intake duct runs along the west wall "
+               "just above the cabinet's height, so the aisle is clear up to about 2-1/2 ft over the deck. STILL SHORT: the ERV hangs 17 in in front of the controls end and has to move.",
                "Condensate: the drain is at the north end, the EZ-Trap needs 6-1/2 in of height so the unit sits on a 6-1/2 in pad, and the unit tilts 1/4 to 1/2 in toward the drain (p.19, p.35). "
                "Over a finished ceiling a secondary drain pan under the unit is the usual code answer; the manual shows it as optional.",
                "Turned 90 degrees (Maxwell, 11/18/2026): supply out the north end toward the trunk, water and desuperheater connections on the south end right above the flow center, "
@@ -407,8 +407,10 @@ S = "S"; N = "N"
 supply("s_closet3", "Closet 3", 26, 6, [[3.3, YN - 0.6, 11.0], [3.3, 10.6, 11.0]], dict(at=[3.3, 10.62, 11.0], size=[10, 6], wall=N), "High sidewall register through the attic wall.")
 supply("s_closet2", "Closet 2", 32, 6, [[4.7, YN - 0.6, 11.0], [4.7, 10.3, 11.0], [4.7, 5.5, 10.25]], dict(at=[4.7, 5.44, 10.25], size=[10, 6], wall=N), "Runs exposed along the ceiling of closet 3 to reach closet 2. ASSUMED.")
 supply("s_bed2", "Bedroom 2", 78, 6, [[8.5, YN - 0.6, 11.0], [8.5, 10.6, 11.0]], dict(at=[8.5, 10.62, 11.0], size=[12, 6], wall=N), "High sidewall register through the attic wall.")
-supply("s_study", "Bedroom 4 / study", 104, 7, [[26.9, YN - 0.6, 11.0], [26.9, 10.6, 11.0]], dict(at=[26.9, 10.62, 11.0], size=[12, 6], wall=N),
-       "High sidewall register through the attic wall.")
+# The study's register sits over its door (x 23.37-26.00) and its low return grille is east of the door (Maxwell, 11/18/2026).
+XSD = 24.68
+supply("s_study", "Bedroom 4 / study", 104, 7, [[XSD, YN - 0.6, 11.0], [XSD, 10.6, 11.0]], dict(at=[XSD, 10.62, 11.0], size=[12, 6], wall=N),
+       "High sidewall register through the attic wall, centred over the study door.")
 supply("s_hall2a", "Hall 2", 15, 6, drop(bay(14.4), YN + 0.75, 17.8), dict(at=[bay(14.4), 17.8, CEIL - 0.02], size=[8, 6]))
 supply("s_hall2b", "Hall 2", 16, 6, drop(bay(20.5), YN + 0.75, 13.8), dict(at=[bay(20.5), 13.8, CEIL - 0.02], size=[8, 6]))
 # west leg
@@ -536,10 +538,11 @@ stack("return_bed2_stack", XR2, 10.8, "return_bed23")
 
 # Study and bedroom 1: one 6 in flex home run each. They come down side by side in one hall 2 bay, cross the laundry and
 # linen trusses west (the study's run first, further north, so the two never cross), and drop south in their own bays to the plenum.
-XSB, XB1R = bay(25.7), bay(29.7)
+XSB, XB1R = bay(27.7), bay(29.7)                 # the study grille is east of its door (x 23.37-26.00 with casing to 26.29), Maxwell 11/18/2026
+XSR = bay(25.7)                                   # the two home runs still share the 25.7 bay: the laundry and living 1 supplies fill bay 27.7
 YSW, YBW = 19.6, 20.3
 r = ret("return_study", "Study and bedroom 1 returns", 6,
-        bend([[XSB, 10.85, ZT], [XSB - 0.35, 11.4, ZT], [XSB - 0.35, YSW, ZT], [XR2, YSW, ZT], [XR2, RY + 0.5, ZT], [RPX, RY + 0.5, ZT], [RPX, RY + 0.5, DECK + 0.2]]), flex=True,
+        bend([[XSB, 10.85, ZT], [XSB, 11.4, ZT], [XSR - 0.35, 11.4, ZT], [XSR - 0.35, YSW, ZT], [XR2, YSW, ZT], [XR2, RY + 0.5, ZT], [RPX, RY + 0.5, ZT], [RPX, RY + 0.5, DECK + 0.2]]), flex=True,
         grilles=[dict(at=[XSB, 10.64, LOW], size=[14, 8], wall=N)])
 r["info"]["specs"] = [["Serves", "Study (low grille on its south wall) and bedroom 1 (low grille on its south wall, beside the door)"],
                       ["Duct", "14 x 2-1/2 in wall stacks, one 6 in flex home run per room to the return plenum box"],
@@ -549,7 +552,7 @@ r["info"]["notes"] = ["The study and bedroom 1 have low grilles (Maxwell, 11/17/
                       "A 6 in flex carries roughly 65 to 75 CFM at return duct friction (6 in is the most the builder is sure fits the installed trusses, 11/18/2026), about half of bedroom 1's 138 CFM supply. Andy may want a second run "
                       "or a bigger chase for bedroom 1.", RFLEX]
 stack("return_study_stack", XSB, 10.8, "return_study")
-ret("return_bed1", None, 6, bend([[XB1R, 15.3, ZT], [XB1R, 15.75, ZT], [XSB + 0.35, 15.75, ZT], [XSB + 0.35, YBW, ZT], [bay(11.7) - 0.2, YBW, ZT],
+ret("return_bed1", None, 6, bend([[XB1R, 15.3, ZT], [XB1R, 15.75, ZT], [XSR + 0.35, 15.75, ZT], [XSR + 0.35, YBW, ZT], [bay(11.7) - 0.2, YBW, ZT],
                                   [bay(11.7) - 0.2, RY - 1.3, ZT]]), flex=True,
     grilles=[dict(at=[XB1R, 15.01, LOW], size=[14, 8], wall=N)], info_of="return_study")
 stack("return_bed1_stack", XB1R, 15.26, "return_study")
@@ -663,14 +666,15 @@ items += [
 
 # ERV ducts. The Intelli-Balance 100 has two 6 in adapters on each end: outdoor air and exhaust air on the wall end,
 # stale air in and fresh air out on the room end. The unit lies with its long side east-west so the wall end meets the west wall.
-# Outdoor side (Panasonic: 2 to 3 ft straight off each adapter, insulated ducts, separate hoods at least 10 ft apart). Both ducts
-# run 2 ft straight south. The exhaust then turns west and out through the wall. The intake turns west to the wall and runs
-# north along it, above the heat pump piping, to a hood 10 ft 10 in north of the exhaust hood (Maxwell, 11/18/2026).
+# Outdoor side (Panasonic: 2 to 3 ft straight off each adapter, insulated ducts, separate hoods at least 10 ft apart).
+# The exhaust runs 2.6 ft straight south, then turns west and out through the wall. The intake turns west as soon as it
+# leaves the unit, meets the wall and runs level north along it, at the ERV's own height, to a hood 10 ft 10 in north of the
+# exhaust hood (Maxwell, 11/18/2026: no more climbing to the roof and following it back down). It passes just over the
+# geothermal risers and sits against the wall above the heat pump cabinet's height, so the floor of the service aisle stays open.
 OA_Y = ERV_S + 2.6 - 10.8
-# The run along the wall is tucked up under the roof so it stays out of the 2 ft service aisle beside the heat pump.
-ROOF_U = lambda y: CFG["roof"]["north_wall_height"] + (y + 1.1) * CFG["roof"]["north_pitch"] / 12 - 0.9 - 0.55
+OA_X = 0.85                                       # centre of the run along the west wall
 ducts.append(dict(id="erv_wall_0", info_of="erv", type="erv", shape="round", size=6,
-                  points=[[ERV_XF, ERV_S, ERV_Z], [ERV_XF, ERV_S + 2.0, ERV_Z], [0.85, ERV_S + 2.0, ERV_Z], [0.85, ERV_S + 2.0, ROOF_U(ERV_S + 2.0)], [0.85, OA_Y, ROOF_U(OA_Y)], [-0.05, OA_Y, ROOF_U(OA_Y)]]))
+                  points=[[ERV_XF, ERV_S, ERV_Z], [ERV_XF, ERV_S + 0.6, ERV_Z], [OA_X, ERV_S + 0.6, ERV_Z], [OA_X, OA_Y, ERV_Z], [-0.05, OA_Y, ERV_Z]]))
 ducts.append(dict(id="erv_wall_1", info_of="erv", type="erv", shape="round", size=6,
                   points=[[ERV_XS, ERV_S, ERV_Z], [ERV_XS, ERV_S + 2.6, ERV_Z], [-0.05, ERV_S + 2.6, ERV_Z]]))
 # Fresh air leaves the room end, runs over the top of the heat pump beside the exhaust main, and drops into the supply plenum
