@@ -1115,7 +1115,7 @@
     "notes": [
      "Andy's plan names a ClimateMaster Tranquility 30 as the basis of design and assumes a downflow unit. This is the unit Greg quoted and Maxwell sent Andy on 8/14/2026.",
      "Greg's quote MMUL8476-4 is for GZT048J11LM1CCS, which is a left hand return. This layout needs the right hand return version: standing at the water connection end, the return and filter are on the right. The unit is not ordered yet, so ask Greg to quote the right hand model and confirm which side the service panels are on.",
-     "Service access from the GZT manual (p.17): 2 ft clear in front of the controls and compressor panel, which is the south (connection) end; 2 ft beside the blower door, which with end discharge is on the west side at the north end; working room for the reversing valve and heat exchanger on the west side and for the TXV and filter drier on the east side, both near the south end. The west aisle is 2 ft, the return plenum stops at the coil so the TXV corner is open, and the ERV intake duct on the west wall runs up under the roof. STILL SHORT: the ERV hangs 17 in in front of the controls end and has to move.",
+     "Service access from the GZT manual (p.17): 2 ft clear in front of the controls and compressor panel, which is the south (connection) end; 2 ft beside the blower door, which with end discharge is on the west side at the north end; working room for the reversing valve and heat exchanger on the west side and for the TXV and filter drier on the east side, both near the south end. The west aisle is 2 ft, the return plenum stops at the coil so the TXV corner is open, and the ERV intake duct runs along the west wall just above the cabinet's height, so the aisle is clear up to about 2-1/2 ft over the deck. STILL SHORT: the ERV hangs 17 in in front of the controls end and has to move.",
      "Condensate: the drain is at the north end, the EZ-Trap needs 6-1/2 in of height so the unit sits on a 6-1/2 in pad, and the unit tilts 1/4 to 1/2 in toward the drain (p.19, p.35). Over a finished ceiling a secondary drain pan under the unit is the usual code answer; the manual shows it as optional.",
      "Turned 90 degrees (Maxwell, 11/18/2026): supply out the north end toward the trunk, water and desuperheater connections on the south end right above the flow center, return and filter on the east side, service panels facing a 2 ft aisle along the west wall."
     ],
@@ -2412,12 +2412,12 @@
    "size": 7,
    "points": [
     [
-     26.9,
+     24.68,
      11.4,
      11.0
     ],
     [
-     26.9,
+     24.68,
      10.6,
      11.0
     ]
@@ -2435,13 +2435,13 @@
      ]
     ],
     "notes": [
-     "High sidewall register through the attic wall."
+     "High sidewall register through the attic wall, centred over the study door."
     ]
    },
    "grilles": [
     {
      "at": [
-      26.9,
+      24.68,
       10.62,
       11.0
      ],
@@ -3823,33 +3823,58 @@
    "type": "return",
    "points": [
     [
-     25.7,
+     27.7,
      10.85,
      9.494791666666666
     ],
     [
-     25.525,
+     27.7,
      11.125,
      9.495
     ],
     [
-     25.448,
-     11.266,
+     27.683,
+     11.245,
      9.495
     ],
     [
-     25.394,
-     11.413,
+     27.631,
+     11.331,
      9.495
     ],
     [
-     25.361,
-     11.566,
+     27.545,
+     11.383,
+     9.495
+    ],
+    [
+     27.425,
+     11.4,
+     9.495
+    ],
+    [
+     25.9,
+     11.4,
+     9.495
+    ],
+    [
+     25.659,
+     11.434,
+     9.495
+    ],
+    [
+     25.487,
+     11.538,
+     9.495
+    ],
+    [
+     25.384,
+     11.709,
      9.495
     ],
     [
      25.35,
-     11.726,
+     11.95,
      9.495
     ],
     [
@@ -3986,7 +4011,7 @@
    "grilles": [
     {
      "at": [
-      25.7,
+      27.7,
       10.64,
       1.0
      ],
@@ -4005,12 +4030,12 @@
    "type": "return",
    "points": [
     [
-     25.7,
+     27.7,
      10.8,
      0.6699999999999999
     ],
     [
-     25.7,
+     27.7,
      10.8,
      9.494791666666666
     ]
@@ -4709,28 +4734,23 @@
     ],
     [
      2.990833333333333,
-     33.235,
+     31.835,
      12.760416666666666
     ],
     [
      0.85,
-     33.235,
+     31.835,
      12.760416666666666
-    ],
-    [
-     0.85,
-     33.235,
-     18.479975
     ],
     [
      0.85,
      23.035,
-     15.232974999999998
+     12.760416666666666
     ],
     [
      -0.05,
      23.035,
-     15.232974999999998
+     12.760416666666666
     ]
    ]
   },
@@ -4816,12 +4836,18 @@
    [
     16.66,
     15.03,
+    28.12,
+    22.87
+   ],
+   [
+    28.12,
+    15.49,
     31.12,
     22.87
    ],
    [
     31.12,
-    15.03,
+    15.49,
     42.5,
     22.87
    ],
