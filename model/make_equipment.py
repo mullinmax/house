@@ -378,7 +378,6 @@ S = "S"; N = "N"
 supply("s_closet3", "Closet 3", 26, 6, [[3.3, YN - 0.6, 11.0], [3.3, 10.6, 11.0]], dict(at=[3.3, 10.62, 11.0], size=[10, 6], wall=N), "High sidewall register through the attic wall.")
 supply("s_closet2", "Closet 2", 32, 6, [[4.7, YN - 0.6, 11.0], [4.7, 10.3, 11.0], [4.7, 5.5, 10.25]], dict(at=[4.7, 5.44, 10.25], size=[10, 6], wall=N), "Runs exposed along the ceiling of closet 3 to reach closet 2. ASSUMED.")
 supply("s_bed2", "Bedroom 2", 78, 6, [[8.5, YN - 0.6, 11.0], [8.5, 10.6, 11.0]], dict(at=[8.5, 10.62, 11.0], size=[12, 6], wall=N), "High sidewall register through the attic wall.")
-supply("s_bath2", "Bath 2", 37, 6, [[19.0, YN - 0.6, 11.0], [19.0, 10.6, 11.0]], dict(at=[19.0, 10.62, 11.0], size=[10, 6], wall=N), "High sidewall register through the attic wall.")
 supply("s_study", "Bedroom 4 / study", 104, 7, [[26.9, YN - 0.6, 11.0], [26.9, 10.6, 11.0]], dict(at=[26.9, 10.62, 11.0], size=[12, 6], wall=N),
        "High sidewall register through the attic wall.")
 supply("s_hall2a", "Hall 2", 15, 6, drop(bay(14.4), YN + 0.75, 17.8), dict(at=[bay(14.4), 17.8, CEIL - 0.02], size=[8, 6]))
@@ -398,7 +397,9 @@ ducts.append(dict(id="supply_south_main", name="South supply main", category="HV
       notes=["New. On M-10 these rooms were fed by branches crossing the attic floor. Here the main runs south in the truss bay along the west wall, "
              "which is parallel to the trusses so a rectangular duct fits, and each register gets its own round branch through the truss webs. Sizes are schematic."])))
 supply("s_utility", "Utility", 18, 6, [[XM, 26.5, ZT], [3.1, 26.5, ZT]], dict(at=[3.1, 26.5, CEIL - 0.02], size=[8, 6]), "Extra capacity for the utility room computers is on Maxwell's wish list and not sized yet.")
-supply("s_powder", "Powder", 15, 6, [[XM, 32.2, ZT], [9.1, 32.2, ZT]], dict(at=[9.1, 32.2, CEIL - 0.02], size=[8, 6]), "Round branch off the south main through the pantry trusses.")
+supply("s_powder", "Powder", 15, 6, [[XM, 29.2, ZT], [9.5, 29.2, ZT]], dict(at=[9.5, 29.2, CEIL - 0.02], size=[8, 6]),
+       "Round branch off the south main through the pantry trusses. Ceiling register in the northeast corner by the door, about 4 ft from the "
+       "exhaust over the toilet (Maxwell, 11/18/2026: move them apart; the 9 ft flat ceiling leaves no way to bring this one in low).")
 for k, (x, yb) in enumerate([(bay(3.0), 34.15), (bay(7.0), 33.5), (bay(11.0), 32.85)]):
     supply(f"s_kitchen{k+1}", "Kitchen / dining", 127, 7, [[XM, yb, ZT], [x, yb, ZT], [x, 35.0, ZT]], dict(at=[x, 35.1, ZT], size=[14, 6], wall=S),
            "High sidewall register in the clerestory wall, on its own 7 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west.")
@@ -522,6 +523,16 @@ ret("return_bed1", None, 7, bend([[XB1R, 15.3, ZT], [XB1R, 15.75, ZT], [XSB + 0.
     grilles=[dict(at=[XB1R, 15.01, LOW], size=[14, 8], wall=N)], info_of="return_study")
 stack("return_bed1_stack", XB1R, 15.26, "return_study")
 
+# Bath 2 supply comes in LOW and the exhaust stays HIGH (Maxwell, 11/18/2026), so the boost exhaust does not pull the fresh
+# supply air straight back out. A bottom takeoff from the trunk drops into hall 2's trusses, runs north in one truss bay to the
+# bath 2 / hall 2 wall (an interior stud wall, not a SIP), and goes down that stud bay to a low register just east of the door.
+XS2 = 20.1                                        # inside bay 19.7, east of the door casing (door opening x 16.58 to 19.21)
+supply("s_bath2", "Bath 2", 37, 6, [[XS2, YN, DECK + 0.3], [XS2, YN, ZT], [XS2, 10.85, ZT]], dict(at=[XS2, 10.64, LOW], size=[10, 6], wall=N),
+       "Low sidewall register on the south wall (Maxwell, 11/18/2026): supply low, exhaust high on the other end of the same wall, so fresh air "
+       "sweeps across the room before the exhaust takes it. Bottom takeoff from the trunk, 6 in round north in one hall 2 truss bay, then a "
+       "12 x 2-1/2 in stack down the stud bay of the interior wall. The register sits east of the door and west of the vanity. ASSUMED sizes.")
+ducts.append(dict(id="s_bath2_stack", info_of="s_bath2", type="supply", shape="rect", size=[12, 2.5], points=[[XS2, 10.8, LOW - 0.25], [XS2, 10.8, ZT]]))
+
 # Bath exhaust (Maxwell, 11/17/2026): ceiling or high wall grilles in bath 1, bath 2 and the powder room, ducted to the ERV's stale air inlet
 # instead of separate fans. The run hugs the supply trunk's south side on the deck so it stays in the low, north part of the attic.
 ERV_Z = DECK + 0.05 + 5.7 / 12                    # centre of the ERV's duct adapters
@@ -539,11 +550,14 @@ def exhaust(id, name, dia, points, grilles=None, note=None, info_of=None, room=N
 XE1 = bay(39.7)
 exhaust("ex_bath1", "Bath 1 exhaust", 4, [[XE1, 30.0, ZT], [XE1, 17.8, ZT], [XE1, 17.8, EX]], room="Bath 1",
         grilles=[dict(at=[XE1, 30.0, CEIL - 0.02], size=[10, 10])], note=ENOTE + " Runs north in one loft floor truss bay, east of the family supply drop, then up onto the deck.")
-exhaust("ex_bath2", "Bath 2 exhaust", 4, [[19.8, 10.62, 11.7], [19.8, 13.5, 11.7], [19.8, 13.5, EX]], room="Bath 2",
-        grilles=[dict(at=[19.8, 10.6, 11.7], size=[10, 6], wall=N)], note=ENOTE + " High on the bath 2 wall through the attic wall, over the supply trunk.")
+XE2 = 21.9                                        # east end of the south wall, over the toilet and vanity, away from the low supply
+exhaust("ex_bath2", "Bath 2 exhaust", 4, [[XE2, 10.62, 11.7], [XE2, 13.5, 11.7], [XE2, 13.5, EX]], room="Bath 2",
+        grilles=[dict(at=[XE2, 10.6, 11.7], size=[10, 6], wall=N)], note=ENOTE + " High on the east end of the bath 2 south wall, through the attic wall and over the supply trunk. "
+        "It was right beside the supply; the supply now comes in low at the west end of the same wall (Maxwell, 11/18/2026).")
 XEM, ZOV = 10.2, DECK + 1.15                       # the main's north to south leg, and its height where it hops over the return trunk
-exhaust("ex_powder", "Powder exhaust", 4, [[XEM, 31.3, ZT], [XEM, 28.3, ZT], [XEM, 28.3, EX - 0.2]], room="Powder",
-        grilles=[dict(at=[XEM, 31.3, CEIL - 0.02], size=[8, 8])], note=ENOTE + " Runs north in its own truss bay, then up into the main on the deck.")
+exhaust("ex_powder", "Powder exhaust", 4, [[7.2, 32.2, ZT], [XEM, 32.2, ZT], [XEM, 28.3, ZT], [XEM, 28.3, EX - 0.2]], room="Powder",
+        grilles=[dict(at=[7.2, 32.2, CEIL - 0.02], size=[8, 8])], note=ENOTE + " Over the toilet, about 4 ft from the supply by the door (Maxwell, 11/18/2026). "
+        "Runs east through the truss webs, north in its own truss bay, then up into the main on the deck.")
 exhaust("ex_main", "Bath exhaust main", 6, [[XE1, 17.8, EX], [25.6, 17.8, EX], [25.6, 13.5, EX], [XEM, 13.5, EX], [XEM, 28.3, EX], [XEM, 28.65, ZOV], [XEM, ERV_Y + 0.415, ZOV],
                                            [4.3, ERV_Y + 0.415, ZOV], [3.7, ERV_Y + 0.415, ERV_Z], [ERV_F, ERV_Y + 0.415, ERV_Z]],
         note="Collects the three bathroom exhausts on the attic deck along the south side of the supply trunk, turns south east of the water heater's grilles, "

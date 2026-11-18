@@ -2358,58 +2358,6 @@
    ]
   },
   {
-   "id": "s_bath2",
-   "name": "Supply to Bath 2",
-   "category": "HVAC supply duct",
-   "system": "hvac.supply",
-   "room": "Bath 2",
-   "type": "supply",
-   "shape": "round",
-   "size": 6,
-   "points": [
-    [
-     19.0,
-     11.4,
-     11.0
-    ],
-    [
-     19.0,
-     10.6,
-     11.0
-    ]
-   ],
-   "info": {
-    "model": "6 in round, 37 CFM",
-    "specs": [
-     [
-      "Airflow",
-      "37 CFM (M-10)"
-     ],
-     [
-      "Duct",
-      "6 in round"
-     ]
-    ],
-    "notes": [
-     "High sidewall register through the attic wall."
-    ]
-   },
-   "grilles": [
-    {
-     "at": [
-      19.0,
-      10.62,
-      11.0
-     ],
-     "size": [
-      10,
-      6
-     ],
-     "wall": "N"
-    }
-   ]
-  },
-  {
    "id": "s_study",
    "name": "Supply to Bedroom 4 / study",
    "category": "HVAC supply duct",
@@ -2742,12 +2690,12 @@
    "points": [
     [
      1.8499999999999999,
-     32.2,
+     29.2,
      9.494791666666666
     ],
     [
-     9.1,
-     32.2,
+     9.5,
+     29.2,
      9.494791666666666
     ]
    ],
@@ -2764,14 +2712,14 @@
      ]
     ],
     "notes": [
-     "Round branch off the south main through the pantry trusses."
+     "Round branch off the south main through the pantry trusses. Ceiling register in the northeast corner by the door, about 4 ft from the exhaust over the toilet (Maxwell, 11/18/2026: move them apart; the 9 ft flat ceiling leaves no way to bring this one in low)."
     ]
    },
    "grilles": [
     {
      "at": [
-      9.1,
-      32.2,
+      9.5,
+      29.2,
       8.98
      ],
      "size": [
@@ -4246,6 +4194,85 @@
    "info_of": "return_study"
   },
   {
+   "id": "s_bath2",
+   "name": "Supply to Bath 2",
+   "category": "HVAC supply duct",
+   "system": "hvac.supply",
+   "room": "Bath 2",
+   "type": "supply",
+   "shape": "round",
+   "size": 6,
+   "points": [
+    [
+     20.1,
+     12.0,
+     10.352083333333335
+    ],
+    [
+     20.1,
+     12.0,
+     9.494791666666666
+    ],
+    [
+     20.1,
+     10.85,
+     9.494791666666666
+    ]
+   ],
+   "info": {
+    "model": "6 in round, 37 CFM",
+    "specs": [
+     [
+      "Airflow",
+      "37 CFM (M-10)"
+     ],
+     [
+      "Duct",
+      "6 in round"
+     ]
+    ],
+    "notes": [
+     "Low sidewall register on the south wall (Maxwell, 11/18/2026): supply low, exhaust high on the other end of the same wall, so fresh air sweeps across the room before the exhaust takes it. Bottom takeoff from the trunk, 6 in round north in one hall 2 truss bay, then a 12 x 2-1/2 in stack down the stud bay of the interior wall. The register sits east of the door and west of the vanity. ASSUMED sizes."
+    ]
+   },
+   "grilles": [
+    {
+     "at": [
+      20.1,
+      10.64,
+      1.0
+     ],
+     "size": [
+      10,
+      6
+     ],
+     "wall": "N"
+    }
+   ]
+  },
+  {
+   "id": "s_bath2_stack",
+   "info_of": "s_bath2",
+   "type": "supply",
+   "shape": "rect",
+   "size": [
+    12,
+    2.5
+   ],
+   "points": [
+    [
+     20.1,
+     10.8,
+     0.75
+    ],
+    [
+     20.1,
+     10.8,
+     9.494791666666666
+    ]
+   ]
+  },
+  {
    "id": "ex_bath1",
    "category": "Ventilation",
    "system": "hvac.exhaust",
@@ -4300,17 +4327,17 @@
    "size": 4,
    "points": [
     [
-     19.8,
+     21.9,
      10.62,
      11.7
     ],
     [
-     19.8,
+     21.9,
      13.5,
      11.7
     ],
     [
-     19.8,
+     21.9,
      13.5,
      10.302083333333334
     ]
@@ -4320,13 +4347,13 @@
    "info": {
     "model": "4 in round exhaust",
     "notes": [
-     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. High on the bath 2 wall through the attic wall, over the supply trunk."
+     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. High on the east end of the bath 2 south wall, through the attic wall and over the supply trunk. It was right beside the supply; the supply now comes in low at the west end of the same wall (Maxwell, 11/18/2026)."
     ]
    },
    "grilles": [
     {
      "at": [
-      19.8,
+      21.9,
       10.6,
       11.7
      ],
@@ -4347,8 +4374,13 @@
    "size": 4,
    "points": [
     [
+     7.2,
+     32.2,
+     9.494791666666666
+    ],
+    [
      10.2,
-     31.3,
+     32.2,
      9.494791666666666
     ],
     [
@@ -4367,14 +4399,14 @@
    "info": {
     "model": "4 in round exhaust",
     "notes": [
-     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Runs north in its own truss bay, then up into the main on the deck."
+     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Over the toilet, about 4 ft from the supply by the door (Maxwell, 11/18/2026). Runs east through the truss webs, north in its own truss bay, then up into the main on the deck."
     ]
    },
    "grilles": [
     {
      "at": [
-      10.2,
-      31.3,
+      7.2,
+      32.2,
       8.98
      ],
      "size": [
