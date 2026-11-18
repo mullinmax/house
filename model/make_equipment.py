@@ -555,7 +555,7 @@ ducts.append(dict(id="s_bath2_stack", info_of="s_bath2", type="supply", shape="r
 # instead of separate fans. The run hugs the supply trunk's south side on the deck so it stays in the low, north part of the attic.
 ZTOP = ZTR + 8 / 12 + 0.27                        # centre of a 6 in round lying on top of the 18 x 16 supply trunk
 EX = DECK + 0.25                                  # centre of a 6 in round lying on the deck
-ENOTE = ("Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. "
+ENOTE = ("ERV pickup grille: the ERV pulls 20 CFM from it continuously. The bathrooms with showers also have their own switched fan for steam. "
          "Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED.")
 def exhaust(id, name, dia, points, grilles=None, note=None, info_of=None, room=None):
     d = dict(id=id, category="Ventilation", system="hvac.exhaust", type="exhaust", shape="round", size=dia, points=points)
@@ -578,6 +578,18 @@ exhaust("ex_main", "Bath exhaust main", 6, [[XE1, 17.8, EX], [25.6, 17.8, EX], [
                                            [ERV_XS, HP_N - 2.5, ERV_Z], [ERV_XS, ERV_N, ERV_Z]],
         note="Collects the three bathroom exhausts. It rides on top of the supply trunk along the north attic wall and down to the heat pump, crosses over the heat pump's top "
              "and goes straight into the ERV's stale air inlet, so it takes no floor space (Maxwell, 11/18/2026). ASSUMED route and size.")
+# Shower fans (Maxwell, 11/18/2026): the two bathrooms with showers each get their own switched fan on its own short duct straight
+# outdoors, as well as the continuous ERV pickup. A fan must not blow into the ERV's duct: that is against the ERV makers'
+# instructions, unbalances the ERV and can push air out of the other bathrooms' grilles. The powder room stays on the ERV alone.
+FNOTE = ("Its own duct straight outdoors with a backdraft damper at the hood, not tied into the ERV duct. Switched on for showers, on a timer or humidity control. "
+         "50 CFM or more meets the code's intermittent rate (IRC table M1505.4.4); 80 to 110 CFM clears steam faster. The ERV pickup in the same room keeps running at a low rate. Model not picked.")
+def fan(id, name, room, points, grille, how):
+    ducts.append(dict(id=id, name=name, category="Ventilation", system="hvac.exhaust.fan", type="exhaust", shape="round", size=4, room=room, points=points, grilles=[grille],
+                      info=dict(model="Bath exhaust fan, 80 to 110 CFM class, 4 in duct", specs=[["Runs", "Only when switched on for a shower"], ["Duct", how]], notes=[FNOTE])))
+fan("fan_bath1", "Bath 1 shower fan", "Bath 1", [[41.3, 30.6, ZT], [43.05, 30.6, ZT]], dict(at=[41.3, 30.6, CEIL - 0.02], size=[10, 10]),
+    "About 2 ft east through the floor trusses to a hood on the east wall. ASSUMED")
+fan("fan_bath2", "Bath 2 shower fan", "Bath 2", [[21.2, 0.55, 8.3], [21.2, -0.05, 8.3]], dict(at=[21.2, 0.52, 8.3], size=[10, 10], wall=S),
+    "Through the wall fan high on the north wall at the tub's valve end, east of the window: the vaulted SIP roof has no cavity for a ceiling fan. ASSUMED")
 # Heat pump water heater air (Maxwell, 11/18/2026): the utility door stays solid, so the water heater's intake and exhaust are both
 # ducted up into the attic, which is inside the SIP roof. Rheem allows any size room when both are ducted and says never to tie
 # the unit into other ductwork. Both rise straight up in truss bay 5.7, north to south of each other, and come out on open deck

@@ -4287,7 +4287,7 @@
    "info": {
     "model": "4 in round exhaust",
     "notes": [
-     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Runs north in one loft floor truss bay, east of the family supply drop, then up onto the deck."
+     "ERV pickup grille: the ERV pulls 20 CFM from it continuously. The bathrooms with showers also have their own switched fan for steam. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Runs north in one loft floor truss bay, east of the family supply drop, then up onto the deck."
     ]
    },
    "grilles": [
@@ -4328,7 +4328,7 @@
    "info": {
     "model": "4 in round exhaust",
     "notes": [
-     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. High on the east end of the bath 2 south wall, through the attic wall and into the main on top of the supply trunk. It was right beside the supply; the supply now comes in low at the west end of the same wall (Maxwell, 11/18/2026)."
+     "ERV pickup grille: the ERV pulls 20 CFM from it continuously. The bathrooms with showers also have their own switched fan for steam. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. High on the east end of the bath 2 south wall, through the attic wall and into the main on top of the supply trunk. It was right beside the supply; the supply now comes in low at the west end of the same wall (Maxwell, 11/18/2026)."
     ]
    },
    "grilles": [
@@ -4390,7 +4390,7 @@
    "info": {
     "model": "4 in round exhaust",
     "notes": [
-     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Comes up through the deck, runs along it and rises into the main just before the ERV."
+     "ERV pickup grille: the ERV pulls 20 CFM from it continuously. The bathrooms with showers also have their own switched fan for steam. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Comes up through the deck, runs along it and rises into the main just before the ERV."
     ]
    },
    "grilles": [
@@ -4467,6 +4467,109 @@
     "model": "6 in round exhaust",
     "notes": [
      "Collects the three bathroom exhausts. It rides on top of the supply trunk along the north attic wall and down to the heat pump, crosses over the heat pump's top and goes straight into the ERV's stale air inlet, so it takes no floor space (Maxwell, 11/18/2026). ASSUMED route and size."
+    ]
+   }
+  },
+  {
+   "id": "fan_bath1",
+   "name": "Bath 1 shower fan",
+   "category": "Ventilation",
+   "system": "hvac.exhaust.fan",
+   "type": "exhaust",
+   "shape": "round",
+   "size": 4,
+   "room": "Bath 1",
+   "points": [
+    [
+     41.3,
+     30.6,
+     9.494791666666666
+    ],
+    [
+     43.05,
+     30.6,
+     9.494791666666666
+    ]
+   ],
+   "grilles": [
+    {
+     "at": [
+      41.3,
+      30.6,
+      8.98
+     ],
+     "size": [
+      10,
+      10
+     ]
+    }
+   ],
+   "info": {
+    "model": "Bath exhaust fan, 80 to 110 CFM class, 4 in duct",
+    "specs": [
+     [
+      "Runs",
+      "Only when switched on for a shower"
+     ],
+     [
+      "Duct",
+      "About 2 ft east through the floor trusses to a hood on the east wall. ASSUMED"
+     ]
+    ],
+    "notes": [
+     "Its own duct straight outdoors with a backdraft damper at the hood, not tied into the ERV duct. Switched on for showers, on a timer or humidity control. 50 CFM or more meets the code's intermittent rate (IRC table M1505.4.4); 80 to 110 CFM clears steam faster. The ERV pickup in the same room keeps running at a low rate. Model not picked."
+    ]
+   }
+  },
+  {
+   "id": "fan_bath2",
+   "name": "Bath 2 shower fan",
+   "category": "Ventilation",
+   "system": "hvac.exhaust.fan",
+   "type": "exhaust",
+   "shape": "round",
+   "size": 4,
+   "room": "Bath 2",
+   "points": [
+    [
+     21.2,
+     0.55,
+     8.3
+    ],
+    [
+     21.2,
+     -0.05,
+     8.3
+    ]
+   ],
+   "grilles": [
+    {
+     "at": [
+      21.2,
+      0.52,
+      8.3
+     ],
+     "size": [
+      10,
+      10
+     ],
+     "wall": "S"
+    }
+   ],
+   "info": {
+    "model": "Bath exhaust fan, 80 to 110 CFM class, 4 in duct",
+    "specs": [
+     [
+      "Runs",
+      "Only when switched on for a shower"
+     ],
+     [
+      "Duct",
+      "Through the wall fan high on the north wall at the tub's valve end, east of the window: the vaulted SIP roof has no cavity for a ceiling fan. ASSUMED"
+     ]
+    ],
+    "notes": [
+     "Its own duct straight outdoors with a backdraft damper at the hood, not tied into the ERV duct. Switched on for showers, on a timer or humidity control. 50 CFM or more meets the code's intermittent rate (IRC table M1505.4.4); 80 to 110 CFM clears steam faster. The ERV pickup in the same room keeps running at a low rate. Model not picked."
     ]
    }
   },
