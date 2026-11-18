@@ -378,19 +378,23 @@ items += [
 ]
 
 # ------------------------------------------------------------------ ducts
-def supply(id, room, cfm, dia, points, grille=None, note=None, name=None):
+DAMPER = "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
+def supply(id, room, cfm, dia, points, grille=None, note=None, name=None, parent="supply_trunk", el=0):
+    # cfm, parent (the duct this run is fed from) and el (extra equivalent length, ft) are read by tools/duct_balance.py
     d = dict(id=id, name=name or f"Supply to {room}", category="HVAC supply duct", system="hvac.supply", room=room, type="supply", shape="round", size=dia, points=points,
-             info=dict(model=f'{dia} in round, {cfm} CFM', specs=[["Airflow", f"{cfm} CFM (M-10)"], ["Duct", f"{dia} in round"]], notes=[note] if note else []))
+             cfm=cfm, parent=parent, damper=True,
+             info=dict(model=f'{dia} in round, {cfm} CFM', specs=[["Airflow", f"{cfm} CFM (M-10)"], ["Duct", f"{dia} in round"], ["Damper", DAMPER]], notes=[note] if note else []))
+    if el: d["el"] = el
     if grille: d["grilles"] = [grille]
     ducts.append(d)
 
 XW, YN, YE, XJ = HP_CX, 12.0, 16.1, 27.07        # west leg x, north leg y, east leg y, jog x (against bedroom 1's west wall, x 28.12)
 TRUNK_NOTE = ("Rerouted from M-10. Andy drew this trunk down the middle of the attic at y about 21.6 ft. Maxwell asked for it along the north wall of the attic, "
               "so it runs straight north from the heat pump with no turn (Maxwell, 11/18/2026), then along the north attic wall all the way to bedroom 1's west wall, follows that wall south, then runs east along bedroom 1's south wall (Maxwell, 11/17/2026: keep the middle of the attic free for storage). Size is Andy's 18 x 16 throughout, no reductions modelled.")
-ducts.append(dict(id="supply_trunk", name="Supply trunk", category="HVAC supply duct", system="hvac.supply", type="supply", shape="rect", size=[18, 16],
+ducts.append(dict(id="supply_trunk", name="Supply trunk", category="HVAC supply duct", system="hvac.supply", type="supply", shape="rect", size=[18, 16], parent="supply_plenum", el=20,
     points=[[XW, HP_N - 2.0, ZTR], [XW, YN, ZTR], [XJ, YN, ZTR], [XJ, YE, ZTR], [41.2, YE, ZTR]],
     info=dict(model="18 x 16 in main trunk, 1,368 CFM", specs=[["Airflow", "1,368 CFM total"], ["Location", "On the attic deck against the north attic wall"]], notes=[TRUNK_NOTE])))
-ducts.append(dict(id="supply_plenum", info_of="supply_trunk", type="supply", shape="rect", size=[26, 24], points=[[HP_CX, HP_N - 0.75, DECK + 1.0], [HP_CX, HP_N - 2.05, DECK + 1.0]]))
+ducts.append(dict(id="supply_plenum", info_of="supply_trunk", type="supply", shape="rect", size=[26, 24], parent=None, points=[[HP_CX, HP_N - 0.75, DECK + 1.0], [HP_CX, HP_N - 2.05, DECK + 1.0]]))
 def drop(x, y0, ys, zt=ZT):      # leave the trunk's side, drop into the truss space, run to ys
     return [[x, y0, DECK + 0.45], [x, y0 + (0.25 if ys > y0 else -0.25), zt], [x, ys, zt]]
 
@@ -415,25 +419,42 @@ supply("s_hall2a", "Hall 2", 15, 6, drop(bay(14.4), YN + 0.75, 17.8), dict(at=[b
 supply("s_hall2b", "Hall 2", 16, 6, drop(bay(20.5), YN + 0.75, 13.8), dict(at=[bay(20.5), 13.8, CEIL - 0.02], size=[8, 6]))
 # west leg
 XB3 = bay(3.7)                                    # bottom takeoff under the trunk, in the truss bay below it
-supply("s_bed3", "Bedroom 3", 127, 6, [[XB3, 14.5, DECK + 0.3], [XB3, 14.5, ZT], [bay(5.7), 14.5, ZT]], dict(at=[bay(5.7), 14.5, CEIL - 0.02], size=[12, 8]),
-       "Bottom takeoff from the trunk into the truss bay below it, then crosses one truss to a ceiling register in the next bay west of the bedroom 3 return.")
+supply("s_bed3", "Bedroom 3", 127, 8, [[XB3, 13.4, DECK + 0.3], [XB3, 13.4, ZT], [XB3, 16.6, ZT]], dict(at=[XB3, 16.6, CEIL - 0.02], size=[14, 8]),
+       "Bottom takeoff from the trunk into the truss bay below it, then about 3 ft south in that same bay to a ceiling register. It crosses no truss, so it can be 8 in: "
+       "the 6 in run that crossed one truss carried only about three quarters of this room's air (duct balance check, 11/18/2026).")
 # south main: drops from the west side of the supply plenum into the first truss bay at the west wall and runs south in it. Each kitchen and powder
 # register then gets its own round branch through the truss webs (a rectangular main cannot cross the trusses).
 XM = bay(1.7) + 0.2                               # east of centre in the bay, so the geo risers pass on its west side
-SMAIN_END = 34.3
+KY = CFG["roof"]["clerestory_wall_y"] - 0.02 - 7 / 12   # centreline of the kitchen duct on the deck, tight against the attic side of the clerestory wall
+KZ = DECK + 4 / 12 + 0.02                         # centre of an 8 in tall duct lying on the deck
+SMAIN_END = KY
 ducts.append(dict(id="supply_south_main", name="South supply main", category="HVAC supply duct", system="hvac.supply", type="supply", shape="rect", size=[14, 8],
-    points=[[XM, HP_N - 1.4, DECK + 0.2], [XM, HP_N - 1.4, ZT], [XM, SMAIN_END, ZT]],
-    grilles=[dict(at=[XM, 31.0, CEIL - 0.02], size=[10, 6])],
-    info=dict(model="14 x 8 in in the first truss bay, then 6 and 7 in round branches", specs=[["Serves", "Kitchen and dining 3 x 127 CFM, pantry 22, powder 15, utility 18"]],
+    points=[[XM, HP_N - 1.4, DECK + 0.2], [XM, HP_N - 1.4, ZT], [XM, SMAIN_END, ZT]], parent="supply_plenum", el=50,
+    info=dict(model="14 x 8 in in the first truss bay, then up onto the deck for the kitchen", specs=[["Serves", "Kitchen and dining 3 x 127 CFM, pantry 22, powder 15, utility 18"]],
       notes=["New. On M-10 these rooms were fed by branches crossing the attic floor. Here the main runs south in the truss bay along the west wall, "
-             "which is parallel to the trusses so a rectangular duct fits, and each register gets its own round branch through the truss webs. Sizes are schematic."])))
-supply("s_utility", "Utility", 18, 6, [[XM, 26.5, ZT], [3.1, 26.5, ZT]], dict(at=[3.1, 26.5, CEIL - 0.02], size=[8, 6]), "Extra capacity for the utility room computers is on Maxwell's wish list and not sized yet.")
-supply("s_powder", "Powder", 15, 6, [[XM, 29.2, ZT], [9.5, 29.2, ZT]], dict(at=[9.5, 29.2, CEIL - 0.02], size=[8, 6]),
+             "which is parallel to the trusses so a rectangular duct fits. The small utility and powder branches cross the trusses at 6 in. "
+             "At the clerestory wall the main comes up through the deck and feeds the kitchen duct, so the big kitchen runs never pass through a truss (Maxwell, 11/18/2026). Sizes are schematic."])))
+ducts.append(dict(id="s_pantry", name="Supply to Pantry", category="HVAC supply duct", system="hvac.supply", room="Pantry", type="supply", shape="rect", size=[10, 6],
+    points=[[XM, 31.0, ZT], [XM, 31.0, CEIL + 0.05]], cfm=22, parent="supply_south_main", damper=True, grilles=[dict(at=[XM, 31.0, CEIL - 0.02], size=[10, 6])],
+    info=dict(model="10 x 6 in ceiling register on the bottom of the south main, 22 CFM", specs=[["Airflow", "22 CFM (M-10)"], ["Damper", "Opposed blade damper in the register"]], notes=[])))
+supply("s_utility", "Utility", 18, 6, [[XM, 26.5, ZT], [3.1, 26.5, ZT]], dict(at=[3.1, 26.5, CEIL - 0.02], size=[8, 6]), parent="supply_south_main", note="Extra capacity for the utility room computers is on Maxwell's wish list and not sized yet.")
+supply("s_powder", "Powder", 15, 6, [[XM, 29.2, ZT], [9.5, 29.2, ZT]], dict(at=[9.5, 29.2, CEIL - 0.02], size=[8, 6]), parent="supply_south_main", note=
        "Round branch off the south main through the pantry trusses. Ceiling register in the northeast corner by the door, about 4 ft from the "
        "exhaust over the toilet (Maxwell, 11/18/2026: move them apart; the 9 ft flat ceiling leaves no way to bring this one in low).")
-for k, (x, yb) in enumerate([(bay(3.0), 34.15), (bay(7.0), 33.5), (bay(11.0), 32.85)]):
-    supply(f"s_kitchen{k+1}", "Kitchen / dining", 127, 6, [[XM, yb, ZT], [x, yb, ZT], [x, 35.0, ZT]], dict(at=[x, 35.1, ZT], size=[14, 6], wall=S),
-           "High sidewall register in the clerestory wall, on its own 6 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west.")
+# Kitchen (Maxwell, 11/18/2026): run it higher, out of the floor, so it can be bigger. The main rises through the deck at the clerestory
+# wall and a 14 x 8 duct lies on the deck tight against that wall, over the pantry and powder room. Each register is a short 8 in stub
+# straight through the wall, like the bedroom registers on the north trunk. Nothing here crosses a truss.
+KX = [bay(3.0), bay(7.0), bay(11.0)]
+ducts.append(dict(id="supply_kitchen_riser", info_of="supply_kitchen_main", type="supply", shape="rect", size=[14, 8], parent="supply_south_main", el=30,
+    points=[[XM, KY, ZT], [XM, KY, KZ]]))
+ducts.append(dict(id="supply_kitchen_main", name="Kitchen supply duct", category="HVAC supply duct", system="hvac.supply", type="supply", shape="rect", size=[14, 8], parent="supply_kitchen_riser",
+    points=[[XM, KY, KZ], [KX[-1] + 0.6, KY, KZ]],
+    info=dict(model="14 x 8 in on the attic deck along the clerestory wall, 381 CFM", specs=[["Serves", "Kitchen and dining, 3 x 127 CFM"], ["Location", "On the deck over the pantry and powder room, against the kitchen wall"]],
+      notes=["Replaces three 6 in branches through the pantry and powder trusses, which carried only about 70% of the kitchen's air (duct balance check, 11/18/2026). "
+             "Maxwell, 11/18/2026: run the kitchen ducts higher so they are not in the floor and can be larger. It takes a strip of deck 14 in wide along the wall. ASSUMED size."])))
+for k, x in enumerate(KX):
+    supply(f"s_kitchen{k+1}", "Kitchen / dining", 127, 8, [[x, KY + 0.55, KZ], [x, 35.0, KZ]], dict(at=[x, 35.1, KZ], size=[14, 6], wall=S), parent="supply_kitchen_main", note=
+           "High sidewall register in the clerestory wall, about 11 in higher than before, on a short 8 in stub from the kitchen duct on the attic deck. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west.")
 # east leg
 YS = YE + 0.75
 XL = bay(27.6)                                     # laundry and living 1 share one bay, side by side
@@ -444,10 +465,11 @@ supply("s_living2", "Living", 70, 7, drop(bay(29.7), YS, 22.62), dict(at=[bay(29
        "Hall 1 has no supply of its own (Maxwell, 11/17/2026): one 3 ft from the main return would short circuit into it. Its 48 CFM from M-10 is split between the two living registers, which open onto the hall through the 8 ft wide cased opening.")
 supply("s_closet1", "Closet 1", 33, 6, drop(bay(33.4), YS, 18.9), dict(at=[bay(33.4), 18.9, CEIL - 0.02], size=[10, 6]))
 XB1 = bay(35.7)                                    # bath 1 and the loft share one bay
-supply("s_bath1", "Bath 1", 49, 6, drop(XB1 - 0.35, YS, 27.6), dict(at=[XB1 - 0.35, 27.6, CEIL - 0.02], size=[10, 6]), "Runs in the loft floor.")
-supply("s_loft", "Loft", 88, 6, drop(XB1 + 0.35, YS, 24.6) + [[XB1 + 0.35, 24.6, DECK + 0.01]], dict(at=[XB1 + 0.35, 24.6, DECK + 0.01], size=[12, 4]), "Floor register in the loft.")
+supply("s_bath1", "Bath 1", 49, 6, drop(XB1 - 0.4, YS, 27.6), dict(at=[XB1 - 0.4, 27.6, CEIL - 0.02], size=[10, 6]), "Runs in the loft floor.")
+supply("s_loft", "Loft", 88, 8, drop(XB1 + 0.4, YS, 24.6) + [[XB1 + 0.4, 24.6, DECK + 0.01]], dict(at=[XB1 + 0.4, 24.6, DECK + 0.01], size=[12, 4]),
+       "Floor register in the loft. 8 in, up from 6 in: the run stays in one truss bay, so the 6 in limit on crossing trusses does not apply (duct balance check, 11/18/2026).")
 for k, x in enumerate([31.7, 37.7]):
-    supply(f"s_family{k+1}", "Entry / family", 112, 7, drop(bay(x), YS, 35.0), dict(at=[bay(x), 35.1, ZT], size=[14, 6], wall=S), "Runs in the loft floor to a high sidewall register.")
+    supply(f"s_family{k+1}", "Entry / family", 112, 8, drop(bay(x), YS, 35.0), dict(at=[bay(x), 35.1, ZT], size=[14, 6], wall=S), "Runs in the loft floor to a high sidewall register. 8 in, up from 7 in: 19 ft long but all in one truss bay, so it can be the full size the trusses allow (duct balance check, 11/18/2026).")
 supply("s_bed1", "Bedroom 1", 138, 8, [[40.4, YE - 0.6, 11.0], [40.4, 14.95, 11.0]], dict(at=[40.4, 14.97, 11.0], size=[14, 8], wall=N), "High sidewall register through the attic wall.")
 
 # ------------------------------------------------------------------ returns
@@ -461,8 +483,10 @@ DK = DECK + 5 / 12                                # centre of a 10 in tall duct 
 LOW = 1.0                                         # centre of a low return grille, 8 in tall, its bottom 8 in above the floor
 STK = [14, 2.5]                                   # wall stack: 14 x 2-1/2 in, kept inside a 3-1/2 in stud bay (w runs along plan x)
 PZ = DECK + 1.0                                   # centre of the 24 in tall plenum box on the deck
-def ret(id, name, size, points, grilles=None, note=None, info_of=None, model=None, flex=False):
-    d = dict(id=id, name=name, category="HVAC return duct", system="hvac.return", type="return", points=points)
+def ret(id, name, size, points, grilles=None, note=None, info_of=None, model=None, flex=False, parent="return_plenum", el=0, **calc):
+    # parent (the duct this one empties into), el (extra equivalent length, ft) and calc (k, n, room, intake, calc) are read by tools/duct_balance.py
+    d = dict(id=id, name=name, category="HVAC return duct", system="hvac.return", type="return", points=points, parent=parent, **calc)
+    if el: d["el"] = el
     if isinstance(size, (int, float)):
         d.update(shape="round", size=size)
         if flex: d["flex"] = True
@@ -473,8 +497,8 @@ def ret(id, name, size, points, grilles=None, note=None, info_of=None, model=Non
     ducts.append(d)
     return d
 
-def stack(id, x, y, info_of, size=STK):           # a return stack from a low grille up the stud bay into the truss space
-    ret(id, None, size, [[x, y, LOW - 0.33], [x, y, ZT]], info_of=info_of)
+def stack(id, x, y, info_of, parent, room, size=STK, top=ZT):   # a return stack from a low grille up the stud bay into the truss space
+    ret(id, None, size, [[x, y, LOW - 0.33], [x, y, top]], info_of=info_of, parent=parent, room=room, intake=True, el=75)
 
 def bend(pts, r=0.55):
     """Flex duct does not turn sharp corners: round every corner off with a short arc of radius about r ft."""
@@ -499,7 +523,7 @@ RFLEX = ("Round flex duct: a rectangular duct cannot pass through open web floor
          "until Andy or the HVAC installer sizes them.")
 
 RY = 24.8                                          # the main return's centreline: above the utility room door, in line with the heat pump's filter side
-ret("return_main", "Main return (M-10)", [34, 10], [[11.95, RY, ZT], [10.95, RY, ZT]],
+ret("return_main", "Main return (M-10)", [34, 10], [[11.95, RY, ZT], [10.95, RY, ZT]], parent="return_main_riser", intake=True, k=1.0,
     grilles=[dict(at=[12.15, RY, ZT], size=[34, 10], wall="E")])
 ducts[-1]["info"] = dict(model="34 x 10 in grille and trunk, 1,368 CFM system (M-10)",
     specs=[["Serves", "Living, kitchen, dining, family and the halls, plus any room on transfer grilles"], ["Grille", "34 x 10 in, hall 1 (M-10)"],
@@ -513,55 +537,86 @@ RP_N = HP_Y - 2.035                                # the plenum box covers the 3
 RP_S = RP_N + 3.2                                  # and stops there, so the TXV and filter drier access south of it stays open (GZT manual p.17, area A-2)
 RP_E = HP_X + 0.22 + 14 / 12                       # its east face, where the trunk comes in
 RPX = bay(7.7)                                     # the bedroom flex runs come up into the bottom of the trunk in this truss bay
-ret("return_main_riser", None, [14, 30], [[XMR, RY, ZT], [XMR, RY, DK]], info_of="return_main")
-ret("return_main_deck", None, [34, 10], [[XMR, RY, DK], [RP_E, RY, DK]], info_of="return_main")
-ret("return_plenum", "Return plenum box", [14, 24], [[RP_E - 7 / 12, RP_S, PZ], [RP_E - 7 / 12, RP_N, PZ]],
+ret("return_main_riser", None, [14, 30], [[XMR, RY, ZT], [XMR, RY, DK]], info_of="return_main", parent="return_main_deck", k=1.0)
+ret("return_main_deck", None, [34, 10], [[XMR, RY, DK], [RP_E, RY, DK]], info_of="return_main", k=1.0)
+ret("return_plenum", "Return plenum box", [14, 24], [[RP_E - 7 / 12, RP_S, PZ], [RP_E - 7 / 12, RP_N, PZ]], parent=None,
     model="14 x 24 in return plenum box on the deck, along the heat pump's filter rack",
     note="The return trunk comes straight into its east face. The bedroom flex runs come up through collars in the bottom of the trunk just east of it. "
          "The box sits on the deck along the AFR1836A filter rack on the heat pump's east side. Size ASSUMED.")
 
 # Bedrooms 2 and 3 (Maxwell, 11/17/2026): bedroom 3's grille moved from beside the bed to its north wall. Both grilles are in
 # the wall the two rooms share, in neighbouring stud bays, and both stacks rise into the trusses over bedroom 3, where they join.
-XR3, XR2 = bay(7.7), bay(9.7)
-r = ret("return_bed23", "Bedrooms 2 and 3 return", 10, bend([[XR3, 10.85, ZT], [XR3, RY - 0.7, ZT], [XR3, RY - 0.7, DECK + 0.2]]), flex=True,
-        grilles=[dict(at=[XR3, 11.02, LOW], size=[14, 8], wall=S)])
-r["info"]["specs"] = [["Serves", "Bedroom 3 (low grille on its north wall) and bedroom 2 (low grille on its south wall)"],
-                      ["Duct", "14 x 2-1/2 in wall stacks, 6 in flex from bedroom 2 through one truss, 10 in flex south in one truss bay to the plenum"],
-                      ["Crosses", "One truss, at 6 in. No supply runs"]]
+# Bedroom 3 has a second grille and stack one bay west (duct balance check, 11/18/2026): one 14 x 2-1/2 in stack chokes 127 CFM.
+XR3, XR2, XR3B = bay(7.7), bay(9.7), bay(5.7)
+r = ret("return_bed23", "Bedrooms 2 and 3 return", 10, bend([[XR3, 10.85, ZT], [XR3, RY - 0.7, ZT], [XR3, RY - 0.7, DECK + 0.2]]), flex=True, el=25,
+        grilles=[dict(at=[XR3, 11.02, LOW], size=[14, 8], wall=S), dict(at=[XR3B, 11.02, LOW], size=[14, 8], wall=S)])
+r["info"]["specs"] = [["Serves", "Bedroom 3 (two low grilles on its north wall) and bedroom 2 (low grille on its south wall)"],
+                      ["Duct", "14 x 2-1/2 in wall stacks, 6 in flex from bedroom 2 and from bedroom 3's second stack through one truss each, 10 in flex south in one truss bay to the plenum"],
+                      ["Crosses", "One truss from each side, at 6 in. No supply runs"]]
 r["info"]["notes"] = ["Bedroom 3's grille moved from its south wall, next to the bed, to its north wall (Maxwell, 11/17/2026). It shares that wall with bedroom 2, "
-                      "so the two stacks rise side by side into the trusses over bedroom 3 and join there: bedroom 2's 6 in flex crosses one truss into bedroom 3's bay and "
-                      "tees into a 10 in flex that runs south in that bay, parallel to the trusses, to the return plenum box at the heat pump.", RFLEX]
-stack("return_bed3_stack", XR3, 10.8, "return_bed23")
-ret("return_bed2", None, 6, bend([[XR2, 10.85, ZT], [XR2, 11.9, ZT], [XR3 + 0.3, 12.7, ZT], [XR3, 13.2, ZT]], 0.4), flex=True,
+                      "so the stacks rise side by side into the trusses over bedroom 3 and join there: bedroom 2's 6 in flex crosses one truss into bedroom 3's bay and "
+                      "tees into a 10 in flex that runs south in that bay, parallel to the trusses, to the return plenum box at the heat pump.",
+                      "Bedroom 3 has two grilles and two stacks (duct balance check, 11/18/2026): a 14 x 2-1/2 in stack is all a 2x4 wall holds, and one of them alone "
+                      "passed only about three quarters of the room's 127 CFM.", RFLEX]
+stack("return_bed3_stack", XR3, 10.8, "return_bed23", "return_bed23", "Bedroom 3")
+stack("return_bed3_stack2", XR3B, 10.8, "return_bed23", "return_bed3b", "Bedroom 3")
+ret("return_bed3b", None, 6, bend([[XR3B, 10.85, ZT], [XR3B, 12.6, ZT], [XR3 - 0.3, 13.4, ZT], [XR3, 13.9, ZT]], 0.4), flex=True, info_of="return_bed23", parent="return_bed23", el=30)
+ret("return_bed2", None, 6, bend([[XR2, 10.85, ZT], [XR2, 11.9, ZT], [XR3 + 0.3, 12.7, ZT], [XR3, 13.2, ZT]], 0.4), flex=True, parent="return_bed23", el=30,
     grilles=[dict(at=[XR2, 10.64, LOW], size=[14, 8], wall=N)], info_of="return_bed23")
-stack("return_bed2_stack", XR2, 10.8, "return_bed23")
+stack("return_bed2_stack", XR2, 10.8, "return_bed23", "return_bed2", "Bedroom 2")
 
-# Study and bedroom 1: one 6 in flex home run each. They come down side by side in one hall 2 bay, cross the laundry and
-# linen trusses west (the study's run first, further north, so the two never cross), and drop south in their own bays to the plenum.
+# Study: two 6 in flex home runs from its one stack (duct balance check, 11/18/2026: one 6 in returned about 60% of the room's air).
+# They come down in one hall 2 bay, cross the laundry and linen trusses west a little apart, and drop south in their own bays.
+# The second run uses the route bedroom 1's return had before it moved up onto the supply trunk.
 XSB, XB1R = bay(27.7), bay(29.7)                 # the study grille is east of its door (x 23.37-26.00 with casing to 26.29), Maxwell 11/18/2026
-XSR = bay(25.7)                                   # the two home runs still share the 25.7 bay: the laundry and living 1 supplies fill bay 27.7
+XSR = bay(25.7)                                   # both runs go south in the 25.7 bay: the laundry and living 1 supplies fill bay 27.7
 YSW, YBW = 19.6, 20.3
-r = ret("return_study", "Study and bedroom 1 returns", 6,
-        bend([[XSB, 10.85, ZT], [XSB, 11.4, ZT], [XSR - 0.35, 11.4, ZT], [XSR - 0.35, YSW, ZT], [XR2, YSW, ZT], [XR2, RY + 0.5, ZT], [RPX, RY + 0.5, ZT], [RPX, RY + 0.5, DECK + 0.2]]), flex=True,
-        grilles=[dict(at=[XSB, 10.64, LOW], size=[14, 8], wall=N)])
-r["info"]["specs"] = [["Serves", "Study (low grille on its south wall) and bedroom 1 (low grille on its south wall, beside the door)"],
-                      ["Duct", "14 x 2-1/2 in wall stacks, one 6 in flex home run per room to the return plenum box"],
+r = ret("return_study", "Study return", 6,
+        bend([[XSB - 0.3, 10.85, ZT], [XSB - 0.3, 11.4, ZT], [XSR - 0.35, 11.4, ZT], [XSR - 0.35, YSW, ZT], [XR2, YSW, ZT], [XR2, RY + 0.5, ZT], [RPX, RY + 0.5, ZT], [RPX, RY + 0.5, DECK + 0.2]]), flex=True,
+        el=25, n=2, grilles=[dict(at=[XSB, 10.64, LOW], size=[14, 8], wall=N)])
+r["info"]["model"] = "Two 6 in round flex runs"
+r["info"]["specs"] = [["Serves", "Study (low grille on its south wall, east of the door)"],
+                      ["Duct", "One 14 x 2-1/2 in wall stack, then two 6 in flex home runs to the heat pump's return"],
                       ["Crosses", "The laundry, linen and bedroom 3 trusses at 6 in. No supply runs, and they stay in the trusses, off the tall south part of the attic"]]
-r["info"]["notes"] = ["The study and bedroom 1 have low grilles (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Each room gets its own 6 in flex "
-                      "back to the plenum, because one duct big enough for both would not fit through the truss webs.",
-                      "A 6 in flex carries roughly 65 to 75 CFM at return duct friction (6 in is the most the builder is sure fits the installed trusses, 11/18/2026), about half of bedroom 1's 138 CFM supply. Andy may want a second run "
-                      "or a bigger chase for bedroom 1.", RFLEX]
-stack("return_study_stack", XSB, 10.8, "return_study")
-ret("return_bed1", None, 6, bend([[XB1R, 15.3, ZT], [XB1R, 15.75, ZT], [XSR + 0.35, 15.75, ZT], [XSR + 0.35, YBW, ZT], [bay(11.7) - 0.2, YBW, ZT],
-                                  [bay(11.7) - 0.2, RY - 1.3, ZT]]), flex=True,
-    grilles=[dict(at=[XB1R, 15.01, LOW], size=[14, 8], wall=N)], info_of="return_study")
-stack("return_bed1_stack", XB1R, 15.26, "return_study")
+r["info"]["notes"] = ["The study has a low grille (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Two 6 in runs because one big duct "
+                      "would not fit through the truss webs and a single 6 in returned only about 60% of the room's 104 CFM (duct balance check, 11/18/2026). "
+                      "If the builder confirms 7 in fits the webs, one 7 in run does nearly the same job.",
+                      "The wall between the study door and bedroom 1 is too narrow for a second stack, so the one 14 x 2-1/2 in stack stays the tight spot here.", RFLEX]
+stack("return_study_stack", XSB, 10.8, "return_study", "return_study", "Bedroom 4 / study")
+ret("return_study2", None, 6, bend([[XSB + 0.15, 10.85, ZT], [XSB + 0.15, 12.0, ZT], [XSR + 0.35, 12.0, ZT], [XSR + 0.35, YBW, ZT], [bay(11.7) - 0.2, YBW, ZT],
+                                    [bay(11.7) - 0.2, RY - 1.3, ZT]]), flex=True, info_of="return_study", calc=False)
+
+# Bedroom 1 (duct balance check, 11/18/2026): its 138 CFM is too much for anything that fits through the truss webs, so its return
+# stays out of the trusses. Two stacks rise side by side in bedroom 1's south wall to a header above the supply trunk, which lies
+# against the attic side of that wall. One 10 in round then rides on top of the trunk, beside the bath exhaust main, round to the
+# north attic wall, comes down onto the deck east of the trunk's west leg and runs south to the return plenum.
+ZR = ZTR + 8 / 12 + 5 / 12 + 0.02                  # centre of a 10 in round lying on top of the 18 x 16 supply trunk
+ZH = ZTR + 8 / 12 + 0.54 + 5 / 12 + 0.04           # centre of the header, clear above the 6 in exhaust main on the trunk
+XB1B = XB1R + 16 / 12                              # the second stack, in the next stud bay east
+XBH = (XB1R + XB1B) / 2
+Y_RL, X_RL, Y_RN = YE + 0.31, XJ - 0.31, YN + 0.31 # the return's lane on the trunk top: south side of the east leg, west side of the jog, south side of the north leg
+XRD = RP_E - 7 / 12                                # where it comes down and runs south, in line with the return plenum box
+r = ret("return_bed1", "Bedroom 1 return", 10,
+        [[XBH, 15.95, ZH], [XBH, Y_RL, ZH], [XBH, Y_RL, ZR], [X_RL, Y_RL, ZR], [X_RL, Y_RN, ZR], [XRD, Y_RN, ZR], [XRD, YN + 1.3, ZR], [XRD, YN + 2.3, DK], [XRD, RP_N, DK]],
+        el=25, model="10 in round on top of the supply trunk",
+        grilles=[dict(at=[XB1R, 15.01, LOW], size=[14, 8], wall=N), dict(at=[XB1B, 15.01, LOW], size=[14, 8], wall=N)])
+r["info"]["specs"] = [["Serves", "Bedroom 1 (two low grilles on its south wall, beside the door)"],
+                      ["Duct", "Two 14 x 2-1/2 in wall stacks to a header box, then one 10 in round, about 45 ft"],
+                      ["Route", "On top of the supply trunk beside the bath exhaust main, then on the deck beside the trunk to the return plenum"],
+                      ["Crosses", "No trusses"]]
+r["info"]["notes"] = ["Replaces a 6 in flex through the laundry and linen trusses, which returned only about half of bedroom 1's 138 CFM (duct balance check, 11/18/2026). "
+                      "A duct big enough for this room cannot pass the truss webs, so it goes over the top instead: it uses no deck along the trunk, "
+                      "and a strip about 10 in wide beside the trunk's west leg over bedroom 3.",
+                      "Clearance under the roof is tightest along the north attic wall, about 5 in above the duct in this model. Confirm on site. ASSUMED size and route."]
+stack("return_bed1_stack", XB1R, 15.26, "return_bed1", "return_bed1_head", "Bedroom 1", top=ZH)
+stack("return_bed1_stack2", XB1B, 15.26, "return_bed1", "return_bed1_head", "Bedroom 1", top=ZH)
+ret("return_bed1_head", None, [32, 10], [[XBH, 15.3, ZH], [XBH, 15.95, ZH]], info_of="return_bed1", parent="return_bed1", el=25)
 
 # Bath 2 supply comes in LOW and the exhaust stays HIGH (Maxwell, 11/18/2026), so the boost exhaust does not pull the fresh
 # supply air straight back out. A bottom takeoff from the trunk drops into hall 2's trusses, runs north in one truss bay to the
 # bath 2 / hall 2 wall (an interior stud wall, not a SIP), and goes down that stud bay to a low register just east of the door.
 XS2 = 20.1                                        # inside bay 19.7, east of the door casing (door opening x 16.58 to 19.21)
-supply("s_bath2", "Bath 2", 37, 6, [[XS2, YN, DECK + 0.3], [XS2, YN, ZT], [XS2, 10.85, ZT]], dict(at=[XS2, 10.64, LOW], size=[10, 6], wall=N),
+supply("s_bath2", "Bath 2", 37, 6, [[XS2, YN, DECK + 0.3], [XS2, YN, ZT], [XS2, 10.85, ZT]], dict(at=[XS2, 10.64, LOW], size=[10, 6], wall=N), el=60, note=
        "Low sidewall register on the south wall (Maxwell, 11/18/2026): supply low, exhaust high on the other end of the same wall, so fresh air "
        "sweeps across the room before the exhaust takes it. Bottom takeoff from the trunk, 6 in round north in one hall 2 truss bay, then a "
        "12 x 2-1/2 in stack down the stud bay of the interior wall. The register sits east of the door and west of the vanity. ASSUMED sizes.")
@@ -581,19 +636,20 @@ def exhaust(id, name, dia, points, grilles=None, note=None, info_of=None, room=N
     if grilles: d["grilles"] = grilles
     ducts.append(d)
 XE1 = bay(39.7)
+Y_EL, X_EL, Y_EN = YE - 0.48, XJ + 0.48, YN - 0.48  # the exhaust main's lane on the trunk top: the other side from the bedroom 1 return
 exhaust("ex_bath1", "Bath 1 exhaust", 4, [[XE1, 30.0, ZT], [XE1, 17.8, ZT], [XE1, 17.8, EX]], room="Bath 1",
         grilles=[dict(at=[XE1, 30.0, CEIL - 0.02], size=[10, 10])], note=ENOTE + " Runs north in one loft floor truss bay, east of the family supply drop, then up onto the deck.")
 XE2 = 21.9                                        # east end of the south wall, over the toilet and vanity, away from the low supply
-exhaust("ex_bath2", "Bath 2 exhaust", 4, [[XE2, 10.62, ZTOP], [XE2, YN, ZTOP]], room="Bath 2",
+exhaust("ex_bath2", "Bath 2 exhaust", 4, [[XE2, 10.62, ZTOP], [XE2, Y_EN, ZTOP]], room="Bath 2",
         grilles=[dict(at=[XE2, 10.6, ZTOP], size=[10, 6], wall=N)], note=ENOTE + " High on the east end of the bath 2 south wall, through the attic wall and into the main on top of the supply trunk. "
         "It was right beside the supply; the supply now comes in low at the west end of the same wall (Maxwell, 11/18/2026).")
 PWX, PWY = 7.2, 32.2                               # powder room exhaust grille, over the toilet, about 4 ft from the supply by the door (Maxwell, 11/18/2026)
 exhaust("ex_powder", "Powder exhaust", 4, [[PWX, PWY, ZT], [PWX, PWY, EX - 0.08], [4.9, PWY, EX - 0.08], [4.9, HP_S + 1.0, EX - 0.08], [4.9, HP_S + 1.0, ERV_Z], [ERV_XS + 0.1, HP_S + 1.0, ERV_Z]], room="Powder",
         grilles=[dict(at=[PWX, PWY, CEIL - 0.02], size=[8, 8])], note=ENOTE + " Comes up through the deck, runs along it and rises into the main just before the ERV.")
-exhaust("ex_main", "Bath exhaust main", 6, [[XE1, 17.8, EX], [25.6, 17.8, EX], [25.6, 13.3, EX], [25.6, 13.3, ZTOP], [25.6, YN, ZTOP], [ERV_XS, YN, ZTOP], [ERV_XS, HP_N - 2.5, ZTOP],
+exhaust("ex_main", "Bath exhaust main", 6, [[XE1, 17.8, EX], [XE1, 17.3, EX], [XE1, 17.3, ZTOP], [XE1, Y_EL, ZTOP], [X_EL, Y_EL, ZTOP], [X_EL, Y_EN, ZTOP], [ERV_XS, Y_EN, ZTOP], [ERV_XS, HP_N - 2.5, ZTOP],
                                            [ERV_XS, HP_N - 2.5, ERV_Z], [ERV_XS, ERV_N, ERV_Z]],
-        note="Collects the three bathroom exhausts. It rides on top of the supply trunk along the north attic wall and down to the heat pump, crosses over the heat pump's top "
-             "and goes straight into the ERV's stale air inlet, so it takes no floor space (Maxwell, 11/18/2026). ASSUMED route and size.")
+        note="Collects the three bathroom exhausts. It rides on top of the supply trunk all the way from bath 1's riser, on the side away from the bedroom 1 return, "
+             "down to the heat pump, crosses over the heat pump's top and goes straight into the ERV's stale air inlet, so it takes no floor space (Maxwell, 11/18/2026). ASSUMED route and size.")
 # Shower fans (Maxwell, 11/18/2026): the two bathrooms with showers each get their own switched fan on its own short duct straight
 # outdoors, as well as the continuous ERV pickup. A fan must not blow into the ERV's duct: that is against the ERV makers'
 # instructions, unbalances the ERV and can push air out of the other bathrooms' grilles. The powder room stays on the ERV alone.
