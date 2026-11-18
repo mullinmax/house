@@ -646,8 +646,12 @@ const BUILD = {
     for (const row of rows) for (const x of [-9, 9]) box(g, 1.4, 1.4, row.z, mat('strut', 0x9fa3a6, 0.5, 0.7), x, row.y, row.z / 2);   // header brackets
     return g;
   },
-  erv(s) {                         // Panasonic Intelli-Balance 100: galvanized steel box, two white duct adapters on each end
+  erv(s, it = {}) {                // Panasonic Intelli-Balance 100: galvanized steel box, two white duct adapters on each end
     const [w, h, d] = s, g = new THREE.Group();
+    if (it.stand) {                                                                          // raised on a simple angle iron stand, stand = its height in inches
+      for (const x of [-w / 2 + 0.8, w / 2 - 0.8]) for (const z of [2, d - 2]) box(g, 1.5, it.stand, 1.5, darkSteel(), x, -it.stand / 2, z);
+      for (const z of [2, d - 2]) box(g, w, 1.5, 1.5, darkSteel(), 0, -0.75, z);
+    }
     box(g, w, h, d, galv(), 0, h / 2, d / 2);
     for (const z of [-1.0, d + 1.0]) for (const x of [-w / 4, w / 4]) {
       cyl(g, 3.0, 2.0, whitePlastic(), x, h / 2, z, 'z', 24);                                // 6 in adapters
