@@ -26,3 +26,5 @@ jobs:
         run: node tools/coplanar_audit.mjs
       - name: Check ducts against the floor trusses
         run: python3 tools/truss_clash.py
+      - name: Check pipes, ducts and equipment against each other and the walls
+        run: python3 tools/pipe_clash.py

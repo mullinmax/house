@@ -746,13 +746,13 @@
    "builder": "pe_manifold",
    "size": [
     30,
-    48,
+    30,
     8
    ],
    "at": [
     0.56,
-    24.4,
-    0
+    24.3,
+    2.5
    ],
    "facing": 90,
    "mirror": true,
@@ -770,7 +770,11 @@
      ],
      [
       "Piping",
-      "Reverse return, supply and return in separate 4 in sweeps with a 36 in radius"
+      "Reverse return. Greg's summary has supply and return in separate 4 in sweeps with a 36 in radius"
+     ],
+     [
+      "Loop entry",
+      "One sleeve through the slab at the north wall, about 2 ft east of the west wall. The ten pipes fan out from it to the valves"
      ],
      [
       "Loop field",
@@ -782,7 +786,9 @@
      ]
     ],
     "notes": [
-     "Layout on the wall is ASSUMED. Greg's summary gives the parts and the piping scheme, not a wall elevation."
+     "Layout on the wall is ASSUMED. Greg's summary gives the parts and the piping scheme, not a wall elevation.",
+     "Raised so the valves sit about 2-1/2 ft off the floor and the loop pipes have room to bend up from the sleeve for fusing (Maxwell, 11/18/2026; Greg asked for the same).",
+     "Ten 3/4 in PE pipes are 1.05 in across each, so they need about a 6 in sleeve. A 2 in conduit holds one. Shown as one 6 in sleeve until the size in the slab is confirmed."
     ],
     "placement": "Northwest corner of the utility room, on the west wall (Maxwell, 11/15/2026)."
    }
@@ -802,8 +808,8 @@
    ],
    "at": [
     0.56,
-    26.9,
-    2.9
+    27.5,
+    3.0
    ],
    "facing": 90,
    "info": {
@@ -824,9 +830,10 @@
      ]
     ],
     "notes": [
-     "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
+     "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class.",
+     "Kept on the west wall, which is an outside wall, so pump hum does not pass into bedroom 3 behind the north wall. It sits under the heat pump's water connections, so the insulated lines go straight up and only cross about 3 ft of attic."
     ],
-    "placement": "Utility room west wall, just south of the manifolds. 1-1/4 in insulated pipes run from here up through the ceiling to the heat pump."
+    "placement": "Utility room west wall, south of the manifolds. 1-1/4 in insulated pipes run from here straight up through the ceiling to the heat pump."
    }
   },
   {
@@ -842,11 +849,12 @@
     74.2
    ],
    "at": [
-    5.7,
-    28.22,
+    9.2,
+    27.987666666666666,
     0
    ],
    "facing": 0,
+   "flip": true,
    "info": {
     "model": "Rheem ProTerra 80 gal hybrid with LeakGuard (PROPH80 T2 RH400-SO)",
     "price": "$3,467 at US Supply (pickup only, 11/18/2026); check Lowe's and Home Depot",
@@ -897,7 +905,7 @@
      "Shown with the U-11 details: 2 in drain pan, expansion tank, recirculation pump.",
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
     ],
-    "placement": "South wall of the utility room (Maxwell, 11/15/2026), near the floor drain on U-11. Sits under truss bay 5.7 so its two ducts rise straight into the attic."
+    "placement": "South wall of the utility room (Maxwell, 11/15/2026), 5 in off the wall so the piping runs behind it. It stays clear of the hall door's swing, and its two ducts rise in one truss bay to open grilles on the attic deck."
    }
   },
   {
@@ -913,8 +921,8 @@
     59.0
    ],
    "at": [
-    8.210416666666667,
-    28.22,
+    6.689583333333333,
+    27.987666666666666,
     0
    ],
    "facing": 0,
@@ -950,7 +958,7 @@
      "The GeoComfort GZT048J11LM1CCS has hot water code 1: desuperheater with a factory installed pump.",
      "Size is ASSUMED (about 22 in x 59 in for a 50 gal tall tank)."
     ],
-    "placement": "South wall of the utility room, just east of the heat pump water heater."
+    "placement": "South wall of the utility room, just west of the heat pump water heater."
    }
   },
   {
@@ -967,17 +975,17 @@
     5
    ],
    "at": [
-    7.0,
-    28.05,
-    8.55
+    9.0,
+    28.051,
+    3.9
    ],
-   "facing": 0,
+   "facing": 90,
    "info": {
     "model": "Small inline circulator, bronze or stainless body (U-11)",
     "specs": [
      [
       "On",
-      "The recirculation return, just above where it tees into the cold side of the water heater"
+      "The recirculation return where it comes down the south wall, about 4 ft off the floor"
      ]
     ],
     "notes": [
@@ -999,9 +1007,9 @@
     11
    ],
    "at": [
-    10.4,
-    28.75,
-    8.6
+    10.95,
+    27.881,
+    6.9
    ],
    "facing": 0,
    "info": {
@@ -1031,9 +1039,9 @@
     3
    ],
    "at": [
-    4.472916666666666,
-    26.909916666666668,
-    6.6
+    7.90625,
+    26.67725,
+    6.3
    ],
    "facing": 0,
    "info": {
@@ -1064,13 +1072,14 @@
     56
    ],
    "at": [
-    5.535,
-    24.9,
+    4.56,
+    25.235,
     10.510416666666668
    ],
-   "facing": 0,
+   "facing": 270,
+   "mirror": true,
    "info": {
-    "model": "GeoComfort GZT048J11LM1CCS, 4 ton two stage, horizontal, left hand return",
+    "model": "GeoComfort GZT048, 4 ton two stage, horizontal, shown with a right hand return",
     "price": "$9,979.20, or $11,797.82 for the whole quote MMUL8476-4",
     "specs": [
      [
@@ -1104,9 +1113,10 @@
     ],
     "notes": [
      "Andy's plan names a ClimateMaster Tranquility 30 as the basis of design and assumes a downflow unit. This is the unit Greg quoted and Maxwell sent Andy on 8/14/2026.",
-     "Turned so the supply leaves the west end and heads straight for the north wall trunk, with the return on the south side. Orientation is ASSUMED."
+     "Greg's quote MMUL8476-4 is for GZT048J11LM1CCS, which is a left hand return. This layout needs the right hand return version: standing at the water connection end, the return and filter are on the right. The unit is not ordered yet, so ask Greg to quote the right hand model and confirm which side the service panels are on.",
+     "Turned 90 degrees (Maxwell, 11/18/2026): supply out the north end toward the trunk, water and desuperheater connections on the south end right above the flow center, return and filter on the east side, service panels facing a 2 ft aisle along the west wall."
     ],
-    "placement": "On the attic deck over the utility room, where Andy drew HP-01, directly above the manifolds and flow center."
+    "placement": "On the attic deck over the utility room, where Andy drew HP-01, lengthwise north to south."
    }
   },
   {
@@ -1124,7 +1134,7 @@
    ],
    "at": [
     0.75,
-    28.9,
+    30.885,
     10.102083333333335
    ],
    "facing": 90,
@@ -1153,7 +1163,7 @@
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class.",
      "The bathrooms exhaust through this unit instead of separate fans (Maxwell, 11/17/2026). The code allows it because the ERV sends that air outdoors; it has to run continuously at 20 CFM or more per bathroom. Three baths plus whole house ventilation (about 75 CFM for this size and bedroom count) is near the top of a 100 CFM unit, so Andy should confirm the size. The range hood cannot connect here, it has its own duct outdoors."
     ],
-    "placement": "Attic deck at the west wall, south of the heat pump. Andy drew it west of HP-01."
+    "placement": "Attic deck at the west wall over the pantry, south of the heat pump and its piping. Andy drew it west of HP-01."
    }
   },
   {
@@ -1244,25 +1254,386 @@
  ],
  "runs": [
   {
+   "id": "geo_conduit",
+   "name": "Loop entry sleeve",
+   "category": "Geothermal",
+   "system": "geothermal.loop",
+   "dia": 6.6,
+   "mat": "condensate",
+   "points": [
+    [
+     2.5,
+     23.186,
+     0.0
+    ],
+    [
+     2.5,
+     23.186,
+     0.5
+    ]
+   ],
+   "info": {
+    "model": "PVC sleeve through the slab, shown at 6 in",
+    "specs": [
+     [
+      "Carries",
+      "All five loops: ten 3/4 in PE pipes, 1.05 in across each"
+     ],
+     [
+      "Where",
+      "North wall, about 2 ft east of the west wall (Maxwell, 11/18/2026)"
+     ]
+    ],
+    "notes": [
+     "Size to confirm. Ten of these pipes need about a 6 in sleeve, five fit in a 4 in, and a 2 in conduit holds only one. Greg's design summary called for two 4 in sweeps, one for the supplies and one for the returns."
+    ]
+   }
+  },
+  {
+   "id": "geo_loop_s1",
+   "info_of": "geo_manifold",
+   "dia": 1.05,
+   "mat": "pe",
+   "points": [
+    [
+     0.7766666666666667,
+     23.3,
+     2.5
+    ],
+    [
+     0.7766666666666667,
+     23.3,
+     1.35
+    ],
+    [
+     2.3,
+     23.3,
+     1.35
+    ],
+    [
+     2.3,
+     23.126,
+     1.35
+    ],
+    [
+     2.3,
+     23.126,
+     0.3
+    ]
+   ]
+  },
+  {
+   "id": "geo_loop_r1",
+   "info_of": "geo_manifold",
+   "dia": 1.05,
+   "mat": "pe",
+   "points": [
+    [
+     1.01,
+     23.416666666666668,
+     2.5
+    ],
+    [
+     1.01,
+     23.416666666666668,
+     0.9
+    ],
+    [
+     2.3,
+     23.416666666666668,
+     0.9
+    ],
+    [
+     2.3,
+     23.246,
+     0.9
+    ],
+    [
+     2.3,
+     23.246,
+     0.3
+    ]
+   ]
+  },
+  {
+   "id": "geo_loop_s2",
+   "info_of": "geo_manifold",
+   "dia": 1.05,
+   "mat": "pe",
+   "points": [
+    [
+     0.7766666666666667,
+     23.8,
+     2.5
+    ],
+    [
+     0.7766666666666667,
+     23.8,
+     1.35
+    ],
+    [
+     2.4,
+     23.8,
+     1.35
+    ],
+    [
+     2.4,
+     23.126,
+     1.35
+    ],
+    [
+     2.4,
+     23.126,
+     0.3
+    ]
+   ]
+  },
+  {
+   "id": "geo_loop_r2",
+   "info_of": "geo_manifold",
+   "dia": 1.05,
+   "mat": "pe",
+   "points": [
+    [
+     1.01,
+     23.916666666666668,
+     2.5
+    ],
+    [
+     1.01,
+     23.916666666666668,
+     0.9
+    ],
+    [
+     2.4,
+     23.916666666666668,
+     0.9
+    ],
+    [
+     2.4,
+     23.246,
+     0.9
+    ],
+    [
+     2.4,
+     23.246,
+     0.3
+    ]
+   ]
+  },
+  {
+   "id": "geo_loop_s3",
+   "info_of": "geo_manifold",
+   "dia": 1.05,
+   "mat": "pe",
+   "points": [
+    [
+     0.7766666666666667,
+     24.3,
+     2.5
+    ],
+    [
+     0.7766666666666667,
+     24.3,
+     1.35
+    ],
+    [
+     2.5,
+     24.3,
+     1.35
+    ],
+    [
+     2.5,
+     23.126,
+     1.35
+    ],
+    [
+     2.5,
+     23.126,
+     0.3
+    ]
+   ]
+  },
+  {
+   "id": "geo_loop_r3",
+   "info_of": "geo_manifold",
+   "dia": 1.05,
+   "mat": "pe",
+   "points": [
+    [
+     1.01,
+     24.416666666666668,
+     2.5
+    ],
+    [
+     1.01,
+     24.416666666666668,
+     0.9
+    ],
+    [
+     2.5,
+     24.416666666666668,
+     0.9
+    ],
+    [
+     2.5,
+     23.246,
+     0.9
+    ],
+    [
+     2.5,
+     23.246,
+     0.3
+    ]
+   ]
+  },
+  {
+   "id": "geo_loop_s4",
+   "info_of": "geo_manifold",
+   "dia": 1.05,
+   "mat": "pe",
+   "points": [
+    [
+     0.7766666666666667,
+     24.8,
+     2.5
+    ],
+    [
+     0.7766666666666667,
+     24.8,
+     1.35
+    ],
+    [
+     2.6,
+     24.8,
+     1.35
+    ],
+    [
+     2.6,
+     23.126,
+     1.35
+    ],
+    [
+     2.6,
+     23.126,
+     0.3
+    ]
+   ]
+  },
+  {
+   "id": "geo_loop_r4",
+   "info_of": "geo_manifold",
+   "dia": 1.05,
+   "mat": "pe",
+   "points": [
+    [
+     1.01,
+     24.916666666666668,
+     2.5
+    ],
+    [
+     1.01,
+     24.916666666666668,
+     0.9
+    ],
+    [
+     2.6,
+     24.916666666666668,
+     0.9
+    ],
+    [
+     2.6,
+     23.246,
+     0.9
+    ],
+    [
+     2.6,
+     23.246,
+     0.3
+    ]
+   ]
+  },
+  {
+   "id": "geo_loop_s5",
+   "info_of": "geo_manifold",
+   "dia": 1.05,
+   "mat": "pe",
+   "points": [
+    [
+     0.7766666666666667,
+     25.3,
+     2.5
+    ],
+    [
+     0.7766666666666667,
+     25.3,
+     1.35
+    ],
+    [
+     2.7,
+     25.3,
+     1.35
+    ],
+    [
+     2.7,
+     23.126,
+     1.35
+    ],
+    [
+     2.7,
+     23.126,
+     0.3
+    ]
+   ]
+  },
+  {
+   "id": "geo_loop_r5",
+   "info_of": "geo_manifold",
+   "dia": 1.05,
+   "mat": "pe",
+   "points": [
+    [
+     1.01,
+     25.416666666666668,
+     2.5
+    ],
+    [
+     1.01,
+     25.416666666666668,
+     0.9
+    ],
+    [
+     2.7,
+     25.416666666666668,
+     0.9
+    ],
+    [
+     2.7,
+     23.246,
+     0.9
+    ],
+    [
+     2.7,
+     23.246,
+     0.3
+    ]
+   ]
+  },
+  {
    "id": "geo_main_0",
    "info_of": "geo_manifold",
    "dia": 1.66,
    "mat": "pe",
    "points": [
     [
-     0.9,
-     25.9,
-     3.67
+     0.7766666666666667,
+     26.05,
+     4.666666666666666
     ],
     [
-     0.9,
-     26.15,
-     3.67
-    ],
-    [
-     0.9,
-     26.599999999999998,
-     2.6
+     0.7766666666666667,
+     26.925,
+     4.666666666666666
     ]
    ]
   },
@@ -1273,19 +1644,14 @@
    "mat": "pe",
    "points": [
     [
-     0.9,
-     25.9,
-     2.67
+     1.01,
+     26.05,
+     3.666666666666667
     ],
     [
-     0.9,
-     26.549999999999997,
-     2.67
-    ],
-    [
-     0.9,
-     27.2,
-     2.6
+     1.01,
+     26.925,
+     3.666666666666667
     ]
    ]
   },
@@ -1296,36 +1662,47 @@
    "system": "geothermal.loop",
    "dia": 2.4,
    "mat": "foam",
+   "info_of": null,
    "points": [
     [
-     0.95,
-     26.7,
-     4.75
+     1.5,
+     27.766666666666666,
+     4.633333333333334
     ],
     [
-     0.95,
-     26.7,
-     12.502083333333335
+     1.68,
+     27.766666666666666,
+     4.633333333333334
     ],
     [
-     8.9,
-     26.7,
-     12.502083333333335
+     1.68,
+     27.766666666666666,
+     5.2
     ],
     [
-     8.9,
-     24.36,
-     12.502083333333335
+     1.0,
+     27.766666666666666,
+     5.2
     ],
     [
-     8.9,
-     24.36,
-     10.977083333333335
+     1.0,
+     27.766666666666666,
+     11.977083333333335
     ],
     [
-     8.818333333333333,
-     24.36,
-     10.977083333333335
+     1.0,
+     28.798333333333332,
+     11.977083333333335
+    ],
+    [
+     4.0175,
+     28.798333333333332,
+     11.977083333333335
+    ],
+    [
+     4.0175,
+     28.53833333333333,
+     11.977083333333335
     ]
    ],
    "info": {
@@ -1338,10 +1715,14 @@
      [
       "To",
       "Heat pump in the attic, through 1 in ball valves and the GF-1366 rubber hose kit"
+     ],
+     [
+      "Length",
+      "About 6 ft up and 5 ft across the attic, each"
      ]
     ],
     "notes": [
-     "Straight up from the flow center through the utility ceiling and the attic deck, then across to the heat pump (Maxwell, 11/18/2026). Exact route is set on site."
+     "Straight up the west wall from the flow center, through the ceiling and the attic deck, then across to the heat pump's connection end (Maxwell, 11/18/2026). The heat pump was turned so its connections sit right above the flow center. Exact route is set on site."
     ]
    }
   },
@@ -1355,34 +1736,49 @@
    "info_of": "geo_riser_0",
    "points": [
     [
-     0.95,
-     27.05,
-     4.75
+     1.5,
+     27.233333333333334,
+     4.633333333333334
     ],
     [
-     0.95,
-     27.05,
-     12.852083333333335
+     1.68,
+     27.233333333333334,
+     4.633333333333334
     ],
     [
-     9.25,
-     27.05,
-     12.852083333333335
+     1.68,
+     27.233333333333334,
+     5.2
     ],
     [
-     9.25,
-     24.36,
-     12.852083333333335
+     1.0,
+     27.233333333333334,
+     5.2
     ],
     [
-     9.25,
-     24.36,
-     11.977083333333335
+     1.0,
+     27.233333333333334,
+     10.977083333333335
     ],
     [
-     8.818333333333333,
-     24.36,
-     11.977083333333335
+     1.3,
+     27.233333333333334,
+     10.977083333333335
+    ],
+    [
+     1.3,
+     28.798333333333332,
+     10.977083333333335
+    ],
+    [
+     4.0175,
+     28.798333333333332,
+     10.977083333333335
+    ],
+    [
+     4.0175,
+     28.53833333333333,
+     10.977083333333335
     ]
    ],
    "info": {
@@ -1395,10 +1791,14 @@
      [
       "To",
       "Heat pump in the attic, through 1 in ball valves and the GF-1366 rubber hose kit"
+     ],
+     [
+      "Length",
+      "About 6 ft up and 5 ft across the attic, each"
      ]
     ],
     "notes": [
-     "Straight up from the flow center through the utility ceiling and the attic deck, then across to the heat pump (Maxwell, 11/18/2026). Exact route is set on site."
+     "Straight up the west wall from the flow center, through the ceiling and the attic deck, then across to the heat pump's connection end (Maxwell, 11/18/2026). The heat pump was turned so its connections sit right above the flow center. Exact route is set on site."
     ]
    }
   },
@@ -1411,28 +1811,28 @@
    "mat": "copper",
    "points": [
     [
-     11.6,
-     28.75,
+     11.45,
+     27.881,
      0.2
     ],
     [
-     11.6,
-     28.75,
-     8.6
+     11.45,
+     27.881,
+     6.9
     ],
     [
-     8.510416666666668,
-     28.75,
-     8.6
+     6.389583333333333,
+     27.881,
+     6.9
     ],
     [
-     8.510416666666668,
-     27.136666666666667,
-     8.6
+     6.389583333333333,
+     26.904333333333334,
+     6.9
     ],
     [
-     8.510416666666668,
-     27.136666666666667,
+     6.389583333333333,
+     26.904333333333334,
      5.166666666666667
     ]
    ],
@@ -1449,7 +1849,7 @@
      ]
     ],
     "notes": [
-     "Cold service comes up through the slab at the east end of the south wall, runs west high on the wall and drops into the preheat tank's cold inlet. The desuperheater return tees into the drop. Service entry point and valves ASSUMED."
+     "Cold service comes up through the slab at the east end of the south wall, runs west behind and above the tanks and drops into the preheat tank's cold inlet. The desuperheater return tees into the drop. Service entry point and valves ASSUMED."
     ]
    }
   },
@@ -1461,13 +1861,13 @@
    "mat": "copper",
    "points": [
     [
-     11.6,
-     28.75,
-     8.6
+     11.45,
+     27.881,
+     6.9
     ],
     [
-     11.6,
-     28.75,
+     11.45,
+     27.881,
      9.3
     ]
    ],
@@ -1478,42 +1878,32 @@
    "name": "Preheated water to the heat pump water heater",
    "category": "Hot water",
    "system": "plumbing.dhw",
-   "dia": 1.1,
-   "mat": "copper",
+   "dia": 1.9,
+   "mat": "foam",
    "points": [
     [
-     7.910416666666667,
-     27.136666666666667,
+     6.989583333333333,
+     26.904333333333334,
      5.166666666666667
     ],
     [
-     7.910416666666667,
-     27.136666666666667,
-     8.0
+     6.989583333333333,
+     26.904333333333334,
+     5.5
     ],
     [
-     7.910416666666667,
-     28.05,
-     8.0
+     7.90625,
+     26.943916666666667,
+     5.5
     ],
     [
-     4.472916666666666,
-     28.05,
-     8.0
-    ],
-    [
-     4.472916666666666,
-     27.175916666666666,
-     8.0
-    ],
-    [
-     4.472916666666666,
-     27.175916666666666,
+     7.90625,
+     26.943916666666667,
      0.75
     ],
     [
-     4.572916666666666,
-     27.175916666666666,
+     8.00625,
+     26.943916666666667,
      0.75
     ]
    ],
@@ -1521,7 +1911,7 @@
     "model": "3/4 in copper, insulated",
     "specs": [],
     "notes": [
-     "Preheat tank hot outlet, up and along the wall, then down beside the heat pump water heater to its low side cold inlet. The recirculation return tees in on the wall. Bypass valves so either tank can be isolated are ASSUMED."
+     "Preheat tank hot outlet, across the gap between the tanks and down to the heat pump water heater's low side cold inlet, about 6 ft of pipe. The recirculation return tees in near the bottom. Bypass valves so either tank can be isolated are ASSUMED."
     ]
    }
   },
@@ -1530,37 +1920,22 @@
    "name": "Hot water to the house",
    "category": "Hot water",
    "system": "plumbing.dhw",
-   "dia": 1.1,
-   "mat": "copper",
+   "dia": 1.9,
+   "mat": "foam",
    "points": [
     [
-     4.572916666666666,
-     26.909916666666668,
-     4.56
+     8.00625,
+     26.67725,
+     4.558333333333334
     ],
     [
-     4.472916666666666,
-     26.909916666666668,
-     4.56
+     7.90625,
+     26.67725,
+     4.558333333333334
     ],
     [
-     4.472916666666666,
-     26.909916666666668,
-     8.35
-    ],
-    [
-     4.472916666666666,
-     28.4,
-     8.35
-    ],
-    [
-     11.25,
-     28.4,
-     8.35
-    ],
-    [
-     11.25,
-     28.4,
+     7.90625,
+     26.67725,
      9.3
     ]
    ],
@@ -1568,7 +1943,7 @@
     "model": "3/4 in copper, insulated",
     "specs": [],
     "notes": [
-     "Heat pump water heater high side hot outlet, up through a thermostatic mixing valve, along the wall and up into the ceiling to the fixtures."
+     "Heat pump water heater high side hot outlet, straight up through a thermostatic mixing valve into the ceiling and on to the fixtures."
     ]
    }
   },
@@ -1577,25 +1952,36 @@
    "name": "Hot water recirculation return",
    "category": "Hot water",
    "system": "plumbing.dhw",
-   "dia": 0.9,
-   "mat": "copper",
+   "dia": 1.5,
+   "mat": "foam",
    "points": [
     [
-     7.0,
-     28.05,
+     9.0,
+     28.051,
      9.3
     ],
     [
-     7.0,
-     28.05,
-     8.0
+     9.0,
+     28.051,
+     1.2
+    ],
+    [
+     7.90625,
+     28.051,
+     1.2
+    ],
+    [
+     7.90625,
+     26.943916666666667,
+     1.2
     ]
    ],
    "info": {
     "model": "1/2 in copper, insulated",
     "specs": [],
     "notes": [
-     "Return from the far end of the hot main (U-11 shows a recirculation pump). Comes down from the ceiling and tees into the preheated line ahead of the heat pump water heater. A check valve and a timer or demand control are ASSUMED."
+     "Return from the far end of the hot main (U-11 shows a recirculation pump). Comes down the south wall behind the water heater, through the pump at chest height, and tees into the water heater's cold inlet pipe. A check valve and a timer or demand control are ASSUMED.",
+     "Insulated like the hot line: a recirculation loop is hot whenever it runs, so bare pipe would give that heat away all day."
     ]
    }
   },
@@ -1606,40 +1992,41 @@
    "system": "plumbing.dhw",
    "dia": 1.6,
    "mat": "foam",
+   "info_of": null,
    "points": [
     [
-     8.068333333333333,
-     23.82,
-     10.760416666666668
+     4.0175,
+     27.638333333333332,
+     11.310416666666669
     ],
     [
-     8.618333333333334,
-     23.82,
-     10.760416666666668
+     4.0175,
+     27.741,
+     11.310416666666669
     ],
     [
-     8.618333333333334,
-     23.82,
-     8.66
+     8.14,
+     27.741,
+     11.310416666666669
     ],
     [
-     9.370416666666667,
-     23.82,
-     8.66
+     8.14,
+     27.581,
+     11.310416666666669
     ],
     [
-     9.370416666666667,
-     27.536666666666665,
-     8.66
-    ],
-    [
-     9.370416666666667,
-     27.536666666666665,
+     8.14,
+     27.581,
      0.45
     ],
     [
-     9.160416666666666,
-     27.536666666666665,
+     8.14,
+     27.304333333333332,
+     0.45
+    ],
+    [
+     7.797916666666667,
+     27.304333333333332,
      0.45
     ]
    ],
@@ -1653,6 +2040,10 @@
      [
       "Return from the geo",
       "Tees into the cold drop just above the preheat tank"
+     ],
+     [
+      "Length",
+      "About 4 ft across the attic and 6 to 9 ft down to the tank, each"
      ]
     ],
     "notes": [
@@ -1670,39 +2061,34 @@
    "info_of": "dsh_0",
    "points": [
     [
-     8.068333333333333,
-     24.18,
-     11.177083333333334
+     4.0175,
+     27.638333333333332,
+     11.64375
     ],
     [
-     8.618333333333334,
-     24.18,
-     11.177083333333334
+     4.0175,
+     27.741,
+     11.64375
     ],
     [
-     8.618333333333334,
-     24.18,
-     8.84
+     8.44,
+     27.741,
+     11.64375
     ],
     [
-     9.550416666666667,
-     24.18,
-     8.84
+     8.44,
+     27.741,
+     6.15
     ],
     [
-     9.550416666666667,
-     27.136666666666667,
-     8.84
+     6.389583333333333,
+     27.741,
+     6.15
     ],
     [
-     9.550416666666667,
-     27.136666666666667,
-     7.3
-    ],
-    [
-     8.510416666666668,
-     27.136666666666667,
-     7.3
+     6.389583333333333,
+     26.904333333333334,
+     6.15
     ]
    ],
    "info": {
@@ -1715,6 +2101,10 @@
      [
       "Return from the geo",
       "Tees into the cold drop just above the preheat tank"
+     ],
+     [
+      "Length",
+      "About 4 ft across the attic and 6 to 9 ft down to the tank, each"
      ]
     ],
     "notes": [
@@ -1737,8 +2127,13 @@
    ],
    "points": [
     [
+     3.005833333333333,
+     21.401666666666667,
+     10.73875
+    ],
+    [
      1.654,
-     23.0,
+     21.401666666666667,
      10.73875
     ],
     [
@@ -1790,13 +2185,13 @@
    ],
    "points": [
     [
-     2.52,
-     24.0,
+     3.655833333333333,
+     22.151666666666667,
      11.052083333333334
     ],
     [
-     0.85,
-     24.0,
+     3.655833333333333,
+     20.851666666666667,
      11.052083333333334
     ]
    ]
@@ -2243,17 +2638,17 @@
    ],
    "points": [
     [
-     1.7,
-     24.6,
+     1.8499999999999999,
+     21.401666666666667,
      10.252083333333333
     ],
     [
-     1.7,
-     24.6,
+     1.8499999999999999,
+     21.401666666666667,
      9.494791666666666
     ],
     [
-     1.7,
+     1.8499999999999999,
      34.3,
      9.494791666666666
     ]
@@ -2261,7 +2656,7 @@
    "grilles": [
     {
      "at": [
-      1.7,
+      1.8499999999999999,
       31.0,
       8.98
      ],
@@ -2295,7 +2690,7 @@
    "size": 6,
    "points": [
     [
-     1.7,
+     1.8499999999999999,
      26.5,
      9.494791666666666
     ],
@@ -2346,7 +2741,7 @@
    "size": 6,
    "points": [
     [
-     1.7,
+     1.8499999999999999,
      32.2,
      9.494791666666666
     ],
@@ -2397,7 +2792,7 @@
    "size": 7,
    "points": [
     [
-     1.7,
+     1.8499999999999999,
      34.15,
      9.494791666666666
     ],
@@ -2454,7 +2849,7 @@
    "size": 7,
    "points": [
     [
-     1.7,
+     1.8499999999999999,
      33.5,
      9.494791666666666
     ],
@@ -2511,7 +2906,7 @@
    "size": 7,
    "points": [
     [
-     1.7,
+     1.8499999999999999,
      32.85,
      9.494791666666666
     ],
@@ -3170,13 +3565,13 @@
      10.46875
     ],
     [
-     5.2,
+     6.196666666666666,
      30.6,
      10.46875
     ],
     [
-     5.2,
-     26.0,
+     6.196666666666666,
+     27.45,
      10.46875
     ]
    ],
@@ -3195,25 +3590,25 @@
    "type": "return",
    "points": [
     [
-     3.62,
-     25.51,
+     6.488333333333332,
+     27.45,
      11.052083333333334
     ],
     [
-     11.85,
-     25.51,
+     6.488333333333332,
+     23.2,
      11.052083333333334
     ]
    ],
    "shape": "rect",
    "size": [
-    14,
+    41,
     24
    ],
    "info": {
-    "model": "14 x 24 in return plenum box on the deck, against the heat pump's filter rack",
+    "model": "41 x 24 in return plenum box on the deck, along the heat pump's filter rack",
     "notes": [
-     "Every return lands here: the M-10 trunk from the south, and the bedroom flex runs from below, each through its own collar in the bottom of the box. The box sits on the deck against the AFR1836A filter rack on the heat pump's return side. Size ASSUMED."
+     "Every return lands here: the M-10 trunk from the south, and the bedroom flex runs from below, each through its own collar in the bottom of the box. The box sits on the deck along the AFR1836A filter rack on the heat pump's east side. Size ASSUMED."
     ]
    }
   },
@@ -3231,32 +3626,32 @@
     ],
     [
      7.7,
-     25.121,
+     23.571,
      9.495
     ],
     [
      7.7,
-     25.287,
+     23.737,
      9.518
     ],
     [
      7.7,
-     25.405,
+     23.855,
      9.589
     ],
     [
      7.7,
-     25.476,
+     23.926,
      9.708
     ],
     [
      7.7,
-     25.5,
+     23.95,
      9.873
     ],
     [
      7.7,
-     25.5,
+     23.95,
      10.252083333333333
     ]
    ],
@@ -3522,32 +3917,57 @@
     ],
     [
      9.7,
-     25.121,
+     24.15,
      9.495
     ],
     [
-     9.7,
-     25.287,
+     9.666,
+     24.391,
+     9.495
+    ],
+    [
+     9.562,
+     24.562,
+     9.495
+    ],
+    [
+     9.391,
+     24.666,
+     9.495
+    ],
+    [
+     9.15,
+     24.7,
+     9.495
+    ],
+    [
+     8.079,
+     24.7,
+     9.495
+    ],
+    [
+     7.913,
+     24.7,
      9.518
     ],
     [
-     9.7,
-     25.405,
+     7.795,
+     24.7,
      9.589
     ],
     [
-     9.7,
-     25.476,
+     7.724,
+     24.7,
      9.708
     ],
     [
-     9.7,
-     25.5,
+     7.7,
+     24.7,
      9.873
     ],
     [
-     9.7,
-     25.5,
+     7.7,
+     24.7,
      10.252083333333333
     ]
    ],
@@ -3728,32 +4148,57 @@
     ],
     [
      11.5,
-     25.121,
+     24.8,
      9.495
     ],
     [
-     11.5,
-     25.287,
+     11.466,
+     25.041,
+     9.495
+    ],
+    [
+     11.363,
+     25.212,
+     9.495
+    ],
+    [
+     11.191,
+     25.316,
+     9.495
+    ],
+    [
+     10.95,
+     25.35,
+     9.495
+    ],
+    [
+     8.079,
+     25.35,
+     9.495
+    ],
+    [
+     7.913,
+     25.35,
      9.518
     ],
     [
-     11.5,
-     25.405,
+     7.795,
+     25.35,
      9.589
     ],
     [
-     11.5,
-     25.476,
+     7.724,
+     25.35,
      9.708
     ],
     [
-     11.5,
-     25.5,
+     7.7,
+     25.35,
      9.873
     ],
     [
-     11.5,
-     25.5,
+     7.7,
+     25.349999999999998,
      10.252083333333333
     ]
    ],
@@ -3907,19 +4352,14 @@
      9.494791666666666
     ],
     [
-     3.3,
-     31.3,
+     10.2,
+     28.3,
      9.494791666666666
     ],
     [
-     3.3,
-     31.3,
-     10.302083333333334
-    ],
-    [
-     3.3,
-     29.32,
-     10.302083333333334
+     10.2,
+     28.3,
+     10.102083333333335
     ]
    ],
    "name": "Powder exhaust",
@@ -3927,7 +4367,7 @@
    "info": {
     "model": "4 in round exhaust",
     "notes": [
-     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Runs west through the pantry truss webs, then up to the ERV."
+     "Exhaust grille, no fan of its own: the ERV pulls 20 CFM continuously and boosts when the bath timer switch is pressed. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Runs north in its own truss bay, then up into the main on the deck."
     ]
    },
    "grilles": [
@@ -3968,18 +4408,38 @@
      10.302083333333334
     ],
     [
-     3.3,
+     10.2,
      13.5,
      10.302083333333334
     ],
     [
-     3.3,
-     29.32,
+     10.2,
+     28.3,
      10.302083333333334
     ],
     [
+     10.2,
+     28.65,
+     11.202083333333334
+    ],
+    [
+     10.2,
+     31.3,
+     11.202083333333334
+    ],
+    [
+     4.3,
+     31.3,
+     11.202083333333334
+    ],
+    [
+     3.7,
+     31.3,
+     10.577083333333334
+    ],
+    [
      2.966666666666667,
-     29.32,
+     31.3,
      10.577083333333334
     ]
    ],
@@ -3988,7 +4448,7 @@
    "info": {
     "model": "6 in round exhaust",
     "notes": [
-     "Collects the three bathroom exhausts on the attic deck along the south side of the supply trunk and down the west side to the ERV stale air inlet. ASSUMED route and size."
+     "Collects the three bathroom exhausts on the attic deck along the south side of the supply trunk, turns south east of the water heater's grilles, hops over the low return trunk and comes into the ERV's stale air inlet from the east. ASSUMED route and size."
     ]
    }
   },
@@ -4004,21 +4464,21 @@
    "room": "Utility",
    "points": [
     [
-     5.7,
-     26.75,
+     9.25,
+     26.410583333333335,
      6.233333333333333
     ],
     [
-     5.7,
-     26.75,
+     9.25,
+     26.410583333333335,
      10.652083333333334
     ]
    ],
    "grilles": [
     {
      "at": [
-      5.7,
-      26.75,
+      9.25,
+      26.410583333333335,
       10.672083333333333
      ],
      "size": [
@@ -4060,21 +4520,21 @@
    "room": "Utility",
    "points": [
     [
-     5.7,
-     27.55,
+     9.25,
+     27.210583333333332,
      6.233333333333333
     ],
     [
-     5.7,
-     27.55,
+     9.25,
+     27.210583333333332,
      10.652083333333334
     ]
    ],
    "grilles": [
     {
      "at": [
-      5.7,
-      27.55,
+      9.25,
+      27.210583333333332,
       10.672083333333333
      ],
      "size": [
@@ -4136,12 +4596,12 @@
    "points": [
     [
      0.75,
-     28.485,
+     30.470000000000002,
      10.577083333333334
     ],
     [
      -0.05,
-     28.485,
+     30.470000000000002,
      10.577083333333334
     ]
    ]
@@ -4155,12 +4615,12 @@
    "points": [
     [
      0.75,
-     29.314999999999998,
+     31.3,
      10.577083333333334
     ],
     [
      -0.05,
-     29.314999999999998,
+     31.3,
      10.577083333333334
     ]
    ]
@@ -4174,22 +4634,12 @@
    "points": [
     [
      2.966666666666667,
-     28.485,
+     30.470000000000002,
      10.577083333333334
     ],
     [
-     3.1,
-     28.485,
-     10.902083333333334
-    ],
-    [
-     3.6,
-     28.485,
-     10.902083333333334
-    ],
-    [
-     3.95,
-     28.485,
+     4.829999999999999,
+     30.470000000000002,
      10.577083333333334
     ]
    ]
