@@ -977,7 +977,9 @@ const xrayMarker = new THREE.Mesh(new THREE.BufferGeometry().setAttribute('posit
   new THREE.MeshBasicMaterial({ transparent: true, colorWrite: false, depthWrite: false, depthTest: false }));
 xrayMarker.name = 'Duct x-ray depth clear'; xrayMarker.frustumCulled = false; xrayMarker.renderOrder = XRAY_ORDER - 1; xrayMarker.visible = false;
 xrayMarker.raycast = () => {}; xrayMarker.userData.pass = true;
-xrayMarker.onBeforeRender = (renderer) => renderer.clearDepth();
+// gl.clear only clears depth while depth writes are on, and three.js leaves the mask as the last drawn material set it.
+// After a material with depthWrite off (glass, faded walls) the clear silently did nothing, so turn writes on first.
+xrayMarker.onBeforeRender = (renderer) => { renderer.state.buffers.depth.setMask(true); renderer.clearDepth(); };
 export function setDuctXray(on, ducts) {
   if (ducts && xrayMarker.parent !== ducts) ducts.add(xrayMarker);
   xrayMarker.visible = on;
