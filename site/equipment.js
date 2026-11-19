@@ -968,14 +968,28 @@ export function buildEquipment(data) {
 
 export function equipMaterials() { return [...Object.values(M), ...vehicleMaterials(), ...Object.values(DUCT)]; }
 
-export function setDuctXray(on) {
+// Duct x-ray: the ducts show through the house, but they still hide each other by depth, so the nearer duct is always
+// the one on top. They draw after everything else (renderOrder in the transparent list), and a marker drawn just before
+// them clears the depth buffer, so the house no longer hides them while duct to duct depth testing stays on. With depth
+// testing off, as before, whichever duct three.js happened to sort last won, and runs crossed over and under at random.
+const XRAY_ORDER = 1000;
+const xrayMarker = new THREE.Mesh(new THREE.BufferGeometry().setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, 0, 0, 0, 0, 0, 0], 3)),
+  new THREE.MeshBasicMaterial({ transparent: true, colorWrite: false, depthWrite: false, depthTest: false }));
+xrayMarker.name = 'Duct x-ray depth clear'; xrayMarker.frustumCulled = false; xrayMarker.renderOrder = XRAY_ORDER - 1; xrayMarker.visible = false;
+xrayMarker.raycast = () => {}; xrayMarker.userData.pass = true;
+xrayMarker.onBeforeRender = (renderer) => renderer.clearDepth();
+export function setDuctXray(on, ducts) {
+  if (ducts && xrayMarker.parent !== ducts) ducts.add(xrayMarker);
+  xrayMarker.visible = on;
   for (const [k, m] of Object.entries(DUCT)) {
     if (m.userData.base === undefined) m.userData.base = m.color.getHex();
     m.color.setHex(on ? XRAY[k] : m.userData.base);
-    m.depthTest = !on; m.depthWrite = !on; m.transparent = on; m.opacity = on ? 0.8 : 1;
+    // opaque colour, but in the transparent list so it comes after glass and the faded walls
+    m.depthTest = true; m.depthWrite = true; m.transparent = on; m.opacity = 1;
     m.emissive.setHex(on ? XRAY[k] : 0x000000); m.emissiveIntensity = on ? 0.45 : 0;
     m.needsUpdate = true;
   }
+  if (ducts) ducts.traverse((o) => { if (o !== xrayMarker && o !== ducts) o.renderOrder = on ? XRAY_ORDER : 5; });
 }
 
 // ---------------------------------------------------------------- info card
