@@ -664,7 +664,7 @@ function applyToggles() {
     for (const o of bakedDeck) show(o, house ? true : !layerOn('Trusses'));     // the baked house's thin deck gives way to the trusses' own
   }
   if (ghost !== !layerOn('Walls')) setGhost(!layerOn('Walls'));
-  if (xray !== layerOn('Xray')) { xray = layerOn('Xray'); setDuctXray(xray); }
+  if (xray !== layerOn('Xray')) { xray = layerOn('Xray'); setDuctXray(xray, equip.layers.ducts); }
   $('rowXray').classList.toggle('off', !layerOn('Ducts'));
   shadowDirty = true;
 }
