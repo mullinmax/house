@@ -47,6 +47,9 @@ CL = C["clerestory"]
 EC = C.get("entry_closet", {})                  # entry closet built around the beam posts (Maxwell's builder, 11/19/2026)
 EC_STYLE = EC.get("style", "closet")
 EC_OPEN = tuple(EC.get("opening", [40.789, 42.289]))
+# a built-in in the closet opening and the mudroom unit read as one piece: no oak casing leg between them, the strip of wall
+# over the beam posts faced in the cabinet paint (Maxwell 11/19/2026)
+EC_MERGE = bool(EC) and EC.get("merge_cubby", True) and EC_STYLE in ("cabinet", "pullout", "coat")
 LOFT = C["loft"]
 LX0, LY0, LX1, LY1 = LOFT["rect"]
 _ft = C.get("floor_trusses")
@@ -1294,9 +1297,14 @@ if FU.get("enabled"):
             nb = [q[1] for q in CL["passages"] if q[1] < x0 - 0.01]
             if nb and max(nb) + CW + RV > cl:
                 cl = max(nb) + CW + RV + 0.003
-            box("White Oak", cl, x0 - RV, b0, b1, 0, hd + RV)
-            box("White Oak", x1 + RV, x1 + CW + RV, b0, b1, 0, hd + RV)
-            box("White Oak", cl, x1 + CW + RV, b0, b1, hd + RV, hd + RV + CW)
+            cr = x1 + CW + RV
+            if EC_MERGE and abs(x0 - EC_OPEN[0]) < 0.01:
+                cl = max(nb) + CW + RV         # one head casing runs on from the cubby's; no leg between them
+            else:
+                box("White Oak", cl, x0 - RV, b0, b1, 0, hd + RV)
+            if not (EC_MERGE and b0 >= YC2 - 1e-6 and abs(x1 - EC["posts"][0]) < 0.01):
+                box("White Oak", x1 + RV, cr, b0, b1, 0, hd + RV)
+            box("White Oak", cl, cr, b0, b1, hd + RV, hd + RV + CW)
 
 # ------------------------------------------------------------------ entry closet around the beam posts (11/19/2026)
 def entry_closet():
@@ -1368,6 +1376,9 @@ def entry_closet():
         return
 
     # built-ins filling the opening: painted to match the mudroom unit next to it
+    if EC_MERGE:                                   # filler over the wall between the cubby and the cabinet, floor to the head casing
+        RV_ = 0.016
+        box(M, EC["posts"][0] + 0.003, ox0 + 0.06, yf - 0.002, yf + 0.05, 0.0, 8.0 + RV_ - 0.003)
     for (a0, a1) in ((ox0, ox0 + 0.06), (ox1 - 0.06, ox1)):                              # jamb liners
         box(M, a0, a1, YC, yf - 0.002, 0.0, 8.0)
     box(M, ox0 + 0.06, ox1 - 0.06, YC, yf - 0.002, 7.94, 8.0)

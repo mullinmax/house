@@ -214,6 +214,7 @@ passages = [[0.743, 3.443, 6.67],[12.122, 16.206, 8.0], [20.914, 26.914, 8.0], [
 # east end, beside the closet, so the closet opening shrinks to 18 in (hinge jamb kept on the east). Closet inside stays 3'-0" x 1'-6".
 style = "coat"                  # coat (Maxwell 11/19/2026: B as a coat cabinet) | cabinet (built-in, shelves) | closet (oak door) | pullout (pull-out coat tower) | split (door + cabinet above)
 rod_z = 5.6                     # coat rod height
+merge_cubby = true              # no oak trim between the cubby and the built-in: one piece, wall strip faced in sage (Maxwell 11/19/2026)
 opening = [39.56, 42.289]       # clear opening, plan x, from just east of the posts to the east wall (Maxwell 11/19/2026: take out most of the
                                 # wall to the cubby, so coats go in and out easily). The passage above must match it. Was 18 in, [40.789, 42.289]
 interior = [39.501, 42.497, 33.116, 34.616]   # closet inside faces: x0, x1, y0 (back), y1 (clerestory wall north face)
