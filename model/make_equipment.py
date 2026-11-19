@@ -522,10 +522,14 @@ supply("s_bed2", "Bedroom 2", 78, 6, [[8.5, YN - 0.6, 11.0], [8.5, 10.6, 11.0]],
 # a duct may come out into the room. The supply leaves the trunk over the west end of the door and runs exposed under the sloped
 # ceiling to the window end, so the air crosses the desk on its way back to the returns in the door wall.
 XSD = 23.75
-supply("s_study", "Bedroom 4 / study", 104, 8, [[XSD, YN - 0.6, 11.0], [XSD, 10.3, 11.0], [XSD, 7.0, 10.65], [XSD, 3.0, 9.4]], dict(at=[XSD, 2.98, 9.4], size=[8, 8], wall=N),
+# Booster and zone damper (Maxwell, 11/19/2026, picked on a card): the run stays level from the wall to y 8.0 so an inline fan and a
+# motorized damper fit in it, then slopes down to the window end as before.
+YSL = 8.0
+supply("s_study", "Bedroom 4 / study", 104, 8, [[XSD, YN - 0.6, 11.0], [XSD, 10.3, 11.0], [XSD, YSL, 11.0], [XSD, 3.0, 9.4]], dict(at=[XSD, 2.98, 9.4], size=[8, 8], wall=N),
        "8 in round through the attic wall over the west end of the study door, then exposed along the west wall under the sloped ceiling to the window end "
        "(Maxwell, 11/18/2026: a duct can come out into the room). It discharges about 7 ft from the returns in the door wall, so supply air sweeps the desk and "
        "the computers before it leaves. 8 in so there is room above M-10's 104 CFM for the computer load, at about 15 CFM per 100 W. Spiral duct, ASSUMED route.")
+ducts[-1]["info"]["specs"] += [["With the booster", "About 185 CFM, enough for 1 kW of computers in cooling"], ["Zone damper", "Motorized, just inside the wall"]]
 supply("s_hall2a", "Hall 2", 15, 6, drop(bay(14.4), YN + 0.75, 17.8), dict(at=[bay(14.4), 17.8, CEIL - 0.02], size=[8, 6]))
 supply("s_hall2b", "Hall 2", 16, 6, drop(bay(20.5), YN + 0.75, 13.8), dict(at=[bay(20.5), 13.8, CEIL - 0.02], size=[8, 6]))
 # west leg
@@ -937,8 +941,55 @@ fan("fan_study", "Bedroom 4 / study", 27.4, 5.6, 42, 8.5, True, [
     "lets the thermostat sit a degree or two warmer.",
     "Warm air from the computers rises toward the high side, where the high return is. The fan mixes; it does not move air out of the room. The supply and "
     "returns still do that, so this is a companion to the ducts, not a fix for an undersized one."], "Light Study 13")
+fan("fan_living", "Living", 26.4, 28.5, 60, 10.0, False, ["Trial fan (Maxwell, 11/19/2026: try one, it may come out later). Over the coffee table and the seating, "
+    "about 4 ft from the can light and well clear of the high wall registers on the north wall. The ceiling here is about 18 ft, so it hangs on a long "
+    "rod with the blades about 10 ft up. In winter, on low in reverse, it pushes the warm air that collects up under this tall ceiling back down to the seating."])
 fan("fan_family", "Entry / family", 36.5, 42.5, 60, 9.0, False, ["Between the entry and the family cans (both about 4 ft away), so the blades never pass under a light and flicker it. "
     "60 in for the open family and entry area; the high wall registers on the clerestory wall blow south toward it from about 5 ft beyond the blade tips."])
+
+# ------------------------------------------------------------------ study pseudo zone (Maxwell, 11/19/2026: booster and damper now, about 1 kW of computers)
+# Heat to remove: 1 kW of computers, screens and a person is about 3,400 Btu/h of sensible heat. In cooling the supply is about
+# 20 F below the room, so it takes about 160 CFM (CFM = Btu/h / (1.08 x dT)). M-10 gives the study 104 and the 8 in run delivers
+# only about 140 at the balanced plenum pressure, so the booster makes up the rest (tools/duct_balance.py, s_study at 185 CFM:
+# returns carry 79% with the door shut, room about 1 Pa). Both sit in the level part of the exposed run, where they can be reached
+# from a step ladder. Home Assistant is the plan for control later; nothing here needs it to work.
+BOOST_D, BOOST_L = 10.4, 12.6                  # approximate 8 in EC inline fan body
+Y_DAMP, Y_FAN = 9.85, 9.3                      # damper centre, and the fan's south (inlet) end
+STUDY_ZONE = ("Pseudo zone, for Home Assistant later: a temperature sensor in the study against the thermostat's reading. Cooling or fan on and the study "
+              "2 F or more above the house: booster on, speed rising with the difference. Heating and the study warm: booster off and the damper closes to its "
+              "minimum stop, so the computers heat the room instead of the heat pump. The heat pump blower still has to be running for the booster to bring "
+              "conditioned air; with the blower off it only pulls house air back through the trunk. ASSUMED control plan.")
+items += [
+ dict(id="study_booster", name="Study booster fan", category="HVAC booster", system="hvac.supply", room="Bedroom 4 / study", layer="mechanical",
+      builder="inline_fan", size=[BOOST_D, BOOST_L], at=[XSD, Y_FAN, 11.0 - BOOST_D / 24], facing=0,
+      info=dict(model="8 in EC inline duct fan, quiet mixed flow type, for example AC Infinity Cloudline S8 or Fantech Prioair 8 EC (ASSUMED, size approximate)",
+        specs=[["Duct", "8 in round, in the exposed study supply"], ["Airflow", "Raises the study from about 100 to about 185 CFM"], ["Size", f"About {BOOST_D} in across, {BOOST_L} in long"],
+               ["Power", "About 20 to 40 W at the speeds it would run, plugged into the outlet below it"], ["Control", "EC speed control, 0 to 10 V or the maker's controller"]],
+        notes=["Maxwell's choice (11/19/2026): booster and damper now, sized for about 1 kW of computers, screens and a person (about 3,400 Btu/h). "
+               "In cooling the supply is about 20 F colder than the room, so that takes about 160 CFM; the 8 in run alone gives about 140.",
+               "In the room rather than the attic: the attic stretch between the trunk and the wall is only about 8 in long. Here it is easy to reach, and mixed flow "
+               "EC fans this size run in the high 20s to low 30s dBA at low speed, about like the computers. Mount it on rubber isolators with a short flexible "
+               "connector at each end so it does not drum the duct.", STUDY_ZONE],
+        placement="Exposed study supply, level stretch about 1 1/2 ft in from the door wall, close under the sloped ceiling.")),
+ dict(id="study_damper", name="Study zone damper", category="HVAC damper", system="hvac.supply", room="Bedroom 4 / study", layer="mechanical",
+      builder="zone_damper", size=[8, 8], at=[XSD, Y_DAMP + 4 / 24, 11.0 - 4 / 12], facing=0,
+      info=dict(model="8 in round motorized zone damper, 24 V, for example Honeywell ARD8 (ASSUMED)",
+        specs=[["Duct", "8 in round"], ["Power", "24 V AC, from a small transformer at the outlet box"], ["Normal position", "Open, so the study gets its air if the controls fail"],
+               ["Minimum stop", "Set so it never shuts the run fully: the heat pump never sees a dead end"]],
+        notes=["Upstream of the booster, just inside the wall. It is the heating half of the zone: when the study is warm and the house calls for heat, it throttles the "
+               "study's supply instead of the booster pushing more warm air in.", STUDY_ZONE],
+        placement="Exposed study supply, first foot inside the wall, actuator on the room side.")),
+ dict(id="study_booster_box", name="Booster outlet and controls", category="Electrical", system="electrical", room="Bedroom 4 / study", layer="mechanical",
+      builder="wall_box", size=[4.5, 4.5, 2.0], at=[23.04, 9.0, 9.6], facing=90,
+      info=dict(model="2 gang box high on the west wall: a receptacle for the booster, and room for the damper's 24 V transformer and a relay (ASSUMED)",
+        specs=[["Height", "About 9 ft 8 in to the centre, just under the duct"], ["Circuit", "Study general circuit, the booster is under 1 A"]],
+        notes=["Rough this in with the study wiring. A smart relay or 0 to 10 V controller in or beside it lets Home Assistant drive the booster and damper later.", STUDY_ZONE])),
+ dict(id="study_temp_sensor", name="Study temperature sensor spot", category="Controls", system="controls", room="Bedroom 4 / study", layer="mechanical",
+      builder="wall_box", size=[2.75, 2.75, 0.9], at=[23.04, 8.6, 4.9], facing=90, sensor=True,
+      info=dict(model="Wall temperature sensor for Home Assistant, battery or low voltage (ASSUMED)",
+        specs=[["Height", "About 5 ft, the thermostat height"], ["Where", "West wall by the door, away from the desk, the window and the supply jet"]],
+        notes=["A low voltage cable or a box here at rough in keeps the option of a wired sensor. A battery Zigbee or Thread sensor works with no wiring.", STUDY_ZONE])),
+]
 
 trusses = dict(id="floor_trusses", name="Open web floor trusses", category="Structure", system="structure.floor", regions=FLAT, loft_regions=[LOFT],
     z0=CEIL, depth_in=TRUSS_IN, spacing_in=CFG["floor_trusses"]["spacing_in"], deck_in=DECK_IN, grid_x0=TG, max_cross_in=CFG["floor_trusses"]["max_round_duct_in"],

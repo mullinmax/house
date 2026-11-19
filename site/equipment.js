@@ -386,6 +386,31 @@ function ceilingFan(s, it) {
 
 const BUILD = {
   ceiling_fan: ceilingFan,
+  inline_fan(s) {                  // EC mixed flow inline duct fan: black round body along the duct (local z, air out the front), 8 in collars, mounting feet
+    const [D, L] = s, g = new THREE.Group(), R = D / 2, blk = mat('booster black', 0x202224, 0.5, 0.2);
+    cyl(g, R, L - 4.6, blk, 0, R, L / 2, 'z', 32);
+    for (const z of [1.6, L - 1.6]) cyl(g, R - 0.7, 1.4, blk, 0, R, z + (z < L / 2 ? 0.7 : -0.7), 'z', 32, R - 1.6);
+    for (const z of [0.5, L - 0.5]) cyl(g, 4.1, 1.0, galv(), 0, R, z, 'z', 24);
+    ring(g, R + 0.1, 0.25, greyPlastic(), 0, R, L * 0.62, 'z', 36);
+    box(g, 3.0, 1.4, 4.0, greyPlastic(), 0, D + 0.5, L * 0.45);              // terminal box on top
+    box(g, 2.6, 2.0, 1.2, darkPlastic(), -R - 0.2, R, L * 0.7);              // speed control head on the room side
+    return g;
+  },
+  zone_damper(s) {                 // 8 in round motorized damper: galvanized sleeve, bead rings, 24 V actuator on the side (room side, local -x)
+    const [dia, L] = s, g = new THREE.Group(), r = dia / 2 + 0.15;
+    cyl(g, r, L, galv(), 0, r, L / 2, 'z', 28);
+    for (const z of [1.2, L - 1.2]) ring(g, r, 0.18, galv(), 0, r, z, 'z', 28);
+    box(g, 2.4, 4.6, 3.6, mat('actuator grey', 0x5f6366, 0.5, 0.1), -r - 1.2, r, L / 2);
+    box(g, 0.6, 1.2, 1.2, darkPlastic(), -r - 2.7, r + 1.0, L / 2);
+    return g;
+  },
+  wall_box(s, it = {}) {           // a device on the wall: white cover plate, a receptacle face or a sensor dome
+    const [w, h, d] = s, g = new THREE.Group();
+    box(g, w, h, d, whitePlastic(), 0, h / 2, d / 2);
+    if (it.sensor) cyl(g, w * 0.3, 0.4, greyPlastic(), 0, h / 2, d + 0.2, 'z', 20);
+    else for (const x of [-w / 4, w / 4]) box(g, 1.3, 1.8, 0.25, greyPlastic(), x, h / 2, d + 0.12);
+    return g;
+  },
   wall_oven_double(s) {            // Frigidaire Gallery GCWD3067AF: stainless doors with wide black windows, flat bar handles, black glass control strip
     const [w, h, d] = s, g = new THREE.Group(), k = h / 50.75;
     const cz = d - 1.7, face = d - 0.2, dz = (cz + face) / 2, dt = face - cz;

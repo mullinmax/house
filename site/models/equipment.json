@@ -1882,6 +1882,59 @@
    }
   },
   {
+   "id": "fan_living",
+   "name": "Ceiling fan",
+   "category": "Ceiling fan",
+   "system": "electrical.fans",
+   "room": "Living",
+   "layer": "fans",
+   "builder": "ceiling_fan",
+   "size": [
+    60,
+    96.9
+   ],
+   "at": [
+    26.4,
+    28.5,
+    18.072
+   ],
+   "facing": 0,
+   "slope": -0.3183,
+   "blades": 3,
+   "light": false,
+   "info": {
+    "model": "60 in DC ceiling fan, matte black with light oak blades (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "60 in, 3 blades"
+     ],
+     [
+      "Blades",
+      "10 ft 0 in above the floor, 87 in below the ceiling at the low side"
+     ],
+     [
+      "Downrod",
+      "About 88 in"
+     ],
+     [
+      "Motor",
+      "DC, 6 speeds and reverse, wall control or remote"
+     ],
+     [
+      "Mount",
+      "Sloped ceiling, 3.82:12"
+     ]
+    ],
+    "notes": [
+     "Trial fan (Maxwell, 11/19/2026: try one, it may come out later). Over the coffee table and the seating, about 4 ft from the can light and well clear of the high wall registers on the north wall. The ceiling here is about 18 ft, so it hangs on a long rod with the blades about 10 ft up. In winter, on low in reverse, it pushes the warm air that collects up under this tall ceiling back down to the seating.",
+     "On the sloped ceiling the fan needs a fan rated box fixed to the roof panel and a canopy that takes the slope (about 18 degrees under the 3.82:12 north roof; most fans allow 30). In a SIP roof the box and the wire chase to it have to be planned with the panel maker before the panels are cut, because there is no stud cavity to fish a cable through later. ASSUMED until the electrician and the SIP maker agree.",
+     "For Home Assistant later: a DC fan with a local network control, or a radio remote fan run through a bridge such as Bond, so speed, direction and the light can be automated. Model ASSUMED."
+    ],
+    "placement": "Ceiling of Living, x 26.4 ft, y 28.5 ft."
+   }
+  },
+  {
    "id": "fan_family",
    "name": "Ceiling fan",
    "category": "Ceiling fan",
@@ -1932,6 +1985,176 @@
      "For Home Assistant later: a DC fan with a local network control, or a radio remote fan run through a bridge such as Bond, so speed, direction and the light can be automated. Model ASSUMED."
     ],
     "placement": "Ceiling of Entry / family, x 36.5 ft, y 42.5 ft."
+   }
+  },
+  {
+   "id": "study_booster",
+   "name": "Study booster fan",
+   "category": "HVAC booster",
+   "system": "hvac.supply",
+   "room": "Bedroom 4 / study",
+   "layer": "mechanical",
+   "builder": "inline_fan",
+   "size": [
+    10.4,
+    12.6
+   ],
+   "at": [
+    23.75,
+    9.3,
+    10.566666666666666
+   ],
+   "facing": 0,
+   "info": {
+    "model": "8 in EC inline duct fan, quiet mixed flow type, for example AC Infinity Cloudline S8 or Fantech Prioair 8 EC (ASSUMED, size approximate)",
+    "specs": [
+     [
+      "Duct",
+      "8 in round, in the exposed study supply"
+     ],
+     [
+      "Airflow",
+      "Raises the study from about 100 to about 185 CFM"
+     ],
+     [
+      "Size",
+      "About 10.4 in across, 12.6 in long"
+     ],
+     [
+      "Power",
+      "About 20 to 40 W at the speeds it would run, plugged into the outlet below it"
+     ],
+     [
+      "Control",
+      "EC speed control, 0 to 10 V or the maker's controller"
+     ]
+    ],
+    "notes": [
+     "Maxwell's choice (11/19/2026): booster and damper now, sized for about 1 kW of computers, screens and a person (about 3,400 Btu/h). In cooling the supply is about 20 F colder than the room, so that takes about 160 CFM; the 8 in run alone gives about 140.",
+     "In the room rather than the attic: the attic stretch between the trunk and the wall is only about 8 in long. Here it is easy to reach, and mixed flow EC fans this size run in the high 20s to low 30s dBA at low speed, about like the computers. Mount it on rubber isolators with a short flexible connector at each end so it does not drum the duct.",
+     "Pseudo zone, for Home Assistant later: a temperature sensor in the study against the thermostat's reading. Cooling or fan on and the study 2 F or more above the house: booster on, speed rising with the difference. Heating and the study warm: booster off and the damper closes to its minimum stop, so the computers heat the room instead of the heat pump. The heat pump blower still has to be running for the booster to bring conditioned air; with the blower off it only pulls house air back through the trunk. ASSUMED control plan."
+    ],
+    "placement": "Exposed study supply, level stretch about 1 1/2 ft in from the door wall, close under the sloped ceiling."
+   }
+  },
+  {
+   "id": "study_damper",
+   "name": "Study zone damper",
+   "category": "HVAC damper",
+   "system": "hvac.supply",
+   "room": "Bedroom 4 / study",
+   "layer": "mechanical",
+   "builder": "zone_damper",
+   "size": [
+    8,
+    8
+   ],
+   "at": [
+    23.75,
+    10.016666666666666,
+    10.666666666666666
+   ],
+   "facing": 0,
+   "info": {
+    "model": "8 in round motorized zone damper, 24 V, for example Honeywell ARD8 (ASSUMED)",
+    "specs": [
+     [
+      "Duct",
+      "8 in round"
+     ],
+     [
+      "Power",
+      "24 V AC, from a small transformer at the outlet box"
+     ],
+     [
+      "Normal position",
+      "Open, so the study gets its air if the controls fail"
+     ],
+     [
+      "Minimum stop",
+      "Set so it never shuts the run fully: the heat pump never sees a dead end"
+     ]
+    ],
+    "notes": [
+     "Upstream of the booster, just inside the wall. It is the heating half of the zone: when the study is warm and the house calls for heat, it throttles the study's supply instead of the booster pushing more warm air in.",
+     "Pseudo zone, for Home Assistant later: a temperature sensor in the study against the thermostat's reading. Cooling or fan on and the study 2 F or more above the house: booster on, speed rising with the difference. Heating and the study warm: booster off and the damper closes to its minimum stop, so the computers heat the room instead of the heat pump. The heat pump blower still has to be running for the booster to bring conditioned air; with the blower off it only pulls house air back through the trunk. ASSUMED control plan."
+    ],
+    "placement": "Exposed study supply, first foot inside the wall, actuator on the room side."
+   }
+  },
+  {
+   "id": "study_booster_box",
+   "name": "Booster outlet and controls",
+   "category": "Electrical",
+   "system": "electrical",
+   "room": "Bedroom 4 / study",
+   "layer": "mechanical",
+   "builder": "wall_box",
+   "size": [
+    4.5,
+    4.5,
+    2.0
+   ],
+   "at": [
+    23.04,
+    9.0,
+    9.6
+   ],
+   "facing": 90,
+   "info": {
+    "model": "2 gang box high on the west wall: a receptacle for the booster, and room for the damper's 24 V transformer and a relay (ASSUMED)",
+    "specs": [
+     [
+      "Height",
+      "About 9 ft 8 in to the centre, just under the duct"
+     ],
+     [
+      "Circuit",
+      "Study general circuit, the booster is under 1 A"
+     ]
+    ],
+    "notes": [
+     "Rough this in with the study wiring. A smart relay or 0 to 10 V controller in or beside it lets Home Assistant drive the booster and damper later.",
+     "Pseudo zone, for Home Assistant later: a temperature sensor in the study against the thermostat's reading. Cooling or fan on and the study 2 F or more above the house: booster on, speed rising with the difference. Heating and the study warm: booster off and the damper closes to its minimum stop, so the computers heat the room instead of the heat pump. The heat pump blower still has to be running for the booster to bring conditioned air; with the blower off it only pulls house air back through the trunk. ASSUMED control plan."
+    ]
+   }
+  },
+  {
+   "id": "study_temp_sensor",
+   "name": "Study temperature sensor spot",
+   "category": "Controls",
+   "system": "controls",
+   "room": "Bedroom 4 / study",
+   "layer": "mechanical",
+   "builder": "wall_box",
+   "size": [
+    2.75,
+    2.75,
+    0.9
+   ],
+   "at": [
+    23.04,
+    8.6,
+    4.9
+   ],
+   "facing": 90,
+   "sensor": true,
+   "info": {
+    "model": "Wall temperature sensor for Home Assistant, battery or low voltage (ASSUMED)",
+    "specs": [
+     [
+      "Height",
+      "About 5 ft, the thermostat height"
+     ],
+     [
+      "Where",
+      "West wall by the door, away from the desk, the window and the supply jet"
+     ]
+    ],
+    "notes": [
+     "A low voltage cable or a box here at rough in keeps the option of a wired sensor. A battery Zigbee or Thread sensor works with no wiring.",
+     "Pseudo zone, for Home Assistant later: a temperature sensor in the study against the thermostat's reading. Cooling or fan on and the study 2 F or more above the house: booster on, speed rising with the difference. Heating and the study warm: booster off and the damper closes to its minimum stop, so the computers heat the room instead of the heat pump. The heat pump blower still has to be running for the booster to bring conditioned air; with the blower off it only pulls house air back through the trunk. ASSUMED control plan."
+    ]
    }
   }
  ],
@@ -3426,8 +3649,8 @@
     ],
     [
      23.75,
-     7.0,
-     10.65
+     8.0,
+     11.0
     ],
     [
      23.75,
@@ -3452,6 +3675,14 @@
      [
       "Damper",
       "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
+     ],
+     [
+      "With the booster",
+      "About 185 CFM, enough for 1 kW of computers in cooling"
+     ],
+     [
+      "Zone damper",
+      "Motorized, just inside the wall"
      ]
     ],
     "notes": [
