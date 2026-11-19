@@ -287,7 +287,7 @@ PT_D, PT_H = 16.0, 62.0                            # pressure tank, in: a slim t
 PT_X = 5.95
 PT_CY = UN + (1 + PT_D / 2) / 12
 UV_Z, UV_H = 2.55, 42.0
-VAC_X = 8.25                                       # stick vacuum dock: as far east as it goes (Maxwell, 11/19/2026), its floor head 3 in short of the open hall door's edge (x 8.91)
+VAC_X = 11.0                                       # stick vacuum dock: in the northeast corner (Maxwell, 11/19/2026: the hall door now swings out), floor head 2 in off the east wall
 def dhw(id, name, dia, mat, points, model, notes, specs=None, info_of=None, system="plumbing.dhw", category="Hot water"):
     r = dict(id=id, name=name, category=category, system=system, dia=dia, mat=mat, points=points)
     if info_of: r["info_of"] = info_of; r.pop("name")
@@ -376,7 +376,7 @@ items += [
                "A slim, tall tank was picked over the usual 22 in one so the walkway past the water tanks stays about 22 in wide (Maxwell, 11/19/2026: slimmer is fine, there is height to use). "
                "The quote also offered a 1 HP constant pressure system for $5,800 as an alternate; the approved total ($10,919) has the 1/2 HP system.",
                "Well (same estimate): 6 in PVC casing, estimated 100 ft, $43/ft past that.", APPROX],
-        placement="North wall of the utility room, east of the filters and clear of the hall door's swing. The pump is down the well, so the only noise here is the pressure switch clicking.")),
+        placement="North wall of the utility room, east of the filters. The pump is down the well, so the only noise here is the pressure switch clicking.")),
  dict(id="tank_tee", name="Tank tee and pressure switch", category="Well water", system="plumbing.well", room="Utility", layer="mechanical",
       builder="tank_tee", size=[10, 4, 3], at=[TT_X, LN + 0.1, 1.0], facing=180,
       info=dict(model="1 in brass tank tee with pressure switch, gauge, relief valve and drain", specs=[["Switch", "40/60 PSI, ASSUMED"]],
@@ -414,7 +414,7 @@ items += [
                ["Run time", "Up to about 40 min on low, roughly 5 h to recharge"]],
         notes=["Placeholder for where the vacuum is kept (Maxwell, 11/19/2026). Exact V8 variant not picked, so the size is from the V8 class.",
                "The outlet is ASSUMED and not on the electrical plan yet: tell the electrician it is wanted here.", APPROX],
-        placement="North wall of the utility room, as close to the hall door as it goes (Maxwell, 11/19/2026): the floor head stops 3 in short of the edge of the door when it is open all the way. It sticks out less than the pressure tank, so the walkway past the water tanks stays the same. The outlet is on its west side so the open door never covers it.")),
+        placement="Northeast corner of the utility room, on the north wall right beside the hall door (Maxwell, 11/19/2026). The door now swings out into the hall, so the corner is free; the floor head stays about 2 in off the east wall and the door casing. It sticks out about 9 in, less than the pressure tank, so nothing narrows the way in.")),
  dict(id="ro_system", name="Reverse osmosis drinking water", category="Kitchen appliance", system="plumbing.well", room="Kitchen", layer="appliances",
       builder="ro_unit", size=[5.7, 18, 17.6], at=[10.85, 51.42, 0.34], facing=0,
       info=dict(model="Tankless under sink reverse osmosis with its own faucet (generic, Waterdrop G3 class)",

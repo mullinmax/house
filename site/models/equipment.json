@@ -1146,7 +1146,7 @@
      "Well (same estimate): 6 in PVC casing, estimated 100 ft, $43/ft past that.",
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
     ],
-    "placement": "North wall of the utility room, east of the filters and clear of the hall door's swing. The pump is down the well, so the only noise here is the pressure switch clicking."
+    "placement": "North wall of the utility room, east of the filters. The pump is down the well, so the only noise here is the pressure switch clicking."
    }
   },
   {
@@ -1387,7 +1387,7 @@
     8.8
    ],
    "at": [
-    8.25,
+    11.0,
     22.876,
     0
    ],
@@ -1417,7 +1417,7 @@
      "The outlet is ASSUMED and not on the electrical plan yet: tell the electrician it is wanted here.",
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
     ],
-    "placement": "North wall of the utility room, as close to the hall door as it goes (Maxwell, 11/19/2026): the floor head stops 3 in short of the edge of the door when it is open all the way. It sticks out less than the pressure tank, so the walkway past the water tanks stays the same. The outlet is on its west side so the open door never covers it."
+    "placement": "Northeast corner of the utility room, on the north wall right beside the hall door (Maxwell, 11/19/2026). The door now swings out into the hall, so the corner is free; the floor head stays about 2 in off the east wall and the door casing. It sticks out about 9 in, less than the pressure tank, so nothing narrows the way in."
    }
   },
   {
