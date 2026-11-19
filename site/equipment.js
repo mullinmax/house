@@ -816,7 +816,7 @@ const BUILD = {
     for (const row of rows) for (const x of [-9, 9]) box(g, 1.4, 1.4, row.z, mat('strut', 0x9fa3a6, 0.5, 0.7), x, row.y, row.z / 2);   // header brackets
     return g;
   },
-  erv(s, it = {}) {                // Panasonic Intelli-Balance 100: galvanized steel box, two white duct adapters on each end
+  erv(s, it = {}) {                // ERV (was drawn for the Panasonic Intelli-Balance 100): galvanized steel box, two white duct adapters on each end
     const [w, h, d] = s, g = new THREE.Group();
     if (it.hang) {                                                                           // hung level on four chains from the roof framing, hang = chain length in inches
       for (const x of [-w / 2 - 0.7, w / 2 + 0.7]) for (const z of [2.5, d - 2.5]) cyl(g, 0.16, it.hang, darkSteel(), x, h + it.hang / 2, z, 'y', 6);

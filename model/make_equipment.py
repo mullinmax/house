@@ -450,7 +450,7 @@ for k in range(2):
 # straight over the top of the heat pump with no bends (Maxwell, 11/18/2026: it can go up, and the ducts should stay off the floor).
 ERV_Z = HP_Z + 21.2 / 12 + 0.4                    # centre of the ERV's duct adapters, and of the two ducts over the heat pump
 ERV_N = HP_S + 1.45                               # its room (north) end
-ERV_S = ERV_N + 26.6 / 12                         # its outdoor (south) end
+ERV_S = ERV_N + 24.8 / 12                         # its outdoor (south) end
 ERV_XF, ERV_XS = HP_CX - 0.415, HP_CX + 0.415     # fresh air adapter (west) and stale air adapter (east)
 items += [
  dict(id="heat_pump", name="Geothermal heat pump", category="HVAC", system="hvac.air", room="Attic", layer="mechanical",
@@ -472,23 +472,31 @@ items += [
                "return and filter on the east side, service panels facing a 2 ft aisle along the west wall."],
         placement="On the attic deck over the utility room, where Andy drew HP-01, lengthwise north to south.")),
  dict(id="erv", name="Energy recovery ventilator", category="HVAC", system="hvac.ventilation", room="Attic", layer="mechanical",
-      builder="erv", size=[19.9, 11.4, 26.6], at=[HP_CX, ERV_N, ERV_Z - 5.7 / 12], facing=180, hang=round((CFG["roof"]["north_wall_height"] + (ERV_N + 1.1) * CFG["roof"]["north_pitch"] / 12 - 0.9 - (ERV_Z + 5.7 / 12)) * 12, 1),
-      info=dict(model="Panasonic Intelli-Balance 100 (ERV-01 on M-10)", specs=[["Airflow", "50 to 100 CFM balanced, boost from a bath timer switch"], ["Ducts", "Exhaust through the west wall beside the unit, intake through the west wall 10 ft further north"],
-               ["Stale air from", "Bath 1, bath 2 and powder exhaust grilles, 20 CFM each continuous, about 50 CFM on boost"], ["Fresh air to", "The supply plenum at the heat pump, so it reaches every room through the supply registers"], ["Mounting", "Hung level on four chains from the roof framing, about 2 ft above the deck (the manual's chain mount)"],
-               ["Controls", "Runs continuously on low; a timer switch in each bathroom boosts it; blower interlock wire to the heat pump"]],
-        notes=["Greg's alternative: RenewAire EV Premium M, about $1,800.", APPROX,
+      builder="erv", size=[21.0, 20.8, 24.8], at=[HP_CX, ERV_N, ERV_Z - 10.4 / 12], facing=180, hang=round((CFG["roof"]["north_wall_height"] + (ERV_N + 1.1) * CFG["roof"]["north_pitch"] / 12 - 0.9 - (ERV_Z + 10.4 / 12)) * 12, 1),
+      info=dict(model="Broan AI Series 210 ERV, side ports (B210E75RS). Replaces the Panasonic Intelli-Balance 100 that is ERV-01 on M-10", price="About $1,580 to $1,790 (11/19/2026)",
+        specs=[["Airflow", "65 to 210 CFM, self balancing. Low all the time, boost from a bathroom timer"], ["Size", "About 24.8 x 21 x 20.8 in, 47 lb, four 6 in ports"],
+               ["Ducts", "Exhaust through the west wall beside the unit, intake through the west wall 10 ft further north, both 8 in"],
+               ["Stale air from", "Bath 1, bath 2 and powder exhaust grilles: 20 CFM each all the time, about 80 CFM from each shower room and 30 from the powder room on boost"],
+               ["Fresh air to", "The supply plenum at the heat pump, so it reaches every room through the supply registers"], ["Mounting", "Hung level from the roof framing, its underside about 22 in above the deck"],
+               ["Controls", "Runs continuously on low; a 20/40/60 minute wall control (Broan VBATHW, about $34) in each bathroom boosts it; blower interlock wire to the heat pump"]],
+        links=[["Broan B210E75RS", "https://broan-nutone.com/en-us/product/freshairsystems/b210e75rs"]],
+        notes=["Maxwell, 11/19/2026: a larger ERV so the bathrooms need no fans of their own. This one unit does all the bath exhaust; the two shower fans, their ducts and their wall hoods are gone. "
+               "Alternatives: Panasonic Intelli-Balance 200 (about $2,730 to $3,135), RenewAire EV Premium L (30 to 280 CFM).", APPROX,
+               "What to expect: an ERV core hands some moisture back to the incoming air, so it clears a steamy mirror slower than a fan blowing straight outdoors, and boost pulls from all three "
+               "bathrooms at once. If the bath 1 wet room proves too steamy, a fan on its own duct to the east wall can still be added there. The unit has to run all the time so damp air does not sit in the ducts. "
+               "The port layout is ASSUMED from the side port model; check Broan's drawing before hanging it.",
                "The bathrooms exhaust through this unit instead of separate fans (Maxwell, 11/17/2026). The code allows it because the ERV sends that air outdoors; "
-               "it has to run continuously at 20 CFM or more per bathroom (IRC table M1505.4.4).",
-               "Fresh air goes into the supply plenum, not the attic (Maxwell, 11/18/2026). Panasonic's instructions say the furnace blower should run whenever the ERV runs when it is tied into "
+               "it has to run continuously at 20 CFM or more per bathroom (Ohio 4101:8-15-01, table 1505.4.4), so no bath fan is required.",
+               "Fresh air goes into the supply plenum, not the attic (Maxwell, 11/18/2026). ERV makers' instructions say the furnace blower should run whenever the ERV runs when it is tied into "
                "the ductwork, and Building Science Corp. calls for an interlock and a motorized damper on a supply side connection. The heat pump's ECM blower can idle at low speed for this. "
                "Andy should confirm the ERV can push against the supply plenum's pressure; the fallback is the return plenum, which the code also counts as supply ventilation (IRC M1505.4.1).",
                "One fan pulls from all three bathrooms, so the whole exhaust duct is under suction and air cannot be pushed from one bathroom into another. Backdraft dampers are for "
                "separate fans that share a duct. Each branch gets a balancing damper to set its airflow.",
-               "Set out to Panasonic's installation instructions (Maxwell, 11/18/2026): the two outdoor hoods are more than 10 ft apart, every duct connection has 2 ft or more of straight run "
+               "Set out to the Panasonic installation instructions the first unit came with (Maxwell, 11/18/2026); check them against Broan's: the two outdoor hoods are more than 10 ft apart, every duct connection has 2 ft or more of straight run "
                "before its first elbow, the outdoor ducts are insulated, the unit hangs level on chains inside the conditioned attic, and the intake is well over 6 ft from the dryer and range hood outlets.",
                "A backdraft damper in the fresh air duct stops the heat pump's blower from pushing supply air backward through the ERV. With the blower off, the ERV's own fan still sends the fresh air "
-               "down the supply trunk to every register, so it works without the heat pump running. Three baths plus whole house ventilation (about 75 CFM for this size and bedroom count) "
-               "is near the top of a 100 CFM unit, so Andy should confirm the size. The range hood cannot connect here, it has its own duct outdoors."],
+               "down the supply trunk to every register, so it works without the heat pump running. Whole house ventilation is about 75 CFM for this size and bedroom count, "
+               "and a full boost is about 190 CFM, inside this unit's 210. Andy should confirm the size. The range hood cannot connect here, it has its own duct outdoors."],
         placement="In line with the heat pump, just south of it, hung at the height of its top. Andy drew it west of HP-01.")),
 ]
 
@@ -774,8 +782,8 @@ ducts.append(dict(id="s_bath2_stack", info_of="s_bath2", type="supply", shape="r
 # instead of separate fans. The run hugs the supply trunk's south side on the deck so it stays in the low, north part of the attic.
 ZTOP = ZTR + 8 / 12 + 0.27                        # centre of a 6 in round lying on top of the 18 x 16 supply trunk
 EX = DECK + 0.25                                  # centre of a 6 in round lying on the deck
-ENOTE = ("ERV pickup grille: the ERV pulls 20 CFM from it continuously. The bathrooms with showers also have their own switched fan for steam. "
-         "Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED.")
+ENOTE = ("ERV pickup grille: the ERV pulls 20 CFM from it continuously and more on boost, from a timer by the door. There is no separate bath fan (Maxwell, 11/19/2026). "
+         "Allowed by the Ohio residential code (4101:8-15-01, sections 1501.1 and 1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED.")
 def exhaust(id, name, dia, points, grilles=None, note=None, info_of=None, room=None):
     d = dict(id=id, category="Ventilation", system="hvac.exhaust", type="exhaust", shape="round", size=dia, points=points)
     if info_of: d["info_of"] = info_of
@@ -785,31 +793,22 @@ def exhaust(id, name, dia, points, grilles=None, note=None, info_of=None, room=N
     ducts.append(d)
 XE1 = bay(39.7)
 Y_EL, X_EL, Y_EN = YE - 0.48, XJ + 0.48, YN - 0.48  # the exhaust main's lane on the trunk top: the other side from the bedroom 1 return
-exhaust("ex_bath1", "Bath 1 exhaust", 4, [[XE1, 30.0, ZT], [XE1, 17.8, ZT], [XE1, 17.8, EX]], room="Bath 1",
+exhaust("ex_bath1", "Bath 1 exhaust", 6, [[XE1, 30.0, ZT], [XE1, 17.8, ZT], [XE1, 17.8, EX]], room="Bath 1",
         grilles=[dict(at=[XE1, 30.0, CEIL - 0.02], size=[10, 10])], note=ENOTE + " Runs north in one loft floor truss bay, east of the family supply drop, then up onto the deck.")
 XE2 = 21.9                                        # east end of the south wall, over the toilet and vanity, away from the low supply
-exhaust("ex_bath2", "Bath 2 exhaust", 4, [[XE2, 10.62, ZTOP], [XE2, Y_EN, ZTOP]], room="Bath 2",
+exhaust("ex_bath2", "Bath 2 exhaust", 6, [[XE2, 10.62, ZTOP], [XE2, Y_EN, ZTOP]], room="Bath 2",
         grilles=[dict(at=[XE2, 10.64, ZTOP], size=[10, 6], wall=N)], note=ENOTE + " High on the east end of the bath 2 south wall, through the attic wall and into the main on top of the supply trunk. "
         "It was right beside the supply; the supply now comes in low at the west end of the same wall (Maxwell, 11/18/2026).")
 PWX, PWY = 7.2, 32.2                               # powder room exhaust grille, over the toilet, about 4 ft from the supply by the door (Maxwell, 11/18/2026)
 exhaust("ex_powder", "Powder exhaust", 4, [[PWX, PWY, ZT], [PWX, PWY, EX - 0.08], [4.9, PWY, EX - 0.08], [4.9, HP_S + 1.0, EX - 0.08], [4.9, HP_S + 1.0, ERV_Z], [ERV_XS + 0.1, HP_S + 1.0, ERV_Z]], room="Powder",
         grilles=[dict(at=[PWX, PWY, CEIL - 0.02], size=[8, 8])], note=ENOTE + " Comes up through the deck, runs along it and rises into the main just before the ERV.")
-exhaust("ex_main", "Bath exhaust main", 6, [[XE1, 17.8, EX], [XE1, 17.3, EX], [XE1, 17.3, ZTOP], [XE1, Y_EL, ZTOP], [X_EL, Y_EL, ZTOP], [X_EL, Y_EN, ZTOP], [ERV_XS, Y_EN, ZTOP], [ERV_XS, HP_N - 2.5, ZTOP],
-                                           [ERV_XS, HP_N - 2.5, ERV_Z], [ERV_XS, ERV_N, ERV_Z]],
-        note="Collects the three bathroom exhausts. It rides on top of the supply trunk all the way from bath 1's riser, on the side away from the bedroom 1 return, "
-             "down to the heat pump, crosses over the heat pump's top and goes straight into the ERV's stale air inlet, so it takes no floor space (Maxwell, 11/18/2026). ASSUMED route and size.")
-# Shower fans (Maxwell, 11/18/2026): the two bathrooms with showers each get their own switched fan on its own short duct straight
-# outdoors, as well as the continuous ERV pickup. A fan must not blow into the ERV's duct: that is against the ERV makers'
-# instructions, unbalances the ERV and can push air out of the other bathrooms' grilles. The powder room stays on the ERV alone.
-FNOTE = ("Its own duct straight outdoors with a backdraft damper at the hood, not tied into the ERV duct. Switched on for showers, on a timer or humidity control. "
-         "50 CFM or more meets the code's intermittent rate (IRC table M1505.4.4); 80 to 110 CFM clears steam faster. The ERV pickup in the same room keeps running at a low rate. Model not picked.")
-def fan(id, name, room, points, grille, how):
-    ducts.append(dict(id=id, name=name, category="Ventilation", system="hvac.exhaust.fan", type="exhaust", shape="round", size=4, room=room, points=points, grilles=[grille],
-                      info=dict(model="Bath exhaust fan, 80 to 110 CFM class, 4 in duct", specs=[["Runs", "Only when switched on for a shower"], ["Duct", how]], notes=[FNOTE])))
-fan("fan_bath1", "Bath 1 shower fan", "Bath 1", [[41.3, 30.6, ZT], [43.05, 30.6, ZT]], dict(at=[41.3, 30.6, CEIL - 0.02], size=[10, 10]),
-    "About 2 ft east through the floor trusses to a hood on the east wall. ASSUMED")
-fan("fan_bath2", "Bath 2 shower fan", "Bath 2", [[21.2, 0.55, 8.3], [21.2, -0.05, 8.3]], dict(at=[21.2, 0.52, 8.3], size=[10, 10], wall=S),
-    "Through the wall fan high on the north wall at the tub's valve end, east of the window: the vaulted SIP roof has no cavity for a ceiling fan. ASSUMED")
+ZTOP8 = ZTR + 8 / 12 + 4 / 12 + 0.02              # centre of an 8 in round lying on top of the trunk
+MNOTE = ("Collects the three bathroom exhausts. It rides on top of the supply trunk all the way from bath 1's riser, on the side away from the bedroom 1 return, "
+         "down to the heat pump, crosses over the heat pump's top and goes straight into the ERV's stale air inlet, so it takes no floor space (Maxwell, 11/18/2026). "
+         "It is 6 in as far as bath 2, where it carries bath 1 alone, and 8 in from there to the ERV for the boost airflow (Maxwell, 11/19/2026: larger ERV, no bath fans). "
+         "It crosses no trusses. It reduces to the ERV's 6 in port at the unit. ASSUMED route and size.")
+exhaust("ex_main", "Bath exhaust main", 6, [[XE1, 17.8, EX], [XE1, 17.3, EX], [XE1, 17.3, ZTOP], [XE1, Y_EL, ZTOP], [X_EL, Y_EL, ZTOP], [X_EL, Y_EN, ZTOP], [XE2 + 0.6, Y_EN, ZTOP]], note=MNOTE)
+exhaust("ex_main_w", None, 8, [[XE2 + 0.6, Y_EN, ZTOP], [XE2 + 0.25, Y_EN, ZTOP8], [ERV_XS, Y_EN, ZTOP8], [ERV_XS, HP_N - 2.5, ZTOP8], [ERV_XS, HP_N - 2.5, ERV_Z], [ERV_XS, ERV_N, ERV_Z]], info_of="ex_main")
 # Heat pump water heater air (Maxwell, 11/18/2026): the utility door stays solid, so the water heater's intake and exhaust are both
 # ducted up into the attic, which is inside the SIP roof. Rheem allows any size room when both are ducted and says never to tie
 # the unit into other ductwork. Both rise straight up in truss bay 7.7, north to south of each other, and come out on open deck
@@ -879,7 +878,7 @@ items += [
         placement="Low roof, about 1 ft in from the west wall, straight above the cooktop.")),
 ]
 
-# ERV ducts. The Intelli-Balance 100 has two 6 in adapters on each end: outdoor air and exhaust air on the wall end,
+# ERV ducts. The unit is drawn with two 6 in ports on each end (the Broan side port layout, ASSUMED): outdoor air and exhaust air on the wall end,
 # stale air in and fresh air out on the room end. The unit lies with its long side east-west so the wall end meets the west wall.
 # Outdoor side (Panasonic: 2 to 3 ft straight off each adapter, insulated ducts, separate hoods at least 10 ft apart).
 # The exhaust runs 2.6 ft straight south, then turns west and out through the wall. The intake turns west as soon as it
@@ -888,13 +887,13 @@ items += [
 # geothermal risers and sits against the wall above the heat pump cabinet's height, so the floor of the service aisle stays open.
 OA_Y = ERV_S + 2.6 - 10.8
 OA_X = 0.85                                       # centre of the run along the west wall
-ducts.append(dict(id="erv_wall_0", info_of="erv", type="erv", shape="round", size=6,
+ducts.append(dict(id="erv_wall_0", info_of="erv", type="erv", shape="round", size=8,
                   points=[[ERV_XF, ERV_S, ERV_Z], [ERV_XF, ERV_S + 0.6, ERV_Z], [OA_X, ERV_S + 0.6, ERV_Z], [OA_X, OA_Y, ERV_Z], [-0.05, OA_Y, ERV_Z]]))
-ducts.append(dict(id="erv_wall_1", info_of="erv", type="erv", shape="round", size=6,
+ducts.append(dict(id="erv_wall_1", info_of="erv", type="erv", shape="round", size=8,
                   points=[[ERV_XS, ERV_S, ERV_Z], [ERV_XS, ERV_S + 2.6, ERV_Z], [-0.05, ERV_S + 2.6, ERV_Z]]))
 # Fresh air leaves the room end, runs over the top of the heat pump beside the exhaust main, and drops into the supply plenum
 # through a backdraft damper.
-ducts.append(dict(id="erv_to_supply", info_of="erv", type="erv", shape="round", size=6,
+ducts.append(dict(id="erv_to_supply", info_of="erv", type="erv", shape="round", size=8,
                   points=[[ERV_XF, ERV_N, ERV_Z], [ERV_XF, HP_N - 1.4, ERV_Z], [ERV_XF, HP_N - 1.4, DECK + 1.9]]))
 
 # ------------------------------------------------------------------ attic storage

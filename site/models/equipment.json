@@ -1567,31 +1567,36 @@
    "layer": "mechanical",
    "builder": "erv",
    "size": [
-    19.9,
-    11.4,
-    26.6
+    21.0,
+    20.8,
+    24.8
    ],
    "at": [
     3.405833333333333,
     29.01833333333333,
-    12.285416666666666
+    11.893749999999999
    ],
    "facing": 180,
-   "hang": 53.4,
+   "hang": 48.7,
    "info": {
-    "model": "Panasonic Intelli-Balance 100 (ERV-01 on M-10)",
+    "model": "Broan AI Series 210 ERV, side ports (B210E75RS). Replaces the Panasonic Intelli-Balance 100 that is ERV-01 on M-10",
+    "price": "About $1,580 to $1,790 (11/19/2026)",
     "specs": [
      [
       "Airflow",
-      "50 to 100 CFM balanced, boost from a bath timer switch"
+      "65 to 210 CFM, self balancing. Low all the time, boost from a bathroom timer"
+     ],
+     [
+      "Size",
+      "About 24.8 x 21 x 20.8 in, 47 lb, four 6 in ports"
      ],
      [
       "Ducts",
-      "Exhaust through the west wall beside the unit, intake through the west wall 10 ft further north"
+      "Exhaust through the west wall beside the unit, intake through the west wall 10 ft further north, both 8 in"
      ],
      [
       "Stale air from",
-      "Bath 1, bath 2 and powder exhaust grilles, 20 CFM each continuous, about 50 CFM on boost"
+      "Bath 1, bath 2 and powder exhaust grilles: 20 CFM each all the time, about 80 CFM from each shower room and 30 from the powder room on boost"
      ],
      [
       "Fresh air to",
@@ -1599,21 +1604,28 @@
      ],
      [
       "Mounting",
-      "Hung level on four chains from the roof framing, about 2 ft above the deck (the manual's chain mount)"
+      "Hung level from the roof framing, its underside about 22 in above the deck"
      ],
      [
       "Controls",
-      "Runs continuously on low; a timer switch in each bathroom boosts it; blower interlock wire to the heat pump"
+      "Runs continuously on low; a 20/40/60 minute wall control (Broan VBATHW, about $34) in each bathroom boosts it; blower interlock wire to the heat pump"
+     ]
+    ],
+    "links": [
+     [
+      "Broan B210E75RS",
+      "https://broan-nutone.com/en-us/product/freshairsystems/b210e75rs"
      ]
     ],
     "notes": [
-     "Greg's alternative: RenewAire EV Premium M, about $1,800.",
+     "Maxwell, 11/19/2026: a larger ERV so the bathrooms need no fans of their own. This one unit does all the bath exhaust; the two shower fans, their ducts and their wall hoods are gone. Alternatives: Panasonic Intelli-Balance 200 (about $2,730 to $3,135), RenewAire EV Premium L (30 to 280 CFM).",
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class.",
-     "The bathrooms exhaust through this unit instead of separate fans (Maxwell, 11/17/2026). The code allows it because the ERV sends that air outdoors; it has to run continuously at 20 CFM or more per bathroom (IRC table M1505.4.4).",
-     "Fresh air goes into the supply plenum, not the attic (Maxwell, 11/18/2026). Panasonic's instructions say the furnace blower should run whenever the ERV runs when it is tied into the ductwork, and Building Science Corp. calls for an interlock and a motorized damper on a supply side connection. The heat pump's ECM blower can idle at low speed for this. Andy should confirm the ERV can push against the supply plenum's pressure; the fallback is the return plenum, which the code also counts as supply ventilation (IRC M1505.4.1).",
+     "What to expect: an ERV core hands some moisture back to the incoming air, so it clears a steamy mirror slower than a fan blowing straight outdoors, and boost pulls from all three bathrooms at once. If the bath 1 wet room proves too steamy, a fan on its own duct to the east wall can still be added there. The unit has to run all the time so damp air does not sit in the ducts. The port layout is ASSUMED from the side port model; check Broan's drawing before hanging it.",
+     "The bathrooms exhaust through this unit instead of separate fans (Maxwell, 11/17/2026). The code allows it because the ERV sends that air outdoors; it has to run continuously at 20 CFM or more per bathroom (Ohio 4101:8-15-01, table 1505.4.4), so no bath fan is required.",
+     "Fresh air goes into the supply plenum, not the attic (Maxwell, 11/18/2026). ERV makers' instructions say the furnace blower should run whenever the ERV runs when it is tied into the ductwork, and Building Science Corp. calls for an interlock and a motorized damper on a supply side connection. The heat pump's ECM blower can idle at low speed for this. Andy should confirm the ERV can push against the supply plenum's pressure; the fallback is the return plenum, which the code also counts as supply ventilation (IRC M1505.4.1).",
      "One fan pulls from all three bathrooms, so the whole exhaust duct is under suction and air cannot be pushed from one bathroom into another. Backdraft dampers are for separate fans that share a duct. Each branch gets a balancing damper to set its airflow.",
-     "Set out to Panasonic's installation instructions (Maxwell, 11/18/2026): the two outdoor hoods are more than 10 ft apart, every duct connection has 2 ft or more of straight run before its first elbow, the outdoor ducts are insulated, the unit hangs level on chains inside the conditioned attic, and the intake is well over 6 ft from the dryer and range hood outlets.",
-     "A backdraft damper in the fresh air duct stops the heat pump's blower from pushing supply air backward through the ERV. With the blower off, the ERV's own fan still sends the fresh air down the supply trunk to every register, so it works without the heat pump running. Three baths plus whole house ventilation (about 75 CFM for this size and bedroom count) is near the top of a 100 CFM unit, so Andy should confirm the size. The range hood cannot connect here, it has its own duct outdoors."
+     "Set out to the Panasonic installation instructions the first unit came with (Maxwell, 11/18/2026); check them against Broan's: the two outdoor hoods are more than 10 ft apart, every duct connection has 2 ft or more of straight run before its first elbow, the outdoor ducts are insulated, the unit hangs level on chains inside the conditioned attic, and the intake is well over 6 ft from the dryer and range hood outlets.",
+     "A backdraft damper in the fresh air duct stops the heat pump's blower from pushing supply air backward through the ERV. With the blower off, the ERV's own fan still sends the fresh air down the supply trunk to every register, so it works without the heat pump running. Whole house ventilation is about 75 CFM for this size and bedroom count, and a full boost is about 190 CFM, inside this unit's 210. Andy should confirm the size. The range hood cannot connect here, it has its own duct outdoors."
     ],
     "placement": "In line with the heat pump, just south of it, hung at the height of its top. Andy drew it west of HP-01."
    }
@@ -6281,7 +6293,7 @@
    "system": "hvac.exhaust",
    "type": "exhaust",
    "shape": "round",
-   "size": 4,
+   "size": 6,
    "points": [
     [
      39.7,
@@ -6302,9 +6314,9 @@
    "name": "Bath 1 exhaust",
    "room": "Bath 1",
    "info": {
-    "model": "4 in round exhaust",
+    "model": "6 in round exhaust",
     "notes": [
-     "ERV pickup grille: the ERV pulls 20 CFM from it continuously. The bathrooms with showers also have their own switched fan for steam. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Runs north in one loft floor truss bay, east of the family supply drop, then up onto the deck."
+     "ERV pickup grille: the ERV pulls 20 CFM from it continuously and more on boost, from a timer by the door. There is no separate bath fan (Maxwell, 11/19/2026). Allowed by the Ohio residential code (4101:8-15-01, sections 1501.1 and 1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Runs north in one loft floor truss bay, east of the family supply drop, then up onto the deck."
     ]
    },
    "grilles": [
@@ -6327,7 +6339,7 @@
    "system": "hvac.exhaust",
    "type": "exhaust",
    "shape": "round",
-   "size": 4,
+   "size": 6,
    "points": [
     [
      21.9,
@@ -6343,9 +6355,9 @@
    "name": "Bath 2 exhaust",
    "room": "Bath 2",
    "info": {
-    "model": "4 in round exhaust",
+    "model": "6 in round exhaust",
     "notes": [
-     "ERV pickup grille: the ERV pulls 20 CFM from it continuously. The bathrooms with showers also have their own switched fan for steam. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. High on the east end of the bath 2 south wall, through the attic wall and into the main on top of the supply trunk. It was right beside the supply; the supply now comes in low at the west end of the same wall (Maxwell, 11/18/2026)."
+     "ERV pickup grille: the ERV pulls 20 CFM from it continuously and more on boost, from a timer by the door. There is no separate bath fan (Maxwell, 11/19/2026). Allowed by the Ohio residential code (4101:8-15-01, sections 1501.1 and 1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. High on the east end of the bath 2 south wall, through the attic wall and into the main on top of the supply trunk. It was right beside the supply; the supply now comes in low at the west end of the same wall (Maxwell, 11/18/2026)."
     ]
    },
    "grilles": [
@@ -6407,7 +6419,7 @@
    "info": {
     "model": "4 in round exhaust",
     "notes": [
-     "ERV pickup grille: the ERV pulls 20 CFM from it continuously. The bathrooms with showers also have their own switched fan for steam. Allowed by the Ohio residential code (IRC M1501.1, M1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Comes up through the deck, runs along it and rises into the main just before the ERV."
+     "ERV pickup grille: the ERV pulls 20 CFM from it continuously and more on boost, from a timer by the door. There is no separate bath fan (Maxwell, 11/19/2026). Allowed by the Ohio residential code (4101:8-15-01, sections 1501.1 and 1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Comes up through the deck, runs along it and rises into the main just before the ERV."
     ]
    },
    "grilles": [
@@ -6463,14 +6475,47 @@
      11.675416666666665
     ],
     [
-     3.820833333333333,
+     22.5,
+     11.52,
+     11.675416666666665
+    ]
+   ],
+   "name": "Bath exhaust main",
+   "room": null,
+   "info": {
+    "model": "6 in round exhaust",
+    "notes": [
+     "Collects the three bathroom exhausts. It rides on top of the supply trunk all the way from bath 1's riser, on the side away from the bedroom 1 return, down to the heat pump, crosses over the heat pump's top and goes straight into the ERV's stale air inlet, so it takes no floor space (Maxwell, 11/18/2026). It is 6 in as far as bath 2, where it carries bath 1 alone, and 8 in from there to the ERV for the boost airflow (Maxwell, 11/19/2026: larger ERV, no bath fans). It crosses no trusses. It reduces to the ERV's 6 in port at the unit. ASSUMED route and size."
+    ]
+   }
+  },
+  {
+   "id": "ex_main_w",
+   "category": "Ventilation",
+   "system": "hvac.exhaust",
+   "type": "exhaust",
+   "shape": "round",
+   "size": 8,
+   "points": [
+    [
+     22.5,
      11.52,
      11.675416666666665
     ],
     [
+     22.15,
+     11.52,
+     11.75875
+    ],
+    [
+     3.820833333333333,
+     11.52,
+     11.75875
+    ],
+    [
      3.820833333333333,
      20.401666666666667,
-     11.675416666666665
+     11.75875
     ],
     [
      3.820833333333333,
@@ -6483,117 +6528,7 @@
      12.760416666666666
     ]
    ],
-   "name": "Bath exhaust main",
-   "room": null,
-   "info": {
-    "model": "6 in round exhaust",
-    "notes": [
-     "Collects the three bathroom exhausts. It rides on top of the supply trunk all the way from bath 1's riser, on the side away from the bedroom 1 return, down to the heat pump, crosses over the heat pump's top and goes straight into the ERV's stale air inlet, so it takes no floor space (Maxwell, 11/18/2026). ASSUMED route and size."
-    ]
-   }
-  },
-  {
-   "id": "fan_bath1",
-   "name": "Bath 1 shower fan",
-   "category": "Ventilation",
-   "system": "hvac.exhaust.fan",
-   "type": "exhaust",
-   "shape": "round",
-   "size": 4,
-   "room": "Bath 1",
-   "points": [
-    [
-     41.3,
-     30.6,
-     9.494791666666666
-    ],
-    [
-     43.05,
-     30.6,
-     9.494791666666666
-    ]
-   ],
-   "grilles": [
-    {
-     "at": [
-      41.3,
-      30.6,
-      8.98
-     ],
-     "size": [
-      10,
-      10
-     ]
-    }
-   ],
-   "info": {
-    "model": "Bath exhaust fan, 80 to 110 CFM class, 4 in duct",
-    "specs": [
-     [
-      "Runs",
-      "Only when switched on for a shower"
-     ],
-     [
-      "Duct",
-      "About 2 ft east through the floor trusses to a hood on the east wall. ASSUMED"
-     ]
-    ],
-    "notes": [
-     "Its own duct straight outdoors with a backdraft damper at the hood, not tied into the ERV duct. Switched on for showers, on a timer or humidity control. 50 CFM or more meets the code's intermittent rate (IRC table M1505.4.4); 80 to 110 CFM clears steam faster. The ERV pickup in the same room keeps running at a low rate. Model not picked."
-    ]
-   }
-  },
-  {
-   "id": "fan_bath2",
-   "name": "Bath 2 shower fan",
-   "category": "Ventilation",
-   "system": "hvac.exhaust.fan",
-   "type": "exhaust",
-   "shape": "round",
-   "size": 4,
-   "room": "Bath 2",
-   "points": [
-    [
-     21.2,
-     0.55,
-     8.3
-    ],
-    [
-     21.2,
-     -0.05,
-     8.3
-    ]
-   ],
-   "grilles": [
-    {
-     "at": [
-      21.2,
-      0.52,
-      8.3
-     ],
-     "size": [
-      10,
-      10
-     ],
-     "wall": "S"
-    }
-   ],
-   "info": {
-    "model": "Bath exhaust fan, 80 to 110 CFM class, 4 in duct",
-    "specs": [
-     [
-      "Runs",
-      "Only when switched on for a shower"
-     ],
-     [
-      "Duct",
-      "Through the wall fan high on the north wall at the tub's valve end, east of the window: the vaulted SIP roof has no cavity for a ceiling fan. ASSUMED"
-     ]
-    ],
-    "notes": [
-     "Its own duct straight outdoors with a backdraft damper at the hood, not tied into the ERV duct. Switched on for showers, on a timer or humidity control. 50 CFM or more meets the code's intermittent rate (IRC table M1505.4.4); 80 to 110 CFM clears steam faster. The ERV pickup in the same room keeps running at a low rate. Model not picked."
-    ]
-   }
+   "info_of": "ex_main"
   },
   {
    "id": "hpwh_intake",
@@ -6767,31 +6702,31 @@
    "info_of": "erv",
    "type": "erv",
    "shape": "round",
-   "size": 6,
+   "size": 8,
    "points": [
     [
      2.990833333333333,
-     31.235,
+     31.084999999999997,
      12.760416666666666
     ],
     [
      2.990833333333333,
-     31.835,
+     31.685,
      12.760416666666666
     ],
     [
      0.85,
-     31.835,
+     31.685,
      12.760416666666666
     ],
     [
      0.85,
-     23.035,
+     22.884999999999994,
      12.760416666666666
     ],
     [
      -0.05,
-     23.035,
+     22.884999999999994,
      12.760416666666666
     ]
    ]
@@ -6801,21 +6736,21 @@
    "info_of": "erv",
    "type": "erv",
    "shape": "round",
-   "size": 6,
+   "size": 8,
    "points": [
     [
      3.820833333333333,
-     31.235,
+     31.084999999999997,
      12.760416666666666
     ],
     [
      3.820833333333333,
-     33.835,
+     33.684999999999995,
      12.760416666666666
     ],
     [
      -0.05,
-     33.835,
+     33.684999999999995,
      12.760416666666666
     ]
    ]
@@ -6825,7 +6760,7 @@
    "info_of": "erv",
    "type": "erv",
    "shape": "round",
-   "size": 6,
+   "size": 8,
    "points": [
     [
      2.990833333333333,
