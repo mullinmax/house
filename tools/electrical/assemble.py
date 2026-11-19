@@ -10,8 +10,7 @@ NOTE={45:"Marked RANGE on U-11. The kitchen now has the LG induction cooktop on 
       72:"Floor outlet, U-11 says to confirm with the owner.",
       13:"Behind the living room TV. U-11: 72 in to the TV, confirm with the owner.",
       15:"Behind the entry and family room TV. U-11: 72 in to the TV, confirm with the owner.",
-      108:"U-11's utility room outlet, beside the pressure tank: handy for the UV sterilizer and well controls. The stick vacuum has its own added outlet by its dock in the northeast corner.",
-      94:"The study booster fan has its own high outlet box on this wall (not on U-11)."}
+      108:"U-11's utility room outlet, beside the pressure tank: handy for the UV sterilizer and well controls. The stick vacuum has its own added outlet by its dock in the northeast corner."}
 dev=[]
 def add(**k): dev.append(k)
 SKIP={8,9,10,11}   # the four switches U-11 puts behind the loft ladder: one 4 gang plate west of it instead (Maxwell, 11/19/2026)
