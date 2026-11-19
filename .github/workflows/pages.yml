@@ -1,5 +1,11 @@
 name: Deploy walkthrough to GitHub Pages
 # The only workflow that deploys Pages. A second one (like the starter static.yml) races this and can leave /house/ empty.
+#
+# Why build and deploy are separate jobs: deploy-pages looks up the "github-pages"
+# artifact through the Actions API. When it ran in the same job, a fraction of a
+# second after the upload, that lookup sometimes came back empty ("Found 0
+# artifact(s)") even though the upload had succeeded. A job boundary gives the
+# artifact time to show up, and the deploy step retries once more after a pause.
 
 on:
   push:
@@ -12,21 +18,47 @@ permissions:
   pages: write
   id-token: write
 
+# One deploy at a time. A deploy that is already running is allowed to finish
+# (cancelling one midway can leave Pages in a bad state). If several PRs merge
+# while it runs, only the newest waiting run is kept, so the site ends on the
+# latest main without a pile of stale deploys.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
-  deploy:
+  build:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
           path: site
-      - id: deployment
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy_retry.outputs.page_url || steps.deploy.outputs.page_url }}
+    steps:
+      - id: deploy
         uses: actions/deploy-pages@v4
+        continue-on-error: true
+        with:
+          timeout: 600000
+
+      - name: Wait before retrying a failed deploy
+        if: steps.deploy.outcome == 'failure'
+        run: |
+          echo "::warning::First deploy attempt failed, retrying in 30 seconds"
+          sleep 30
+
+      - id: deploy_retry
+        if: steps.deploy.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+        with:
+          timeout: 600000
