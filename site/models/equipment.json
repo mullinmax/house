@@ -4,7 +4,7 @@
   "generated_by": "model/make_equipment.py",
   "sources": [
    "M-10 mechanical plan 07/30/2026 (preliminary)",
-   "U-11 sealed plan",
+   "U-11 and U-12 sealed utility plans",
    "Geo-Hydro quotes MMUL8476-4 and MMUL8476-5",
    "Appliance shortlist 11/15/2026"
   ],
@@ -2154,6 +2154,5102 @@
     "notes": [
      "A low voltage cable or a box here at rough in keeps the option of a wired sensor. A battery Zigbee or Thread sensor works with no wiring.",
      "Pseudo zone, for Home Assistant later: a temperature sensor in the study against the thermostat's reading. Cooling or fan on and the study 2 F or more above the house: booster on, speed rising with the difference. Heating and the study warm: booster off and the damper closes to its minimum stop, so the computers heat the room instead of the heat pump. The heat pump blower still has to be running for the booster to bring conditioned air; with the blower off it only pulls house air back through the trunk. ASSUMED control plan."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_01",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Bedroom 3",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    11.863,
+    15.574,
+    3.479
+   ],
+   "facing": 270,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 0).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_02",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Bedroom 3",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    11.863,
+    14.87,
+    3.479
+   ],
+   "facing": 270,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 1).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_03",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Bedroom 2",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    11.721,
+    10.616,
+    3.479
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 2).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_04",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Bedroom 2",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    12.424,
+    10.616,
+    3.479
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 3).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_05",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Bedroom 4 / study",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    26.333,
+    10.616,
+    3.479
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 4).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_06",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Bedroom 4 / study",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    27.036,
+    10.616,
+    3.479
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 5).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_07",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Bedroom 1",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    30.893,
+    10.916,
+    3.479
+   ],
+   "facing": 180,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 6).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_08",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Bedroom 1",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    30.19,
+    10.916,
+    3.479
+   ],
+   "facing": 180,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 7).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_09",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Living",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    27.491,
+    34.583,
+    3.479
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 8).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_10",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Living",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    29.582,
+    34.583,
+    3.479
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 9).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_11",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Living",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    28.176,
+    34.583,
+    3.479
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 10).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_12",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Living",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    28.879,
+    34.583,
+    3.479
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 11).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_data_01",
+   "name": "TV cable and data outlet, 72 in",
+   "category": "Low voltage",
+   "system": "low_voltage",
+   "room": "Living",
+   "layer": "lowvolt",
+   "builder": "data_jack",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    31.167,
+    28.338,
+    5.812
+   ],
+   "facing": 270,
+   "info": {
+    "model": "Cable TV and CAT-5 outlet (U-11 legend). CAT-6 costs about the same now and is worth asking for",
+    "specs": [
+     [
+      "Height",
+      "72 in to the centre"
+     ],
+     [
+      "Jacks",
+      "Coax and one network jack, ASSUMED"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 12).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
+    ]
+   }
+  },
+  {
+   "id": "elec_tv_01",
+   "name": "TV mount",
+   "category": "Low voltage",
+   "system": "low_voltage",
+   "room": "Living",
+   "layer": "lowvolt",
+   "builder": "tv_mount",
+   "size": [
+    24,
+    16,
+    1.6
+   ],
+   "at": [
+    31.167,
+    28.338,
+    5.333
+   ],
+   "facing": 270,
+   "info": {
+    "model": "Flat screen TV mount at 72 in, wall blocking behind it, 2 in sleeve down to a single gang box (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "72 in to the TV centre, confirm with the owner"
+     ],
+     [
+      "Blocking",
+      "Needed in the wall before drywall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 12).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "The bracket is drawn generic: the TV and its mount are not picked yet. A recessed power and cable box behind the TV hides the cords."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_01",
+   "name": "Outlet by the TV, 72 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Living",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    31.167,
+    29.151,
+    5.812
+   ],
+   "facing": 270,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "72 in to the centre"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Behind the living room TV. U-11: 72 in to the TV, confirm with the owner.",
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 13).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_data_02",
+   "name": "TV cable and data outlet, 72 in",
+   "category": "Low voltage",
+   "system": "low_voltage",
+   "room": "Entry / family",
+   "layer": "lowvolt",
+   "builder": "data_jack",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    42.542,
+    49.246,
+    5.812
+   ],
+   "facing": 270,
+   "info": {
+    "model": "Cable TV and CAT-5 outlet (U-11 legend). CAT-6 costs about the same now and is worth asking for",
+    "specs": [
+     [
+      "Height",
+      "72 in to the centre"
+     ],
+     [
+      "Jacks",
+      "Coax and one network jack, ASSUMED"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 14).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
+    ]
+   }
+  },
+  {
+   "id": "elec_tv_02",
+   "name": "TV mount",
+   "category": "Low voltage",
+   "system": "low_voltage",
+   "room": "Entry / family",
+   "layer": "lowvolt",
+   "builder": "tv_mount",
+   "size": [
+    24,
+    16,
+    1.6
+   ],
+   "at": [
+    42.542,
+    49.246,
+    5.333
+   ],
+   "facing": 270,
+   "info": {
+    "model": "Flat screen TV mount at 72 in, wall blocking behind it, 2 in sleeve down to a single gang box (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "72 in to the TV centre, confirm with the owner"
+     ],
+     [
+      "Blocking",
+      "Needed in the wall before drywall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 14).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "The bracket is drawn generic: the TV and its mount are not picked yet. A recessed power and cable box behind the TV hides the cords."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_02",
+   "name": "Outlet by the TV, 72 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Entry / family",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    42.542,
+    50.059,
+    5.812
+   ],
+   "facing": 270,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "72 in to the centre"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Behind the entry and family room TV. U-11: 72 in to the TV, confirm with the owner.",
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 15).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_smoke_01",
+   "name": "Smoke and CO alarm",
+   "category": "Electrical",
+   "system": "electrical.life_safety",
+   "room": "Hall 2",
+   "layer": "electrical",
+   "builder": "smoke_alarm",
+   "size": [
+    5.5,
+    1.8,
+    5.5
+   ],
+   "at": [
+    19.949,
+    12.957,
+    9.0
+   ],
+   "facing": 0,
+   "info": {
+    "model": "120 V combination smoke and carbon monoxide alarm, battery backup, interconnected (NFPA 72)",
+    "specs": [
+     [
+      "Where",
+      "Ceiling"
+     ],
+     [
+      "Power",
+      "Hard wired, battery backup, interconnected"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 16).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
+    ]
+   }
+  },
+  {
+   "id": "elec_smoke_02",
+   "name": "Smoke and CO alarm",
+   "category": "Electrical",
+   "system": "electrical.life_safety",
+   "room": "Bedroom 1",
+   "layer": "electrical",
+   "builder": "smoke_alarm",
+   "size": [
+    5.5,
+    1.8,
+    5.5
+   ],
+   "at": [
+    28.971,
+    12.978,
+    13.131
+   ],
+   "facing": 0,
+   "info": {
+    "model": "120 V combination smoke and carbon monoxide alarm, battery backup, interconnected (NFPA 72)",
+    "specs": [
+     [
+      "Where",
+      "Ceiling"
+     ],
+     [
+      "Power",
+      "Hard wired, battery backup, interconnected"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 17).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
+    ]
+   }
+  },
+  {
+   "id": "elec_smoke_03",
+   "name": "Smoke and CO alarm",
+   "category": "Electrical",
+   "system": "electrical.life_safety",
+   "room": "Bedroom 4 / study",
+   "layer": "electrical",
+   "builder": "smoke_alarm",
+   "size": [
+    5.5,
+    1.8,
+    5.5
+   ],
+   "at": [
+    24.769,
+    10.156,
+    12.233
+   ],
+   "facing": 0,
+   "info": {
+    "model": "120 V combination smoke and carbon monoxide alarm, battery backup, interconnected (NFPA 72)",
+    "specs": [
+     [
+      "Where",
+      "Ceiling"
+     ],
+     [
+      "Power",
+      "Hard wired, battery backup, interconnected"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 18).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
+    ]
+   }
+  },
+  {
+   "id": "elec_smoke_04",
+   "name": "Smoke and CO alarm",
+   "category": "Electrical",
+   "system": "electrical.life_safety",
+   "room": "Bedroom 2",
+   "layer": "electrical",
+   "builder": "smoke_alarm",
+   "size": [
+    5.5,
+    1.8,
+    5.5
+   ],
+   "at": [
+    14.161,
+    10.156,
+    12.233
+   ],
+   "facing": 0,
+   "info": {
+    "model": "120 V combination smoke and carbon monoxide alarm, battery backup, interconnected (NFPA 72)",
+    "specs": [
+     [
+      "Where",
+      "Ceiling"
+     ],
+     [
+      "Power",
+      "Hard wired, battery backup, interconnected"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 19).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
+    ]
+   }
+  },
+  {
+   "id": "elec_smoke_05",
+   "name": "Smoke and CO alarm",
+   "category": "Electrical",
+   "system": "electrical.life_safety",
+   "room": "Bedroom 3",
+   "layer": "electrical",
+   "builder": "smoke_alarm",
+   "size": [
+    5.5,
+    1.8,
+    5.5
+   ],
+   "at": [
+    11.442,
+    12.978,
+    9.0
+   ],
+   "facing": 0,
+   "info": {
+    "model": "120 V combination smoke and carbon monoxide alarm, battery backup, interconnected (NFPA 72)",
+    "specs": [
+     [
+      "Where",
+      "Ceiling"
+     ],
+     [
+      "Power",
+      "Hard wired, battery backup, interconnected"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 20).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
+    ]
+   }
+  },
+  {
+   "id": "elec_smoke_06",
+   "name": "Smoke and CO alarm",
+   "category": "Electrical",
+   "system": "electrical.life_safety",
+   "room": "Hall 1",
+   "layer": "electrical",
+   "builder": "smoke_alarm",
+   "size": [
+    5.5,
+    1.8,
+    5.5
+   ],
+   "at": [
+    14.47,
+    33.926,
+    19.8
+   ],
+   "facing": 0,
+   "info": {
+    "model": "120 V combination smoke and carbon monoxide alarm, battery backup, interconnected (NFPA 72)",
+    "specs": [
+     [
+      "Where",
+      "Ceiling"
+     ],
+     [
+      "Power",
+      "Hard wired, battery backup, interconnected"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 21).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_13",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Bedroom 3",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    4.985,
+    10.916,
+    3.479
+   ],
+   "facing": 180,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 22).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_14",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Bedroom 2",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    5.917,
+    4.839,
+    3.479
+   ],
+   "facing": 90,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 23).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_15",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Bath 2",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    20.592,
+    10.625,
+    3.479
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 24).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_16",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Hall 2",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    27.137,
+    10.916,
+    3.479
+   ],
+   "facing": 180,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 25).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_17",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Hall 1",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    12.167,
+    34.02,
+    3.479
+   ],
+   "facing": 90,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 26).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_18",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Powder",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    11.709,
+    32.725,
+    3.479
+   ],
+   "facing": 270,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 27).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_19",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Bath 1",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    37.658,
+    22.833,
+    3.479
+   ],
+   "facing": 180,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 28).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_20",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Bath 1",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    37.592,
+    28.916,
+    3.479
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 29).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_21",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Bath 1",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    38.167,
+    27.411,
+    3.479
+   ],
+   "facing": 270,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 30).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_22",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Closet 1",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    37.084,
+    16.153,
+    3.479
+   ],
+   "facing": 270,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 31).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_23",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Laundry",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    20.176,
+    15.458,
+    3.479
+   ],
+   "facing": 180,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 32).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_24",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Laundry",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    30.404,
+    15.458,
+    3.479
+   ],
+   "facing": 180,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 33).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_25",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Closet 1",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    37.084,
+    21.911,
+    3.479
+   ],
+   "facing": 270,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 34).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_26",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Hall 1",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    12.167,
+    33.269,
+    3.479
+   ],
+   "facing": 90,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 35).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_27",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    0.542,
+    41.431,
+    3.479
+   ],
+   "facing": 90,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 36).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_28",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    0.542,
+    42.173,
+    3.479
+   ],
+   "facing": 90,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 37).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_29",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    0.542,
+    36.171,
+    3.479
+   ],
+   "facing": 90,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 38).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_30",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Entry / family",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    42.542,
+    36.443,
+    3.479
+   ],
+   "facing": 270,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 39).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_31",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Entry / family",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    42.542,
+    37.163,
+    3.479
+   ],
+   "facing": 270,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 40).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_32",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    0.542,
+    42.887,
+    3.479
+   ],
+   "facing": 90,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 41).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_33",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Dining",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    17.063,
+    51.458,
+    3.479
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 42).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_34",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Living",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    16.709,
+    23.322,
+    3.479
+   ],
+   "facing": 90,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 43).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_35",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Utility",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    11.709,
+    27.449,
+    3.479
+   ],
+   "facing": 270,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 44).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_03",
+   "name": "240 V outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    0.542,
+    47.139,
+    1.146
+   ],
+   "facing": 90,
+   "gfi": false,
+   "wp": false,
+   "volts": 240,
+   "info": {
+    "model": "240 V receptacle",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Marked RANGE on U-11. The kitchen now has the LG induction cooktop on this wall and the Frigidaire wall oven in the tower, both 240 V, so this circuit and a second one for the oven get set by the cabinet layout.",
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 45).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_04",
+   "name": "Outlet GFI, 44 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    0.572,
+    43.628,
+    3.479
+   ],
+   "facing": 90,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 46).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_05",
+   "name": "Outlet, 44 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    0.572,
+    45.066,
+    3.479
+   ],
+   "facing": 90,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Marked M/W on U-11, for a microwave. The microwave is now the Breville on the fridge wall counter (or a cubby), so this one may move.",
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 47).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_06",
+   "name": "Outlet GFI, 44 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    0.572,
+    48.191,
+    3.479
+   ],
+   "facing": 90,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 48).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_07",
+   "name": "Outlet GFI, 44 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    2.109,
+    51.416,
+    3.479
+   ],
+   "facing": 0,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 49).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_08",
+   "name": "Outlet GFI, 44 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    4.875,
+    51.416,
+    3.479
+   ],
+   "facing": 0,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 50).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_09",
+   "name": "Outlet GFI, 44 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    13.563,
+    51.416,
+    3.479
+   ],
+   "facing": 0,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 51).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_10",
+   "name": "Outlet GFI, 24 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    13.9,
+    46.085,
+    1.812
+   ],
+   "facing": 90,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "24 in to the centre"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "U-11 puts a 24 in GFI on the island's east end. The beverage fridge now fills most of that end, so it is shown on the narrow end panel beside it. Move it to a side of the island if the panel is too narrow.",
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 52).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_11",
+   "name": "Outlet GFI, 24 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    6.0,
+    44.11,
+    1.812
+   ],
+   "facing": 270,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "24 in to the centre"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "24 in GFI on the island's west end, per U-11.",
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 53).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_12",
+   "name": "Outlet GFI, 44 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    8.735,
+    35.083,
+    3.479
+   ],
+   "facing": 180,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 54).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_13",
+   "name": "Outlet GFI, 44 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    10.797,
+    35.083,
+    3.479
+   ],
+   "facing": 180,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 55).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_14",
+   "name": "Outlet GFI, 44 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Utility",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    7.328,
+    28.541,
+    3.479
+   ],
+   "facing": 180,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 56).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_15",
+   "name": "Outlet GFI, 44 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bath 1",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    31.667,
+    25.405,
+    3.479
+   ],
+   "facing": 90,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 57).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_16",
+   "name": "Outlet GFI, 44 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bath 1",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    42.5,
+    25.494,
+    3.479
+   ],
+   "facing": 270,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 58).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_17",
+   "name": "Outlet GFI, 44 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bath 2",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    21.551,
+    10.625,
+    3.479
+   ],
+   "facing": 0,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 59).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_18",
+   "name": "Outlet GFI, 44 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Utility",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    3.056,
+    28.5,
+    3.479
+   ],
+   "facing": 180,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 60).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_19",
+   "name": "Outlet GFI, 44 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Pantry",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    5.495,
+    32.326,
+    3.479
+   ],
+   "facing": 270,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 61).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_20",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Living",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    28.31,
+    22.966,
+    1.146
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 62).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_21",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Living",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    21.487,
+    22.966,
+    1.146
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 63).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_22",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Living",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    16.709,
+    30.377,
+    1.146
+   ],
+   "facing": 90,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 64).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_23",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Living",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    18.96,
+    34.583,
+    1.146
+   ],
+   "facing": 0,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 65).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_24",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bath 1",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    32.738,
+    33.11,
+    1.146
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 66).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_25",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bath 1",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    34.734,
+    33.11,
+    1.146
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 67).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_26",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bath 1",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    36.695,
+    33.11,
+    1.146
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 68).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_27",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bath 1",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    38.689,
+    33.11,
+    1.146
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 69).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_28",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Entry / family",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    42.542,
+    44.401,
+    1.146
+   ],
+   "facing": 270,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 70).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_29",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Entry / family",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    35.646,
+    51.458,
+    1.146
+   ],
+   "facing": 0,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 71).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_floor_01",
+   "name": "Floor outlet",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Dining",
+   "layer": "electrical",
+   "builder": "floor_box",
+   "size": [
+    4.6,
+    0.15,
+    4.6
+   ],
+   "at": [
+    31.434,
+    43.899,
+    0.0
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Flush floor box with a brass cover, 120 V duplex",
+    "specs": [
+     [
+      "Where",
+      "In the slab, dining room"
+     ]
+    ],
+    "notes": [
+     "Floor outlet, U-11 says to confirm with the owner.",
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 72).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_30",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Hall 1",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    16.25,
+    30.06,
+    1.146
+   ],
+   "facing": 270,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 73).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_31",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Linen",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    16.25,
+    16.827,
+    1.146
+   ],
+   "facing": 270,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 74).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_32",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Hall 2",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    22.146,
+    10.916,
+    1.146
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 75).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_33",
+   "name": "Outlet GFI, 44 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Laundry",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    16.75,
+    16.824,
+    3.479
+   ],
+   "facing": 90,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 76).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_34",
+   "name": "Outlet GFI, 44 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Laundry",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    24.487,
+    22.333,
+    3.479
+   ],
+   "facing": 0,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 77).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_35",
+   "name": "Outlet GFI, 44 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Laundry",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    29.539,
+    22.333,
+    3.479
+   ],
+   "facing": 0,
+   "gfi": true,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, GFCI",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 78).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_data_03",
+   "name": "Cable TV and network outlet, 16 in",
+   "category": "Low voltage",
+   "system": "low_voltage",
+   "room": "Bedroom 3",
+   "layer": "lowvolt",
+   "builder": "data_jack",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    11.875,
+    17.363,
+    1.146
+   ],
+   "facing": 270,
+   "info": {
+    "model": "Cable TV and CAT-5 outlet (U-11 legend). CAT-6 costs about the same now and is worth asking for",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre"
+     ],
+     [
+      "Jacks",
+      "Coax and one network jack, ASSUMED"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 79).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_36",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 3",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    11.875,
+    18.176,
+    1.146
+   ],
+   "facing": 270,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 80).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_37",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 3",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    6.696,
+    22.375,
+    1.146
+   ],
+   "facing": 0,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 81).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_38",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 3",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    0.542,
+    19.574,
+    1.146
+   ],
+   "facing": 90,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 82).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_39",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 3",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    0.542,
+    13.31,
+    1.146
+   ],
+   "facing": 90,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 83).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_40",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 3",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    7.392,
+    10.916,
+    1.146
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 84).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_41",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 2",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    11.062,
+    0.541,
+    1.146
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 85).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_data_04",
+   "name": "Cable TV and network outlet, 16 in",
+   "category": "Low voltage",
+   "system": "low_voltage",
+   "room": "Bedroom 2",
+   "layer": "lowvolt",
+   "builder": "data_jack",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    9.238,
+    10.625,
+    1.146
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Cable TV and CAT-5 outlet (U-11 legend). CAT-6 costs about the same now and is worth asking for",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre"
+     ],
+     [
+      "Jacks",
+      "Coax and one network jack, ASSUMED"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 86).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_42",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 2",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    8.424,
+    10.625,
+    1.146
+   ],
+   "facing": 0,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 87).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_43",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 2",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    5.917,
+    7.548,
+    1.146
+   ],
+   "facing": 90,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 88).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_44",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 2",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    16.0,
+    6.315,
+    1.146
+   ],
+   "facing": 270,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 89).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_data_05",
+   "name": "Cable TV and network outlet, 16 in",
+   "category": "Low voltage",
+   "system": "low_voltage",
+   "room": "Bedroom 4 / study",
+   "layer": "lowvolt",
+   "builder": "data_jack",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    31.167,
+    7.548,
+    1.146
+   ],
+   "facing": 270,
+   "info": {
+    "model": "Cable TV and CAT-5 outlet (U-11 legend). CAT-6 costs about the same now and is worth asking for",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre"
+     ],
+     [
+      "Jacks",
+      "Coax and one network jack, ASSUMED"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 90).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_45",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 4 / study",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    31.167,
+    8.361,
+    1.146
+   ],
+   "facing": 270,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 91).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_46",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 4 / study",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    31.167,
+    3.344,
+    1.146
+   ],
+   "facing": 270,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 92).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_47",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 4 / study",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    27.098,
+    0.541,
+    1.146
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 93).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_48",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 4 / study",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    23.084,
+    5.103,
+    1.146
+   ],
+   "facing": 90,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "The study booster fan has its own high outlet box on this wall (not on U-11).",
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 94).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_49",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 4 / study",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    27.997,
+    10.625,
+    1.146
+   ],
+   "facing": 0,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 95).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_50",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 1",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    39.637,
+    15.0,
+    1.146
+   ],
+   "facing": 0,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 96).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_data_06",
+   "name": "Cable TV and network outlet, 16 in",
+   "category": "Low voltage",
+   "system": "low_voltage",
+   "room": "Bedroom 1",
+   "layer": "lowvolt",
+   "builder": "data_jack",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    31.459,
+    5.674,
+    1.146
+   ],
+   "facing": 90,
+   "info": {
+    "model": "Cable TV and CAT-5 outlet (U-11 legend). CAT-6 costs about the same now and is worth asking for",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre"
+     ],
+     [
+      "Jacks",
+      "Coax and one network jack, ASSUMED"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 97).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_51",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 1",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    31.459,
+    6.487,
+    1.146
+   ],
+   "facing": 90,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 98).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_52",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 1",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    33.28,
+    0.541,
+    1.146
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 99).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_53",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 1",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    40.956,
+    0.541,
+    1.146
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 100).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_54",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 1",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    42.542,
+    3.505,
+    1.146
+   ],
+   "facing": 270,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 101).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_55",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bedroom 1",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    42.542,
+    12.174,
+    1.146
+   ],
+   "facing": 270,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 102).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_56",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Closet 1",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    37.084,
+    17.077,
+    1.146
+   ],
+   "facing": 270,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 103).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_57",
+   "name": "Outdoor outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Outside",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    43.084,
+    36.903,
+    1.146
+   ],
+   "facing": 90,
+   "gfi": true,
+   "wp": true,
+   "volts": 120,
+   "info": {
+    "model": "Weatherproof GFCI receptacle with an in use cover",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 104).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_58",
+   "name": "Outdoor outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Outside",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    -0.039,
+    36.903,
+    1.146
+   ],
+   "facing": 270,
+   "gfi": true,
+   "wp": true,
+   "volts": 120,
+   "info": {
+    "model": "Weatherproof GFCI receptacle with an in use cover",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 105).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_59",
+   "name": "Outdoor outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Outside",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    15.235,
+    52.0,
+    1.146
+   ],
+   "facing": 180,
+   "gfi": true,
+   "wp": true,
+   "volts": 120,
+   "info": {
+    "model": "Weatherproof GFCI receptacle with an in use cover",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 106).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_60",
+   "name": "Outdoor outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Outside",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    32.886,
+    52.0,
+    1.146
+   ],
+   "facing": 180,
+   "gfi": true,
+   "wp": true,
+   "volts": 120,
+   "info": {
+    "model": "Weatherproof GFCI receptacle with an in use cover",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 107).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_61",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Utility",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    6.696,
+    22.833,
+    1.146
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "The stick vacuum dock planned on this wall about 9 in east of here can plug into this outlet.",
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 108).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_62",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Laundry",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    27.369,
+    15.458,
+    1.146
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 109).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_63",
+   "name": "Special outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Attic",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    20.987,
+    22.37,
+    11.198
+   ],
+   "facing": 0,
+   "gfi": false,
+   "wp": false,
+   "volts": 240,
+   "info": {
+    "model": "Dedicated circuit for the equipment, sized to its nameplate, disconnect if it needs one",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "For the heat pump in the attic, per U-12. The equipment itself sits elsewhere in the attic now, so this moves to suit it.",
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 0).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_64",
+   "name": "Special outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Attic",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    28.767,
+    22.37,
+    11.198
+   ],
+   "facing": 0,
+   "gfi": false,
+   "wp": false,
+   "volts": 240,
+   "info": {
+    "model": "Dedicated circuit for the equipment, sized to its nameplate, disconnect if it needs one",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "For the ERV in the attic, per U-12. The equipment itself sits elsewhere in the attic now, so this moves to suit it.",
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 1).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_36",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Loft",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    31.857,
+    34.571,
+    13.531
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 2).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_data_07",
+   "name": "Cable TV and network outlet, 16 in",
+   "category": "Low voltage",
+   "system": "low_voltage",
+   "room": "Loft",
+   "layer": "lowvolt",
+   "builder": "data_jack",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    31.29,
+    28.293,
+    11.198
+   ],
+   "facing": 90,
+   "info": {
+    "model": "Cable TV and CAT-5 outlet (U-11 legend). CAT-6 costs about the same now and is worth asking for",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre"
+     ],
+     [
+      "Jacks",
+      "Coax and one network jack, ASSUMED"
+     ]
+    ],
+    "notes": [
+     "U-12 shows a 36 in pony wall along the loft's west edge here. The model has an open railing, so this needs a short pony wall, a post mounted box or a floor box.",
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 3).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_65",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Loft",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    31.29,
+    29.106,
+    11.198
+   ],
+   "facing": 90,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The east facing wall"
+     ]
+    ],
+    "notes": [
+     "U-12 shows a 36 in pony wall along the loft's west edge here. The model has an open railing, so this needs a short pony wall, a post mounted box or a floor box.",
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 4).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_66",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Loft",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    35.599,
+    22.832,
+    11.198
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 5).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_67",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Loft",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    42.543,
+    28.824,
+    11.198
+   ],
+   "facing": 270,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 6).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_68",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Loft",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    36.53,
+    34.584,
+    11.198
+   ],
+   "facing": 0,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 7).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_69",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Attic",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    34.491,
+    15.457,
+    11.198
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 8).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_70",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Attic",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    29.644,
+    22.376,
+    11.198
+   ],
+   "facing": 0,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 9).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_71",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Attic",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    17.553,
+    22.376,
+    11.198
+   ],
+   "facing": 0,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 10).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_72",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Attic",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    20.847,
+    10.915,
+    11.198
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 11).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_37",
+   "name": "Light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Attic",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    38.298,
+    22.363,
+    13.531
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Wall switch with a dimmer (U-11 legend)",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 12).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_smoke_07",
+   "name": "Smoke and CO alarm",
+   "category": "Electrical",
+   "system": "electrical.life_safety",
+   "room": "Loft",
+   "layer": "electrical",
+   "builder": "smoke_alarm",
+   "size": [
+    5.5,
+    1.8,
+    5.5
+   ],
+   "at": [
+    35.364,
+    33.926,
+    19.8
+   ],
+   "facing": 0,
+   "info": {
+    "model": "120 V combination smoke and carbon monoxide alarm, battery backup, interconnected (NFPA 72)",
+    "specs": [
+     [
+      "Where",
+      "Ceiling"
+     ],
+     [
+      "Power",
+      "Hard wired, battery backup, interconnected"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 13).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
+    ]
+   }
+  },
+  {
+   "id": "elec_smoke_08",
+   "name": "Smoke and CO alarm",
+   "category": "Electrical",
+   "system": "electrical.life_safety",
+   "room": "Attic",
+   "layer": "electrical",
+   "builder": "smoke_alarm",
+   "size": [
+    5.5,
+    1.8,
+    5.5
+   ],
+   "at": [
+    19.631,
+    21.728,
+    15.917
+   ],
+   "facing": 0,
+   "info": {
+    "model": "120 V combination smoke and carbon monoxide alarm, battery backup, interconnected (NFPA 72)",
+    "specs": [
+     [
+      "Where",
+      "Underside of the roof in the attic"
+     ],
+     [
+      "Power",
+      "Hard wired, battery backup, interconnected"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 14).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
+    ]
+   }
+  },
+  {
+   "id": "elec_smoke_09",
+   "name": "Smoke and CO alarm",
+   "category": "Electrical",
+   "system": "electrical.life_safety",
+   "room": "Attic",
+   "layer": "electrical",
+   "builder": "smoke_alarm",
+   "size": [
+    5.5,
+    1.8,
+    5.5
+   ],
+   "at": [
+    6.918,
+    33.952,
+    19.808
+   ],
+   "facing": 0,
+   "info": {
+    "model": "120 V combination smoke and carbon monoxide alarm, battery backup, interconnected (NFPA 72)",
+    "specs": [
+     [
+      "Where",
+      "Underside of the roof in the attic"
+     ],
+     [
+      "Power",
+      "Hard wired, battery backup, interconnected"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 15).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_73",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Attic",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    8.871,
+    10.915,
+    11.198
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 16).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+    ]
+   }
+  },
+  {
+   "id": "elec_outlet_74",
+   "name": "Outlet, 16 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Attic",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    11.71,
+    28.932,
+    11.198
+   ],
+   "facing": 270,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 17).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
    }
   }

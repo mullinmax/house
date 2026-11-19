@@ -1,0 +1,1183 @@
+{
+ "source": "Sealed plan set 06/14/2026 (Moonlight Architecture), sheets U-11 main level and U-12 upper level utility plans. Positions read from the PDF's vector symbols at 1/4 in = 1 ft, plan feet from the outside NW slab corner. facing = compass direction the device faces. z_in = inches above that level's floor to the centre.",
+ "heights": {
+  "outlet_default_in": 16,
+  "note": "Plain outlets 16 in per the U-11 legend (Maxwell's pick 11/19/2026). U-11 note 27 says 24 in and the G sheet notes say 18 in."
+ },
+ "devices": [
+  {
+   "kind": "switch",
+   "x": 11.863,
+   "y": 15.574,
+   "z_in": 44,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #0"
+  },
+  {
+   "kind": "switch",
+   "x": 11.863,
+   "y": 14.87,
+   "z_in": 44,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #1"
+  },
+  {
+   "kind": "switch",
+   "x": 11.721,
+   "y": 10.616,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #2"
+  },
+  {
+   "kind": "switch",
+   "x": 12.424,
+   "y": 10.616,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #3"
+  },
+  {
+   "kind": "switch",
+   "x": 26.333,
+   "y": 10.616,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #4"
+  },
+  {
+   "kind": "switch",
+   "x": 27.036,
+   "y": 10.616,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #5"
+  },
+  {
+   "kind": "switch",
+   "x": 30.893,
+   "y": 10.916,
+   "z_in": 44,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #6"
+  },
+  {
+   "kind": "switch",
+   "x": 30.19,
+   "y": 10.916,
+   "z_in": 44,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #7"
+  },
+  {
+   "kind": "switch",
+   "x": 27.491,
+   "y": 34.583,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #8"
+  },
+  {
+   "kind": "switch",
+   "x": 29.582,
+   "y": 34.583,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #9"
+  },
+  {
+   "kind": "switch",
+   "x": 28.176,
+   "y": 34.583,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #10"
+  },
+  {
+   "kind": "switch",
+   "x": 28.879,
+   "y": 34.583,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #11"
+  },
+  {
+   "kind": "tv_data",
+   "x": 31.167,
+   "y": 28.338,
+   "z_in": 72,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #12"
+  },
+  {
+   "kind": "outlet",
+   "x": 31.167,
+   "y": 29.151,
+   "z_in": 72,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #13",
+   "note": "Behind the living room TV. U-11: 72 in to the TV, confirm with the owner."
+  },
+  {
+   "kind": "tv_data",
+   "x": 42.542,
+   "y": 49.246,
+   "z_in": 72,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #14"
+  },
+  {
+   "kind": "outlet",
+   "x": 42.542,
+   "y": 50.059,
+   "z_in": 72,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #15",
+   "note": "Behind the entry and family room TV. U-11: 72 in to the TV, confirm with the owner."
+  },
+  {
+   "kind": "smoke",
+   "x": 19.949,
+   "y": 12.957,
+   "level": "main",
+   "src": "U-11 #16"
+  },
+  {
+   "kind": "smoke",
+   "x": 28.971,
+   "y": 12.978,
+   "level": "main",
+   "src": "U-11 #17"
+  },
+  {
+   "kind": "smoke",
+   "x": 24.769,
+   "y": 10.156,
+   "level": "main",
+   "src": "U-11 #18"
+  },
+  {
+   "kind": "smoke",
+   "x": 14.161,
+   "y": 10.156,
+   "level": "main",
+   "src": "U-11 #19"
+  },
+  {
+   "kind": "smoke",
+   "x": 11.442,
+   "y": 12.978,
+   "level": "main",
+   "src": "U-11 #20"
+  },
+  {
+   "kind": "smoke",
+   "x": 14.47,
+   "y": 33.926,
+   "level": "main",
+   "src": "U-11 #21"
+  },
+  {
+   "kind": "switch",
+   "x": 4.985,
+   "y": 10.916,
+   "z_in": 44,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #22"
+  },
+  {
+   "kind": "switch",
+   "x": 5.917,
+   "y": 4.839,
+   "z_in": 44,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #23"
+  },
+  {
+   "kind": "switch",
+   "x": 20.592,
+   "y": 10.625,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #24"
+  },
+  {
+   "kind": "switch",
+   "x": 27.137,
+   "y": 10.916,
+   "z_in": 44,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #25"
+  },
+  {
+   "kind": "switch",
+   "x": 12.167,
+   "y": 34.02,
+   "z_in": 44,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #26"
+  },
+  {
+   "kind": "switch",
+   "x": 11.709,
+   "y": 32.725,
+   "z_in": 44,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #27"
+  },
+  {
+   "kind": "switch",
+   "x": 37.658,
+   "y": 22.833,
+   "z_in": 44,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #28"
+  },
+  {
+   "kind": "switch",
+   "x": 37.592,
+   "y": 28.916,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #29"
+  },
+  {
+   "kind": "switch",
+   "x": 38.167,
+   "y": 27.411,
+   "z_in": 44,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #30"
+  },
+  {
+   "kind": "switch",
+   "x": 37.084,
+   "y": 16.153,
+   "z_in": 44,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #31"
+  },
+  {
+   "kind": "switch",
+   "x": 20.176,
+   "y": 15.458,
+   "z_in": 44,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #32"
+  },
+  {
+   "kind": "switch",
+   "x": 30.404,
+   "y": 15.458,
+   "z_in": 44,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #33"
+  },
+  {
+   "kind": "switch",
+   "x": 37.084,
+   "y": 21.911,
+   "z_in": 44,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #34"
+  },
+  {
+   "kind": "switch",
+   "x": 12.167,
+   "y": 33.269,
+   "z_in": 44,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #35"
+  },
+  {
+   "kind": "switch",
+   "x": 0.542,
+   "y": 41.431,
+   "z_in": 44,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #36"
+  },
+  {
+   "kind": "switch",
+   "x": 0.542,
+   "y": 42.173,
+   "z_in": 44,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #37"
+  },
+  {
+   "kind": "switch",
+   "x": 0.542,
+   "y": 36.171,
+   "z_in": 44,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #38"
+  },
+  {
+   "kind": "switch",
+   "x": 42.542,
+   "y": 36.443,
+   "z_in": 44,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #39"
+  },
+  {
+   "kind": "switch",
+   "x": 42.542,
+   "y": 37.163,
+   "z_in": 44,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #40"
+  },
+  {
+   "kind": "switch",
+   "x": 0.542,
+   "y": 42.887,
+   "z_in": 44,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #41"
+  },
+  {
+   "kind": "switch",
+   "x": 17.063,
+   "y": 51.458,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #42"
+  },
+  {
+   "kind": "switch",
+   "x": 16.709,
+   "y": 23.322,
+   "z_in": 44,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #43"
+  },
+  {
+   "kind": "switch",
+   "x": 11.709,
+   "y": 27.449,
+   "z_in": 44,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #44"
+  },
+  {
+   "kind": "outlet",
+   "x": 0.542,
+   "y": 47.139,
+   "z_in": 16,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #45",
+   "volts": 240,
+   "note": "Marked RANGE on U-11. The kitchen now has the LG induction cooktop on this wall and the Frigidaire wall oven in the tower, both 240 V, so this circuit and a second one for the oven get set by the cabinet layout."
+  },
+  {
+   "kind": "outlet",
+   "x": 0.572,
+   "y": 43.628,
+   "z_in": 44,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #46",
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 0.572,
+   "y": 45.066,
+   "z_in": 44,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #47",
+   "note": "Marked M/W on U-11, for a microwave. The microwave is now the Breville on the fridge wall counter (or a cubby), so this one may move."
+  },
+  {
+   "kind": "outlet",
+   "x": 0.572,
+   "y": 48.191,
+   "z_in": 44,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #48",
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 2.109,
+   "y": 51.416,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #49",
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 4.875,
+   "y": 51.416,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #50",
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 13.563,
+   "y": 51.416,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #51",
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 13.9,
+   "y": 46.085,
+   "z_in": 24,
+   "facing": 90,
+   "gfi": true,
+   "level": "main",
+   "src": "U-11 #52",
+   "note": "U-11 puts a 24 in GFI on the island's east end. The beverage fridge now fills most of that end, so it is shown on the narrow end panel beside it. Move it to a side of the island if the panel is too narrow."
+  },
+  {
+   "kind": "outlet",
+   "x": 6.0,
+   "y": 44.11,
+   "z_in": 24,
+   "facing": 270,
+   "gfi": true,
+   "level": "main",
+   "src": "U-11 #53",
+   "note": "24 in GFI on the island's west end, per U-11."
+  },
+  {
+   "kind": "outlet",
+   "x": 8.735,
+   "y": 35.083,
+   "z_in": 44,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #54",
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 10.797,
+   "y": 35.083,
+   "z_in": 44,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #55",
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 7.328,
+   "y": 28.541,
+   "z_in": 44,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #56",
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 31.667,
+   "y": 25.405,
+   "z_in": 44,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #57",
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 42.5,
+   "y": 25.494,
+   "z_in": 44,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #58",
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 21.551,
+   "y": 10.625,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #59",
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 3.056,
+   "y": 28.5,
+   "z_in": 44,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #60",
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 5.495,
+   "y": 32.326,
+   "z_in": 44,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #61",
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 28.31,
+   "y": 22.966,
+   "z_in": 16,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #62"
+  },
+  {
+   "kind": "outlet",
+   "x": 21.487,
+   "y": 22.966,
+   "z_in": 16,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #63"
+  },
+  {
+   "kind": "outlet",
+   "x": 16.709,
+   "y": 30.377,
+   "z_in": 16,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #64"
+  },
+  {
+   "kind": "outlet",
+   "x": 18.96,
+   "y": 34.583,
+   "z_in": 16,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #65"
+  },
+  {
+   "kind": "outlet",
+   "x": 32.738,
+   "y": 33.11,
+   "z_in": 16,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #66"
+  },
+  {
+   "kind": "outlet",
+   "x": 34.734,
+   "y": 33.11,
+   "z_in": 16,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #67"
+  },
+  {
+   "kind": "outlet",
+   "x": 36.695,
+   "y": 33.11,
+   "z_in": 16,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #68"
+  },
+  {
+   "kind": "outlet",
+   "x": 38.689,
+   "y": 33.11,
+   "z_in": 16,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #69"
+  },
+  {
+   "kind": "outlet",
+   "x": 42.542,
+   "y": 44.401,
+   "z_in": 16,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #70"
+  },
+  {
+   "kind": "outlet",
+   "x": 35.646,
+   "y": 51.458,
+   "z_in": 16,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #71"
+  },
+  {
+   "kind": "floor_box",
+   "x": 31.434,
+   "y": 43.899,
+   "z_in": 0,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #72",
+   "note": "Floor outlet, U-11 says to confirm with the owner."
+  },
+  {
+   "kind": "outlet",
+   "x": 16.25,
+   "y": 30.06,
+   "z_in": 16,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #73"
+  },
+  {
+   "kind": "outlet",
+   "x": 16.25,
+   "y": 16.827,
+   "z_in": 16,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #74"
+  },
+  {
+   "kind": "outlet",
+   "x": 22.146,
+   "y": 10.916,
+   "z_in": 16,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #75"
+  },
+  {
+   "kind": "outlet",
+   "x": 16.75,
+   "y": 16.824,
+   "z_in": 44,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #76",
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 24.487,
+   "y": 22.333,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #77",
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 29.539,
+   "y": 22.333,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #78",
+   "gfi": true
+  },
+  {
+   "kind": "data",
+   "x": 11.875,
+   "y": 17.363,
+   "z_in": 16,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #79"
+  },
+  {
+   "kind": "outlet",
+   "x": 11.875,
+   "y": 18.176,
+   "z_in": 16,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #80"
+  },
+  {
+   "kind": "outlet",
+   "x": 6.696,
+   "y": 22.375,
+   "z_in": 16,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #81"
+  },
+  {
+   "kind": "outlet",
+   "x": 0.542,
+   "y": 19.574,
+   "z_in": 16,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #82"
+  },
+  {
+   "kind": "outlet",
+   "x": 0.542,
+   "y": 13.31,
+   "z_in": 16,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #83"
+  },
+  {
+   "kind": "outlet",
+   "x": 7.392,
+   "y": 10.916,
+   "z_in": 16,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #84"
+  },
+  {
+   "kind": "outlet",
+   "x": 11.062,
+   "y": 0.541,
+   "z_in": 16,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #85"
+  },
+  {
+   "kind": "data",
+   "x": 9.238,
+   "y": 10.625,
+   "z_in": 16,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #86"
+  },
+  {
+   "kind": "outlet",
+   "x": 8.424,
+   "y": 10.625,
+   "z_in": 16,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #87"
+  },
+  {
+   "kind": "outlet",
+   "x": 5.917,
+   "y": 7.548,
+   "z_in": 16,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #88"
+  },
+  {
+   "kind": "outlet",
+   "x": 16.0,
+   "y": 6.315,
+   "z_in": 16,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #89"
+  },
+  {
+   "kind": "data",
+   "x": 31.167,
+   "y": 7.548,
+   "z_in": 16,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #90"
+  },
+  {
+   "kind": "outlet",
+   "x": 31.167,
+   "y": 8.361,
+   "z_in": 16,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #91"
+  },
+  {
+   "kind": "outlet",
+   "x": 31.167,
+   "y": 3.344,
+   "z_in": 16,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #92"
+  },
+  {
+   "kind": "outlet",
+   "x": 27.098,
+   "y": 0.541,
+   "z_in": 16,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #93"
+  },
+  {
+   "kind": "outlet",
+   "x": 23.084,
+   "y": 5.103,
+   "z_in": 16,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #94",
+   "note": "The study booster fan has its own high outlet box on this wall (not on U-11)."
+  },
+  {
+   "kind": "outlet",
+   "x": 27.997,
+   "y": 10.625,
+   "z_in": 16,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #95"
+  },
+  {
+   "kind": "outlet",
+   "x": 39.637,
+   "y": 15.0,
+   "z_in": 16,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #96"
+  },
+  {
+   "kind": "data",
+   "x": 31.459,
+   "y": 5.674,
+   "z_in": 16,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #97"
+  },
+  {
+   "kind": "outlet",
+   "x": 31.459,
+   "y": 6.487,
+   "z_in": 16,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #98"
+  },
+  {
+   "kind": "outlet",
+   "x": 33.28,
+   "y": 0.541,
+   "z_in": 16,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #99"
+  },
+  {
+   "kind": "outlet",
+   "x": 40.956,
+   "y": 0.541,
+   "z_in": 16,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #100"
+  },
+  {
+   "kind": "outlet",
+   "x": 42.542,
+   "y": 3.505,
+   "z_in": 16,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #101"
+  },
+  {
+   "kind": "outlet",
+   "x": 42.542,
+   "y": 12.174,
+   "z_in": 16,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #102"
+  },
+  {
+   "kind": "outlet",
+   "x": 37.084,
+   "y": 17.077,
+   "z_in": 16,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #103"
+  },
+  {
+   "kind": "outlet",
+   "x": 43.084,
+   "y": 36.903,
+   "z_in": 16,
+   "facing": 90,
+   "level": "main",
+   "src": "U-11 #104",
+   "wp": true,
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": -0.039,
+   "y": 36.903,
+   "z_in": 16,
+   "facing": 270,
+   "level": "main",
+   "src": "U-11 #105",
+   "wp": true,
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 15.235,
+   "y": 52.0,
+   "z_in": 16,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #106",
+   "wp": true,
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 32.886,
+   "y": 52.0,
+   "z_in": 16,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #107",
+   "wp": true,
+   "gfi": true
+  },
+  {
+   "kind": "outlet",
+   "x": 6.696,
+   "y": 22.833,
+   "z_in": 16,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #108",
+   "note": "The stick vacuum dock planned on this wall about 9 in east of here can plug into this outlet."
+  },
+  {
+   "kind": "outlet",
+   "x": 27.369,
+   "y": 15.458,
+   "z_in": 16,
+   "facing": 180,
+   "level": "main",
+   "src": "U-11 #109"
+  },
+  {
+   "kind": "special",
+   "x": 20.987,
+   "y": 22.37,
+   "z_in": 16,
+   "facing": 0,
+   "level": "upper",
+   "src": "U-12 #0",
+   "note": "For the heat pump in the attic, per U-12. The equipment itself sits elsewhere in the attic now, so this moves to suit it."
+  },
+  {
+   "kind": "special",
+   "x": 28.767,
+   "y": 22.37,
+   "z_in": 16,
+   "facing": 0,
+   "level": "upper",
+   "src": "U-12 #1",
+   "note": "For the ERV in the attic, per U-12. The equipment itself sits elsewhere in the attic now, so this moves to suit it."
+  },
+  {
+   "kind": "switch",
+   "x": 31.857,
+   "y": 34.571,
+   "z_in": 44,
+   "facing": 0,
+   "level": "upper",
+   "src": "U-12 #2"
+  },
+  {
+   "kind": "data",
+   "x": 31.29,
+   "y": 28.293,
+   "z_in": 16,
+   "facing": 90,
+   "level": "upper",
+   "src": "U-12 #3",
+   "note": "U-12 shows a 36 in pony wall along the loft's west edge here. The model has an open railing, so this needs a short pony wall, a post mounted box or a floor box."
+  },
+  {
+   "kind": "outlet",
+   "x": 31.29,
+   "y": 29.106,
+   "z_in": 16,
+   "facing": 90,
+   "level": "upper",
+   "src": "U-12 #4",
+   "note": "U-12 shows a 36 in pony wall along the loft's west edge here. The model has an open railing, so this needs a short pony wall, a post mounted box or a floor box."
+  },
+  {
+   "kind": "outlet",
+   "x": 35.599,
+   "y": 22.832,
+   "z_in": 16,
+   "facing": 180,
+   "level": "upper",
+   "src": "U-12 #5"
+  },
+  {
+   "kind": "outlet",
+   "x": 42.543,
+   "y": 28.824,
+   "z_in": 16,
+   "facing": 270,
+   "level": "upper",
+   "src": "U-12 #6"
+  },
+  {
+   "kind": "outlet",
+   "x": 36.53,
+   "y": 34.584,
+   "z_in": 16,
+   "facing": 0,
+   "level": "upper",
+   "src": "U-12 #7"
+  },
+  {
+   "kind": "outlet",
+   "x": 34.491,
+   "y": 15.457,
+   "z_in": 16,
+   "facing": 180,
+   "level": "upper",
+   "src": "U-12 #8"
+  },
+  {
+   "kind": "outlet",
+   "x": 29.644,
+   "y": 22.376,
+   "z_in": 16,
+   "facing": 0,
+   "level": "upper",
+   "src": "U-12 #9"
+  },
+  {
+   "kind": "outlet",
+   "x": 17.553,
+   "y": 22.376,
+   "z_in": 16,
+   "facing": 0,
+   "level": "upper",
+   "src": "U-12 #10"
+  },
+  {
+   "kind": "outlet",
+   "x": 20.847,
+   "y": 10.915,
+   "z_in": 16,
+   "facing": 180,
+   "level": "upper",
+   "src": "U-12 #11"
+  },
+  {
+   "kind": "switch",
+   "x": 38.298,
+   "y": 22.363,
+   "z_in": 44,
+   "facing": 0,
+   "level": "upper",
+   "src": "U-12 #12"
+  },
+  {
+   "kind": "smoke",
+   "x": 35.364,
+   "y": 33.926,
+   "level": "upper",
+   "src": "U-12 #13"
+  },
+  {
+   "kind": "smoke",
+   "x": 19.631,
+   "y": 21.728,
+   "level": "upper",
+   "src": "U-12 #14"
+  },
+  {
+   "kind": "smoke",
+   "x": 6.918,
+   "y": 33.952,
+   "level": "upper",
+   "src": "U-12 #15"
+  },
+  {
+   "kind": "outlet",
+   "x": 8.871,
+   "y": 10.915,
+   "z_in": 16,
+   "facing": 180,
+   "level": "upper",
+   "src": "U-12 #16"
+  },
+  {
+   "kind": "outlet",
+   "x": 11.71,
+   "y": 28.932,
+   "z_in": 16,
+   "facing": 270,
+   "level": "upper",
+   "src": "U-12 #17"
+  }
+ ]
+}

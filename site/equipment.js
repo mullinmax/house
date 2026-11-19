@@ -404,6 +404,60 @@ const BUILD = {
     box(g, 0.6, 1.2, 1.2, darkPlastic(), -r - 2.7, r + 1.0, L / 2);
     return g;
   },
+  // ---- electrical and low voltage (U-11 / U-12). Local frame: x along the wall, y up, z out of the wall; sizes in inches
+  outlet(s, it = {}) {             // cover plate with a duplex face, a GFCI face with its test and reset buttons, a round 240 V face or a weatherproof in use cover
+    const [w, h, d] = s, g = new THREE.Group();
+    box(g, w, h, d, whitePlastic(), 0, h / 2, d / 2);
+    if (it.wp) {                   // grey bubble cover over the GFCI
+      box(g, w + 0.5, h + 0.6, 2.2, mat('in use cover', 0x9a9c9e, 0.5, 0), 0, h / 2, d + 1.1);
+      return g;
+    }
+    if (it.volts === 240) { cyl(g, 1.05, 0.25, mat('receptacle face', 0xdedcd5, 0.5, 0), 0, h / 2, d + 0.12, 'z', 24); for (const x of [-0.45, 0.45]) box(g, 0.12, 0.5, 0.1, darkPlastic(), x, h / 2 + 0.25, d + 0.26); return g; }
+    if (it.gfi) {
+      box(g, 1.3, 2.6, 0.22, mat('receptacle face', 0xdedcd5, 0.5, 0), 0, h / 2, d + 0.11);
+      for (const y of [h / 2 + 0.85, h / 2 - 0.85]) for (const x of [-0.22, 0.22]) box(g, 0.08, 0.32, 0.1, darkPlastic(), x, y, d + 0.25);
+      box(g, 0.55, 0.22, 0.12, mat('gfci test', 0x3b3d40, 0.5, 0), 0, h / 2 + 0.12, d + 0.27);
+      box(g, 0.55, 0.22, 0.12, whitePlastic(), 0, h / 2 - 0.15, d + 0.27);
+      return g;
+    }
+    for (const y of [h / 2 + 0.75, h / 2 - 0.75]) {
+      box(g, 1.3, 1.05, 0.2, mat('receptacle face', 0xdedcd5, 0.5, 0), 0, y, d + 0.1);
+      for (const x of [-0.22, 0.22]) box(g, 0.08, 0.32, 0.1, darkPlastic(), x, y + 0.1, d + 0.22);
+    }
+    return g;
+  },
+  switch_plate(s) {                // decora rocker
+    const [w, h, d] = s, g = new THREE.Group();
+    box(g, w, h, d, whitePlastic(), 0, h / 2, d / 2);
+    box(g, 1.3, 2.6, 0.3, mat('rocker', 0xf1f0ec, 0.45, 0), 0, h / 2, d + 0.15);
+    return g;
+  },
+  data_jack(s) {                   // coax F connector and a network keystone
+    const [w, h, d] = s, g = new THREE.Group();
+    box(g, w, h, d, whitePlastic(), 0, h / 2, d / 2);
+    cyl(g, 0.22, 0.45, brass(), 0, h / 2 + 0.8, d + 0.22, 'z', 12);
+    box(g, 0.62, 0.5, 0.15, darkPlastic(), 0, h / 2 - 0.7, d + 0.07);
+    return g;
+  },
+  smoke_alarm(s) {                 // round alarm under the ceiling: the item's z is the ceiling, the body hangs below it
+    const [dia, t] = s, g = new THREE.Group();
+    cyl(g, dia / 2, t, whitePlastic(), 0, -t / 2, 0, 'y', 32);
+    cyl(g, dia * 0.28, 0.2, greyPlastic(), 0, -t - 0.1, 0, 'y', 24);
+    return g;
+  },
+  floor_box(s) {                   // flush brass cover in the slab
+    const [w, t, d] = s, g = new THREE.Group();
+    box(g, w, t, d, brass(), 0, t / 2, 0);
+    for (const x of [-0.8, 0.8]) box(g, 0.9, 0.05, 1.4, darkPlastic(), x, t + 0.02, 0);
+    return g;
+  },
+  tv_mount(s) {                    // generic low profile wall bracket: plate on the wall and two hanging arms
+    const [w, h, d] = s, g = new THREE.Group(), blk = mat('mount black', 0x1c1d1f, 0.55, 0.3);
+    box(g, w, 3, 0.25, blk, 0, h - 1.5, 0.13);
+    box(g, w, 3, 0.25, blk, 0, 1.5, 0.13);
+    for (const x of [-w / 2 + 3, w / 2 - 3]) box(g, 1.4, h, d, blk, x, h / 2, d / 2);
+    return g;
+  },
   wall_box(s, it = {}) {           // a device on the wall: white cover plate, a receptacle face or a sensor dome
     const [w, h, d] = s, g = new THREE.Group();
     box(g, w, h, d, whitePlastic(), 0, h / 2, d / 2);
@@ -992,7 +1046,7 @@ function buildTrusses(t) {
 // Returns one group per layer plus byId, the semantic record behind every clickable thing.
 export function buildEquipment(data) {
   const root = new THREE.Group(); root.name = 'Equipment';
-  const layers = { appliances: new THREE.Group(), vehicles: new THREE.Group(), mechanical: new THREE.Group(), ducts: new THREE.Group(), fans: new THREE.Group(), trusses: buildTrusses(data.trusses) };
+  const layers = { appliances: new THREE.Group(), vehicles: new THREE.Group(), mechanical: new THREE.Group(), ducts: new THREE.Group(), fans: new THREE.Group(), electrical: new THREE.Group(), lowvolt: new THREE.Group(), trusses: buildTrusses(data.trusses) };
   for (const [k, g] of Object.entries(layers)) { g.name = g.name || k; root.add(g); }
   const byId = {};
   for (const it of data.items || []) {
@@ -1004,7 +1058,7 @@ export function buildEquipment(data) {
       r.userData.operable = 'spin'; obj.children[0].add(r);
     }
     obj.name = it.id;
-    obj.traverse((o) => { o.userData.equipId = it.id; if (it.layer === 'fans') o.userData.pass = true; });
+    obj.traverse((o) => { o.userData.equipId = it.id; if (['fans', 'electrical', 'lowvolt'].includes(it.layer)) o.userData.pass = true; });
     (layers[it.layer] || layers.mechanical).add(obj);
     byId[it.id] = { ...it, obj };
   }
