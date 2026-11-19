@@ -1137,11 +1137,11 @@ for dv in _EP["devices"]:
                 notes=notes + ["U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."])))
         continue
     if k in ("data", "tv_data"):
-        items.append(dict(id=_eid("data"), name=("TV cable and data outlet, 72 in" if k == "tv_data" else f"Cable TV and network outlet, {z_in} in"), category="Low voltage",
+        items.append(dict(id=_eid("data"), name=("TV network outlet, 72 in" if k == "tv_data" else f"Network outlet, {z_in} in"), category="Low voltage",
             system="low_voltage", room=room, layer="lowvolt", builder="data_jack", size=[2.75, 4.5, 0.3], at=[x, y, round(floor + (z_in - 2.25) / 12, 3)], facing=dv["facing"],
-            info=dict(model="Cable TV and CAT-5 outlet (U-11 legend). CAT-6 costs about the same now and is worth asking for",
-                specs=[["Height", f"{z_in} in to the centre"], ["Jacks", "Coax and one network jack, ASSUMED"]],
-                notes=notes + ["Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."])))
+            info=dict(model="Two port network outlet, CAT-6 (U-11 draws cable TV and CAT-5; CAT-6 costs about the same now)",
+                specs=[["Height", f"{z_in} in to the centre"], ["Jacks", "Two network jacks, no coax"]],
+                notes=notes + ["No coax anywhere in the house (Maxwell, 11/19/2026): each U-11 cable TV and CAT-5 outlet becomes two network jacks, each with its own cable back to the network spot.", "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."])))
         if k == "tv_data":
             tv = dv.get("tv", False)
             ty = 30.65 if tv else y                    # the living room TV centres between its outlet and data jack

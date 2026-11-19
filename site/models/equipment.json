@@ -2610,26 +2610,26 @@
   },
   {
    "id": "elec_switch_08",
-   "name": "Light switch, 44 in",
+   "name": "2 gang light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
    "room": "Bedroom 1",
    "layer": "electrical",
    "builder": "switch_plate",
    "size": [
-    2.75,
+    4.5600000000000005,
     4.5,
     0.3
    ],
-   "gangs": 1,
+   "gangs": 2,
    "at": [
-    30.893,
+    30.95,
     10.949,
     3.479
    ],
    "facing": 180,
    "info": {
-    "model": "Wall switch with a dimmer (U-11 legend)",
+    "model": "2 gang plate of rocker switches with dimmers",
     "specs": [
      [
       "Height",
@@ -2641,6 +2641,7 @@
      ]
     ],
     "notes": [
+     "Bedroom 1's two switches (U-11 #6 and #7) as one 2 gang plate on the latch side of its door, which moved east (Maxwell, 11/19/2026).",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 6).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
@@ -2649,48 +2650,8 @@
    "src": "U-11 #6"
   },
   {
-   "id": "elec_switch_09",
-   "name": "Light switch, 44 in",
-   "category": "Electrical",
-   "system": "electrical.lighting",
-   "room": "Hall 2",
-   "layer": "electrical",
-   "builder": "switch_plate",
-   "size": [
-    2.75,
-    4.5,
-    0.3
-   ],
-   "gangs": 1,
-   "at": [
-    30.19,
-    10.949,
-    3.479
-   ],
-   "facing": 180,
-   "info": {
-    "model": "Wall switch with a dimmer (U-11 legend)",
-    "specs": [
-     [
-      "Height",
-      "44 in to the centre"
-     ],
-     [
-      "On",
-      "The south facing wall"
-     ]
-    ],
-    "notes": [
-     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 7).",
-     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
-     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
-    ]
-   },
-   "src": "U-11 #7"
-  },
-  {
    "id": "elec_data_01",
-   "name": "TV cable and data outlet, 72 in",
+   "name": "TV network outlet, 72 in",
    "category": "Low voltage",
    "system": "low_voltage",
    "room": "Living",
@@ -2708,7 +2669,7 @@
    ],
    "facing": 90,
    "info": {
-    "model": "Cable TV and CAT-5 outlet (U-11 legend). CAT-6 costs about the same now and is worth asking for",
+    "model": "Two port network outlet, CAT-6 (U-11 draws cable TV and CAT-5; CAT-6 costs about the same now)",
     "specs": [
      [
       "Height",
@@ -2716,12 +2677,13 @@
      ],
      [
       "Jacks",
-      "Coax and one network jack, ASSUMED"
+      "Two network jacks, no coax"
      ]
     ],
     "notes": [
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 12).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "No coax anywhere in the house (Maxwell, 11/19/2026): each U-11 cable TV and CAT-5 outlet becomes two network jacks, each with its own cable back to the network spot.",
      "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
     ]
    },
@@ -2816,7 +2778,7 @@
   },
   {
    "id": "elec_data_02",
-   "name": "TV cable and data outlet, 72 in",
+   "name": "TV network outlet, 72 in",
    "category": "Low voltage",
    "system": "low_voltage",
    "room": "Entry / family",
@@ -2834,7 +2796,7 @@
    ],
    "facing": 270,
    "info": {
-    "model": "Cable TV and CAT-5 outlet (U-11 legend). CAT-6 costs about the same now and is worth asking for",
+    "model": "Two port network outlet, CAT-6 (U-11 draws cable TV and CAT-5; CAT-6 costs about the same now)",
     "specs": [
      [
       "Height",
@@ -2842,12 +2804,13 @@
      ],
      [
       "Jacks",
-      "Coax and one network jack, ASSUMED"
+      "Two network jacks, no coax"
      ]
     ],
     "notes": [
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 14).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "No coax anywhere in the house (Maxwell, 11/19/2026): each U-11 cable TV and CAT-5 outlet becomes two network jacks, each with its own cable back to the network spot.",
      "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
     ]
    },
@@ -3170,7 +3133,7 @@
    "src": "U-11 #21"
   },
   {
-   "id": "elec_switch_10",
+   "id": "elec_switch_09",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3210,7 +3173,7 @@
    "src": "U-11 #22"
   },
   {
-   "id": "elec_switch_11",
+   "id": "elec_switch_10",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3250,7 +3213,7 @@
    "src": "U-11 #23"
   },
   {
-   "id": "elec_switch_12",
+   "id": "elec_switch_11",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3290,7 +3253,7 @@
    "src": "U-11 #24"
   },
   {
-   "id": "elec_switch_13",
+   "id": "elec_switch_12",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3330,7 +3293,7 @@
    "src": "U-11 #25"
   },
   {
-   "id": "elec_switch_14",
+   "id": "elec_switch_13",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3370,7 +3333,7 @@
    "src": "U-11 #26"
   },
   {
-   "id": "elec_switch_15",
+   "id": "elec_switch_14",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3410,7 +3373,7 @@
    "src": "U-11 #27"
   },
   {
-   "id": "elec_switch_16",
+   "id": "elec_switch_15",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3450,7 +3413,7 @@
    "src": "U-11 #28"
   },
   {
-   "id": "elec_switch_17",
+   "id": "elec_switch_16",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3490,7 +3453,7 @@
    "src": "U-11 #29"
   },
   {
-   "id": "elec_switch_18",
+   "id": "elec_switch_17",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3530,7 +3493,7 @@
    "src": "U-11 #30"
   },
   {
-   "id": "elec_switch_19",
+   "id": "elec_switch_18",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3570,7 +3533,7 @@
    "src": "U-11 #31"
   },
   {
-   "id": "elec_switch_20",
+   "id": "elec_switch_19",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3610,7 +3573,7 @@
    "src": "U-11 #32"
   },
   {
-   "id": "elec_switch_21",
+   "id": "elec_switch_20",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3650,7 +3613,7 @@
    "src": "U-11 #33"
   },
   {
-   "id": "elec_switch_22",
+   "id": "elec_switch_21",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3690,7 +3653,7 @@
    "src": "U-11 #34"
   },
   {
-   "id": "elec_switch_23",
+   "id": "elec_switch_22",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3730,7 +3693,7 @@
    "src": "U-11 #35"
   },
   {
-   "id": "elec_switch_24",
+   "id": "elec_switch_23",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3770,7 +3733,7 @@
    "src": "U-11 #36"
   },
   {
-   "id": "elec_switch_25",
+   "id": "elec_switch_24",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3810,7 +3773,7 @@
    "src": "U-11 #37"
   },
   {
-   "id": "elec_switch_26",
+   "id": "elec_switch_25",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3850,7 +3813,7 @@
    "src": "U-11 #38"
   },
   {
-   "id": "elec_switch_27",
+   "id": "elec_switch_26",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3890,7 +3853,7 @@
    "src": "U-11 #39"
   },
   {
-   "id": "elec_switch_28",
+   "id": "elec_switch_27",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3930,7 +3893,7 @@
    "src": "U-11 #40"
   },
   {
-   "id": "elec_switch_29",
+   "id": "elec_switch_28",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3970,7 +3933,7 @@
    "src": "U-11 #41"
   },
   {
-   "id": "elec_switch_30",
+   "id": "elec_switch_29",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -4010,7 +3973,7 @@
    "src": "U-11 #42"
   },
   {
-   "id": "elec_switch_31",
+   "id": "elec_switch_30",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -4050,7 +4013,7 @@
    "src": "U-11 #43"
   },
   {
-   "id": "elec_switch_32",
+   "id": "elec_switch_31",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -5483,7 +5446,7 @@
   },
   {
    "id": "elec_data_03",
-   "name": "Cable TV and network outlet, 16 in",
+   "name": "Network outlet, 16 in",
    "category": "Low voltage",
    "system": "low_voltage",
    "room": "Bedroom 3",
@@ -5501,7 +5464,7 @@
    ],
    "facing": 270,
    "info": {
-    "model": "Cable TV and CAT-5 outlet (U-11 legend). CAT-6 costs about the same now and is worth asking for",
+    "model": "Two port network outlet, CAT-6 (U-11 draws cable TV and CAT-5; CAT-6 costs about the same now)",
     "specs": [
      [
       "Height",
@@ -5509,12 +5472,13 @@
      ],
      [
       "Jacks",
-      "Coax and one network jack, ASSUMED"
+      "Two network jacks, no coax"
      ]
     ],
     "notes": [
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 79).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "No coax anywhere in the house (Maxwell, 11/19/2026): each U-11 cable TV and CAT-5 outlet becomes two network jacks, each with its own cable back to the network spot.",
      "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
     ]
    },
@@ -5768,7 +5732,7 @@
   },
   {
    "id": "elec_data_04",
-   "name": "Cable TV and network outlet, 16 in",
+   "name": "Network outlet, 16 in",
    "category": "Low voltage",
    "system": "low_voltage",
    "room": "Bedroom 2",
@@ -5786,7 +5750,7 @@
    ],
    "facing": 0,
    "info": {
-    "model": "Cable TV and CAT-5 outlet (U-11 legend). CAT-6 costs about the same now and is worth asking for",
+    "model": "Two port network outlet, CAT-6 (U-11 draws cable TV and CAT-5; CAT-6 costs about the same now)",
     "specs": [
      [
       "Height",
@@ -5794,12 +5758,13 @@
      ],
      [
       "Jacks",
-      "Coax and one network jack, ASSUMED"
+      "Two network jacks, no coax"
      ]
     ],
     "notes": [
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 86).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "No coax anywhere in the house (Maxwell, 11/19/2026): each U-11 cable TV and CAT-5 outlet becomes two network jacks, each with its own cable back to the network spot.",
      "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
     ]
    },
@@ -5930,7 +5895,7 @@
   },
   {
    "id": "elec_data_05",
-   "name": "Cable TV and network outlet, 16 in",
+   "name": "Network outlet, 16 in",
    "category": "Low voltage",
    "system": "low_voltage",
    "room": "Bedroom 4 / study",
@@ -5948,7 +5913,7 @@
    ],
    "facing": 270,
    "info": {
-    "model": "Cable TV and CAT-5 outlet (U-11 legend). CAT-6 costs about the same now and is worth asking for",
+    "model": "Two port network outlet, CAT-6 (U-11 draws cable TV and CAT-5; CAT-6 costs about the same now)",
     "specs": [
      [
       "Height",
@@ -5956,12 +5921,13 @@
      ],
      [
       "Jacks",
-      "Coax and one network jack, ASSUMED"
+      "Two network jacks, no coax"
      ]
     ],
     "notes": [
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 90).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "No coax anywhere in the house (Maxwell, 11/19/2026): each U-11 cable TV and CAT-5 outlet becomes two network jacks, each with its own cable back to the network spot.",
      "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
     ]
    },
@@ -6146,7 +6112,7 @@
     0.3
    ],
    "at": [
-    27.997,
+    26.7,
     10.658,
     1.146
    ],
@@ -6167,6 +6133,7 @@
      ]
     ],
     "notes": [
+     "Moved west of the study's low return grille (U-11 has it at x 28.0, where the grille now is): Maxwell, 11/19/2026.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 95).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -6216,7 +6183,7 @@
   },
   {
    "id": "elec_data_06",
-   "name": "Cable TV and network outlet, 16 in",
+   "name": "Network outlet, 16 in",
    "category": "Low voltage",
    "system": "low_voltage",
    "room": "Bedroom 1",
@@ -6234,7 +6201,7 @@
    ],
    "facing": 90,
    "info": {
-    "model": "Cable TV and CAT-5 outlet (U-11 legend). CAT-6 costs about the same now and is worth asking for",
+    "model": "Two port network outlet, CAT-6 (U-11 draws cable TV and CAT-5; CAT-6 costs about the same now)",
     "specs": [
      [
       "Height",
@@ -6242,12 +6209,13 @@
      ],
      [
       "Jacks",
-      "Coax and one network jack, ASSUMED"
+      "Two network jacks, no coax"
      ]
     ],
     "notes": [
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 97).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "No coax anywhere in the house (Maxwell, 11/19/2026): each U-11 cable TV and CAT-5 outlet becomes two network jacks, each with its own cable back to the network spot.",
      "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
     ]
    },
@@ -6831,7 +6799,7 @@
    "src": "U-12 #1"
   },
   {
-   "id": "elec_switch_33",
+   "id": "elec_switch_32",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -6872,7 +6840,7 @@
   },
   {
    "id": "elec_data_07",
-   "name": "Cable TV and network outlet, 16 in",
+   "name": "Network outlet, 16 in",
    "category": "Low voltage",
    "system": "low_voltage",
    "room": "Loft",
@@ -6890,7 +6858,7 @@
    ],
    "facing": 90,
    "info": {
-    "model": "Cable TV and CAT-5 outlet (U-11 legend). CAT-6 costs about the same now and is worth asking for",
+    "model": "Two port network outlet, CAT-6 (U-11 draws cable TV and CAT-5; CAT-6 costs about the same now)",
     "specs": [
      [
       "Height",
@@ -6898,13 +6866,14 @@
      ],
      [
       "Jacks",
-      "Coax and one network jack, ASSUMED"
+      "Two network jacks, no coax"
      ]
     ],
     "notes": [
      "U-12 shows a 36 in pony wall along the loft's west edge here. The model has an open railing, so this needs a short pony wall, a post mounted box or a floor box.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 3).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "No coax anywhere in the house (Maxwell, 11/19/2026): each U-11 cable TV and CAT-5 outlet becomes two network jacks, each with its own cable back to the network spot.",
      "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
     ]
    },
@@ -7240,7 +7209,7 @@
    "src": "U-12 #11"
   },
   {
-   "id": "elec_switch_34",
+   "id": "elec_switch_33",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",

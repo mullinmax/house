@@ -72,21 +72,14 @@
   },
   {
    "kind": "switch",
-   "x": 30.893,
+   "x": 30.95,
    "y": 10.916,
    "z_in": 44,
    "facing": 180,
    "level": "main",
-   "src": "U-11 #6"
-  },
-  {
-   "kind": "switch",
-   "x": 30.19,
-   "y": 10.916,
-   "z_in": 44,
-   "facing": 180,
-   "level": "main",
-   "src": "U-11 #7"
+   "src": "U-11 #6",
+   "gangs": 2,
+   "note": "Bedroom 1's two switches (U-11 #6 and #7) as one 2 gang plate on the latch side of its door, which moved east (Maxwell, 11/19/2026)."
   },
   {
    "kind": "tv_data",
@@ -855,12 +848,13 @@
   },
   {
    "kind": "outlet",
-   "x": 27.997,
+   "x": 26.7,
    "y": 10.625,
    "z_in": 16,
    "facing": 0,
    "level": "main",
-   "src": "U-11 #95"
+   "src": "U-11 #95",
+   "note": "Moved west of the study's low return grille (U-11 has it at x 28.0, where the grille now is): Maxwell, 11/19/2026."
   },
   {
    "kind": "outlet",
