@@ -7,7 +7,39 @@
    "U-11 sealed plan",
    "Geo-Hydro quotes MMUL8476-4 and MMUL8476-5",
    "Appliance shortlist 11/15/2026"
-  ]
+  ],
+  "replace_nodes": [
+   "Light_Bed1_10_base",
+   "Light_Bed1_10_lens",
+   "Light_Bed2_11_base",
+   "Light_Bed2_11_lens",
+   "Light_Bed3_12_base",
+   "Light_Bed3_12_lens",
+   "Light_Study_13_base",
+   "Light_Study_13_lens"
+  ],
+  "lights_moved": {
+   "Light Bed1 10": [
+    37.6,
+    6.6,
+    8.05
+   ],
+   "Light Bed2 11": [
+    11.0,
+    5.6,
+    8.05
+   ],
+   "Light Bed3 12": [
+    8.7,
+    17.0,
+    7.7
+   ],
+   "Light Study 13": [
+    27.4,
+    5.6,
+    8.05
+   ]
+  }
  },
  "levels": [
   {
@@ -1639,128 +1671,74 @@
    ],
    "at": [
     16.0,
-    18.6,
+    14.3,
     10.052083333333334
    ],
    "facing": 180,
    "stacks": [
     [
      -9.102,
-     -4.3,
+     0.0,
      180,
      2
     ],
     [
      -7.094,
-     -4.3,
+     0.0,
      180,
      2
     ],
     [
      -5.086,
-     -4.3,
+     0.0,
      180,
      2
     ],
     [
      -3.078,
-     -4.3,
+     0.0,
      180,
      2
     ],
     [
      -1.069,
-     -4.3,
+     0.0,
      180,
      2
     ],
     [
      0.939,
-     -4.3,
+     0.0,
      180,
      2
     ],
     [
      2.948,
-     -4.3,
+     0.0,
      180,
      2
     ],
     [
      4.956,
-     -4.3,
+     0.0,
      180,
      2
     ],
     [
      6.964,
-     -4.3,
+     0.0,
      180,
      2
     ],
     [
      8.973,
-     -4.3,
+     0.0,
      180,
      2
-    ],
-    [
-     -6.998,
-     4.07,
-     0,
-     3
-    ],
-    [
-     -4.99,
-     4.07,
-     0,
-     3
-    ],
-    [
-     -2.982,
-     4.07,
-     0,
-     3
-    ],
-    [
-     -0.973,
-     4.07,
-     0,
-     3
-    ],
-    [
-     1.035,
-     4.07,
-     0,
-     3
-    ],
-    [
-     3.043,
-     4.07,
-     0,
-     3
-    ],
-    [
-     5.052,
-     4.07,
-     0,
-     3
-    ],
-    [
-     7.06,
-     4.07,
-     0,
-     3
-    ],
-    [
-     9.068,
-     4.07,
-     0,
-     3
     ]
    ],
    "info": {
-    "model": "47 black and yellow 27 gal tough totes, for scale",
+    "model": "20 black and yellow 27 gal tough totes, for scale",
     "price": "About $15 each at a hardware store",
     "specs": [
      [
@@ -1768,16 +1746,12 @@
       "About 30 x 20 x 14-1/2 in with the lid on, 27 gal"
      ],
      [
-      "North row",
+      "Row",
       "10 stacks, 2 high, clearing the roof by about 2 in at the back"
      ],
      [
-      "South row",
-      "9 stacks, 3 high, clearing the roof by about 10 in at the front"
-     ],
-     [
-      "Aisle",
-      "About 3 ft 4 in wide between the rows, 3 ft 5 in to 4 ft 5 in of headroom"
+      "Walkway",
+      "About 6 ft 0 in wide south of the row, 3 ft 5 in of headroom at the totes rising to 5 ft 4 in at the south wall"
      ],
      [
       "Spacing",
@@ -1785,11 +1759,513 @@
      ]
     ],
     "notes": [
-     "Shows how much fits in the open deck north of the laundry that the ducts leave free (Maxwell, 11/19/2026). Not packed tight. The north row is held to 2 high because the roof comes down to about 2-1/2 ft over the deck there; the south row has room for 3.",
-     "The aisle runs east to west between the rows and opens at the west end by the heat pump, so the totes never block its service aisle or a duct. Getting from the aisle to the heat pump's west side still means stepping over the bedroom 1 return, which lies on the deck there.",
+     "Shows how much fits along the north side of the open deck north of the laundry that the ducts leave free (Maxwell, 11/19/2026). Not packed tight. The row is held to 2 high because the roof comes down to about 2-1/2 ft over the deck there.",
+     "North row only for now, so the walkway takes the south side, the tallest part of the attic (Maxwell, 11/19/2026). A second row may be added later.",
+     "The walkway runs east to west and opens at the west end by the heat pump, so the totes never block its service aisle or a duct. Getting from the walkway to the heat pump's west side still means stepping over the bedroom 1 return, which lies on the deck there.",
      "Weight: a full tote of household things is roughly 30 to 50 lb. The deck is on 24 in open web trusses; ask the truss maker for the attic storage load they were designed for."
     ],
-    "placement": "On the attic deck over the laundry, linen closet and hall 2, between the supply trunk on the north and the attic wall over the living room on the south."
+    "placement": "On the attic deck over hall 2 and the laundry, against the supply trunk along the north side."
+   }
+  },
+  {
+   "id": "fan_bed1",
+   "name": "Ceiling fan with light",
+   "category": "Ceiling fan",
+   "system": "electrical.fans",
+   "room": "Bedroom 1",
+   "layer": "fans",
+   "builder": "ceiling_fan",
+   "size": [
+    52,
+    31.2
+   ],
+   "at": [
+    37.6,
+    6.6,
+    11.101
+   ],
+   "facing": 0,
+   "slope": -0.3183,
+   "blades": 3,
+   "light": true,
+   "info": {
+    "model": "52 in DC ceiling fan, matte black with light oak blades, LED light kit (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "52 in, 3 blades"
+     ],
+     [
+      "Blades",
+      "8 ft 6 in above the floor, 23 in below the ceiling at the low side"
+     ],
+     [
+      "Downrod",
+      "About 22 in"
+     ],
+     [
+      "Motor",
+      "DC, 6 speeds and reverse, wall control or remote"
+     ],
+     [
+      "Light",
+      "Dimmable LED light kit, about 1,600 lumens, the room's ceiling light"
+     ],
+     [
+      "Mount",
+      "Sloped ceiling, 3.82:12"
+     ]
+    ],
+    "notes": [
+     "Over the middle of the bed, so on a warm night the downdraft reaches the bed without the light kit in your eyes from the pillows.",
+     "On the sloped ceiling the fan needs a fan rated box fixed to the roof panel and a canopy that takes the slope (about 18 degrees under the 3.82:12 north roof; most fans allow 30). In a SIP roof the box and the wire chase to it have to be planned with the panel maker before the panels are cut, because there is no stud cavity to fish a cable through later. ASSUMED until the electrician and the SIP maker agree.",
+     "For Home Assistant later: a DC fan with a local network control, or a radio remote fan run through a bridge such as Bond, so speed, direction and the light can be automated. Model ASSUMED."
+    ],
+    "placement": "Ceiling of Bedroom 1, x 37.6 ft, y 6.6 ft."
+   }
+  },
+  {
+   "id": "fan_bed2",
+   "name": "Ceiling fan with light",
+   "category": "Ceiling fan",
+   "system": "electrical.fans",
+   "room": "Bedroom 2",
+   "layer": "fans",
+   "builder": "ceiling_fan",
+   "size": [
+    44,
+    27.4
+   ],
+   "at": [
+    11.0,
+    5.6,
+    10.783
+   ],
+   "facing": 0,
+   "slope": -0.3183,
+   "blades": 3,
+   "light": true,
+   "info": {
+    "model": "44 in DC ceiling fan, matte black with light oak blades, LED light kit (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "44 in, 3 blades"
+     ],
+     [
+      "Blades",
+      "8 ft 6 in above the floor, 20 in below the ceiling at the low side"
+     ],
+     [
+      "Downrod",
+      "About 18 in"
+     ],
+     [
+      "Motor",
+      "DC, 6 speeds and reverse, wall control or remote"
+     ],
+     [
+      "Light",
+      "Dimmable LED light kit, about 1,600 lumens, the room's ceiling light"
+     ],
+     [
+      "Mount",
+      "Sloped ceiling, 3.82:12"
+     ]
+    ],
+    "notes": [
+     "Where the ceiling light was, just off the foot of the bed. 44 in suits a room of about 100 sq ft.",
+     "On the sloped ceiling the fan needs a fan rated box fixed to the roof panel and a canopy that takes the slope (about 18 degrees under the 3.82:12 north roof; most fans allow 30). In a SIP roof the box and the wire chase to it have to be planned with the panel maker before the panels are cut, because there is no stud cavity to fish a cable through later. ASSUMED until the electrician and the SIP maker agree.",
+     "For Home Assistant later: a DC fan with a local network control, or a radio remote fan run through a bridge such as Bond, so speed, direction and the light can be automated. Model ASSUMED."
+    ],
+    "placement": "Ceiling of Bedroom 2, x 11.0 ft, y 5.6 ft."
+   }
+  },
+  {
+   "id": "fan_bed3",
+   "name": "Ceiling fan with light",
+   "category": "Ceiling fan",
+   "system": "electrical.fans",
+   "room": "Bedroom 3",
+   "layer": "fans",
+   "builder": "ceiling_fan",
+   "size": [
+    48,
+    10.2
+   ],
+   "at": [
+    8.7,
+    17.0,
+    9.0
+   ],
+   "facing": 0,
+   "slope": 0.0,
+   "blades": 3,
+   "light": true,
+   "info": {
+    "model": "48 in DC ceiling fan, matte black with light oak blades, LED light kit (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "48 in, 3 blades"
+     ],
+     [
+      "Blades",
+      "8 ft 2 in above the floor, 10 in below the ceiling at the low side"
+     ],
+     [
+      "Downrod",
+      "Close mount on a short rod"
+     ],
+     [
+      "Motor",
+      "DC, 6 speeds and reverse, wall control or remote"
+     ],
+     [
+      "Light",
+      "Dimmable LED light kit, about 1,600 lumens, the room's ceiling light"
+     ]
+    ],
+    "notes": [
+     "On a fan rated pancake box screwed to the bottom chord of the truss at x 8.7. The bay beside it (x 7.7) carries the 10 in bedroom 2 and 3 return right on top of the drywall, so a deeper box cannot go there. Moved about 2 ft east of the old light so the blade tips stay about 2 1/2 ft clear of the ceiling supply register at x 3.7: blades passing through a register's jet push its air back up and make it sound louder.",
+     "For Home Assistant later: a DC fan with a local network control, or a radio remote fan run through a bridge such as Bond, so speed, direction and the light can be automated. Model ASSUMED."
+    ],
+    "placement": "Ceiling of Bedroom 3, x 8.7 ft, y 17.0 ft."
+   }
+  },
+  {
+   "id": "fan_study",
+   "name": "Ceiling fan with light",
+   "category": "Ceiling fan",
+   "system": "electrical.fans",
+   "room": "Bedroom 4 / study",
+   "layer": "fans",
+   "builder": "ceiling_fan",
+   "size": [
+    42,
+    27.4
+   ],
+   "at": [
+    27.4,
+    5.6,
+    10.783
+   ],
+   "facing": 0,
+   "slope": -0.3183,
+   "blades": 3,
+   "light": true,
+   "info": {
+    "model": "42 in DC ceiling fan, matte black with light oak blades, LED light kit (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "42 in, 3 blades"
+     ],
+     [
+      "Blades",
+      "8 ft 6 in above the floor, 21 in below the ceiling at the low side"
+     ],
+     [
+      "Downrod",
+      "About 18 in"
+     ],
+     [
+      "Motor",
+      "DC, 6 speeds and reverse, wall control or remote"
+     ],
+     [
+      "Light",
+      "Dimmable LED light kit, about 1,600 lumens, the room's ceiling light"
+     ],
+     [
+      "Mount",
+      "Sloped ceiling, 3.82:12"
+     ]
+    ],
+    "notes": [
+     "A smaller fan, over the desk chair, in place of the ceiling light. The blade tips stay about 1 1/2 ft east of the exposed supply duct on the west wall, about 2 3/4 ft from the supply register at the window end and about 3 1/2 ft from the return grilles in the door wall, so it never blows into either one.",
+     "How it helps the air: the supply comes in at the low, window end of the sloped ceiling and both returns are in the high door wall. In heating, warm supply air would ride up the slope straight to the high return; the fan on low in reverse (updraft) breaks up that layer and turns the air over the whole room. In cooling, forward (downdraft) puts the supply air and the computer heat through the room before either reaches a return, and the breeze over the chair lets the thermostat sit a degree or two warmer.",
+     "Warm air from the computers rises toward the high side, where the high return is. The fan mixes; it does not move air out of the room. The supply and returns still do that, so this is a companion to the ducts, not a fix for an undersized one.",
+     "On the sloped ceiling the fan needs a fan rated box fixed to the roof panel and a canopy that takes the slope (about 18 degrees under the 3.82:12 north roof; most fans allow 30). In a SIP roof the box and the wire chase to it have to be planned with the panel maker before the panels are cut, because there is no stud cavity to fish a cable through later. ASSUMED until the electrician and the SIP maker agree.",
+     "For Home Assistant later: a DC fan with a local network control, or a radio remote fan run through a bridge such as Bond, so speed, direction and the light can be automated. Model ASSUMED."
+    ],
+    "placement": "Ceiling of Bedroom 4 / study, x 27.4 ft, y 5.6 ft."
+   }
+  },
+  {
+   "id": "fan_living",
+   "name": "Ceiling fan",
+   "category": "Ceiling fan",
+   "system": "electrical.fans",
+   "room": "Living",
+   "layer": "fans",
+   "builder": "ceiling_fan",
+   "size": [
+    60,
+    96.9
+   ],
+   "at": [
+    26.4,
+    28.5,
+    18.072
+   ],
+   "facing": 0,
+   "slope": -0.3183,
+   "blades": 3,
+   "light": false,
+   "info": {
+    "model": "60 in DC ceiling fan, matte black with light oak blades (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "60 in, 3 blades"
+     ],
+     [
+      "Blades",
+      "10 ft 0 in above the floor, 87 in below the ceiling at the low side"
+     ],
+     [
+      "Downrod",
+      "About 88 in"
+     ],
+     [
+      "Motor",
+      "DC, 6 speeds and reverse, wall control or remote"
+     ],
+     [
+      "Mount",
+      "Sloped ceiling, 3.82:12"
+     ]
+    ],
+    "notes": [
+     "Trial fan (Maxwell, 11/19/2026: try one, it may come out later). Over the coffee table and the seating, about 4 ft from the can light and well clear of the high wall registers on the north wall. The ceiling here is about 18 ft, so it hangs on a long rod with the blades about 10 ft up. In winter, on low in reverse, it pushes the warm air that collects up under this tall ceiling back down to the seating.",
+     "On the sloped ceiling the fan needs a fan rated box fixed to the roof panel and a canopy that takes the slope (about 18 degrees under the 3.82:12 north roof; most fans allow 30). In a SIP roof the box and the wire chase to it have to be planned with the panel maker before the panels are cut, because there is no stud cavity to fish a cable through later. ASSUMED until the electrician and the SIP maker agree.",
+     "For Home Assistant later: a DC fan with a local network control, or a radio remote fan run through a bridge such as Bond, so speed, direction and the light can be automated. Model ASSUMED."
+    ],
+    "placement": "Ceiling of Living, x 26.4 ft, y 28.5 ft."
+   }
+  },
+  {
+   "id": "fan_family",
+   "name": "Ceiling fan",
+   "category": "Ceiling fan",
+   "system": "electrical.fans",
+   "room": "Entry / family",
+   "layer": "fans",
+   "builder": "ceiling_fan",
+   "size": [
+    60,
+    43.0
+   ],
+   "at": [
+    36.5,
+    42.5,
+    12.583
+   ],
+   "facing": 0,
+   "slope": 0.1667,
+   "blades": 3,
+   "light": false,
+   "info": {
+    "model": "60 in DC ceiling fan, matte black with light oak blades (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "60 in, 3 blades"
+     ],
+     [
+      "Blades",
+      "9 ft 0 in above the floor, 38 in below the ceiling at the low side"
+     ],
+     [
+      "Downrod",
+      "About 34 in"
+     ],
+     [
+      "Motor",
+      "DC, 6 speeds and reverse, wall control or remote"
+     ],
+     [
+      "Mount",
+      "Sloped ceiling, 2.00:12"
+     ]
+    ],
+    "notes": [
+     "Between the entry and the family cans (both about 4 ft away), so the blades never pass under a light and flicker it. 60 in for the open family and entry area; the high wall registers on the clerestory wall blow south toward it from about 5 ft beyond the blade tips.",
+     "On the sloped ceiling the fan needs a fan rated box fixed to the roof panel and a canopy that takes the slope (about 18 degrees under the 3.82:12 north roof; most fans allow 30). In a SIP roof the box and the wire chase to it have to be planned with the panel maker before the panels are cut, because there is no stud cavity to fish a cable through later. ASSUMED until the electrician and the SIP maker agree.",
+     "For Home Assistant later: a DC fan with a local network control, or a radio remote fan run through a bridge such as Bond, so speed, direction and the light can be automated. Model ASSUMED."
+    ],
+    "placement": "Ceiling of Entry / family, x 36.5 ft, y 42.5 ft."
+   }
+  },
+  {
+   "id": "study_booster",
+   "name": "Study booster fan",
+   "category": "HVAC booster",
+   "system": "hvac.supply",
+   "room": "Bedroom 4 / study",
+   "layer": "mechanical",
+   "builder": "inline_fan",
+   "size": [
+    10.4,
+    12.6
+   ],
+   "at": [
+    23.75,
+    9.3,
+    10.566666666666666
+   ],
+   "facing": 0,
+   "info": {
+    "model": "8 in EC inline duct fan, quiet mixed flow type, for example AC Infinity Cloudline S8 or Fantech Prioair 8 EC (ASSUMED, size approximate)",
+    "specs": [
+     [
+      "Duct",
+      "8 in round, in the exposed study supply"
+     ],
+     [
+      "Airflow",
+      "Raises the study from about 100 to about 185 CFM"
+     ],
+     [
+      "Size",
+      "About 10.4 in across, 12.6 in long"
+     ],
+     [
+      "Power",
+      "About 20 to 40 W at the speeds it would run, plugged into the outlet below it"
+     ],
+     [
+      "Control",
+      "EC speed control, 0 to 10 V or the maker's controller"
+     ]
+    ],
+    "notes": [
+     "Maxwell's choice (11/19/2026): booster and damper now, sized for about 1 kW of computers, screens and a person (about 3,400 Btu/h). In cooling the supply is about 20 F colder than the room, so that takes about 160 CFM; the 8 in run alone gives about 140.",
+     "In the room rather than the attic: the attic stretch between the trunk and the wall is only about 8 in long. Here it is easy to reach, and mixed flow EC fans this size run in the high 20s to low 30s dBA at low speed, about like the computers. Mount it on rubber isolators with a short flexible connector at each end so it does not drum the duct.",
+     "Pseudo zone, for Home Assistant later: a temperature sensor in the study against the thermostat's reading. Cooling or fan on and the study 2 F or more above the house: booster on, speed rising with the difference. Heating and the study warm: booster off and the damper closes to its minimum stop, so the computers heat the room instead of the heat pump. The heat pump blower still has to be running for the booster to bring conditioned air; with the blower off it only pulls house air back through the trunk. ASSUMED control plan."
+    ],
+    "placement": "Exposed study supply, level stretch about 1 1/2 ft in from the door wall, close under the sloped ceiling."
+   }
+  },
+  {
+   "id": "study_damper",
+   "name": "Study zone damper",
+   "category": "HVAC damper",
+   "system": "hvac.supply",
+   "room": "Bedroom 4 / study",
+   "layer": "mechanical",
+   "builder": "zone_damper",
+   "size": [
+    8,
+    8
+   ],
+   "at": [
+    23.75,
+    10.016666666666666,
+    10.666666666666666
+   ],
+   "facing": 0,
+   "info": {
+    "model": "8 in round motorized zone damper, 24 V, for example Honeywell ARD8 (ASSUMED)",
+    "specs": [
+     [
+      "Duct",
+      "8 in round"
+     ],
+     [
+      "Power",
+      "24 V AC, from a small transformer at the outlet box"
+     ],
+     [
+      "Normal position",
+      "Open, so the study gets its air if the controls fail"
+     ],
+     [
+      "Minimum stop",
+      "Set so it never shuts the run fully: the heat pump never sees a dead end"
+     ]
+    ],
+    "notes": [
+     "Upstream of the booster, just inside the wall. It is the heating half of the zone: when the study is warm and the house calls for heat, it throttles the study's supply instead of the booster pushing more warm air in.",
+     "Pseudo zone, for Home Assistant later: a temperature sensor in the study against the thermostat's reading. Cooling or fan on and the study 2 F or more above the house: booster on, speed rising with the difference. Heating and the study warm: booster off and the damper closes to its minimum stop, so the computers heat the room instead of the heat pump. The heat pump blower still has to be running for the booster to bring conditioned air; with the blower off it only pulls house air back through the trunk. ASSUMED control plan."
+    ],
+    "placement": "Exposed study supply, first foot inside the wall, actuator on the room side."
+   }
+  },
+  {
+   "id": "study_booster_box",
+   "name": "Booster outlet and controls",
+   "category": "Electrical",
+   "system": "electrical",
+   "room": "Bedroom 4 / study",
+   "layer": "mechanical",
+   "builder": "wall_box",
+   "size": [
+    4.5,
+    4.5,
+    2.0
+   ],
+   "at": [
+    23.04,
+    9.0,
+    9.6
+   ],
+   "facing": 90,
+   "info": {
+    "model": "2 gang box high on the west wall: a receptacle for the booster, and room for the damper's 24 V transformer and a relay (ASSUMED)",
+    "specs": [
+     [
+      "Height",
+      "About 9 ft 8 in to the centre, just under the duct"
+     ],
+     [
+      "Circuit",
+      "Study general circuit, the booster is under 1 A"
+     ]
+    ],
+    "notes": [
+     "Rough this in with the study wiring. A smart relay or 0 to 10 V controller in or beside it lets Home Assistant drive the booster and damper later.",
+     "Pseudo zone, for Home Assistant later: a temperature sensor in the study against the thermostat's reading. Cooling or fan on and the study 2 F or more above the house: booster on, speed rising with the difference. Heating and the study warm: booster off and the damper closes to its minimum stop, so the computers heat the room instead of the heat pump. The heat pump blower still has to be running for the booster to bring conditioned air; with the blower off it only pulls house air back through the trunk. ASSUMED control plan."
+    ]
+   }
+  },
+  {
+   "id": "study_temp_sensor",
+   "name": "Study temperature sensor spot",
+   "category": "Controls",
+   "system": "controls",
+   "room": "Bedroom 4 / study",
+   "layer": "mechanical",
+   "builder": "wall_box",
+   "size": [
+    2.75,
+    2.75,
+    0.9
+   ],
+   "at": [
+    23.04,
+    8.6,
+    4.9
+   ],
+   "facing": 90,
+   "sensor": true,
+   "info": {
+    "model": "Wall temperature sensor for Home Assistant, battery or low voltage (ASSUMED)",
+    "specs": [
+     [
+      "Height",
+      "About 5 ft, the thermostat height"
+     ],
+     [
+      "Where",
+      "West wall by the door, away from the desk, the window and the supply jet"
+     ]
+    ],
+    "notes": [
+     "A low voltage cable or a box here at rough in keeps the option of a wired sensor. A battery Zigbee or Thread sensor works with no wiring.",
+     "Pseudo zone, for Home Assistant later: a temperature sensor in the study against the thermostat's reading. Cooling or fan on and the study 2 F or more above the house: booster on, speed rising with the difference. Heating and the study warm: booster off and the damper closes to its minimum stop, so the computers heat the room instead of the heat pump. The heat pump blower still has to be running for the booster to bring conditioned air; with the blower off it only pulls house air back through the trunk. ASSUMED control plan."
+    ]
    }
   }
  ],
@@ -3284,8 +3760,8 @@
     ],
     [
      23.75,
-     7.0,
-     10.65
+     8.0,
+     11.0
     ],
     [
      23.75,
@@ -3310,6 +3786,14 @@
      [
       "Damper",
       "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
+     ],
+     [
+      "With the booster",
+      "About 185 CFM, enough for 1 kW of computers in cooling"
+     ],
+     [
+      "Zone damper",
+      "Motorized, just inside the wall"
      ]
     ],
     "notes": [
