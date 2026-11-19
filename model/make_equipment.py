@@ -885,6 +885,44 @@ ducts.append(dict(id="erv_wall_1", info_of="erv", type="erv", shape="round", siz
 ducts.append(dict(id="erv_to_supply", info_of="erv", type="erv", shape="round", size=6,
                   points=[[ERV_XF, ERV_N, ERV_Z], [ERV_XF, HP_N - 1.4, ERV_Z], [ERV_XF, HP_N - 1.4, DECK + 1.9]]))
 
+# ------------------------------------------------------------------ attic storage
+# Black and yellow 27 gal hardware store totes on the attic deck, for a sense of scale (Maxwell, 11/19/2026). One row along the
+# north side of the open deck the ducts leave north of the laundry and hall, two high where the roof is low. The walkway is
+# everything south of the row, the tallest part of the attic, so it is comfortable to walk through (Maxwell, 11/19/2026: north row
+# only for now, a second row may come later). Nothing sits on a duct or in the heat pump's service space.
+TOTE = [20.1, 14.4, 30.4]                         # W x H x L in, lid on (HDX / Commander 27 gal tough tote, about 30 x 20 x 14 in)
+TOTE_GAP = 4.0 / 12                               # between stacks, so each one can be pulled out
+def roof_under(y): return CFG["roof"]["north_wall_height"] + y * CFG["roof"]["north_pitch"] / 12 - 0.9   # underside of the north roof SIP
+def tote_row(x0, x1, y_back, facing, count):
+    w = TOTE[0] / 12; n = int((x1 - x0 + TOTE_GAP) // (w + TOTE_GAP)); pitch = w + TOTE_GAP
+    xs = [(x0 + x1) / 2 + (k - (n - 1) / 2) * pitch for k in range(n)]
+    return [[round(x, 3), y_back, facing, count] for x in xs]
+TOTE_N_BACK = 14.3                                # back edge: south of the trunk, the bed 1 return and the hall takeoffs (y 13.25)
+STACKS = tote_row(5.8, 26.07, TOTE_N_BACK, 180, 2)
+TOTE_CX, TOTE_CY = 16.0, TOTE_N_BACK
+for x, y, f, k in STACKS:                         # every stack clears the underside of the roof at its low (north) edge
+    assert roof_under(y) - DECK - k * TOTE[1] / 12 > 1.5 / 12, (x, y, k)
+N_TOTES = sum(s[3] for s in STACKS)
+WALK_N = TOTE_N_BACK + TOTE[2] / 12               # front of the row
+WALK_S = CFG["ceilings"]["flat_rooms"][4][3]      # attic wall over the living room
+CLR_N = min(roof_under(s[1]) - DECK - s[3] * TOTE[1] / 12 for s in STACKS) * 12
+def ftin(v): return f"{int(v)} ft {round((v - int(v)) * 12)} in"
+items.append(dict(id="attic_totes", name="Storage totes", category="Storage", system="storage", room="Attic", layer="storage",
+    builder="tote_stacks", size=TOTE, at=[TOTE_CX, TOTE_CY, DECK], facing=180,
+    stacks=[[round(x - TOTE_CX, 3), round(y - TOTE_CY, 3), f, k] for x, y, f, k in STACKS],
+    info=dict(model=f"{N_TOTES} black and yellow 27 gal tough totes, for scale", price="About $15 each at a hardware store",
+        specs=[["Tote", "About 30 x 20 x 14-1/2 in with the lid on, 27 gal"],
+               ["Row", f"{len(STACKS)} stacks, 2 high, clearing the roof by about {CLR_N:.0f} in at the back"],
+               ["Walkway", f"About {ftin(WALK_S - WALK_N)} wide south of the row, {ftin(roof_under(WALK_N) - DECK)} of headroom at the totes rising to {ftin(roof_under(WALK_S) - DECK)} at the south wall"],
+               ["Spacing", "4 in between stacks so any one can be pulled out"]],
+        notes=["Shows how much fits along the north side of the open deck north of the laundry that the ducts leave free (Maxwell, 11/19/2026). Not packed tight. "
+               "The row is held to 2 high because the roof comes down to about 2-1/2 ft over the deck there.",
+               "North row only for now, so the walkway takes the south side, the tallest part of the attic (Maxwell, 11/19/2026). A second row may be added later.",
+               "The walkway runs east to west and opens at the west end by the heat pump, so the totes never block its service aisle or a duct. "
+               "Getting from the walkway to the heat pump's west side still means stepping over the bedroom 1 return, which lies on the deck there.",
+               "Weight: a full tote of household things is roughly 30 to 50 lb. The deck is on 24 in open web trusses; ask the truss maker for the attic storage load they were designed for."],
+        placement="On the attic deck over hall 2 and the laundry, against the supply trunk along the north side.")))
+
 # ------------------------------------------------------------------ ceiling fans (Maxwell, 11/19/2026): every bedroom, the study and the family room
 # Each bedroom fan has an LED light kit and takes the place of that room's ceiling light: one fan rated box per room, which
 # is what a vaulted SIP ceiling wants. The baked light fixture goes (meta replace_nodes) and its night light moves to the kit.
