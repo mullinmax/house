@@ -433,11 +433,10 @@ const BUILD = {
     for (let i = 0; i < n; i++) box(g, 1.3, 2.6, 0.3, mat('rocker', 0xf1f0ec, 0.45, 0), (i - (n - 1) / 2) * 1.81, h / 2, d + 0.15);
     return g;
   },
-  data_jack(s) {                   // coax F connector and a network keystone
+  data_jack(s) {                   // two network keystones, no coax: the house has none (Maxwell, 11/19/2026)
     const [w, h, d] = s, g = new THREE.Group();
     box(g, w, h, d, whitePlastic(), 0, h / 2, d / 2);
-    cyl(g, 0.22, 0.45, brass(), 0, h / 2 + 0.8, d + 0.22, 'z', 12);
-    box(g, 0.62, 0.5, 0.15, darkPlastic(), 0, h / 2 - 0.7, d + 0.07);
+    for (const y of [h / 2 + 0.7, h / 2 - 0.7]) box(g, 0.62, 0.5, 0.15, darkPlastic(), 0, y, d + 0.07);
     return g;
   },
   smoke_alarm(s) {                 // round alarm under the ceiling: the item's z is the ceiling, the body hangs below it

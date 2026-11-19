@@ -37,7 +37,7 @@ flat_height = 9.0               # 9'-0" CLG rooms (A-11). Everything else is vau
 flat_rooms = [
   [0.5, 10.95, 12.12, 22.41],   # Bed 3
   [12.12, 10.95, 23.4, 15.03],  # Hall 2
-  [23.4, 10.95, 28.12, 15.03],  # Hall 2 east leg to the master bedroom door: 9' ceiling + attic over it (Maxwell 11/13). Stops at bedroom 1's west wall (x 28.12, A-11/A-12, Maxwell 11/17/2026)
+  [23.4, 10.95, 30.25, 15.03],  # Hall 2 east leg to the master bedroom door: 9' ceiling + attic over it (Maxwell 11/13). Stops at bedroom 1's west wall, moved from x 28.12 to 30.25 (Maxwell 11/19/2026)
   # South edges at 22.86, just behind the living room's north wall face (22.866): at 22.87 the ceiling and attic deck poked
   # through that wall into the living room (Maxwell, 11/19/2026)
   [12.12, 15.03, 16.66, 22.86], # Hall 2 / linen
@@ -231,7 +231,11 @@ split_at = 6.67                 # split style: door head, cabinet above it
 
 [plan_edits]                    # interior walls moved from where A-11 draws them, by decision
 # at = a plan point inside the wall (ft, as traced), dx/dy = how far it moves
-wall_shift = [ { at = [39.81, 34.0], dx = -0.5, note = "cubby / entry closet partition, 6 in west so the closet is wider (Maxwell 11/17/2026)" } ]
+wall_shift = [ { at = [39.81, 34.0], dx = -0.5, note = "cubby / entry closet partition, 6 in west so the closet is wider (Maxwell 11/17/2026)" },
+               # bedroom 1 door wall, 2 ft 1 1/2 in east (Maxwell 11/19/2026, the builder can move it): the study's south wall then has room for two
+               # return stacks between its door and that wall, each in its own floor truss bay (27.7 and 29.7 on the ASSUMED 24 in truss grid)
+               { at = [28.25, 11.2], dx = 2.13, note = "bedroom 1 door wall, north end" },
+               { at = [28.25, 14.8], dx = 2.13, note = "bedroom 1 door wall, south end" } ]
 wall_remove = [ { at = [39.31, 34.0], note = "that partition is gone: a 3/4 in panel of the coat cabinet divides it from the cubby ([entry_closet] divider, Maxwell 11/19/2026)" } ]
 
 [barn_door]                     # living room "large French barn door" (Maxwell 11/12/2026), D60-80 on A-11
@@ -502,7 +506,7 @@ door_remove = [ [37.19, 19.99], [38.27, 25.45] ]   # 2nd: Bath 1 wet-room openin
 door_pocket = [ [14.16, 22.64, -1], [22.08, 15.26, 1], [16.43, 24.97, 1], [35.7, 29.18, -1], [35.7, 15.26, -1], [31.35, 16.82, 1] ]   # first: Maxwell 11/13. The rest are drawn as pocket doors on A-11 (leaf in the opening, pocket in the wall): laundry, living, bath 1 water closet, closet 1 north and west (11/17/2026)
 # hinge side and swing from the A-11 door arcs (11/17/2026): [x, y near the opening, hinge end N/S/E/W, swings toward N/S/E/W]
 # doors not listed keep the default: hinge at the west or north jamb, swinging south or east (closets 2 and 3 already match A-11)
-door_swing = [ [41.23, 34.9, "E", "S"], [14.14, 10.8, "E", "N"], [17.9, 10.8, "W", "N"], [24.7, 10.8, "W", "N"], [28.27, 13.0, "S", "E"], [16.43, 20.64, "S", "W"],
+door_swing = [ [41.23, 34.9, "E", "S"], [14.14, 10.8, "E", "N"], [17.9, 10.8, "W", "N"], [24.7, 10.8, "W", "N"], [30.4, 13.0, "S", "E"], [16.43, 20.64, "S", "W"],
                [11.97, 12.99, "N", "W"], [11.89, 25.1, "N", "E"], [11.89, 30.6, "N", "W"] ]   # utility door: still hinged on the north jamb but swings OUT into hall 1 (Maxwell, 11/19/2026)   # door between the bedroom wing and the common space: pocket door sliding west into the wall (Maxwell 11/13)   # opening inside Closet 1: left open, no door (Maxwell 11/13)
 items = [
   # ---- living room (vaulted, x 16.7-31.1, y 22.9-34.6)
