@@ -6802,7 +6802,7 @@
     0.3
    ],
    "at": [
-    39.0,
+    37.9,
     22.866,
     11.198
    ],
@@ -6823,6 +6823,7 @@
      ]
     ],
     "notes": [
+     "Moved west out of the attic access, which now opens 1 ft off the east wall (U-12 has it at x 39.0): Maxwell, 11/19/2026.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 5).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
