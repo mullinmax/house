@@ -133,6 +133,7 @@ async function loadAll() {
     const skip = new Set((eq && eq.items || []).map((it) => it.id));      // appliances the equipment layer draws for real
     house = buildHouse(hd, { skip });
     houseMeta = hd.meta || {}; houseSpawns = hd.spawns || {};
+    mergeEquipEdits();
     world.add(house.root);
     parts = parts.filter((p) => !HOUSE_PARTS.test(p.name || p.file.replace(/\.glb$/, '')));
     console.log(`house: ${house.recs.length} records built from house.json`);
@@ -223,6 +224,14 @@ function applyHouseEdits(roots) {
     const culls = (houseMeta.cull || []).filter((c) => new RegExp('^' + (c.parts || 'furniture'), 'i').test(r.name));
     if (culls.length) cullBaked([r], [{ cull: culls }]);
   }
+}
+
+// equipment.json can take baked pieces out too: a ceiling fan's light kit replaces the room's ceiling light, whose night
+// light then moves to the kit.
+function mergeEquipEdits() {
+  const em = (equipData && equipData.meta) || {};
+  if (em.replace_nodes) houseMeta.replace_nodes = [...(houseMeta.replace_nodes || []), ...em.replace_nodes];
+  if (em.lights_moved) houseMeta.lights_moved = { ...(houseMeta.lights_moved || {}), ...em.lights_moved };
 }
 
 function prepare(roots, first) {
@@ -319,7 +328,7 @@ function linkRoom(R, how) {
 //   v=o|w|n  mode     p=x,y,z  camera (plan feet, z up)     t=x,y,z  orbit centre     a=yaw,pitch  walk look (deg)
 //   room=    room     night    cut=ft  height slice         crouch   hide=,show=  layers   info=  equipment id
 const SHARE_KEYS = ['v', 'p', 't', 'a', 'night', 'cut', 'crouch', 'hide', 'show', 'info'];
-const LAYERS_ALL = () => ['Roof', 'Walls', 'Furniture', 'Trees', 'Appliances', 'Vehicles', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
+const LAYERS_ALL = () => ['Roof', 'Walls', 'Furniture', 'Fans', 'Trees', 'Appliances', 'Vehicles', 'Storage', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
 const LAYER_DEFAULT = {};
 for (const k of LAYERS_ALL()) LAYER_DEFAULT[k] = $('l' + k).checked;
 const r1 = (n) => String(Math.round(n * 10) / 10);
@@ -499,6 +508,7 @@ function bakeMerge(list) {
 function makeOperable(o) {
   const u = o.userData;
   const op = { obj: o, type: u.operable, t: 0, target: 0, pos0: o.position.clone(), quat0: o.quaternion.clone() };
+  if (op.type === 'spin') { op.ang = 0; o.userData._op = op; return op; }     // a ceiling fan: E or a tap starts and stops it
   if (op.type === 'overhead') {
     // sectional garage door: the bottom edge rides up the jamb track while the top edge runs back along the ceiling track,
     // so the door ends flat under the ceiling instead of lifting through the roof
@@ -646,7 +656,7 @@ function jump(name) {
 const show = (o, on) => o.traverse((m) => m.layers.set(on ? 0 : 1));
 // Every view switch is a layer: Walls off fades the house so the systems read, Duct x-ray colours the ducts and
 // shows them through everything, and Trees is every tree and shrub, near and far.
-const LAYERS = ['Roof', 'Walls', 'Furniture', 'Trees', 'Appliances', 'Vehicles', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
+const LAYERS = LAYERS_ALL();
 const layerOn = (k) => $('l' + k).checked;
 let sliced = false;
 function applyToggles() {
@@ -658,7 +668,9 @@ function applyToggles() {
   if (equip) {
     show(equip.layers.appliances, layerOn('Appliances'));
     show(equip.layers.vehicles, layerOn('Vehicles'));
+    show(equip.layers.storage, layerOn('Storage'));
     show(equip.layers.mechanical, layerOn('Mechanical'));
+    show(equip.layers.fans, layerOn('Fans'));
     show(equip.layers.ducts, layerOn('Ducts'));
     show(equip.layers.trusses, layerOn('Trusses'));
     for (const o of bakedDeck) show(o, house ? true : !layerOn('Trusses'));     // the baked house's thin deck gives way to the trusses' own
@@ -885,6 +897,9 @@ function addEquipment() {
     for (const o of extra) o.removeFromParent();
   }
   scene.add(equip.root);
+  // a ceiling fan's blades turn on E or a tap, and so does the rest of the fan (the ray usually meets the motor or light first)
+  const spin = []; equip.root.traverse((o) => { if (o.userData.operable) spin.push(o); });
+  for (const o of spin) { const op = makeOperable(o); operables.push(op); if (o.parent && o.parent.parent) o.parent.parent.userData._op = op; }
   for (const m of equipMaterials()) { m.clippingPlanes = [upperPlane]; m.clipShadows = true; }
   equip.root.traverse((o) => {
     if (!o.isMesh) return;
@@ -1311,6 +1326,11 @@ renderer.setAnimationLoop(() => {
   if (!document.hidden) adaptResolution(raw);
   if (mode === 'walk' && colliders.length) walk(dt); else { panOrbit(dt); orbit.update(); }
   for (const op of operables) {
+    if (op.type === 'spin') {        // fans spin up over about 2 s and coast down over 4; spinning blades do not redo the shadows
+      op.t = op.target > op.t ? Math.min(1, op.t + raw / 2) : Math.max(0, op.t - raw / 4);
+      if (op.t > 0) { op.ang = (op.ang + op.t * 15 * raw) % (Math.PI * 2); op.obj.rotation.y = op.ang; }
+      continue;
+    }
     if (op.t !== op.target) { op.t = op.target > op.t ? Math.min(1, op.t + raw / 0.4) : Math.max(0, op.t - raw / 0.4); applyOp(op); }
   }
   // the sun and its shadow box follow the viewer
@@ -1328,7 +1348,7 @@ renderer.setAnimationLoop(() => {
     const t = targetAt(center);
     const shown = t && !t.house;                 // walls and trim answer a click, but do not prompt
     $('prompt').hidden = !shown;
-    if (shown) $('promptTxt').textContent = t.op ? (t.op.target ? 'Close' : 'Open') : `About: ${t.equip.name}`;
+    if (shown) $('promptTxt').textContent = t.op ? (t.op.type === 'spin' ? (t.op.target ? 'Turn fan off' : 'Turn fan on') : t.op.target ? 'Close' : 'Open') : `About: ${t.equip.name}`;
   } else if (mode !== 'walk') $('prompt').hidden = true;
   renderer.render(scene, camera);
 });
