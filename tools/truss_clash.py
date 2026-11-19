@@ -4,7 +4,8 @@
 Reads site/models/equipment.json and lays out the open web floor trusses the same way site/equipment.js does.
 A duct in the truss space may:
   - run parallel to the trusses (north to south) or straight up and down, if it stays clear of every truss in a bay,
-  - cross the trusses (any run that is not north to south) only if it is round and no bigger than MAX_CROSS in, through the web openings.
+  - cross the trusses (any run that is not north to south) only if it is round and no bigger than MAX_CROSS in, through the web openings
+    (a duct's own cross_ok field raises that limit for that one run).
 Prints every offender and exits 1 if there is one.
 """
 import json, os, sys
@@ -51,7 +52,7 @@ for dc in D["ducts"]:
             else:
                 pad = hw if rnd else 0.0                # a rect run's width lies across its length
                 crossed = [x for x in xs if xlo - pad - CW / 2 < x < xhi + pad + CW / 2]
-                if crossed and (not rnd or size > MAX_CROSS):
+                if crossed and (not rnd or size > dc.get("cross_ok", MAX_CROSS)):   # cross_ok: a run the owner has allowed to cross at a bigger size
                     bad.append(f"{dc['id']}: {'round ' if rnd else 'rect '}{dc['size']} crosses {len(crossed)} trusses at y {a[1]:.1f} (max {MAX_CROSS} in round)")
 for b in bad:
     print(b)

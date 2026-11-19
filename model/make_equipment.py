@@ -459,8 +459,10 @@ for k, x in enumerate(KX):
 YS = YE + 0.75
 XL = bay(27.6)                                     # laundry and living 1 share one bay, side by side
 supply("s_laundry", "Laundry", 40, 6, drop(XL - 0.35, YS, 19.0), dict(at=[XL - 0.35, 19.0, CEIL - 0.02], size=[10, 6]))
-supply("s_living1", "Living", 70, 6, drop(XL + 0.35, YS, 21.4) + [[bay(23.7), 21.4, ZT], [bay(23.7), 22.62, ZT]], dict(at=[bay(23.7), 22.9, ZT], size=[10, 6], wall=S),
-       "Drops in the laundry bay, then crosses the trusses west under the study and bedroom 1 returns to keep the register near where M-10 has it.")
+supply("s_living1", "Living", 70, 7, drop(XL + 0.35, YS, 21.4) + [[bay(23.7), 21.4, ZT], [bay(23.7), 22.62, ZT]], dict(at=[bay(23.7), 22.9, ZT], size=[10, 6], wall=S),
+       "Drops in the laundry bay, then crosses the trusses west under the study returns to keep the register near where M-10 has it. "
+       "7 in (Maxwell, 11/18/2026): at 6 in this was the weakest supply in the house. The builder is only sure 6 in passes the truss webs, so check the fit at these two trusses before ordering.")
+ducts[-1]["cross_ok"] = 7                          # tools/truss_clash.py: this run may cross the trusses at 7 in
 supply("s_living2", "Living", 70, 7, drop(bay(29.7), YS, 22.62), dict(at=[bay(29.7), 22.9, ZT], size=[12, 6], wall=S),
        "Hall 1 has no supply of its own (Maxwell, 11/17/2026): one 3 ft from the main return would short circuit into it. Its 48 CFM from M-10 is split between the two living registers, which open onto the hall through the 8 ft wide cased opening.")
 supply("s_closet1", "Closet 1", 33, 6, drop(bay(33.4), YS, 18.9), dict(at=[bay(33.4), 18.9, CEIL - 0.02], size=[10, 6]))
@@ -523,22 +525,41 @@ RFLEX = ("Round flex duct: a rectangular duct cannot pass through open web floor
          "until Andy or the HVAC installer sizes them.")
 
 RY = 24.8                                          # the main return's centreline: above the utility room door, in line with the heat pump's filter side
-ret("return_main", "Main return (M-10)", [34, 10], [[11.95, RY, ZT], [10.95, RY, ZT]], parent="return_main_riser", intake=True, k=1.0,
-    grilles=[dict(at=[12.15, RY, ZT], size=[34, 10], wall="E")])
-ducts[-1]["info"] = dict(model="34 x 10 in grille and trunk, 1,368 CFM system (M-10)",
-    specs=[["Serves", "Living, kitchen, dining, family and the halls, plus any room on transfer grilles"], ["Grille", "34 x 10 in, hall 1 (M-10)"],
-           ["Boot", "34 x 10 in box in one truss bay over the utility room, parallel to the trusses"], ["Trunk", "34 x 10 in on the attic deck (M-10)"]],
-    notes=["Andy's M-10 return: one 34 x 10 grille in hall 1 and a 34 x 10 return trunk over the utility, pantry and powder rooms to HP-01. "
-           "Moved about 6 ft north along the same hall 1 wall (Maxwell, 11/18/2026), so the trunk runs straight west into the heat pump's return plenum with no turns: about 5 ft of trunk instead of 11. "
-           "The grille sits high on the hall 1 wall above the utility room door. Behind it a boot box sits inside one truss bay, so nothing crosses the trusses, "
-           "and rises straight up through the deck. The trunk runs on the deck from there to the return plenum. Route on the deck is ASSUMED to suit the heat pump position in this model."])
-XMR = 11.45
+# Quiet main return (Maxwell, 11/18/2026: do everything we can to cut the noise at this grille). About 1,030 CFM comes back here.
+# The grille is twice as tall and sits higher on the hall 1 wall, above the attic deck, so it opens into a lined box on the deck
+# instead of a boot in the trusses. The air turns down inside the box, turns again into a taller lined trunk, and turns a third
+# time into the filter, so there is no straight line for blower noise from the heat pump to the hall.
+RG_H = 20                                          # grille height, in
+RG_Z = DECK + 14 / 12 + RG_H / 24 + 0.1            # grille centre: its bottom edge just above the top of the trunk behind the wall
+RT_H = 14                                          # lined trunk height, in
+DKM = DECK + RT_H / 24                             # centre of the trunk lying on the deck
+ret("return_main", "Main return (M-10)", [34, RG_H], [[11.64, RY, RG_Z], [11.06, RY, RG_Z]], parent="return_main_riser", intake=True, k=1.0,
+    grilles=[dict(at=[12.15, RY, RG_Z], size=[34, RG_H], wall="E")])
+ducts[-1]["info"] = dict(model=f"34 x {RG_H} in grille, lined drop box and 34 x {RT_H} in lined trunk, 1,368 CFM system (M-10)",
+    specs=[["Serves", "Living, kitchen, dining, family and the halls, plus what leaves the bedrooms under their doors"], ["Grille", f"34 x {RG_H} in, high on the hall 1 wall. About 220 fpm at the face, down from about 440 fpm at 34 x 10"],
+           ["Drop box", f"14 x 36 in, on the deck behind the grille, 1 in acoustic duct liner"], ["Trunk", f"34 x {RT_H} in on the attic deck, 1 in acoustic duct liner, about 6 ft"],
+           ["Turns", "Three between the grille and the filter: down in the box, into the trunk, and into the return plenum"]],
+    notes=["Andy's M-10 return is one 34 x 10 grille in hall 1 and a 34 x 10 return trunk to HP-01. Maxwell, 11/18/2026: make it as quiet as possible, with a larger grille and "
+           "an elbow or two so the sound bounces before it reaches the hall. The grille is 34 x 20 and sits above the attic deck on the same wall, over the utility room door. "
+           "It opens into a lined box that turns the air down to the deck, then a lined trunk runs west into the return plenum. Nothing is in the floor trusses any more.",
+           "To go further: a deeper filter grille style frame with a sound attenuating liner, flexible connectors at the heat pump, and a turning vane free square elbow (lined) all help. "
+           "Liner takes 1 in off each inside face, so the trunk is drawn 4 in taller than M-10's. Sizes and route ASSUMED."])
 RP_N = HP_Y - 2.035                                # the plenum box covers the 36 in filter rack on the coil (north) half of the unit
 RP_S = RP_N + 3.2                                  # and stops there, so the TXV and filter drier access south of it stays open (GZT manual p.17, area A-2)
 RP_E = HP_X + 0.22 + 14 / 12                       # its east face, where the trunk comes in
 RPX = bay(7.7)                                     # the bedroom flex runs come up into the bottom of the trunk in this truss bay
-ret("return_main_riser", None, [14, 30], [[XMR, RY, ZT], [XMR, RY, DK]], info_of="return_main", parent="return_main_deck", k=1.0)
-ret("return_main_deck", None, [34, 10], [[XMR, RY, DK], [RP_E, RY, DK]], info_of="return_main", k=1.0)
+XMR = 11.06                                        # the drop box, tight against the attic side of the hall 1 wall
+ret("return_main_riser", None, [14, 36], [[XMR, RY, RG_Z + RG_H / 24], [XMR, RY, DECK + 0.02]], info_of="return_main", parent="return_main_deck", k=1.0)
+ret("return_main_deck", None, [34, RT_H], [[XMR - 7 / 12, RY, DKM], [RP_E, RY, DKM]], info_of="return_main", k=1.0)
+# Utility room (Maxwell, 11/18/2026): the door is solid, so the room gets a transfer grille straight up into the attic.
+UTX, UTY = bay(9.7), 27.3
+ret("transfer_utility", "Utility room transfer grille", [12, 12], [[UTX, UTY, CEIL], [UTX, UTY, DECK + 0.06]], parent=None, calc=False,
+    grilles=[dict(at=[UTX, UTY, CEIL - 0.02], size=[12, 12]), dict(at=[UTX, UTY, DECK + 0.13], size=[12, 12])],
+    model="12 x 12 in ceiling grille and lined sleeve up through the trusses to a grille in the attic deck",
+    note="The utility room has a solid door (to keep equipment noise out of the hall), a supply register and no return, so the air it is given had no way out. "
+         "Maxwell, 11/18/2026: give it a transfer grille to the attic. The sleeve sits in one truss bay between the water heater and the door. "
+         "Lining the sleeve keeps light and tank noise from carrying. The attic is inside the SIP roof and has no return opening of its own, so Andy should confirm "
+         "how air gets from the attic back to the heat pump. ASSUMED size and position.")
 ret("return_plenum", "Return plenum box", [14, 24], [[RP_E - 7 / 12, RP_S, PZ], [RP_E - 7 / 12, RP_N, PZ]], parent=None,
     model="14 x 24 in return plenum box on the deck, along the heat pump's filter rack",
     note="The return trunk comes straight into its east face. The bedroom flex runs come up through collars in the bottom of the trunk just east of it. "

@@ -3194,7 +3194,7 @@
    "room": "Living",
    "type": "supply",
    "shape": "round",
-   "size": 6,
+   "size": 7,
    "points": [
     [
      28.05,
@@ -3226,7 +3226,7 @@
    "parent": "supply_trunk",
    "damper": true,
    "info": {
-    "model": "6 in round, 70 CFM",
+    "model": "7 in round, 70 CFM",
     "specs": [
      [
       "Airflow",
@@ -3234,7 +3234,7 @@
      ],
      [
       "Duct",
-      "6 in round"
+      "7 in round"
      ],
      [
       "Damper",
@@ -3242,7 +3242,7 @@
      ]
     ],
     "notes": [
-     "Drops in the laundry bay, then crosses the trusses west under the study and bedroom 1 returns to keep the register near where M-10 has it."
+     "Drops in the laundry bay, then crosses the trusses west under the study returns to keep the register near where M-10 has it. 7 in (Maxwell, 11/18/2026): at 6 in this was the weakest supply in the house. The builder is only sure 6 in passes the truss webs, so check the fit at these two trusses before ordering."
     ]
    },
    "grilles": [
@@ -3258,7 +3258,8 @@
      ],
      "wall": "S"
     }
-   ]
+   ],
+   "cross_ok": 7
   },
   {
    "id": "s_living2",
@@ -3711,14 +3712,14 @@
    "type": "return",
    "points": [
     [
-     11.95,
+     11.64,
      24.8,
-     9.494791666666666
+     12.152083333333334
     ],
     [
-     10.95,
+     11.06,
      24.8,
-     9.494791666666666
+     12.152083333333334
     ]
    ],
    "parent": "return_main_riser",
@@ -3727,30 +3728,35 @@
    "shape": "rect",
    "size": [
     34,
-    10
+    20
    ],
    "info": {
-    "model": "34 x 10 in grille and trunk, 1,368 CFM system (M-10)",
+    "model": "34 x 20 in grille, lined drop box and 34 x 14 in lined trunk, 1,368 CFM system (M-10)",
     "specs": [
      [
       "Serves",
-      "Living, kitchen, dining, family and the halls, plus any room on transfer grilles"
+      "Living, kitchen, dining, family and the halls, plus what leaves the bedrooms under their doors"
      ],
      [
       "Grille",
-      "34 x 10 in, hall 1 (M-10)"
+      "34 x 20 in, high on the hall 1 wall. About 220 fpm at the face, down from about 440 fpm at 34 x 10"
      ],
      [
-      "Boot",
-      "34 x 10 in box in one truss bay over the utility room, parallel to the trusses"
+      "Drop box",
+      "14 x 36 in, on the deck behind the grille, 1 in acoustic duct liner"
      ],
      [
       "Trunk",
-      "34 x 10 in on the attic deck (M-10)"
+      "34 x 14 in on the attic deck, 1 in acoustic duct liner, about 6 ft"
+     ],
+     [
+      "Turns",
+      "Three between the grille and the filter: down in the box, into the trunk, and into the return plenum"
      ]
     ],
     "notes": [
-     "Andy's M-10 return: one 34 x 10 grille in hall 1 and a 34 x 10 return trunk over the utility, pantry and powder rooms to HP-01. Moved about 6 ft north along the same hall 1 wall (Maxwell, 11/18/2026), so the trunk runs straight west into the heat pump's return plenum with no turns: about 5 ft of trunk instead of 11. The grille sits high on the hall 1 wall above the utility room door. Behind it a boot box sits inside one truss bay, so nothing crosses the trusses, and rises straight up through the deck. The trunk runs on the deck from there to the return plenum. Route on the deck is ASSUMED to suit the heat pump position in this model."
+     "Andy's M-10 return is one 34 x 10 grille in hall 1 and a 34 x 10 return trunk to HP-01. Maxwell, 11/18/2026: make it as quiet as possible, with a larger grille and an elbow or two so the sound bounces before it reaches the hall. The grille is 34 x 20 and sits above the attic deck on the same wall, over the utility room door. It opens into a lined box that turns the air down to the deck, then a lined trunk runs west into the return plenum. Nothing is in the floor trusses any more.",
+     "To go further: a deeper filter grille style frame with a sound attenuating liner, flexible connectors at the heat pump, and a turning vane free square elbow (lined) all help. Liner takes 1 in off each inside face, so the trunk is drawn 4 in taller than M-10's. Sizes and route ASSUMED."
     ]
    },
    "grilles": [
@@ -3758,11 +3764,11 @@
      "at": [
       12.15,
       24.8,
-      9.494791666666666
+      12.152083333333334
      ],
      "size": [
       34,
-      10
+      20
      ],
      "wall": "E"
     }
@@ -3775,14 +3781,14 @@
    "type": "return",
    "points": [
     [
-     11.45,
+     11.06,
      24.8,
-     9.494791666666666
+     12.985416666666667
     ],
     [
-     11.45,
+     11.06,
      24.8,
-     10.46875
+     10.072083333333333
     ]
    ],
    "parent": "return_main_deck",
@@ -3790,7 +3796,7 @@
    "shape": "rect",
    "size": [
     14,
-    30
+    36
    ],
    "info_of": "return_main"
   },
@@ -3801,14 +3807,14 @@
    "type": "return",
    "points": [
     [
-     11.45,
+     10.476666666666667,
      24.8,
-     10.46875
+     10.635416666666668
     ],
     [
      5.696666666666666,
      24.8,
-     10.46875
+     10.635416666666668
     ]
    ],
    "parent": "return_plenum",
@@ -3816,9 +3822,65 @@
    "shape": "rect",
    "size": [
     34,
-    10
+    14
    ],
    "info_of": "return_main"
+  },
+  {
+   "id": "transfer_utility",
+   "name": "Utility room transfer grille",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     9.7,
+     27.3,
+     9.0
+    ],
+    [
+     9.7,
+     27.3,
+     10.112083333333334
+    ]
+   ],
+   "parent": null,
+   "calc": false,
+   "shape": "rect",
+   "size": [
+    12,
+    12
+   ],
+   "info": {
+    "model": "12 x 12 in ceiling grille and lined sleeve up through the trusses to a grille in the attic deck",
+    "notes": [
+     "The utility room has a solid door (to keep equipment noise out of the hall), a supply register and no return, so the air it is given had no way out. Maxwell, 11/18/2026: give it a transfer grille to the attic. The sleeve sits in one truss bay between the water heater and the door. Lining the sleeve keeps light and tank noise from carrying. The attic is inside the SIP roof and has no return opening of its own, so Andy should confirm how air gets from the attic back to the heat pump. ASSUMED size and position."
+    ]
+   },
+   "grilles": [
+    {
+     "at": [
+      9.7,
+      27.3,
+      8.98
+     ],
+     "size": [
+      12,
+      12
+     ]
+    },
+    {
+     "at": [
+      9.7,
+      27.3,
+      10.182083333333335
+     ],
+     "size": [
+      12,
+      12
+     ]
+    }
+   ]
   },
   {
    "id": "return_plenum",
