@@ -1410,7 +1410,7 @@
    "name": "Dyson V8 stick vacuum on its wall dock",
    "category": "Cleaning",
    "system": "household",
-   "room": "Utility",
+   "room": "Hall closet",
    "layer": "appliances",
    "builder": "stick_vacuum",
    "size": [
@@ -1419,11 +1419,11 @@
     8.8
    ],
    "at": [
-    11.0,
-    22.876,
+    19.737,
+    20.64,
     0
    ],
-   "facing": 180,
+   "facing": 270,
    "info": {
     "model": "Dyson V8 cordless stick vacuum (clear bin, long wand) with its wall docking station and charger",
     "specs": [
@@ -1437,7 +1437,7 @@
      ],
      [
       "Power",
-      "One 120 V duplex outlet about 18 in up, just west of the vacuum, for the charger"
+      "One 120 V duplex outlet about 18 in up, just north of the vacuum, for the charger"
      ],
      [
       "Run time",
@@ -1446,10 +1446,10 @@
     ],
     "notes": [
      "Placeholder for where the vacuum is kept (Maxwell, 11/19/2026). Exact V8 variant not picked, so the size is from the V8 class.",
-     "The charger outlet is not on Andy's U-11: it is in the Electrical layer as an added outlet, so tell the electrician it is wanted here. U-11's own utility outlet is about 3 ft 8 in west, by the pressure tank.",
+     "The charger outlet is not on Andy's U-11: it is in the Electrical layer as an added outlet, so tell the electrician it is wanted here. U-11 shows no outlet in this closet.",
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
     ],
-    "placement": "Northeast corner of the utility room, on the north wall right beside the hall door (Maxwell, 11/19/2026). The door now swings out into the hall, so the corner is free; the floor head stays about 2 in off the east wall and the door casing. It sticks out about 9 in, less than the pressure tank, so nothing narrows the way in."
+    "placement": "Hall closet off hall 2, on the back (east) wall straight across from the door (Maxwell, 11/19/2026: moved here from the utility room). It sticks out about 9 in into the 3 ft deep closet, which leaves about 2 ft 3 in in front of it."
    }
   },
   {
@@ -7319,7 +7319,7 @@
    "name": "Outlet, 18 in",
    "category": "Electrical",
    "system": "electrical.power",
-   "room": "Utility",
+   "room": "Laundry",
    "layer": "electrical",
    "builder": "outlet",
    "size": [
@@ -7328,11 +7328,11 @@
     0.3
    ],
    "at": [
-    10.417,
-    22.866,
+    19.747,
+    20.057,
     1.312
    ],
-   "facing": 180,
+   "facing": 270,
    "gfi": false,
    "wp": false,
    "volts": 120,
@@ -7345,11 +7345,11 @@
      ],
      [
       "On",
-      "The south facing wall"
+      "The west facing wall"
      ]
     ],
     "notes": [
-     "Not on U-11. Added for the stick vacuum's charger, just west of its dock (Maxwell, 11/19/2026). U-11's own utility room outlet is 45 in further west by the pressure tank, where the UV sterilizer and well controls can use it."
+     "Not on U-11. Added for the stick vacuum's charger in the hall closet, just north of its dock (Maxwell, 11/19/2026: the vacuum moved here from the utility room)."
     ]
    },
    "src": "added #vacuum"
