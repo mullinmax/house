@@ -216,9 +216,12 @@ passages = [[0.743, 3.443, 6.67],[12.122, 16.206, 8.0], [20.914, 26.914, 8.0], [
 # east end, beside the closet, so the closet opening shrinks to 18 in (hinge jamb kept on the east). Closet inside stays 3'-0" x 1'-6".
 style = "coat"                  # coat (Maxwell 11/19/2026: B as a coat cabinet) | cabinet (built-in, shelves) | closet (oak door) | pullout (pull-out coat tower) | split (door + cabinet above)
 rod_z = 5.6                     # coat rod height
+merge_cubby = true              # no oak trim between the cubby and the built-in: one piece, wall strip faced in sage (Maxwell 11/19/2026)
 opening = [39.56, 42.289]       # clear opening, plan x, from just east of the posts to the east wall (Maxwell 11/19/2026: take out most of the
                                 # wall to the cubby, so coats go in and out easily). The passage above must match it. Was 18 in, [40.789, 42.289]
-interior = [39.501, 42.497, 33.116, 34.616]   # closet inside faces: x0, x1, y0 (back), y1 (clerestory wall north face)
+interior = [39.227, 42.497, 33.116, 34.616]   # closet inside faces: x0 (the divider panel), x1, y0 (back), y1 (clerestory wall north face). Was 39.501 at the old partition
+divider = [39.164, 39.227]      # Maxwell 11/19/2026: no wall between the cubby and the coat cabinet (not structural, the header carries it): a 3/4 in panel
+divider_top = 7.98
 posts = [39.164, 39.414]        # (2) 2x4 posts, plan x, under the beam end at the cubby's east jamb. ASSUMED position
 post_top = 8.0                  # underside of the beam (cubby opening head)
 split_at = 6.67                 # split style: door head, cabinet above it
@@ -226,6 +229,7 @@ split_at = 6.67                 # split style: door head, cabinet above it
 [plan_edits]                    # interior walls moved from where A-11 draws them, by decision
 # at = a plan point inside the wall (ft, as traced), dx/dy = how far it moves
 wall_shift = [ { at = [39.81, 34.0], dx = -0.5, note = "cubby / entry closet partition, 6 in west so the closet is wider (Maxwell 11/17/2026)" } ]
+wall_remove = [ { at = [39.31, 34.0], note = "that partition is gone: a 3/4 in panel of the coat cabinet divides it from the cubby ([entry_closet] divider, Maxwell 11/19/2026)" } ]
 
 [barn_door]                     # living room "large French barn door" (Maxwell 11/12/2026), D60-80 on A-11
 enabled = true

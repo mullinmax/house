@@ -47,6 +47,9 @@ CL = C["clerestory"]
 EC = C.get("entry_closet", {})                  # entry closet built around the beam posts (Maxwell's builder, 11/19/2026)
 EC_STYLE = EC.get("style", "closet")
 EC_OPEN = tuple(EC.get("opening", [40.789, 42.289]))
+# a built-in in the closet opening and the mudroom unit read as one piece: no oak casing leg between them, the strip of wall
+# over the beam posts faced in the cabinet paint (Maxwell 11/19/2026)
+EC_MERGE = bool(EC) and EC.get("merge_cubby", True) and EC_STYLE in ("cabinet", "pullout", "coat")
 LOFT = C["loft"]
 LX0, LY0, LX1, LY1 = LOFT["rect"]
 _ft = C.get("floor_trusses")
@@ -597,6 +600,12 @@ for ed in C.get("plan_edits", {}).get("wall_shift", []):      # partitions moved
             break
     else:
         raise SystemExit(f"plan_edits.wall_shift: no interior wall at {ed['at']}")
+for ed in C.get("plan_edits", {}).get("wall_remove", []):     # partitions taken out by a decision (a built-in panel stands in)
+    px, py = ed["at"]
+    hit = [r_ for r_ in INT_RECTS if r_[0] - 0.01 <= px <= r_[1] + 0.01 and r_[2] - 0.01 <= py <= r_[3] + 0.01]
+    if not hit:
+        raise SystemExit(f"plan_edits.wall_remove: no interior wall at {ed['at']}")
+    INT_RECTS.remove(hit[0])
 DOORS = G.get("door_labels_A11", [])
 
 
@@ -1283,7 +1292,7 @@ if FU.get("enabled"):
             continue                           # a door was hung in it, and the door brings its own jambs and casing
         # an opening whose jambs are partitions running north (the mudroom cubby) has no wall face on its north side to
         # trim: casings there stood in the cubby and poked through its side walls (Maxwell 11/17/2026)
-        abut = lambda xj: any(r_[1] > r_[0] + 0.1 and r_[0] - 0.05 <= xj <= r_[1] + 0.05 and r_[3] >= YC - 0.05 and r_[2] < YC - 0.3 for r_ in INT_RECTS)
+        abut = lambda xj: (EC_MERGE and abs(xj - EC["posts"][0]) < 0.05) or any(r_[1] > r_[0] + 0.1 and r_[0] - 0.05 <= xj <= r_[1] + 0.05 and r_[3] >= YC - 0.05 and r_[2] < YC - 0.3 for r_ in INT_RECTS)
         for (b0, b1) in ((YC - 0.06, YC), (YC2, YC2 + 0.06)):
             if b1 <= YC and abut(x0) and abut(x1):
                 continue
@@ -1294,9 +1303,14 @@ if FU.get("enabled"):
             nb = [q[1] for q in CL["passages"] if q[1] < x0 - 0.01]
             if nb and max(nb) + CW + RV > cl:
                 cl = max(nb) + CW + RV + 0.003
-            box("White Oak", cl, x0 - RV, b0, b1, 0, hd + RV)
-            box("White Oak", x1 + RV, x1 + CW + RV, b0, b1, 0, hd + RV)
-            box("White Oak", cl, x1 + CW + RV, b0, b1, hd + RV, hd + RV + CW)
+            cr = x1 + CW + RV
+            if EC_MERGE and abs(x0 - EC_OPEN[0]) < 0.01:
+                cl = max(nb) + CW + RV         # one head casing runs on from the cubby's; no leg between them
+            else:
+                box("White Oak", cl, x0 - RV, b0, b1, 0, hd + RV)
+            if not (EC_MERGE and b0 >= YC2 - 1e-6 and abs(x1 - EC["posts"][0]) < 0.01):
+                box("White Oak", x1 + RV, cr, b0, b1, 0, hd + RV)
+            box("White Oak", cl, cr, b0, b1, hd + RV, hd + RV + CW)
 
 # ------------------------------------------------------------------ entry closet around the beam posts (11/19/2026)
 def entry_closet():
@@ -1368,6 +1382,12 @@ def entry_closet():
         return
 
     # built-ins filling the opening: painted to match the mudroom unit next to it
+    if EC_MERGE:                                   # filler over the wall between the cubby and the cabinet, floor to the head casing
+        RV_ = 0.016
+        box(M, EC["posts"][0] + 0.003, ox0 + 0.06, yf - 0.002, yf + 0.05, 0.0, 8.0 + RV_ - 0.003)
+    if EC.get("divider"):                          # the partition to the cubby is gone: a 3/4 in cabinet panel divides them and carries the rod
+        d0, d1 = EC["divider"]
+        box(M, d0, d1, iy0 + 0.003, YC - 0.003, 0.0, EC.get("divider_top", 7.98))
     for (a0, a1) in ((ox0, ox0 + 0.06), (ox1 - 0.06, ox1)):                              # jamb liners
         box(M, a0, a1, YC, yf - 0.002, 0.0, 8.0)
     box(M, ox0 + 0.06, ox1 - 0.06, YC, yf - 0.002, 7.94, 8.0)
@@ -1378,7 +1398,8 @@ def entry_closet():
                 info=dict(model="Built-in coat cabinet, painted light sage to match the mudroom unit: a pair of tall doors over a coat rod, a pair of small doors over the top shelf",
                           specs=[["Opening", f"{ftin(W)} wide x 8' 0\""], ["Inside", f"{ftin(ix1 - ix0)} wide x {ftin(yf - 0.1 - iy0)} deep, back wall to the doors"],
                                  ["Rod", f"{ftin(ix1 - ix0)} long at {ftin(EC.get('rod_z', 5.6))}, 12 in off the back wall, so 17 1/2 in hangers fit"],
-                                 ["Also", "shelf over the rod, top shelf behind the small doors, rubber boot tray on the floor"]],
+                                 ["Also", "shelf over the rod, top shelf behind the small doors, rubber boot tray on the floor"]]
+                         + ([["Divider", "3/4 in cabinet panel to the mudroom cubby, in place of a wall; the rod socket screws into it, with blocking behind for the hooks on the cubby side"]] if EC.get("divider") else []),
                           notes=["Maxwell, 11/19/2026: option B, with most of the wall between the cubby and the closet taken out so the doors are wide enough to get coats in and out. "
                                  "The opening now runs from the beam posts to the east wall; the builder still has to confirm the header over it.",
                                  "The doors sit in the wall's thickness, so the cabinet is about 2 ft deep: enough for coats hung facing the doors."]))
