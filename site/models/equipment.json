@@ -1657,6 +1657,117 @@
    }
   },
   {
+   "id": "attic_totes",
+   "name": "Storage totes",
+   "category": "Storage",
+   "system": "storage",
+   "room": "Attic",
+   "layer": "storage",
+   "builder": "tote_stacks",
+   "size": [
+    20.1,
+    14.4,
+    30.4
+   ],
+   "at": [
+    16.0,
+    14.3,
+    10.052083333333334
+   ],
+   "facing": 180,
+   "stacks": [
+    [
+     -9.102,
+     0.0,
+     180,
+     2
+    ],
+    [
+     -7.094,
+     0.0,
+     180,
+     2
+    ],
+    [
+     -5.086,
+     0.0,
+     180,
+     2
+    ],
+    [
+     -3.078,
+     0.0,
+     180,
+     2
+    ],
+    [
+     -1.069,
+     0.0,
+     180,
+     2
+    ],
+    [
+     0.939,
+     0.0,
+     180,
+     2
+    ],
+    [
+     2.948,
+     0.0,
+     180,
+     2
+    ],
+    [
+     4.956,
+     0.0,
+     180,
+     2
+    ],
+    [
+     6.964,
+     0.0,
+     180,
+     2
+    ],
+    [
+     8.973,
+     0.0,
+     180,
+     2
+    ]
+   ],
+   "info": {
+    "model": "20 black and yellow 27 gal tough totes, for scale",
+    "price": "About $15 each at a hardware store",
+    "specs": [
+     [
+      "Tote",
+      "About 30 x 20 x 14-1/2 in with the lid on, 27 gal"
+     ],
+     [
+      "Row",
+      "10 stacks, 2 high, clearing the roof by about 2 in at the back"
+     ],
+     [
+      "Walkway",
+      "About 6 ft 0 in wide south of the row, 3 ft 5 in of headroom at the totes rising to 5 ft 4 in at the south wall"
+     ],
+     [
+      "Spacing",
+      "4 in between stacks so any one can be pulled out"
+     ]
+    ],
+    "notes": [
+     "Shows how much fits along the north side of the open deck north of the laundry that the ducts leave free (Maxwell, 11/19/2026). Not packed tight. The row is held to 2 high because the roof comes down to about 2-1/2 ft over the deck there.",
+     "North row only for now, so the walkway takes the south side, the tallest part of the attic (Maxwell, 11/19/2026). A second row may be added later.",
+     "The walkway runs east to west and opens at the west end by the heat pump, so the totes never block its service aisle or a duct. Getting from the walkway to the heat pump's west side still means stepping over the bedroom 1 return, which lies on the deck there.",
+     "Weight: a full tote of household things is roughly 30 to 50 lb. The deck is on 24 in open web trusses; ask the truss maker for the attic storage load they were designed for."
+    ],
+    "placement": "On the attic deck over hall 2 and the laundry, against the supply trunk along the north side."
+   }
+  },
+  {
    "id": "fan_bed1",
    "name": "Ceiling fan with light",
    "category": "Ceiling fan",
