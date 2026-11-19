@@ -1197,7 +1197,7 @@ if FU.get("enabled"):
     DOOR_NAMES, DOOR_NOTES, DOOR_LEAF_TOP = {}, {}, {}
     for da in FU.get("door_add", []):
         if da.get("name") == "Door, entry closet":
-            if EC_STYLE in ("cabinet", "pullout"):
+            if EC_STYLE in ("cabinet", "pullout", "coat"):
                 continue                       # a built-in fills the opening instead of a door
             da = dict(da, g0=EC_OPEN[0], g1=EC_OPEN[1])
             if EC_STYLE == "split":
@@ -1290,9 +1290,13 @@ if FU.get("enabled"):
             if b1 <= YC and abs(x0 - EC_OPEN[0]) < 0.01:
                 continue                       # entry closet built-in: its carcass fills the closet side
             RV = 0.016                         # 3/16" reveal: the casing stops short of the opening, so its edge never shows inside
-            box("White Oak", x0 - CW - RV, x0 - RV, b0, b1, 0, hd + RV)
+            cl = x0 - CW - RV                  # left casing edge; it stops at a neighbour opening's casing when the wall between is narrow
+            nb = [q[1] for q in CL["passages"] if q[1] < x0 - 0.01]
+            if nb and max(nb) + CW + RV > cl:
+                cl = max(nb) + CW + RV + 0.003
+            box("White Oak", cl, x0 - RV, b0, b1, 0, hd + RV)
             box("White Oak", x1 + RV, x1 + CW + RV, b0, b1, 0, hd + RV)
-            box("White Oak", x0 - CW - RV, x1 + CW + RV, b0, b1, hd + RV, hd + RV + CW)
+            box("White Oak", cl, x1 + CW + RV, b0, b1, hd + RV, hd + RV + CW)
 
 # ------------------------------------------------------------------ entry closet around the beam posts (11/19/2026)
 def entry_closet():
@@ -1313,7 +1317,7 @@ def entry_closet():
     for k in range(2):
         a = px0 + k * (px1 - px0) / 2
         box("Framing Lumber", a + 0.003, a + (px1 - px0) / 2 - 0.003, ym - 0.146, ym + 0.146, 0.01, ptop - 0.01)
-    if EC_STYLE not in ("closet", "split", "cabinet", "pullout"):
+    if EC_STYLE not in ("closet", "split", "cabinet", "pullout", "coat"):
         return
     M, O = "Mudroom Paint", "White Oak"
     W = ox1 - ox0
@@ -1369,6 +1373,64 @@ def entry_closet():
     box(M, ox0 + 0.06, ox1 - 0.06, YC, yf - 0.002, 7.94, 8.0)
     box(M, ox0 + 0.06, ox1 - 0.06, YC, yf - 0.25, 0.0, 0.33)                             # recessed toe kick
     box(M, ix0 + 0.003, ix1 - 0.003, iy0 + 0.003, yf - 0.1, 0.33, 0.38)                  # carcass floor
+    if EC_STYLE == "coat":
+        r = rec("furniture.entry_closet", "furniture", "Entry coat cabinet", "furniture", room="Entry",
+                info=dict(model="Built-in coat cabinet, painted light sage to match the mudroom unit: a pair of tall doors over a coat rod, a pair of small doors over the top shelf",
+                          specs=[["Opening", f"{ftin(W)} wide x 8' 0\""], ["Inside", f"{ftin(ix1 - ix0)} wide x {ftin(yf - 0.1 - iy0)} deep, back wall to the doors"],
+                                 ["Rod", f"{ftin(ix1 - ix0)} long at {ftin(EC.get('rod_z', 5.6))}, 12 in off the back wall, so 17 1/2 in hangers fit"],
+                                 ["Also", "shelf over the rod, top shelf behind the small doors, rubber boot tray on the floor"]],
+                          notes=["Maxwell, 11/19/2026: option B, with most of the wall between the cubby and the closet taken out so the doors are wide enough to get coats in and out. "
+                                 "The opening now runs from the beam posts to the east wall; the builder still has to confirm the header over it.",
+                                 "The doors sit in the wall's thickness, so the cabinet is about 2 ft deep: enough for coats hung facing the doors."]))
+        rz, ry = EC.get("rod_z", 5.6), iy0 + 1.0
+        zt = 6.45
+        box(M, ix0 + 0.003, ix1 - 0.003, iy0 + 0.003, yf - 0.1, zt, zt + 0.06)                # shelf over the rod
+        box(M, ix0 + 0.003, ix1 - 0.003, iy0 + 0.003, yf - 0.1, 7.2, 7.26)                  # top shelf
+        box("Brushed Nickel", ix0 + 0.003, ix1 - 0.003, ry - 0.045, ry + 0.045, rz - 0.045, rz + 0.045)   # 1 1/16 in rod
+        for xw in (ix0 + 0.003, ix1 - 0.055):
+            box("Brushed Nickel", xw, xw + 0.052, ry - 0.1, ry + 0.1, rz - 0.1, rz + 0.1)      # rod sockets
+        boot_tray(ix0 + 0.1, ix1 - 0.1, iy0 + 0.08, yf - 0.2)
+
+        def slab(mat, x0, x1, ya, za, yb, zb, t):     # a sloped bar in the y-z plane, x0..x1 thick, t tall
+            hexa(mat, [(x0, ya, za), (x1, ya, za), (x1, yb, zb), (x0, yb, zb), (x0, ya, za + t), (x1, ya, za + t), (x1, yb, zb + t), (x0, yb, zb + t)])
+
+        def hanger(x):                                 # 17 1/2 in wooden hanger, hook over the rod
+            hw, zs = 0.73, rz - 0.17
+            box("Brushed Nickel", x - 0.01, x + 0.01, ry - 0.01, ry + 0.01, zs, rz + 0.07)
+            box("Brushed Nickel", x - 0.01, x + 0.01, ry - 0.08, ry + 0.01, rz + 0.06, rz + 0.08)
+            box("Brushed Nickel", x - 0.01, x + 0.01, ry - 0.08, ry - 0.06, rz - 0.02, rz + 0.07)
+            for sg in (-1, 1):
+                slab("Hanger Wood", x - 0.02, x + 0.02, ry, zs - 0.04, ry + sg * hw, zs - 0.3, 0.08)
+            box("Hanger Wood", x - 0.012, x + 0.012, ry - hw + 0.05, ry + hw - 0.05, zs - 0.62, zs - 0.58)   # trouser bar
+            for sg in (-1, 1):
+                box("Hanger Wood", x - 0.012, x + 0.012, min(ry + sg * (hw - 0.05), ry + sg * (hw - 0.09)), max(ry + sg * (hw - 0.05), ry + sg * (hw - 0.09)), zs - 0.62, zs - 0.3)
+
+        def coat(x, mat, length):                      # a coat on a hanger: shoulders, body and hanging sleeves
+            th, hw, zs = 0.17, 0.75, rz - 0.21
+            for sg in (-1, 1):
+                slab(mat, x - th, x + th, ry, zs - 0.02, ry + sg * hw, zs - 0.32, 0.12)
+            box(mat, x - th, x + th, ry - 0.62, ry + 0.62, zs - length, zs - 0.2)
+            box(mat, x - 0.05, x + 0.05, ry - 0.1, ry + 0.1, zs - 0.05, zs + 0.15)              # collar
+            for sg in (-1, 1):
+                y0_ = ry + sg * 0.63
+                box(mat, x - th + 0.03, x + th - 0.03, min(y0_, y0_ + sg * 0.17), max(y0_, y0_ + sg * 0.17), zs - 2.0, zs - 0.3)
+
+        span = ix1 - ix0 - 0.3
+        coats = EC.get("coats", [["Coat Navy", 3.0], ["Coat Olive", 2.4], ["Coat Tan", 3.3], ["Coat Charcoal", 2.6]])
+        xs = [ix0 + 0.15 + span * (k + 0.5) / (len(coats) + 3) for k in range(len(coats) + 3)]
+        for k, x in enumerate(xs):
+            hanger(x)
+            if k < len(coats):
+                coat(x, *coats[k])
+        hw_ = (W - 0.14) / 2
+        for (z0, z1, nm, kz) in ((0.38, zt, "lower", 3.4), (zt + 0.03, 7.92, "upper", zt + 0.35)):
+            for side, (a0, a1, hx, ang) in (("left", (ox0 + 0.07, ox0 + 0.07 + hw_ - 0.005, ox0 + 0.07, -90)),
+                                            ("right", (ox1 - 0.07 - hw_ + 0.005, ox1 - 0.07, ox1 - 0.07, 90))):
+                lf = op(r, f"furniture.entry_closet.{nm}_{side}", f"Entry coat cabinet, {nm} {side} door", "swing", (hx, yf - 0.09, 0), angle=ang)
+                with into(lf["parts"]):
+                    shaker(M, a0, a1, yf - 0.09, z0 + 0.01, z1 - 0.01, rail=0.18)
+                    knob(a1 - 0.12 if side == "left" else a0 + 0.12, kz, yf - 0.02)
+        return
     if EC_STYLE == "cabinet":
         r = rec("furniture.entry_closet", "furniture", "Entry closet cabinet", "furniture", room="Entry",
                 info=dict(model="Built-in tall cabinet, painted light sage to match the mudroom unit: a tall door and a top door, adjustable shelves across the whole closet",
@@ -1410,7 +1472,9 @@ def entry_closet():
 
 
 entry_closet()
-MATERIALS.update({"Framing Lumber": dict(color="#C9A66B", rough=0.8)})
+MATERIALS.update({"Framing Lumber": dict(color="#C9A66B", rough=0.8), "Hanger Wood": dict(color="#B07A4A", rough=0.5),
+                  "Coat Navy": dict(color="#2A3550", rough=0.9), "Coat Olive": dict(color="#5B6340", rough=0.9),
+                  "Coat Tan": dict(color="#A88A64", rough=0.9), "Coat Charcoal": dict(color="#3A3B3D", rough=0.9)})
 
 # ------------------------------------------------------------------ exterior details: fascia, soffits, gutters, fixtures
 if FU.get("enabled"):
