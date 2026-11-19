@@ -843,8 +843,7 @@
    "z_in": 16,
    "facing": 90,
    "level": "main",
-   "src": "U-11 #94",
-   "note": "The study booster fan has its own high outlet box on this wall (not on U-11)."
+   "src": "U-11 #94"
   },
   {
    "kind": "outlet",

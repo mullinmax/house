@@ -2042,8 +2042,8 @@
      ]
     ],
     "notes": [
-     "A smaller fan, over the desk chair, in place of the ceiling light. The blade tips stay about 1 1/2 ft east of the exposed supply duct on the west wall, about 2 3/4 ft from the supply register at the window end and about 3 1/2 ft from the return grilles in the door wall, so it never blows into either one.",
-     "How it helps the air: the supply comes in at the low, window end of the sloped ceiling and both returns are in the high door wall. In heating, warm supply air would ride up the slope straight to the high return; the fan on low in reverse (updraft) breaks up that layer and turns the air over the whole room. In cooling, forward (downdraft) puts the supply air and the computer heat through the room before either reaches a return, and the breeze over the chair lets the thermostat sit a degree or two warmer.",
+     "A smaller fan, over the desk chair, in place of the ceiling light. It hangs about 5 ft out from the door wall, where the two supply registers and the returns are, and the blades are about 2 1/2 ft lower than the registers.",
+     "How it helps the air: the supply comes in high at the door wall and throws along the sloped ceiling toward the window, and the returns are in the same wall. In cooling, forward (downdraft) pulls that supply air down over the chair and the computers before it comes back, and the breeze lets the thermostat sit a degree or two warmer. In heating, warm air stays up under the high side of the ceiling by the high return; the fan on low in reverse (updraft) turns the air over the whole room.",
      "Warm air from the computers rises toward the high side, where the high return is. The fan mixes; it does not move air out of the room. The supply and returns still do that, so this is a companion to the ducts, not a fix for an undersized one.",
      "On the sloped ceiling the fan needs a fan rated box fixed to the roof panel and a canopy that takes the slope (about 18 degrees under the 3.82:12 north roof; most fans allow 30). In a SIP roof the box and the wire chase to it have to be planned with the panel maker before the panels are cut, because there is no stud cavity to fish a cable through later. ASSUMED until the electrician and the SIP maker agree.",
      "For Home Assistant later: a DC fan with a local network control, or a radio remote fan run through a bridge such as Bond, so speed, direction and the light can be automated. Model ASSUMED."
@@ -2158,138 +2158,6 @@
    }
   },
   {
-   "id": "study_booster",
-   "name": "Study booster fan",
-   "category": "HVAC booster",
-   "system": "hvac.supply",
-   "room": "Bedroom 4 / study",
-   "layer": "mechanical",
-   "builder": "inline_fan",
-   "size": [
-    10.4,
-    12.6
-   ],
-   "at": [
-    23.75,
-    9.3,
-    10.566666666666666
-   ],
-   "facing": 0,
-   "info": {
-    "model": "8 in EC inline duct fan, quiet mixed flow type, for example AC Infinity Cloudline S8 or Fantech Prioair 8 EC (ASSUMED, size approximate)",
-    "specs": [
-     [
-      "Duct",
-      "8 in round, in the exposed study supply"
-     ],
-     [
-      "Airflow",
-      "Raises the study from about 100 to about 185 CFM"
-     ],
-     [
-      "Size",
-      "About 10.4 in across, 12.6 in long"
-     ],
-     [
-      "Power",
-      "About 20 to 40 W at the speeds it would run, plugged into the outlet below it"
-     ],
-     [
-      "Control",
-      "EC speed control, 0 to 10 V or the maker's controller"
-     ]
-    ],
-    "notes": [
-     "Maxwell's choice (11/19/2026): booster and damper now, sized for about 1 kW of computers, screens and a person (about 3,400 Btu/h). In cooling the supply is about 20 F colder than the room, so that takes about 160 CFM; the 8 in run alone gives about 140.",
-     "In the room rather than the attic: the attic stretch between the trunk and the wall is only about 8 in long. Here it is easy to reach, and mixed flow EC fans this size run in the high 20s to low 30s dBA at low speed, about like the computers. Mount it on rubber isolators with a short flexible connector at each end so it does not drum the duct.",
-     "Pseudo zone, for Home Assistant later: a temperature sensor in the study against the thermostat's reading. Cooling or fan on and the study 2 F or more above the house: booster on, speed rising with the difference. Heating and the study warm: booster off and the damper closes to its minimum stop, so the computers heat the room instead of the heat pump. The heat pump blower still has to be running for the booster to bring conditioned air; with the blower off it only pulls house air back through the trunk. ASSUMED control plan."
-    ],
-    "placement": "Exposed study supply, level stretch about 1 1/2 ft in from the door wall, close under the sloped ceiling."
-   }
-  },
-  {
-   "id": "study_damper",
-   "name": "Study zone damper",
-   "category": "HVAC damper",
-   "system": "hvac.supply",
-   "room": "Bedroom 4 / study",
-   "layer": "mechanical",
-   "builder": "zone_damper",
-   "size": [
-    8,
-    8
-   ],
-   "at": [
-    23.75,
-    10.016666666666666,
-    10.666666666666666
-   ],
-   "facing": 0,
-   "info": {
-    "model": "8 in round motorized zone damper, 24 V, for example Honeywell ARD8 (ASSUMED)",
-    "specs": [
-     [
-      "Duct",
-      "8 in round"
-     ],
-     [
-      "Power",
-      "24 V AC, from a small transformer at the outlet box"
-     ],
-     [
-      "Normal position",
-      "Open, so the study gets its air if the controls fail"
-     ],
-     [
-      "Minimum stop",
-      "Set so it never shuts the run fully: the heat pump never sees a dead end"
-     ]
-    ],
-    "notes": [
-     "Upstream of the booster, just inside the wall. It is the heating half of the zone: when the study is warm and the house calls for heat, it throttles the study's supply instead of the booster pushing more warm air in.",
-     "Pseudo zone, for Home Assistant later: a temperature sensor in the study against the thermostat's reading. Cooling or fan on and the study 2 F or more above the house: booster on, speed rising with the difference. Heating and the study warm: booster off and the damper closes to its minimum stop, so the computers heat the room instead of the heat pump. The heat pump blower still has to be running for the booster to bring conditioned air; with the blower off it only pulls house air back through the trunk. ASSUMED control plan."
-    ],
-    "placement": "Exposed study supply, first foot inside the wall, actuator on the room side."
-   }
-  },
-  {
-   "id": "study_booster_box",
-   "name": "Booster outlet and controls",
-   "category": "Electrical",
-   "system": "electrical",
-   "room": "Bedroom 4 / study",
-   "layer": "mechanical",
-   "builder": "wall_box",
-   "size": [
-    4.5,
-    4.5,
-    2.0
-   ],
-   "at": [
-    23.04,
-    9.0,
-    9.6
-   ],
-   "facing": 90,
-   "info": {
-    "model": "2 gang box high on the west wall: a receptacle for the booster, and room for the damper's 24 V transformer and a relay (ASSUMED)",
-    "specs": [
-     [
-      "Height",
-      "About 9 ft 8 in to the centre, just under the duct"
-     ],
-     [
-      "Circuit",
-      "Study general circuit, the booster is under 1 A"
-     ]
-    ],
-    "notes": [
-     "Rough this in with the study wiring. A smart relay or 0 to 10 V controller in or beside it lets Home Assistant drive the booster and damper later.",
-     "Pseudo zone, for Home Assistant later: a temperature sensor in the study against the thermostat's reading. Cooling or fan on and the study 2 F or more above the house: booster on, speed rising with the difference. Heating and the study warm: booster off and the damper closes to its minimum stop, so the computers heat the room instead of the heat pump. The heat pump blower still has to be running for the booster to bring conditioned air; with the blower off it only pulls house air back through the trunk. ASSUMED control plan."
-    ]
-   }
-  },
-  {
    "id": "study_temp_sensor",
    "name": "Study temperature sensor spot",
    "category": "Controls",
@@ -2318,12 +2186,12 @@
      ],
      [
       "Where",
-      "West wall by the door, away from the desk, the window and the supply jet"
+      "West wall by the door, away from the desk, the window and the supply jets"
      ]
     ],
     "notes": [
      "A low voltage cable or a box here at rough in keeps the option of a wired sensor. A battery Zigbee or Thread sensor works with no wiring.",
-     "Pseudo zone, for Home Assistant later: a temperature sensor in the study against the thermostat's reading. Cooling or fan on and the study 2 F or more above the house: booster on, speed rising with the difference. Heating and the study warm: booster off and the damper closes to its minimum stop, so the computers heat the room instead of the heat pump. The heat pump blower still has to be running for the booster to bring conditioned air; with the blower off it only pulls house air back through the trunk. ASSUMED control plan."
+     "For Home Assistant later: it shows how far the study runs from the thermostat's reading with the computers on, which says how to set the two hand dampers each season, and it is the input a motorized damper would need if one is added in the attic."
     ]
    }
   },
@@ -6091,7 +5959,6 @@
      ]
     ],
     "notes": [
-     "The study booster fan has its own high outlet box on this wall (not on U-11).",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 94).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -17360,7 +17227,7 @@
   },
   {
    "id": "s_study",
-   "name": "Supply to Bedroom 4 / study",
+   "name": "Supply to Bedroom 4 / study, west register",
    "category": "HVAC supply duct",
    "system": "hvac.supply",
    "room": "Bedroom 4 / study",
@@ -17369,67 +17236,130 @@
    "size": 8,
    "points": [
     [
-     23.75,
-     11.4,
+     27.67,
+     13.1,
      11.0
     ],
     [
-     23.75,
-     10.3,
+     28.2,
+     13.1,
      11.0
     ],
     [
-     23.75,
-     8.0,
+     28.2,
+     10.6,
      11.0
-    ],
-    [
-     23.75,
-     3.0,
-     9.4
     ]
    ],
-   "cfm": 104,
+   "cfm": 98,
    "parent": "supply_trunk",
    "damper": true,
    "info": {
-    "model": "8 in round, 104 CFM",
+    "model": "8 in round, about 80 CFM, one of two",
     "specs": [
      [
       "Airflow",
-      "104 CFM (M-10)"
+      "About 80 CFM each, 160 for the room (M-10 has 104 for the room)"
      ],
      [
       "Duct",
-      "8 in round"
+      "8 in round, on the attic deck"
+     ],
+     [
+      "Register",
+      "14 x 6 in high sidewall, long throw"
      ],
      [
       "Damper",
-      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
-     ],
-     [
-      "With the booster",
-      "About 185 CFM, enough for 1 kW of computers in cooling"
-     ],
-     [
-      "Zone damper",
-      "Motorized, just inside the wall"
+      "Manual volume damper at the takeoff, reached from the attic"
      ]
     ],
     "notes": [
-     "8 in round through the attic wall over the west end of the study door, then exposed along the west wall under the sloped ceiling to the window end (Maxwell, 11/18/2026: a duct can come out into the room). It discharges about 7 ft from the returns in the door wall, so supply air sweeps the desk and the computers before it leaves. 8 in so there is room above M-10's 104 CFM for the computer load, at about 15 CFM per 100 W. Spiral duct, ASSUMED route."
+     "Two of these, side by side, replace the exposed duct, booster fan and motorized damper (Maxwell, 11/19/2026). Sized for about 1 kW of computers, screens and a person: about 160 CFM in cooling, against M-10's 104. Each run is 8 in round on the attic deck from the east face of the trunk to the wall, so nothing passes through a floor truss. ASSUMED route.",
+     "Registers: long throw, bar type with adjustable blades, aimed along the sloped ceiling at the window about 10 ft away, so the air crosses the desk before it comes back. The supply and the returns are all in this wall, and a short throw register would let part of the air slip straight into the high return beside it.",
+     "The airflow is fixed. The hand damper on each run is reached from the attic: open in summer, part closed in winter, when the computers already heat the room. An outlet on the attic side of this wall would let a motorized damper replace the hand ones later. The rest of the house gives up about 5% of its air for this unless the blower is set near 1,440 CFM instead of 1,368."
     ]
    },
    "grilles": [
     {
      "at": [
-      23.75,
-      2.98,
-      9.4
+      28.2,
+      10.62,
+      11.0
      ],
      "size": [
-      8,
-      8
+      14,
+      6
+     ],
+     "wall": "N"
+    }
+   ]
+  },
+  {
+   "id": "s_study2",
+   "name": "Supply to Bedroom 4 / study, east register",
+   "category": "HVAC supply duct",
+   "system": "hvac.supply",
+   "room": "Bedroom 4 / study",
+   "type": "supply",
+   "shape": "round",
+   "size": 8,
+   "points": [
+    [
+     27.67,
+     13.9,
+     11.0
+    ],
+    [
+     29.7,
+     13.9,
+     11.0
+    ],
+    [
+     29.7,
+     10.6,
+     11.0
+    ]
+   ],
+   "cfm": 98,
+   "parent": "supply_trunk",
+   "damper": true,
+   "info": {
+    "model": "8 in round, about 80 CFM, one of two",
+    "specs": [
+     [
+      "Airflow",
+      "About 80 CFM each, 160 for the room (M-10 has 104 for the room)"
+     ],
+     [
+      "Duct",
+      "8 in round, on the attic deck"
+     ],
+     [
+      "Register",
+      "14 x 6 in high sidewall, long throw"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, reached from the attic"
+     ]
+    ],
+    "notes": [
+     "Two of these, side by side, replace the exposed duct, booster fan and motorized damper (Maxwell, 11/19/2026). Sized for about 1 kW of computers, screens and a person: about 160 CFM in cooling, against M-10's 104. Each run is 8 in round on the attic deck from the east face of the trunk to the wall, so nothing passes through a floor truss. ASSUMED route.",
+     "Registers: long throw, bar type with adjustable blades, aimed along the sloped ceiling at the window about 10 ft away, so the air crosses the desk before it comes back. The supply and the returns are all in this wall, and a short throw register would let part of the air slip straight into the high return beside it.",
+     "The airflow is fixed. The hand damper on each run is reached from the attic: open in summer, part closed in winter, when the computers already heat the room. An outlet on the attic side of this wall would let a motorized damper replace the hand ones later. The rest of the house gives up about 5% of its air for this unless the blower is set near 1,440 CFM instead of 1,368."
+    ]
+   },
+   "grilles": [
+    {
+     "at": [
+      29.7,
+      10.62,
+      11.0
+     ],
+     "size": [
+      14,
+      6
      ],
      "wall": "N"
     }
