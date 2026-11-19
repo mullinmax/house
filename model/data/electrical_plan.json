@@ -1041,12 +1041,13 @@
   },
   {
    "kind": "outlet",
-   "x": 39.0,
+   "x": 37.9,
    "y": 22.832,
    "z_in": 16,
    "facing": 180,
    "level": "upper",
-   "src": "U-12 #5"
+   "src": "U-12 #5",
+   "note": "Moved west out of the attic access, which now opens 1 ft off the east wall (U-12 has it at x 39.0): Maxwell, 11/19/2026."
   },
   {
    "kind": "outlet",
