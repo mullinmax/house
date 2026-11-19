@@ -7786,14 +7786,14 @@
    "src": "added #vacuum"
   },
   {
-   "id": "yew_1",
-   "name": "Yew 1 of 7",
+   "id": "taxus_1",
+   "name": "Taxus 1 of 7",
    "category": "Planted shrub",
    "system": "site.plantings",
    "room": "Yard",
    "layer": "plantings",
    "builder": "conifer",
-   "kind": "yew",
+   "kind": "taxus",
    "seed": 11,
    "size": [
     37.5,
@@ -7807,7 +7807,7 @@
    ],
    "facing": 157,
    "info": {
-    "model": "Yew (Taxus), variety not known",
+    "model": "Taxus (also sold as yew), variety not known",
     "specs": [
      [
       "Height now",
@@ -7815,8 +7815,8 @@
      ]
     ],
     "notes": [
-     "Seven yews in a line along the woods edge, north to south (Maxwell, 11/19/2026: \"taxes\").",
-     "Every part of a yew but the red flesh of the berry is poisonous to people, dogs and horses. Keep clippings away from animals.",
+     "Seven taxus in a line along the woods edge, north to south (Maxwell, 11/19/2026).",
+     "Every part of a taxus but the red flesh of the berry is poisonous to people, dogs and horses. Keep clippings away from animals.",
      "Traced from Maxwell's drone photo of 10/29/2026 (DJI_0218), lined up on the four slab corners, so the spot is good to about a foot."
     ],
     "placement": "184 ft east and 54 ft north of the slab's NW corner."
@@ -7824,14 +7824,14 @@
    "src": "added #vacuum"
   },
   {
-   "id": "yew_2",
-   "name": "Yew 2 of 7",
+   "id": "taxus_2",
+   "name": "Taxus 2 of 7",
    "category": "Planted shrub",
    "system": "site.plantings",
    "room": "Yard",
    "layer": "plantings",
    "builder": "conifer",
-   "kind": "yew",
+   "kind": "taxus",
    "seed": 12,
    "size": [
     37.5,
@@ -7845,7 +7845,7 @@
    ],
    "facing": 204,
    "info": {
-    "model": "Yew (Taxus), variety not known",
+    "model": "Taxus (also sold as yew), variety not known",
     "specs": [
      [
       "Height now",
@@ -7853,8 +7853,8 @@
      ]
     ],
     "notes": [
-     "Seven yews in a line along the woods edge, north to south (Maxwell, 11/19/2026: \"taxes\").",
-     "Every part of a yew but the red flesh of the berry is poisonous to people, dogs and horses. Keep clippings away from animals.",
+     "Seven taxus in a line along the woods edge, north to south (Maxwell, 11/19/2026).",
+     "Every part of a taxus but the red flesh of the berry is poisonous to people, dogs and horses. Keep clippings away from animals.",
      "Traced from Maxwell's drone photo of 10/29/2026 (DJI_0218), lined up on the four slab corners, so the spot is good to about a foot."
     ],
     "placement": "180 ft east and 42 ft north of the slab's NW corner."
@@ -7862,14 +7862,14 @@
    "src": "added #vacuum"
   },
   {
-   "id": "yew_3",
-   "name": "Yew 3 of 7",
+   "id": "taxus_3",
+   "name": "Taxus 3 of 7",
    "category": "Planted shrub",
    "system": "site.plantings",
    "room": "Yard",
    "layer": "plantings",
    "builder": "conifer",
-   "kind": "yew",
+   "kind": "taxus",
    "seed": 13,
    "size": [
     37.5,
@@ -7883,7 +7883,7 @@
    ],
    "facing": 251,
    "info": {
-    "model": "Yew (Taxus), variety not known",
+    "model": "Taxus (also sold as yew), variety not known",
     "specs": [
      [
       "Height now",
@@ -7891,8 +7891,8 @@
      ]
     ],
     "notes": [
-     "Seven yews in a line along the woods edge, north to south (Maxwell, 11/19/2026: \"taxes\").",
-     "Every part of a yew but the red flesh of the berry is poisonous to people, dogs and horses. Keep clippings away from animals.",
+     "Seven taxus in a line along the woods edge, north to south (Maxwell, 11/19/2026).",
+     "Every part of a taxus but the red flesh of the berry is poisonous to people, dogs and horses. Keep clippings away from animals.",
      "Traced from Maxwell's drone photo of 10/29/2026 (DJI_0218), lined up on the four slab corners, so the spot is good to about a foot."
     ],
     "placement": "180 ft east and 32 ft north of the slab's NW corner."
@@ -7900,14 +7900,14 @@
    "src": "added #vacuum"
   },
   {
-   "id": "yew_4",
-   "name": "Yew 4 of 7",
+   "id": "taxus_4",
+   "name": "Taxus 4 of 7",
    "category": "Planted shrub",
    "system": "site.plantings",
    "room": "Yard",
    "layer": "plantings",
    "builder": "conifer",
-   "kind": "yew",
+   "kind": "taxus",
    "seed": 14,
    "size": [
     37.5,
@@ -7921,7 +7921,7 @@
    ],
    "facing": 298,
    "info": {
-    "model": "Yew (Taxus), variety not known",
+    "model": "Taxus (also sold as yew), variety not known",
     "specs": [
      [
       "Height now",
@@ -7929,8 +7929,8 @@
      ]
     ],
     "notes": [
-     "Seven yews in a line along the woods edge, north to south (Maxwell, 11/19/2026: \"taxes\").",
-     "Every part of a yew but the red flesh of the berry is poisonous to people, dogs and horses. Keep clippings away from animals.",
+     "Seven taxus in a line along the woods edge, north to south (Maxwell, 11/19/2026).",
+     "Every part of a taxus but the red flesh of the berry is poisonous to people, dogs and horses. Keep clippings away from animals.",
      "Traced from Maxwell's drone photo of 10/29/2026 (DJI_0218), lined up on the four slab corners, so the spot is good to about a foot."
     ],
     "placement": "177 ft east and 21 ft north of the slab's NW corner."
@@ -7938,14 +7938,14 @@
    "src": "added #vacuum"
   },
   {
-   "id": "yew_5",
-   "name": "Yew 5 of 7",
+   "id": "taxus_5",
+   "name": "Taxus 5 of 7",
    "category": "Planted shrub",
    "system": "site.plantings",
    "room": "Yard",
    "layer": "plantings",
    "builder": "conifer",
-   "kind": "yew",
+   "kind": "taxus",
    "seed": 15,
    "size": [
     37.5,
@@ -7959,7 +7959,7 @@
    ],
    "facing": 345,
    "info": {
-    "model": "Yew (Taxus), variety not known",
+    "model": "Taxus (also sold as yew), variety not known",
     "specs": [
      [
       "Height now",
@@ -7967,8 +7967,8 @@
      ]
     ],
     "notes": [
-     "Seven yews in a line along the woods edge, north to south (Maxwell, 11/19/2026: \"taxes\").",
-     "Every part of a yew but the red flesh of the berry is poisonous to people, dogs and horses. Keep clippings away from animals.",
+     "Seven taxus in a line along the woods edge, north to south (Maxwell, 11/19/2026).",
+     "Every part of a taxus but the red flesh of the berry is poisonous to people, dogs and horses. Keep clippings away from animals.",
      "Traced from Maxwell's drone photo of 10/29/2026 (DJI_0218), lined up on the four slab corners, so the spot is good to about a foot."
     ],
     "placement": "176 ft east and 10 ft north of the slab's NW corner."
@@ -7976,14 +7976,14 @@
    "src": "added #vacuum"
   },
   {
-   "id": "yew_6",
-   "name": "Yew 6 of 7",
+   "id": "taxus_6",
+   "name": "Taxus 6 of 7",
    "category": "Planted shrub",
    "system": "site.plantings",
    "room": "Yard",
    "layer": "plantings",
    "builder": "conifer",
-   "kind": "yew",
+   "kind": "taxus",
    "seed": 16,
    "size": [
     37.5,
@@ -7997,7 +7997,7 @@
    ],
    "facing": 32,
    "info": {
-    "model": "Yew (Taxus), variety not known",
+    "model": "Taxus (also sold as yew), variety not known",
     "specs": [
      [
       "Height now",
@@ -8005,8 +8005,8 @@
      ]
     ],
     "notes": [
-     "Seven yews in a line along the woods edge, north to south (Maxwell, 11/19/2026: \"taxes\").",
-     "Every part of a yew but the red flesh of the berry is poisonous to people, dogs and horses. Keep clippings away from animals.",
+     "Seven taxus in a line along the woods edge, north to south (Maxwell, 11/19/2026).",
+     "Every part of a taxus but the red flesh of the berry is poisonous to people, dogs and horses. Keep clippings away from animals.",
      "Traced from Maxwell's drone photo of 10/29/2026 (DJI_0218), lined up on the four slab corners, so the spot is good to about a foot."
     ],
     "placement": "175 ft east and 4 ft north of the slab's NW corner."
@@ -8014,14 +8014,14 @@
    "src": "added #vacuum"
   },
   {
-   "id": "yew_7",
-   "name": "Yew 7 of 7",
+   "id": "taxus_7",
+   "name": "Taxus 7 of 7",
    "category": "Planted shrub",
    "system": "site.plantings",
    "room": "Yard",
    "layer": "plantings",
    "builder": "conifer",
-   "kind": "yew",
+   "kind": "taxus",
    "seed": 17,
    "size": [
     37.5,
@@ -8035,7 +8035,7 @@
    ],
    "facing": 79,
    "info": {
-    "model": "Yew (Taxus), variety not known",
+    "model": "Taxus (also sold as yew), variety not known",
     "specs": [
      [
       "Height now",
@@ -8043,8 +8043,8 @@
      ]
     ],
     "notes": [
-     "Seven yews in a line along the woods edge, north to south (Maxwell, 11/19/2026: \"taxes\").",
-     "Every part of a yew but the red flesh of the berry is poisonous to people, dogs and horses. Keep clippings away from animals.",
+     "Seven taxus in a line along the woods edge, north to south (Maxwell, 11/19/2026).",
+     "Every part of a taxus but the red flesh of the berry is poisonous to people, dogs and horses. Keep clippings away from animals.",
      "Traced from Maxwell's drone photo of 10/29/2026 (DJI_0218), lined up on the four slab corners, so the spot is good to about a foot."
     ],
     "placement": "176 ft east and -8 ft north of the slab's NW corner."
@@ -8083,7 +8083,7 @@
      ]
     ],
     "notes": [
-     "The green box at the south end of the yew line (Maxwell, 11/19/2026). It feeds the house service underground.",
+     "The green box at the south end of the taxus line (Maxwell, 11/19/2026). It feeds the house service underground.",
      "Traced from Maxwell's drone photo of 10/29/2026 (DJI_0218), lined up on the four slab corners, so the spot is good to about a foot."
     ],
     "placement": "163 ft east and 14 ft south of the slab's NW corner, doors toward the drive (ASSUMED)."

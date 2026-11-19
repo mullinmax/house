@@ -1166,7 +1166,7 @@ if SP:
     PHOTO = "Traced from Maxwell's drone photo of 10/29/2026 (DJI_0218), lined up on the four slab corners, so the spot is good to about a foot."
     def tree(id, name, kind, xy, h_ft, model, notes, seed):
         x, y = xy
-        items.append(dict(id=id, name=name, category="Planted tree" if kind != "yew" else "Planted shrub", system="site.plantings", room="Yard",
+        items.append(dict(id=id, name=name, category="Planted tree" if kind != "taxus" else "Planted shrub", system="site.plantings", room="Yard",
             layer="plantings", builder="conifer", kind=kind, seed=seed, size=[round(h_ft * 12 * (0.62 if kind == "spruce" else 0.7 if kind == "pine" else 1.25), 1), round(h_ft * 12, 1), 0],
             at=[round(x, 2), round(y, 2), round(ground(x, y), 3)], facing=(seed * 47) % 360,
             info=dict(model=model, specs=[["Height now", f"About {h_ft:g} ft, ASSUMED from the photo"]],
@@ -1182,17 +1182,17 @@ if SP:
     for k, xy in enumerate(SP["east_spruces"]):
         tree(f"tree_spruce_e{k + 1}", f"Norway spruce {k + 1} by the woods", "spruce", xy, SP["spruce_height_ft"] * 1.1, SPRUCE,
              ["One of two Norway spruces east of the drive, by the woods (Maxwell, 11/19/2026)."] + SPRUCE_NOTES, 7 + k)
-    for k, xy in enumerate(SP["yews"]):
-        tree(f"yew_{k + 1}", f"Yew {k + 1} of 7", "yew", xy, SP["yew_height_ft"], "Yew (Taxus), variety not known",
-             ["Seven yews in a line along the woods edge, north to south (Maxwell, 11/19/2026: \"taxes\").",
-              "Every part of a yew but the red flesh of the berry is poisonous to people, dogs and horses. Keep clippings away from animals."], 11 + k)
+    for k, xy in enumerate(SP["taxus"]):
+        tree(f"taxus_{k + 1}", f"Taxus {k + 1} of 7", "taxus", xy, SP["taxus_height_ft"], "Taxus (also sold as yew), variety not known",
+             ["Seven taxus in a line along the woods edge, north to south (Maxwell, 11/19/2026).",
+              "Every part of a taxus but the red flesh of the berry is poisonous to people, dogs and horses. Keep clippings away from animals."], 11 + k)
     tx, ty = SP["transformer"]
     items.append(dict(id="pad_transformer", name="Pad mounted transformer", category="Electric service", system="electrical.service", room="Yard",
         layer="site", builder="pad_transformer", size=[38, 34, 42], at=[tx, ty, round(ground(tx, ty), 3)], facing=SP.get("transformer_facing", 270),
         info=dict(model="Single phase pad mounted utility transformer, green, on a pad. Owned by the utility",
           specs=[["Size drawn", "About 38 W x 42 D x 34 H in on a 48 x 52 in pad, typical of 25 to 50 kVA units. ASSUMED"],
                  ["Clearances", "Utilities usually want about 10 ft clear in front of the doors and 3 ft at the sides and back. Check with the utility before planting closer."]],
-          notes=["The green box at the south end of the yew line (Maxwell, 11/19/2026). It feeds the house service underground.", PHOTO],
+          notes=["The green box at the south end of the taxus line (Maxwell, 11/19/2026). It feeds the house service underground.", PHOTO],
           placement=f"{round(tx)} ft east and {round(ty)} ft south of the slab's NW corner, doors toward the drive (ASSUMED).")))
     # gravel drive: a smooth centreline, cross sections every 2 ft laid on the ground with a shallow crown and shoulders
     cl = SP["drive_centerline"]; W = SP["drive_width_ft"]

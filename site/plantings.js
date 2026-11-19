@@ -50,12 +50,12 @@ function mulchRing(g, r) {
 }
 
 const BUILD = {
-  // Norway spruce, white pine or yew at planting size. s = [crown width, height] inches
+  // Norway spruce, white pine or taxus at planting size. s = [crown width, height] inches
   conifer(s, it) {
     const g = new THREE.Group(), R = rng(it.seed || 1), W = s[0], H = s[1];
     const bark = smat('bark', 0x4a3a2c, 0.95);
-    if (it.kind === 'yew') {                       // dense, rounded, a little wider than tall
-      const leaf = smat('yew foliage', 0x1d3a22, 0.85);
+    if (it.kind === 'taxus') {                       // dense, rounded, a little wider than tall
+      const leaf = smat('taxus foliage', 0x1d3a22, 0.85);
       for (let k = 0; k < 4; k++) {
         const a = k * 1.7 + R() * 0.8, d = k ? W * 0.16 : 0;
         const rr = W * (k ? 0.3 : 0.38) * (0.9 + R() * 0.2);
