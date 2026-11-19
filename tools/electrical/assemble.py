@@ -14,8 +14,17 @@ NOTE={45:"Marked RANGE on U-11. The kitchen now has the LG induction cooktop on 
       94:"The study booster fan has its own high outlet box on this wall (not on U-11)."}
 dev=[]
 def add(**k): dev.append(k)
+SKIP={8,9,10,11}   # the four switches U-11 puts behind the loft ladder: one 4 gang plate west of it instead (Maxwell, 11/19/2026)
+add(kind='switch',gangs=4,x=27.0,y=34.583,z_in=44,facing=0,level='main',src="U-11 #8-11",note="U-11 draws four switches (two of them 3-way, for the loft) side by side on this wall, right where the ships ladder now stands. Combined into one 4 gang plate just west of the ladder (Maxwell, 11/19/2026).")
+MOVE={12:(16.709,30.9,90),13:(16.709,30.4,90)}   # living room TV: west wall, not east (Maxwell, 11/19/2026)
+NOTE[13]="Behind the living room TV. U-11 draws it on the east wall; moved to the west wall facing the couch (Maxwell, 11/19/2026). U-11: 72 in to the TV, confirm with the owner."
 for i,r in enumerate(M):
   x,y=r['ft']; k=r['kind']
+  if i in SKIP: continue
+  if i in MOVE:
+    X,Y,f=MOVE[i]
+    add(kind='tv_data' if i==12 else 'outlet',x=X,y=Y,z_in=72,facing=f,level='main',src=f"U-11 #{i}",tv=(i==12),**({'note':NOTE[13]} if i==13 else {}))
+    continue
   if k=='smoke': add(kind='smoke',x=x,y=y,level='main',src=f"U-11 #{i}"); continue
   f=r.get('facing')
   if i in (52,53):   # island ends
@@ -36,6 +45,7 @@ for i,r in enumerate(M):
   if k=='outlet' and r['bars']==3: e['volts']=240
   kind={'outlet':'outlet','switch':'switch','data':'data'}[k]
   if i in TVDATA: kind='tv_data'
+  if i==14: e['tv']=False
   add(kind=kind,x=X,y=Y,z_in=z,facing=f,level='main',src=f"U-11 #{i}",**e,**({'note':NOTE[i]} if i in NOTE else {}))
 # upper (U-12): facing set by hand from the sheet (see the thread)
 UF={4:90,5:180,6:270,7:0,8:180,9:0,10:0,11:180,16:180,17:270,2:0,12:0,3:90}

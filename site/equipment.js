@@ -426,10 +426,10 @@ const BUILD = {
     }
     return g;
   },
-  switch_plate(s) {                // decora rocker
-    const [w, h, d] = s, g = new THREE.Group();
+  switch_plate(s, it = {}) {       // decora rockers, one per gang, 1.81 in apart
+    const [w, h, d] = s, g = new THREE.Group(), n = it.gangs || 1;
     box(g, w, h, d, whitePlastic(), 0, h / 2, d / 2);
-    box(g, 1.3, 2.6, 0.3, mat('rocker', 0xf1f0ec, 0.45, 0), 0, h / 2, d + 0.15);
+    for (let i = 0; i < n; i++) box(g, 1.3, 2.6, 0.3, mat('rocker', 0xf1f0ec, 0.45, 0), (i - (n - 1) / 2) * 1.81, h / 2, d + 0.15);
     return g;
   },
   data_jack(s) {                   // coax F connector and a network keystone
@@ -451,11 +451,16 @@ const BUILD = {
     for (const x of [-0.8, 0.8]) box(g, 0.9, 0.05, 1.4, darkPlastic(), x, t + 0.02, 0);
     return g;
   },
-  tv_mount(s) {                    // generic low profile wall bracket: plate on the wall and two hanging arms
+  tv_mount(s, it = {}) {           // generic low profile wall bracket: plate on the wall and two hanging arms
     const [w, h, d] = s, g = new THREE.Group(), blk = mat('mount black', 0x1c1d1f, 0.55, 0.3);
     box(g, w, 3, 0.25, blk, 0, h - 1.5, 0.13);
     box(g, w, 3, 0.25, blk, 0, 1.5, 0.13);
     for (const x of [-w / 2 + 3, w / 2 - 3]) box(g, 1.4, h, d, blk, x, h / 2, d / 2);
+    if (it.tv) {                   // a flat TV hung on it: thin black bezel, dark glass, centred on the bracket
+      const [tw, th, td] = it.tv;
+      box(g, tw, th, td, mat('tv body', 0x111213, 0.45, 0.2), 0, h / 2, d + td / 2);
+      box(g, tw - 0.6, th - 0.6, 0.06, mat('tv screen', 0x050607, 0.12, 0.1), 0, h / 2, d + td + 0.03);
+    }
     return g;
   },
   wall_box(s, it = {}) {           // a device on the wall: white cover plate, a receptacle face or a sensor dome

@@ -2270,6 +2270,46 @@
   },
   {
    "id": "elec_switch_01",
+   "name": "4 gang light switch, 44 in",
+   "category": "Electrical",
+   "system": "electrical.lighting",
+   "room": "Living",
+   "layer": "electrical",
+   "builder": "switch_plate",
+   "size": [
+    8.18,
+    4.5,
+    0.3
+   ],
+   "gangs": 4,
+   "at": [
+    27.0,
+    34.583,
+    3.479
+   ],
+   "facing": 0,
+   "info": {
+    "model": "4 gang plate of rocker switches with dimmers",
+    "specs": [
+     [
+      "Height",
+      "44 in to the centre"
+     ],
+     [
+      "On",
+      "The north facing wall"
+     ]
+    ],
+    "notes": [
+     "U-11 draws four switches (two of them 3-way, for the loft) side by side on this wall, right where the ships ladder now stands. Combined into one 4 gang plate just west of the ladder (Maxwell, 11/19/2026).",
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 8-11).",
+     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
+     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
+    ]
+   }
+  },
+  {
+   "id": "elec_switch_02",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -2281,6 +2321,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     11.863,
     15.574,
@@ -2307,7 +2348,7 @@
    }
   },
   {
-   "id": "elec_switch_02",
+   "id": "elec_switch_03",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -2319,6 +2360,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     11.863,
     14.87,
@@ -2345,7 +2387,7 @@
    }
   },
   {
-   "id": "elec_switch_03",
+   "id": "elec_switch_04",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -2357,6 +2399,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     11.721,
     10.616,
@@ -2383,7 +2426,7 @@
    }
   },
   {
-   "id": "elec_switch_04",
+   "id": "elec_switch_05",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -2395,6 +2438,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     12.424,
     10.616,
@@ -2421,7 +2465,7 @@
    }
   },
   {
-   "id": "elec_switch_05",
+   "id": "elec_switch_06",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -2433,6 +2477,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     26.333,
     10.616,
@@ -2459,7 +2504,7 @@
    }
   },
   {
-   "id": "elec_switch_06",
+   "id": "elec_switch_07",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -2471,6 +2516,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     27.036,
     10.616,
@@ -2497,7 +2543,7 @@
    }
   },
   {
-   "id": "elec_switch_07",
+   "id": "elec_switch_08",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -2509,6 +2555,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     30.893,
     10.916,
@@ -2535,7 +2582,7 @@
    }
   },
   {
-   "id": "elec_switch_08",
+   "id": "elec_switch_09",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -2547,6 +2594,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     30.19,
     10.916,
@@ -2573,158 +2621,6 @@
    }
   },
   {
-   "id": "elec_switch_09",
-   "name": "Light switch, 44 in",
-   "category": "Electrical",
-   "system": "electrical.lighting",
-   "room": "Living",
-   "layer": "electrical",
-   "builder": "switch_plate",
-   "size": [
-    2.75,
-    4.5,
-    0.3
-   ],
-   "at": [
-    27.491,
-    34.583,
-    3.479
-   ],
-   "facing": 0,
-   "info": {
-    "model": "Wall switch with a dimmer (U-11 legend)",
-    "specs": [
-     [
-      "Height",
-      "44 in to the centre"
-     ],
-     [
-      "On",
-      "The north facing wall"
-     ]
-    ],
-    "notes": [
-     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 8).",
-     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
-     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
-    ]
-   }
-  },
-  {
-   "id": "elec_switch_10",
-   "name": "Light switch, 44 in",
-   "category": "Electrical",
-   "system": "electrical.lighting",
-   "room": "Living",
-   "layer": "electrical",
-   "builder": "switch_plate",
-   "size": [
-    2.75,
-    4.5,
-    0.3
-   ],
-   "at": [
-    29.582,
-    34.583,
-    3.479
-   ],
-   "facing": 0,
-   "info": {
-    "model": "Wall switch with a dimmer (U-11 legend)",
-    "specs": [
-     [
-      "Height",
-      "44 in to the centre"
-     ],
-     [
-      "On",
-      "The north facing wall"
-     ]
-    ],
-    "notes": [
-     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 9).",
-     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
-     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
-    ]
-   }
-  },
-  {
-   "id": "elec_switch_11",
-   "name": "Light switch, 44 in",
-   "category": "Electrical",
-   "system": "electrical.lighting",
-   "room": "Living",
-   "layer": "electrical",
-   "builder": "switch_plate",
-   "size": [
-    2.75,
-    4.5,
-    0.3
-   ],
-   "at": [
-    28.176,
-    34.583,
-    3.479
-   ],
-   "facing": 0,
-   "info": {
-    "model": "Wall switch with a dimmer (U-11 legend)",
-    "specs": [
-     [
-      "Height",
-      "44 in to the centre"
-     ],
-     [
-      "On",
-      "The north facing wall"
-     ]
-    ],
-    "notes": [
-     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 10).",
-     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
-     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
-    ]
-   }
-  },
-  {
-   "id": "elec_switch_12",
-   "name": "Light switch, 44 in",
-   "category": "Electrical",
-   "system": "electrical.lighting",
-   "room": "Living",
-   "layer": "electrical",
-   "builder": "switch_plate",
-   "size": [
-    2.75,
-    4.5,
-    0.3
-   ],
-   "at": [
-    28.879,
-    34.583,
-    3.479
-   ],
-   "facing": 0,
-   "info": {
-    "model": "Wall switch with a dimmer (U-11 legend)",
-    "specs": [
-     [
-      "Height",
-      "44 in to the centre"
-     ],
-     [
-      "On",
-      "The north facing wall"
-     ]
-    ],
-    "notes": [
-     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 11).",
-     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
-     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
-    ]
-   }
-  },
-  {
    "id": "elec_data_01",
    "name": "TV cable and data outlet, 72 in",
    "category": "Low voltage",
@@ -2738,11 +2634,11 @@
     0.3
    ],
    "at": [
-    31.167,
-    28.338,
+    16.709,
+    30.9,
     5.812
    ],
-   "facing": 270,
+   "facing": 90,
    "info": {
     "model": "Cable TV and CAT-5 outlet (U-11 legend). CAT-6 costs about the same now and is worth asking for",
     "specs": [
@@ -2764,7 +2660,7 @@
   },
   {
    "id": "elec_tv_01",
-   "name": "TV mount",
+   "name": "65 in TV on its wall mount",
    "category": "Low voltage",
    "system": "low_voltage",
    "room": "Living",
@@ -2775,12 +2671,17 @@
     16,
     1.6
    ],
+   "tv": [
+    57.1,
+    32.7,
+    1.1
+   ],
    "at": [
-    31.167,
-    28.338,
+    16.709,
+    30.65,
     5.333
    ],
-   "facing": 270,
+   "facing": 90,
    "info": {
     "model": "Flat screen TV mount at 72 in, wall blocking behind it, 2 in sleeve down to a single gang box (U-11 legend)",
     "specs": [
@@ -2796,7 +2697,8 @@
     "notes": [
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 12).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
-     "The bracket is drawn generic: the TV and its mount are not picked yet. A recessed power and cable box behind the TV hides the cords."
+     "The bracket is drawn generic: the TV and its mount are not picked yet. A recessed power and cable box behind the TV hides the cords.",
+     "The TV is a generic 65 in set (about 57 x 33 in), the size Andy's site plan furniture shows. Its centre is at 72 in as U-11 draws it, which is high for watching from the couch; 42 to 48 in is more usual, so confirm before the blocking goes in."
     ]
    }
   },
@@ -2814,11 +2716,11 @@
     0.3
    ],
    "at": [
-    31.167,
-    29.151,
+    16.709,
+    30.4,
     5.812
    ],
-   "facing": 270,
+   "facing": 90,
    "gfi": false,
    "wp": false,
    "volts": 120,
@@ -2831,11 +2733,11 @@
      ],
      [
       "On",
-      "The west facing wall"
+      "The east facing wall"
      ]
     ],
     "notes": [
-     "Behind the living room TV. U-11: 72 in to the TV, confirm with the owner.",
+     "Behind the living room TV. U-11 draws it on the east wall; moved to the west wall facing the couch (Maxwell, 11/19/2026). U-11: 72 in to the TV, confirm with the owner.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 13).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -2892,6 +2794,7 @@
     16,
     1.6
    ],
+   "tv": null,
    "at": [
     42.542,
     49.246,
@@ -3187,7 +3090,7 @@
    }
   },
   {
-   "id": "elec_switch_13",
+   "id": "elec_switch_10",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3199,6 +3102,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     4.985,
     10.916,
@@ -3225,7 +3129,7 @@
    }
   },
   {
-   "id": "elec_switch_14",
+   "id": "elec_switch_11",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3237,6 +3141,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     5.917,
     4.839,
@@ -3263,7 +3168,7 @@
    }
   },
   {
-   "id": "elec_switch_15",
+   "id": "elec_switch_12",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3275,6 +3180,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     20.592,
     10.625,
@@ -3301,7 +3207,7 @@
    }
   },
   {
-   "id": "elec_switch_16",
+   "id": "elec_switch_13",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3313,6 +3219,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     27.137,
     10.916,
@@ -3339,7 +3246,7 @@
    }
   },
   {
-   "id": "elec_switch_17",
+   "id": "elec_switch_14",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3351,6 +3258,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     12.167,
     34.02,
@@ -3377,7 +3285,7 @@
    }
   },
   {
-   "id": "elec_switch_18",
+   "id": "elec_switch_15",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3389,6 +3297,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     11.709,
     32.725,
@@ -3415,7 +3324,7 @@
    }
   },
   {
-   "id": "elec_switch_19",
+   "id": "elec_switch_16",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3427,6 +3336,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     37.658,
     22.833,
@@ -3453,7 +3363,7 @@
    }
   },
   {
-   "id": "elec_switch_20",
+   "id": "elec_switch_17",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3465,6 +3375,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     37.592,
     28.916,
@@ -3491,7 +3402,7 @@
    }
   },
   {
-   "id": "elec_switch_21",
+   "id": "elec_switch_18",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3503,6 +3414,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     38.167,
     27.411,
@@ -3529,7 +3441,7 @@
    }
   },
   {
-   "id": "elec_switch_22",
+   "id": "elec_switch_19",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3541,6 +3453,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     37.084,
     16.153,
@@ -3567,7 +3480,7 @@
    }
   },
   {
-   "id": "elec_switch_23",
+   "id": "elec_switch_20",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3579,6 +3492,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     20.176,
     15.458,
@@ -3605,7 +3519,7 @@
    }
   },
   {
-   "id": "elec_switch_24",
+   "id": "elec_switch_21",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3617,6 +3531,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     30.404,
     15.458,
@@ -3643,7 +3558,7 @@
    }
   },
   {
-   "id": "elec_switch_25",
+   "id": "elec_switch_22",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3655,6 +3570,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     37.084,
     21.911,
@@ -3681,7 +3597,7 @@
    }
   },
   {
-   "id": "elec_switch_26",
+   "id": "elec_switch_23",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3693,6 +3609,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     12.167,
     33.269,
@@ -3719,7 +3636,7 @@
    }
   },
   {
-   "id": "elec_switch_27",
+   "id": "elec_switch_24",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3731,6 +3648,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     0.542,
     41.431,
@@ -3757,7 +3675,7 @@
    }
   },
   {
-   "id": "elec_switch_28",
+   "id": "elec_switch_25",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3769,6 +3687,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     0.542,
     42.173,
@@ -3795,7 +3714,7 @@
    }
   },
   {
-   "id": "elec_switch_29",
+   "id": "elec_switch_26",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3807,6 +3726,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     0.542,
     36.171,
@@ -3833,7 +3753,7 @@
    }
   },
   {
-   "id": "elec_switch_30",
+   "id": "elec_switch_27",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3845,6 +3765,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     42.542,
     36.443,
@@ -3871,7 +3792,7 @@
    }
   },
   {
-   "id": "elec_switch_31",
+   "id": "elec_switch_28",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3883,6 +3804,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     42.542,
     37.163,
@@ -3909,7 +3831,7 @@
    }
   },
   {
-   "id": "elec_switch_32",
+   "id": "elec_switch_29",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3921,6 +3843,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     0.542,
     42.887,
@@ -3947,7 +3870,7 @@
    }
   },
   {
-   "id": "elec_switch_33",
+   "id": "elec_switch_30",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3959,6 +3882,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     17.063,
     51.458,
@@ -3985,7 +3909,7 @@
    }
   },
   {
-   "id": "elec_switch_34",
+   "id": "elec_switch_31",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -3997,6 +3921,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     16.709,
     23.322,
@@ -4023,7 +3948,7 @@
    }
   },
   {
-   "id": "elec_switch_35",
+   "id": "elec_switch_32",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -4035,6 +3960,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     11.709,
     27.449,
@@ -4509,7 +4435,7 @@
    "name": "Outlet GFI, 44 in",
    "category": "Electrical",
    "system": "electrical.power",
-   "room": "Utility",
+   "room": "Powder",
    "layer": "electrical",
    "builder": "outlet",
    "size": [
@@ -4669,7 +4595,7 @@
    "name": "Outlet GFI, 44 in",
    "category": "Electrical",
    "system": "electrical.power",
-   "room": "Utility",
+   "room": "Pantry",
    "layer": "electrical",
    "builder": "outlet",
    "size": [
@@ -6735,7 +6661,7 @@
    }
   },
   {
-   "id": "elec_switch_36",
+   "id": "elec_switch_33",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -6747,6 +6673,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     31.857,
     34.571,
@@ -7133,7 +7060,7 @@
    }
   },
   {
-   "id": "elec_switch_37",
+   "id": "elec_switch_34",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -7145,6 +7072,7 @@
     4.5,
     0.3
    ],
+   "gangs": 1,
    "at": [
     38.298,
     22.363,
@@ -11922,29 +11850,29 @@
     12.12,
     15.03,
     16.66,
-    22.87
+    22.86
    ],
    [
     16.66,
     15.03,
     28.12,
-    22.87
+    22.86
    ],
    [
     28.12,
     15.49,
     31.12,
-    22.87
+    22.86
    ],
    [
     31.12,
     15.49,
     42.5,
-    22.87
+    22.86
    ],
    [
     0.5,
-    22.87,
+    22.86,
     12.12,
     29.03
    ],

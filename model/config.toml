@@ -38,11 +38,13 @@ flat_rooms = [
   [0.5, 10.95, 12.12, 22.41],   # Bed 3
   [12.12, 10.95, 23.4, 15.03],  # Hall 2
   [23.4, 10.95, 28.12, 15.03],  # Hall 2 east leg to the master bedroom door: 9' ceiling + attic over it (Maxwell 11/13). Stops at bedroom 1's west wall (x 28.12, A-11/A-12, Maxwell 11/17/2026)
-  [12.12, 15.03, 16.66, 22.87], # Hall 2 / linen
-  [16.66, 15.03, 28.12, 22.87], # Laundry (mech platform above)
-  [28.12, 15.49, 31.12, 22.87], # Laundry east end, south of bedroom 1's south wall (y 15.03-15.49)
-  [31.12, 15.49, 42.5, 22.87],  # Closet 1. Starts at the attic side of bedroom 1's south wall: from 15.03 the deck showed through the bedroom's vaulted wall (Maxwell, 11/18/2026)
-  [0.5, 22.87, 12.12, 29.03],   # Utility
+  # South edges at 22.86, just behind the living room's north wall face (22.866): at 22.87 the ceiling and attic deck poked
+  # through that wall into the living room (Maxwell, 11/19/2026)
+  [12.12, 15.03, 16.66, 22.86], # Hall 2 / linen
+  [16.66, 15.03, 28.12, 22.86], # Laundry (mech platform above)
+  [28.12, 15.49, 31.12, 22.86], # Laundry east end, south of bedroom 1's south wall (y 15.03-15.49)
+  [31.12, 15.49, 42.5, 22.86],  # Closet 1. Starts at the attic side of bedroom 1's south wall: from 15.03 the deck showed through the bedroom's vaulted wall (Maxwell, 11/18/2026)
+  [0.5, 22.86, 12.12, 29.03],   # Utility
   [0.5, 29.03, 12.12, 34.62],   # Pantry + Powder
 ]
 attic_floor = true              # walkable attic deck on top of every flat ceiling; decks bridge over walls between flat rooms (one attic). ASSUMED

@@ -1040,6 +1040,8 @@ def _room(x, y, level):
     if level == "upper":
         a, b, c, d = LOFT
         return "Loft" if a <= x <= c and b <= y <= d else "Attic"
+    if 0.5 <= x <= 12.12 and 28.241 < y <= 29.03:   # the utility room really ends at 28.241 (traced A-11); the strip south of it is the pantry and powder
+        return "Pantry" if x < 5.6 else "Powder"
     if 28.12 <= x <= 31.12 and 10.7 <= y <= 15.03:   # bedroom 1's L, west of its main rectangle (A-11)
         return "Bedroom 1"
     for r in _ROOMS:
@@ -1094,9 +1096,10 @@ for dv in _EP["devices"]:
                 notes=notes)))
         continue
     if k == "switch":
-        items.append(dict(id=_eid("switch"), name="Light switch, 44 in", category="Electrical", system="electrical.lighting", room=room, layer="electrical",
-            builder="switch_plate", size=[2.75, 4.5, 0.3], at=[x, y, round(floor + (44 - 2.25) / 12, 3)], facing=dv["facing"],
-            info=dict(model="Wall switch with a dimmer (U-11 legend)", specs=[["Height", "44 in to the centre"], ["On", f"The {wall} wall"]],
+        gangs = dv.get("gangs", 1)
+        items.append(dict(id=_eid("switch"), name=f"{gangs} gang light switch, 44 in" if gangs > 1 else "Light switch, 44 in", category="Electrical", system="electrical.lighting", room=room, layer="electrical",
+            builder="switch_plate", size=[2.75 + 1.81 * (gangs - 1), 4.5, 0.3], gangs=gangs, at=[x, y, round(floor + (44 - 2.25) / 12, 3)], facing=dv["facing"],
+            info=dict(model=(f"{gangs} gang plate of rocker switches with dimmers" if gangs > 1 else "Wall switch with a dimmer (U-11 legend)"), specs=[["Height", "44 in to the centre"], ["On", f"The {wall} wall"]],
                 notes=notes + ["U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."])))
         continue
     if k in ("data", "tv_data"):
@@ -1106,11 +1109,14 @@ for dv in _EP["devices"]:
                 specs=[["Height", f"{z_in} in to the centre"], ["Jacks", "Coax and one network jack, ASSUMED"]],
                 notes=notes + ["Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."])))
         if k == "tv_data":
-            items.append(dict(id=_eid("tv"), name="TV mount", category="Low voltage", system="low_voltage", room=room, layer="lowvolt",
-                builder="tv_mount", size=[24, 16, 1.6], at=[x, y, round(floor + 72 / 12 - 8 / 12, 3)], facing=dv["facing"],
+            tv = dv.get("tv", False)
+            ty = 30.65 if tv else y                    # the living room TV centres between its outlet and data jack
+            items.append(dict(id=_eid("tv"), name="65 in TV on its wall mount" if tv else "TV mount", category="Low voltage", system="low_voltage", room=room, layer="lowvolt",
+                builder="tv_mount", size=[24, 16, 1.6], tv=[57.1, 32.7, 1.1] if tv else None, at=[x, ty, round(floor + 72 / 12 - 8 / 12, 3)], facing=dv["facing"],
                 info=dict(model="Flat screen TV mount at 72 in, wall blocking behind it, 2 in sleeve down to a single gang box (U-11 legend)",
                     specs=[["Height", "72 in to the TV centre, confirm with the owner"], ["Blocking", "Needed in the wall before drywall"]],
-                    notes=notes + ["The bracket is drawn generic: the TV and its mount are not picked yet. A recessed power and cable box behind the TV hides the cords."])))
+                    notes=notes + ["The bracket is drawn generic: the TV and its mount are not picked yet. A recessed power and cable box behind the TV hides the cords."]
+                        + (["The TV is a generic 65 in set (about 57 x 33 in), the size Andy's site plan furniture shows. Its centre is at 72 in as U-11 draws it, which is high for watching from the couch; 42 to 48 in is more usual, so confirm before the blocking goes in."] if tv else []))))
 
 trusses = dict(id="floor_trusses", name="Open web floor trusses", category="Structure", system="structure.floor", regions=FLAT, loft_regions=[LOFT],
     z0=CEIL, depth_in=TRUSS_IN, spacing_in=CFG["floor_trusses"]["spacing_in"], deck_in=DECK_IN, grid_x0=TG, max_cross_in=CFG["floor_trusses"]["max_round_duct_in"],

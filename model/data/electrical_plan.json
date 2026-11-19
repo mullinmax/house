@@ -7,6 +7,17 @@
  "devices": [
   {
    "kind": "switch",
+   "gangs": 4,
+   "x": 27.0,
+   "y": 34.583,
+   "z_in": 44,
+   "facing": 0,
+   "level": "main",
+   "src": "U-11 #8-11",
+   "note": "U-11 draws four switches (two of them 3-way, for the loft) side by side on this wall, right where the ships ladder now stands. Combined into one 4 gang plate just west of the ladder (Maxwell, 11/19/2026)."
+  },
+  {
+   "kind": "switch",
    "x": 11.863,
    "y": 15.574,
    "z_in": 44,
@@ -78,59 +89,25 @@
    "src": "U-11 #7"
   },
   {
-   "kind": "switch",
-   "x": 27.491,
-   "y": 34.583,
-   "z_in": 44,
-   "facing": 0,
-   "level": "main",
-   "src": "U-11 #8"
-  },
-  {
-   "kind": "switch",
-   "x": 29.582,
-   "y": 34.583,
-   "z_in": 44,
-   "facing": 0,
-   "level": "main",
-   "src": "U-11 #9"
-  },
-  {
-   "kind": "switch",
-   "x": 28.176,
-   "y": 34.583,
-   "z_in": 44,
-   "facing": 0,
-   "level": "main",
-   "src": "U-11 #10"
-  },
-  {
-   "kind": "switch",
-   "x": 28.879,
-   "y": 34.583,
-   "z_in": 44,
-   "facing": 0,
-   "level": "main",
-   "src": "U-11 #11"
-  },
-  {
    "kind": "tv_data",
-   "x": 31.167,
-   "y": 28.338,
+   "x": 16.709,
+   "y": 30.9,
    "z_in": 72,
-   "facing": 270,
+   "facing": 90,
    "level": "main",
-   "src": "U-11 #12"
+   "src": "U-11 #12",
+   "tv": true
   },
   {
    "kind": "outlet",
-   "x": 31.167,
-   "y": 29.151,
+   "x": 16.709,
+   "y": 30.4,
    "z_in": 72,
-   "facing": 270,
+   "facing": 90,
    "level": "main",
    "src": "U-11 #13",
-   "note": "Behind the living room TV. U-11: 72 in to the TV, confirm with the owner."
+   "tv": false,
+   "note": "Behind the living room TV. U-11 draws it on the east wall; moved to the west wall facing the couch (Maxwell, 11/19/2026). U-11: 72 in to the TV, confirm with the owner."
   },
   {
    "kind": "tv_data",
@@ -139,7 +116,8 @@
    "z_in": 72,
    "facing": 270,
    "level": "main",
-   "src": "U-11 #14"
+   "src": "U-11 #14",
+   "tv": false
   },
   {
    "kind": "outlet",
