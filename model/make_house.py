@@ -50,6 +50,11 @@ EC_OPEN = tuple(EC.get("opening", [40.789, 42.289]))
 # a built-in in the closet opening and the mudroom unit read as one piece: no oak casing leg between them, the strip of wall
 # over the beam posts faced in the cabinet paint (Maxwell 11/19/2026)
 EC_MERGE = bool(EC) and EC.get("merge_cubby", True) and EC_STYLE in ("cabinet", "pullout", "coat")
+if EC_STYLE == "open":                          # no closet: the cubby runs on east to a short wall of posts at the east wall (Maxwell 11/19/2026)
+    _cub = min((p_ for p_ in CL["passages"] if p_[1] <= EC_OPEN[0] + 0.01), key=lambda p_: EC_OPEN[0] - p_[1])
+    CL["passages"] = [p_ for p_ in CL["passages"] if abs(p_[0] - EC_OPEN[0]) > 0.01]
+    _cub[1] = EC["open_to"]
+    EC["posts"], EC["post_plies"] = EC.get("open_posts", [EC["open_to"] + 0.02, EC["open_to"] + 0.395]), EC.get("open_post_plies", 3)
 LOFT = C["loft"]
 LX0, LY0, LX1, LY1 = LOFT["rect"]
 _ft = C.get("floor_trusses")
@@ -1206,7 +1211,7 @@ if FU.get("enabled"):
     DOOR_NAMES, DOOR_NOTES, DOOR_LEAF_TOP = {}, {}, {}
     for da in FU.get("door_add", []):
         if da.get("name") == "Door, entry closet":
-            if EC_STYLE in ("cabinet", "pullout", "coat"):
+            if EC_STYLE in ("cabinet", "pullout", "coat", "open"):
                 continue                       # a built-in fills the opening instead of a door
             da = dict(da, g0=EC_OPEN[0], g1=EC_OPEN[1])
             if EC_STYLE == "split":
@@ -1292,7 +1297,7 @@ if FU.get("enabled"):
             continue                           # a door was hung in it, and the door brings its own jambs and casing
         # an opening whose jambs are partitions running north (the mudroom cubby) has no wall face on its north side to
         # trim: casings there stood in the cubby and poked through its side walls (Maxwell 11/17/2026)
-        abut = lambda xj: (EC_MERGE and abs(xj - EC["posts"][0]) < 0.05) or any(r_[1] > r_[0] + 0.1 and r_[0] - 0.05 <= xj <= r_[1] + 0.05 and r_[3] >= YC - 0.05 and r_[2] < YC - 0.3 for r_ in INT_RECTS)
+        abut = lambda xj: (EC_MERGE and abs(xj - EC["posts"][0]) < 0.05) or (EC_STYLE == "open" and abs(xj - EC["open_to"]) < 0.05) or any(r_[1] > r_[0] + 0.1 and r_[0] - 0.05 <= xj <= r_[1] + 0.05 and r_[3] >= YC - 0.05 and r_[2] < YC - 0.3 for r_ in INT_RECTS)
         for (b0, b1) in ((YC - 0.06, YC), (YC2, YC2 + 0.06)):
             if b1 <= YC and abut(x0) and abut(x1):
                 continue
@@ -1323,14 +1328,25 @@ def entry_closet():
     px0, px1 = EC["posts"]
     ptop = EC.get("post_top", 8.0)
     ym = (YC + YC2) / 2
+    if EC_STYLE == "open":
+        rec("structure.beam_posts", "structure", f"Beam posts, {int(EC['post_plies'])} 2x4s", "interior",
+            info=dict(model=f"({int(EC['post_plies'])}) 2x4 posts, nailed together, under the east end of the header over the mudroom cubby",
+                      specs=[["Where", f"In the {ftin(HW - T - EC['open_to'])} of wall between the cubby and the east wall"], ["Height", f"Floor to the header, {ftin(ptop)}"]],
+                      notes=["Open version, no entry closet: the cubby runs on east to this short wall (Maxwell, 11/19/2026). Exact position ASSUMED."]))
+        npl = int(EC["post_plies"])
+        for k in range(npl):
+            a = px0 + k * (px1 - px0) / npl
+            box("Framing Lumber", a + 0.003, a + (px1 - px0) / npl - 0.003, ym - 0.146, ym + 0.146, 0.01, ptop - 0.01)
+        return
     rec("structure.beam_posts", "structure", "Beam posts, two 2x4s", "interior",
         info=dict(model="(2) 2x4 posts, nailed together, under the east end of the (2) 1 3/4 x 11 7/8 in LVL beam over the mudroom cubby",
                   specs=[["Where", "Inside the wall between the mudroom cubby and the entry closet"], ["Height", f"Floor to the beam, {ftin(ptop)}"]],
                   notes=["Added by the builder (Maxwell, 11/19/2026): the drawings had no posts for the beam here. They take room from the closet opening, which is now 18 in wide.",
                          "Shown inside the wall; turn Walls off to see them. Exact position ASSUMED."]))
-    for k in range(2):
-        a = px0 + k * (px1 - px0) / 2
-        box("Framing Lumber", a + 0.003, a + (px1 - px0) / 2 - 0.003, ym - 0.146, ym + 0.146, 0.01, ptop - 0.01)
+    npl = int(EC.get("post_plies", 2))
+    for k in range(npl):
+        a = px0 + k * (px1 - px0) / npl
+        box("Framing Lumber", a + 0.003, a + (px1 - px0) / npl - 0.003, ym - 0.146, ym + 0.146, 0.01, ptop - 0.01)
     if EC_STYLE not in ("closet", "split", "cabinet", "pullout", "coat"):
         return
     M, O = "Mudroom Paint", "White Oak"
@@ -1663,6 +1679,8 @@ MATERIALS.update({
 })
 FURN = FU.get("items", []) if FU.get("enabled") else []
 BYFID = {it["id"]: it for it in FURN}
+if EC_STYLE == "open" and "entry_bench" in BYFID:   # the mudroom unit stretches east to the post wall
+    BYFID["entry_bench"].update(EC.get("open_bench", {}))
 WEB_META = dict(replace_nodes=[], cull=[], move_nodes={})
 # Baked pieces that sat flush with another and flickered (tools/coplanar_audit.mjs): move_nodes [dx, dy, turn, dz] in plan
 # feet. The chairs' rails were flush with the dining table's stretchers (two also with its doors), and the kitchen light's
