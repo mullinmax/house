@@ -774,7 +774,7 @@
      ],
      [
       "Loop entry",
-      "One sleeve through the slab at the north wall, about 2 ft east of the west wall. The ten pipes fan out from it to the valves"
+      "One sleeve through the slab at the north wall, about 1-1/2 ft east of the west wall. The ten pipes fan out from it to the valves"
      ],
      [
       "Loop field",
@@ -1008,17 +1008,17 @@
     11
    ],
    "at": [
-    2.7495833333333337,
-    27.851,
-    6.9
+    3.53,
+    23.195999999999998,
+    6.75
    ],
-   "facing": 0,
+   "facing": 180,
    "info": {
     "model": "2 gal potable thermal expansion tank (U-11 detail)",
     "specs": [
      [
       "On",
-      "The cold line, after the main shutoff and any check valve"
+      "The treated cold line, after the main shutoff and any check valve"
      ]
     ],
     "notes": [
@@ -1055,6 +1055,241 @@
     ],
     "notes": [
      "Its cold side tees off the cold line; that small tee is not drawn.",
+     "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
+    ]
+   }
+  },
+  {
+   "id": "pressure_tank",
+   "name": "Well pressure tank",
+   "category": "Well water",
+   "system": "plumbing.well",
+   "room": "Utility",
+   "layer": "mechanical",
+   "builder": "pressure_tank",
+   "size": [
+    22.0,
+    39.0
+   ],
+   "at": [
+    6.15,
+    22.886,
+    0
+   ],
+   "facing": 180,
+   "info": {
+    "model": "Diaphragm well tank, about 44 gal (Amtrol Well-X-Trol WX-250 class)",
+    "price": "Included in Crabtree's $4,900 pump system (estimate 2479, approved 3/11/2026)",
+    "specs": [
+     [
+      "Pump",
+      "1/2 HP submersible with a pressure switch (Crabtree estimate 2479)"
+     ],
+     [
+      "Size",
+      "About 22 in across and 39 in tall"
+     ],
+     [
+      "Pressure",
+      "Usually a 40/60 PSI switch with the tank pre-charged to 38 PSI"
+     ],
+     [
+      "Connection",
+      "1 in at the bottom, through the tank tee"
+     ]
+    ],
+    "links": [
+     [
+      "Crabtree Drilling",
+      "https://www.crabtreedrilling.com"
+     ]
+    ],
+    "notes": [
+     "Crabtree's approved estimate lists a 1/2 HP submersible pump system 'including a pressure tank, pipe, wire, fittings, ditch digging and labor' but not the tank model or size. The size here is ASSUMED: a 44 gal tank is a common match for a 1/2 HP pump and gives about 12 gal between pump starts. The quote also offered a 1 HP constant pressure system for $5,800 as an alternate; the approved total ($10,919) has the 1/2 HP system.",
+     "Well (same estimate): 6 in PVC casing, estimated 100 ft, $43/ft past that.",
+     "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
+    ],
+    "placement": "North wall of the utility room, east of the filters and clear of the hall door's swing. The pump is down the well, so the only noise here is the pressure switch clicking."
+   }
+  },
+  {
+   "id": "tank_tee",
+   "name": "Tank tee and pressure switch",
+   "category": "Well water",
+   "system": "plumbing.well",
+   "room": "Utility",
+   "layer": "mechanical",
+   "builder": "tank_tee",
+   "size": [
+    10,
+    4,
+    3
+   ],
+   "at": [
+    5.11,
+    23.296,
+    1.0
+   ],
+   "facing": 180,
+   "info": {
+    "model": "1 in brass tank tee with pressure switch, gauge, relief valve and drain",
+    "specs": [
+     [
+      "Switch",
+      "40/60 PSI, ASSUMED"
+     ]
+    ],
+    "notes": [
+     "Part of Crabtree's pump system. Layout ASSUMED.",
+     "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
+    ]
+   }
+  },
+  {
+   "id": "spin_down",
+   "name": "Spin down sediment screen",
+   "category": "Well water",
+   "system": "plumbing.well",
+   "room": "Utility",
+   "layer": "mechanical",
+   "builder": "spin_down",
+   "size": [
+    6,
+    13,
+    6
+   ],
+   "at": [
+    4.8,
+    22.866,
+    3.441666666666667
+   ],
+   "facing": 180,
+   "info": {
+    "model": "Flushable spin down screen, 1 in, about 100 micron (generic)",
+    "specs": [
+     [
+      "Service",
+      "Open the flush valve at the bottom to rinse sand out, no cartridge"
+     ]
+    ],
+    "notes": [
+     "Not in Crabtree's quote. The whole filter row is a placeholder until the water test comes back (Maxwell, 11/19/2026: approximate is fine).",
+     "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
+    ]
+   }
+  },
+  {
+   "id": "filter_sediment",
+   "name": "Sediment filter",
+   "category": "Well water",
+   "system": "plumbing.well",
+   "room": "Utility",
+   "layer": "mechanical",
+   "builder": "big_blue",
+   "size": [
+    8,
+    25,
+    9
+   ],
+   "at": [
+    4.2,
+    22.866,
+    2.458333333333334
+   ],
+   "facing": 180,
+   "info": {
+    "model": "20 in x 4.5 in whole house housing, 5 micron pleated sediment cartridge (generic)",
+    "specs": [
+     [
+      "Flow",
+      "About 15 to 20 gpm"
+     ],
+     [
+      "Cartridge",
+      "Change every 3 to 6 months"
+     ]
+    ],
+    "notes": [
+     "Generic placeholder, not in Crabtree's quote.",
+     "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
+    ]
+   }
+  },
+  {
+   "id": "filter_carbon",
+   "name": "Carbon filter",
+   "category": "Well water",
+   "system": "plumbing.well",
+   "room": "Utility",
+   "layer": "mechanical",
+   "builder": "big_blue",
+   "size": [
+    8,
+    25,
+    9
+   ],
+   "at": [
+    3.5,
+    22.866,
+    2.458333333333334
+   ],
+   "facing": 180,
+   "sump": "grey",
+   "info": {
+    "model": "20 in x 4.5 in whole house housing, carbon block cartridge (generic)",
+    "specs": [
+     [
+      "Takes out",
+      "Taste, odor and some chemicals"
+     ],
+     [
+      "Cartridge",
+      "Change every 6 to 12 months"
+     ]
+    ],
+    "notes": [
+     "Generic placeholder. If the water test shows iron or sulfur, an iron filter or a softener usually goes here instead, and those need floor space and the drain.",
+     "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
+    ]
+   }
+  },
+  {
+   "id": "uv_sterilizer",
+   "name": "UV sterilizer",
+   "category": "Well water",
+   "system": "plumbing.well",
+   "room": "Utility",
+   "layer": "mechanical",
+   "builder": "uv_system",
+   "size": [
+    8,
+    42.0,
+    6
+   ],
+   "at": [
+    2.78,
+    22.866,
+    2.55
+   ],
+   "facing": 180,
+   "info": {
+    "model": "Whole house UV sterilizer, about 12 gpm (Viqua VH410 class, generic)",
+    "specs": [
+     [
+      "Power",
+      "120 V outlet nearby"
+     ],
+     [
+      "Lamp",
+      "Change once a year"
+     ],
+     [
+      "Order",
+      "Last, after the filters, so the water it sees is clear"
+     ]
+    ],
+    "notes": [
+     "Generic placeholder, not in Crabtree's quote. Common on private wells to kill bacteria; the county may want a bacteria test either way.",
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
     ]
    }
@@ -1278,12 +1513,12 @@
    "mat": "condensate",
    "points": [
     [
-     2.5,
+     1.9969999999999999,
      23.186,
      0.0
     ],
     [
-     2.5,
+     1.9969999999999999,
      23.186,
      0.5
     ]
@@ -1297,7 +1532,7 @@
      ],
      [
       "Where",
-      "North wall, about 2 ft east of the west wall (Maxwell, 11/18/2026)"
+      "North wall, about 1-1/2 ft east of the west wall (Maxwell, 11/19/2026, as built)"
      ]
     ],
     "notes": [
@@ -1322,17 +1557,17 @@
      1.35
     ],
     [
-     2.3,
+     1.797,
      23.3,
      1.35
     ],
     [
-     2.3,
+     1.797,
      23.126,
      1.35
     ],
     [
-     2.3,
+     1.797,
      23.126,
      0.3
     ]
@@ -1355,17 +1590,17 @@
      0.9
     ],
     [
-     2.3,
+     1.797,
      23.416666666666668,
      0.9
     ],
     [
-     2.3,
+     1.797,
      23.246,
      0.9
     ],
     [
-     2.3,
+     1.797,
      23.246,
      0.3
     ]
@@ -1388,17 +1623,17 @@
      1.35
     ],
     [
-     2.4,
+     1.8969999999999998,
      23.8,
      1.35
     ],
     [
-     2.4,
+     1.8969999999999998,
      23.126,
      1.35
     ],
     [
-     2.4,
+     1.8969999999999998,
      23.126,
      0.3
     ]
@@ -1421,17 +1656,17 @@
      0.9
     ],
     [
-     2.4,
+     1.8969999999999998,
      23.916666666666668,
      0.9
     ],
     [
-     2.4,
+     1.8969999999999998,
      23.246,
      0.9
     ],
     [
-     2.4,
+     1.8969999999999998,
      23.246,
      0.3
     ]
@@ -1454,17 +1689,17 @@
      1.35
     ],
     [
-     2.5,
+     1.9969999999999999,
      24.3,
      1.35
     ],
     [
-     2.5,
+     1.9969999999999999,
      23.126,
      1.35
     ],
     [
-     2.5,
+     1.9969999999999999,
      23.126,
      0.3
     ]
@@ -1487,17 +1722,17 @@
      0.9
     ],
     [
-     2.5,
+     1.9969999999999999,
      24.416666666666668,
      0.9
     ],
     [
-     2.5,
+     1.9969999999999999,
      23.246,
      0.9
     ],
     [
-     2.5,
+     1.9969999999999999,
      23.246,
      0.3
     ]
@@ -1520,17 +1755,17 @@
      1.35
     ],
     [
-     2.6,
+     2.097,
      24.8,
      1.35
     ],
     [
-     2.6,
+     2.097,
      23.126,
      1.35
     ],
     [
-     2.6,
+     2.097,
      23.126,
      0.3
     ]
@@ -1553,17 +1788,17 @@
      0.9
     ],
     [
-     2.6,
+     2.097,
      24.916666666666668,
      0.9
     ],
     [
-     2.6,
+     2.097,
      23.246,
      0.9
     ],
     [
-     2.6,
+     2.097,
      23.246,
      0.3
     ]
@@ -1586,17 +1821,17 @@
      1.35
     ],
     [
-     2.7,
+     2.197,
      25.3,
      1.35
     ],
     [
-     2.7,
+     2.197,
      23.126,
      1.35
     ],
     [
-     2.7,
+     2.197,
      23.126,
      0.3
     ]
@@ -1619,17 +1854,17 @@
      0.9
     ],
     [
-     2.7,
+     2.197,
      25.416666666666668,
      0.9
     ],
     [
-     2.7,
+     2.197,
      23.246,
      0.9
     ],
     [
-     2.7,
+     2.197,
      23.246,
      0.3
     ]
@@ -1827,32 +2062,220 @@
    }
   },
   {
+   "id": "well_line",
+   "name": "Well water line",
+   "category": "Well water",
+   "system": "plumbing.well",
+   "dia": 1.32,
+   "mat": "pe",
+   "points": [
+    [
+     1.9969999999999999,
+     28.051,
+     0.0
+    ],
+    [
+     1.9969999999999999,
+     28.051,
+     7.9
+    ],
+    [
+     1.9969999999999999,
+     23.395999999999997,
+     7.9
+    ],
+    [
+     5.15,
+     23.395999999999997,
+     7.9
+    ],
+    [
+     5.15,
+     23.395999999999997,
+     1.0
+    ]
+   ],
+   "info": {
+    "model": "1 in polyethylene from the submersible pump (Crabtree Drilling)",
+    "specs": [
+     [
+      "From",
+      "6 in PVC cased well, estimated 100 ft deep, 1/2 HP submersible pump (Crabtree estimate 2479)"
+     ],
+     [
+      "To",
+      "Tank tee at the pressure tank"
+     ]
+    ],
+    "notes": [
+     "Comes up through the slab at the south wall about 1-1/2 ft off the west wall (Maxwell, 11/19/2026). It rises in the corner, crosses the room overhead at about 8 ft and drops to the tank tee next to the pressure tank, about 17 ft of pipe. Line size is ASSUMED; Crabtree's quote says pipe, wire and fittings are included."
+    ]
+   }
+  },
+  {
+   "id": "well_tank",
+   "category": "Well water",
+   "system": "plumbing.well",
+   "dia": 1.32,
+   "mat": "pe",
+   "points": [
+    [
+     5.11,
+     23.296,
+     1.0
+    ],
+    [
+     5.11,
+     23.296,
+     0.25
+    ],
+    [
+     5.11,
+     23.866,
+     0.25
+    ],
+    [
+     5.7,
+     23.866,
+     0.25
+    ]
+   ],
+   "info_of": "well_line"
+  },
+  {
+   "id": "well_to_filters",
+   "name": "Well water to the filters",
+   "category": "Well water",
+   "system": "plumbing.well",
+   "dia": 1.1,
+   "mat": "copper",
+   "points": [
+    [
+     5.07,
+     23.195999999999998,
+     1.0
+    ],
+    [
+     5.07,
+     23.195999999999998,
+     4.4
+    ],
+    [
+     4.8,
+     23.195999999999998,
+     4.4
+    ]
+   ],
+   "info": {
+    "model": "1 in copper or PEX with full port ball valves",
+    "specs": [],
+    "notes": [
+     "From the tank tee up the wall into the filter row. A bypass around the filters (three valves) is ASSUMED so water keeps flowing during a cartridge change."
+    ]
+   }
+  },
+  {
+   "id": "well_f1",
+   "category": "Well water",
+   "system": "plumbing.well",
+   "dia": 1.1,
+   "mat": "copper",
+   "points": [
+    [
+     4.8,
+     23.195999999999998,
+     4.4
+    ],
+    [
+     4.2,
+     23.195999999999998,
+     4.4
+    ]
+   ],
+   "info_of": "well_to_filters"
+  },
+  {
+   "id": "well_f2",
+   "category": "Well water",
+   "system": "plumbing.well",
+   "dia": 1.1,
+   "mat": "copper",
+   "points": [
+    [
+     4.2,
+     23.195999999999998,
+     4.4
+    ],
+    [
+     3.5,
+     23.195999999999998,
+     4.4
+    ]
+   ],
+   "info_of": "well_to_filters"
+  },
+  {
+   "id": "well_f3",
+   "category": "Well water",
+   "system": "plumbing.well",
+   "dia": 1.1,
+   "mat": "copper",
+   "points": [
+    [
+     3.5,
+     23.195999999999998,
+     4.4
+    ],
+    [
+     3.12,
+     23.195999999999998,
+     4.4
+    ],
+    [
+     3.12,
+     23.195999999999998,
+     2.925
+    ],
+    [
+     2.98,
+     23.195999999999998,
+     2.925
+    ]
+   ],
+   "info_of": "well_to_filters"
+  },
+  {
    "id": "dhw_cold",
-   "name": "Cold water to the preheat tank",
+   "name": "Treated cold water",
    "category": "Hot water",
    "system": "plumbing.dhw",
    "dia": 1.1,
    "mat": "copper",
    "points": [
     [
-     3.699583333333334,
-     27.851,
-     0.2
+     2.78,
+     23.195999999999998,
+     5.95
     ],
     [
-     3.699583333333334,
+     2.78,
+     23.195999999999998,
+     7.4
+    ],
+    [
+     2.78,
      27.851,
-     6.9
+     7.4
     ],
     [
      4.139583333333334,
      27.851,
-     6.9
+     7.4
     ],
     [
      4.139583333333334,
      26.904333333333334,
-     6.9
+     7.4
     ],
     [
      4.139583333333334,
@@ -1865,37 +2288,49 @@
     "specs": [
      [
       "Valves",
-      "Main shutoff at the riser, shutoff and union at the tank"
+      "Shutoff after the UV, shutoff and union at the preheat tank"
      ],
      [
       "Expansion tank",
-      "Hangs from a short stub off this line, as U-11 shows"
+      "Hangs from a short stub near the north wall, as U-11 shows"
      ]
     ],
     "notes": [
-     "Cold service comes up through the slab behind the preheat tank, rises, and drops into the tank's cold inlet, about 9 ft of pipe. The desuperheater return tees into the drop. Service entry point and valves ASSUMED."
+     "Out of the UV sterilizer, up and back across the room overhead to the south wall. One branch goes down through the slab as the house cold supply, the other drops into the preheat tank's cold inlet. The desuperheater return tees into that drop. Valves ASSUMED."
     ]
    }
   },
   {
    "id": "dhw_cold_house",
+   "name": "Cold water to the house",
    "category": "Hot water",
    "system": "plumbing.dhw",
    "dia": 1.1,
    "mat": "copper",
    "points": [
     [
-     3.699583333333334,
+     2.78,
      27.851,
-     6.9
+     7.4
     ],
     [
-     3.699583333333334,
+     2.7769999999999997,
      27.851,
-     9.0
+     7.4
+    ],
+    [
+     2.7769999999999997,
+     27.851,
+     0.0
     ]
    ],
-   "info_of": "dhw_cold"
+   "info": {
+    "model": "3/4 in copper to PEX under the slab",
+    "specs": [],
+    "notes": [
+     "Drops through the slab with the hot lines, about 2-1/2 ft off the west wall. ASSUMED: Maxwell said the hot water lines and the drain come up there; the house cold is drawn with them until the plumber confirms where it goes."
+    ]
+   }
   },
   {
    "id": "dhw_cold_stub",
@@ -1905,14 +2340,14 @@
    "mat": "copper",
    "points": [
     [
-     3.699583333333334,
-     27.851,
-     6.9
+     2.78,
+     23.195999999999998,
+     6.75
     ],
     [
-     2.699583333333334,
-     27.851,
-     6.9
+     3.53,
+     23.195999999999998,
+     6.75
     ]
    ],
    "info_of": "dhw_cold"
@@ -1980,14 +2415,34 @@
     [
      6.47625,
      26.67725,
-     9.0
+     7.0
+    ],
+    [
+     6.47625,
+     27.701,
+     7.0
+    ],
+    [
+     2.967,
+     27.701,
+     7.0
+    ],
+    [
+     2.967,
+     28.051,
+     7.0
+    ],
+    [
+     2.967,
+     28.051,
+     0.0
     ]
    ],
    "info": {
-    "model": "3/4 in copper, insulated",
+    "model": "3/4 in copper, insulated, to PEX under the slab",
     "specs": [],
     "notes": [
-     "Heat pump water heater high side hot outlet, straight up through a thermostatic mixing valve into the ceiling and on to the fixtures."
+     "Heat pump water heater high side hot outlet, up through the thermostatic mixing valve, west above the preheat tank and down through the slab about 2-1/2 ft off the west wall (Maxwell, 11/19/2026), where the lines to the rest of the house run."
     ]
    }
   },
@@ -2000,9 +2455,29 @@
    "mat": "foam",
    "points": [
     [
+     3.147,
+     28.051,
+     0.0
+    ],
+    [
+     3.147,
+     28.051,
+     7.2
+    ],
+    [
+     3.147,
+     27.551,
+     7.2
+    ],
+    [
+     5.199583333333334,
+     27.551,
+     7.2
+    ],
+    [
      5.199583333333334,
      28.051,
-     9.0
+     7.2
     ],
     [
      5.199583333333334,
@@ -2024,8 +2499,40 @@
     "model": "1/2 in copper, insulated",
     "specs": [],
     "notes": [
-     "Return from the far end of the hot main (U-11 shows a recirculation pump). Comes down the south wall between the two tanks, through the pump at chest height, and tees into the water heater's cold inlet pipe. A check valve and a timer or demand control are ASSUMED.",
+     "Return from the far end of the hot main (U-11 shows a recirculation pump). Comes up through the slab next to the hot line, crosses above the preheat tank, comes down the south wall between the two tanks through the pump at chest height, and tees into the water heater's cold inlet pipe. Which of the lines in the slab is the return is ASSUMED. A check valve and a timer or demand control are ASSUMED.",
      "Insulated like the hot line: a recirculation loop is hot whenever it runs, so bare pipe would give that heat away all day."
+    ]
+   }
+  },
+  {
+   "id": "utility_drain",
+   "name": "Utility room drain",
+   "category": "Well water",
+   "system": "plumbing.drain",
+   "dia": 2.38,
+   "mat": "pvc",
+   "points": [
+    [
+     3.2969999999999997,
+     27.801,
+     0.0
+    ],
+    [
+     3.2969999999999997,
+     27.801,
+     0.4
+    ]
+   ],
+   "info": {
+    "model": "2 in PVC drain stub through the slab",
+    "specs": [
+     [
+      "Where",
+      "South wall, about 2-1/2 ft off the west wall, next to the house hot lines (Maxwell, 11/19/2026)"
+     ]
+    ],
+    "notes": [
+     "Use ASSUMED: the relief valves, drain pans, spin down flush and condensate would all run here, and a water softener or iron filter would need it for backwash. It is drawn as a short open stub; the plumber sets the standpipe, trap and air gap."
     ]
    }
   },
