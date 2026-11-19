@@ -44,6 +44,9 @@ OH, TH = R["overhang"], R["panel_thickness"]
 MM = C["materials"]
 FU = C.get("furnishings", {})
 CL = C["clerestory"]
+EC = C.get("entry_closet", {})                  # entry closet built around the beam posts (Maxwell's builder, 11/19/2026)
+EC_STYLE = EC.get("style", "closet")
+EC_OPEN = tuple(EC.get("opening", [40.789, 42.289]))
 LOFT = C["loft"]
 LX0, LY0, LX1, LY1 = LOFT["rect"]
 _ft = C.get("floor_trusses")
@@ -1191,8 +1194,14 @@ if FU.get("enabled"):
             cx, cy = ((g0 + g1) / 2, (t0 + t1) / 2) if ax == "x" else ((t0 + t1) / 2, (g0 + g1) / 2)
             return math.hypot(cx - rx, cy - ry) < 1.5
         DOOR_GAPS[:] = [g for g in DOOR_GAPS if not _near(g)]
-    DOOR_NAMES, DOOR_NOTES = {}, {}
+    DOOR_NAMES, DOOR_NOTES, DOOR_LEAF_TOP = {}, {}, {}
     for da in FU.get("door_add", []):
+        if da.get("name") == "Door, entry closet":
+            if EC_STYLE in ("cabinet", "pullout"):
+                continue                       # a built-in fills the opening instead of a door
+            da = dict(da, g0=EC_OPEN[0], g1=EC_OPEN[1])
+            if EC_STYLE == "split":
+                DOOR_LEAF_TOP[(da["g0"], da["g1"])] = EC.get("split_at", 6.67)
         t0_, t1_ = (YC, YC2) if da.get("t0") == "clerestory" else (da["t0"], da["t1"])
         DOOR_GAPS.append((da["axis"], da["g0"], da["g1"], t0_, t1_, da.get("head", 6.67)))
         if da.get("name"):
@@ -1258,7 +1267,7 @@ if FU.get("enabled"):
                 hp = (ha, tm) if ax == "x" else (tm, ha)
                 lf = op(r, f"{r['id']}.leaf{suffix}", r["name"], "swing", (hp[0], hp[1], 0), angle=90 * sgn_)
                 with into(lf["parts"]):
-                    B("White Oak", l0, l1, tm - 0.07, tm + 0.07, 0.04, h - 0.08)
+                    B("White Oak", l0, l1, tm - 0.07, tm + 0.07, 0.04, DOOR_LEAF_TOP.get((g0, g1), h) - 0.08)
                     lx = l1 - 0.25 if k_ == 0 else l0 + 0.25
                     for sgn in (-1, 1):
                         b0 = tm + sgn * 0.07; b1 = b0 + sgn * 0.06
@@ -1278,10 +1287,130 @@ if FU.get("enabled"):
         for (b0, b1) in ((YC - 0.06, YC), (YC2, YC2 + 0.06)):
             if b1 <= YC and abut(x0) and abut(x1):
                 continue
+            if b1 <= YC and abs(x0 - EC_OPEN[0]) < 0.01:
+                continue                       # entry closet built-in: its carcass fills the closet side
             RV = 0.016                         # 3/16" reveal: the casing stops short of the opening, so its edge never shows inside
             box("White Oak", x0 - CW - RV, x0 - RV, b0, b1, 0, hd + RV)
             box("White Oak", x1 + RV, x1 + CW + RV, b0, b1, 0, hd + RV)
             box("White Oak", x0 - CW - RV, x1 + CW + RV, b0, b1, hd + RV, hd + RV + CW)
+
+# ------------------------------------------------------------------ entry closet around the beam posts (11/19/2026)
+def entry_closet():
+    """The builder's two 2x4 posts under the east end of the cubby beam, and whatever fills the 18 in closet opening.
+    Plan frame: the opening is in the clerestory wall (y YC to YC2), the entry is south of it, the closet north."""
+    if not EC:
+        return
+    ox0, ox1 = EC_OPEN
+    ix0, ix1, iy0, iy1 = EC["interior"]
+    px0, px1 = EC["posts"]
+    ptop = EC.get("post_top", 8.0)
+    ym = (YC + YC2) / 2
+    rec("structure.beam_posts", "structure", "Beam posts, two 2x4s", "interior",
+        info=dict(model="(2) 2x4 posts, nailed together, under the east end of the (2) 1 3/4 x 11 7/8 in LVL beam over the mudroom cubby",
+                  specs=[["Where", "Inside the wall between the mudroom cubby and the entry closet"], ["Height", f"Floor to the beam, {ftin(ptop)}"]],
+                  notes=["Added by the builder (Maxwell, 11/19/2026): the drawings had no posts for the beam here. They take room from the closet opening, which is now 18 in wide.",
+                         "Shown inside the wall; turn Walls off to see them. Exact position ASSUMED."]))
+    for k in range(2):
+        a = px0 + k * (px1 - px0) / 2
+        box("Framing Lumber", a + 0.003, a + (px1 - px0) / 2 - 0.003, ym - 0.146, ym + 0.146, 0.01, ptop - 0.01)
+    if EC_STYLE not in ("closet", "split", "cabinet", "pullout"):
+        return
+    M, O = "Mudroom Paint", "White Oak"
+    W = ox1 - ox0
+    yf = YC2                                       # wall face on the entry side
+
+    def knob(x, z, y=yf):
+        box("Black Metal", x - 0.03, x + 0.03, y, y + 0.06, z - 0.03, z + 0.03)
+
+    def shaker(mat, x0, x1, y0, z0, z1, rail=0.2):  # flat door with raised stiles and rails, front at y0 + 0.07
+        box(mat, x0, x1, y0, y0 + 0.04, z0, z1)
+        for (a0, a1, b0, b1) in ((x0, x1, z0, z0 + rail), (x0, x1, z1 - rail, z1), (x0, x0 + rail * 0.75, z0 + rail, z1 - rail), (x1 - rail * 0.75, x1, z0 + rail, z1 - rail)):
+            box(mat, a0, a1, y0 + 0.04, y0 + 0.07, b0, b1)
+
+    def hooks(xs, y, z, out):                      # black double hooks on the back wall (out = +1 south)
+        for x in xs:
+            box("Black Metal", x - 0.025, x + 0.025, y, y + out * 0.2, z, z + 0.05)
+            yy = y + out * 0.2
+            box("Black Metal", x - 0.025, x + 0.025, min(yy, yy - out * 0.04), max(yy, yy - out * 0.04), z - 0.08, z + 0.18)
+
+    def boot_tray(x0, x1, y0, y1):
+        box("Rubber", x0, x1, y0, y1, 0.0, 0.02)
+        for (a0, a1, b0, b1) in ((x0, x1, y0, y0 + 0.03), (x0, x1, y1 - 0.03, y1), (x0, x0 + 0.03, y0 + 0.03, y1 - 0.03), (x1 - 0.03, x1, y0 + 0.03, y1 - 0.03)):
+            box("Rubber", a0, a1, b0, b1, 0.02, 0.11)
+
+    if EC_STYLE in ("closet", "split"):            # an 18 in door; inside: shelves up top, hooks, a boot tray
+        r = rec("furniture.entry_closet", "furniture", "Entry closet fittings", "furniture", room="Entry",
+                info=dict(model="Coat closet behind an 18 in door: two shelves up top, coat hooks on three walls, a rubber boot tray",
+                          specs=[["Inside", f"{ftin(ix1 - ix0)} wide x {ftin(iy1 - iy0)} deep"], ["Door", f"{ftin(W)} wide"]],
+                          notes=["Mockup for the new 18 in opening (11/19/2026). Hooks instead of a rod: at 18 in deep a hanger does not fit across the closet."]))
+        sh = (EC.get("split_at", 6.67) + 0.06, 7.35) if EC_STYLE == "split" else (6.3, 7.2)
+        for z in sh:
+            box(O, ix0 + 0.003, ix1 - 0.003, iy0 + 0.003, iy1 - 0.08, z, z + 0.06)
+        box(O, ix0 + 0.003, ix1 - 0.003, iy0 + 0.003, iy0 + 0.06, 4.95, 5.4)            # hook rail on the back wall
+        hooks([ix0 + 0.35 + k * (ix1 - ix0 - 0.7) / 4 for k in range(5)], iy0 + 0.06, 5.12, 1)
+        for xw, out in ((ix0, 1), (ix1, -1)):                                            # side walls: hooks at the west (deep) end
+            box(O, min(xw, xw + out * 0.06), max(xw, xw + out * 0.06), iy0 + 0.2, iy1 - 0.25, 4.95, 5.4)
+            for y in (iy0 + 0.45, iy0 + 1.0):
+                box("Black Metal", min(xw + out * 0.06, xw + out * 0.26), max(xw + out * 0.06, xw + out * 0.26), y - 0.025, y + 0.025, 5.12, 5.17)
+        boot_tray(ix0 + 0.1, ix1 - 0.1, iy0 + 0.08, iy1 - 0.05)
+        if EC_STYLE == "split":                    # cabinet over the door, in the same white oak, its own little door
+            z0 = EC.get("split_at", 6.67)
+            box(O, ox0 + 0.06, ox1 - 0.06, YC, YC2, z0, z0 + 0.06)                     # transom rail between door and cabinet
+            box(O, ix0 + 0.003, ix1 - 0.003, iy0 + 0.003, YC, z0 + 0.003, z0 + 0.06)   # cabinet floor across the closet
+            lf = op(r, "furniture.entry_closet.upper", "Cabinet over the entry closet door", "swing", (ox1 - 0.07, ym, 0), angle=90)
+            with into(lf["parts"]):
+                box(O, ox0 + 0.07, ox1 - 0.07, ym - 0.07, ym + 0.07, z0 + 0.08, 7.92)
+                knob(ox0 + 0.25, z0 + 0.3, ym + 0.07)
+        return
+
+    # built-ins filling the opening: painted to match the mudroom unit next to it
+    for (a0, a1) in ((ox0, ox0 + 0.06), (ox1 - 0.06, ox1)):                              # jamb liners
+        box(M, a0, a1, YC, yf - 0.002, 0.0, 8.0)
+    box(M, ox0 + 0.06, ox1 - 0.06, YC, yf - 0.002, 7.94, 8.0)
+    box(M, ox0 + 0.06, ox1 - 0.06, YC, yf - 0.25, 0.0, 0.33)                             # recessed toe kick
+    box(M, ix0 + 0.003, ix1 - 0.003, iy0 + 0.003, yf - 0.1, 0.33, 0.38)                  # carcass floor
+    if EC_STYLE == "cabinet":
+        r = rec("furniture.entry_closet", "furniture", "Entry closet cabinet", "furniture", room="Entry",
+                info=dict(model="Built-in tall cabinet, painted light sage to match the mudroom unit: a tall door and a top door, adjustable shelves across the whole closet",
+                          specs=[["Opening", f"{ftin(W)} wide x 8' 0\""], ["Shelves", f"5, each {ftin(ix1 - ix0)} wide x {ftin(yf - 0.1 - iy0)} deep"]],
+                          notes=["Mockup for the new 18 in opening (11/19/2026). Good for bags, bins, dog gear, cleaning supplies; the shelves run behind the wall on the west side too."]))
+        zt = 6.45
+        for z in (1.55, 2.75, 3.95, 5.15, zt):
+            box(M, ix0 + 0.003, ix1 - 0.003, iy0 + 0.003, yf - 0.1, z, z + 0.06)
+        box(M, ix0 + 0.003, ix1 - 0.003, iy0 + 0.003, yf - 0.1, 7.2, 7.26)
+        for (z0, z1, nm, kz) in ((0.38, zt, "lower", zt - 2.9), (zt + 0.03, 7.92, "upper", zt + 0.3)):
+            lf = op(r, f"furniture.entry_closet.{nm}", f"Entry closet cabinet, {nm} door", "swing", (ox1 - 0.07, yf - 0.09, 0), angle=90)
+            with into(lf["parts"]):
+                shaker(M, ox0 + 0.07, ox1 - 0.07, yf - 0.09, z0 + 0.01, z1 - 0.01, rail=0.18)
+                knob(ox0 + 0.2, kz, yf - 0.02)
+        return
+    # pullout: a full height coat tower on full extension slides, hooks on both sides of a centre spine
+    r = rec("furniture.entry_closet", "furniture", "Pull-out coat tower", "furniture", room="Entry",
+            info=dict(model="Full height pull-out coat tower, painted light sage to match the mudroom unit, on heavy full extension slides",
+                      specs=[["Front", f"{ftin(W)} wide x 7' 6\""], ["Pulls out", "about 1' 9\" into the entry"],
+                             ["Inside", "centre spine with coat hooks on both faces, a hat shelf on top, a boot tray at the bottom; fixed shelves in the closet's west half"]],
+                      notes=["Mockup for the new 18 in opening (11/19/2026). Pull it out and every coat is reachable from the side; the west half behind the wall gets shelves you reach from the side when the tower is out."]))
+    for z in (1.6, 3.2, 4.8, 6.4):                                                       # fixed shelves behind the wall, west half
+        box(M, ix0 + 0.003, ox0 - 0.05, iy0 + 0.003, iy1 - 0.05, z, z + 0.06)
+    tx0, tx1, ty0, ty1 = ox0 + 0.08, ox1 - 0.08, iy0 + 0.1, yf - 0.02
+    lf = op(r, "furniture.entry_closet.tower", "Pull-out coat tower", "slide", ((tx0 + tx1) / 2, ty1, 0), slide=(0, 1.75, 0))
+    with into(lf["parts"]):
+        shaker(M, tx0, tx1, ty1 - 0.07, 0.4, 7.9, rail=0.2)                              # front panel
+        box("Black Metal", (tx0 + tx1) / 2 - 0.04, (tx0 + tx1) / 2 + 0.04, ty1, ty1 + 0.08, 3.4, 4.6)   # long bar pull
+        xm = (tx0 + tx1) / 2
+        box(M, xm - 0.03, xm + 0.03, ty0, ty1 - 0.07, 0.45, 7.5)                         # spine
+        box(M, tx0, tx1, ty0, ty1 - 0.07, 0.4, 0.46)                                     # bottom
+        box(M, tx0, tx1, ty0, ty1 - 0.07, 7.5, 7.56)                                     # hat shelf
+        box(M, tx0, tx1, ty0, ty0 + 0.06, 0.46, 7.5)                                     # back panel
+        boot_tray(tx0 + 0.04, tx1 - 0.04, ty0 + 0.1, ty1 - 0.12)
+        for side in (-1, 1):
+            for k, y in enumerate((ty0 + 0.35, ty0 + 0.85, ty0 + 1.35)):
+                xa = xm + side * 0.03
+                box("Black Metal", min(xa, xa + side * 0.2), max(xa, xa + side * 0.2), y - 0.025, y + 0.025, 5.6 - 0.25 * (k % 2), 5.65 - 0.25 * (k % 2))
+
+
+entry_closet()
+MATERIALS.update({"Framing Lumber": dict(color="#C9A66B", rough=0.8)})
 
 # ------------------------------------------------------------------ exterior details: fascia, soffits, gutters, fixtures
 if FU.get("enabled"):
