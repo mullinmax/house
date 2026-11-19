@@ -287,7 +287,9 @@ PT_D, PT_H = 16.0, 62.0                            # pressure tank, in: a slim t
 PT_X = 5.95
 PT_CY = UN + (1 + PT_D / 2) / 12
 UV_Z, UV_H = 2.55, 42.0
-VAC_X = 11.0                                       # stick vacuum dock: in the northeast corner (Maxwell, 11/19/2026: the hall door now swings out), floor head 2 in off the east wall
+# Stick vacuum (Maxwell, 11/19/2026): moved from the utility room to the hall closet off hall 2 (inside x 16.664 to 19.747, y 18.866 to 22.408,
+# door on its west side). It hangs on the closet's back (east) wall, straight across from the door.
+VAC_WALL, VAC_Y = 19.747, 20.64                    # back wall inside face, and the dock's centre along it (the door's centre line)
 def dhw(id, name, dia, mat, points, model, notes, specs=None, info_of=None, system="plumbing.dhw", category="Hot water"):
     r = dict(id=id, name=name, category=category, system=system, dia=dia, mat=mat, points=points)
     if info_of: r["info_of"] = info_of; r.pop("name")
@@ -404,17 +406,17 @@ items += [
                ["Would sit", "After the filters, before the preheat tank, with a bypass valve"]],
         notes=["Southeast corner, south of the hall door, so the door still opens fully. A cabinet unit (resin and salt in one box) fits; a twin tank one does not.",
                "Whether it is needed depends on the water test (hardness and iron). Piping to it is not drawn.", APPROX])),
- # ---- cleaning (Maxwell, 11/19/2026): the stick vacuum lives in the utility room on its wall charging dock
- dict(id="stick_vacuum", name="Dyson V8 stick vacuum on its wall dock", category="Cleaning", system="household", room="Utility", layer="appliances",
-      builder="stick_vacuum", size=[9.8, 49.1, 8.8], at=[VAC_X, UN + 0.01, 0], facing=180,
+ # ---- cleaning (Maxwell, 11/19/2026): the stick vacuum lives in the hall closet on its wall charging dock
+ dict(id="stick_vacuum", name="Dyson V8 stick vacuum on its wall dock", category="Cleaning", system="household", room="Hall closet", layer="appliances",
+      builder="stick_vacuum", size=[9.8, 49.1, 8.8], at=[VAC_WALL - 0.01, VAC_Y, 0], facing=270,
       info=dict(model="Dyson V8 cordless stick vacuum (clear bin, long wand) with its wall docking station and charger",
         specs=[["Size", "About 9.8 W x 49 H x 8.8 D in hanging on the dock, floor head about 1 in off the floor"],
                ["Dock", "Screws to the wall with its top about 4 ft up, charges the vacuum while it hangs and holds two tools"],
-               ["Power", "One 120 V duplex outlet about 18 in up, just west of the vacuum, for the charger"],
+               ["Power", "One 120 V duplex outlet about 18 in up, just north of the vacuum, for the charger"],
                ["Run time", "Up to about 40 min on low, roughly 5 h to recharge"]],
         notes=["Placeholder for where the vacuum is kept (Maxwell, 11/19/2026). Exact V8 variant not picked, so the size is from the V8 class.",
-               "The charger outlet is not on Andy's U-11: it is in the Electrical layer as an added outlet, so tell the electrician it is wanted here. U-11's own utility outlet is about 3 ft 8 in west, by the pressure tank.", APPROX],
-        placement="Northeast corner of the utility room, on the north wall right beside the hall door (Maxwell, 11/19/2026). The door now swings out into the hall, so the corner is free; the floor head stays about 2 in off the east wall and the door casing. It sticks out about 9 in, less than the pressure tank, so nothing narrows the way in.")),
+               "The charger outlet is not on Andy's U-11: it is in the Electrical layer as an added outlet, so tell the electrician it is wanted here. U-11 shows no outlet in this closet.", APPROX],
+        placement="Hall closet off hall 2, on the back (east) wall straight across from the door (Maxwell, 11/19/2026: moved here from the utility room). It sticks out about 9 in into the 3 ft deep closet, which leaves about 2 ft 3 in in front of it.")),
  dict(id="ro_system", name="Reverse osmosis drinking water", category="Kitchen appliance", system="plumbing.well", room="Kitchen", layer="appliances",
       builder="ro_unit", size=[5.7, 18, 17.6], at=[10.85, 51.42, 0.34], facing=0,
       info=dict(model="Tankless under sink reverse osmosis with its own faucet (generic, Waterdrop G3 class)",
@@ -1062,10 +1064,9 @@ def _eid(kind):
     return f"elec_{kind}_{_n[kind]:02d}"
 # The stick vacuum's charger outlet (PR 40) is not on U-11: it is added here so the Electrical layer has every outlet,
 # and the vacuum builder only draws the charger plugged into it.
-VAC_OX = VAC_X - 7 / 12
-_EP["devices"].append(dict(kind="outlet", x=round(VAC_OX, 3), y=UN, z_in=18, facing=180, level="main", src="added #vacuum",
-    note="Not on U-11. Added for the stick vacuum's charger, just west of its dock (Maxwell, 11/19/2026). U-11's own utility room outlet is "
-         f"{(VAC_OX - 6.696) * 12:.0f} in further west by the pressure tank, where the UV sterilizer and well controls can use it."))
+VAC_OY = VAC_Y - 7 / 12
+_EP["devices"].append(dict(kind="outlet", x=VAC_WALL, y=round(VAC_OY, 3), z_in=18, facing=270, level="main", src="added #vacuum",
+    note="Not on U-11. Added for the stick vacuum's charger in the hall closet, just north of its dock (Maxwell, 11/19/2026: the vacuum moved here from the utility room)."))
 _tagq = []
 def _tag(n0=None, src=None):                    # every electrical item carries its sheet symbol, for the snap tool
     if _tagq:
