@@ -2174,6 +2174,8 @@
     18,
     16
    ],
+   "parent": "supply_plenum",
+   "el": 20,
    "points": [
     [
      3.405833333333333,
@@ -2227,6 +2229,7 @@
     26,
     24
    ],
+   "parent": null,
    "points": [
     [
      3.405833333333333,
@@ -2261,6 +2264,9 @@
      11.0
     ]
    ],
+   "cfm": 26,
+   "parent": "supply_trunk",
+   "damper": true,
    "info": {
     "model": "6 in round, 26 CFM",
     "specs": [
@@ -2271,6 +2277,10 @@
      [
       "Duct",
       "6 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
@@ -2318,6 +2328,9 @@
      10.25
     ]
    ],
+   "cfm": 32,
+   "parent": "supply_trunk",
+   "damper": true,
    "info": {
     "model": "6 in round, 32 CFM",
     "specs": [
@@ -2328,6 +2341,10 @@
      [
       "Duct",
       "6 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
@@ -2370,6 +2387,9 @@
      11.0
     ]
    ],
+   "cfm": 78,
+   "parent": "supply_trunk",
+   "damper": true,
    "info": {
     "model": "6 in round, 78 CFM",
     "specs": [
@@ -2380,6 +2400,10 @@
      [
       "Duct",
       "6 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
@@ -2422,6 +2446,9 @@
      11.0
     ]
    ],
+   "cfm": 104,
+   "parent": "supply_trunk",
+   "damper": true,
    "info": {
     "model": "7 in round, 104 CFM",
     "specs": [
@@ -2432,6 +2459,10 @@
      [
       "Duct",
       "7 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
@@ -2479,6 +2510,9 @@
      9.494791666666666
     ]
    ],
+   "cfm": 15,
+   "parent": "supply_trunk",
+   "damper": true,
    "info": {
     "model": "6 in round, 15 CFM",
     "specs": [
@@ -2489,6 +2523,10 @@
      [
       "Duct",
       "6 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": []
@@ -2533,6 +2571,9 @@
      9.494791666666666
     ]
    ],
+   "cfm": 16,
+   "parent": "supply_trunk",
+   "damper": true,
    "info": {
     "model": "6 in round, 16 CFM",
     "specs": [
@@ -2543,6 +2584,10 @@
      [
       "Duct",
       "6 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": []
@@ -2569,26 +2614,29 @@
    "room": "Bedroom 3",
    "type": "supply",
    "shape": "round",
-   "size": 6,
+   "size": 8,
    "points": [
     [
      3.7,
-     14.5,
+     13.4,
      10.352083333333335
     ],
     [
      3.7,
-     14.5,
+     13.4,
      9.494791666666666
     ],
     [
-     5.7,
-     14.5,
+     3.7,
+     16.6,
      9.494791666666666
     ]
    ],
+   "cfm": 127,
+   "parent": "supply_trunk",
+   "damper": true,
    "info": {
-    "model": "6 in round, 127 CFM",
+    "model": "8 in round, 127 CFM",
     "specs": [
      [
       "Airflow",
@@ -2596,22 +2644,26 @@
      ],
      [
       "Duct",
-      "6 in round"
+      "8 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
-     "Bottom takeoff from the trunk into the truss bay below it, then crosses one truss to a ceiling register in the next bay west of the bedroom 3 return."
+     "Bottom takeoff from the trunk into the truss bay below it, then about 3 ft south in that same bay to a ceiling register. It crosses no truss, so it can be 8 in: the 6 in run that crossed one truss carried only about three quarters of this room's air (duct balance check, 11/18/2026)."
     ]
    },
    "grilles": [
     {
      "at": [
-      5.7,
-      14.5,
+      3.7,
+      16.6,
       8.98
      ],
      "size": [
-      12,
+      14,
       8
      ]
     }
@@ -2641,10 +2693,52 @@
     ],
     [
      1.9,
-     34.3,
+     34.01266666666666,
      9.494791666666666
     ]
    ],
+   "parent": "supply_plenum",
+   "el": 50,
+   "info": {
+    "model": "14 x 8 in in the first truss bay, then up onto the deck for the kitchen",
+    "specs": [
+     [
+      "Serves",
+      "Kitchen and dining 3 x 127 CFM, pantry 22, powder 15, utility 18"
+     ]
+    ],
+    "notes": [
+     "New. On M-10 these rooms were fed by branches crossing the attic floor. Here the main runs south in the truss bay along the west wall, which is parallel to the trusses so a rectangular duct fits. The small utility and powder branches cross the trusses at 6 in. At the clerestory wall the main comes up through the deck and feeds the kitchen duct, so the big kitchen runs never pass through a truss (Maxwell, 11/18/2026). Sizes are schematic."
+    ]
+   }
+  },
+  {
+   "id": "s_pantry",
+   "name": "Supply to Pantry",
+   "category": "HVAC supply duct",
+   "system": "hvac.supply",
+   "room": "Pantry",
+   "type": "supply",
+   "shape": "rect",
+   "size": [
+    10,
+    6
+   ],
+   "points": [
+    [
+     1.9,
+     31.0,
+     9.494791666666666
+    ],
+    [
+     1.9,
+     31.0,
+     9.05
+    ]
+   ],
+   "cfm": 22,
+   "parent": "supply_south_main",
+   "damper": true,
    "grilles": [
     {
      "at": [
@@ -2659,16 +2753,18 @@
     }
    ],
    "info": {
-    "model": "14 x 8 in in the first truss bay, then 6 and 7 in round branches",
+    "model": "10 x 6 in ceiling register on the bottom of the south main, 22 CFM",
     "specs": [
      [
-      "Serves",
-      "Kitchen and dining 3 x 127 CFM, pantry 22, powder 15, utility 18"
+      "Airflow",
+      "22 CFM (M-10)"
+     ],
+     [
+      "Damper",
+      "Opposed blade damper in the register"
      ]
     ],
-    "notes": [
-     "New. On M-10 these rooms were fed by branches crossing the attic floor. Here the main runs south in the truss bay along the west wall, which is parallel to the trusses so a rectangular duct fits, and each register gets its own round branch through the truss webs. Sizes are schematic."
-    ]
+    "notes": []
    }
   },
   {
@@ -2692,6 +2788,9 @@
      9.494791666666666
     ]
    ],
+   "cfm": 18,
+   "parent": "supply_south_main",
+   "damper": true,
    "info": {
     "model": "6 in round, 18 CFM",
     "specs": [
@@ -2702,6 +2801,10 @@
      [
       "Duct",
       "6 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
@@ -2743,6 +2846,9 @@
      9.494791666666666
     ]
    ],
+   "cfm": 15,
+   "parent": "supply_south_main",
+   "damper": true,
    "info": {
     "model": "6 in round, 15 CFM",
     "specs": [
@@ -2753,6 +2859,10 @@
      [
       "Duct",
       "6 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
@@ -2774,6 +2884,71 @@
    ]
   },
   {
+   "id": "supply_kitchen_riser",
+   "info_of": "supply_kitchen_main",
+   "type": "supply",
+   "shape": "rect",
+   "size": [
+    14,
+    8
+   ],
+   "parent": "supply_south_main",
+   "el": 30,
+   "points": [
+    [
+     1.9,
+     34.01266666666666,
+     9.494791666666666
+    ],
+    [
+     1.9,
+     34.01266666666666,
+     10.405416666666667
+    ]
+   ]
+  },
+  {
+   "id": "supply_kitchen_main",
+   "name": "Kitchen supply duct",
+   "category": "HVAC supply duct",
+   "system": "hvac.supply",
+   "type": "supply",
+   "shape": "rect",
+   "size": [
+    14,
+    8
+   ],
+   "parent": "supply_kitchen_riser",
+   "points": [
+    [
+     1.9,
+     34.01266666666666,
+     10.405416666666667
+    ],
+    [
+     12.299999999999999,
+     34.01266666666666,
+     10.405416666666667
+    ]
+   ],
+   "info": {
+    "model": "14 x 8 in on the attic deck along the clerestory wall, 381 CFM",
+    "specs": [
+     [
+      "Serves",
+      "Kitchen and dining, 3 x 127 CFM"
+     ],
+     [
+      "Location",
+      "On the deck over the pantry and powder room, against the kitchen wall"
+     ]
+    ],
+    "notes": [
+     "Replaces three 6 in branches through the pantry and powder trusses, which carried only about 70% of the kitchen's air (duct balance check, 11/18/2026). Maxwell, 11/18/2026: run the kitchen ducts higher so they are not in the floor and can be larger. It takes a strip of deck 14 in wide along the wall. ASSUMED size."
+    ]
+   }
+  },
+  {
    "id": "s_kitchen1",
    "name": "Supply to Kitchen / dining",
    "category": "HVAC supply duct",
@@ -2781,26 +2956,24 @@
    "room": "Kitchen / dining",
    "type": "supply",
    "shape": "round",
-   "size": 6,
+   "size": 8,
    "points": [
     [
-     1.9,
-     34.15,
-     9.494791666666666
-    ],
-    [
      3.7,
-     34.15,
-     9.494791666666666
+     34.56266666666666,
+     10.405416666666667
     ],
     [
      3.7,
      35.0,
-     9.494791666666666
+     10.405416666666667
     ]
    ],
+   "cfm": 127,
+   "parent": "supply_kitchen_main",
+   "damper": true,
    "info": {
-    "model": "6 in round, 127 CFM",
+    "model": "8 in round, 127 CFM",
     "specs": [
      [
       "Airflow",
@@ -2808,11 +2981,15 @@
      ],
      [
       "Duct",
-      "6 in round"
+      "8 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
-     "High sidewall register in the clerestory wall, on its own 6 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
+     "High sidewall register in the clerestory wall, about 11 in higher than before, on a short 8 in stub from the kitchen duct on the attic deck. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
     ]
    },
    "grilles": [
@@ -2820,7 +2997,7 @@
      "at": [
       3.7,
       35.1,
-      9.494791666666666
+      10.405416666666667
      ],
      "size": [
       14,
@@ -2838,26 +3015,24 @@
    "room": "Kitchen / dining",
    "type": "supply",
    "shape": "round",
-   "size": 6,
+   "size": 8,
    "points": [
     [
-     1.9,
-     33.5,
-     9.494791666666666
-    ],
-    [
      7.7,
-     33.5,
-     9.494791666666666
+     34.56266666666666,
+     10.405416666666667
     ],
     [
      7.7,
      35.0,
-     9.494791666666666
+     10.405416666666667
     ]
    ],
+   "cfm": 127,
+   "parent": "supply_kitchen_main",
+   "damper": true,
    "info": {
-    "model": "6 in round, 127 CFM",
+    "model": "8 in round, 127 CFM",
     "specs": [
      [
       "Airflow",
@@ -2865,11 +3040,15 @@
      ],
      [
       "Duct",
-      "6 in round"
+      "8 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
-     "High sidewall register in the clerestory wall, on its own 6 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
+     "High sidewall register in the clerestory wall, about 11 in higher than before, on a short 8 in stub from the kitchen duct on the attic deck. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
     ]
    },
    "grilles": [
@@ -2877,7 +3056,7 @@
      "at": [
       7.7,
       35.1,
-      9.494791666666666
+      10.405416666666667
      ],
      "size": [
       14,
@@ -2895,26 +3074,24 @@
    "room": "Kitchen / dining",
    "type": "supply",
    "shape": "round",
-   "size": 6,
+   "size": 8,
    "points": [
     [
-     1.9,
-     32.85,
-     9.494791666666666
-    ],
-    [
      11.7,
-     32.85,
-     9.494791666666666
+     34.56266666666666,
+     10.405416666666667
     ],
     [
      11.7,
      35.0,
-     9.494791666666666
+     10.405416666666667
     ]
    ],
+   "cfm": 127,
+   "parent": "supply_kitchen_main",
+   "damper": true,
    "info": {
-    "model": "6 in round, 127 CFM",
+    "model": "8 in round, 127 CFM",
     "specs": [
      [
       "Airflow",
@@ -2922,11 +3099,15 @@
      ],
      [
       "Duct",
-      "6 in round"
+      "8 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
-     "High sidewall register in the clerestory wall, on its own 6 in round branch through the pantry and powder trusses. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
+     "High sidewall register in the clerestory wall, about 11 in higher than before, on a short 8 in stub from the kitchen duct on the attic deck. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west."
     ]
    },
    "grilles": [
@@ -2934,7 +3115,7 @@
      "at": [
       11.7,
       35.1,
-      9.494791666666666
+      10.405416666666667
      ],
      "size": [
       14,
@@ -2970,6 +3151,9 @@
      9.494791666666666
     ]
    ],
+   "cfm": 40,
+   "parent": "supply_trunk",
+   "damper": true,
    "info": {
     "model": "6 in round, 40 CFM",
     "specs": [
@@ -2980,6 +3164,10 @@
      [
       "Duct",
       "6 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": []
@@ -3034,6 +3222,9 @@
      9.494791666666666
     ]
    ],
+   "cfm": 70,
+   "parent": "supply_trunk",
+   "damper": true,
    "info": {
     "model": "6 in round, 70 CFM",
     "specs": [
@@ -3044,6 +3235,10 @@
      [
       "Duct",
       "6 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
@@ -3091,6 +3286,9 @@
      9.494791666666666
     ]
    ],
+   "cfm": 70,
+   "parent": "supply_trunk",
+   "damper": true,
    "info": {
     "model": "7 in round, 70 CFM",
     "specs": [
@@ -3101,6 +3299,10 @@
      [
       "Duct",
       "7 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
@@ -3148,6 +3350,9 @@
      9.494791666666666
     ]
    ],
+   "cfm": 33,
+   "parent": "supply_trunk",
+   "damper": true,
    "info": {
     "model": "6 in round, 33 CFM",
     "specs": [
@@ -3158,6 +3363,10 @@
      [
       "Duct",
       "6 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": []
@@ -3187,21 +3396,24 @@
    "size": 6,
    "points": [
     [
-     35.35,
+     35.300000000000004,
      16.85,
      10.502083333333333
     ],
     [
-     35.35,
+     35.300000000000004,
      17.1,
      9.494791666666666
     ],
     [
-     35.35,
+     35.300000000000004,
      27.6,
      9.494791666666666
     ]
    ],
+   "cfm": 49,
+   "parent": "supply_trunk",
+   "damper": true,
    "info": {
     "model": "6 in round, 49 CFM",
     "specs": [
@@ -3212,6 +3424,10 @@
      [
       "Duct",
       "6 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
@@ -3221,7 +3437,7 @@
    "grilles": [
     {
      "at": [
-      35.35,
+      35.300000000000004,
       27.6,
       8.98
      ],
@@ -3240,31 +3456,34 @@
    "room": "Loft",
    "type": "supply",
    "shape": "round",
-   "size": 6,
+   "size": 8,
    "points": [
     [
-     36.050000000000004,
+     36.1,
      16.85,
      10.502083333333333
     ],
     [
-     36.050000000000004,
+     36.1,
      17.1,
      9.494791666666666
     ],
     [
-     36.050000000000004,
+     36.1,
      24.6,
      9.494791666666666
     ],
     [
-     36.050000000000004,
+     36.1,
      24.6,
      10.062083333333334
     ]
    ],
+   "cfm": 88,
+   "parent": "supply_trunk",
+   "damper": true,
    "info": {
-    "model": "6 in round, 88 CFM",
+    "model": "8 in round, 88 CFM",
     "specs": [
      [
       "Airflow",
@@ -3272,17 +3491,21 @@
      ],
      [
       "Duct",
-      "6 in round"
+      "8 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
-     "Floor register in the loft."
+     "Floor register in the loft. 8 in, up from 6 in: the run stays in one truss bay, so the 6 in limit on crossing trusses does not apply (duct balance check, 11/18/2026)."
     ]
    },
    "grilles": [
     {
      "at": [
-      36.050000000000004,
+      36.1,
       24.6,
       10.062083333333334
      ],
@@ -3301,7 +3524,7 @@
    "room": "Entry / family",
    "type": "supply",
    "shape": "round",
-   "size": 7,
+   "size": 8,
    "points": [
     [
      31.7,
@@ -3319,8 +3542,11 @@
      9.494791666666666
     ]
    ],
+   "cfm": 112,
+   "parent": "supply_trunk",
+   "damper": true,
    "info": {
-    "model": "7 in round, 112 CFM",
+    "model": "8 in round, 112 CFM",
     "specs": [
      [
       "Airflow",
@@ -3328,11 +3554,15 @@
      ],
      [
       "Duct",
-      "7 in round"
+      "8 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
-     "Runs in the loft floor to a high sidewall register."
+     "Runs in the loft floor to a high sidewall register. 8 in, up from 7 in: 19 ft long but all in one truss bay, so it can be the full size the trusses allow (duct balance check, 11/18/2026)."
     ]
    },
    "grilles": [
@@ -3358,7 +3588,7 @@
    "room": "Entry / family",
    "type": "supply",
    "shape": "round",
-   "size": 7,
+   "size": 8,
    "points": [
     [
      37.7,
@@ -3376,8 +3606,11 @@
      9.494791666666666
     ]
    ],
+   "cfm": 112,
+   "parent": "supply_trunk",
+   "damper": true,
    "info": {
-    "model": "7 in round, 112 CFM",
+    "model": "8 in round, 112 CFM",
     "specs": [
      [
       "Airflow",
@@ -3385,11 +3618,15 @@
      ],
      [
       "Duct",
-      "7 in round"
+      "8 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
-     "Runs in the loft floor to a high sidewall register."
+     "Runs in the loft floor to a high sidewall register. 8 in, up from 7 in: 19 ft long but all in one truss bay, so it can be the full size the trusses allow (duct balance check, 11/18/2026)."
     ]
    },
    "grilles": [
@@ -3428,6 +3665,9 @@
      11.0
     ]
    ],
+   "cfm": 138,
+   "parent": "supply_trunk",
+   "damper": true,
    "info": {
     "model": "8 in round, 138 CFM",
     "specs": [
@@ -3438,6 +3678,10 @@
      [
       "Duct",
       "8 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
@@ -3477,6 +3721,9 @@
      9.494791666666666
     ]
    ],
+   "parent": "return_main_riser",
+   "intake": true,
+   "k": 1.0,
    "shape": "rect",
    "size": [
     34,
@@ -3538,6 +3785,8 @@
      10.46875
     ]
    ],
+   "parent": "return_main_deck",
+   "k": 1.0,
    "shape": "rect",
    "size": [
     14,
@@ -3562,6 +3811,8 @@
      10.46875
     ]
    ],
+   "parent": "return_plenum",
+   "k": 1.0,
    "shape": "rect",
    "size": [
     34,
@@ -3587,6 +3838,7 @@
      11.052083333333334
     ]
    ],
+   "parent": null,
    "shape": "rect",
    "size": [
     14,
@@ -3642,27 +3894,30 @@
      10.252083333333333
     ]
    ],
+   "parent": "return_plenum",
+   "el": 25,
    "shape": "round",
    "size": 10,
    "flex": true,
    "info": {
     "model": "10 in round flex",
     "notes": [
-     "Bedroom 3's grille moved from its south wall, next to the bed, to its north wall (Maxwell, 11/17/2026). It shares that wall with bedroom 2, so the two stacks rise side by side into the trusses over bedroom 3 and join there: bedroom 2's 6 in flex crosses one truss into bedroom 3's bay and tees into a 10 in flex that runs south in that bay, parallel to the trusses, to the return plenum box at the heat pump.",
+     "Bedroom 3's grille moved from its south wall, next to the bed, to its north wall (Maxwell, 11/17/2026). It shares that wall with bedroom 2, so the stacks rise side by side into the trusses over bedroom 3 and join there: bedroom 2's 6 in flex crosses one truss into bedroom 3's bay and tees into a 10 in flex that runs south in that bay, parallel to the trusses, to the return plenum box at the heat pump.",
+     "Bedroom 3 has two grilles and two stacks (duct balance check, 11/18/2026): a 14 x 2-1/2 in stack is all a 2x4 wall holds, and one of them alone passed only about three quarters of the room's 127 CFM.",
      "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 6 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
     ],
     "specs": [
      [
       "Serves",
-      "Bedroom 3 (low grille on its north wall) and bedroom 2 (low grille on its south wall)"
+      "Bedroom 3 (two low grilles on its north wall) and bedroom 2 (low grille on its south wall)"
      ],
      [
       "Duct",
-      "14 x 2-1/2 in wall stacks, 6 in flex from bedroom 2 through one truss, 10 in flex south in one truss bay to the plenum"
+      "14 x 2-1/2 in wall stacks, 6 in flex from bedroom 2 and from bedroom 3's second stack through one truss each, 10 in flex south in one truss bay to the plenum"
      ],
      [
       "Crosses",
-      "One truss, at 6 in. No supply runs"
+      "One truss from each side, at 6 in. No supply runs"
      ]
     ]
    },
@@ -3670,6 +3925,18 @@
     {
      "at": [
       7.7,
+      11.02,
+      1.0
+     ],
+     "size": [
+      14,
+      8
+     ],
+     "wall": "S"
+    },
+    {
+     "at": [
+      5.7,
       11.02,
       1.0
      ],
@@ -3698,11 +3965,117 @@
      9.494791666666666
     ]
    ],
+   "parent": "return_bed23",
+   "room": "Bedroom 3",
+   "intake": true,
+   "el": 75,
    "shape": "rect",
    "size": [
     14,
     2.5
    ],
+   "info_of": "return_bed23"
+  },
+  {
+   "id": "return_bed3_stack2",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     5.7,
+     10.8,
+     0.6699999999999999
+    ],
+    [
+     5.7,
+     10.8,
+     9.494791666666666
+    ]
+   ],
+   "parent": "return_bed3b",
+   "room": "Bedroom 3",
+   "intake": true,
+   "el": 75,
+   "shape": "rect",
+   "size": [
+    14,
+    2.5
+   ],
+   "info_of": "return_bed23"
+  },
+  {
+   "id": "return_bed3b",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     5.7,
+     10.85,
+     9.494791666666666
+    ],
+    [
+     5.7,
+     12.2,
+     9.495
+    ],
+    [
+     5.723,
+     12.386,
+     9.495
+    ],
+    [
+     5.79,
+     12.543,
+     9.495
+    ],
+    [
+     5.904,
+     12.671,
+     9.495
+    ],
+    [
+     6.062,
+     12.77,
+     9.495
+    ],
+    [
+     7.136,
+     13.276,
+     9.495
+    ],
+    [
+     7.261,
+     13.346,
+     9.495
+    ],
+    [
+     7.372,
+     13.431,
+     9.495
+    ],
+    [
+     7.468,
+     13.533,
+     9.495
+    ],
+    [
+     7.55,
+     13.65,
+     9.495
+    ],
+    [
+     7.7,
+     13.9,
+     9.494791666666666
+    ]
+   ],
+   "parent": "return_bed23",
+   "el": 30,
+   "shape": "round",
+   "size": 6,
+   "flex": true,
    "info_of": "return_bed23"
   },
   {
@@ -3772,6 +4145,8 @@
      9.494791666666666
     ]
    ],
+   "parent": "return_bed23",
+   "el": 30,
    "shape": "round",
    "size": 6,
    "flex": true,
@@ -3808,6 +4183,10 @@
      9.494791666666666
     ]
    ],
+   "parent": "return_bed2",
+   "room": "Bedroom 2",
+   "intake": true,
+   "el": 75,
    "shape": "rect",
    "size": [
     14,
@@ -3817,38 +4196,38 @@
   },
   {
    "id": "return_study",
-   "name": "Study and bedroom 1 returns",
+   "name": "Study return",
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
    "points": [
     [
-     27.7,
+     27.4,
      10.85,
      9.494791666666666
     ],
     [
-     27.7,
+     27.4,
      11.125,
      9.495
     ],
     [
-     27.683,
+     27.383,
      11.245,
      9.495
     ],
     [
-     27.631,
+     27.331,
      11.331,
      9.495
     ],
     [
-     27.545,
+     27.245,
      11.383,
      9.495
     ],
     [
-     27.425,
+     27.125,
      11.4,
      9.495
     ],
@@ -3983,24 +4362,27 @@
      10.252083333333333
     ]
    ],
+   "parent": "return_plenum",
+   "n": 2,
+   "el": 25,
    "shape": "round",
    "size": 6,
    "flex": true,
    "info": {
-    "model": "6 in round flex",
+    "model": "Two 6 in round flex runs",
     "notes": [
-     "The study and bedroom 1 have low grilles (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Each room gets its own 6 in flex back to the plenum, because one duct big enough for both would not fit through the truss webs.",
-     "A 6 in flex carries roughly 65 to 75 CFM at return duct friction (6 in is the most the builder is sure fits the installed trusses, 11/18/2026), about half of bedroom 1's 138 CFM supply. Andy may want a second run or a bigger chase for bedroom 1.",
+     "The study has a low grille (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Two 6 in runs because one big duct would not fit through the truss webs and a single 6 in returned only about 60% of the room's 104 CFM (duct balance check, 11/18/2026). If the builder confirms 7 in fits the webs, one 7 in run does nearly the same job.",
+     "The wall between the study door and bedroom 1 is too narrow for a second stack, so the one 14 x 2-1/2 in stack stays the tight spot here.",
      "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 6 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
     ],
     "specs": [
      [
       "Serves",
-      "Study (low grille on its south wall) and bedroom 1 (low grille on its south wall, beside the door)"
+      "Study (low grille on its south wall, east of the door)"
      ],
      [
       "Duct",
-      "14 x 2-1/2 in wall stacks, one 6 in flex home run per room to the return plenum box"
+      "One 14 x 2-1/2 in wall stack, then two 6 in flex home runs to the heat pump's return"
      ],
      [
       "Crosses",
@@ -4040,6 +4422,10 @@
      9.494791666666666
     ]
    ],
+   "parent": "return_study",
+   "room": "Bedroom 4 / study",
+   "intake": true,
+   "el": 75,
    "shape": "rect",
    "size": [
     14,
@@ -4048,64 +4434,64 @@
    "info_of": "return_study"
   },
   {
-   "id": "return_bed1",
+   "id": "return_study2",
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
    "points": [
     [
-     29.7,
-     15.3,
+     27.849999999999998,
+     10.85,
      9.494791666666666
     ],
     [
-     29.7,
-     15.525,
+     27.85,
+     11.45,
      9.495
     ],
     [
-     29.686,
-     15.623,
+     27.816,
+     11.691,
      9.495
     ],
     [
-     29.644,
-     15.694,
+     27.712,
+     11.863,
      9.495
     ],
     [
-     29.573,
-     15.736,
+     27.541,
+     11.966,
      9.495
     ],
     [
-     29.475,
-     15.75,
+     27.3,
+     12.0,
      9.495
     ],
     [
      26.6,
-     15.75,
+     12.0,
      9.495
     ],
     [
      26.359,
-     15.784,
+     12.034,
      9.495
     ],
     [
      26.188,
-     15.887,
+     12.137,
      9.495
     ],
     [
      26.084,
-     16.059,
+     12.309,
      9.495
     ],
     [
      26.05,
-     16.3,
+     12.55,
      9.495
     ],
     [
@@ -4164,14 +4550,111 @@
      9.494791666666666
     ]
    ],
+   "parent": "return_plenum",
+   "calc": false,
    "shape": "round",
    "size": 6,
    "flex": true,
-   "info_of": "return_study",
+   "info_of": "return_study"
+  },
+  {
+   "id": "return_bed1",
+   "name": "Bedroom 1 return",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     30.366666666666667,
+     15.95,
+     12.402083333333332
+    ],
+    [
+     30.366666666666667,
+     16.41,
+     12.402083333333332
+    ],
+    [
+     30.366666666666667,
+     16.41,
+     11.842083333333331
+    ],
+    [
+     26.76,
+     16.41,
+     11.842083333333331
+    ],
+    [
+     26.76,
+     12.31,
+     11.842083333333331
+    ],
+    [
+     5.113333333333333,
+     12.31,
+     11.842083333333331
+    ],
+    [
+     5.113333333333333,
+     13.3,
+     11.842083333333331
+    ],
+    [
+     5.113333333333333,
+     14.3,
+     10.46875
+    ],
+    [
+     5.113333333333333,
+     23.2,
+     10.46875
+    ]
+   ],
+   "parent": "return_plenum",
+   "el": 25,
+   "shape": "round",
+   "size": 10,
+   "info": {
+    "model": "10 in round on top of the supply trunk",
+    "notes": [
+     "Replaces a 6 in flex through the laundry and linen trusses, which returned only about half of bedroom 1's 138 CFM (duct balance check, 11/18/2026). A duct big enough for this room cannot pass the truss webs, so it goes over the top instead: it uses no deck along the trunk, and a strip about 10 in wide beside the trunk's west leg over bedroom 3.",
+     "Clearance under the roof is tightest along the north attic wall, about 5 in above the duct in this model. Confirm on site. ASSUMED size and route."
+    ],
+    "specs": [
+     [
+      "Serves",
+      "Bedroom 1 (two low grilles on its south wall, beside the door)"
+     ],
+     [
+      "Duct",
+      "Two 14 x 2-1/2 in wall stacks to a header box, then one 10 in round, about 45 ft"
+     ],
+     [
+      "Route",
+      "On top of the supply trunk beside the bath exhaust main, then on the deck beside the trunk to the return plenum"
+     ],
+     [
+      "Crosses",
+      "No trusses"
+     ]
+    ]
+   },
    "grilles": [
     {
      "at": [
       29.7,
+      15.01,
+      1.0
+     ],
+     "size": [
+      14,
+      8
+     ],
+     "wall": "N"
+    },
+    {
+     "at": [
+      31.03333333333333,
       15.01,
       1.0
      ],
@@ -4197,15 +4680,73 @@
     [
      29.7,
      15.26,
-     9.494791666666666
+     12.402083333333332
     ]
    ],
+   "parent": "return_bed1_head",
+   "room": "Bedroom 1",
+   "intake": true,
+   "el": 75,
    "shape": "rect",
    "size": [
     14,
     2.5
    ],
-   "info_of": "return_study"
+   "info_of": "return_bed1"
+  },
+  {
+   "id": "return_bed1_stack2",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     31.03333333333333,
+     15.26,
+     0.6699999999999999
+    ],
+    [
+     31.03333333333333,
+     15.26,
+     12.402083333333332
+    ]
+   ],
+   "parent": "return_bed1_head",
+   "room": "Bedroom 1",
+   "intake": true,
+   "el": 75,
+   "shape": "rect",
+   "size": [
+    14,
+    2.5
+   ],
+   "info_of": "return_bed1"
+  },
+  {
+   "id": "return_bed1_head",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     30.366666666666667,
+     15.3,
+     12.402083333333332
+    ],
+    [
+     30.366666666666667,
+     15.95,
+     12.402083333333332
+    ]
+   ],
+   "parent": "return_bed1",
+   "el": 25,
+   "shape": "rect",
+   "size": [
+    32,
+    10
+   ],
+   "info_of": "return_bed1"
   },
   {
    "id": "s_bath2",
@@ -4233,6 +4774,9 @@
      9.494791666666666
     ]
    ],
+   "cfm": 37,
+   "parent": "supply_trunk",
+   "damper": true,
    "info": {
     "model": "6 in round, 37 CFM",
     "specs": [
@@ -4243,12 +4787,17 @@
      [
       "Duct",
       "6 in round"
+     ],
+     [
+      "Damper",
+      "Manual volume damper at the takeoff, set when the system is air balanced (M-10 general notes)"
      ]
     ],
     "notes": [
      "Low sidewall register on the south wall (Maxwell, 11/18/2026): supply low, exhaust high on the other end of the same wall, so fresh air sweeps across the room before the exhaust takes it. Bottom takeoff from the trunk, 6 in round north in one hall 2 truss bay, then a 12 x 2-1/2 in stack down the stud bay of the interior wall. The register sits east of the door and west of the vanity. ASSUMED sizes."
     ]
    },
+   "el": 60,
    "grilles": [
     {
      "at": [
@@ -4347,7 +4896,7 @@
     ],
     [
      21.9,
-     12.0,
+     11.52,
      11.675416666666665
     ]
    ],
@@ -4449,28 +4998,33 @@
      10.302083333333334
     ],
     [
-     25.6,
-     17.8,
+     39.7,
+     17.3,
      10.302083333333334
     ],
     [
-     25.6,
-     13.3,
-     10.302083333333334
-    ],
-    [
-     25.6,
-     13.3,
+     39.7,
+     17.3,
      11.675416666666665
     ],
     [
-     25.6,
-     12.0,
+     39.7,
+     15.620000000000001,
+     11.675416666666665
+    ],
+    [
+     27.55,
+     15.620000000000001,
+     11.675416666666665
+    ],
+    [
+     27.55,
+     11.52,
      11.675416666666665
     ],
     [
      3.820833333333333,
-     12.0,
+     11.52,
      11.675416666666665
     ],
     [
@@ -4494,7 +5048,7 @@
    "info": {
     "model": "6 in round exhaust",
     "notes": [
-     "Collects the three bathroom exhausts. It rides on top of the supply trunk along the north attic wall and down to the heat pump, crosses over the heat pump's top and goes straight into the ERV's stale air inlet, so it takes no floor space (Maxwell, 11/18/2026). ASSUMED route and size."
+     "Collects the three bathroom exhausts. It rides on top of the supply trunk all the way from bath 1's riser, on the side away from the bedroom 1 return, down to the heat pump, crosses over the heat pump's top and goes straight into the ERV's stale air inlet, so it takes no floor space (Maxwell, 11/18/2026). ASSUMED route and size."
     ]
    }
   },
