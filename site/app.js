@@ -673,6 +673,7 @@ function applyToggles() {
     show(equip.layers.fans, layerOn('Fans'));
     show(equip.layers.electrical, layerOn('Electrical'));
     show(equip.layers.lowvolt, layerOn('Lowvolt'));
+    show(equip.layers.plantings, layerOn('Trees'));        // the trees Maxwell planted go with every other tree
     show(equip.layers.ducts, layerOn('Ducts'));
     show(equip.layers.trusses, layerOn('Trusses'));
     for (const o of bakedDeck) show(o, house ? true : !layerOn('Trusses'));     // the baked house's thin deck gives way to the trusses' own

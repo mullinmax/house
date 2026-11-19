@@ -367,6 +367,32 @@ geothermal_color = "#1E90FF"
 septic_color = "#C8551E"
 show_surface_markers = true     # paint the routes on the ground in renders
 
+# ---------------------------------------------------------------- PLANTINGS, TRANSFORMER, DRIVE (as built)
+# Traced from Maxwell's drone photo DJI_0218 (10/29/2026, straight down from about 400 ft), lined up on the four slab
+# corners (fit within about 2 in), so these are plan feet like everything else (x east, y south of the slab NW corner).
+# Built in the browser by site/plantings.js from equipment.json (model/make_equipment.py), standing on the terrain via
+# model/data/terrain/web_ground.json (node tools/ground_grid.mjs). Sizes are read off the photo and ASSUMED.
+[site_plantings]
+# 5 trees in an east-west line about 115 ft north of the house: white pine at the west end, then 4 Norway spruces
+white_pine = [12.0, -122.0]               # NOT FOUND in the photo (long shadows): placed in line with the spruces. ASSUMED
+north_spruces = [[35.1, -115.4], [58.1, -126.5], [76.6, -111.1], [103.6, -118.9]]
+# 2 Norway spruces east of the drive, by the woods
+east_spruces = [[156.3, -70.6], [158.1, -44.3]]
+# 7 yews (Taxus) in a north-south line nearer the woods edge, north to south
+yews = [[183.8, -54.2], [180.0, -42.5], [179.5, -31.9], [177.2, -20.7], [175.6, -10.3], [175.1, -3.9], [175.9, 7.8]]
+spruce_height_ft = 5.0                    # young nursery trees; crowns read about 3 ft across. ASSUMED
+pine_height_ft = 5.0                      # ASSUMED
+yew_height_ft = 2.5                       # ASSUMED, about 3 ft across
+# green pad mounted utility transformer at the south end of the yew line
+transformer = [162.7, 14.1]
+transformer_facing = 270                  # doors toward the drive (west). ASSUMED
+# gravel drive as built: 12 ft wide, straight leg parallel to the woods, a J loop south of the garage and back north
+# into the garage pad. North of the photo (y < -160) it is extended on the same heading to the road. Centreline points.
+drive_width_ft = 12.0
+drive_centerline = [[144.0, -333.0], [136.7, -160], [134.2, -100], [131.9, -45], [130.0, 0], [128.5, 35], [127.8, 55], [126.5, 65],
+                    [123.0, 74], [116.0, 81], [106.0, 85], [95.0, 85.5], [85.0, 83], [78.5, 77], [76.0, 68], [75.5, 58], [75.5, 43.0]]
+old_drive_cull = [60.0, -340.0, 205.0, 75.0]   # the Blender drive and garage apron in site.glb (x0, y0, x1, y1) give way to this one
+
 # ---------------------------------------------------------------- TERRAIN
 # Real ground from public data (USGS 3DEP DEM + lidar, USDA NAIP photo, OpenStreetMap). Rebuild the data with
 #   python make_terrain.py        (writes data/terrain/*)
