@@ -1387,7 +1387,7 @@
     8.8
    ],
    "at": [
-    7.45,
+    8.25,
     22.876,
     0
    ],
@@ -1405,7 +1405,7 @@
      ],
      [
       "Power",
-      "One 120 V duplex outlet about 18 in up, just east of the vacuum, for the charger"
+      "One 120 V duplex outlet about 18 in up, just west of the vacuum, for the charger"
      ],
      [
       "Run time",
@@ -1417,7 +1417,7 @@
      "The outlet is ASSUMED and not on the electrical plan yet: tell the electrician it is wanted here.",
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
     ],
-    "placement": "North wall of the utility room, between the pressure tank and the hall door. The open door stops about 1 ft east of it, and it sticks out less than the pressure tank, so the walkway past the water tanks stays the same."
+    "placement": "North wall of the utility room, as close to the hall door as it goes (Maxwell, 11/19/2026): the floor head stops 3 in short of the edge of the door when it is open all the way. It sticks out less than the pressure tank, so the walkway past the water tanks stays the same. The outlet is on its west side so the open door never covers it."
    }
   },
   {

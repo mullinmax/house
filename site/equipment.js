@@ -631,7 +631,7 @@ const BUILD = {
     return g;
   },
   stick_vacuum(s) {               // Dyson V8 class stick vacuum hanging on its wall dock: purple wand down to the floor head, clear bin, nickel cyclone,
-    const [w, , d] = s, g = new THREE.Group();     // motor and grip at the top, battery in the dock's cradle, two tools on the dock, charger in an outlet to the right
+    const [w, , d] = s, g = new THREE.Group();     // motor and grip at the top, battery in the dock's cradle, two tools on the dock, charger in an outlet to the left
     const nickel = mat('vacuum nickel', 0xa9adb1, 0.32, 0.75), purple = mat('vacuum purple', 0x6a2c8e, 0.38, 0.35);
     const iron = mat('vacuum iron', 0x3d4044, 0.45, 0.4), red = mat('vacuum red', 0xc4262e, 0.4, 0.05);
     const clear = mat('vacuum clear bin', 0xdfe6ea, 0.08, 0, { transparent: true, opacity: 0.28, depthWrite: false });
@@ -657,12 +657,13 @@ const BUILD = {
     box(g, w, 2.4, 3.4, iron, 0, 2.25, 6.0);                                                  // floor head
     cyl(g, 1.05, w - 0.6, darkPlastic(), 0, 2.2, d - 1.2, 'x', 18);                            // brush bar
     for (const sx of [-1, 1]) cyl(g, 1.18, 0.25, purple, sx * (w / 2 - 0.3), 2.2, d - 1.2, 'x', 18);   // brush bar end caps
-    // outlet for the charger: duplex cover plate about 18 in up, charger in the top receptacle, cord up to the dock
-    box(g, 2.75, 4.5, 0.22, whitePlastic(), 7, 18, 0.17);
-    for (const y of [16.9, 19.1]) box(g, 1.4, 1.3, 0.14, whitePlastic(), 7, y, 0.33);
-    for (const x of [6.75, 7.25]) box(g, 0.1, 0.42, 0.08, darkPlastic(), x, 16.95, 0.42);
-    box(g, 1.6, 2.2, 1.2, blackMolded(), 7, 19.3, 0.96);                                      // charger
-    const cord = [[7, 20.4, 0.9], [7, 24, 0.5], [5.2, 34.4, 0.5], [1.2, 37.4, 0.5]].map((p) => new THREE.Vector3(...p));
+    // outlet for the charger, to the left (the open door is to the right): duplex cover plate about 18 in up, charger in the top receptacle, cord up to the dock
+    const OX = -7;
+    box(g, 2.75, 4.5, 0.22, whitePlastic(), OX, 18, 0.17);
+    for (const y of [16.9, 19.1]) box(g, 1.4, 1.3, 0.14, whitePlastic(), OX, y, 0.33);
+    for (const x of [OX - 0.25, OX + 0.25]) box(g, 0.1, 0.42, 0.08, darkPlastic(), x, 16.95, 0.42);
+    box(g, 1.6, 2.2, 1.2, blackMolded(), OX, 19.3, 0.96);                                      // charger
+    const cord = [[OX, 20.4, 0.9], [OX, 24, 0.5], [OX + 1.8, 34.4, 0.5], [-1.2, 37.4, 0.5]].map((p) => new THREE.Vector3(...p));
     for (let i = 0; i < cord.length - 1; i++) tube(g, cord[i], cord[i + 1], 0.12, blackMolded(), 6);
     return g;
   },
