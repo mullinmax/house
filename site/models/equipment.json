@@ -2653,7 +2653,7 @@
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
-   "room": "Bedroom 1",
+   "room": "Hall 2",
    "layer": "electrical",
    "builder": "switch_plate",
    "size": [
@@ -2979,7 +2979,7 @@
    "name": "Smoke and CO alarm",
    "category": "Electrical",
    "system": "electrical.life_safety",
-   "room": "Bedroom 1",
+   "room": "Hall 2",
    "layer": "electrical",
    "builder": "smoke_alarm",
    "size": [
@@ -2990,7 +2990,7 @@
    "at": [
     28.971,
     12.978,
-    13.131
+    9.0
    ],
    "facing": 0,
    "info": {
@@ -11006,16 +11006,15 @@
     ]
    ],
    "parent": "return_plenum",
-   "n": 2,
    "el": 25,
    "shape": "round",
    "size": 6,
    "flex": true,
    "info": {
-    "model": "Two 6 in round flex runs",
+    "model": "Two low grilles, each with its own stack and 6 in round flex run",
     "notes": [
      "The study has a low grille (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Two 6 in runs because one big duct would not fit through the truss webs and a single 6 in returned only about 60% of the room's 104 CFM (duct balance check, 11/18/2026). If the builder confirms 7 in fits the webs, one 7 in run does nearly the same job.",
-     "The wall between the study door and bedroom 1 is too narrow for a second stack, so the one 14 x 2-1/2 in stack stays the tight spot here.",
+     "Second grille and stack (Maxwell, 11/19/2026): the builder can move bedroom 1's door wall east, so it moved 2 ft 1 1/2 in, just far enough that the study's south wall has two stud bays for stacks, each under its own floor truss bay (27.7 and 29.7). The 24 in truss layout is ASSUMED: if the real trusses sit differently over this wall, the move needed changes, and with a truss right over the stud between the two bays it could be as little as about 8 in. Confirm on site.",
      "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 6 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
     ],
     "specs": [
@@ -11025,7 +11024,7 @@
      ],
      [
       "Duct",
-      "One 14 x 2-1/2 in wall stack, then two 6 in flex home runs to the heat pump's return"
+      "Two 14 x 2-1/2 in wall stacks in neighbouring truss bays, each with a 6 in flex home run to the heat pump's return"
      ],
      [
       "Crosses",
@@ -11037,6 +11036,18 @@
     {
      "at": [
       27.7,
+      10.64,
+      1.0
+     ],
+     "size": [
+      14,
+      8
+     ],
+     "wall": "N"
+    },
+    {
+     "at": [
+      29.5,
       10.64,
       1.0
      ],
@@ -11077,38 +11088,66 @@
    "info_of": "return_study"
   },
   {
+   "id": "return_study_stack2",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     29.5,
+     10.8,
+     0.6699999999999999
+    ],
+    [
+     29.5,
+     10.8,
+     9.494791666666666
+    ]
+   ],
+   "parent": "return_study2",
+   "room": "Bedroom 4 / study",
+   "intake": true,
+   "el": 75,
+   "shape": "rect",
+   "size": [
+    14,
+    2.5
+   ],
+   "info_of": "return_study"
+  },
+  {
    "id": "return_study2",
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
    "points": [
     [
-     27.849999999999998,
+     29.5,
      10.85,
      9.494791666666666
     ],
     [
-     27.85,
+     29.5,
      11.45,
      9.495
     ],
     [
-     27.816,
+     29.466,
      11.691,
      9.495
     ],
     [
-     27.712,
+     29.363,
      11.863,
      9.495
     ],
     [
-     27.541,
+     29.191,
      11.966,
      9.495
     ],
     [
-     27.3,
+     28.95,
      12.0,
      9.495
     ],
@@ -11194,7 +11233,7 @@
     ]
    ],
    "parent": "return_plenum",
-   "calc": false,
+   "el": 25,
    "shape": "round",
    "size": 6,
    "flex": true,
@@ -11208,17 +11247,17 @@
    "type": "return",
    "points": [
     [
-     30.366666666666667,
+     32.66666666666667,
      15.95,
      12.402083333333332
     ],
     [
-     30.366666666666667,
+     32.66666666666667,
      16.41,
      12.402083333333332
     ],
     [
-     30.366666666666667,
+     32.66666666666667,
      16.41,
      11.842083333333331
     ],
@@ -11285,7 +11324,7 @@
    "grilles": [
     {
      "at": [
-      29.7,
+      32.0,
       15.01,
       1.0
      ],
@@ -11297,7 +11336,7 @@
     },
     {
      "at": [
-      31.03333333333333,
+      33.333333333333336,
       15.01,
       1.0
      ],
@@ -11316,12 +11355,12 @@
    "type": "return",
    "points": [
     [
-     29.7,
+     32.0,
      15.26,
      0.6699999999999999
     ],
     [
-     29.7,
+     32.0,
      15.26,
      12.402083333333332
     ]
@@ -11344,12 +11383,12 @@
    "type": "return",
    "points": [
     [
-     31.03333333333333,
+     33.333333333333336,
      15.26,
      0.6699999999999999
     ],
     [
-     31.03333333333333,
+     33.333333333333336,
      15.26,
      12.402083333333332
     ]
@@ -11372,12 +11411,12 @@
    "type": "return",
    "points": [
     [
-     30.366666666666667,
+     32.66666666666667,
      15.3,
      12.402083333333332
     ],
     [
-     30.366666666666667,
+     32.66666666666667,
      15.95,
      12.402083333333332
     ]
@@ -11992,7 +12031,7 @@
    [
     23.4,
     10.95,
-    28.12,
+    30.25,
     15.03
    ],
    [

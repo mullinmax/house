@@ -511,7 +511,7 @@ def supply(id, room, cfm, dia, points, grille=None, note=None, name=None, parent
     if grille: d["grilles"] = [grille]
     ducts.append(d)
 
-XW, YN, YE, XJ = HP_CX, 12.0, 16.1, 27.07        # west leg x, north leg y, east leg y, jog x (against bedroom 1's west wall, x 28.12)
+XW, YN, YE, XJ = HP_CX, 12.0, 16.1, 27.07        # west leg x, north leg y, east leg y, jog x (was against bedroom 1's west wall at x 28.12, which moved east 11/19/2026)
 TRUNK_NOTE = ("Rerouted from M-10. Andy drew this trunk down the middle of the attic at y about 21.6 ft. Maxwell asked for it along the north wall of the attic, "
               "so it runs straight north from the heat pump with no turn (Maxwell, 11/18/2026), then along the north attic wall all the way to bedroom 1's west wall, follows that wall south, then runs east along bedroom 1's south wall (Maxwell, 11/17/2026: keep the middle of the attic free for storage). Size is Andy's 18 x 16 throughout, no reductions modelled.")
 ducts.append(dict(id="supply_trunk", name="Supply trunk", category="HVAC supply duct", system="hvac.supply", type="supply", shape="rect", size=[18, 16], parent="supply_plenum", el=20,
@@ -724,23 +724,25 @@ stack("return_bed2_stack", XR2, 10.8, "return_bed23", "return_bed2", "Bedroom 2"
 # Study: two 6 in flex home runs from its one stack (duct balance check, 11/18/2026: one 6 in returned about 60% of the room's air).
 # They come down in one hall 2 bay, cross the laundry and linen trusses west a little apart, and drop south in their own bays.
 # The second run uses the route bedroom 1's return had before it moved up onto the supply trunk.
-XSB, XB1R = bay(27.7), bay(29.7)                 # the study grille is east of its door (x 23.37-26.00 with casing to 26.29), Maxwell 11/18/2026
+XSB, XSB2 = bay(27.7), bay(29.7) - 0.2           # the study's two low grilles east of its door (x 23.37-26.00 with casing to 26.29), Maxwell 11/18/2026
+XB1R = 32.0                                      # bedroom 1's grilles: east of its door wall, which moved to x 30.25 (Maxwell, 11/19/2026)
 XSR = bay(25.7)                                   # both runs go south in the 25.7 bay: the laundry and living 1 supplies fill bay 27.7
 YSW, YBW = 19.6, 20.3
 r = ret("return_study", "Study return", 6,
         bend([[XSB - 0.3, 10.85, ZT], [XSB - 0.3, 11.4, ZT], [XSR - 0.35, 11.4, ZT], [XSR - 0.35, YSW, ZT], [XR2, YSW, ZT], [XR2, RY + 0.5, ZT], [RPX, RY + 0.5, ZT], [RPX, RY + 0.5, DECK + 0.2]]), flex=True,
-        el=25, n=2, grilles=[dict(at=[XSB, 10.64, LOW], size=[14, 8], wall=N)])
-r["info"]["model"] = "Two 6 in round flex runs"
+        el=25, grilles=[dict(at=[XSB, 10.64, LOW], size=[14, 8], wall=N), dict(at=[XSB2, 10.64, LOW], size=[14, 8], wall=N)])
+r["info"]["model"] = "Two low grilles, each with its own stack and 6 in round flex run"
 r["info"]["specs"] = [["Serves", "Study (low grille on its south wall, east of the door; a separate high grille over the door carries most of the air)"],
-                      ["Duct", "One 14 x 2-1/2 in wall stack, then two 6 in flex home runs to the heat pump's return"],
+                      ["Duct", "Two 14 x 2-1/2 in wall stacks in neighbouring truss bays, each with a 6 in flex home run to the heat pump's return"],
                       ["Crosses", "The laundry, linen and bedroom 3 trusses at 6 in. No supply runs, and they stay in the trusses, off the tall south part of the attic"]]
 r["info"]["notes"] = ["The study has a low grille (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Two 6 in runs because one big duct "
                       "would not fit through the truss webs and a single 6 in returned only about 60% of the room's 104 CFM (duct balance check, 11/18/2026). "
                       "If the builder confirms 7 in fits the webs, one 7 in run does nearly the same job.",
-                      "The wall between the study door and bedroom 1 is too narrow for a second stack, so the one 14 x 2-1/2 in stack stays the tight spot here.", RFLEX]
+                      "Second grille and stack (Maxwell, 11/19/2026): the builder can move bedroom 1's door wall east, so it moved 2 ft 1 1/2 in, just far enough that the study's south wall has two stud bays for stacks, each under its own floor truss bay (27.7 and 29.7). The 24 in truss layout is ASSUMED: if the real trusses sit differently over this wall, the move needed changes, and with a truss right over the stud between the two bays it could be as little as about 8 in. Confirm on site.", RFLEX]
 stack("return_study_stack", XSB, 10.8, "return_study", "return_study", "Bedroom 4 / study")
-ret("return_study2", None, 6, bend([[XSB + 0.15, 10.85, ZT], [XSB + 0.15, 12.0, ZT], [XSR + 0.35, 12.0, ZT], [XSR + 0.35, YBW, ZT], [bay(11.7) - 0.2, YBW, ZT],
-                                    [bay(11.7) - 0.2, RY - 1.3, ZT]]), flex=True, info_of="return_study", calc=False)
+stack("return_study_stack2", XSB2, 10.8, "return_study", "return_study2", "Bedroom 4 / study")
+ret("return_study2", None, 6, bend([[XSB2, 10.85, ZT], [XSB2, 12.0, ZT], [XSR + 0.35, 12.0, ZT], [XSR + 0.35, YBW, ZT], [bay(11.7) - 0.2, YBW, ZT],
+                                    [bay(11.7) - 0.2, RY - 1.3, ZT]]), flex=True, info_of="return_study", el=25)
 
 # Bedroom 1 (duct balance check, 11/18/2026): its 138 CFM is too much for anything that fits through the truss webs, so its return
 # stays out of the trusses. Two stacks rise side by side in bedroom 1's south wall to a header above the supply trunk, which lies
@@ -1055,7 +1057,7 @@ def _room(x, y, level):
         return "Loft" if a <= x <= c and b <= y <= d else "Attic"
     if 0.5 <= x <= 12.12 and 28.241 < y <= 29.03:   # the utility room really ends at 28.241 (traced A-11); the strip south of it is the pantry and powder
         return "Pantry" if x < 5.6 else "Powder"
-    if 28.12 <= x <= 31.12 and 10.7 <= y <= 15.03:   # bedroom 1's L, west of its main rectangle (A-11)
+    if 30.25 <= x <= 31.12 and 10.7 <= y <= 15.03:   # bedroom 1's L, west of its main rectangle (A-11; door wall moved to x 30.25, Maxwell 11/19/2026)
         return "Bedroom 1"
     for r in _ROOMS:
         a, b, c, d = r["rect"]
