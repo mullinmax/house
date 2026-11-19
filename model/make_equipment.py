@@ -881,6 +881,65 @@ ducts.append(dict(id="erv_wall_1", info_of="erv", type="erv", shape="round", siz
 ducts.append(dict(id="erv_to_supply", info_of="erv", type="erv", shape="round", size=6,
                   points=[[ERV_XF, ERV_N, ERV_Z], [ERV_XF, HP_N - 1.4, ERV_Z], [ERV_XF, HP_N - 1.4, DECK + 1.9]]))
 
+# ------------------------------------------------------------------ ceiling fans (Maxwell, 11/19/2026): every bedroom, the study and the family room
+# Each bedroom fan has an LED light kit and takes the place of that room's ceiling light: one fan rated box per room, which
+# is what a vaulted SIP ceiling wants. The baked light fixture goes (meta replace_nodes) and its night light moves to the kit.
+# The family room keeps its recessed cans, so its fan has no light. Blades sit about 8 1/2 ft up in the vaulted rooms, at
+# least a foot below the ceiling on the low side; in bedroom 3 under the flat 9 ft ceiling the fan hangs on a short rod.
+# A fan's "at" is its canopy on the ceiling; size = [blade sweep, canopy to blade plane, both in], slope = ceiling rise per
+# foot going north (the north roof falls toward the north wall, the south roof rises toward the clerestory).
+_R = CFG["roof"]
+_PN, _PS = _R["north_pitch"] / 12, _R["south_pitch"] / 12
+_HD = CFG["house"]["depth_y"]
+def ceiling_at(x, y):
+    if any(a <= x <= c and b <= y <= d for a, b, c, d in FLAT):
+        return CEIL, 0.0
+    if y <= YC2:
+        return _R["north_wall_height"] + y * _PN, -_PN
+    return _R["south_wall_height"] + (_HD - y) * _PS, _PS
+FAN_META = dict(replace_nodes=[], lights_moved={})
+SLOPE_NOTE = ("On the sloped ceiling the fan needs a fan rated box fixed to the roof panel and a canopy that takes the slope (about 18 degrees under the "
+              "3.82:12 north roof; most fans allow 30). In a SIP roof the box and the wire chase to it have to be planned with the panel maker before the "
+              "panels are cut, because there is no stud cavity to fish a cable through later. ASSUMED until the electrician and the SIP maker agree.")
+HA_NOTE = ("For Home Assistant later: a DC fan with a local network control, or a radio remote fan run through a bridge such as Bond, so speed, "
+           "direction and the light can be automated. Model ASSUMED.")
+def fan(id, room, x, y, sweep, blade_z, light, notes, light_name=None, blades=3):
+    c, slope = ceiling_at(x, y)
+    drop = round((c - blade_z) * 12, 1)
+    rod = max(0.0, drop - 9.0)                               # canopy, ball and motor take about 9 in
+    low = c - sweep / 24 * abs(slope) - blade_z              # blade tip to the ceiling on the low side
+    specs = [["Size", f"{sweep} in, {blades} blades"], ["Blades", f"{blade_z * 12 // 12:.0f} ft {blade_z * 12 % 12:.0f} in above the floor, {low * 12:.0f} in below the ceiling at the low side"],
+             ["Downrod", f"About {rod:.0f} in" if rod > 3 else "Close mount on a short rod"], ["Motor", "DC, 6 speeds and reverse, wall control or remote"]]
+    if light:
+        specs.append(["Light", "Dimmable LED light kit, about 1,600 lumens, the room's ceiling light"])
+    if slope:
+        specs.append(["Mount", f"Sloped ceiling, {abs(slope) * 12:.2f}:12"])
+    items.append(dict(id=id, name="Ceiling fan" + (" with light" if light else ""), category="Ceiling fan", system="electrical.fans", room=room, layer="fans",
+        builder="ceiling_fan", size=[sweep, drop], at=[x, y, round(c, 3)], facing=0, slope=round(slope, 4), blades=blades, light=bool(light),
+        info=dict(model=f"{sweep} in DC ceiling fan, matte black with light oak blades" + (", LED light kit" if light else "") + " (ASSUMED)",
+                  specs=specs, notes=notes + ([SLOPE_NOTE] if slope else []) + [HA_NOTE],
+                  placement=f"Ceiling of {room}, x {x:.1f} ft, y {y:.1f} ft.")))
+    if light_name:
+        FAN_META["replace_nodes"] += [f"{light_name} base".replace(" ", "_"), f"{light_name} lens".replace(" ", "_")]   # three.js names, spaces as _
+        FAN_META["lights_moved"][light_name] = [x, y, round(blade_z - 0.45, 2)]
+
+fan("fan_bed1", "Bedroom 1", 37.6, 6.6, 52, 8.5, True, ["Over the middle of the bed, so on a warm night the downdraft reaches the bed without the light kit in your eyes from the pillows."], "Light Bed1 10")
+fan("fan_bed2", "Bedroom 2", 11.0, 5.6, 44, 8.5, True, ["Where the ceiling light was, just off the foot of the bed. 44 in suits a room of about 100 sq ft."], "Light Bed2 11")
+fan("fan_bed3", "Bedroom 3", 8.7, 17.0, 48, 8.15, True, ["On a fan rated pancake box screwed to the bottom chord of the truss at x 8.7. The bay beside it (x 7.7) "
+    "carries the 10 in bedroom 2 and 3 return right on top of the drywall, so a deeper box cannot go there. Moved about 2 ft east of the old light so the blade tips "
+    "stay about 2 1/2 ft clear of the ceiling supply register at x 3.7: blades passing through a register's jet push its air back up and make it sound louder."], "Light Bed3 12")
+fan("fan_study", "Bedroom 4 / study", 27.4, 5.6, 42, 8.5, True, [
+    "A smaller fan, over the desk chair, in place of the ceiling light. The blade tips stay about 1 1/2 ft east of the exposed supply duct on the west wall, about 2 3/4 ft from "
+    "the supply register at the window end and about 3 1/2 ft from the return grilles in the door wall, so it never blows into either one.",
+    "How it helps the air: the supply comes in at the low, window end of the sloped ceiling and both returns are in the high door wall. In heating, warm supply air "
+    "would ride up the slope straight to the high return; the fan on low in reverse (updraft) breaks up that layer and turns the air over the whole room. "
+    "In cooling, forward (downdraft) puts the supply air and the computer heat through the room before either reaches a return, and the breeze over the chair "
+    "lets the thermostat sit a degree or two warmer.",
+    "Warm air from the computers rises toward the high side, where the high return is. The fan mixes; it does not move air out of the room. The supply and "
+    "returns still do that, so this is a companion to the ducts, not a fix for an undersized one."], "Light Study 13")
+fan("fan_family", "Entry / family", 36.5, 42.5, 60, 9.0, False, ["Between the entry and the family cans (both about 4 ft away), so the blades never pass under a light and flicker it. "
+    "60 in for the open family and entry area; the high wall registers on the clerestory wall blow south toward it from about 5 ft beyond the blade tips."])
+
 trusses = dict(id="floor_trusses", name="Open web floor trusses", category="Structure", system="structure.floor", regions=FLAT, loft_regions=[LOFT],
     z0=CEIL, depth_in=TRUSS_IN, spacing_in=CFG["floor_trusses"]["spacing_in"], deck_in=DECK_IN, grid_x0=TG, max_cross_in=CFG["floor_trusses"]["max_round_duct_in"],
     info=dict(model="11-7/8 in open web floor trusses",
@@ -891,7 +950,8 @@ trusses = dict(id="floor_trusses", name="Open web floor trusses", category="Stru
 
 out = dict(
     meta=dict(units="plan feet for positions, inches for sizes", generated_by="model/make_equipment.py",
-              sources=["M-10 mechanical plan 07/30/2026 (preliminary)", "U-11 sealed plan", "Geo-Hydro quotes MMUL8476-4 and MMUL8476-5", "Appliance shortlist 11/15/2026"]),
+              sources=["M-10 mechanical plan 07/30/2026 (preliminary)", "U-11 sealed plan", "Geo-Hydro quotes MMUL8476-4 and MMUL8476-5", "Appliance shortlist 11/15/2026"],
+              **FAN_META),
     levels=[dict(id="main", name="Main floor", cut_ft=8.85), dict(id="truss", name="Floor trusses", cut_ft=round(CEIL + TRUSS_IN / 12 - 0.03, 2)),
             dict(id="upper", name="Loft and attic", cut_ft=16.0), dict(id="all", name="Whole house", cut_ft=None)],
     items=items, runs=runs, ducts=ducts, trusses=trusses)
