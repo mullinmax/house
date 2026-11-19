@@ -467,7 +467,7 @@ door_pocket = [ [14.16, 22.64, -1], [22.08, 15.26, 1], [16.43, 24.97, 1], [35.7,
 # hinge side and swing from the A-11 door arcs (11/17/2026): [x, y near the opening, hinge end N/S/E/W, swings toward N/S/E/W]
 # doors not listed keep the default: hinge at the west or north jamb, swinging south or east (closets 2 and 3 already match A-11)
 door_swing = [ [41.23, 34.9, "E", "S"], [14.14, 10.8, "E", "N"], [17.9, 10.8, "W", "N"], [24.7, 10.8, "W", "N"], [28.27, 13.0, "S", "E"], [16.43, 20.64, "S", "W"],
-               [11.97, 12.99, "N", "W"], [11.89, 25.1, "N", "W"], [11.89, 30.6, "N", "W"] ]   # door between the bedroom wing and the common space: pocket door sliding west into the wall (Maxwell 11/13)   # opening inside Closet 1: left open, no door (Maxwell 11/13)
+               [11.97, 12.99, "N", "W"], [11.89, 25.1, "N", "E"], [11.89, 30.6, "N", "W"] ]   # utility door: still hinged on the north jamb but swings OUT into hall 1 (Maxwell, 11/19/2026)   # door between the bedroom wing and the common space: pocket door sliding west into the wall (Maxwell 11/13)   # opening inside Closet 1: left open, no door (Maxwell 11/13)
 items = [
   # ---- living room (vaulted, x 16.7-31.1, y 22.9-34.6)
   { id = "living_rug", type = "rug", x = 26.4, y = 27.8, w = 7.5, l = 9.0, facing = 270, color = "#B9AE9A" },

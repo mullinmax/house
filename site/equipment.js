@@ -684,6 +684,43 @@ const BUILD = {
     plate(g, w * 0.7, 3, labelMat('softener tag', 192, 64, word('SPACE RESERVED', '#2b2e31', 'bold 22px Helvetica, Arial, sans-serif')), 0, h * 0.6, d + 0.05);
     return g;
   },
+  stick_vacuum(s) {               // Dyson V8 class stick vacuum hanging on its wall dock: purple wand down to the floor head, clear bin, nickel cyclone,
+    const [w, , d] = s, g = new THREE.Group();     // motor and grip at the top, battery in the dock's cradle, two tools on the dock, charger in an outlet to the left
+    const nickel = mat('vacuum nickel', 0xa9adb1, 0.32, 0.75), purple = mat('vacuum purple', 0x6a2c8e, 0.38, 0.35);
+    const iron = mat('vacuum iron', 0x3d4044, 0.45, 0.4), red = mat('vacuum red', 0xc4262e, 0.4, 0.05);
+    const clear = mat('vacuum clear bin', 0xdfe6ea, 0.08, 0, { transparent: true, opacity: 0.28, depthWrite: false });
+    const CZ = 5.2;                                                                           // wand and bin axis, in from the wall
+    box(g, 3.4, 10, 0.6, darkPlastic(), 0, 42, 0.4);                                         // dock back plate
+    box(g, 2.4, 1.2, 1.9, darkPlastic(), 0, 36.0, 1.65);                                     // cradle under the battery
+    for (const sx of [-1, 1]) box(g, 1.6, 1, 0.7, darkPlastic(), sx * 2.4, 37.6, 1.05);       // tool clips
+    cyl(g, 0.5, 11, greyPlastic(), -3.3, 31.5, 1.3, 'y', 12);                                 // crevice tool
+    box(g, 1.8, 6, 1.6, greyPlastic(), 3.4, 34, 1.4);                                         // combination tool
+    box(g, 2.6, 5.5, 2.2, iron, 0, 39.15, 2.1);                                               // battery pack
+    cyl(g, 0.8, 4.3, iron, 0, 43.95, 2.0, 'y', 14);                                           // grip
+    box(g, 0.5, 1.4, 0.8, red, 0, 43.2, 2.9);                                                 // trigger
+    cyl(g, 1.6, 4.0, nickel, 0, 47.4, 3.4, 'z', 24);                                          // motor, across the top
+    cyl(g, 1.65, 0.3, purple, 0, 47.4, 1.3, 'z', 24);                                         // rear filter cap
+    cyl(g, 2.1, 2.3, purple, 0, 44.65, CZ, 'y', 24, 2.4);                                     // cyclone crown
+    cyl(g, 2.4, 4.0, nickel, 0, 41.5, CZ, 'y', 28);                                           // cyclone shroud
+    cyl(g, 2.4, 7.3, clear, 0, 35.85, CZ, 'y', 28);                                           // clear bin
+    cyl(g, 1.3, 6.5, galv(), 0, 36.25, CZ, 'y', 16);                                          // dust shroud seen through the bin
+    cyl(g, 2.45, 0.4, iron, 0, 32.2, CZ, 'y', 28);                                            // bin base
+    box(g, 0.8, 1.6, 0.6, red, 0, 39.1, CZ + 2.55);                                           // bin release
+    cyl(g, 0.75, 29.1, purple, 0, 17.85, CZ, 'y', 16);                                        // wand
+    cyl(g, 0.95, 2.2, iron, 0, 3.7, CZ, 'y', 16);                                             // neck
+    box(g, w, 2.4, 3.4, iron, 0, 2.25, 6.0);                                                  // floor head
+    cyl(g, 1.05, w - 0.6, darkPlastic(), 0, 2.2, d - 1.2, 'x', 18);                            // brush bar
+    for (const sx of [-1, 1]) cyl(g, 1.18, 0.25, purple, sx * (w / 2 - 0.3), 2.2, d - 1.2, 'x', 18);   // brush bar end caps
+    // outlet for the charger, to the left (the open door is to the right): duplex cover plate about 18 in up, charger in the top receptacle, cord up to the dock
+    const OX = -7;
+    box(g, 2.75, 4.5, 0.22, whitePlastic(), OX, 18, 0.17);
+    for (const y of [16.9, 19.1]) box(g, 1.4, 1.3, 0.14, whitePlastic(), OX, y, 0.33);
+    for (const x of [OX - 0.25, OX + 0.25]) box(g, 0.1, 0.42, 0.08, darkPlastic(), x, 16.95, 0.42);
+    box(g, 1.6, 2.2, 1.2, blackMolded(), OX, 19.3, 0.96);                                      // charger
+    const cord = [[OX, 20.4, 0.9], [OX, 24, 0.5], [OX + 1.8, 34.4, 0.5], [-1.2, 37.4, 0.5]].map((p) => new THREE.Vector3(...p));
+    for (let i = 0; i < cord.length - 1; i++) tube(g, cord[i], cord[i + 1], 0.12, blackMolded(), 6);
+    return g;
+  },
   ro_unit(s) {                     // tankless under sink reverse osmosis: tall white box, filter caps on top, small status ring on the front
     const [w, h, d] = s, g = new THREE.Group();
     column(g, w, h - 1, d, whitePlastic(), 0, (h - 1) / 2, d / 2, 1.2);
