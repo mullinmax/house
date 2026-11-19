@@ -7534,9 +7534,9 @@
     0
    ],
    "at": [
-    12.0,
-    -122.0,
-    -4.49
+    -33.1,
+    -103.1,
+    -3.552
    ],
    "facing": 47,
    "info": {
@@ -7550,10 +7550,10 @@
     "notes": [
      "West end of the line of five north of the house (Maxwell, 11/19/2026).",
      "Grows fast, to 50 to 80 ft tall and 20 to 40 ft wide. Drawn at planting size.",
-     "Not found in the photo, so it is placed in line with the spruces until Maxwell confirms the spot.",
+     "Found in the photo by its long morning shadow, about 70 ft west of the first spruce, as Maxwell described.",
      "Traced from Maxwell's drone photo of 10/29/2026 (DJI_0218), lined up on the four slab corners, so the spot is good to about a foot."
     ],
-    "placement": "12 ft east and 122 ft north of the slab's NW corner."
+    "placement": "-33 ft east and 103 ft north of the slab's NW corner."
    },
    "src": "added #vacuum"
   },

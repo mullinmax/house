@@ -1175,7 +1175,7 @@ if SP:
     SPRUCE_NOTES = ["Grows about 1 to 2 ft a year once settled, to 40 to 60 ft tall and 25 to 30 ft wide. Drawn at planting size."]
     tree("tree_white_pine", "White pine", "pine", SP["white_pine"], SP["pine_height_ft"], "Eastern white pine (Pinus strobus)",
          ["West end of the line of five north of the house (Maxwell, 11/19/2026).", "Grows fast, to 50 to 80 ft tall and 20 to 40 ft wide. Drawn at planting size.",
-          "Not found in the photo, so it is placed in line with the spruces until Maxwell confirms the spot."], 1)
+          "Found in the photo by its long morning shadow, about 70 ft west of the first spruce, as Maxwell described."], 1)
     for k, xy in enumerate(SP["north_spruces"]):
         tree(f"tree_spruce_n{k + 1}", f"Norway spruce {k + 1} of the north row", "spruce", xy, SP["spruce_height_ft"], SPRUCE,
              ["One of four Norway spruces east of the white pine in the line north of the house (Maxwell, 11/19/2026)."] + SPRUCE_NOTES, 2 + k)

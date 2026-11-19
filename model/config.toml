@@ -373,8 +373,9 @@ show_surface_markers = true     # paint the routes on the ground in renders
 # Built in the browser by site/plantings.js from equipment.json (model/make_equipment.py), standing on the terrain via
 # model/data/terrain/web_ground.json (node tools/ground_grid.mjs). Sizes are read off the photo and ASSUMED.
 [site_plantings]
+# All positions confirmed by Maxwell 11/19/2026.
 # 5 trees in an east-west line about 115 ft north of the house: white pine at the west end, then 4 Norway spruces
-white_pine = [12.0, -122.0]               # NOT FOUND in the photo (long shadows): placed in line with the spruces. ASSUMED
+white_pine = [-33.1, -103.1]             # found by its long morning shadow, about 70 ft west of spruce 1 (Maxwell 11/19/2026: nearly as far as spruce 1 to 4)
 north_spruces = [[35.1, -115.4], [58.1, -126.5], [76.6, -111.1], [103.6, -118.9]]
 # 2 Norway spruces east of the drive, by the woods
 east_spruces = [[156.3, -70.6], [158.1, -44.3]]
