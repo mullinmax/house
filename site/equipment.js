@@ -356,7 +356,61 @@ function printMat(key, w, h, draw, rough = 0.12, metal = 0.3) {      // a printe
 // ---------------------------------------------------------------- builders
 // Each returns a THREE.Group in inches (local frame above). s = item.size = [w, h, d].
 // Proportions, handles, controls and finishes follow the makers' product photos; overall sizes are the spec sheet sizes.
+// Ceiling fan (Maxwell, 11/19/2026). Local inches: origin at the canopy on the ceiling, everything hangs below it
+// (negative y). size = [blade sweep, canopy to blade plane]; it.slope = ceiling rise per foot toward local +z (north).
+// The blades are a separate "rotor" that buildEquipment keeps apart from the bake, so the walkthrough can spin them.
+function ceilingFan(s, it) {
+  const [sweep, drop] = s, g = new THREE.Group();
+  const black = mat('fan matte black', 0x1b1c1d, 0.55, 0.25), oak = mat('fan blade oak', 0xb89468, 0.6, 0);
+  const opal = mat('fan light opal', 0xf4f1ea, 0.4, 0, { emissive: 0xfff3dc, emissiveIntensity: 0.25 });
+  const cnp = new THREE.Group(); cnp.rotation.x = Math.atan(-(it.slope || 0)); g.add(cnp);
+  cyl(cnp, 2.9, 3.6, black, 0, -1.3, 0, 'y', 28, 2.6);                 // canopy, its top tucked half an inch into the ceiling
+  const motorTop = -drop + 2.6;
+  cyl(g, 0.5, Math.max(0.1, -2.6 - motorTop), black, 0, (motorTop - 2.6) / 2, 0, 'y', 12);   // downrod from the ball joint
+  cyl(g, 1.2, 1.4, black, 0, -2.4, 0, 'y', 16);                         // ball joint
+  cyl(g, 1.6, 1.0, black, 0, motorTop + 0.5, 0, 'y', 16);              // coupler
+  cyl(g, 5.2, 2.6, black, 0, -drop + 1.3, 0, 'y', 36, 5.6);            // flat DC motor housing above the blades
+  cyl(g, 5.6, 1.4, black, 0, -drop - 0.7, 0, 'y', 36, 4.6);             // and below them
+  if (it.light) { cyl(g, 4.4, 0.8, black, 0, -drop - 1.7, 0, 'y', 32); cyl(g, 4.0, 0.5, opal, 0, -drop - 2.25, 0, 'y', 32); }
+  const rotor = new THREE.Group(); rotor.name = 'rotor';
+  const n = it.blades || 3, len = sweep / 2 - 5.2, bw = Math.min(5.5, 3.2 + sweep / 24);
+  for (let k = 0; k < n; k++) {
+    const arm = new THREE.Group(); arm.rotation.y = (k / n) * Math.PI * 2; rotor.add(arm);
+    box(arm, 3.2, 0.5, 1.6, black, 5.6 + 1.2, 0, 0);                    // blade iron
+    const b = box(arm, len, 0.3, bw, oak, 5.6 + len / 2, 0, 0); b.rotation.x = THREE.MathUtils.degToRad(12);   // pitched blade
+  }
+  rotor.userData.hub = [0, -drop, 0];
+  g.userData.rotor = rotor;
+  return g;
+}
+
 const BUILD = {
+  ceiling_fan: ceilingFan,
+  inline_fan(s) {                  // EC mixed flow inline duct fan: black round body along the duct (local z, air out the front), 8 in collars, mounting feet
+    const [D, L] = s, g = new THREE.Group(), R = D / 2, blk = mat('booster black', 0x202224, 0.5, 0.2);
+    cyl(g, R, L - 4.6, blk, 0, R, L / 2, 'z', 32);
+    for (const z of [1.6, L - 1.6]) cyl(g, R - 0.7, 1.4, blk, 0, R, z + (z < L / 2 ? 0.7 : -0.7), 'z', 32, R - 1.6);
+    for (const z of [0.5, L - 0.5]) cyl(g, 4.1, 1.0, galv(), 0, R, z, 'z', 24);
+    ring(g, R + 0.1, 0.25, greyPlastic(), 0, R, L * 0.62, 'z', 36);
+    box(g, 3.0, 1.4, 4.0, greyPlastic(), 0, D + 0.5, L * 0.45);              // terminal box on top
+    box(g, 2.6, 2.0, 1.2, darkPlastic(), -R - 0.2, R, L * 0.7);              // speed control head on the room side
+    return g;
+  },
+  zone_damper(s) {                 // 8 in round motorized damper: galvanized sleeve, bead rings, 24 V actuator on the side (room side, local -x)
+    const [dia, L] = s, g = new THREE.Group(), r = dia / 2 + 0.15;
+    cyl(g, r, L, galv(), 0, r, L / 2, 'z', 28);
+    for (const z of [1.2, L - 1.2]) ring(g, r, 0.18, galv(), 0, r, z, 'z', 28);
+    box(g, 2.4, 4.6, 3.6, mat('actuator grey', 0x5f6366, 0.5, 0.1), -r - 1.2, r, L / 2);
+    box(g, 0.6, 1.2, 1.2, darkPlastic(), -r - 2.7, r + 1.0, L / 2);
+    return g;
+  },
+  wall_box(s, it = {}) {           // a device on the wall: white cover plate, a receptacle face or a sensor dome
+    const [w, h, d] = s, g = new THREE.Group();
+    box(g, w, h, d, whitePlastic(), 0, h / 2, d / 2);
+    if (it.sensor) cyl(g, w * 0.3, 0.4, greyPlastic(), 0, h / 2, d + 0.2, 'z', 20);
+    else for (const x of [-w / 4, w / 4]) box(g, 1.3, 1.8, 0.25, greyPlastic(), x, h / 2, d + 0.12);
+    return g;
+  },
   wall_oven_double(s) {            // Frigidaire Gallery GCWD3067AF: stainless doors with wide black windows, flat bar handles, black glass control strip
     const [w, h, d] = s, g = new THREE.Group(), k = h / 50.75;
     const cz = d - 1.7, face = d - 0.2, dz = (cz + face) / 2, dt = face - cz;
@@ -938,14 +992,19 @@ function buildTrusses(t) {
 // Returns one group per layer plus byId, the semantic record behind every clickable thing.
 export function buildEquipment(data) {
   const root = new THREE.Group(); root.name = 'Equipment';
-  const layers = { appliances: new THREE.Group(), vehicles: new THREE.Group(), mechanical: new THREE.Group(), ducts: new THREE.Group(), trusses: buildTrusses(data.trusses) };
+  const layers = { appliances: new THREE.Group(), vehicles: new THREE.Group(), mechanical: new THREE.Group(), ducts: new THREE.Group(), fans: new THREE.Group(), trusses: buildTrusses(data.trusses) };
   for (const [k, g] of Object.entries(layers)) { g.name = g.name || k; root.add(g); }
   const byId = {};
   for (const it of data.items || []) {
     const fn = BUILD[it.builder] || BUILD.generic;
-    const obj = place(bake(fn(it.size, it)), it);
+    const built = fn(it.size, it), rotor = built.userData.rotor;
+    const obj = place(bake(built), it);
+    if (rotor) {                     // a ceiling fan's blades stay their own mesh so they can turn (E or a tap, like a door)
+      const r = bake(rotor); r.name = it.id + ' blades'; r.position.set(...rotor.userData.hub);
+      r.userData.operable = 'spin'; obj.children[0].add(r);
+    }
     obj.name = it.id;
-    obj.traverse((o) => { o.userData.equipId = it.id; });
+    obj.traverse((o) => { o.userData.equipId = it.id; if (it.layer === 'fans') o.userData.pass = true; });
     (layers[it.layer] || layers.mechanical).add(obj);
     byId[it.id] = { ...it, obj };
   }
