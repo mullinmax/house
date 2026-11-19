@@ -7,6 +7,7 @@
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { buildCar, buildWallConnector, vehicleMaterials } from './vehicles.js';
+import { plantingBuilders } from './plantings.js';
 
 const F = 0.3048, IN = 0.0254;
 export const plan = (x, y, z = 0) => new THREE.Vector3(x * F, z * F, y * F);
@@ -941,6 +942,8 @@ const BUILD = {
   },
 };
 
+Object.assign(BUILD, plantingBuilders);          // planted trees, the pad transformer and the gravel drive, in plantings.js
+
 // ---------------------------------------------------------------- placement
 function place(g, it) {
   const wrap = new THREE.Group();
@@ -1110,7 +1113,7 @@ function buildTrusses(t) {
 // Returns one group per layer plus byId, the semantic record behind every clickable thing.
 export function buildEquipment(data) {
   const root = new THREE.Group(); root.name = 'Equipment';
-  const layers = { appliances: new THREE.Group(), vehicles: new THREE.Group(), storage: new THREE.Group(), mechanical: new THREE.Group(), ducts: new THREE.Group(), fans: new THREE.Group(), electrical: new THREE.Group(), lowvolt: new THREE.Group(), trusses: buildTrusses(data.trusses) };
+  const layers = { appliances: new THREE.Group(), vehicles: new THREE.Group(), storage: new THREE.Group(), mechanical: new THREE.Group(), ducts: new THREE.Group(), fans: new THREE.Group(), electrical: new THREE.Group(), lowvolt: new THREE.Group(), plantings: new THREE.Group(), site: new THREE.Group(), trusses: buildTrusses(data.trusses) };
   for (const [k, g] of Object.entries(layers)) { g.name = g.name || k; root.add(g); }
   const byId = {};
   for (const it of data.items || []) {
@@ -1122,7 +1125,7 @@ export function buildEquipment(data) {
       r.userData.operable = 'spin'; obj.children[0].add(r);
     }
     obj.name = it.id;
-    obj.traverse((o) => { o.userData.equipId = it.id; if (['fans', 'electrical', 'lowvolt'].includes(it.layer)) o.userData.pass = true; });
+    obj.traverse((o) => { o.userData.equipId = it.id; if (['fans', 'electrical', 'lowvolt', 'plantings'].includes(it.layer) || it.builder === 'drive') o.userData.pass = true; });
     (layers[it.layer] || layers.mechanical).add(obj);
     byId[it.id] = { ...it, obj };
   }

@@ -1150,6 +1150,84 @@ for dv in _EP["devices"]:
                     notes=notes + ["The bracket is drawn generic: the TV and its mount are not picked yet. A recessed power and cable box behind the TV hides the cords."]
                         + (["The TV is a generic 65 in set (about 57 x 33 in), the size Andy's site plan furniture shows. Its centre is at 72 in as U-11 draws it, which is high for watching from the couch; 42 to 48 in is more usual, so confirm before the blocking goes in."] if tv else []))))
 
+
+# ------------------------------------------------------------------ site: planted trees, transformer, gravel drive
+# Positions from [site_plantings] (traced from the 10/29/2026 drone photo). Each stands on the web terrain: heights come
+# from model/data/terrain/web_ground.json, sampled off site.glb by tools/ground_grid.mjs.
+SP = CFG.get("site_plantings")
+if SP:
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "terrain", "web_ground.json")) as _f:
+        GG = json.load(_f)
+    def ground(x, y):
+        fx = (x - GG["x0"]) / GG["step"]; fy = (y - GG["y0"]) / GG["step"]
+        i = max(0, min(GG["nx"] - 2, int(fx))); j = max(0, min(GG["ny"] - 2, int(fy)))
+        tx, ty = min(1, max(0, fx - i)), min(1, max(0, fy - j)); z = GG["z"]
+        return (z[j][i] * (1 - tx) + z[j][i + 1] * tx) * (1 - ty) + (z[j + 1][i] * (1 - tx) + z[j + 1][i + 1] * tx) * ty
+    PHOTO = "Traced from Maxwell's drone photo of 10/29/2026 (DJI_0218), lined up on the four slab corners, so the spot is good to about a foot."
+    def tree(id, name, kind, xy, h_ft, model, notes, seed):
+        x, y = xy
+        items.append(dict(id=id, name=name, category="Planted tree" if kind != "taxus" else "Planted shrub", system="site.plantings", room="Yard",
+            layer="plantings", builder="conifer", kind=kind, seed=seed, size=[round(h_ft * 12 * (0.62 if kind == "spruce" else 0.7 if kind == "pine" else 1.25), 1), round(h_ft * 12, 1), 0],
+            at=[round(x, 2), round(y, 2), round(ground(x, y), 3)], facing=(seed * 47) % 360,
+            info=dict(model=model, specs=[["Height now", f"About {h_ft:g} ft, ASSUMED from the photo"]],
+                      notes=notes + [PHOTO], placement=f"{round(x)} ft east and {round(-y)} ft north of the slab's NW corner.")))
+    SPRUCE = "Norway spruce (Picea abies)"
+    SPRUCE_NOTES = ["Grows about 1 to 2 ft a year once settled, to 40 to 60 ft tall and 25 to 30 ft wide. Drawn at planting size."]
+    tree("tree_white_pine", "White pine", "pine", SP["white_pine"], SP["pine_height_ft"], "Eastern white pine (Pinus strobus)",
+         ["West end of the line of five north of the house (Maxwell, 11/19/2026).", "Grows fast, to 50 to 80 ft tall and 20 to 40 ft wide. Drawn at planting size.",
+          "Found in the photo by its long morning shadow, about 70 ft west of the first spruce, as Maxwell described."], 1)
+    for k, xy in enumerate(SP["north_spruces"]):
+        tree(f"tree_spruce_n{k + 1}", f"Norway spruce {k + 1} of the north row", "spruce", xy, SP["spruce_height_ft"], SPRUCE,
+             ["One of four Norway spruces east of the white pine in the line north of the house (Maxwell, 11/19/2026)."] + SPRUCE_NOTES, 2 + k)
+    for k, xy in enumerate(SP["east_spruces"]):
+        tree(f"tree_spruce_e{k + 1}", f"Norway spruce {k + 1} by the woods", "spruce", xy, SP["spruce_height_ft"] * 1.1, SPRUCE,
+             ["One of two Norway spruces east of the drive, by the woods (Maxwell, 11/19/2026)."] + SPRUCE_NOTES, 7 + k)
+    for k, xy in enumerate(SP["taxus"]):
+        tree(f"taxus_{k + 1}", f"Taxus {k + 1} of 7", "taxus", xy, SP["taxus_height_ft"], "Taxus (also sold as yew), variety not known",
+             ["Seven taxus in a line along the woods edge, north to south (Maxwell, 11/19/2026).",
+              "Every part of a taxus but the red flesh of the berry is poisonous to people, dogs and horses. Keep clippings away from animals."], 11 + k)
+    tx, ty = SP["transformer"]
+    items.append(dict(id="pad_transformer", name="Pad mounted transformer", category="Electric service", system="electrical.service", room="Yard",
+        layer="site", builder="pad_transformer", size=[38, 34, 42], at=[tx, ty, round(ground(tx, ty), 3)], facing=SP.get("transformer_facing", 270),
+        info=dict(model="Single phase pad mounted utility transformer, green, on a pad. Owned by the utility",
+          specs=[["Size drawn", "About 38 W x 42 D x 34 H in on a 48 x 52 in pad, typical of 25 to 50 kVA units. ASSUMED"],
+                 ["Clearances", "Utilities usually want about 10 ft clear in front of the doors and 3 ft at the sides and back. Check with the utility before planting closer."]],
+          notes=["The green box at the south end of the taxus line (Maxwell, 11/19/2026). It feeds the house service underground.", PHOTO],
+          placement=f"{round(tx)} ft east and {round(ty)} ft south of the slab's NW corner, doors toward the drive (ASSUMED).")))
+    # gravel drive: a smooth centreline, cross sections every 2 ft laid on the ground with a shallow crown and shoulders
+    cl = SP["drive_centerline"]; W = SP["drive_width_ft"]
+    def cr(p0, p1, p2, p3, t):
+        return tuple(0.5 * (2 * p1[i] + (-p0[i] + p2[i]) * t + (2 * p0[i] - 5 * p1[i] + 4 * p2[i] - p3[i]) * t * t + (-p0[i] + 3 * p1[i] - 3 * p2[i] + p3[i]) * t ** 3) for i in (0, 1))
+    P = [cl[0]] + cl + [cl[-1]]
+    dense = []
+    for k in range(1, len(P) - 2):
+        seg = ((P[k + 1][0] - P[k][0]) ** 2 + (P[k + 1][1] - P[k][1]) ** 2) ** 0.5
+        n = max(1, int(seg / 1.0))
+        dense += [cr(P[k - 1], P[k], P[k + 1], P[k + 2], t / n) for t in range(n)]
+    dense.append(tuple(cl[-1]))
+    st, acc, last = [dense[0]], 0.0, dense[0]           # resample about every 2 ft
+    for q in dense[1:]:
+        acc += ((q[0] - last[0]) ** 2 + (q[1] - last[1]) ** 2) ** 0.5; last = q
+        if acc >= 2.0: st.append(q); acc = 0.0
+    if st[-1] != dense[-1]: st.append(dense[-1])
+    OFF = [(-W / 2 - 0.7, -0.06), (-W / 2, 0.12), (-W / 4, 0.14), (0, 0.15), (W / 4, 0.14), (W / 2, 0.12), (W / 2 + 0.7, -0.06)]   # (across ft, height above ground ft)
+    rows, length = [], 0.0
+    for k, (x, y) in enumerate(st):
+        a, b = st[max(0, k - 1)], st[min(len(st) - 1, k + 1)]
+        dx, dy = b[0] - a[0], b[1] - a[1]; L = (dx * dx + dy * dy) ** 0.5 or 1
+        nx, ny = -dy / L, dx / L
+        if k: length += ((x - st[k - 1][0]) ** 2 + (y - st[k - 1][1]) ** 2) ** 0.5
+        rows.append([[round(x + nx * o, 2), round(y + ny * o, 2), round(ground(x + nx * o, y + ny * o) + h, 3)] for o, h in OFF])
+    x0, y0, x1, y1 = SP["old_drive_cull"]
+    items.append(dict(id="gravel_drive", name="Gravel drive", category="Site", system="site.drive", room="Yard", layer="site",
+        builder="drive", size=[W * 12, 2, round(length * 12)], at=[0, 0, 0], facing=180, rows=rows,
+        cull=[dict(box=[x0, y0, -30, x1, y1, 30], materials=["Gravel"])],
+        info=dict(model="Gravel drive as built",
+          specs=[["Width", f"About {W:g} ft"], ["Length", f"About {round(length / 10) * 10:.0f} ft from the road to the garage pad"],
+                 ["Shape", "Straight south from the road, parallel to the woods, then a J loop round south of the garage and back north into the garage pad"]],
+          notes=[PHOTO + " North of the photo it is drawn straight on to the road on the same heading.",
+                 "It sits about 40 ft further west than the first model guessed, which put it 10 ft off the tree line."])))
+
 _tag()
 trusses = dict(id="floor_trusses", name="Open web floor trusses", category="Structure", system="structure.floor", regions=FLAT, loft_regions=[LOFT],
     z0=CEIL, depth_in=TRUSS_IN, spacing_in=CFG["floor_trusses"]["spacing_in"], deck_in=DECK_IN, grid_x0=TG, max_cross_in=CFG["floor_trusses"]["max_round_duct_in"],
