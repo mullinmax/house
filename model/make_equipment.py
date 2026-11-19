@@ -275,15 +275,16 @@ Y_COLD, Y_WALL = US - 0.39, US - 0.19              # cold line behind the prehea
 Z_COLD, Z_HOT, Z_RC, Z_WELL = 7.4, 7.0, 7.2, 7.9   # overhead levels, all under the 9 ft ceiling and clear of a 6 ft 6 in head
 WELL_X = UW + 1.5                                  # well line up through the slab, south wall (Maxwell, 11/19/2026)
 HL_X = UW + 2.5                                    # house hot water lines and the drain, 1 ft further east (Maxwell, 11/19/2026)
-X_HC, X_HH, X_HR, X_DR = HL_X - 0.22, HL_X - 0.03, HL_X + 0.15, HL_X + 0.3     # house cold, house hot, recirculation back, drain
+X_HC, X_HH, X_HR = HL_X - 0.22, HL_X - 0.03, HL_X + 0.15                       # house cold, house hot, recirculation back
+X_DR, Y_DR = HL_X + 0.3, US - 0.54                 # floor drain, just in front of the lines
 HOT, HOT_R = 1.9, 1.5                              # 3/4 in and 1/2 in copper with pipe insulation, outside diameter
 # Well water treatment on the north wall, west to east: UV, carbon, sediment, spin down screen, tank tee, pressure tank.
 LN = UN + 0.33                                     # pipe lane on the north wall, through the filter heads
 HEAD_Z = 4.4                                       # filter heads (ports) about 4-1/2 ft up, easy to reach for cartridge changes
 UV_X, CB_X, SD_X, SP_X = 2.78, 3.5, 4.2, 4.8
 TT_X = 5.11                                        # tank tee
-PT_D, PT_H = 22.0, 39.0                            # pressure tank, in
-PT_X = 6.15
+PT_D, PT_H = 16.0, 62.0                            # pressure tank, in: a slim tall one keeps the walkway past the tanks about 22 in wide
+PT_X = 5.95
 PT_CY = UN + (1 + PT_D / 2) / 12
 UV_Z, UV_H = 2.55, 42.0
 def dhw(id, name, dia, mat, points, model, notes, specs=None, info_of=None, system="plumbing.dhw", category="Hot water"):
@@ -335,11 +336,16 @@ dhw("dhw_recirc", "Hot water recirculation return", HOT_R, "foam",
                                  "comes down the south wall between the two tanks through the pump at chest height, and tees into the water heater's cold inlet pipe. "
                                  "Which of the lines in the slab is the return is ASSUMED. A check valve and a timer or demand control are ASSUMED.",
                                  "Insulated like the hot line: a recirculation loop is hot whenever it runs, so bare pipe would give that heat away all day."])
-runs.append(dict(id="utility_drain", name="Utility room drain", category="Well water", system="plumbing.drain", dia=2.38, mat="pvc",
-    points=[[X_DR, Y_COLD - 0.05, 0.0], [X_DR, Y_COLD - 0.05, 0.4]],
-    info=dict(model="2 in PVC drain stub through the slab", specs=[["Where", "South wall, about 2-1/2 ft off the west wall, next to the house hot lines (Maxwell, 11/19/2026)"]],
-              notes=["Use ASSUMED: the relief valves, drain pans, spin down flush and condensate would all run here, and a water softener or iron filter would need it for backwash. "
-                     "It is drawn as a short open stub; the plumber sets the standpipe, trap and air gap."])))
+# Pan drains (Maxwell, 11/19/2026: the drain is a floor drain for the water heater's pan). Both tanks' pans drain to it and end
+# an inch above the grate so there is an air gap. The water heater's line runs behind the preheat tank, under the desuperheater pipe.
+PAN_Z = 0.1
+WH_PAN = WH_X - (WR * 12 + 2) / 12
+dhw("pan_drain_wh", "Drain pan lines", 1.32, "pvc",
+    [[WH_PAN + 0.02, WH_CY + 0.3, PAN_Z], [WH_PAN - 0.1, WH_CY + 0.3, PAN_Z], [WH_PAN - 0.1, US - 0.12, PAN_Z], [X_DR + 0.1, US - 0.12, PAN_Z], [X_DR + 0.1, Y_DR, PAN_Z], [X_DR + 0.06, Y_DR, PAN_Z + 0.04]],
+    "1 in PVC from each tank's drain pan",
+    ["The water heater's pan drains behind the preheat tank to the floor drain, about 6 ft. The preheat tank's pan drains straight to it. Both end above the grate for an air gap. "
+     "The relief valves (T&P) on both tanks can discharge here too. Route ASSUMED."])
+dhw("pan_drain_ph", None, 1.32, "pvc", [[PH_X - 0.83, PH_Y + 0.62, PAN_Z], [X_DR - 0.12, PH_Y + 0.62, PAN_Z], [X_DR - 0.12, Y_DR, PAN_Z + 0.04]], None, None, info_of="pan_drain_wh")
 items += [
  dict(id="recirc_pump", name="Hot water recirculation pump", category="Hot water", system="plumbing.dhw", room="Utility", layer="mechanical",
       builder="circ_pump", size=[5, 5, 5], at=[X_RC, Y_WALL, 3.9], facing=90,
@@ -352,15 +358,21 @@ items += [
       builder="mixing_valve", size=[3, 3, 3], at=[GAP_X, WHOT_Y, 6.3], facing=0,
       info=dict(model="3/4 in thermostatic mixing valve", specs=[["Why", "Lets both tanks store water hotter for more capacity while the taps get a safe 120 F"]],
                 notes=["Its cold side tees off the cold line; that small tee is not drawn.", APPROX])),
+ dict(id="floor_drain", name="Floor drain", category="Hot water", system="plumbing.drain", room="Utility", layer="mechanical",
+      builder="floor_drain", size=[6, 0.5, 6], at=[X_DR, Y_DR + 0.25, 0], facing=0,
+      info=dict(model="Floor drain with a round grate, about 4 in", specs=[["Where", "South wall, about 2-1/2 ft off the west wall, beside the house hot lines (Maxwell, 11/19/2026)"],
+                                                                         ["Takes", "Both tanks' drain pans and relief valves, the spin down flush, a softener's backwash if one goes in"]],
+                notes=["Maxwell (11/19/2026): the drain line coming up here will become a floor drain and pan drain for the water heater. Trap primer, size and exact spot are the plumber's.", APPROX])),
  # ---- well water: pressure tank and treatment, north wall
  dict(id="pressure_tank", name="Well pressure tank", category="Well water", system="plumbing.well", room="Utility", layer="mechanical",
       builder="pressure_tank", size=[PT_D, PT_H], at=[PT_X, UN + 0.02, 0], facing=180,
-      info=dict(model="Diaphragm well tank, about 44 gal (Amtrol Well-X-Trol WX-250 class)", price="Included in Crabtree's $4,900 pump system (estimate 2479, approved 3/11/2026)",
-        specs=[["Pump", "1/2 HP submersible with a pressure switch (Crabtree estimate 2479)"], ["Size", "About 22 in across and 39 in tall"],
+      info=dict(model="Slim diaphragm well tank, about 44 gal (generic tall model)", price="Included in Crabtree's $4,900 pump system (estimate 2479, approved 3/11/2026)",
+        specs=[["Pump", "1/2 HP submersible with a pressure switch (Crabtree estimate 2479)"], ["Size", "About 16 in across and 62 in tall"],
                ["Pressure", "Usually a 40/60 PSI switch with the tank pre-charged to 38 PSI"], ["Connection", "1 in at the bottom, through the tank tee"]],
         links=[["Crabtree Drilling", "https://www.crabtreedrilling.com"]],
         notes=["Crabtree's approved estimate lists a 1/2 HP submersible pump system 'including a pressure tank, pipe, wire, fittings, ditch digging and labor' but not the tank model or size. "
                "The size here is ASSUMED: a 44 gal tank is a common match for a 1/2 HP pump and gives about 12 gal between pump starts. "
+               "A slim, tall tank was picked over the usual 22 in one so the walkway past the water tanks stays about 22 in wide (Maxwell, 11/19/2026: slimmer is fine, there is height to use). "
                "The quote also offered a 1 HP constant pressure system for $5,800 as an alternate; the approved total ($10,919) has the 1/2 HP system.",
                "Well (same estimate): 6 in PVC casing, estimated 100 ft, $43/ft past that.", APPROX],
         placement="North wall of the utility room, east of the filters and clear of the hall door's swing. The pump is down the well, so the only noise here is the pressure switch clicking.")),
@@ -384,6 +396,21 @@ items += [
       builder="uv_system", size=[8, UV_H, 6], at=[UV_X, UN, UV_Z], facing=180,
       info=dict(model="Whole house UV sterilizer, about 12 gpm (Viqua VH410 class, generic)", specs=[["Power", "120 V outlet nearby"], ["Lamp", "Change once a year"], ["Order", "Last, after the filters, so the water it sees is clear"]],
                 notes=["Generic placeholder, not in Crabtree's quote. Common on private wells to kill bacteria; the county may want a bacteria test either way.", APPROX])),
+ dict(id="softener_space", name="Water softener (space reserved)", category="Well water", system="plumbing.well", room="Utility", layer="mechanical",
+      builder="softener_cabinet", size=[14, 44, 17.5], at=[UE - 0.62, US - 0.02, 0], facing=0,
+      info=dict(model="Space for a cabinet softener, about 14 W x 17-1/2 D x 44 H in (generic, not decided)",
+        specs=[["Status", "Not decided. Space kept so one can go in later (Maxwell, 11/19/2026)"], ["Needs", "120 V outlet, the floor drain for backwash (about 8 ft of 1/2 in tubing), and the treated cold line"],
+               ["Would sit", "After the filters, before the preheat tank, with a bypass valve"]],
+        notes=["Southeast corner, south of the hall door, so the door still opens fully. A cabinet unit (resin and salt in one box) fits; a twin tank one does not.",
+               "Whether it is needed depends on the water test (hardness and iron). Piping to it is not drawn.", APPROX])),
+ dict(id="ro_system", name="Reverse osmosis drinking water", category="Kitchen appliance", system="plumbing.well", room="Kitchen", layer="appliances",
+      builder="ro_unit", size=[5.7, 18, 17.6], at=[10.85, 51.42, 0.34], facing=0,
+      info=dict(model="Tankless under sink reverse osmosis with its own faucet (generic, Waterdrop G3 class)",
+        specs=[["Size", "About 5.7 W x 18 H x 17.6 D in, stands beside the disposal"], ["Needs", "Cold line tee, a drain saddle on the sink drain, and an outlet for the pump"],
+               ["Faucet", "Small RO faucet in a hole beside the main faucet"]],
+        notes=["Under the kitchen sink rather than whole house: the utility room has no room left, and you only need RO water for drinking and cooking (Maxwell, 11/19/2026: under the sink is fine).",
+               "Not picked yet.", APPROX],
+        placement="Inside the sink base, right side, behind the right door.")),
 ]
 # Desuperheater (Maxwell, 11/18/2026). The preheat tank stands just east of the heat pump's hot water connections, so the two
 # insulated 3/4 in lines step sideways off the ports and drop straight through the deck into the lane behind the tank.

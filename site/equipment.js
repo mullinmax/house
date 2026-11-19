@@ -614,6 +614,29 @@ const BUILD = {
     cyl(g, 0.25, 8, blackMolded(), -3, h - 3.5, cz, 'x', 6);                                  // lamp cord
     return g;
   },
+  floor_drain(s) {                 // round floor drain: a low chrome ring and a slotted grate just proud of the slab
+    const [d] = s, g = new THREE.Group();
+    cyl(g, d / 2, 0.3, chrome(), 0, 0.15, d / 2, 'y', 32);
+    cyl(g, d / 2 - 0.8, 0.12, darkPlastic(), 0, 0.33, d / 2, 'y', 28);
+    for (let k = -2; k <= 2; k++) box(g, 0.35, 0.1, d - 2.4 - Math.abs(k) * 0.7, chrome(), k * 0.75, 0.42, d / 2);
+    return g;
+  },
+  softener_cabinet(s) {            // cabinet softener, shown as a reserved spot: grey box, salt lid on top at the front, control head at the back
+    const [w, h, d] = s, g = new THREE.Group();
+    const body = mat('softener reserved', 0xc9cbc6, 0.6, 0, { transparent: true, opacity: 0.55, depthWrite: false });
+    column(g, w, h - 2, d, body, 0, (h - 2) / 2, d / 2, 1.2);
+    box(g, w - 2, 1.2, d * 0.55, mat('salt lid', 0x7d8287, 0.5, 0.05), 0, h - 1.4, d * 0.68);
+    box(g, w * 0.6, 4, d * 0.32, blackMolded(), 0, h - 0.2, d * 0.2);
+    plate(g, w * 0.7, 3, labelMat('softener tag', 192, 64, word('SPACE RESERVED', '#2b2e31', 'bold 22px Helvetica, Arial, sans-serif')), 0, h * 0.6, d + 0.05);
+    return g;
+  },
+  ro_unit(s) {                     // tankless under sink reverse osmosis: tall white box, filter caps on top, small status ring on the front
+    const [w, h, d] = s, g = new THREE.Group();
+    column(g, w, h - 1, d, whitePlastic(), 0, (h - 1) / 2, d / 2, 1.2);
+    for (const z of [d * 0.25, d * 0.5, d * 0.75]) cyl(g, 1.6, 1, greyPlastic(), 0, h - 0.5, z, 'y', 18);
+    ring(g, 1.3, 0.2, mat('ro ring', 0x3aa7e6, 0.3, 0, { emissive: 0x3aa7e6, emissiveIntensity: 0.6 }), 0, h * 0.7, d + 0.1, 'z', 24);
+    return g;
+  },
   mixing_valve(s) {                // thermostatic mixing valve on the hot riser, tempered water out the top
     const g = new THREE.Group();
     box(g, 2.6, 3.2, 2.2, brass(), 0, 0, 0);

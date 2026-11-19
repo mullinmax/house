@@ -87,7 +87,7 @@ def item_box(it):
     s, b = it["size"], it["builder"]
     if b in ("hpwh", "storage_tank"): lo, hi = [-s[0] / 2, 0, 2], [s[0] / 2, s[1], 2 + s[0]]
     elif b == "geo_horizontal": lo, hi = [-s[2] / 2, 0, 0], [s[2] / 2, s[1], s[0]]
-    elif b in ("erv", "flow_center", "big_blue", "spin_down", "uv_system"): lo, hi = [-s[0] / 2, 0, 0], [s[0] / 2, s[1], s[2]]
+    elif b in ("erv", "flow_center", "big_blue", "spin_down", "uv_system", "softener_cabinet"): lo, hi = [-s[0] / 2, 0, 0], [s[0] / 2, s[1], s[2]]
     elif b == "pressure_tank": lo, hi = [-s[0] / 2, 0, 1], [s[0] / 2, s[1], 1 + s[0]]
     elif b == "expansion_tank": lo, hi = [-s[0] / 2, -3 - s[1], -s[0] / 2], [s[0] / 2, -3, s[0] / 2]
     else: return None

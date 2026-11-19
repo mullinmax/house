@@ -1060,6 +1060,43 @@
    }
   },
   {
+   "id": "floor_drain",
+   "name": "Floor drain",
+   "category": "Hot water",
+   "system": "plumbing.drain",
+   "room": "Utility",
+   "layer": "mechanical",
+   "builder": "floor_drain",
+   "size": [
+    6,
+    0.5,
+    6
+   ],
+   "at": [
+    3.2969999999999997,
+    27.951,
+    0
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Floor drain with a round grate, about 4 in",
+    "specs": [
+     [
+      "Where",
+      "South wall, about 2-1/2 ft off the west wall, beside the house hot lines (Maxwell, 11/19/2026)"
+     ],
+     [
+      "Takes",
+      "Both tanks' drain pans and relief valves, the spin down flush, a softener's backwash if one goes in"
+     ]
+    ],
+    "notes": [
+     "Maxwell (11/19/2026): the drain line coming up here will become a floor drain and pan drain for the water heater. Trap primer, size and exact spot are the plumber's.",
+     "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
+    ]
+   }
+  },
+  {
    "id": "pressure_tank",
    "name": "Well pressure tank",
    "category": "Well water",
@@ -1068,17 +1105,17 @@
    "layer": "mechanical",
    "builder": "pressure_tank",
    "size": [
-    22.0,
-    39.0
+    16.0,
+    62.0
    ],
    "at": [
-    6.15,
+    5.95,
     22.886,
     0
    ],
    "facing": 180,
    "info": {
-    "model": "Diaphragm well tank, about 44 gal (Amtrol Well-X-Trol WX-250 class)",
+    "model": "Slim diaphragm well tank, about 44 gal (generic tall model)",
     "price": "Included in Crabtree's $4,900 pump system (estimate 2479, approved 3/11/2026)",
     "specs": [
      [
@@ -1087,7 +1124,7 @@
      ],
      [
       "Size",
-      "About 22 in across and 39 in tall"
+      "About 16 in across and 62 in tall"
      ],
      [
       "Pressure",
@@ -1105,7 +1142,7 @@
      ]
     ],
     "notes": [
-     "Crabtree's approved estimate lists a 1/2 HP submersible pump system 'including a pressure tank, pipe, wire, fittings, ditch digging and labor' but not the tank model or size. The size here is ASSUMED: a 44 gal tank is a common match for a 1/2 HP pump and gives about 12 gal between pump starts. The quote also offered a 1 HP constant pressure system for $5,800 as an alternate; the approved total ($10,919) has the 1/2 HP system.",
+     "Crabtree's approved estimate lists a 1/2 HP submersible pump system 'including a pressure tank, pipe, wire, fittings, ditch digging and labor' but not the tank model or size. The size here is ASSUMED: a 44 gal tank is a common match for a 1/2 HP pump and gives about 12 gal between pump starts. A slim, tall tank was picked over the usual 22 in one so the walkway past the water tanks stays about 22 in wide (Maxwell, 11/19/2026: slimmer is fine, there is height to use). The quote also offered a 1 HP constant pressure system for $5,800 as an alternate; the approved total ($10,919) has the 1/2 HP system.",
      "Well (same estimate): 6 in PVC casing, estimated 100 ft, $43/ft past that.",
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
     ],
@@ -1292,6 +1329,91 @@
      "Generic placeholder, not in Crabtree's quote. Common on private wells to kill bacteria; the county may want a bacteria test either way.",
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
     ]
+   }
+  },
+  {
+   "id": "softener_space",
+   "name": "Water softener (space reserved)",
+   "category": "Well water",
+   "system": "plumbing.well",
+   "room": "Utility",
+   "layer": "mechanical",
+   "builder": "softener_cabinet",
+   "size": [
+    14,
+    44,
+    17.5
+   ],
+   "at": [
+    11.044,
+    28.221,
+    0
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Space for a cabinet softener, about 14 W x 17-1/2 D x 44 H in (generic, not decided)",
+    "specs": [
+     [
+      "Status",
+      "Not decided. Space kept so one can go in later (Maxwell, 11/19/2026)"
+     ],
+     [
+      "Needs",
+      "120 V outlet, the floor drain for backwash (about 8 ft of 1/2 in tubing), and the treated cold line"
+     ],
+     [
+      "Would sit",
+      "After the filters, before the preheat tank, with a bypass valve"
+     ]
+    ],
+    "notes": [
+     "Southeast corner, south of the hall door, so the door still opens fully. A cabinet unit (resin and salt in one box) fits; a twin tank one does not.",
+     "Whether it is needed depends on the water test (hardness and iron). Piping to it is not drawn.",
+     "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
+    ]
+   }
+  },
+  {
+   "id": "ro_system",
+   "name": "Reverse osmosis drinking water",
+   "category": "Kitchen appliance",
+   "system": "plumbing.well",
+   "room": "Kitchen",
+   "layer": "appliances",
+   "builder": "ro_unit",
+   "size": [
+    5.7,
+    18,
+    17.6
+   ],
+   "at": [
+    10.85,
+    51.42,
+    0.34
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Tankless under sink reverse osmosis with its own faucet (generic, Waterdrop G3 class)",
+    "specs": [
+     [
+      "Size",
+      "About 5.7 W x 18 H x 17.6 D in, stands beside the disposal"
+     ],
+     [
+      "Needs",
+      "Cold line tee, a drain saddle on the sink drain, and an outlet for the pump"
+     ],
+     [
+      "Faucet",
+      "Small RO faucet in a hole beside the main faucet"
+     ]
+    ],
+    "notes": [
+     "Under the kitchen sink rather than whole house: the utility room has no room left, and you only need RO water for drinking and cooking (Maxwell, 11/19/2026: under the sink is fine).",
+     "Not picked yet.",
+     "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
+    ],
+    "placement": "Inside the sink base, right side, behind the right door."
    }
   },
   {
@@ -2131,12 +2253,12 @@
     ],
     [
      5.11,
-     23.866,
+     23.616,
      0.25
     ],
     [
-     5.7,
-     23.866,
+     5.5,
+     23.616,
      0.25
     ]
    ],
@@ -2505,36 +2627,76 @@
    }
   },
   {
-   "id": "utility_drain",
-   "name": "Utility room drain",
-   "category": "Well water",
-   "system": "plumbing.drain",
-   "dia": 2.38,
+   "id": "pan_drain_wh",
+   "name": "Drain pan lines",
+   "category": "Hot water",
+   "system": "plumbing.dhw",
+   "dia": 1.32,
    "mat": "pvc",
    "points": [
     [
-     3.2969999999999997,
-     27.801,
-     0.0
+     6.542916666666667,
+     27.110583333333334,
+     0.1
     ],
     [
-     3.2969999999999997,
-     27.801,
-     0.4
+     6.4229166666666675,
+     27.110583333333334,
+     0.1
+    ],
+    [
+     6.4229166666666675,
+     28.121,
+     0.1
+    ],
+    [
+     3.397,
+     28.121,
+     0.1
+    ],
+    [
+     3.397,
+     27.701,
+     0.1
+    ],
+    [
+     3.3569999999999998,
+     27.701,
+     0.14
     ]
    ],
    "info": {
-    "model": "2 in PVC drain stub through the slab",
-    "specs": [
-     [
-      "Where",
-      "South wall, about 2-1/2 ft off the west wall, next to the house hot lines (Maxwell, 11/19/2026)"
-     ]
-    ],
+    "model": "1 in PVC from each tank's drain pan",
+    "specs": [],
     "notes": [
-     "Use ASSUMED: the relief valves, drain pans, spin down flush and condensate would all run here, and a water softener or iron filter would need it for backwash. It is drawn as a short open stub; the plumber sets the standpipe, trap and air gap."
+     "The water heater's pan drains behind the preheat tank to the floor drain, about 6 ft. The preheat tank's pan drains straight to it. Both end above the grate for an air gap. The relief valves (T&P) on both tanks can discharge here too. Route ASSUMED."
     ]
    }
+  },
+  {
+   "id": "pan_drain_ph",
+   "category": "Hot water",
+   "system": "plumbing.dhw",
+   "dia": 1.32,
+   "mat": "pvc",
+   "points": [
+    [
+     3.609583333333334,
+     27.524333333333335,
+     0.1
+    ],
+    [
+     3.1769999999999996,
+     27.524333333333335,
+     0.1
+    ],
+    [
+     3.1769999999999996,
+     27.701,
+     0.14
+    ]
+   ],
+   "info_of": "pan_drain_wh"
   },
   {
    "id": "dsh_0",
