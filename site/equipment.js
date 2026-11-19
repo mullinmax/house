@@ -761,6 +761,30 @@ const BUILD = {
     cyl(g, (w - 7) / 2, h - 10.6, darkSteel(), 0, 10.1 + (h - 10.6) / 2, 0, 'y', 4, (w - 1.5) / 2).rotation.y = Math.PI / 4;   // hood
     return g;
   },
+  tote_stacks(s, it) {
+    // 27 gal hardware store totes, stacked: black base tapering toward the bottom, a rim with end handles, a yellow snap lid with a
+    // raised centre the next tote sits on. it.stacks = [[dx, dy, facing, count]] in plan feet from the item's anchor; each stack's
+    // origin is the centre of its back edge, like any item, so its front faces the aisle.
+    const [w, h, d] = s, g = new THREE.Group();
+    const black = mat('tote black', 0x18191a, 0.55, 0.02), yellow = mat('tote yellow', 0xf2c11a, 0.48, 0.02);
+    const body = new THREE.CylinderGeometry(Math.SQRT1_2, Math.SQRT1_2 * 0.91, 1, 4, 1).rotateY(Math.PI / 4);
+    const hb = h - 2.4;                                                   // base height under the rim
+    for (const [dx, dy, f, n] of it.stacks) {
+      const st = new THREE.Group();
+      st.position.set(dx * 12, 0, dy * 12); st.rotation.y = THREE.MathUtils.degToRad(180 - f);
+      for (let k = 0; k < n; k++) {
+        const y = k * h;
+        const b = add(st, body, black, 0, y + hb / 2, d / 2); b.scale.set(w - 0.9, hb, d - 0.9);
+        box(st, w - 0.3, 0.9, d - 0.3, black, 0, y + hb + 0.15, d / 2);                       // rim
+        for (const z of [-0.15, d + 0.15]) box(st, 8.5, 1.4, 1.1, black, 0, y + hb - 0.9, z < 0 ? 0.45 : d - 0.45);   // end handles
+        box(st, w, 1.3, d, yellow, 0, y + hb + 0.6 + 0.65, d / 2);                            // lid
+        box(st, w - 4.2, 0.5, d - 5.5, yellow, 0, y + h - 0.25 - 0.01, d / 2);                // raised centre
+        for (const x of [-w / 2 - 0.12, w / 2 + 0.12]) for (const z of [d * 0.28, d * 0.72]) box(st, 0.5, 1.7, 2.6, yellow, x, y + hb + 0.35, z);   // snap tabs
+      }
+      g.add(st);
+    }
+    return g;
+  },
   car(s, it) { return buildCar(it); },                 // Tesla Model Y and Honda Insight, in vehicles.js
   wall_connector(s) { return buildWallConnector(s); },
   generic(s) {
@@ -938,7 +962,7 @@ function buildTrusses(t) {
 // Returns one group per layer plus byId, the semantic record behind every clickable thing.
 export function buildEquipment(data) {
   const root = new THREE.Group(); root.name = 'Equipment';
-  const layers = { appliances: new THREE.Group(), vehicles: new THREE.Group(), mechanical: new THREE.Group(), ducts: new THREE.Group(), trusses: buildTrusses(data.trusses) };
+  const layers = { appliances: new THREE.Group(), vehicles: new THREE.Group(), storage: new THREE.Group(), mechanical: new THREE.Group(), ducts: new THREE.Group(), trusses: buildTrusses(data.trusses) };
   for (const [k, g] of Object.entries(layers)) { g.name = g.name || k; root.add(g); }
   const byId = {};
   for (const it of data.items || []) {

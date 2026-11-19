@@ -319,7 +319,7 @@ function linkRoom(R, how) {
 //   v=o|w|n  mode     p=x,y,z  camera (plan feet, z up)     t=x,y,z  orbit centre     a=yaw,pitch  walk look (deg)
 //   room=    room     night    cut=ft  height slice         crouch   hide=,show=  layers   info=  equipment id
 const SHARE_KEYS = ['v', 'p', 't', 'a', 'night', 'cut', 'crouch', 'hide', 'show', 'info'];
-const LAYERS_ALL = () => ['Roof', 'Walls', 'Furniture', 'Trees', 'Appliances', 'Vehicles', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
+const LAYERS_ALL = () => ['Roof', 'Walls', 'Furniture', 'Trees', 'Appliances', 'Vehicles', 'Storage', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
 const LAYER_DEFAULT = {};
 for (const k of LAYERS_ALL()) LAYER_DEFAULT[k] = $('l' + k).checked;
 const r1 = (n) => String(Math.round(n * 10) / 10);
@@ -646,7 +646,7 @@ function jump(name) {
 const show = (o, on) => o.traverse((m) => m.layers.set(on ? 0 : 1));
 // Every view switch is a layer: Walls off fades the house so the systems read, Duct x-ray colours the ducts and
 // shows them through everything, and Trees is every tree and shrub, near and far.
-const LAYERS = ['Roof', 'Walls', 'Furniture', 'Trees', 'Appliances', 'Vehicles', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
+const LAYERS = ['Roof', 'Walls', 'Furniture', 'Trees', 'Appliances', 'Vehicles', 'Storage', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
 const layerOn = (k) => $('l' + k).checked;
 let sliced = false;
 function applyToggles() {
@@ -658,6 +658,7 @@ function applyToggles() {
   if (equip) {
     show(equip.layers.appliances, layerOn('Appliances'));
     show(equip.layers.vehicles, layerOn('Vehicles'));
+    show(equip.layers.storage, layerOn('Storage'));
     show(equip.layers.mechanical, layerOn('Mechanical'));
     show(equip.layers.ducts, layerOn('Ducts'));
     show(equip.layers.trusses, layerOn('Trusses'));

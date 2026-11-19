@@ -1623,6 +1623,174 @@
     ],
     "placement": "Low roof, about 1 ft in from the west wall, straight above the cooktop."
    }
+  },
+  {
+   "id": "attic_totes",
+   "name": "Storage totes",
+   "category": "Storage",
+   "system": "storage",
+   "room": "Attic",
+   "layer": "storage",
+   "builder": "tote_stacks",
+   "size": [
+    20.1,
+    14.4,
+    30.4
+   ],
+   "at": [
+    16.0,
+    18.6,
+    10.052083333333334
+   ],
+   "facing": 180,
+   "stacks": [
+    [
+     -9.102,
+     -4.3,
+     180,
+     2
+    ],
+    [
+     -7.094,
+     -4.3,
+     180,
+     2
+    ],
+    [
+     -5.086,
+     -4.3,
+     180,
+     2
+    ],
+    [
+     -3.078,
+     -4.3,
+     180,
+     2
+    ],
+    [
+     -1.069,
+     -4.3,
+     180,
+     2
+    ],
+    [
+     0.939,
+     -4.3,
+     180,
+     2
+    ],
+    [
+     2.948,
+     -4.3,
+     180,
+     2
+    ],
+    [
+     4.956,
+     -4.3,
+     180,
+     2
+    ],
+    [
+     6.964,
+     -4.3,
+     180,
+     2
+    ],
+    [
+     8.973,
+     -4.3,
+     180,
+     2
+    ],
+    [
+     -6.998,
+     4.07,
+     0,
+     3
+    ],
+    [
+     -4.99,
+     4.07,
+     0,
+     3
+    ],
+    [
+     -2.982,
+     4.07,
+     0,
+     3
+    ],
+    [
+     -0.973,
+     4.07,
+     0,
+     3
+    ],
+    [
+     1.035,
+     4.07,
+     0,
+     3
+    ],
+    [
+     3.043,
+     4.07,
+     0,
+     3
+    ],
+    [
+     5.052,
+     4.07,
+     0,
+     3
+    ],
+    [
+     7.06,
+     4.07,
+     0,
+     3
+    ],
+    [
+     9.068,
+     4.07,
+     0,
+     3
+    ]
+   ],
+   "info": {
+    "model": "47 black and yellow 27 gal tough totes, for scale",
+    "price": "About $15 each at a hardware store",
+    "specs": [
+     [
+      "Tote",
+      "About 30 x 20 x 14-1/2 in with the lid on, 27 gal"
+     ],
+     [
+      "North row",
+      "10 stacks, 2 high, clearing the roof by about 2 in at the back"
+     ],
+     [
+      "South row",
+      "9 stacks, 3 high, clearing the roof by about 10 in at the front"
+     ],
+     [
+      "Aisle",
+      "About 3 ft 4 in wide between the rows, 3 ft 5 in to 4 ft 5 in of headroom"
+     ],
+     [
+      "Spacing",
+      "4 in between stacks so any one can be pulled out"
+     ]
+    ],
+    "notes": [
+     "Shows how much fits in the open deck north of the laundry that the ducts leave free (Maxwell, 11/19/2026). Not packed tight. The north row is held to 2 high because the roof comes down to about 2-1/2 ft over the deck there; the south row has room for 3.",
+     "The aisle runs east to west between the rows and opens at the west end by the heat pump, so the totes never block its service aisle or a duct. Getting from the aisle to the heat pump's west side still means stepping over the bedroom 1 return, which lies on the deck there.",
+     "Weight: a full tote of household things is roughly 30 to 50 lb. The deck is on 24 in open web trusses; ask the truss maker for the attic storage load they were designed for."
+    ],
+    "placement": "On the attic deck over the laundry, linen closet and hall 2, between the supply trunk on the north and the attic wall over the living room on the south."
+   }
   }
  ],
  "runs": [
