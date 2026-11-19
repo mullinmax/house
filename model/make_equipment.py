@@ -514,10 +514,14 @@ S = "S"; N = "N"
 supply("s_closet3", "Closet 3", 26, 6, [[3.3, YN - 0.6, 11.0], [3.3, 10.6, 11.0]], dict(at=[3.3, 10.62, 11.0], size=[10, 6], wall=N), "High sidewall register through the attic wall.")
 supply("s_closet2", "Closet 2", 32, 6, [[4.7, YN - 0.6, 11.0], [4.7, 10.3, 11.0], [4.7, 5.5, 10.25]], dict(at=[4.7, 5.44, 10.25], size=[10, 6], wall=N), "Runs exposed along the ceiling of closet 3 to reach closet 2. ASSUMED.")
 supply("s_bed2", "Bedroom 2", 78, 6, [[8.5, YN - 0.6, 11.0], [8.5, 10.6, 11.0]], dict(at=[8.5, 10.62, 11.0], size=[12, 6], wall=N), "High sidewall register through the attic wall.")
-# The study's register sits over its door (x 23.37-26.00) and its low return grille is east of the door (Maxwell, 11/18/2026).
-XSD = 24.68
-supply("s_study", "Bedroom 4 / study", 104, 7, [[XSD, YN - 0.6, 11.0], [XSD, 10.6, 11.0]], dict(at=[XSD, 10.62, 11.0], size=[12, 6], wall=N),
-       "High sidewall register through the attic wall, centred over the study door.")
+# Study (Maxwell, 11/18/2026): it is one of the most used rooms, has computers in it and needs good circulation with the door shut;
+# a duct may come out into the room. The supply leaves the trunk over the west end of the door and runs exposed under the sloped
+# ceiling to the window end, so the air crosses the desk on its way back to the returns in the door wall.
+XSD = 23.75
+supply("s_study", "Bedroom 4 / study", 104, 8, [[XSD, YN - 0.6, 11.0], [XSD, 10.3, 11.0], [XSD, 7.0, 10.65], [XSD, 3.0, 9.4]], dict(at=[XSD, 2.98, 9.4], size=[8, 8], wall=N),
+       "8 in round through the attic wall over the west end of the study door, then exposed along the west wall under the sloped ceiling to the window end "
+       "(Maxwell, 11/18/2026: a duct can come out into the room). It discharges about 7 ft from the returns in the door wall, so supply air sweeps the desk and "
+       "the computers before it leaves. 8 in so there is room above M-10's 104 CFM for the computer load, at about 15 CFM per 100 W. Spiral duct, ASSUMED route.")
 supply("s_hall2a", "Hall 2", 15, 6, drop(bay(14.4), YN + 0.75, 17.8), dict(at=[bay(14.4), 17.8, CEIL - 0.02], size=[8, 6]))
 supply("s_hall2b", "Hall 2", 16, 6, drop(bay(20.5), YN + 0.75, 13.8), dict(at=[bay(20.5), 13.8, CEIL - 0.02], size=[8, 6]))
 # west leg
@@ -562,8 +566,10 @@ for k, x in enumerate(KX):
 YS = YE + 0.75
 XL = bay(27.6)                                     # laundry and living 1 share one bay, side by side
 supply("s_laundry", "Laundry", 40, 6, drop(XL - 0.35, YS, 19.0), dict(at=[XL - 0.35, 19.0, CEIL - 0.02], size=[10, 6]))
-supply("s_living1", "Living", 70, 6, drop(XL + 0.35, YS, 21.4) + [[bay(23.7), 21.4, ZT], [bay(23.7), 22.62, ZT]], dict(at=[bay(23.7), 22.9, ZT], size=[10, 6], wall=S),
-       "Drops in the laundry bay, then crosses the trusses west under the study and bedroom 1 returns to keep the register near where M-10 has it.")
+supply("s_living1", "Living", 70, 7, drop(XL + 0.35, YS, 21.4) + [[bay(23.7), 21.4, ZT], [bay(23.7), 22.62, ZT]], dict(at=[bay(23.7), 22.9, ZT], size=[10, 6], wall=S),
+       "Drops in the laundry bay, then crosses the trusses west under the study returns to keep the register near where M-10 has it. "
+       "7 in (Maxwell, 11/18/2026): at 6 in this was the weakest supply in the house. The builder is only sure 6 in passes the truss webs, so check the fit at these two trusses before ordering.")
+ducts[-1]["cross_ok"] = 7                          # tools/truss_clash.py: this run may cross the trusses at 7 in
 supply("s_living2", "Living", 70, 7, drop(bay(29.7), YS, 22.62), dict(at=[bay(29.7), 22.9, ZT], size=[12, 6], wall=S),
        "Hall 1 has no supply of its own (Maxwell, 11/17/2026): one 3 ft from the main return would short circuit into it. Its 48 CFM from M-10 is split between the two living registers, which open onto the hall through the 8 ft wide cased opening.")
 supply("s_closet1", "Closet 1", 33, 6, drop(bay(33.4), YS, 18.9), dict(at=[bay(33.4), 18.9, CEIL - 0.02], size=[10, 6]))
@@ -626,22 +632,41 @@ RFLEX = ("Round flex duct: a rectangular duct cannot pass through open web floor
          "until Andy or the HVAC installer sizes them.")
 
 RY = 24.8                                          # the main return's centreline: above the utility room door, in line with the heat pump's filter side
-ret("return_main", "Main return (M-10)", [34, 10], [[11.95, RY, ZT], [10.95, RY, ZT]], parent="return_main_riser", intake=True, k=1.0,
-    grilles=[dict(at=[12.15, RY, ZT], size=[34, 10], wall="E")])
-ducts[-1]["info"] = dict(model="34 x 10 in grille and trunk, 1,368 CFM system (M-10)",
-    specs=[["Serves", "Living, kitchen, dining, family and the halls, plus any room on transfer grilles"], ["Grille", "34 x 10 in, hall 1 (M-10)"],
-           ["Boot", "34 x 10 in box in one truss bay over the utility room, parallel to the trusses"], ["Trunk", "34 x 10 in on the attic deck (M-10)"]],
-    notes=["Andy's M-10 return: one 34 x 10 grille in hall 1 and a 34 x 10 return trunk over the utility, pantry and powder rooms to HP-01. "
-           "Moved about 6 ft north along the same hall 1 wall (Maxwell, 11/18/2026), so the trunk runs straight west into the heat pump's return plenum with no turns: about 5 ft of trunk instead of 11. "
-           "The grille sits high on the hall 1 wall above the utility room door. Behind it a boot box sits inside one truss bay, so nothing crosses the trusses, "
-           "and rises straight up through the deck. The trunk runs on the deck from there to the return plenum. Route on the deck is ASSUMED to suit the heat pump position in this model."])
-XMR = 11.45
+# Quiet main return (Maxwell, 11/18/2026: do everything we can to cut the noise at this grille). About 1,030 CFM comes back here.
+# The grille is twice as tall and sits higher on the hall 1 wall, above the attic deck, so it opens into a lined box on the deck
+# instead of a boot in the trusses. The air turns down inside the box, turns again into a taller lined trunk, and turns a third
+# time into the filter, so there is no straight line for blower noise from the heat pump to the hall.
+RG_H = 20                                          # grille height, in
+RG_Z = DECK + 14 / 12 + RG_H / 24 + 0.1            # grille centre: its bottom edge just above the top of the trunk behind the wall
+RT_H = 14                                          # lined trunk height, in
+DKM = DECK + RT_H / 24                             # centre of the trunk lying on the deck
+ret("return_main", "Main return (M-10)", [34, RG_H], [[11.64, RY, RG_Z], [11.06, RY, RG_Z]], parent="return_main_riser", intake=True, k=1.0,
+    grilles=[dict(at=[12.15, RY, RG_Z], size=[34, RG_H], wall="E")])
+ducts[-1]["info"] = dict(model=f"34 x {RG_H} in grille, lined drop box and 34 x {RT_H} in lined trunk, 1,368 CFM system (M-10)",
+    specs=[["Serves", "Living, kitchen, dining, family and the halls, plus what leaves the bedrooms under their doors"], ["Grille", f"34 x {RG_H} in, high on the hall 1 wall. About 220 fpm at the face, down from about 440 fpm at 34 x 10"],
+           ["Drop box", f"14 x 36 in, on the deck behind the grille, 1 in acoustic duct liner"], ["Trunk", f"34 x {RT_H} in on the attic deck, 1 in acoustic duct liner, about 6 ft"],
+           ["Turns", "Three between the grille and the filter: down in the box, into the trunk, and into the return plenum"]],
+    notes=["Andy's M-10 return is one 34 x 10 grille in hall 1 and a 34 x 10 return trunk to HP-01. Maxwell, 11/18/2026: make it as quiet as possible, with a larger grille and "
+           "an elbow or two so the sound bounces before it reaches the hall. The grille is 34 x 20 and sits above the attic deck on the same wall, over the utility room door. "
+           "It opens into a lined box that turns the air down to the deck, then a lined trunk runs west into the return plenum. Nothing is in the floor trusses any more.",
+           "To go further: a deeper filter grille style frame with a sound attenuating liner, flexible connectors at the heat pump, and a turning vane free square elbow (lined) all help. "
+           "Liner takes 1 in off each inside face, so the trunk is drawn 4 in taller than M-10's. Sizes and route ASSUMED."])
 RP_N = HP_Y - 2.035                                # the plenum box covers the 36 in filter rack on the coil (north) half of the unit
 RP_S = RP_N + 3.2                                  # and stops there, so the TXV and filter drier access south of it stays open (GZT manual p.17, area A-2)
 RP_E = HP_X + 0.22 + 14 / 12                       # its east face, where the trunk comes in
 RPX = bay(7.7)                                     # the bedroom flex runs come up into the bottom of the trunk in this truss bay
-ret("return_main_riser", None, [14, 30], [[XMR, RY, ZT], [XMR, RY, DK]], info_of="return_main", parent="return_main_deck", k=1.0)
-ret("return_main_deck", None, [34, 10], [[XMR, RY, DK], [RP_E, RY, DK]], info_of="return_main", k=1.0)
+XMR = 11.06                                        # the drop box, tight against the attic side of the hall 1 wall
+ret("return_main_riser", None, [14, 36], [[XMR, RY, RG_Z + RG_H / 24], [XMR, RY, DECK + 0.02]], info_of="return_main", parent="return_main_deck", k=1.0)
+ret("return_main_deck", None, [34, RT_H], [[XMR - 7 / 12, RY, DKM], [RP_E, RY, DKM]], info_of="return_main", k=1.0)
+# Utility room (Maxwell, 11/18/2026): the door is solid, so the room gets a transfer grille straight up into the attic.
+UTX, UTY = bay(9.7), 27.3
+ret("transfer_utility", "Utility room transfer grille", [12, 12], [[UTX, UTY, CEIL], [UTX, UTY, DECK + 0.06]], parent=None, calc=False,
+    grilles=[dict(at=[UTX, UTY, CEIL - 0.02], size=[12, 12]), dict(at=[UTX, UTY, DECK + 0.13], size=[12, 12])],
+    model="12 x 12 in ceiling grille and lined sleeve up through the trusses to a grille in the attic deck",
+    note="The utility room has a solid door (to keep equipment noise out of the hall), a supply register and no return, so the air it is given had no way out. "
+         "Maxwell, 11/18/2026: give it a transfer grille to the attic. The sleeve sits in one truss bay between the water heater and the door. "
+         "Lining the sleeve keeps light and tank noise from carrying. The attic is inside the SIP roof and has no return opening of its own, so Andy should confirm "
+         "how air gets from the attic back to the heat pump. ASSUMED size and position.")
 ret("return_plenum", "Return plenum box", [14, 24], [[RP_E - 7 / 12, RP_S, PZ], [RP_E - 7 / 12, RP_N, PZ]], parent=None,
     model="14 x 24 in return plenum box on the deck, along the heat pump's filter rack",
     note="The return trunk comes straight into its east face. The bedroom flex runs come up through collars in the bottom of the trunk just east of it. "
@@ -678,7 +703,7 @@ r = ret("return_study", "Study return", 6,
         bend([[XSB - 0.3, 10.85, ZT], [XSB - 0.3, 11.4, ZT], [XSR - 0.35, 11.4, ZT], [XSR - 0.35, YSW, ZT], [XR2, YSW, ZT], [XR2, RY + 0.5, ZT], [RPX, RY + 0.5, ZT], [RPX, RY + 0.5, DECK + 0.2]]), flex=True,
         el=25, n=2, grilles=[dict(at=[XSB, 10.64, LOW], size=[14, 8], wall=N)])
 r["info"]["model"] = "Two 6 in round flex runs"
-r["info"]["specs"] = [["Serves", "Study (low grille on its south wall, east of the door)"],
+r["info"]["specs"] = [["Serves", "Study (low grille on its south wall, east of the door; a separate high grille over the door carries most of the air)"],
                       ["Duct", "One 14 x 2-1/2 in wall stack, then two 6 in flex home runs to the heat pump's return"],
                       ["Crosses", "The laundry, linen and bedroom 3 trusses at 6 in. No supply runs, and they stay in the trusses, off the tall south part of the attic"]]
 r["info"]["notes"] = ["The study has a low grille (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Two 6 in runs because one big duct "
@@ -783,6 +808,17 @@ for k, (nm, yy, tail) in enumerate([("intake", WH_CY - 0.15, [[WH_DUCT_X, WH_CY 
            if k == 0 else {"info_of": "hpwh_intake"})))
 for d in ducts:
     if d.get("name", 1) is None: d.pop("name")
+
+# Study high return (Maxwell, 11/18/2026: good circulation with the door shut). Bedroom 1's return rides the trunk top about a foot
+# behind the study's door wall, so a high grille in that wall and a short flat boot over the bath exhaust main land straight on it.
+XSH = 25.6
+ZSH = ZTOP + 3 / 12 + 0.02 + 2 / 12               # centre of a 4 in tall boot, clear above the 6 in exhaust main
+ret("return_study_high", "Study high return", [20, 4], [[XSH, 10.6, ZSH], [XSH, Y_RN - 0.3, ZSH]], parent="return_bed1", room="Bedroom 4 / study", intake=True, el=65,
+    grilles=[dict(at=[XSH, 10.62, ZSH], size=[22, 4.5], wall=N)], model="22 x 4-1/2 in grille and flat boot into the bedroom 1 return",
+    note="A high grille at the top of the study's door wall. A flat 20 x 4 in boot behind the grille about 1 ft long passes over the bath exhaust main and into the side of the 10 in "
+         "bedroom 1 return on top of the supply trunk. No trusses and no stud bay, so it carries most of the study's air; the low grille and its two 6 in runs stay. "
+         "Warm air from the computers collects under the high side of the ceiling, right where this grille is. The roof is about 1 in above the boot in this model: "
+         "if it does not fit, drop the exhaust main down the trunk's north face for 2 ft here. An outlet in the attic beside it would make an inline fan easy to add later. ASSUMED.")
 
 # Range hood (Maxwell, 11/17/2026): quiet inside, so the fan is as far from the kitchen as it can be, on the roof, and a
 # silencer sits in the duct between the hood and the fan. The hood is a liner or insert with no blower of its own. The duct
