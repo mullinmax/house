@@ -10,7 +10,7 @@ NOTE={45:"Marked RANGE on U-11. The kitchen now has the LG induction cooktop on 
       72:"Floor outlet, U-11 says to confirm with the owner.",
       13:"Behind the living room TV. U-11: 72 in to the TV, confirm with the owner.",
       15:"Behind the entry and family room TV. U-11: 72 in to the TV, confirm with the owner.",
-      108:"The stick vacuum dock planned on this wall about 9 in east of here can plug into this outlet.",
+      108:"U-11's utility room outlet, beside the pressure tank: handy for the UV sterilizer and well controls. The stick vacuum has its own added outlet by its dock in the northeast corner.",
       94:"The study booster fan has its own high outlet box on this wall (not on U-11)."}
 dev=[]
 def add(**k): dev.append(k)
@@ -58,6 +58,7 @@ for i,o in enumerate(U):
   f=UF[i]; dx,dy=DIR[f]
   X,Y=x-dx*0.522,y-dy*0.522
   if i in (3,4): X=31.29
+  if i==5: X=39.0   # U-12 draws it at x 35.6, where the model has no wall above the 9 ft plate yet; moved east onto the loft's north wall
   add(kind={'outlet':'outlet','switch':'switch','data':'data'}[k],x=X,y=Y,z_in=44 if k=='switch' else 16,facing=f,level='upper',src=f"U-12 #{i}",**({'note':"U-12 shows a 36 in pony wall along the loft's west edge here. The model has an open railing, so this needs a short pony wall, a post mounted box or a floor box."} if i in (3,4) else {}))
 for d_ in dev:
   d_['x']=round(d_['x'],3); d_['y']=round(d_['y'],3)

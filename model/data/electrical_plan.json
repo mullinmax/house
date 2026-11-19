@@ -986,7 +986,7 @@
    "facing": 180,
    "level": "main",
    "src": "U-11 #108",
-   "note": "The stick vacuum dock planned on this wall about 9 in east of here can plug into this outlet."
+   "note": "U-11's utility room outlet, beside the pressure tank: handy for the UV sterilizer and well controls. The stick vacuum has its own added outlet by its dock in the northeast corner."
   },
   {
    "kind": "outlet",
@@ -1048,7 +1048,7 @@
   },
   {
    "kind": "outlet",
-   "x": 35.599,
+   "x": 39.0,
    "y": 22.832,
    "z_in": 16,
    "facing": 180,

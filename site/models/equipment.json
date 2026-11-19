@@ -1178,7 +1178,7 @@
      "Well (same estimate): 6 in PVC casing, estimated 100 ft, $43/ft past that.",
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
     ],
-    "placement": "North wall of the utility room, east of the filters and clear of the hall door's swing. The pump is down the well, so the only noise here is the pressure switch clicking."
+    "placement": "North wall of the utility room, east of the filters. The pump is down the well, so the only noise here is the pressure switch clicking."
    }
   },
   {
@@ -1403,6 +1403,53 @@
      "Whether it is needed depends on the water test (hardness and iron). Piping to it is not drawn.",
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
     ]
+   }
+  },
+  {
+   "id": "stick_vacuum",
+   "name": "Dyson V8 stick vacuum on its wall dock",
+   "category": "Cleaning",
+   "system": "household",
+   "room": "Utility",
+   "layer": "appliances",
+   "builder": "stick_vacuum",
+   "size": [
+    9.8,
+    49.1,
+    8.8
+   ],
+   "at": [
+    11.0,
+    22.876,
+    0
+   ],
+   "facing": 180,
+   "info": {
+    "model": "Dyson V8 cordless stick vacuum (clear bin, long wand) with its wall docking station and charger",
+    "specs": [
+     [
+      "Size",
+      "About 9.8 W x 49 H x 8.8 D in hanging on the dock, floor head about 1 in off the floor"
+     ],
+     [
+      "Dock",
+      "Screws to the wall with its top about 4 ft up, charges the vacuum while it hangs and holds two tools"
+     ],
+     [
+      "Power",
+      "One 120 V duplex outlet about 18 in up, just west of the vacuum, for the charger"
+     ],
+     [
+      "Run time",
+      "Up to about 40 min on low, roughly 5 h to recharge"
+     ]
+    ],
+    "notes": [
+     "Placeholder for where the vacuum is kept (Maxwell, 11/19/2026). Exact V8 variant not picked, so the size is from the V8 class.",
+     "The charger outlet is not on Andy's U-11: it is in the Electrical layer as an added outlet, so tell the electrician it is wanted here. U-11's own utility outlet is about 3 ft 8 in west, by the pressure tank.",
+     "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
+    ],
+    "placement": "Northeast corner of the utility room, on the north wall right beside the hall door (Maxwell, 11/19/2026). The door now swings out into the hall, so the corner is free; the floor head stays about 2 in off the east wall and the door casing. It sticks out about 9 in, less than the pressure tank, so nothing narrows the way in."
    }
   },
   {
@@ -2284,7 +2331,7 @@
    "gangs": 4,
    "at": [
     27.0,
-    34.583,
+    34.616,
     3.479
    ],
    "facing": 0,
@@ -2306,7 +2353,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #8-11"
   },
   {
    "id": "elec_switch_02",
@@ -2323,7 +2371,7 @@
    ],
    "gangs": 1,
    "at": [
-    11.863,
+    11.831,
     15.574,
     3.479
    ],
@@ -2345,7 +2393,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #0"
   },
   {
    "id": "elec_switch_03",
@@ -2362,7 +2411,7 @@
    ],
    "gangs": 1,
    "at": [
-    11.863,
+    11.831,
     14.87,
     3.479
    ],
@@ -2384,7 +2433,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #1"
   },
   {
    "id": "elec_switch_04",
@@ -2402,7 +2452,7 @@
    "gangs": 1,
    "at": [
     11.721,
-    10.616,
+    10.658,
     3.479
    ],
    "facing": 0,
@@ -2423,7 +2473,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #2"
   },
   {
    "id": "elec_switch_05",
@@ -2441,7 +2492,7 @@
    "gangs": 1,
    "at": [
     12.424,
-    10.616,
+    10.658,
     3.479
    ],
    "facing": 0,
@@ -2462,7 +2513,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #3"
   },
   {
    "id": "elec_switch_06",
@@ -2480,7 +2532,7 @@
    "gangs": 1,
    "at": [
     26.333,
-    10.616,
+    10.658,
     3.479
    ],
    "facing": 0,
@@ -2501,7 +2553,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #4"
   },
   {
    "id": "elec_switch_07",
@@ -2519,7 +2572,7 @@
    "gangs": 1,
    "at": [
     27.036,
-    10.616,
+    10.658,
     3.479
    ],
    "facing": 0,
@@ -2540,7 +2593,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #5"
   },
   {
    "id": "elec_switch_08",
@@ -2558,7 +2612,7 @@
    "gangs": 1,
    "at": [
     30.893,
-    10.916,
+    10.949,
     3.479
    ],
    "facing": 180,
@@ -2579,7 +2633,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #6"
   },
   {
    "id": "elec_switch_09",
@@ -2597,7 +2652,7 @@
    "gangs": 1,
    "at": [
     30.19,
-    10.916,
+    10.949,
     3.479
    ],
    "facing": 180,
@@ -2618,7 +2673,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #7"
   },
   {
    "id": "elec_data_01",
@@ -2634,7 +2690,7 @@
     0.3
    ],
    "at": [
-    16.709,
+    16.664,
     30.9,
     5.812
    ],
@@ -2656,7 +2712,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
     ]
-   }
+   },
+   "src": "U-11 #12"
   },
   {
    "id": "elec_tv_01",
@@ -2677,7 +2734,7 @@
     1.1
    ],
    "at": [
-    16.709,
+    16.664,
     30.65,
     5.333
    ],
@@ -2700,7 +2757,8 @@
      "The bracket is drawn generic: the TV and its mount are not picked yet. A recessed power and cable box behind the TV hides the cords.",
      "The TV is a generic 65 in set (about 57 x 33 in), the size Andy's site plan furniture shows. Its centre is at 72 in as U-11 draws it, which is high for watching from the couch; 42 to 48 in is more usual, so confirm before the blocking goes in."
     ]
-   }
+   },
+   "src": "U-11 #12"
   },
   {
    "id": "elec_outlet_01",
@@ -2716,7 +2774,7 @@
     0.3
    ],
    "at": [
-    16.709,
+    16.664,
     30.4,
     5.812
    ],
@@ -2741,7 +2799,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 13).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #13"
   },
   {
    "id": "elec_data_02",
@@ -2757,7 +2816,7 @@
     0.3
    ],
    "at": [
-    42.542,
+    42.482,
     49.246,
     5.812
    ],
@@ -2779,7 +2838,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
     ]
-   }
+   },
+   "src": "U-11 #14"
   },
   {
    "id": "elec_tv_02",
@@ -2796,7 +2856,7 @@
    ],
    "tv": null,
    "at": [
-    42.542,
+    42.482,
     49.246,
     5.333
    ],
@@ -2818,7 +2878,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "The bracket is drawn generic: the TV and its mount are not picked yet. A recessed power and cable box behind the TV hides the cords."
     ]
-   }
+   },
+   "src": "U-11 #14"
   },
   {
    "id": "elec_outlet_02",
@@ -2859,7 +2920,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 15).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #15"
   },
   {
    "id": "elec_smoke_01",
@@ -2897,7 +2959,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
     ]
-   }
+   },
+   "src": "U-11 #16"
   },
   {
    "id": "elec_smoke_02",
@@ -2935,7 +2998,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
     ]
-   }
+   },
+   "src": "U-11 #17"
   },
   {
    "id": "elec_smoke_03",
@@ -2973,7 +3037,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
     ]
-   }
+   },
+   "src": "U-11 #18"
   },
   {
    "id": "elec_smoke_04",
@@ -3011,7 +3076,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
     ]
-   }
+   },
+   "src": "U-11 #19"
   },
   {
    "id": "elec_smoke_05",
@@ -3049,7 +3115,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
     ]
-   }
+   },
+   "src": "U-11 #20"
   },
   {
    "id": "elec_smoke_06",
@@ -3087,7 +3154,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
     ]
-   }
+   },
+   "src": "U-11 #21"
   },
   {
    "id": "elec_switch_10",
@@ -3105,7 +3173,7 @@
    "gangs": 1,
    "at": [
     4.985,
-    10.916,
+    10.949,
     3.479
    ],
    "facing": 180,
@@ -3126,7 +3194,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #22"
   },
   {
    "id": "elec_switch_11",
@@ -3143,7 +3212,7 @@
    ],
    "gangs": 1,
    "at": [
-    5.917,
+    5.872,
     4.839,
     3.479
    ],
@@ -3165,7 +3234,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #23"
   },
   {
    "id": "elec_switch_12",
@@ -3183,7 +3253,7 @@
    "gangs": 1,
    "at": [
     20.592,
-    10.625,
+    10.658,
     3.479
    ],
    "facing": 0,
@@ -3204,7 +3274,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #24"
   },
   {
    "id": "elec_switch_13",
@@ -3222,7 +3293,7 @@
    "gangs": 1,
    "at": [
     27.137,
-    10.916,
+    10.949,
     3.479
    ],
    "facing": 180,
@@ -3243,7 +3314,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #25"
   },
   {
    "id": "elec_switch_14",
@@ -3260,7 +3332,7 @@
    ],
    "gangs": 1,
    "at": [
-    12.167,
+    12.122,
     34.02,
     3.479
    ],
@@ -3282,7 +3354,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #26"
   },
   {
    "id": "elec_switch_15",
@@ -3299,7 +3372,7 @@
    ],
    "gangs": 1,
    "at": [
-    11.709,
+    11.664,
     32.725,
     3.479
    ],
@@ -3321,7 +3394,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #27"
   },
   {
    "id": "elec_switch_16",
@@ -3339,7 +3413,7 @@
    "gangs": 1,
    "at": [
     37.658,
-    22.833,
+    22.866,
     3.479
    ],
    "facing": 180,
@@ -3360,7 +3434,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #28"
   },
   {
    "id": "elec_switch_17",
@@ -3378,7 +3453,7 @@
    "gangs": 1,
    "at": [
     37.592,
-    28.916,
+    28.949,
     3.479
    ],
    "facing": 0,
@@ -3399,7 +3474,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #29"
   },
   {
    "id": "elec_switch_18",
@@ -3416,7 +3492,7 @@
    ],
    "gangs": 1,
    "at": [
-    38.167,
+    38.122,
     27.411,
     3.479
    ],
@@ -3438,7 +3514,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #30"
   },
   {
    "id": "elec_switch_19",
@@ -3455,7 +3532,7 @@
    ],
    "gangs": 1,
    "at": [
-    37.084,
+    37.039,
     16.153,
     3.479
    ],
@@ -3477,7 +3554,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #31"
   },
   {
    "id": "elec_switch_20",
@@ -3495,7 +3573,7 @@
    "gangs": 1,
    "at": [
     20.176,
-    15.458,
+    15.491,
     3.479
    ],
    "facing": 180,
@@ -3516,7 +3594,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #32"
   },
   {
    "id": "elec_switch_21",
@@ -3534,7 +3613,7 @@
    "gangs": 1,
    "at": [
     30.404,
-    15.458,
+    15.491,
     3.479
    ],
    "facing": 180,
@@ -3555,7 +3634,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #33"
   },
   {
    "id": "elec_switch_22",
@@ -3572,7 +3652,7 @@
    ],
    "gangs": 1,
    "at": [
-    37.084,
+    37.039,
     21.911,
     3.479
    ],
@@ -3594,7 +3674,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #34"
   },
   {
    "id": "elec_switch_23",
@@ -3611,7 +3692,7 @@
    ],
    "gangs": 1,
    "at": [
-    12.167,
+    12.122,
     33.269,
     3.479
    ],
@@ -3633,7 +3714,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #35"
   },
   {
    "id": "elec_switch_24",
@@ -3672,7 +3754,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #36"
   },
   {
    "id": "elec_switch_25",
@@ -3711,7 +3794,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #37"
   },
   {
    "id": "elec_switch_26",
@@ -3750,7 +3834,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #38"
   },
   {
    "id": "elec_switch_27",
@@ -3789,7 +3874,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #39"
   },
   {
    "id": "elec_switch_28",
@@ -3828,7 +3914,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #40"
   },
   {
    "id": "elec_switch_29",
@@ -3867,7 +3954,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #41"
   },
   {
    "id": "elec_switch_30",
@@ -3906,7 +3994,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #42"
   },
   {
    "id": "elec_switch_31",
@@ -3923,7 +4012,7 @@
    ],
    "gangs": 1,
    "at": [
-    16.709,
+    16.664,
     23.322,
     3.479
    ],
@@ -3945,7 +4034,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #43"
   },
   {
    "id": "elec_switch_32",
@@ -3962,7 +4052,7 @@
    ],
    "gangs": 1,
    "at": [
-    11.709,
+    11.664,
     27.449,
     3.479
    ],
@@ -3984,7 +4074,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-11 #44"
   },
   {
    "id": "elec_outlet_03",
@@ -4025,7 +4116,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 45).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #45"
   },
   {
    "id": "elec_outlet_04",
@@ -4041,7 +4133,7 @@
     0.3
    ],
    "at": [
-    0.572,
+    0.542,
     43.628,
     3.479
    ],
@@ -4065,7 +4157,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 46).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #46"
   },
   {
    "id": "elec_outlet_05",
@@ -4081,7 +4174,7 @@
     0.3
    ],
    "at": [
-    0.572,
+    0.542,
     45.066,
     3.479
    ],
@@ -4106,7 +4199,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 47).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #47"
   },
   {
    "id": "elec_outlet_06",
@@ -4122,7 +4216,7 @@
     0.3
    ],
    "at": [
-    0.572,
+    0.542,
     48.191,
     3.479
    ],
@@ -4146,7 +4240,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 48).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #48"
   },
   {
    "id": "elec_outlet_07",
@@ -4163,7 +4258,7 @@
    ],
    "at": [
     2.109,
-    51.416,
+    51.458,
     3.479
    ],
    "facing": 0,
@@ -4186,7 +4281,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 49).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #49"
   },
   {
    "id": "elec_outlet_08",
@@ -4203,7 +4299,7 @@
    ],
    "at": [
     4.875,
-    51.416,
+    51.458,
     3.479
    ],
    "facing": 0,
@@ -4226,7 +4322,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 50).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #50"
   },
   {
    "id": "elec_outlet_09",
@@ -4243,7 +4340,7 @@
    ],
    "at": [
     13.563,
-    51.416,
+    51.458,
     3.479
    ],
    "facing": 0,
@@ -4266,7 +4363,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 51).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #51"
   },
   {
    "id": "elec_outlet_10",
@@ -4307,7 +4405,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 52).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #52"
   },
   {
    "id": "elec_outlet_11",
@@ -4323,7 +4422,7 @@
     0.3
    ],
    "at": [
-    6.0,
+    6.04,
     44.11,
     1.812
    ],
@@ -4348,7 +4447,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 53).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #53"
   },
   {
    "id": "elec_outlet_12",
@@ -4365,7 +4465,7 @@
    ],
    "at": [
     8.735,
-    35.083,
+    35.158,
     3.479
    ],
    "facing": 180,
@@ -4388,7 +4488,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 54).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #54"
   },
   {
    "id": "elec_outlet_13",
@@ -4405,7 +4506,7 @@
    ],
    "at": [
     10.797,
-    35.083,
+    35.158,
     3.479
    ],
    "facing": 180,
@@ -4428,7 +4529,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 55).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #55"
   },
   {
    "id": "elec_outlet_14",
@@ -4445,7 +4547,7 @@
    ],
    "at": [
     7.328,
-    28.541,
+    28.533,
     3.479
    ],
    "facing": 180,
@@ -4468,7 +4570,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 56).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #56"
   },
   {
    "id": "elec_outlet_15",
@@ -4484,7 +4587,7 @@
     0.3
    ],
    "at": [
-    31.667,
+    31.581,
     25.405,
     3.479
    ],
@@ -4508,7 +4611,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 57).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #57"
   },
   {
    "id": "elec_outlet_16",
@@ -4524,7 +4628,7 @@
     0.3
    ],
    "at": [
-    42.5,
+    42.542,
     25.494,
     3.479
    ],
@@ -4548,7 +4652,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 58).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #58"
   },
   {
    "id": "elec_outlet_17",
@@ -4565,7 +4670,7 @@
    ],
    "at": [
     21.551,
-    10.625,
+    10.658,
     3.479
    ],
    "facing": 0,
@@ -4588,7 +4693,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 59).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #59"
   },
   {
    "id": "elec_outlet_18",
@@ -4605,7 +4711,7 @@
    ],
    "at": [
     3.056,
-    28.5,
+    28.533,
     3.479
    ],
    "facing": 180,
@@ -4628,7 +4734,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 60).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #60"
   },
   {
    "id": "elec_outlet_19",
@@ -4644,7 +4751,7 @@
     0.3
    ],
    "at": [
-    5.495,
+    5.456,
     32.326,
     3.479
    ],
@@ -4668,7 +4775,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 61).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #61"
   },
   {
    "id": "elec_outlet_20",
@@ -4685,7 +4793,7 @@
    ],
    "at": [
     28.31,
-    22.966,
+    22.866,
     1.146
    ],
    "facing": 180,
@@ -4708,7 +4816,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 62).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #62"
   },
   {
    "id": "elec_outlet_21",
@@ -4725,7 +4834,7 @@
    ],
    "at": [
     21.487,
-    22.966,
+    22.866,
     1.146
    ],
    "facing": 180,
@@ -4748,7 +4857,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 63).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #63"
   },
   {
    "id": "elec_outlet_22",
@@ -4764,7 +4874,7 @@
     0.3
    ],
    "at": [
-    16.709,
+    16.664,
     30.377,
     1.146
    ],
@@ -4788,7 +4898,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 64).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #64"
   },
   {
    "id": "elec_outlet_23",
@@ -4805,7 +4916,7 @@
    ],
    "at": [
     18.96,
-    34.583,
+    34.616,
     1.146
    ],
    "facing": 0,
@@ -4828,7 +4939,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 65).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #65"
   },
   {
    "id": "elec_outlet_24",
@@ -4845,7 +4957,7 @@
    ],
    "at": [
     32.738,
-    33.11,
+    33.116,
     1.146
    ],
    "facing": 180,
@@ -4868,7 +4980,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 66).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #66"
   },
   {
    "id": "elec_outlet_25",
@@ -4885,7 +4998,7 @@
    ],
    "at": [
     34.734,
-    33.11,
+    33.116,
     1.146
    ],
    "facing": 180,
@@ -4908,7 +5021,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 67).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #67"
   },
   {
    "id": "elec_outlet_26",
@@ -4925,7 +5039,7 @@
    ],
    "at": [
     36.695,
-    33.11,
+    33.116,
     1.146
    ],
    "facing": 180,
@@ -4948,7 +5062,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 68).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #68"
   },
   {
    "id": "elec_outlet_27",
@@ -4965,7 +5080,7 @@
    ],
    "at": [
     38.689,
-    33.11,
+    33.116,
     1.146
    ],
    "facing": 180,
@@ -4988,7 +5103,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 69).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #69"
   },
   {
    "id": "elec_outlet_28",
@@ -5028,7 +5144,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 70).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #70"
   },
   {
    "id": "elec_outlet_29",
@@ -5068,7 +5185,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 71).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #71"
   },
   {
    "id": "elec_floor_01",
@@ -5102,7 +5220,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 72).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #72"
   },
   {
    "id": "elec_outlet_30",
@@ -5118,7 +5237,7 @@
     0.3
    ],
    "at": [
-    16.25,
+    16.206,
     30.06,
     1.146
    ],
@@ -5142,7 +5261,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 73).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #73"
   },
   {
    "id": "elec_outlet_31",
@@ -5158,7 +5278,7 @@
     0.3
    ],
    "at": [
-    16.25,
+    16.206,
     16.827,
     1.146
    ],
@@ -5182,7 +5302,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 74).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #74"
   },
   {
    "id": "elec_outlet_32",
@@ -5199,7 +5320,7 @@
    ],
    "at": [
     22.146,
-    10.916,
+    10.949,
     1.146
    ],
    "facing": 180,
@@ -5222,7 +5343,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 75).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #75"
   },
   {
    "id": "elec_outlet_33",
@@ -5238,7 +5360,7 @@
     0.3
    ],
    "at": [
-    16.75,
+    16.664,
     16.824,
     3.479
    ],
@@ -5262,7 +5384,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 76).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #76"
   },
   {
    "id": "elec_outlet_34",
@@ -5279,7 +5402,7 @@
    ],
    "at": [
     24.487,
-    22.333,
+    22.408,
     3.479
    ],
    "facing": 0,
@@ -5302,7 +5425,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 77).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #77"
   },
   {
    "id": "elec_outlet_35",
@@ -5319,7 +5443,7 @@
    ],
    "at": [
     29.539,
-    22.333,
+    22.408,
     3.479
    ],
    "facing": 0,
@@ -5342,7 +5466,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 78).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #78"
   },
   {
    "id": "elec_data_03",
@@ -5358,7 +5483,7 @@
     0.3
    ],
    "at": [
-    11.875,
+    11.831,
     17.363,
     1.146
    ],
@@ -5380,7 +5505,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
     ]
-   }
+   },
+   "src": "U-11 #79"
   },
   {
    "id": "elec_outlet_36",
@@ -5396,7 +5522,7 @@
     0.3
    ],
    "at": [
-    11.875,
+    11.831,
     18.176,
     1.146
    ],
@@ -5420,7 +5546,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 80).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #80"
   },
   {
    "id": "elec_outlet_37",
@@ -5437,7 +5564,7 @@
    ],
    "at": [
     6.696,
-    22.375,
+    22.408,
     1.146
    ],
    "facing": 0,
@@ -5460,7 +5587,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 81).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #81"
   },
   {
    "id": "elec_outlet_38",
@@ -5500,7 +5628,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 82).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #82"
   },
   {
    "id": "elec_outlet_39",
@@ -5540,7 +5669,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 83).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #83"
   },
   {
    "id": "elec_outlet_40",
@@ -5557,7 +5687,7 @@
    ],
    "at": [
     7.392,
-    10.916,
+    10.949,
     1.146
    ],
    "facing": 180,
@@ -5580,7 +5710,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 84).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #84"
   },
   {
    "id": "elec_outlet_41",
@@ -5620,7 +5751,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 85).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #85"
   },
   {
    "id": "elec_data_04",
@@ -5637,7 +5769,7 @@
    ],
    "at": [
     9.238,
-    10.625,
+    10.658,
     1.146
    ],
    "facing": 0,
@@ -5658,7 +5790,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
     ]
-   }
+   },
+   "src": "U-11 #86"
   },
   {
    "id": "elec_outlet_42",
@@ -5675,7 +5808,7 @@
    ],
    "at": [
     8.424,
-    10.625,
+    10.658,
     1.146
    ],
    "facing": 0,
@@ -5698,7 +5831,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 87).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #87"
   },
   {
    "id": "elec_outlet_43",
@@ -5714,7 +5848,7 @@
     0.3
    ],
    "at": [
-    5.917,
+    5.872,
     7.548,
     1.146
    ],
@@ -5738,7 +5872,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 88).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #88"
   },
   {
    "id": "elec_outlet_44",
@@ -5754,7 +5889,7 @@
     0.3
    ],
    "at": [
-    16.0,
+    15.956,
     6.315,
     1.146
    ],
@@ -5778,7 +5913,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 89).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #89"
   },
   {
    "id": "elec_data_05",
@@ -5794,7 +5930,7 @@
     0.3
    ],
    "at": [
-    31.167,
+    31.122,
     7.548,
     1.146
    ],
@@ -5816,7 +5952,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
     ]
-   }
+   },
+   "src": "U-11 #90"
   },
   {
    "id": "elec_outlet_45",
@@ -5832,7 +5969,7 @@
     0.3
    ],
    "at": [
-    31.167,
+    31.122,
     8.361,
     1.146
    ],
@@ -5856,7 +5993,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 91).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #91"
   },
   {
    "id": "elec_outlet_46",
@@ -5872,7 +6010,7 @@
     0.3
    ],
    "at": [
-    31.167,
+    31.122,
     3.344,
     1.146
    ],
@@ -5896,7 +6034,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 92).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #92"
   },
   {
    "id": "elec_outlet_47",
@@ -5936,7 +6075,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 93).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #93"
   },
   {
    "id": "elec_outlet_48",
@@ -5952,7 +6092,7 @@
     0.3
    ],
    "at": [
-    23.084,
+    23.039,
     5.103,
     1.146
    ],
@@ -5977,7 +6117,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 94).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #94"
   },
   {
    "id": "elec_outlet_49",
@@ -5994,7 +6135,7 @@
    ],
    "at": [
     27.997,
-    10.625,
+    10.658,
     1.146
    ],
    "facing": 0,
@@ -6017,7 +6158,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 95).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #95"
   },
   {
    "id": "elec_outlet_50",
@@ -6034,7 +6176,7 @@
    ],
    "at": [
     39.637,
-    15.0,
+    15.033,
     1.146
    ],
    "facing": 0,
@@ -6057,7 +6199,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 96).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #96"
   },
   {
    "id": "elec_data_06",
@@ -6073,7 +6216,7 @@
     0.3
    ],
    "at": [
-    31.459,
+    31.414,
     5.674,
     1.146
    ],
@@ -6095,7 +6238,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
     ]
-   }
+   },
+   "src": "U-11 #97"
   },
   {
    "id": "elec_outlet_51",
@@ -6111,7 +6255,7 @@
     0.3
    ],
    "at": [
-    31.459,
+    31.414,
     6.487,
     1.146
    ],
@@ -6135,7 +6279,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 98).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #98"
   },
   {
    "id": "elec_outlet_52",
@@ -6175,7 +6320,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 99).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #99"
   },
   {
    "id": "elec_outlet_53",
@@ -6215,7 +6361,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 100).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #100"
   },
   {
    "id": "elec_outlet_54",
@@ -6255,7 +6402,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 101).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #101"
   },
   {
    "id": "elec_outlet_55",
@@ -6295,7 +6443,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 102).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #102"
   },
   {
    "id": "elec_outlet_56",
@@ -6311,7 +6460,7 @@
     0.3
    ],
    "at": [
-    37.084,
+    37.039,
     17.077,
     1.146
    ],
@@ -6335,7 +6484,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 103).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #103"
   },
   {
    "id": "elec_outlet_57",
@@ -6351,7 +6501,7 @@
     0.3
    ],
    "at": [
-    43.084,
+    43.161,
     36.903,
     1.146
    ],
@@ -6375,7 +6525,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 104).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #104"
   },
   {
    "id": "elec_outlet_58",
@@ -6391,7 +6542,7 @@
     0.3
    ],
    "at": [
-    -0.039,
+    -0.078,
     36.903,
     1.146
    ],
@@ -6415,7 +6566,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 105).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #105"
   },
   {
    "id": "elec_outlet_59",
@@ -6432,7 +6584,7 @@
    ],
    "at": [
     15.235,
-    52.0,
+    52.078,
     1.146
    ],
    "facing": 180,
@@ -6455,7 +6607,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 106).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #106"
   },
   {
    "id": "elec_outlet_60",
@@ -6472,7 +6625,7 @@
    ],
    "at": [
     32.886,
-    52.0,
+    52.078,
     1.146
    ],
    "facing": 180,
@@ -6495,7 +6648,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 107).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #107"
   },
   {
    "id": "elec_outlet_61",
@@ -6512,7 +6666,7 @@
    ],
    "at": [
     6.696,
-    22.833,
+    22.866,
     1.146
    ],
    "facing": 180,
@@ -6532,11 +6686,12 @@
      ]
     ],
     "notes": [
-     "The stick vacuum dock planned on this wall about 9 in east of here can plug into this outlet.",
+     "U-11's utility room outlet, beside the pressure tank: handy for the UV sterilizer and well controls. The stick vacuum has its own added outlet by its dock in the northeast corner.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 108).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #108"
   },
   {
    "id": "elec_outlet_62",
@@ -6553,7 +6708,7 @@
    ],
    "at": [
     27.369,
-    15.458,
+    15.491,
     1.146
    ],
    "facing": 180,
@@ -6576,7 +6731,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 109).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-11 #109"
   },
   {
    "id": "elec_outlet_63",
@@ -6593,7 +6749,7 @@
    ],
    "at": [
     20.987,
-    22.37,
+    22.408,
     11.198
    ],
    "facing": 0,
@@ -6617,7 +6773,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 0).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-12 #0"
   },
   {
    "id": "elec_outlet_64",
@@ -6634,7 +6791,7 @@
    ],
    "at": [
     28.767,
-    22.37,
+    22.408,
     11.198
    ],
    "facing": 0,
@@ -6658,7 +6815,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 1).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-12 #1"
   },
   {
    "id": "elec_switch_33",
@@ -6676,7 +6834,7 @@
    "gangs": 1,
    "at": [
     31.857,
-    34.571,
+    34.616,
     13.531
    ],
    "facing": 0,
@@ -6697,7 +6855,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-12 #2"
   },
   {
    "id": "elec_data_07",
@@ -6736,7 +6895,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
     ]
-   }
+   },
+   "src": "U-12 #3"
   },
   {
    "id": "elec_outlet_65",
@@ -6777,7 +6937,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 4).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-12 #4"
   },
   {
    "id": "elec_outlet_66",
@@ -6793,8 +6954,8 @@
     0.3
    ],
    "at": [
-    35.599,
-    22.832,
+    39.0,
+    22.866,
     11.198
    ],
    "facing": 180,
@@ -6817,7 +6978,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 5).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-12 #5"
   },
   {
    "id": "elec_outlet_67",
@@ -6857,7 +7019,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 6).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-12 #6"
   },
   {
    "id": "elec_outlet_68",
@@ -6874,7 +7037,7 @@
    ],
    "at": [
     36.53,
-    34.584,
+    34.616,
     11.198
    ],
    "facing": 0,
@@ -6897,7 +7060,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 7).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-12 #7"
   },
   {
    "id": "elec_outlet_69",
@@ -6914,7 +7078,7 @@
    ],
    "at": [
     34.491,
-    15.457,
+    15.491,
     11.198
    ],
    "facing": 180,
@@ -6937,7 +7101,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 8).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-12 #8"
   },
   {
    "id": "elec_outlet_70",
@@ -6954,7 +7119,7 @@
    ],
    "at": [
     29.644,
-    22.376,
+    22.408,
     11.198
    ],
    "facing": 0,
@@ -6977,7 +7142,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 9).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-12 #9"
   },
   {
    "id": "elec_outlet_71",
@@ -6994,7 +7160,7 @@
    ],
    "at": [
     17.553,
-    22.376,
+    22.408,
     11.198
    ],
    "facing": 0,
@@ -7017,7 +7183,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 10).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-12 #10"
   },
   {
    "id": "elec_outlet_72",
@@ -7034,7 +7201,7 @@
    ],
    "at": [
     20.847,
-    10.915,
+    10.949,
     11.198
    ],
    "facing": 180,
@@ -7057,7 +7224,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 11).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-12 #11"
   },
   {
    "id": "elec_switch_34",
@@ -7075,7 +7243,7 @@
    "gangs": 1,
    "at": [
     38.298,
-    22.363,
+    22.408,
     13.531
    ],
    "facing": 0,
@@ -7096,7 +7264,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
-   }
+   },
+   "src": "U-12 #12"
   },
   {
    "id": "elec_smoke_07",
@@ -7134,7 +7303,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
     ]
-   }
+   },
+   "src": "U-12 #13"
   },
   {
    "id": "elec_smoke_08",
@@ -7172,7 +7342,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
     ]
-   }
+   },
+   "src": "U-12 #14"
   },
   {
    "id": "elec_smoke_09",
@@ -7210,7 +7381,8 @@
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."
     ]
-   }
+   },
+   "src": "U-12 #15"
   },
   {
    "id": "elec_outlet_73",
@@ -7227,7 +7399,7 @@
    ],
    "at": [
     8.871,
-    10.915,
+    10.949,
     11.198
    ],
    "facing": 180,
@@ -7250,7 +7422,8 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 16).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-12 #16"
   },
   {
    "id": "elec_outlet_74",
@@ -7266,7 +7439,7 @@
     0.3
    ],
    "at": [
-    11.71,
+    11.664,
     28.932,
     11.198
    ],
@@ -7290,7 +7463,48 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 17).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
-   }
+   },
+   "src": "U-12 #17"
+  },
+  {
+   "id": "elec_outlet_75",
+   "name": "Outlet, 18 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Utility",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    10.417,
+    22.866,
+    1.312
+   ],
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "18 in to the centre"
+     ],
+     [
+      "On",
+      "The south facing wall"
+     ]
+    ],
+    "notes": [
+     "Not on U-11. Added for the stick vacuum's charger, just west of its dock (Maxwell, 11/19/2026). U-11's own utility room outlet is 45 in further west by the pressure tank, where the UV sterilizer and well controls can use it."
+    ]
+   },
+   "src": "added #vacuum"
   }
  ],
  "runs": [

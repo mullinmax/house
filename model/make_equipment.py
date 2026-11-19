@@ -287,6 +287,7 @@ PT_D, PT_H = 16.0, 62.0                            # pressure tank, in: a slim t
 PT_X = 5.95
 PT_CY = UN + (1 + PT_D / 2) / 12
 UV_Z, UV_H = 2.55, 42.0
+VAC_X = 11.0                                       # stick vacuum dock: in the northeast corner (Maxwell, 11/19/2026: the hall door now swings out), floor head 2 in off the east wall
 def dhw(id, name, dia, mat, points, model, notes, specs=None, info_of=None, system="plumbing.dhw", category="Hot water"):
     r = dict(id=id, name=name, category=category, system=system, dia=dia, mat=mat, points=points)
     if info_of: r["info_of"] = info_of; r.pop("name")
@@ -375,7 +376,7 @@ items += [
                "A slim, tall tank was picked over the usual 22 in one so the walkway past the water tanks stays about 22 in wide (Maxwell, 11/19/2026: slimmer is fine, there is height to use). "
                "The quote also offered a 1 HP constant pressure system for $5,800 as an alternate; the approved total ($10,919) has the 1/2 HP system.",
                "Well (same estimate): 6 in PVC casing, estimated 100 ft, $43/ft past that.", APPROX],
-        placement="North wall of the utility room, east of the filters and clear of the hall door's swing. The pump is down the well, so the only noise here is the pressure switch clicking.")),
+        placement="North wall of the utility room, east of the filters. The pump is down the well, so the only noise here is the pressure switch clicking.")),
  dict(id="tank_tee", name="Tank tee and pressure switch", category="Well water", system="plumbing.well", room="Utility", layer="mechanical",
       builder="tank_tee", size=[10, 4, 3], at=[TT_X, LN + 0.1, 1.0], facing=180,
       info=dict(model="1 in brass tank tee with pressure switch, gauge, relief valve and drain", specs=[["Switch", "40/60 PSI, ASSUMED"]],
@@ -403,6 +404,17 @@ items += [
                ["Would sit", "After the filters, before the preheat tank, with a bypass valve"]],
         notes=["Southeast corner, south of the hall door, so the door still opens fully. A cabinet unit (resin and salt in one box) fits; a twin tank one does not.",
                "Whether it is needed depends on the water test (hardness and iron). Piping to it is not drawn.", APPROX])),
+ # ---- cleaning (Maxwell, 11/19/2026): the stick vacuum lives in the utility room on its wall charging dock
+ dict(id="stick_vacuum", name="Dyson V8 stick vacuum on its wall dock", category="Cleaning", system="household", room="Utility", layer="appliances",
+      builder="stick_vacuum", size=[9.8, 49.1, 8.8], at=[VAC_X, UN + 0.01, 0], facing=180,
+      info=dict(model="Dyson V8 cordless stick vacuum (clear bin, long wand) with its wall docking station and charger",
+        specs=[["Size", "About 9.8 W x 49 H x 8.8 D in hanging on the dock, floor head about 1 in off the floor"],
+               ["Dock", "Screws to the wall with its top about 4 ft up, charges the vacuum while it hangs and holds two tools"],
+               ["Power", "One 120 V duplex outlet about 18 in up, just west of the vacuum, for the charger"],
+               ["Run time", "Up to about 40 min on low, roughly 5 h to recharge"]],
+        notes=["Placeholder for where the vacuum is kept (Maxwell, 11/19/2026). Exact V8 variant not picked, so the size is from the V8 class.",
+               "The charger outlet is not on Andy's U-11: it is in the Electrical layer as an added outlet, so tell the electrician it is wanted here. U-11's own utility outlet is about 3 ft 8 in west, by the pressure tank.", APPROX],
+        placement="Northeast corner of the utility room, on the north wall right beside the hall door (Maxwell, 11/19/2026). The door now swings out into the hall, so the corner is free; the floor head stays about 2 in off the east wall and the door casing. It sticks out about 9 in, less than the pressure tank, so nothing narrows the way in.")),
  dict(id="ro_system", name="Reverse osmosis drinking water", category="Kitchen appliance", system="plumbing.well", room="Kitchen", layer="appliances",
       builder="ro_unit", size=[5.7, 18, 17.6], at=[10.85, 51.42, 0.34], facing=0,
       info=dict(model="Tankless under sink reverse osmosis with its own faucet (generic, Waterdrop G3 class)",
@@ -1034,6 +1046,8 @@ items += [
 # into model/data/electrical_plan.json. Plain outlets sit at 16 in per the U-11 legend (Maxwell, 11/19/2026); the labelled
 # ones (44 in GFI, 24 in GFI, 72 in TV) keep their own heights. Switches 44 in per the legend.
 _EP = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "electrical_plan.json")))
+_SNAP_P = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "electrical_snap.json")
+_SNAP = json.load(open(_SNAP_P)) if os.path.exists(_SNAP_P) else {}   # tools/electrical/snap.mjs: ft to move each wall device onto the finished wall
 _ROOMS = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "site", "models", "house.json")))["meta"]["rooms"]
 LOFT_FLOOR = next(r.get("floor") for r in _ROOMS if r["name"] == "Loft")
 def _room(x, y, level):
@@ -1058,14 +1072,33 @@ _n = {}
 def _eid(kind):
     _n[kind] = _n.get(kind, 0) + 1
     return f"elec_{kind}_{_n[kind]:02d}"
+# The stick vacuum's charger outlet (PR 40) is not on U-11: it is added here so the Electrical layer has every outlet,
+# and the vacuum builder only draws the charger plugged into it.
+VAC_OX = VAC_X - 7 / 12
+_EP["devices"].append(dict(kind="outlet", x=round(VAC_OX, 3), y=UN, z_in=18, facing=180, level="main", src="added #vacuum",
+    note="Not on U-11. Added for the stick vacuum's charger, just west of its dock (Maxwell, 11/19/2026). U-11's own utility room outlet is "
+         f"{(VAC_OX - 6.696) * 12:.0f} in further west by the pressure tank, where the UV sterilizer and well controls can use it."))
+_tagq = []
+def _tag(n0=None, src=None):                    # every electrical item carries its sheet symbol, for the snap tool
+    if _tagq:
+        a, sr = _tagq.pop()
+        for it_ in items[a:]:
+            it_["src"] = sr
+    if n0 is not None:
+        _tagq.append((n0, src))
 for dv in _EP["devices"]:
+    _tag(len(items), dv["src"])
     k, x, y, lvl = dv["kind"], dv["x"], dv["y"], dv["level"]
+    _s = _SNAP.get(dv["src"], 0.0)
+    if _s and dv.get("facing") in (0, 90, 180, 270):
+        _ux, _uy = {0: (0, -1), 90: (1, 0), 180: (0, 1), 270: (-1, 0)}[dv["facing"]]
+        x, y = round(x + _ux * _s, 3), round(y + _uy * _s, 3)
     _f = dv.get("facing")                         # look up the room just in front of a wall device, not in the wall
     _dx, _dy = {0: (0, -0.4), 90: (0.4, 0), 180: (0, 0.4), 270: (-0.4, 0)}.get(_f, (0, 0)) if k not in ("smoke", "floor_box") else (0, 0)
     room = "Outside" if dv.get("wp") else _room(x + _dx, y + _dy, lvl)
     floor = 0.0 if lvl == "main" else (LOFT_FLOOR if room == "Loft" else DECK)
     sheet = "U-11 main level" if lvl == "main" else "U-12 upper level"
-    notes = ([dv["note"]] if dv.get("note") else []) + [_SHEET + sheet + f" utility plan (symbol {dv['src'].split('#')[1]}).", _FIELD]
+    notes = ([dv["note"]] if dv.get("note") else []) + ([_SHEET + sheet + f" utility plan (symbol {dv['src'].split('#')[1]}).", _FIELD] if dv["src"].startswith("U-") else [])
     wall = f"{_FACE.get(dv.get('facing'), '')} facing".strip()
     if k == "smoke":
         c = ceiling_at(x, y)[0] if lvl == "main" else _roof_under(y)
@@ -1118,6 +1151,7 @@ for dv in _EP["devices"]:
                     notes=notes + ["The bracket is drawn generic: the TV and its mount are not picked yet. A recessed power and cable box behind the TV hides the cords."]
                         + (["The TV is a generic 65 in set (about 57 x 33 in), the size Andy's site plan furniture shows. Its centre is at 72 in as U-11 draws it, which is high for watching from the couch; 42 to 48 in is more usual, so confirm before the blocking goes in."] if tv else []))))
 
+_tag()
 trusses = dict(id="floor_trusses", name="Open web floor trusses", category="Structure", system="structure.floor", regions=FLAT, loft_regions=[LOFT],
     z0=CEIL, depth_in=TRUSS_IN, spacing_in=CFG["floor_trusses"]["spacing_in"], deck_in=DECK_IN, grid_x0=TG, max_cross_in=CFG["floor_trusses"]["max_round_duct_in"],
     info=dict(model="11-7/8 in open web floor trusses",
