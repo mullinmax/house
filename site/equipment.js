@@ -558,6 +558,85 @@ const BUILD = {
     cyl(g, 0.4, 0.8, brass(), 0, -3 - h - 0.4, 0, 'y', 8);                                   // air valve
     return g;
   },
+  pressure_tank(s) {               // well pressure tank, stand type: blue steel shell, domed top with the air valve, black base ring with a cut out for the pipe
+    const [dia, h] = s, g = new THREE.Group(), r = dia / 2, cz = r + 1, base = 5;
+    const shell = mat('pressure tank blue', 0x1d4f9c, 0.38, 0.35);
+    cyl(g, r * 0.86, base, blackMolded(), 0, base / 2, cz, 'y', 40);                         // base ring
+    cyl(g, r, h - base - r * 0.3, shell, 0, base + (h - base - r * 0.3) / 2, cz, 'y', 48);
+    const top = new THREE.SphereGeometry(r, 40, 10, 0, Math.PI * 2, 0, Math.PI / 2); top.scale(1, 0.3, 1);
+    add(g, top, shell, 0, h - r * 0.3, cz);
+    cyl(g, r + 0.05, 1.4, mat('tank seam', 0x173f7d, 0.45, 0.3), 0, base + 1, cz, 'y', 48);
+    cyl(g, 0.5, 1.6, brass(), 0, h + 0.4, cz, 'y', 10);                                        // air valve
+    wrap(g, r + 0.06, 9, 5, labelMat('pressure tank label', 192, 96, (c, w, hh) => {
+      c.fillStyle = '#f2f2ee'; c.fillRect(0, 0, w, hh); c.fillStyle = '#1d4f9c'; c.font = 'bold 26px Helvetica, Arial, sans-serif';
+      c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('WELL TANK', w / 2, hh * 0.38); c.font = '15px Helvetica, Arial, sans-serif'; c.fillText('Pre-charge 38 PSI', w / 2, hh * 0.74);
+    }), 0, h * 0.55, cz, 0, 8);
+    return g;
+  },
+  tank_tee(s) {                    // tank tee at the pressure tank: brass body, pressure switch, gauge, relief valve and drain
+    const g = new THREE.Group();
+    cyl(g, 0.75, 10, brass(), 0, 0, 0, 'x', 12);
+    box(g, 3.2, 3.6, 2.6, greyPlastic(), -1.5, 2.8, 0.2);                                     // pressure switch
+    cyl(g, 1.2, 0.6, white(), 2.2, 2.2, 0.5, 'z', 20); cyl(g, 0.3, 1.5, brass(), 2.2, 1.0, 0, 'y', 8);   // gauge
+    cyl(g, 0.45, 2.4, brass(), 3.8, -1.4, 0, 'y', 8);                                         // relief valve
+    cyl(g, 0.4, 2, brass(), -4, -1.2, 0, 'y', 8);                                             // drain cock
+    return g;
+  },
+  spin_down(s) {                   // flushable spin down sediment screen: black head, clear bowl, white mesh screen, flush valve at the bottom
+    const [w, h, d] = s, g = new THREE.Group(), cz = d / 2 + 0.5;
+    box(g, w, 0.4, 2, blackMolded(), 0, h - 2, 0.2);                                          // wall bracket
+    box(g, w, 2.6, d - 1, blackMolded(), 0, h - 1.3, cz);
+    cyl(g, 2.2, h - 4.2, mat('clear bowl', 0xd7e6ee, 0.1, 0, { transparent: true, opacity: 0.45 }), 0, (h - 2.6) / 2 + 0.8, cz, 'y', 28);
+    cyl(g, 1.4, h - 5.4, whitePlastic(), 0, (h - 2.6) / 2 + 0.8, cz, 'y', 18);
+    cyl(g, 0.5, 1.4, brass(), 0, 0.2, cz, 'y', 8);
+    for (const sx of [-1, 1]) cyl(g, 0.6, 1.4, brass(), sx * (w / 2 + 0.4), h - 1.3, cz, 'x', 10);
+    return g;
+  },
+  big_blue(s, it = {}) {           // 20 in whole house filter housing (4.5 in cartridge): wall bracket, black head with the ports and the pressure release, blue sump
+    const [w, h, d] = s, g = new THREE.Group(), cz = d / 2 + 0.5, r = Math.min(w, d - 1) / 2 - 0.2;
+    box(g, w * 0.8, 1.2, 0.5, galv(), 0, h - 2, 0.25);                                        // bracket
+    box(g, w, 3.4, d - 1, blackMolded(), 0, h - 1.7, cz);
+    cyl(g, 0.45, 0.8, mat('release button', 0xc7342b, 0.5, 0), 1.6, h + 0.4, cz, 'y', 10);
+    const sump = mat(it.sump === 'grey' ? 'filter sump grey' : 'filter sump blue', it.sump === 'grey' ? 0x6f7478 : 0x2560b8, 0.35, 0.05);
+    cyl(g, r, h - 3.4, sump, 0, (h - 3.4) / 2, cz, 'y', 32);
+    for (let k = 0; k < 6; k++) cyl(g, r + 0.12, 0.35, sump, 0, 3 + k * (h - 8) / 5, cz, 'y', 32);    // ribs
+    for (const sx of [-1, 1]) cyl(g, 0.6, 1.4, brass(), sx * (w / 2 + 0.4), h - 1.7, cz, 'x', 10);
+    return g;
+  },
+  uv_system(s) {                   // UV sterilizer: vertical stainless chamber on two clamps, lamp cap and cord on top, controller box to the left
+    const [w, h, d] = s, g = new THREE.Group(), cz = d / 2;
+    for (const y of [6, h - 8]) box(g, 4.6, 1.2, cz, galv(), 0, y, cz / 2);
+    cyl(g, 1.75, h - 4, steel(), 0, (h - 4) / 2 + 1, cz, 'y', 28);
+    cyl(g, 1.2, 2.4, darkPlastic(), 0, h - 1.8, cz, 'y', 18);
+    for (const y of [4.5, h - 6.5]) cyl(g, 0.6, 2.4, steel(), 2.6, y, cz, 'x', 10);              // inlet low, outlet high, both on the right
+    box(g, 4.2, 7.5, 2.4, mat('uv controller', 0xdedfdc, 0.5, 0.05), -6.5, h * 0.62, 1.2);
+    plate(g, 2.2, 1.0, screenMat('uv screen', 64, 32, (c, ww, hh) => { c.fillStyle = '#0e2a14'; c.fillRect(0, 0, ww, hh); c.fillStyle = '#5cff7a'; c.font = 'bold 18px Helvetica'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText('365', ww / 2, hh / 2); }, 0.7), -6.5, h * 0.62 + 2, 2.45);
+    cyl(g, 0.25, 8, blackMolded(), -3, h - 3.5, cz, 'x', 6);                                  // lamp cord
+    return g;
+  },
+  floor_drain(s) {                 // round floor drain: a low chrome ring and a slotted grate just proud of the slab
+    const [d] = s, g = new THREE.Group();
+    cyl(g, d / 2, 0.3, chrome(), 0, 0.15, d / 2, 'y', 32);
+    cyl(g, d / 2 - 0.8, 0.12, darkPlastic(), 0, 0.33, d / 2, 'y', 28);
+    for (let k = -2; k <= 2; k++) box(g, 0.35, 0.1, d - 2.4 - Math.abs(k) * 0.7, chrome(), k * 0.75, 0.42, d / 2);
+    return g;
+  },
+  softener_cabinet(s) {            // cabinet softener, shown as a reserved spot: grey box, salt lid on top at the front, control head at the back
+    const [w, h, d] = s, g = new THREE.Group();
+    const body = mat('softener reserved', 0xc9cbc6, 0.6, 0, { transparent: true, opacity: 0.55, depthWrite: false });
+    column(g, w, h - 2, d, body, 0, (h - 2) / 2, d / 2, 1.2);
+    box(g, w - 2, 1.2, d * 0.55, mat('salt lid', 0x7d8287, 0.5, 0.05), 0, h - 1.4, d * 0.68);
+    box(g, w * 0.6, 4, d * 0.32, blackMolded(), 0, h - 0.2, d * 0.2);
+    plate(g, w * 0.7, 3, labelMat('softener tag', 192, 64, word('SPACE RESERVED', '#2b2e31', 'bold 22px Helvetica, Arial, sans-serif')), 0, h * 0.6, d + 0.05);
+    return g;
+  },
+  ro_unit(s) {                     // tankless under sink reverse osmosis: tall white box, filter caps on top, small status ring on the front
+    const [w, h, d] = s, g = new THREE.Group();
+    column(g, w, h - 1, d, whitePlastic(), 0, (h - 1) / 2, d / 2, 1.2);
+    for (const z of [d * 0.25, d * 0.5, d * 0.75]) cyl(g, 1.6, 1, greyPlastic(), 0, h - 0.5, z, 'y', 18);
+    ring(g, 1.3, 0.2, mat('ro ring', 0x3aa7e6, 0.3, 0, { emissive: 0x3aa7e6, emissiveIntensity: 0.6 }), 0, h * 0.7, d + 0.1, 'z', 24);
+    return g;
+  },
   mixing_valve(s) {                // thermostatic mixing valve on the hot riser, tempered water out the top
     const g = new THREE.Group();
     box(g, 2.6, 3.2, 2.2, brass(), 0, 0, 0);
@@ -704,7 +783,7 @@ function place(g, it) {
 // polyline runs (pipes): points in plan feet, radius in inches
 function buildRun(run) {
   const g = new THREE.Group();
-  const m = run.mat === 'pe' ? pe() : run.mat === 'foam' ? foam() : run.mat === 'copper' ? copper() : run.mat === 'condensate' ? greyPlastic() : pe();
+  const m = run.mat === 'pe' ? pe() : run.mat === 'foam' ? foam() : run.mat === 'copper' ? copper() : run.mat === 'condensate' ? greyPlastic() : run.mat === 'pvc' ? whitePlastic() : pe();
   const r = (run.dia || 1.66) / 2 * IN;
   const pts = run.points.map((p) => plan(p[0], p[1], p[2]));
   for (let i = 0; i < pts.length - 1; i++) tube(g, pts[i], pts[i + 1], r, m);

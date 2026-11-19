@@ -156,10 +156,10 @@ items += [
 # ------------------------------------------------------------------ utility room: geothermal and hot water
 # The utility room's walls as traced from A-11 (the room list rounds the south one to 29.03, which is really the powder room side).
 UW, UN, US, UE = 0.497, 22.866, 28.241, 11.664    # inside faces: west, north, south, east
-# Geothermal: the five loops come up through the slab in one sleeve at the north wall, about 2 ft east of the west wall
-# (Maxwell, 11/18/2026), fan out to the manifolds on the west wall, and the flow center sits further south on the same wall,
+# Geothermal: the five loops come up through the slab in one sleeve at the north wall, about 1-1/2 ft east of the west wall
+# (Maxwell, 11/19/2026, measured on site; it was drawn at 2 ft), fan out to the manifolds on the west wall, and the flow center sits further south on the same wall,
 # right under the heat pump's water connections in the attic.
-CON_X, CON_Y = 2.5, UN + 0.32
+CON_X, CON_Y = UW + 1.5, UN + 0.32
 MAN_Y, MAN_Z = 24.3, 2.5                           # manifold centre along the wall, and the bottom of its valve legs
 MAN_XS, MAN_XR = 0.56 + 2.6 / 12, 0.56 + 5.4 / 12  # supply header on the wall, return header in front of it
 MAN_ZS, MAN_ZR = MAN_Z + 26 / 12, MAN_Z + 14 / 12  # header heights
@@ -186,7 +186,7 @@ items += [
       builder="pe_manifold", size=[30, 30, 8], at=[0.56, MAN_Y, MAN_Z], facing=90, mirror=True,
       info=dict(model="Geo-Hydro MPE532PS PE manifold set", price="$802.90 (quote MMUL8476-5, special order)",
         specs=[["Mains", "1-1/4 in PE"], ["Circuits", "5 x 3/4 in, each with a 1 in ball valve"], ["Piping", "Reverse return. Greg's summary has supply and return in separate 4 in sweeps with a 36 in radius"],
-               ["Loop entry", "One sleeve through the slab at the north wall, about 2 ft east of the west wall. The ten pipes fan out from it to the valves"],
+               ["Loop entry", "One sleeve through the slab at the north wall, about 1-1/2 ft east of the west wall. The ten pipes fan out from it to the valves"],
                ["Loop field", "5 loops of 3/4 in x 600 ft PE, 103.8 gal system volume"], ["Fluid", "20% propylene glycol (Fernox Alphi-11 with F1 inhibitor)"]],
         notes=["Layout on the wall is ASSUMED. Greg's summary gives the parts and the piping scheme, not a wall elevation.",
                "Raised so the valves sit about 2-1/2 ft off the floor and the loop pipes have room to bend up from the sleeve for fusing (Maxwell, 11/18/2026; Greg asked for the same).",
@@ -234,7 +234,7 @@ items += [
 runs.append(dict(id="geo_conduit", name="Loop entry sleeve", category="Geothermal", system="geothermal.loop", dia=6.6, mat="condensate",
     points=[[CON_X, CON_Y, 0.0], [CON_X, CON_Y, 0.5]],
     info=dict(model="PVC sleeve through the slab, shown at 6 in",
-              specs=[["Carries", "All five loops: ten 3/4 in PE pipes, 1.05 in across each"], ["Where", "North wall, about 2 ft east of the west wall (Maxwell, 11/18/2026)"]],
+              specs=[["Carries", "All five loops: ten 3/4 in PE pipes, 1.05 in across each"], ["Where", "North wall, about 1-1/2 ft east of the west wall (Maxwell, 11/19/2026, as built)"]],
               notes=["Size to confirm. Ten of these pipes need about a 6 in sleeve, five fit in a 4 in, and a 2 in conduit holds only one. "
                      "Greg's design summary called for two 4 in sweeps, one for the supplies and one for the returns."])))
 for k in range(5):
@@ -259,7 +259,11 @@ for k, (zc, dy, jog) in enumerate([(17.6, 3.2 / 12, []), (5.6, -3.2 / 12, [1.3])
                   notes=["Straight up the west wall from the flow center, through the ceiling and the attic deck, then across to the heat pump's connection end (Maxwell, 11/18/2026). "
                          "The heat pump was turned so its connections sit right above the flow center. Exact route is set on site."])))
 
-# ---- domestic water. Everything runs in the lane behind the tanks or in the gap between them; nothing touches the wall line.
+# ---- domestic water. Slab penetrations as built (Maxwell, 11/19/2026): the well line comes up at the south wall about 1-1/2 ft
+# off the west wall, right below the loop sleeve on the north wall, and the house hot water lines and the drain come up about
+# 1 ft further east on the same wall. Those all land in the open corner west of the preheat tank, so the tanks stay put.
+# The well line crosses the room overhead to the pressure tank and the filters on the north wall (the south wall is full of
+# tanks, and the flow center needs its 2 ft of floor), and treated cold comes back overhead to the preheat tank and the house.
 WR = 24.25 / 24                                    # water heater radius, ft
 WH_CY, PH_Y = TANK_Y - (WR * 12 + 2) / 12, TANK_Y - (PH_D / 2 + 2) / 12     # tank centres
 WCX = WH_X - (WR * 12 + 2.2) / 12                  # the water heater's side connections face the preheat tank
@@ -267,47 +271,146 @@ WC_Y, WHOT_Y = WH_CY + 1.6 / 12, WH_CY - 1.6 / 12  # cold in (low) and hot out (
 WHOT_Z = (74.2 - 15.5 - 4) / 12
 PH_TOP = 59.0 / 12 + 3 / 12                        # top of the preheat tank's brass nipples
 GAP_X = WCX - 0.03                                 # the vertical pipes in the gap between the tanks
-Y_COLD, Y_WALL = US - 0.39, US - 0.19              # cold line behind the preheat tank; recirculation return on the wall
-Z_COLD = 6.9
-X_SVC = PH_X - 0.74                                # cold service riser, at the preheat tank's west side where its shutoff can be reached
+Y_COLD, Y_WALL = US - 0.39, US - 0.19              # cold line behind the preheat tank; hot and recirculation lines on the wall
+Z_COLD, Z_HOT, Z_RC, Z_WELL = 7.4, 7.0, 7.2, 7.9   # overhead levels, all under the 9 ft ceiling and clear of a 6 ft 6 in head
+WELL_X = UW + 1.5                                  # well line up through the slab, south wall (Maxwell, 11/19/2026)
+HL_X = UW + 2.5                                    # house hot water lines and the drain, 1 ft further east (Maxwell, 11/19/2026)
+X_HC, X_HH, X_HR = HL_X - 0.22, HL_X - 0.03, HL_X + 0.15                       # house cold, house hot, recirculation back
+X_DR, Y_DR = HL_X + 0.3, US - 0.54                 # floor drain, just in front of the lines
 HOT, HOT_R = 1.9, 1.5                              # 3/4 in and 1/2 in copper with pipe insulation, outside diameter
-def dhw(id, name, dia, mat, points, model, notes, specs=None, info_of=None):
-    r = dict(id=id, name=name, category="Hot water", system="plumbing.dhw", dia=dia, mat=mat, points=points)
+# Well water treatment on the north wall, west to east: UV, carbon, sediment, spin down screen, tank tee, pressure tank.
+LN = UN + 0.33                                     # pipe lane on the north wall, through the filter heads
+HEAD_Z = 4.4                                       # filter heads (ports) about 4-1/2 ft up, easy to reach for cartridge changes
+UV_X, CB_X, SD_X, SP_X = 2.78, 3.5, 4.2, 4.8
+TT_X = 5.11                                        # tank tee
+PT_D, PT_H = 16.0, 62.0                            # pressure tank, in: a slim tall one keeps the walkway past the tanks about 22 in wide
+PT_X = 5.95
+PT_CY = UN + (1 + PT_D / 2) / 12
+UV_Z, UV_H = 2.55, 42.0
+def dhw(id, name, dia, mat, points, model, notes, specs=None, info_of=None, system="plumbing.dhw", category="Hot water"):
+    r = dict(id=id, name=name, category=category, system=system, dia=dia, mat=mat, points=points)
     if info_of: r["info_of"] = info_of; r.pop("name")
     else: r["info"] = dict(model=model, specs=specs or [], notes=notes)
     runs.append(r)
-dhw("dhw_cold", "Cold water to the preheat tank", 1.1, "copper",
-    [[X_SVC, Y_COLD, 0.2], [X_SVC, Y_COLD, Z_COLD], [PH_X - 0.3, Y_COLD, Z_COLD], [PH_X - 0.3, PH_Y, Z_COLD], [PH_X - 0.3, PH_Y, PH_TOP]],
-    "3/4 in copper", ["Cold service comes up through the slab behind the preheat tank, rises, and drops into the tank's cold inlet, about 9 ft of pipe. "
-                      "The desuperheater return tees into the drop. Service entry point and valves ASSUMED."],
-    specs=[["Valves", "Main shutoff at the riser, shutoff and union at the tank"], ["Expansion tank", "Hangs from a short stub off this line, as U-11 shows"]])
-dhw("dhw_cold_house", None, 1.1, "copper", [[X_SVC, Y_COLD, Z_COLD], [X_SVC, Y_COLD, CEIL]], None, None, info_of="dhw_cold")
-dhw("dhw_cold_stub", None, 1.1, "copper", [[X_SVC, Y_COLD, Z_COLD], [X_SVC - 1.0, Y_COLD, Z_COLD]], None, None, info_of="dhw_cold")
+def well(id, name, dia, mat, points, model=None, notes=None, specs=None, info_of=None):
+    dhw(id, name, dia, mat, points, model, notes, specs, info_of, system="plumbing.well", category="Well water")
+# well line: up at the south wall, overhead north, along the north wall and down into the tank tee
+well("well_line", "Well water line", 1.32, "pe",
+     [[WELL_X, Y_WALL, 0.0], [WELL_X, Y_WALL, Z_WELL], [WELL_X, LN + 0.2, Z_WELL], [TT_X + 0.04, LN + 0.2, Z_WELL], [TT_X + 0.04, LN + 0.2, 1.0]],
+     "1 in polyethylene from the submersible pump (Crabtree Drilling)",
+     ["Comes up through the slab at the south wall about 1-1/2 ft off the west wall (Maxwell, 11/19/2026). It rises in the corner, crosses the room overhead "
+      "at about 8 ft and drops to the tank tee next to the pressure tank, about 17 ft of pipe. Line size is ASSUMED; Crabtree's quote says pipe, wire and fittings are included."],
+     specs=[["From", "6 in PVC cased well, estimated 100 ft deep, 1/2 HP submersible pump (Crabtree estimate 2479)"], ["To", "Tank tee at the pressure tank"]])
+well("well_tank", None, 1.32, "pe", [[TT_X, LN + 0.1, 1.0], [TT_X, LN + 0.1, 0.25], [TT_X, PT_CY, 0.25], [PT_X - 0.45, PT_CY, 0.25]], info_of="well_line")
+well("well_to_filters", "Well water to the filters", 1.1, "copper",
+     [[TT_X - 0.04, LN, 1.0], [TT_X - 0.04, LN, HEAD_Z], [SP_X, LN, HEAD_Z]],
+     "1 in copper or PEX with full port ball valves",
+     ["From the tank tee up the wall into the filter row. A bypass around the filters (three valves) is ASSUMED so water keeps flowing during a cartridge change."])
+well("well_f1", None, 1.1, "copper", [[SP_X, LN, HEAD_Z], [SD_X, LN, HEAD_Z]], info_of="well_to_filters")
+well("well_f2", None, 1.1, "copper", [[SD_X, LN, HEAD_Z], [CB_X, LN, HEAD_Z]], info_of="well_to_filters")
+well("well_f3", None, 1.1, "copper", [[CB_X, LN, HEAD_Z], [CB_X - 0.38, LN, HEAD_Z], [CB_X - 0.38, LN, UV_Z + 4.5 / 12], [UV_X + 0.2, LN, UV_Z + 4.5 / 12]], info_of="well_to_filters")
+UV_TOP = UV_Z + UV_H / 12
+dhw("dhw_cold", "Treated cold water", 1.1, "copper",
+    [[UV_X, LN, UV_TOP - 0.1], [UV_X, LN, Z_COLD], [UV_X, Y_COLD, Z_COLD], [PH_X - 0.3, Y_COLD, Z_COLD], [PH_X - 0.3, PH_Y, Z_COLD], [PH_X - 0.3, PH_Y, PH_TOP]],
+    "3/4 in copper", ["Out of the UV sterilizer, up and back across the room overhead to the south wall. One branch goes down through the slab as the house cold supply, "
+                      "the other drops into the preheat tank's cold inlet. The desuperheater return tees into that drop. Valves ASSUMED."],
+    specs=[["Valves", "Shutoff after the UV, shutoff and union at the preheat tank"], ["Expansion tank", "Hangs from a short stub near the north wall, as U-11 shows"]])
+dhw("dhw_cold_house", "Cold water to the house", 1.1, "copper", [[UV_X, Y_COLD, Z_COLD], [X_HC, Y_COLD, Z_COLD], [X_HC, Y_COLD, 0.0]],
+    "3/4 in copper to PEX under the slab",
+    ["Drops through the slab with the hot lines, about 2-1/2 ft off the west wall. ASSUMED: Maxwell said the hot water lines and the drain come up there; the house cold is "
+     "drawn with them until the plumber confirms where it goes."])
+dhw("dhw_cold_stub", None, 1.1, "copper", [[UV_X, LN, 6.75], [UV_X + 0.75, LN, 6.75]], None, None, info_of="dhw_cold")
 dhw("dhw_preheat", "Preheated water to the heat pump water heater", HOT, "foam",
     [[PH_X + 0.3, PH_Y, PH_TOP], [PH_X + 0.3, PH_Y, 5.5], [GAP_X, WC_Y, 5.5], [GAP_X, WC_Y, 0.75], [WCX, WC_Y, 0.75]],
     "3/4 in copper, insulated", ["Preheat tank hot outlet, across the gap between the tanks and down to the heat pump water heater's low side cold inlet, about 6 ft of pipe. "
                                  "The recirculation return tees in near the bottom. Bypass valves so either tank can be isolated are ASSUMED."])
 dhw("dhw_hot", "Hot water to the house", HOT, "foam",
-    [[WCX, WHOT_Y, WHOT_Z], [GAP_X, WHOT_Y, WHOT_Z], [GAP_X, WHOT_Y, CEIL]],
-    "3/4 in copper, insulated", ["Heat pump water heater high side hot outlet, straight up through a thermostatic mixing valve into the ceiling and on to the fixtures."])
+    [[WCX, WHOT_Y, WHOT_Z], [GAP_X, WHOT_Y, WHOT_Z], [GAP_X, WHOT_Y, Z_HOT], [GAP_X, Y_COLD - 0.15, Z_HOT], [X_HH, Y_COLD - 0.15, Z_HOT], [X_HH, Y_WALL, Z_HOT], [X_HH, Y_WALL, 0.0]],
+    "3/4 in copper, insulated, to PEX under the slab",
+    ["Heat pump water heater high side hot outlet, up through the thermostatic mixing valve, west above the preheat tank and down through the slab "
+     "about 2-1/2 ft off the west wall (Maxwell, 11/19/2026), where the lines to the rest of the house run."])
 X_RC = PH_X + 0.76                                 # between the desuperheater drop and the gap between the tanks
 dhw("dhw_recirc", "Hot water recirculation return", HOT_R, "foam",
-    [[X_RC, Y_WALL, CEIL], [X_RC, Y_WALL, 1.2], [GAP_X, Y_WALL, 1.2], [GAP_X, WC_Y, 1.2]],
-    "1/2 in copper, insulated", ["Return from the far end of the hot main (U-11 shows a recirculation pump). Comes down the south wall between the two tanks, through the pump at "
-                                 "chest height, and tees into the water heater's cold inlet pipe. A check valve and a timer or demand control are ASSUMED.",
+    [[X_HR, Y_WALL, 0.0], [X_HR, Y_WALL, Z_RC], [X_HR, Y_COLD - 0.3, Z_RC], [X_RC, Y_COLD - 0.3, Z_RC], [X_RC, Y_WALL, Z_RC], [X_RC, Y_WALL, 1.2], [GAP_X, Y_WALL, 1.2], [GAP_X, WC_Y, 1.2]],
+    "1/2 in copper, insulated", ["Return from the far end of the hot main (U-11 shows a recirculation pump). Comes up through the slab next to the hot line, crosses above the preheat tank, "
+                                 "comes down the south wall between the two tanks through the pump at chest height, and tees into the water heater's cold inlet pipe. "
+                                 "Which of the lines in the slab is the return is ASSUMED. A check valve and a timer or demand control are ASSUMED.",
                                  "Insulated like the hot line: a recirculation loop is hot whenever it runs, so bare pipe would give that heat away all day."])
+# Pan drains (Maxwell, 11/19/2026: the drain is a floor drain for the water heater's pan). Both tanks' pans drain to it and end
+# an inch above the grate so there is an air gap. The water heater's line runs behind the preheat tank, under the desuperheater pipe.
+PAN_Z = 0.1
+WH_PAN = WH_X - (WR * 12 + 2) / 12
+dhw("pan_drain_wh", "Drain pan lines", 1.32, "pvc",
+    [[WH_PAN + 0.02, WH_CY + 0.3, PAN_Z], [WH_PAN - 0.1, WH_CY + 0.3, PAN_Z], [WH_PAN - 0.1, US - 0.12, PAN_Z], [X_DR + 0.1, US - 0.12, PAN_Z], [X_DR + 0.1, Y_DR, PAN_Z], [X_DR + 0.06, Y_DR, PAN_Z + 0.04]],
+    "1 in PVC from each tank's drain pan",
+    ["The water heater's pan drains behind the preheat tank to the floor drain, about 6 ft. The preheat tank's pan drains straight to it. Both end above the grate for an air gap. "
+     "The relief valves (T&P) on both tanks can discharge here too. Route ASSUMED."])
+dhw("pan_drain_ph", None, 1.32, "pvc", [[PH_X - 0.83, PH_Y + 0.62, PAN_Z], [X_DR - 0.12, PH_Y + 0.62, PAN_Z], [X_DR - 0.12, Y_DR, PAN_Z + 0.04]], None, None, info_of="pan_drain_wh")
 items += [
  dict(id="recirc_pump", name="Hot water recirculation pump", category="Hot water", system="plumbing.dhw", room="Utility", layer="mechanical",
       builder="circ_pump", size=[5, 5, 5], at=[X_RC, Y_WALL, 3.9], facing=90,
       info=dict(model="Small inline circulator, bronze or stainless body (U-11)", specs=[["On", "The recirculation return where it comes down the south wall, about 4 ft off the floor"]],
                 notes=["Model not picked. A timer or a push button demand control keeps it from running all day.", APPROX])),
  dict(id="expansion_tank", name="Thermal expansion tank", category="Hot water", system="plumbing.dhw", room="Utility", layer="mechanical",
-      builder="expansion_tank", size=[8, 11], at=[X_SVC - 0.95, Y_COLD, Z_COLD], facing=0,
-      info=dict(model="2 gal potable thermal expansion tank (U-11 detail)", specs=[["On", "The cold line, after the main shutoff and any check valve"]], notes=[APPROX])),
+      builder="expansion_tank", size=[8, 11], at=[UV_X + 0.75, LN, 6.75], facing=180,
+      info=dict(model="2 gal potable thermal expansion tank (U-11 detail)", specs=[["On", "The treated cold line, after the main shutoff and any check valve"]], notes=[APPROX])),
  dict(id="mixing_valve", name="Thermostatic mixing valve", category="Hot water", system="plumbing.dhw", room="Utility", layer="mechanical",
       builder="mixing_valve", size=[3, 3, 3], at=[GAP_X, WHOT_Y, 6.3], facing=0,
       info=dict(model="3/4 in thermostatic mixing valve", specs=[["Why", "Lets both tanks store water hotter for more capacity while the taps get a safe 120 F"]],
                 notes=["Its cold side tees off the cold line; that small tee is not drawn.", APPROX])),
+ dict(id="floor_drain", name="Floor drain", category="Hot water", system="plumbing.drain", room="Utility", layer="mechanical",
+      builder="floor_drain", size=[6, 0.5, 6], at=[X_DR, Y_DR + 0.25, 0], facing=0,
+      info=dict(model="Floor drain with a round grate, about 4 in", specs=[["Where", "South wall, about 2-1/2 ft off the west wall, beside the house hot lines (Maxwell, 11/19/2026)"],
+                                                                         ["Takes", "Both tanks' drain pans and relief valves, the spin down flush, a softener's backwash if one goes in"]],
+                notes=["Maxwell (11/19/2026): the drain line coming up here will become a floor drain and pan drain for the water heater. Trap primer, size and exact spot are the plumber's.", APPROX])),
+ # ---- well water: pressure tank and treatment, north wall
+ dict(id="pressure_tank", name="Well pressure tank", category="Well water", system="plumbing.well", room="Utility", layer="mechanical",
+      builder="pressure_tank", size=[PT_D, PT_H], at=[PT_X, UN + 0.02, 0], facing=180,
+      info=dict(model="Slim diaphragm well tank, about 44 gal (generic tall model)", price="Included in Crabtree's $4,900 pump system (estimate 2479, approved 3/11/2026)",
+        specs=[["Pump", "1/2 HP submersible with a pressure switch (Crabtree estimate 2479)"], ["Size", "About 16 in across and 62 in tall"],
+               ["Pressure", "Usually a 40/60 PSI switch with the tank pre-charged to 38 PSI"], ["Connection", "1 in at the bottom, through the tank tee"]],
+        links=[["Crabtree Drilling", "https://www.crabtreedrilling.com"]],
+        notes=["Crabtree's approved estimate lists a 1/2 HP submersible pump system 'including a pressure tank, pipe, wire, fittings, ditch digging and labor' but not the tank model or size. "
+               "The size here is ASSUMED: a 44 gal tank is a common match for a 1/2 HP pump and gives about 12 gal between pump starts. "
+               "A slim, tall tank was picked over the usual 22 in one so the walkway past the water tanks stays about 22 in wide (Maxwell, 11/19/2026: slimmer is fine, there is height to use). "
+               "The quote also offered a 1 HP constant pressure system for $5,800 as an alternate; the approved total ($10,919) has the 1/2 HP system.",
+               "Well (same estimate): 6 in PVC casing, estimated 100 ft, $43/ft past that.", APPROX],
+        placement="North wall of the utility room, east of the filters and clear of the hall door's swing. The pump is down the well, so the only noise here is the pressure switch clicking.")),
+ dict(id="tank_tee", name="Tank tee and pressure switch", category="Well water", system="plumbing.well", room="Utility", layer="mechanical",
+      builder="tank_tee", size=[10, 4, 3], at=[TT_X, LN + 0.1, 1.0], facing=180,
+      info=dict(model="1 in brass tank tee with pressure switch, gauge, relief valve and drain", specs=[["Switch", "40/60 PSI, ASSUMED"]],
+                notes=["Part of Crabtree's pump system. Layout ASSUMED.", APPROX])),
+ dict(id="spin_down", name="Spin down sediment screen", category="Well water", system="plumbing.well", room="Utility", layer="mechanical",
+      builder="spin_down", size=[6, 13, 6], at=[SP_X, UN, HEAD_Z - 11.5 / 12], facing=180,
+      info=dict(model="Flushable spin down screen, 1 in, about 100 micron (generic)", specs=[["Service", "Open the flush valve at the bottom to rinse sand out, no cartridge"]],
+                notes=["Not in Crabtree's quote. The whole filter row is a placeholder until the water test comes back (Maxwell, 11/19/2026: approximate is fine).", APPROX])),
+ dict(id="filter_sediment", name="Sediment filter", category="Well water", system="plumbing.well", room="Utility", layer="mechanical",
+      builder="big_blue", size=[8, 25, 9], at=[SD_X, UN, HEAD_Z - 23.3 / 12], facing=180,
+      info=dict(model="20 in x 4.5 in whole house housing, 5 micron pleated sediment cartridge (generic)", specs=[["Flow", "About 15 to 20 gpm"], ["Cartridge", "Change every 3 to 6 months"]],
+                notes=["Generic placeholder, not in Crabtree's quote.", APPROX])),
+ dict(id="filter_carbon", name="Carbon filter", category="Well water", system="plumbing.well", room="Utility", layer="mechanical",
+      builder="big_blue", size=[8, 25, 9], at=[CB_X, UN, HEAD_Z - 23.3 / 12], facing=180, sump="grey",
+      info=dict(model="20 in x 4.5 in whole house housing, carbon block cartridge (generic)", specs=[["Takes out", "Taste, odor and some chemicals"], ["Cartridge", "Change every 6 to 12 months"]],
+                notes=["Generic placeholder. If the water test shows iron or sulfur, an iron filter or a softener usually goes here instead, and those need floor space and the drain.", APPROX])),
+ dict(id="uv_sterilizer", name="UV sterilizer", category="Well water", system="plumbing.well", room="Utility", layer="mechanical",
+      builder="uv_system", size=[8, UV_H, 6], at=[UV_X, UN, UV_Z], facing=180,
+      info=dict(model="Whole house UV sterilizer, about 12 gpm (Viqua VH410 class, generic)", specs=[["Power", "120 V outlet nearby"], ["Lamp", "Change once a year"], ["Order", "Last, after the filters, so the water it sees is clear"]],
+                notes=["Generic placeholder, not in Crabtree's quote. Common on private wells to kill bacteria; the county may want a bacteria test either way.", APPROX])),
+ dict(id="softener_space", name="Water softener (space reserved)", category="Well water", system="plumbing.well", room="Utility", layer="mechanical",
+      builder="softener_cabinet", size=[14, 44, 17.5], at=[UE - 0.62, US - 0.02, 0], facing=0,
+      info=dict(model="Space for a cabinet softener, about 14 W x 17-1/2 D x 44 H in (generic, not decided)",
+        specs=[["Status", "Not decided. Space kept so one can go in later (Maxwell, 11/19/2026)"], ["Needs", "120 V outlet, the floor drain for backwash (about 8 ft of 1/2 in tubing), and the treated cold line"],
+               ["Would sit", "After the filters, before the preheat tank, with a bypass valve"]],
+        notes=["Southeast corner, south of the hall door, so the door still opens fully. A cabinet unit (resin and salt in one box) fits; a twin tank one does not.",
+               "Whether it is needed depends on the water test (hardness and iron). Piping to it is not drawn.", APPROX])),
+ dict(id="ro_system", name="Reverse osmosis drinking water", category="Kitchen appliance", system="plumbing.well", room="Kitchen", layer="appliances",
+      builder="ro_unit", size=[5.7, 18, 17.6], at=[10.85, 51.42, 0.34], facing=0,
+      info=dict(model="Tankless under sink reverse osmosis with its own faucet (generic, Waterdrop G3 class)",
+        specs=[["Size", "About 5.7 W x 18 H x 17.6 D in, stands beside the disposal"], ["Needs", "Cold line tee, a drain saddle on the sink drain, and an outlet for the pump"],
+               ["Faucet", "Small RO faucet in a hole beside the main faucet"]],
+        notes=["Under the kitchen sink rather than whole house: the utility room has no room left, and you only need RO water for drinking and cooking (Maxwell, 11/19/2026: under the sink is fine).",
+               "Not picked yet.", APPROX],
+        placement="Inside the sink base, right side, behind the right door.")),
 ]
 # Desuperheater (Maxwell, 11/18/2026). The preheat tank stands just east of the heat pump's hot water connections, so the two
 # insulated 3/4 in lines step sideways off the ports and drop straight through the deck into the lane behind the tank.
