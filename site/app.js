@@ -328,7 +328,7 @@ function linkRoom(R, how) {
 //   v=o|w|n  mode     p=x,y,z  camera (plan feet, z up)     t=x,y,z  orbit centre     a=yaw,pitch  walk look (deg)
 //   room=    room     night    cut=ft  height slice         crouch   hide=,show=  layers   info=  equipment id
 const SHARE_KEYS = ['v', 'p', 't', 'a', 'night', 'cut', 'crouch', 'hide', 'show', 'info'];
-const LAYERS_ALL = () => ['Roof', 'Walls', 'Furniture', 'Fans', 'Trees', 'Appliances', 'Vehicles', 'Storage', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
+const LAYERS_ALL = () => ['Roof', 'Walls', 'Furniture', 'Fans', 'Electrical', 'Lowvolt', 'Trees', 'Appliances', 'Vehicles', 'Storage', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
 const LAYER_DEFAULT = {};
 for (const k of LAYERS_ALL()) LAYER_DEFAULT[k] = $('l' + k).checked;
 const r1 = (n) => String(Math.round(n * 10) / 10);
@@ -671,6 +671,8 @@ function applyToggles() {
     show(equip.layers.storage, layerOn('Storage'));
     show(equip.layers.mechanical, layerOn('Mechanical'));
     show(equip.layers.fans, layerOn('Fans'));
+    show(equip.layers.electrical, layerOn('Electrical'));
+    show(equip.layers.lowvolt, layerOn('Lowvolt'));
     show(equip.layers.ducts, layerOn('Ducts'));
     show(equip.layers.trusses, layerOn('Trusses'));
     for (const o of bakedDeck) show(o, house ? true : !layerOn('Trusses'));     // the baked house's thin deck gives way to the trusses' own

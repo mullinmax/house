@@ -413,7 +413,7 @@ items += [
                ["Power", "One 120 V duplex outlet about 18 in up, just west of the vacuum, for the charger"],
                ["Run time", "Up to about 40 min on low, roughly 5 h to recharge"]],
         notes=["Placeholder for where the vacuum is kept (Maxwell, 11/19/2026). Exact V8 variant not picked, so the size is from the V8 class.",
-               "The outlet is ASSUMED and not on the electrical plan yet: tell the electrician it is wanted here.", APPROX],
+               "The charger outlet is not on Andy's U-11: it is in the Electrical layer as an added outlet, so tell the electrician it is wanted here. U-11's own utility outlet is about 3 ft 8 in west, by the pressure tank.", APPROX],
         placement="Northeast corner of the utility room, on the north wall right beside the hall door (Maxwell, 11/19/2026). The door now swings out into the hall, so the corner is free; the floor head stays about 2 in off the east wall and the door casing. It sticks out about 9 in, less than the pressure tank, so nothing narrows the way in.")),
  dict(id="ro_system", name="Reverse osmosis drinking water", category="Kitchen appliance", system="plumbing.well", room="Kitchen", layer="appliances",
       builder="ro_unit", size=[5.7, 18, 17.6], at=[10.85, 51.42, 0.34], facing=0,
@@ -1040,6 +1040,117 @@ items += [
         notes=["A low voltage cable or a box here at rough in keeps the option of a wired sensor. A battery Zigbee or Thread sensor works with no wiring.", STUDY_ZONE])),
 ]
 
+# ------------------------------------------------------------------ electrical and low voltage (sealed sheets U-11 and U-12)
+# Device positions were read from the vector symbols on Andy's sealed utility plans (06/14/2026) by tools/extract_electrical.py,
+# into model/data/electrical_plan.json. Plain outlets sit at 16 in per the U-11 legend (Maxwell, 11/19/2026); the labelled
+# ones (44 in GFI, 24 in GFI, 72 in TV) keep their own heights. Switches 44 in per the legend.
+_EP = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "electrical_plan.json")))
+_SNAP_P = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "electrical_snap.json")
+_SNAP = json.load(open(_SNAP_P)) if os.path.exists(_SNAP_P) else {}   # tools/electrical/snap.mjs: ft to move each wall device onto the finished wall
+_ROOMS = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "site", "models", "house.json")))["meta"]["rooms"]
+LOFT_FLOOR = next(r.get("floor") for r in _ROOMS if r["name"] == "Loft")
+def _room(x, y, level):
+    if level == "upper":
+        a, b, c, d = LOFT
+        return "Loft" if a <= x <= c and b <= y <= d else "Attic"
+    if 0.5 <= x <= 12.12 and 28.241 < y <= 29.03:   # the utility room really ends at 28.241 (traced A-11); the strip south of it is the pantry and powder
+        return "Pantry" if x < 5.6 else "Powder"
+    if 28.12 <= x <= 31.12 and 10.7 <= y <= 15.03:   # bedroom 1's L, west of its main rectangle (A-11)
+        return "Bedroom 1"
+    for r in _ROOMS:
+        a, b, c, d = r["rect"]
+        if not r.get("upper") and a <= x <= c and b <= y <= d and not r.get("outside"):
+            return r["name"]
+    return "Outside"
+def _roof_under(y):
+    return (_R["north_wall_height"] + y * _PN) if y <= YC2 else (_R["south_wall_height"] + (_HD - y) * _PS)
+_SHEET = "Andy Roehl's sealed utility plans, 06/14/2026: "
+_FIELD = "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
+_FACE = {0: "north", 90: "east", 180: "south", 270: "west"}
+_n = {}
+def _eid(kind):
+    _n[kind] = _n.get(kind, 0) + 1
+    return f"elec_{kind}_{_n[kind]:02d}"
+# The stick vacuum's charger outlet (PR 40) is not on U-11: it is added here so the Electrical layer has every outlet,
+# and the vacuum builder only draws the charger plugged into it.
+VAC_OX = VAC_X - 7 / 12
+_EP["devices"].append(dict(kind="outlet", x=round(VAC_OX, 3), y=UN, z_in=18, facing=180, level="main", src="added #vacuum",
+    note="Not on U-11. Added for the stick vacuum's charger, just west of its dock (Maxwell, 11/19/2026). U-11's own utility room outlet is "
+         f"{(VAC_OX - 6.696) * 12:.0f} in further west by the pressure tank, where the UV sterilizer and well controls can use it."))
+_tagq = []
+def _tag(n0=None, src=None):                    # every electrical item carries its sheet symbol, for the snap tool
+    if _tagq:
+        a, sr = _tagq.pop()
+        for it_ in items[a:]:
+            it_["src"] = sr
+    if n0 is not None:
+        _tagq.append((n0, src))
+for dv in _EP["devices"]:
+    _tag(len(items), dv["src"])
+    k, x, y, lvl = dv["kind"], dv["x"], dv["y"], dv["level"]
+    _s = _SNAP.get(dv["src"], 0.0)
+    if _s and dv.get("facing") in (0, 90, 180, 270):
+        _ux, _uy = {0: (0, -1), 90: (1, 0), 180: (0, 1), 270: (-1, 0)}[dv["facing"]]
+        x, y = round(x + _ux * _s, 3), round(y + _uy * _s, 3)
+    _f = dv.get("facing")                         # look up the room just in front of a wall device, not in the wall
+    _dx, _dy = {0: (0, -0.4), 90: (0.4, 0), 180: (0, 0.4), 270: (-0.4, 0)}.get(_f, (0, 0)) if k not in ("smoke", "floor_box") else (0, 0)
+    room = "Outside" if dv.get("wp") else _room(x + _dx, y + _dy, lvl)
+    floor = 0.0 if lvl == "main" else (LOFT_FLOOR if room == "Loft" else DECK)
+    sheet = "U-11 main level" if lvl == "main" else "U-12 upper level"
+    notes = ([dv["note"]] if dv.get("note") else []) + ([_SHEET + sheet + f" utility plan (symbol {dv['src'].split('#')[1]}).", _FIELD] if dv["src"].startswith("U-") else [])
+    wall = f"{_FACE.get(dv.get('facing'), '')} facing".strip()
+    if k == "smoke":
+        c = ceiling_at(x, y)[0] if lvl == "main" else _roof_under(y)
+        items.append(dict(id=_eid("smoke"), name="Smoke and CO alarm", category="Electrical", system="electrical.life_safety", room=room, layer="electrical",
+            builder="smoke_alarm", size=[5.5, 1.8, 5.5], at=[x, y, round(c, 3)], facing=0,
+            info=dict(model="120 V combination smoke and carbon monoxide alarm, battery backup, interconnected (NFPA 72)",
+                specs=[["Where", "Ceiling" if lvl == "main" or room == "Loft" else "Underside of the roof in the attic"], ["Power", "Hard wired, battery backup, interconnected"]],
+                notes=notes + ["U-11 note 7: within 12 in of the ceiling, and keep it 3 ft from supply and return grilles."])))
+        continue
+    z_in = dv["z_in"]
+    if k == "floor_box":
+        items.append(dict(id=_eid("floor"), name="Floor outlet", category="Electrical", system="electrical.power", room=room, layer="electrical",
+            builder="floor_box", size=[4.6, 0.15, 4.6], at=[x, y, 0.0], facing=0,
+            info=dict(model="Flush floor box with a brass cover, 120 V duplex", specs=[["Where", "In the slab, dining room"]], notes=notes)))
+        continue
+    if k in ("outlet", "special"):
+        volts = dv.get("volts", 240 if k == "special" else 120)
+        kind = "Special outlet" if k == "special" else ("Outdoor outlet" if dv.get("wp") else ("240 V outlet" if volts == 240 else "Outlet"))
+        tags = (" GFI" if dv.get("gfi") and not dv.get("wp") else "") + (" by the TV" if z_in == 72 else "")
+        model = ("Weatherproof GFCI receptacle with an in use cover" if dv.get("wp") else
+                 "240 V receptacle" if volts == 240 and k != "special" else
+                 "Dedicated circuit for the equipment, sized to its nameplate, disconnect if it needs one" if k == "special" else
+                 "Duplex receptacle, GFCI" if dv.get("gfi") else "Duplex receptacle, 120 V, tamper resistant")
+        items.append(dict(id=_eid("outlet"), name=f"{kind}{tags}, {z_in} in", category="Electrical", system="electrical.power", room=room, layer="electrical",
+            builder="outlet", size=[2.75, 4.5, 0.3], at=[x, y, round(floor + (z_in - 2.25) / 12, 3)], facing=dv["facing"],
+            gfi=bool(dv.get("gfi")), wp=bool(dv.get("wp")), volts=volts,
+            info=dict(model=model, specs=[["Height", f"{z_in} in to the centre" + (" (U-11 legend)" if z_in == 16 else "")], ["On", f"The {wall} wall" if wall else "Wall"]],
+                notes=notes)))
+        continue
+    if k == "switch":
+        gangs = dv.get("gangs", 1)
+        items.append(dict(id=_eid("switch"), name=f"{gangs} gang light switch, 44 in" if gangs > 1 else "Light switch, 44 in", category="Electrical", system="electrical.lighting", room=room, layer="electrical",
+            builder="switch_plate", size=[2.75 + 1.81 * (gangs - 1), 4.5, 0.3], gangs=gangs, at=[x, y, round(floor + (44 - 2.25) / 12, 3)], facing=dv["facing"],
+            info=dict(model=(f"{gangs} gang plate of rocker switches with dimmers" if gangs > 1 else "Wall switch with a dimmer (U-11 legend)"), specs=[["Height", "44 in to the centre"], ["On", f"The {wall} wall"]],
+                notes=notes + ["U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."])))
+        continue
+    if k in ("data", "tv_data"):
+        items.append(dict(id=_eid("data"), name=("TV cable and data outlet, 72 in" if k == "tv_data" else f"Cable TV and network outlet, {z_in} in"), category="Low voltage",
+            system="low_voltage", room=room, layer="lowvolt", builder="data_jack", size=[2.75, 4.5, 0.3], at=[x, y, round(floor + (z_in - 2.25) / 12, 3)], facing=dv["facing"],
+            info=dict(model="Cable TV and CAT-5 outlet (U-11 legend). CAT-6 costs about the same now and is worth asking for",
+                specs=[["Height", f"{z_in} in to the centre"], ["Jacks", "Coax and one network jack, ASSUMED"]],
+                notes=notes + ["Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."])))
+        if k == "tv_data":
+            tv = dv.get("tv", False)
+            ty = 30.65 if tv else y                    # the living room TV centres between its outlet and data jack
+            items.append(dict(id=_eid("tv"), name="65 in TV on its wall mount" if tv else "TV mount", category="Low voltage", system="low_voltage", room=room, layer="lowvolt",
+                builder="tv_mount", size=[24, 16, 1.6], tv=[57.1, 32.7, 1.1] if tv else None, at=[x, ty, round(floor + 72 / 12 - 8 / 12, 3)], facing=dv["facing"],
+                info=dict(model="Flat screen TV mount at 72 in, wall blocking behind it, 2 in sleeve down to a single gang box (U-11 legend)",
+                    specs=[["Height", "72 in to the TV centre, confirm with the owner"], ["Blocking", "Needed in the wall before drywall"]],
+                    notes=notes + ["The bracket is drawn generic: the TV and its mount are not picked yet. A recessed power and cable box behind the TV hides the cords."]
+                        + (["The TV is a generic 65 in set (about 57 x 33 in), the size Andy's site plan furniture shows. Its centre is at 72 in as U-11 draws it, which is high for watching from the couch; 42 to 48 in is more usual, so confirm before the blocking goes in."] if tv else []))))
+
+_tag()
 trusses = dict(id="floor_trusses", name="Open web floor trusses", category="Structure", system="structure.floor", regions=FLAT, loft_regions=[LOFT],
     z0=CEIL, depth_in=TRUSS_IN, spacing_in=CFG["floor_trusses"]["spacing_in"], deck_in=DECK_IN, grid_x0=TG, max_cross_in=CFG["floor_trusses"]["max_round_duct_in"],
     info=dict(model="11-7/8 in open web floor trusses",
@@ -1050,7 +1161,7 @@ trusses = dict(id="floor_trusses", name="Open web floor trusses", category="Stru
 
 out = dict(
     meta=dict(units="plan feet for positions, inches for sizes", generated_by="model/make_equipment.py",
-              sources=["M-10 mechanical plan 07/30/2026 (preliminary)", "U-11 sealed plan", "Geo-Hydro quotes MMUL8476-4 and MMUL8476-5", "Appliance shortlist 11/15/2026"],
+              sources=["M-10 mechanical plan 07/30/2026 (preliminary)", "U-11 and U-12 sealed utility plans", "Geo-Hydro quotes MMUL8476-4 and MMUL8476-5", "Appliance shortlist 11/15/2026"],
               **FAN_META),
     levels=[dict(id="main", name="Main floor", cut_ft=8.85), dict(id="truss", name="Floor trusses", cut_ft=round(CEIL + TRUSS_IN / 12 - 0.03, 2)),
             dict(id="upper", name="Loft and attic", cut_ft=16.0), dict(id="all", name="Whole house", cut_ft=None)],

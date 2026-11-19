@@ -1,0 +1,4 @@
+main.json
+raw_*.json
+ov_*.png
+__pycache__/
