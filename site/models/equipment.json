@@ -2433,24 +2433,34 @@
    "room": "Bedroom 4 / study",
    "type": "supply",
    "shape": "round",
-   "size": 7,
+   "size": 8,
    "points": [
     [
-     24.68,
+     23.75,
      11.4,
      11.0
     ],
     [
-     24.68,
-     10.6,
+     23.75,
+     10.3,
      11.0
+    ],
+    [
+     23.75,
+     7.0,
+     10.65
+    ],
+    [
+     23.75,
+     3.0,
+     9.4
     ]
    ],
    "cfm": 104,
    "parent": "supply_trunk",
    "damper": true,
    "info": {
-    "model": "7 in round, 104 CFM",
+    "model": "8 in round, 104 CFM",
     "specs": [
      [
       "Airflow",
@@ -2458,7 +2468,7 @@
      ],
      [
       "Duct",
-      "7 in round"
+      "8 in round"
      ],
      [
       "Damper",
@@ -2466,19 +2476,19 @@
      ]
     ],
     "notes": [
-     "High sidewall register through the attic wall, centred over the study door."
+     "8 in round through the attic wall over the west end of the study door, then exposed along the west wall under the sloped ceiling to the window end (Maxwell, 11/18/2026: a duct can come out into the room). It discharges about 7 ft from the returns in the door wall, so supply air sweeps the desk and the computers before it leaves. 8 in so there is room above M-10's 104 CFM for the computer load, at about 15 CFM per 100 W. Spiral duct, ASSUMED route."
     ]
    },
    "grilles": [
     {
      "at": [
-      24.68,
-      10.62,
-      11.0
+      23.75,
+      2.98,
+      9.4
      ],
      "size": [
-      12,
-      6
+      8,
+      8
      ],
      "wall": "N"
     }
@@ -4440,7 +4450,7 @@
     "specs": [
      [
       "Serves",
-      "Study (low grille on its south wall, east of the door)"
+      "Study (low grille on its south wall, east of the door; a separate high grille over the door carries most of the air)"
      ],
      [
       "Duct",
@@ -5293,6 +5303,54 @@
     ]
    ],
    "info_of": "hpwh_intake"
+  },
+  {
+   "id": "return_study_high",
+   "name": "Study high return",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     25.6,
+     10.6,
+     12.11208333333333
+    ],
+    [
+     25.6,
+     12.01,
+     12.11208333333333
+    ]
+   ],
+   "parent": "return_bed1",
+   "room": "Bedroom 4 / study",
+   "intake": true,
+   "el": 65,
+   "shape": "rect",
+   "size": [
+    20,
+    4
+   ],
+   "info": {
+    "model": "22 x 4-1/2 in grille and flat boot into the bedroom 1 return",
+    "notes": [
+     "A high grille at the top of the study's door wall. A flat 20 x 4 in boot behind the grille about 1 ft long passes over the bath exhaust main and into the side of the 10 in bedroom 1 return on top of the supply trunk. No trusses and no stud bay, so it carries most of the study's air; the low grille and its two 6 in runs stay. Warm air from the computers collects under the high side of the ceiling, right where this grille is. The roof is about 1 in above the boot in this model: if it does not fit, drop the exhaust main down the trunk's north face for 2 ft here. An outlet in the attic beside it would make an inline fan easy to add later. ASSUMED."
+    ]
+   },
+   "grilles": [
+    {
+     "at": [
+      25.6,
+      10.62,
+      12.11208333333333
+     ],
+     "size": [
+      22,
+      4.5
+     ],
+     "wall": "N"
+    }
+   ]
   },
   {
    "id": "ex_hood",
