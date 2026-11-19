@@ -1410,7 +1410,7 @@
    "name": "Dyson V8 stick vacuum on its wall dock",
    "category": "Cleaning",
    "system": "household",
-   "room": "Utility",
+   "room": "Hall closet",
    "layer": "appliances",
    "builder": "stick_vacuum",
    "size": [
@@ -1419,11 +1419,11 @@
     8.8
    ],
    "at": [
-    11.0,
-    22.876,
+    19.737,
+    20.64,
     0
    ],
-   "facing": 180,
+   "facing": 270,
    "info": {
     "model": "Dyson V8 cordless stick vacuum (clear bin, long wand) with its wall docking station and charger",
     "specs": [
@@ -1437,7 +1437,7 @@
      ],
      [
       "Power",
-      "One 120 V duplex outlet about 18 in up, just west of the vacuum, for the charger"
+      "One 120 V duplex outlet about 18 in up, just north of the vacuum, for the charger"
      ],
      [
       "Run time",
@@ -1446,10 +1446,10 @@
     ],
     "notes": [
      "Placeholder for where the vacuum is kept (Maxwell, 11/19/2026). Exact V8 variant not picked, so the size is from the V8 class.",
-     "The charger outlet is not on Andy's U-11: it is in the Electrical layer as an added outlet, so tell the electrician it is wanted here. U-11's own utility outlet is about 3 ft 8 in west, by the pressure tank.",
+     "The charger outlet is not on Andy's U-11: it is in the Electrical layer as an added outlet, so tell the electrician it is wanted here. U-11 shows no outlet in this closet.",
      "Dimensions are approximate: the maker's spec sheet was not reachable, so the size comes from the product class."
     ],
-    "placement": "Northeast corner of the utility room, on the north wall right beside the hall door (Maxwell, 11/19/2026). The door now swings out into the hall, so the corner is free; the floor head stays about 2 in off the east wall and the door casing. It sticks out about 9 in, less than the pressure tank, so nothing narrows the way in."
+    "placement": "Hall closet off hall 2, on the back (east) wall straight across from the door (Maxwell, 11/19/2026: moved here from the utility room). It sticks out about 9 in into the 3 ft deep closet, which leaves about 2 ft 3 in in front of it."
    }
   },
   {
@@ -6802,7 +6802,7 @@
     0.3
    ],
    "at": [
-    39.0,
+    37.9,
     22.866,
     11.198
    ],
@@ -6823,6 +6823,7 @@
      ]
     ],
     "notes": [
+     "Moved west out of the attic access, which now opens 1 ft off the east wall (U-12 has it at x 39.0): Maxwell, 11/19/2026.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 5).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -7319,7 +7320,7 @@
    "name": "Outlet, 18 in",
    "category": "Electrical",
    "system": "electrical.power",
-   "room": "Utility",
+   "room": "Laundry",
    "layer": "electrical",
    "builder": "outlet",
    "size": [
@@ -7328,11 +7329,11 @@
     0.3
    ],
    "at": [
-    10.417,
-    22.866,
+    19.747,
+    20.057,
     1.312
    ],
-   "facing": 180,
+   "facing": 270,
    "gfi": false,
    "wp": false,
    "volts": 120,
@@ -7345,11 +7346,11 @@
      ],
      [
       "On",
-      "The south facing wall"
+      "The west facing wall"
      ]
     ],
     "notes": [
-     "Not on U-11. Added for the stick vacuum's charger, just west of its dock (Maxwell, 11/19/2026). U-11's own utility room outlet is 45 in further west by the pressure tank, where the UV sterilizer and well controls can use it."
+     "Not on U-11. Added for the stick vacuum's charger in the hall closet, just north of its dock (Maxwell, 11/19/2026: the vacuum moved here from the utility room)."
     ]
    },
    "src": "added #vacuum"
@@ -16988,12 +16989,12 @@
      10.73875
     ],
     [
-     27.07,
+     29.2,
      12.0,
      10.73875
     ],
     [
-     27.07,
+     29.2,
      16.1,
      10.73875
     ],
@@ -17236,17 +17237,12 @@
    "size": 8,
    "points": [
     [
-     27.67,
-     13.1,
+     27.9,
+     11.4,
      11.0
     ],
     [
-     28.2,
-     13.1,
-     11.0
-    ],
-    [
-     28.2,
+     27.9,
      10.6,
      11.0
     ]
@@ -17263,7 +17259,7 @@
      ],
      [
       "Duct",
-      "8 in round, on the attic deck"
+      "8 in round stub straight off the trunk"
      ],
      [
       "Register",
@@ -17275,7 +17271,7 @@
      ]
     ],
     "notes": [
-     "Two of these, side by side, replace the exposed duct, booster fan and motorized damper (Maxwell, 11/19/2026). Sized for about 1 kW of computers, screens and a person: about 160 CFM in cooling, against M-10's 104. Each run is 8 in round on the attic deck from the east face of the trunk to the wall, so nothing passes through a floor truss. ASSUMED route.",
+     "Two of these, side by side, replace the exposed duct, booster fan and motorized damper (Maxwell, 11/19/2026). Sized for about 1 kW of computers, screens and a person: about 160 CFM in cooling, against M-10's 104. The supply trunk runs right behind this wall (its elbow moved east to bedroom 1's door wall for this, Maxwell 11/19/2026), so each register is a stub about 8 in long straight off the trunk. Nothing passes through a floor truss.",
      "Registers: long throw, bar type with adjustable blades, aimed along the sloped ceiling at the window about 10 ft away, so the air crosses the desk before it comes back. The supply and the returns are all in this wall, and a short throw register would let part of the air slip straight into the high return beside it.",
      "The airflow is fixed. The hand damper on each run is reached from the attic: open in summer, part closed in winter, when the computers already heat the room. An outlet on the attic side of this wall would let a motorized damper replace the hand ones later. The rest of the house gives up about 5% of its air for this unless the blower is set near 1,440 CFM instead of 1,368."
     ]
@@ -17283,7 +17279,7 @@
    "grilles": [
     {
      "at": [
-      28.2,
+      27.9,
       10.62,
       11.0
      ],
@@ -17306,17 +17302,12 @@
    "size": 8,
    "points": [
     [
-     27.67,
-     13.9,
+     29.5,
+     11.4,
      11.0
     ],
     [
-     29.7,
-     13.9,
-     11.0
-    ],
-    [
-     29.7,
+     29.5,
      10.6,
      11.0
     ]
@@ -17333,7 +17324,7 @@
      ],
      [
       "Duct",
-      "8 in round, on the attic deck"
+      "8 in round stub straight off the trunk"
      ],
      [
       "Register",
@@ -17345,7 +17336,7 @@
      ]
     ],
     "notes": [
-     "Two of these, side by side, replace the exposed duct, booster fan and motorized damper (Maxwell, 11/19/2026). Sized for about 1 kW of computers, screens and a person: about 160 CFM in cooling, against M-10's 104. Each run is 8 in round on the attic deck from the east face of the trunk to the wall, so nothing passes through a floor truss. ASSUMED route.",
+     "Two of these, side by side, replace the exposed duct, booster fan and motorized damper (Maxwell, 11/19/2026). Sized for about 1 kW of computers, screens and a person: about 160 CFM in cooling, against M-10's 104. The supply trunk runs right behind this wall (its elbow moved east to bedroom 1's door wall for this, Maxwell 11/19/2026), so each register is a stub about 8 in long straight off the trunk. Nothing passes through a floor truss.",
      "Registers: long throw, bar type with adjustable blades, aimed along the sloped ceiling at the window about 10 ft away, so the air crosses the desk before it comes back. The supply and the returns are all in this wall, and a short throw register would let part of the air slip straight into the high return beside it.",
      "The airflow is fixed. The hand damper on each run is reached from the attic: open in summer, part closed in winter, when the computers already heat the room. An outlet on the attic side of this wall would let a motorized damper replace the hand ones later. The rest of the house gives up about 5% of its air for this unless the blower is set near 1,440 CFM instead of 1,368."
     ]
@@ -17353,7 +17344,7 @@
    "grilles": [
     {
      "at": [
-      29.7,
+      29.5,
       10.62,
       11.0
      ],
@@ -18017,13 +18008,18 @@
    "size": 6,
    "points": [
     [
-     27.349999999999998,
-     16.85,
+     28.599999999999998,
+     15.9,
      10.502083333333333
     ],
     [
      27.349999999999998,
-     17.1,
+     15.9,
+     10.502083333333333
+    ],
+    [
+     27.349999999999998,
+     16.15,
      9.494791666666666
     ],
     [
@@ -18078,13 +18074,18 @@
    "size": 7,
    "points": [
     [
-     28.05,
-     16.85,
+     28.599999999999998,
+     15.2,
      10.502083333333333
     ],
     [
      28.05,
-     17.1,
+     15.2,
+     10.502083333333333
+    ],
+    [
+     28.05,
+     15.45,
      9.494791666666666
     ],
     [
@@ -19562,12 +19563,12 @@
      11.842083333333331
     ],
     [
-     26.76,
+     28.89,
      16.41,
      11.842083333333331
     ],
     [
-     26.76,
+     28.89,
      12.31,
      11.842083333333331
     ],
@@ -19995,12 +19996,12 @@
      11.675416666666665
     ],
     [
-     27.55,
+     29.68,
      15.620000000000001,
      11.675416666666665
     ],
     [
-     27.55,
+     29.68,
      11.52,
      11.675416666666665
     ],

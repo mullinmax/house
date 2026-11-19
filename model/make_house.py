@@ -670,6 +670,32 @@ def split_by_attic(x0, x1, y0, y1):
 
 
 WALL_PIECES = [pc for r_ in INT_RECTS for pc in split_by_attic(*r_)]
+
+# Attic access from the loft: a walk through opening in the loft's north wall onto the attic deck (both sit at the same
+# height). A-11's gap in that wall line (the bath 1 / closet 1 opening, x 34.37-37.33) used to run straight up and was the
+# way in; it is now walled above the loft floor, and the opening sits with its east edge [loft] attic_access.east_gap off
+# the inside face of the east wall (Maxwell, 11/19/2026). The extra pieces go on the end so other wall ids keep their numbers.
+ATTIC_ACCESS, LOFT_GAP_FILLS = None, []
+if LOFT["enabled"] and LOFT.get("attic_access"):
+    _aa = LOFT["attic_access"]
+    ax1 = HW - T - _aa["east_gap"]
+    ax0 = ax1 - _aa["width"]
+    _line = sorted((i for i, ((x0, x1, y0, y1), _) in enumerate(WALL_PIECES)
+                    if abs(y1 - LY0) < 0.05 and y1 - y0 < 0.7 and x1 > LX0 + 0.3 and x0 < LX1 - 0.3), key=lambda i: WALL_PIECES[i][0][0])
+    for a_, b_ in zip(_line[:-1], _line[1:]):
+        g0, g1 = WALL_PIECES[a_][0][1], WALL_PIECES[b_][0][0]
+        if g1 - g0 > 0.3:
+            LOFT_GAP_FILLS.append((g0, g1, WALL_PIECES[a_][0][2], WALL_PIECES[a_][0][3]))
+    for i_ in _line:
+        (x0, x1, y0, y1), top = WALL_PIECES[i_]
+        if x0 + 0.2 < ax0 and ax1 < x1 - 0.2:
+            WALL_PIECES[i_] = ((x0, ax0, y0, y1), top)
+            WALL_PIECES.append(((ax1, x1, y0, y1), top))
+            ATTIC_ACCESS = (ax0, ax1, y0, y1)
+            break
+    else:
+        raise SystemExit(f"loft attic_access: no solid wall north of the loft spans x {ax0:.2f}-{ax1:.2f}")
+
 for k, ((x0, x1, y0, y1), top) in enumerate(WALL_PIECES):
     ln, th = max(x1 - x0, y1 - y0), min(x1 - x0, y1 - y0)
     zt = top((x0 + x1) / 2, (y0 + y1) / 2)
@@ -756,6 +782,26 @@ for f_ in FIXES:
             info=dict(model="Drywall over the door head", specs=[["Door head", ftin(h)]]))
         box("Drywall", x0, x1, y0, y1, h, 9, ztop=top)
     nh += 1
+
+for k, (x0, x1, y0, y1) in enumerate(LOFT_GAP_FILLS):
+    rec(f"wall.loft_fill.{k}", "wall", "Loft north wall over the closet 1 opening", "interior",
+        info=dict(model="Drywall from the ceiling up to the roof", specs=[["Width", ftin(x1 - x0)]],
+                  notes=["A-11 leaves this part of the wall open from the slab to the roof. Below the ceiling it is the opening between bath 1 and closet 1, "
+                         "which stays. Above it, it was the way into the attic from the loft until the attic access moved east (Maxwell, 11/19/2026)."]))
+    box("Drywall", x0, x1, y0, y1, FH, 9, ztop=wall_top(x0, x1, y0, y1, True))
+if ATTIC_ACCESS:
+    x0, x1, y0, y1 = ATTIC_ACCESS
+    FL_ = LOFT["floor_height"]
+    rec("loft.attic_access", "wall", "Attic access from the loft", "interior", room="Loft",
+        info=dict(model=f"{ftin(x1 - x0)} wide walk through opening, loft floor level, onto the attic deck",
+                  specs=[["Where", f"North wall of the loft, east edge {ftin(HW - T - x1)} off the inside face of the east wall"],
+                         ["Opening", f"x {ftin(x0)} to {ftin(x1)} from the west wall"],
+                         ["Clear height", f"{ftin(roof_under(y0) - FL_)} on the attic side, up to the roof"],
+                         ["Sill", "Flush: the loft floor and the attic deck are both at " + ftin(FL_)]],
+                  notes=["Moved from the A-11 gap at x 34' 4 1/2\" to 37' 4\" (Maxwell, 11/19/2026). Width kept from that gap.",
+                         "The plans ask for a gasketed attic access panel (general notes). A door or a panel in this opening is not modelled yet."]))
+    box("Drywall", x0, x1, y0, y1, 0, 9, ztop=lambda x, y: FL_ - LOFT_FIN)
+    box("White Oak", x0, x1, y0, y1, FL_ - LOFT_FIN, FL_)               # threshold, flush with the loft floor and the deck
 
 # ------------------------------------------------------------------ roofs and ceilings
 def roof_slab(y0, y1, zfun):

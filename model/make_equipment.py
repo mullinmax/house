@@ -287,7 +287,9 @@ PT_D, PT_H = 16.0, 62.0                            # pressure tank, in: a slim t
 PT_X = 5.95
 PT_CY = UN + (1 + PT_D / 2) / 12
 UV_Z, UV_H = 2.55, 42.0
-VAC_X = 11.0                                       # stick vacuum dock: in the northeast corner (Maxwell, 11/19/2026: the hall door now swings out), floor head 2 in off the east wall
+# Stick vacuum (Maxwell, 11/19/2026): moved from the utility room to the hall closet off hall 2 (inside x 16.664 to 19.747, y 18.866 to 22.408,
+# door on its west side). It hangs on the closet's back (east) wall, straight across from the door.
+VAC_WALL, VAC_Y = 19.747, 20.64                    # back wall inside face, and the dock's centre along it (the door's centre line)
 def dhw(id, name, dia, mat, points, model, notes, specs=None, info_of=None, system="plumbing.dhw", category="Hot water"):
     r = dict(id=id, name=name, category=category, system=system, dia=dia, mat=mat, points=points)
     if info_of: r["info_of"] = info_of; r.pop("name")
@@ -404,17 +406,17 @@ items += [
                ["Would sit", "After the filters, before the preheat tank, with a bypass valve"]],
         notes=["Southeast corner, south of the hall door, so the door still opens fully. A cabinet unit (resin and salt in one box) fits; a twin tank one does not.",
                "Whether it is needed depends on the water test (hardness and iron). Piping to it is not drawn.", APPROX])),
- # ---- cleaning (Maxwell, 11/19/2026): the stick vacuum lives in the utility room on its wall charging dock
- dict(id="stick_vacuum", name="Dyson V8 stick vacuum on its wall dock", category="Cleaning", system="household", room="Utility", layer="appliances",
-      builder="stick_vacuum", size=[9.8, 49.1, 8.8], at=[VAC_X, UN + 0.01, 0], facing=180,
+ # ---- cleaning (Maxwell, 11/19/2026): the stick vacuum lives in the hall closet on its wall charging dock
+ dict(id="stick_vacuum", name="Dyson V8 stick vacuum on its wall dock", category="Cleaning", system="household", room="Hall closet", layer="appliances",
+      builder="stick_vacuum", size=[9.8, 49.1, 8.8], at=[VAC_WALL - 0.01, VAC_Y, 0], facing=270,
       info=dict(model="Dyson V8 cordless stick vacuum (clear bin, long wand) with its wall docking station and charger",
         specs=[["Size", "About 9.8 W x 49 H x 8.8 D in hanging on the dock, floor head about 1 in off the floor"],
                ["Dock", "Screws to the wall with its top about 4 ft up, charges the vacuum while it hangs and holds two tools"],
-               ["Power", "One 120 V duplex outlet about 18 in up, just west of the vacuum, for the charger"],
+               ["Power", "One 120 V duplex outlet about 18 in up, just north of the vacuum, for the charger"],
                ["Run time", "Up to about 40 min on low, roughly 5 h to recharge"]],
         notes=["Placeholder for where the vacuum is kept (Maxwell, 11/19/2026). Exact V8 variant not picked, so the size is from the V8 class.",
-               "The charger outlet is not on Andy's U-11: it is in the Electrical layer as an added outlet, so tell the electrician it is wanted here. U-11's own utility outlet is about 3 ft 8 in west, by the pressure tank.", APPROX],
-        placement="Northeast corner of the utility room, on the north wall right beside the hall door (Maxwell, 11/19/2026). The door now swings out into the hall, so the corner is free; the floor head stays about 2 in off the east wall and the door casing. It sticks out about 9 in, less than the pressure tank, so nothing narrows the way in.")),
+               "The charger outlet is not on Andy's U-11: it is in the Electrical layer as an added outlet, so tell the electrician it is wanted here. U-11 shows no outlet in this closet.", APPROX],
+        placement="Hall closet off hall 2, on the back (east) wall straight across from the door (Maxwell, 11/19/2026: moved here from the utility room). It sticks out about 9 in into the 3 ft deep closet, which leaves about 2 ft 3 in in front of it.")),
  dict(id="ro_system", name="Reverse osmosis drinking water", category="Kitchen appliance", system="plumbing.well", room="Kitchen", layer="appliances",
       builder="ro_unit", size=[5.7, 18, 17.6], at=[10.85, 51.42, 0.34], facing=0,
       info=dict(model="Tankless under sink reverse osmosis with its own faucet (generic, Waterdrop G3 class)",
@@ -511,7 +513,7 @@ def supply(id, room, cfm, dia, points, grille=None, note=None, name=None, parent
     if grille: d["grilles"] = [grille]
     ducts.append(d)
 
-XW, YN, YE, XJ = HP_CX, 12.0, 16.1, 27.07        # west leg x, north leg y, east leg y, jog x (was against bedroom 1's west wall at x 28.12, which moved east 11/19/2026)
+XW, YN, YE, XJ = HP_CX, 12.0, 16.1, 29.2         # west leg x, north leg y, east leg y, jog x: against bedroom 1's door wall (west face x 30.25), the attic's east wall there (Maxwell, 11/19/2026; it had stayed at 27.07 when that wall moved east from 28.12)
 TRUNK_NOTE = ("Rerouted from M-10. Andy drew this trunk down the middle of the attic at y about 21.6 ft. Maxwell asked for it along the north wall of the attic, "
               "so it runs straight north from the heat pump with no turn (Maxwell, 11/18/2026), then along the north attic wall all the way to bedroom 1's west wall, follows that wall south, then runs east along bedroom 1's south wall (Maxwell, 11/17/2026: keep the middle of the attic free for storage). Size is Andy's 18 x 16 throughout, no reductions modelled.")
 ducts.append(dict(id="supply_trunk", name="Supply trunk", category="HVAC supply duct", system="hvac.supply", type="supply", shape="rect", size=[18, 16], parent="supply_plenum", el=20,
@@ -542,26 +544,26 @@ supply("s_bed2", "Bedroom 2", 78, 6, [[8.5, YN - 0.6, 11.0], [8.5, 10.6, 11.0]],
 # circulation with the door shut. 1 kW of computers, screens and a person is about 3,400 Btu/h; in cooling the supply is about 20 F
 # below the room, so it takes about 160 CFM (CFM = Btu/h / (1.08 x dT)) against M-10's 104.
 # Maxwell, 11/19/2026 (picked on a card after bedroom 1's door wall moved): no exposed duct along the ceiling, no booster fan and no
-# motorized damper. Two 8 in high sidewall registers in the door wall, east of the high return, each on its own short run from the
-# east face of the trunk's jog across the hall 2 deck. Nothing crosses a truss. tools/duct_balance.py: each gets about 107 to 110% of
-# its 80 CFM with every damper open (one 8 in would get 84%, two 7 in 94 to 98%), and with the door shut the high return and the two
-# low stacks bring back about 84% at about 0.5 Pa. cfm 98 each is in M-10's units: the tool scales every register to the 1,368 CFM
-# system, which makes these 80 each.
-XS1, XS2 = 28.2, 29.7                             # register centres; the hall 2 deck behind this wall ends at bedroom 1's door wall, x 30.25
+# motorized damper. Two 8 in high sidewall registers in the door wall, east of the high return. Later the same day he had the trunk's
+# elbow moved east against bedroom 1's door wall, so the trunk passes right behind both registers and each is a stub about 8 in long
+# straight off its north face, like bedroom 2's. tools/duct_balance.py: each gets about 110% of its 80 CFM with every damper open,
+# and with the door shut the high return and the two low stacks bring back about 84% at about 0.5 Pa. cfm 98 each is in M-10's
+# units: the tool scales every register to the 1,368 CFM system, which makes these 80 each.
+XS1, XS2 = 27.9, 29.5                             # register centres; the trunk's north leg now ends at x 29.95 and the deck at bedroom 1's door wall, x 30.25
 STUDY_NOTE = ("Two of these, side by side, replace the exposed duct, booster fan and motorized damper (Maxwell, 11/19/2026). Sized for about 1 kW of computers, "
-              "screens and a person: about 160 CFM in cooling, against M-10's 104. Each run is 8 in round on the attic deck from the east face of the trunk "
-              "to the wall, so nothing passes through a floor truss. ASSUMED route.")
+              "screens and a person: about 160 CFM in cooling, against M-10's 104. The supply trunk runs right behind this wall (its elbow moved east to bedroom 1's "
+              "door wall for this, Maxwell 11/19/2026), so each register is a stub about 8 in long straight off the trunk. Nothing passes through a floor truss.")
 STUDY_REG = ("Registers: long throw, bar type with adjustable blades, aimed along the sloped ceiling at the window about 10 ft away, so the air crosses the "
              "desk before it comes back. The supply and the returns are all in this wall, and a short throw register would let part of the air slip "
              "straight into the high return beside it.")
 STUDY_FIXED = ("The airflow is fixed. The hand damper on each run is reached from the attic: open in summer, part closed in winter, when the computers "
                "already heat the room. An outlet on the attic side of this wall would let a motorized damper replace the hand ones later. The rest of the "
                "house gives up about 5% of its air for this unless the blower is set near 1,440 CFM instead of 1,368.")
-for _k, (_x, _y) in enumerate([(XS1, 13.1), (XS2, 13.9)]):
-    supply("s_study" if _k == 0 else "s_study2", "Bedroom 4 / study", 98, 8, [[XJ + 0.6, _y, 11.0], [_x, _y, 11.0], [_x, 10.6, 11.0]],
+for _k, _x in enumerate([XS1, XS2]):
+    supply("s_study" if _k == 0 else "s_study2", "Bedroom 4 / study", 98, 8, [[_x, YN - 0.6, 11.0], [_x, 10.6, 11.0]],
            dict(at=[_x, 10.62, 11.0], size=[14, 6], wall=N), STUDY_NOTE, name=f"Supply to Bedroom 4 / study, {'west' if _k == 0 else 'east'} register")
     ducts[-1]["info"]["model"] = "8 in round, about 80 CFM, one of two"
-    ducts[-1]["info"]["specs"] = [["Airflow", "About 80 CFM each, 160 for the room (M-10 has 104 for the room)"], ["Duct", "8 in round, on the attic deck"],
+    ducts[-1]["info"]["specs"] = [["Airflow", "About 80 CFM each, 160 for the room (M-10 has 104 for the room)"], ["Duct", "8 in round stub straight off the trunk"],
                                   ["Register", "14 x 6 in high sidewall, long throw"], ["Damper", "Manual volume damper at the takeoff, reached from the attic"]]
     ducts[-1]["info"]["notes"] += [STUDY_REG, STUDY_FIXED]
 supply("s_hall2a", "Hall 2", 15, 6, drop(bay(14.4), YN + 0.75, 17.8), dict(at=[bay(14.4), 17.8, CEIL - 0.02], size=[8, 6]))
@@ -607,8 +609,12 @@ for k, x in enumerate(KX):
 # east leg
 YS = YE + 0.75
 XL = bay(27.6)                                     # laundry and living 1 share one bay, side by side
-supply("s_laundry", "Laundry", 40, 6, drop(XL - 0.35, YS, 19.0), dict(at=[XL - 0.35, 19.0, CEIL - 0.02], size=[10, 6]))
-supply("s_living1", "Living", 70, 7, drop(XL + 0.35, YS, 21.4) + [[bay(23.7), 21.4, ZT], [bay(23.7), 22.62, ZT]], dict(at=[bay(23.7), 22.9, ZT], size=[10, 6], wall=S),
+# The elbow moved east of this bay (Maxwell, 11/19/2026), so these two leave the west face of the trunk's north to south leg, run about
+# a foot west on the deck and then drop into the bay as before.
+def drop_w(x, y0, ys):
+    return [[XJ - 0.6, y0, DECK + 0.45], [x, y0, DECK + 0.45], [x, y0 + 0.25, ZT], [x, ys, ZT]]
+supply("s_laundry", "Laundry", 40, 6, drop_w(XL - 0.35, 15.9, 19.0), dict(at=[XL - 0.35, 19.0, CEIL - 0.02], size=[10, 6]))
+supply("s_living1", "Living", 70, 7, drop_w(XL + 0.35, 15.2, 21.4) + [[bay(23.7), 21.4, ZT], [bay(23.7), 22.62, ZT]], dict(at=[bay(23.7), 22.9, ZT], size=[10, 6], wall=S),
        "Drops in the laundry bay, then crosses the trusses west under the study returns to keep the register near where M-10 has it. "
        "7 in (Maxwell, 11/18/2026): at 6 in this was the weakest supply in the house. The builder is only sure 6 in passes the truss webs, so check the fit at these two trusses before ordering.")
 ducts[-1]["cross_ok"] = 7                          # tools/truss_clash.py: this run may cross the trusses at 7 in
@@ -1058,10 +1064,9 @@ def _eid(kind):
     return f"elec_{kind}_{_n[kind]:02d}"
 # The stick vacuum's charger outlet (PR 40) is not on U-11: it is added here so the Electrical layer has every outlet,
 # and the vacuum builder only draws the charger plugged into it.
-VAC_OX = VAC_X - 7 / 12
-_EP["devices"].append(dict(kind="outlet", x=round(VAC_OX, 3), y=UN, z_in=18, facing=180, level="main", src="added #vacuum",
-    note="Not on U-11. Added for the stick vacuum's charger, just west of its dock (Maxwell, 11/19/2026). U-11's own utility room outlet is "
-         f"{(VAC_OX - 6.696) * 12:.0f} in further west by the pressure tank, where the UV sterilizer and well controls can use it."))
+VAC_OY = VAC_Y - 7 / 12
+_EP["devices"].append(dict(kind="outlet", x=VAC_WALL, y=round(VAC_OY, 3), z_in=18, facing=270, level="main", src="added #vacuum",
+    note="Not on U-11. Added for the stick vacuum's charger in the hall closet, just north of its dock (Maxwell, 11/19/2026: the vacuum moved here from the utility room)."))
 _tagq = []
 def _tag(n0=None, src=None):                    # every electrical item carries its sheet symbol, for the snap tool
     if _tagq:

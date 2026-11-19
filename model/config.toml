@@ -67,6 +67,7 @@ railing = true                  # 36" guard along the open loft edge and handrai
 railing_height = 3.0
 railing_style = "steel_oak"     # black steel posts and balusters, white oak cap. ASSUMED
 ships_ladder = [27.7, 32.0, 31.12, 34.56]   # footprint from A-11, rises toward the east
+attic_access = { east_gap = 1.0, width = 2.96 }   # walk through opening in the loft north wall onto the attic deck: east edge 1 ft off the inside face of the east wall (Maxwell, 11/19/2026). Width kept from the A-11 gap (x 34.37-37.33) that used to be the way in, now walled above the loft floor
 
 # ---------------------------------------------------------------- OPENINGS
 # wall = N, S, E, W (exterior) or C (clerestory wall). start/end measured along the wall
