@@ -285,9 +285,11 @@ south_height = 6.3              # ASSUMED
 island = [6.0, 42.52, 14.0, 46.27]      # 96" top (A-11), deepened to 45" for a 15" seating overhang (redline)
 island_overhang = 1.25                   # 15" seating overhang on the north side (Erin asked for 12" or more)
 island_color = "#56614A"                 # olive green as rendered by Carter. Erin's note said "soft green"
-cabinet_wood = "#B98B5A"                 # KraftMaid natural wood as rendered by Carter (species/stain TBD)
+cabinet_wood = "#DEBA8C"                 # light natural wood as rendered by Danielle Gross, north wall, 11/19/2026 (species/stain TBD). Texture: tools/make_cabinet_texture.py
+island_finish = "paint"                  # paint (olive green, island_color) | wood (same wood as the other cabinets)
 counter_color = "#ECE8E0"                # ASSUMED light quartz
-hardware_color = "#B8B8B4"               # brushed nickel bar pulls as rendered
+hardware_color = "#B8B8B4"               # brushed nickel: faucet, lever handles and appliance handles
+pull_color = "#1A1A1A"                   # matte black bar pulls on every kitchen cabinet (Danielle's 11/19/2026 rendering)
 wide_drawer_pulls = 1                    # Erin redline 11/12: one long pull on wide drawers (2 = Carter drawing)
 upper_bottom = 4.6                       # underside of the uppers on the fridge wall (from elevation)
 tall_height = 8.0                        # top of tall cabinets incl. crown (from elevation)
@@ -315,8 +317,11 @@ axis = "x"
 back = 35.158
 facing = 1
 units = [[3.9, 7.05, "fridge"], [7.1, 9.4, "drawers3"], [9.4, 11.7, "drawer_doors2"]]
-uppers = [[7.1, 9.4, "glass", 1.1], [9.4, 11.7, "microwave", 1.5]]   # [start, end, type, depth ft]; microwave upper deepened (redline)
-pantry_door = [0.743, 3.443]             # redline: door into the pantry where Carter drew a tall cabinet. Rough opening = first clerestory passage
+uppers = [[7.1, 9.4, "microwave", 1.5], [9.4, 11.7, "glass", 1.1]]   # [start, end, type, depth ft]; microwave upper deepened (redline). Order from Danielle's 11/19/2026 rendering: microwave by the fridge, glass at the east end
+pantry_style = "murphy"                  # murphy (Danielle 11/19/2026, Maxwell: the tall cabinet left of the fridge is a Murphy door into the pantry) | door (Erin's redline: oak slab door)
+murphy_split = 4.6                       # door line on the Murphy cabinet's face, in line with the underside of the uppers
+murphy_swing = 92                        # degrees it opens, hinged at the west front corner, parking along the west wall. ASSUMED
+pantry_door = [0.743, 3.443]             # redline: door into the pantry where Carter drew a tall cabinet (now a Murphy door, pantry_style). Rough opening = first clerestory passage
 pantry_door_leaf = 2.5                   # 2'-6" x 6'-8" white oak slab. ASSUMED (a 2'-8" leaf leaves no room for casing against the west wall)
 pantry_casing_east = 0.292               # 3-1/2" casing; its outer edge stops 2" (0.167 ft) short of the fridge side panel at x = 3.9
 pantry_casing_west = 0.20                # trimmed to 2-3/8" so it dies into the west wall face at x = 0.542
