@@ -287,6 +287,7 @@ PT_D, PT_H = 16.0, 62.0                            # pressure tank, in: a slim t
 PT_X = 5.95
 PT_CY = UN + (1 + PT_D / 2) / 12
 UV_Z, UV_H = 2.55, 42.0
+VAC_X = 7.45                                       # stick vacuum dock: east of the pressure tank (ends at x 6.62), west of the open hall door (x 8.66)
 def dhw(id, name, dia, mat, points, model, notes, specs=None, info_of=None, system="plumbing.dhw", category="Hot water"):
     r = dict(id=id, name=name, category=category, system=system, dia=dia, mat=mat, points=points)
     if info_of: r["info_of"] = info_of; r.pop("name")
@@ -403,6 +404,17 @@ items += [
                ["Would sit", "After the filters, before the preheat tank, with a bypass valve"]],
         notes=["Southeast corner, south of the hall door, so the door still opens fully. A cabinet unit (resin and salt in one box) fits; a twin tank one does not.",
                "Whether it is needed depends on the water test (hardness and iron). Piping to it is not drawn.", APPROX])),
+ # ---- cleaning (Maxwell, 11/19/2026): the stick vacuum lives in the utility room on its wall charging dock
+ dict(id="stick_vacuum", name="Dyson V8 stick vacuum on its wall dock", category="Cleaning", system="household", room="Utility", layer="appliances",
+      builder="stick_vacuum", size=[9.8, 49.1, 8.8], at=[VAC_X, UN + 0.01, 0], facing=180,
+      info=dict(model="Dyson V8 cordless stick vacuum (clear bin, long wand) with its wall docking station and charger",
+        specs=[["Size", "About 9.8 W x 49 H x 8.8 D in hanging on the dock, floor head about 1 in off the floor"],
+               ["Dock", "Screws to the wall with its top about 4 ft up, charges the vacuum while it hangs and holds two tools"],
+               ["Power", "One 120 V duplex outlet about 18 in up, just east of the vacuum, for the charger"],
+               ["Run time", "Up to about 40 min on low, roughly 5 h to recharge"]],
+        notes=["Placeholder for where the vacuum is kept (Maxwell, 11/19/2026). Exact V8 variant not picked, so the size is from the V8 class.",
+               "The outlet is ASSUMED and not on the electrical plan yet: tell the electrician it is wanted here.", APPROX],
+        placement="North wall of the utility room, between the pressure tank and the hall door. The open door stops about 1 ft east of it, and it sticks out less than the pressure tank, so the walkway past the water tanks stays the same.")),
  dict(id="ro_system", name="Reverse osmosis drinking water", category="Kitchen appliance", system="plumbing.well", room="Kitchen", layer="appliances",
       builder="ro_unit", size=[5.7, 18, 17.6], at=[10.85, 51.42, 0.34], facing=0,
       info=dict(model="Tankless under sink reverse osmosis with its own faucet (generic, Waterdrop G3 class)",
