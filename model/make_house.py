@@ -389,9 +389,10 @@ def window_unit(o):
     wbox(inner, wall, u0, u0 + 0.06, jd0, jd1, z0, z1 - 0.06)
     wbox(inner, wall, u1 - 0.06, u1, jd0, jd1, z0, z1 - 0.06)
     wbox(inner, wall, u0, u1, jd0, jd1, z1 - 0.06, z1)
-    if not door:
-        wbox(inner, wall, u0 - 0.15, u1 + 0.15, jd0, jd1 + 0.12, z0 - 0.07, z0)
     cw = 3.5 / 12
+    if not door:                                            # stool: horns 1" past the casing, nose 2 1/2" proud of the drywall
+        horn, nose = cw + 1 / 12, 2.5 / 12
+        wbox(inner, wall, u0 - horn, u1 + horn, jd0, jd1 + nose, z0 - 0.07, z0)
     wbox(inner, wall, u0 - cw, u0, jd1, jd1 + 0.06, z0, z1)
     wbox(inner, wall, u1, u1 + cw, jd1, jd1 + 0.06, z0, z1)
     wbox(inner, wall, u0 - cw, u1 + cw, jd1, jd1 + 0.06, z1, z1 + cw)
