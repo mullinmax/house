@@ -217,6 +217,36 @@ const roofNodes = [], utilNodes = [], treeMeshes = [];
 const LITE = /[?&]lite\b/.test(location.search);
 
 const upperPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1e6);   // the slice: everything above it is cut away. 1e6 = nothing clipped
+// Section faces. With the slice on you look down into cut walls, and inside a wall the layers' faces lie flush (SIP skins
+// on the foam, drywall on the studs), so they flickered (Maxwell, 11/20/2026). A back face is only in view where a solid
+// has been cut open, so a back face is drawn as that solid's cut face: its own material, lit as if it faced up like the
+// cut, a little darker so the cut reads, and 2 mm toward the eye so it always beats a flush face of the next layer (a
+// ray inside the OSB shows OSB). Off when the slice is off.
+const CAP = { on: { value: 0 }, proj: { value: camera.projectionMatrix } };
+function capSection(m) {
+  if (m.userData.capped || m.transparent || !m.isMeshStandardMaterial) return;
+  m.userData.capped = true;
+  m.side = THREE.DoubleSide;
+  m.onBeforeCompile = (sh) => {
+    sh.uniforms.uCapOn = CAP.on; sh.uniforms.uCapProj = CAP.proj;
+    sh.fragmentShader = 'uniform float uCapOn;\nuniform mat4 uCapProj;\n' + sh.fragmentShader
+      .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
+      #if NUM_CLIPPING_PLANES > 0
+      if (uCapOn > 0.5 && !gl_FrontFacing) normal = normalize(-clippingPlanes[0].xyz);   // the cut faces up
+      #endif`)
+      .replace('#include <dithering_fragment>', `#include <dithering_fragment>
+      gl_FragDepth = gl_FragCoord.z;
+      if (uCapOn > 0.5 && !gl_FrontFacing) {
+        vec3 p = -vViewPosition;
+        p -= normalize(p) * 0.002;                   // 2 mm toward the eye: wins over a flush face, never over a real one
+        vec4 c = uCapProj * vec4(p, 1.0);
+        gl_FragDepth = clamp(c.z / c.w * 0.5 + 0.5, 0.0, 1.0);
+        gl_FragColor.rgb *= 0.82;
+      }`);
+  };
+  m.customProgramCacheKey = () => 'cap2';
+  m.needsUpdate = true;
+}
 const houseMats = new Set(), furnitureMeshes = [], bakedDeck = [];
 const togMeshes = {};          // generated house meshes by view layer (house.js toggleOf): drywall, extwalls, openings, finish, framing
 const nightFixtures = [];
@@ -277,7 +307,7 @@ function prepare(roots, first) {
     const mats = [].concat(o.material);
     if (mats.some((m) => m && m.transparent && m.opacity < 0.99)) o.castShadow = false;
     const part = partOf(o);
-    if (part && !/^(site|trees)$/i.test(part.name)) for (const m of mats) if (m) { m.clippingPlanes = [upperPlane]; m.clipShadows = true; houseMats.add(m); }
+    if (part && !/^(site|trees)$/i.test(part.name)) for (const m of mats) if (m) { m.clippingPlanes = [upperPlane]; m.clipShadows = true; houseMats.add(m); capSection(m); }
     if (((part && /^furniture/i.test(part.name)) || o.userData.layer === 'furniture') && !o.userData.tog) furnitureMeshes.push(o);
     if (o.userData.tog) (togMeshes[o.userData.tog] ||= []).push(o);
     if (!o.isInstancedMesh && mats[0] && mats[0].name === 'Attic Deck') bakedDeck.push(o);
@@ -1016,6 +1046,7 @@ function setSlice(ft, snapTo = true) {
   for (const L of levels) { const c = L.cut_ft ?? SLICE_MAX; if (Math.abs(v - c) <= (snapTo ? SNAP : 0.001)) { v = c; hit = L; } }
   const whole = v >= SLICE_MAX - 0.001;
   upperPlane.constant = whole ? 1e6 : v * F;
+  CAP.on.value = whole ? 0 : 1;
   if (sliced !== !whole) { sliced = !whole; applyToggles(); }
   $('slice').value = v;
   $('slicelbl').textContent = whole ? 'Whole house' : `${ftIn(v)}${hit ? ', ' + hit.name.toLowerCase() : ''}`;

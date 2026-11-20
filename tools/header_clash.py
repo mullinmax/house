@@ -113,6 +113,18 @@ for dc in D["ducts"]:
             elif SHOW_ALL:
                 add("ok", dc["id"], hd, f"{dc['id']} grille clears {hd['name']} by {12 * min(abs(lo - top), abs(z0 - hi)):.1f} in")
 
+# headers and studs that would show: a header whose bottom is below the opening's head pokes through the drywall
+# over the door, and a jack or king inside the door opening stands in the doorway.
+for hd in FM.get("headers", []):
+    if not hd.get("built") or "gap" not in hd:
+        continue
+    g0, g1 = hd["gap"]
+    r0, r1 = hd["ro"]
+    if hd["box"][4] < hd["head"] - 1e-3:
+        add("CLASH", "framing", hd, f"the header over {hd['name']} (bottom {12 * hd['box'][4]:.1f} in) is below the opening's head ({12 * hd['head']:.1f} in): it shows through")
+    if r0 > g0 + 0.01 or r1 < g1 - 0.01:
+        add("CLASH", "framing", hd, f"the studs of {hd['name']} stand in the doorway (rough opening {r0:.2f} to {r1:.2f}, door opening {g0:.2f} to {g1:.2f})")
+
 # wall grilles against the top plates of the wall they sit in (standing walls only; the plates of the rest are not up yet)
 PLATES = FM.get("plates_in", 3.0) * IN
 for dc in D["ducts"]:
