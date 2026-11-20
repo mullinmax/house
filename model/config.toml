@@ -813,7 +813,7 @@ notes = ["A-11 shows this as an open gap under the loft; the framing has a door-
 
 [[framing.headers]]             # C1, hall 2 to laundry pocket door
 at = [22.08, 15.26]
-ro = [20.75, 26.167]            # 65 in between the jacks, header about 71 1/4 in on two jacks each end (Maxwell 11/20/2026: same as the bedroom 1 closet door). West end on the door opening's west edge (the pocket runs east)
+ro = [20.75, 26.188]            # 65 1/4 in between the jacks (Maxwell 11/20/2026: like the bedroom 1 closet door but about 1/4 in longer, a small gap left between header and studs), header about 71 1/2 in on two jacks each end. West end on the door opening's west edge (the pocket runs east)
 type = "LVL"
 size = "LVL (dark brown, about 10 to 14 in)"
 depth_in = 12
