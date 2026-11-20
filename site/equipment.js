@@ -1419,15 +1419,17 @@ function buildTrusses(t) {
         push(new THREE.BoxGeometry(CW * F, CH * F, L * F), m4.clone());
       }
       // a solid trimmable end where the truss bears on a wall (measured, 11/20/2026): a block between the chords, webs start past it
-      let w0 = y0;
+      let w0 = y0, w1 = y1;
       for (const [ex, ey0, ey1] of t.solid_ends || []) {
-        if (Math.abs(ex - x) > 0.01 || ey1 <= y0 || ey0 >= y1 || ey0 > y0 + 0.2) continue;
-        const e1 = Math.min(ey1, y1), hz = D - zb - zt - 2 * CH - 0.006;
-        m4.makeTranslation(...plan(x, (y0 + e1) / 2, z0 + zb + CH + hz / 2).toArray());
-        push(new THREE.BoxGeometry(CW * 0.9 * F, hz * F, (e1 - y0) * F), m4.clone());
-        w0 = e1;
+        if (Math.abs(ex - x) > 0.01 || ey1 <= y0 || ey0 >= y1) continue;
+        const atN = ey0 <= y0 + 0.2, atS = ey1 >= y1 - 0.2;            // only an end that reaches this region's edge
+        if (!atN && !atS) continue;
+        const e0 = atN ? y0 : Math.max(ey0, y0), e1 = atN ? Math.min(ey1, y1) : y1, hz = D - zb - zt - 2 * CH - 0.006;
+        m4.makeTranslation(...plan(x, (e0 + e1) / 2, z0 + zb + CH + hz / 2).toArray());
+        push(new THREE.BoxGeometry(CW * 0.9 * F, hz * F, (e1 - e0) * F), m4.clone());
+        if (atN) w0 = Math.max(w0, e1); else w1 = Math.min(w1, e0);
       }
-      const WL = y1 - w0, panels = Math.max(2, Math.round(WL / (D * 1.5))), pl = WL / panels;     // webs zigzag between the chords
+      const WL = w1 - w0, panels = Math.max(2, Math.round(WL / (D * 1.5))), pl = WL / panels;     // webs zigzag between the chords
       for (let k = 0; WL > 0.3 && k < panels; k++) {
         const lo = z0 + zb + CH, hi = z0 + D - zt - CH;
         const a = plan(x, w0 + k * pl, k % 2 ? hi : lo), b = plan(x, w0 + (k + 1) * pl, k % 2 ? lo : hi);
