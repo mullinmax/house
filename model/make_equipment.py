@@ -1419,6 +1419,30 @@ for dv in _EP["devices"]:
                         + (["The TV is a generic 65 in set (about 57 x 33 in), the size Andy's site plan furniture shows. Its centre is at 72 in as U-11 draws it, which is high for watching from the couch; 42 to 48 in is more usual, so confirm before the blocking goes in."] if tv else []))))
 
 
+# ERV boost controls (Maxwell, 11/20/2026: add them to the model). One push button timer in each room the ERV exhausts, in its own
+# low voltage box beside the room's light switch on the side away from the door, so the line voltage switch box stays as drawn.
+# Each gets its own thin cable up the wall and across the attic to the ERV's boost terminals. Cable lengths are rough.
+_ERV_AT = next(it_["at"] for it_ in items if it_["id"] == "erv")
+for _sw_src, _room_n, _side, _bath in (("U-11 #24", "Bath 2", 1, "bath 2"), ("U-11 #27", "Powder", 1, "powder room"), ("U-11 #28", "Bath 1", 1, "bath 1")):
+    _sw = next(it_ for it_ in items if it_.get("src") == _sw_src and it_.get("builder") == "switch_plate")
+    _f = _sw["facing"]
+    _ax = (1, 0) if _f in (0, 180) else (0, 1)           # along the wall
+    _off = (_sw["size"][0] / 2 + 1.0 + 2.75 / 2) / 12 * _side
+    _bx, _by = round(_sw["at"][0] + _ax[0] * _off, 3), round(_sw["at"][1] + _ax[1] * _off, 3)
+    _len = abs(_bx - _ERV_AT[0]) + abs(_by - _ERV_AT[1]) + (CEIL - 44 / 12) + (_ERV_AT[2] - CEIL) + 6
+    items.append(dict(id=f"erv_boost_{_room_n.lower().replace(' ', '')}", name="ERV boost timer, 44 in", category="Electrical", system="hvac.ventilation", room=_room_n, layer="electrical",
+        builder="boost_timer", size=[2.75, 4.5, 0.3], at=[_bx, _by, _sw["at"][2]], facing=_f, src="added #erv_boost",
+        info=dict(model="Broan VBATHW 20/40/60 minute push button control for the ERV", price="About $34",
+            specs=[["Does", "One press runs the ERV on high for 20 minutes, two for 40, three for 60, then it drops back to its continuous low. The lights show which"],
+                   ["Height", "44 in to the centre, beside the light switch"],
+                   ["Wiring", f"Its own low voltage cable to the ERV's boost terminals in the attic, about {round(_len / 5) * 5} ft: up this wall into the attic and across the deck to the unit. Thin thermostat style cable, no line voltage"],
+                   ["Box", "A low voltage mounting ring (no box), about 1 in from the light switch plate"]],
+            notes=[f"Added for the {_bath} (Maxwell, 11/20/2026): the ERV does all the bathroom exhaust, so this is the bathroom's fan button. Not on U-11.",
+                   "Every control's cable goes back to the ERV on its own; check Broan's wiring diagram for how many controls its boost terminals take and which cable it calls for. "
+                   "The electrician pulls these at rough in, with the walls open.",
+                   "Boost pulls harder from every bathroom grille at once. The litter box branch stays at 20 CFM on its flow limiter."],
+            placement=f"{_room_n}, beside the light switch by the door.")))
+
 # ------------------------------------------------------------------ site: planted trees, transformer, gravel drive
 # Positions from [site_plantings] (traced from the 10/29/2026 drone photo). Each stands on the web terrain: heights come
 # from model/data/terrain/web_ground.json, sampled off site.glb by tools/ground_grid.mjs.

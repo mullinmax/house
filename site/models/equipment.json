@@ -9297,6 +9297,153 @@
    "src": "added #vacuum"
   },
   {
+   "id": "erv_boost_bath2",
+   "name": "ERV boost timer, 44 in",
+   "category": "Electrical",
+   "system": "hvac.ventilation",
+   "room": "Bath 2",
+   "layer": "electrical",
+   "builder": "boost_timer",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    20.904,
+    10.658,
+    3.479
+   ],
+   "facing": 0,
+   "src": "added #vacuum",
+   "info": {
+    "model": "Broan VBATHW 20/40/60 minute push button control for the ERV",
+    "price": "About $34",
+    "specs": [
+     [
+      "Does",
+      "One press runs the ERV on high for 20 minutes, two for 40, three for 60, then it drops back to its continuous low. The lights show which"
+     ],
+     [
+      "Height",
+      "44 in to the centre, beside the light switch"
+     ],
+     [
+      "Wiring",
+      "Its own low voltage cable to the ERV's boost terminals in the attic, about 50 ft: up this wall into the attic and across the deck to the unit. Thin thermostat style cable, no line voltage"
+     ],
+     [
+      "Box",
+      "A low voltage mounting ring (no box), about 1 in from the light switch plate"
+     ]
+    ],
+    "notes": [
+     "Added for the bath 2 (Maxwell, 11/20/2026): the ERV does all the bathroom exhaust, so this is the bathroom's fan button. Not on U-11.",
+     "Every control's cable goes back to the ERV on its own; check Broan's wiring diagram for how many controls its boost terminals take and which cable it calls for. The electrician pulls these at rough in, with the walls open.",
+     "Boost pulls harder from every bathroom grille at once. The litter box branch stays at 20 CFM on its flow limiter."
+    ],
+    "placement": "Bath 2, beside the light switch by the door."
+   }
+  },
+  {
+   "id": "erv_boost_powder",
+   "name": "ERV boost timer, 44 in",
+   "category": "Electrical",
+   "system": "hvac.ventilation",
+   "room": "Powder",
+   "layer": "electrical",
+   "builder": "boost_timer",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    11.664,
+    33.038,
+    3.479
+   ],
+   "facing": 270,
+   "src": "added #vacuum",
+   "info": {
+    "model": "Broan VBATHW 20/40/60 minute push button control for the ERV",
+    "price": "About $34",
+    "specs": [
+     [
+      "Does",
+      "One press runs the ERV on high for 20 minutes, two for 40, three for 60, then it drops back to its continuous low. The lights show which"
+     ],
+     [
+      "Height",
+      "44 in to the centre, beside the light switch"
+     ],
+     [
+      "Wiring",
+      "Its own low voltage cable to the ERV's boost terminals in the attic, about 25 ft: up this wall into the attic and across the deck to the unit. Thin thermostat style cable, no line voltage"
+     ],
+     [
+      "Box",
+      "A low voltage mounting ring (no box), about 1 in from the light switch plate"
+     ]
+    ],
+    "notes": [
+     "Added for the powder room (Maxwell, 11/20/2026): the ERV does all the bathroom exhaust, so this is the bathroom's fan button. Not on U-11.",
+     "Every control's cable goes back to the ERV on its own; check Broan's wiring diagram for how many controls its boost terminals take and which cable it calls for. The electrician pulls these at rough in, with the walls open.",
+     "Boost pulls harder from every bathroom grille at once. The litter box branch stays at 20 CFM on its flow limiter."
+    ],
+    "placement": "Powder, beside the light switch by the door."
+   }
+  },
+  {
+   "id": "erv_boost_bath1",
+   "name": "ERV boost timer, 44 in",
+   "category": "Electrical",
+   "system": "hvac.ventilation",
+   "room": "Bath 1",
+   "layer": "electrical",
+   "builder": "boost_timer",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    37.971,
+    22.866,
+    3.479
+   ],
+   "facing": 180,
+   "src": "added #vacuum",
+   "info": {
+    "model": "Broan VBATHW 20/40/60 minute push button control for the ERV",
+    "price": "About $34",
+    "specs": [
+     [
+      "Does",
+      "One press runs the ERV on high for 20 minutes, two for 40, three for 60, then it drops back to its continuous low. The lights show which"
+     ],
+     [
+      "Height",
+      "44 in to the centre, beside the light switch"
+     ],
+     [
+      "Wiring",
+      "Its own low voltage cable to the ERV's boost terminals in the attic, about 55 ft: up this wall into the attic and across the deck to the unit. Thin thermostat style cable, no line voltage"
+     ],
+     [
+      "Box",
+      "A low voltage mounting ring (no box), about 1 in from the light switch plate"
+     ]
+    ],
+    "notes": [
+     "Added for the bath 1 (Maxwell, 11/20/2026): the ERV does all the bathroom exhaust, so this is the bathroom's fan button. Not on U-11.",
+     "Every control's cable goes back to the ERV on its own; check Broan's wiring diagram for how many controls its boost terminals take and which cable it calls for. The electrician pulls these at rough in, with the walls open.",
+     "Boost pulls harder from every bathroom grille at once. The litter box branch stays at 20 CFM on its flow limiter."
+    ],
+    "placement": "Bath 1, beside the light switch by the door."
+   }
+  },
+  {
    "id": "tree_white_pine",
    "name": "White pine",
    "category": "Planted tree",

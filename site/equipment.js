@@ -467,6 +467,14 @@ const BUILD = {
     for (let i = 0; i < n; i++) box(g, 1.3, 2.6, 0.3, mat('rocker', 0xf1f0ec, 0.45, 0), (i - (n - 1) / 2) * 1.81, h / 2, d + 0.15);
     return g;
   },
+  boost_timer(s) {                 // ERV boost push button (Broan VBATHW class): white plate, one wide button, three small time lights above it
+    const [w, h, d] = s, g = new THREE.Group();
+    box(g, w, h, d, whitePlastic(), 0, h / 2, d / 2);
+    box(g, 1.3, 1.9, 0.3, mat('rocker', 0xf1f0ec, 0.45, 0), 0, h / 2 - 0.45, d + 0.15);
+    const led = mat('boost led', 0x8fd18a, 0.4, 0, { emissive: 0x3faa3a, emissiveIntensity: 0.35 });
+    for (const x of [-0.45, 0, 0.45]) cyl(g, 0.12, 0.12, led, x, h / 2 + 1.0, d + 0.06, 'z', 10);
+    return g;
+  },
   data_jack(s) {                   // two network keystones, no coax: the house has none (Maxwell, 11/19/2026)
     const [w, h, d] = s, g = new THREE.Group();
     box(g, w, h, d, whitePlastic(), 0, h / 2, d / 2);
