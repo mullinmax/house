@@ -296,6 +296,7 @@ function prepare(roots, first) {
   $('cross').hidden = mode !== 'walk';
   console.log(`walkthrough ready: ${colliders.length} colliders, ${operables.length} operable, ${Object.keys(spawns).length} spawns`);
   if (!openSharedView()) openLinkedRoom();
+  viewReady = true;
 }
 
 // ---------------------------------------------------------------- shareable room links
@@ -411,6 +412,39 @@ async function share() {
   toast(ok ? 'Link to this view copied' : 'Copy this link from the address bar', 2600);
 }
 for (const b of document.querySelectorAll('[data-act="share"]')) b.onclick = () => share();
+
+// ---------------------------------------------------------------- keep the view across a refresh
+// The address bar follows the view (twice a second at most, and only when something changed), so a refresh, or the
+// browser's own share or bookmark, lands on the same view. Reset view puts everything back to how the page opens.
+let viewReady = false, lastSync = 0;
+function syncAddress(now) {
+  if (!viewReady || now - lastSync < 500) return;
+  lastSync = now;
+  try {
+    const url = shareURL();
+    if (url !== location.origin + location.pathname + location.search) history.replaceState(null, '', url + location.hash);
+  } catch (e) { /* a sandboxed frame may refuse; the view still works */ }
+}
+function resetView() {
+  hideInfo(); closeModal(); openSheet(null);
+  for (const k of LAYERS_ALL()) $('l' + k).checked = LAYER_DEFAULT[k];
+  applyToggles();
+  if (night) setNight(false);
+  setSlice(SLICE_MAX);
+  if (noclip) setNoclip(false);
+  if (crouch) setCrouch(false);
+  if (mode !== 'orbit') setMode('orbit');
+  orbitHome();
+  lastRoom = 'Outside_SW';
+  try {
+    const q = new URLSearchParams(location.search);
+    for (const k of [...SHARE_KEYS, 'room', 'view']) q.delete(k);
+    const s = q.toString().replace(/=(?=&|$)/g, '');
+    history.replaceState(null, '', location.pathname + (s ? '?' + s : '') + location.hash);
+  } catch (e) { /* only a convenience */ }
+  toast('View reset');
+}
+for (const b of document.querySelectorAll('[data-act="reset"]')) b.onclick = () => resetView();
 
 // ---------------------------------------------------------------- static merge
 // Thousands of small meshes cost one draw call each. Static meshes that share a material (and part,
@@ -1354,8 +1388,9 @@ renderer.setAnimationLoop(() => {
     if (shown) $('promptTxt').textContent = t.op ? (t.op.type === 'spin' ? (t.op.target ? 'Turn fan off' : 'Turn fan on') : t.op.target ? 'Close' : 'Open') : `About: ${t.equip.name}`;
   } else if (mode !== 'walk') $('prompt').hidden = true;
   renderer.render(scene, camera);
+  syncAddress(performance.now());
 });
 
 loadAll().catch((e) => { console.error(e); $('loadmsg').textContent = 'The model could not be loaded.'; });
-window.__B = THREE.Box3; window.__T = THREE; window.__walk = { orbit, setSlice, setGhost, applyToggles, goRoom, closeModal,
+window.__B = THREE.Box3; window.__T = THREE; window.__walk = { orbit, resetView, setSlice, setGhost, applyToggles, goRoom, closeModal,
   simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, openSheet, act, inspectAt, showInfo, goTo, panOrbit, keys, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };
