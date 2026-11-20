@@ -633,6 +633,7 @@ def truss_xs(r, ext=(0.6, 42.4)):  # trusses over one region: the grid ones that
 # Solid trimmable ends (Maxwell, 11/20/2026): where the trusses bear on the hall 2 north wall they are solid for a stretch south of
 # it, so nothing can pass through them there. [x, y from, y to] per truss.
 TENDS = [[round(TG + k * TSP, 4), yw, round(yw + inch / 12, 3)] for k0, k1, yw, inch in CFG["floor_trusses"].get("solid_ends", []) for k in range(k0, k1 + 1)]
+TENDS += [[x, yw, round(yw + inch / 12, 3)] for x, yw, inch in CFG["floor_trusses"].get("solid_ends_x", [])]
 
 S = "S"; N = "N"
 # A wall register's back sits about 1/10 in behind the drywall face and its front stands about 0.6 in proud, so it shows
