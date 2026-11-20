@@ -306,14 +306,15 @@ oven_face_height_in = 50.75              # Frigidaire Gallery GCWD3067AF face he
 axis = "x"
 back = 51.458
 facing = -1
-units = [[0.54, 2.6, "blind"], [2.6, 3.6, "pullout"], [3.6, 4.7, "drawers3"], [4.7, 6.2, "drawer_door"],
+# lazy Susan in the SW corner (Maxwell 11/20/2026): 36 in on each wall; replaced the blind corner, the 12 in pullout here and the sheet pan pullout at the end of the cooktop run
+units = [[0.5417, 3.5417, "lazy_susan"], [3.5417, 4.7, "drawers3"], [4.7, 6.2, "drawer_door"],
          [6.2, 8.3, "dishwasher"], [8.3, 11.3, "doors2"], [11.3, 14.0, "drawers3"]]
 sink_x = [8.6, 11.0]
 [kitchen.runs.west]                      # cooktop wall, elevation 2
 axis = "y"
 back = 0.5417
 facing = 1
-units = [[41.7, 44.5, "oven_tower"], [44.5, 45.5, "drawer_tall"], [45.5, 48.5, "drawers2"], [48.5, 49.49, "pullout_drawer"]]
+units = [[41.7, 44.5, "oven_tower"], [44.5, 45.5, "drawer_tall"], [45.5, 48.458, "drawers2"]]   # the lazy Susan takes the corner from 48.458 (south wall back 51.458 less 3 ft)
 cooktop_y = [45.6, 48.4]
 [kitchen.runs.north]                     # fridge wall (south face of the clerestory wall), elevation 3
 axis = "x"

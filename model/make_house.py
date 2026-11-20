@@ -1163,7 +1163,7 @@ UNIT_NAMES = {"blind": "Blind corner base", "door1": "Base cabinet, one door", "
               "drawers3": "Three drawer base", "drawer_door": "Drawer over a door", "drawer_doors2": "Drawer over two doors", "dishwasher": "Dishwasher bay",
               "pullout": "Pullout base", "oven_tower": "Oven tower", "tall_pantry": "Tall pantry", "fridge": "Fridge bay with over fridge cabinet",
               "tray": "Tray divider base", "beverage": "Beverage fridge bay", "panel": "End panel", "drawer_tall": "Tall utensil drawer",
-              "pullout_drawer": "Drawer over a sheet pan pullout"}
+              "pullout_drawer": "Drawer over a sheet pan pullout", "lazy_susan": "Lazy Susan corner base"}
 PULL_NAME = K.get("pull_name", "Satin brass bar pulls")
 ISLAND_TOP = "Butcher Block" if K.get("island_top", "butcher") == "butcher" else "Counter"
 ISLAND_TOP_NAME = ("Edge grain butcher block, 1 1/2 in staves, oiled (species TBD)" if ISLAND_TOP == "Butcher Block"
@@ -1280,6 +1280,43 @@ def placeholder(run, rn, k, for_id, name):
                info=dict(model="Placeholder", notes=["Shown only when the appliance layer is missing."]))
 
 
+def lazy_susan(run, r, u0, u1, mat):
+    """36 x 36 in pie cut lazy Susan in the southwest corner (Maxwell 11/20/2026). It sits at the west end of the sink
+    wall run and fills the end of the cooktop wall run too. Two L doors ride the turntable: a tap turns the whole
+    carousel 90 degrees, so the cooktop side leaf swings onto the sink wall face and a shelf of pots faces the room."""
+    W = Run("west", RUNS["west"])
+    xw, ys = RUNS["west"]["back"], run.run["back"]
+    leg = u1 - u0                                     # 3 ft on each wall
+    y_end = ys - leg                                  # where the cooktop run's last unit now ends
+    zt, ct, d = CTR_Z - CTR_T, 0.06, BASE_D
+    # case: kick, bottom, deck, backs on both walls, an end panel on each leg (counter over both legs)
+    box(mat, xw, u1, ys - d + 0.25, ys, 0, KICK); box(mat, xw, xw + d - 0.25, y_end, ys - d + 0.25, 0, KICK)
+    for (z0, z1) in ((KICK, KICK + ct), (zt - ct, zt)):
+        box(mat, xw, u1, ys - d, ys, z0, z1); box(mat, xw, xw + d, y_end, ys - d, z0, z1)
+    box(mat, xw, u1, ys - ct, ys, KICK + ct, zt - ct); box(mat, xw, xw + ct, y_end, ys - ct, KICK + ct, zt - ct)
+    box(mat, u1 - ct, u1, ys - d, ys - ct, KICK + ct, zt - ct); box(mat, xw + ct, xw + d, y_end, y_end + ct, KICK + ct, zt - ct)
+    box("Counter", xw, u1, ys - CTR_D, ys, zt, CTR_Z); box("Counter", xw, xw + CTR_D, y_end, ys - CTR_D, zt, CTR_Z)
+    px, py = xw + d + FRONT_T / 2, ys - d - FRONT_T / 2      # the turntable pole, at the inside corner of the L doors
+    o_ = op(r, f"{r['id']}.susan", "Lazy Susan", "swing", (px, py, 0), angle=-90)
+    rad = 1.04                                        # 25 in shelves inside the 36 in box
+    with into(o_["parts"]):
+        shaker(run, r, xw + d, u1, KICK, zt, d, mat, "door", "R")          # sink wall leaf, pull near the corner
+        shaker(W, r, y_end, ys - d - FRONT_T, KICK, zt, d, mat, "panel")    # cooktop wall leaf
+        cyl("Brushed Nickel", px, py, KICK + ct, zt - ct, 0.04)
+        # three quarter shelves: the missing quarter is the notch the doors sit in, facing the room
+        n = 18
+        for zz in (KICK + 0.12, KICK + 1.25):
+            for i in range(n):
+                a0 = math.radians(270 * i / n); a1 = math.radians(270 * (i + 1) / n)     # 0 east round to 270 north (plan y runs south)
+                p0 = (px + rad * math.cos(a0), py + rad * math.sin(a0)); p1 = (px + rad * math.cos(a1), py + rad * math.sin(a1))
+                ring = [(px, py), p0, p1, (px + 0.001 * math.cos((a0 + a1) / 2), py + 0.001 * math.sin((a0 + a1) / 2))]
+                hexa("Cabinet Wood", [(x, y, zz) for x, y in ring] + [(x, y, zz + 0.05) for x, y in ring])
+            # pots and mixing bowls round the shelf
+            for j, (ang, rr, h, m) in enumerate(((40, 0.3, 0.55, "Stainless"), (110, 0.3, 0.45, "Black Metal"), (175, 0.32, 0.4, "Mug Sage"), (235, 0.28, 0.5, "Stainless"))):
+                cx_, cy_ = px + 0.62 * math.cos(math.radians(ang)), py + 0.62 * math.sin(math.radians(ang))
+                cyl(m, cx_, cy_, zz + 0.05, zz + 0.05 + h, rr * 0.85, rr)
+
+
 def base_unit(run, rn, k, u0, u1, typ, mat, depth=BASE_D, counter=True):
     d = depth; zt = CTR_Z - CTR_T
     rid = f"cabinet.{rn}.{k}"
@@ -1287,6 +1324,8 @@ def base_unit(run, rn, k, u0, u1, typ, mat, depth=BASE_D, counter=True):
     r = rec(rid, "cabinet", nm, "interior", room="Kitchen",
             info=dict(model=f"{UNIT_NAMES.get(typ, typ)}, {ftin(u1 - u0)} wide", specs=[["Run", RUN_NAMES.get(rn, rn)], ["Finish", FINISH(mat)], ["Hardware", PULL_NAME]],
                       notes=["From the Carter Lumber design start plan (Danielle Gross, 11/10/2026) with Erin's 11/12 redline. Wood, door style and pulls from Danielle's 11/19/2026 north wall rendering."]))
+    if typ == "lazy_susan":
+        lazy_susan(run, r, u0, u1, mat); return
     if typ in ("oven_tower", "tall_pantry"):
         if typ == "oven_tower":                                   # solid round the oven, an open cabinet above it
             ot_ = K.get("oven_face_bottom", 1.22) + K.get("oven_face_height_in", 50.75) / 12
@@ -1581,6 +1620,58 @@ if _pd and _pd[0] in BYID and len(BYID[_pd[0]].get("ops", [])) > _pd[1]:
                 _px, _py = _rs.at(_u0 + (_u1 - _u0) * (0.3 + 0.42 * _j) + (_rr + 0.05) * math.cos(_a * math.pi / 2 + 0.6),
                                   1.05 + (_rr + 0.05) * math.sin(_a * math.pi / 2 + 0.6))
                 cyl("Cabinet Wood", _px, _py, _zb + 0.04, _zb + 0.5, 0.035)
+
+
+def disc_u(mat, run, u0, u1, dc, zc, R, n=14):
+    """a round disc standing on edge across the run (axis along u): a skillet, pot or lid seen from the drawer front"""
+    for i in range(n):
+        a0, a1 = 2 * math.pi * i / n, 2 * math.pi * (i + 1) / n
+        ring = [(dc, zc), (dc + R * math.cos(a0), zc + R * math.sin(a0)), (dc + R * math.cos(a1), zc + R * math.sin(a1)),
+                (dc + 0.001 * math.cos((a0 + a1) / 2), zc + 0.001 * math.sin((a0 + a1) / 2))]
+        hexa(mat, [run.at(u0, d_) + (z_,) for d_, z_ in ring] + [run.at(u1, d_) + (z_,) for d_, z_ in ring])
+
+
+def bar_u(mat, run, uc, w, d0, z0, d1, z1, t=0.05):
+    """a straight bar from (d0, z0) to (d1, z1), w wide across the run: a pan handle"""
+    L = math.hypot(d1 - d0, z1 - z0); nd, nz = -(z1 - z0) / L * t / 2, (d1 - d0) / L * t / 2
+    prof = [(d0 - nd, z0 - nz), (d1 - nd, z1 - nz), (d1 + nd, z1 + nz), (d0 + nd, z0 + nz)]
+    hexa(mat, [run.at(uc - w / 2, d_) + (z_,) for d_, z_ in prof] + [run.at(uc + w / 2, d_) + (z_,) for d_, z_ in prof])
+
+
+# the deep drawer under the cooktop: wood dividers front to back, skillets and pans on edge, lids at the end
+# (Maxwell 11/20/2026, from a photo of a pan drawer "with enough space for lids")
+_pn = K.get("pan_drawer", ["cabinet.west.2", 1])
+if _pn and _pn[0] in BYID and len(BYID[_pn[0]].get("ops", [])) > _pn[1]:
+    _r = BYID[_pn[0]]; _o = _r["ops"][_pn[1]]
+    _k = int(_pn[0].rsplit(".", 1)[1]); _u0, _u1 = RUNS["west"]["units"][_k][:2]
+    _rw = Run("west", RUNS["west"]); _zt = CTR_Z - CTR_T
+    _zb = KICK + 0.08; _ztop = KICK + (_zt - KICK) / 2 - 0.1                       # inside the lower of the two drawers
+    _r["name"] += ", pans in the lower drawer"
+    _o["slide"] = [rnd(v) for v in _rw.outward(1.6) + (0,)]                                  # full extension slides, so every pan clears the counter
+    _r.setdefault("info", {}).setdefault("notes", []).append("Lower drawer: wood pan dividers with skillets and pans on edge and lids at the end (Maxwell 11/20/2026).")
+    with into(_o["parts"]):
+        _rw.box("Cabinet Wood", _u0 + 0.1, _u1 - 0.1, 0.2, BASE_D - 0.02, _zb, _zb + 0.04)               # drawer bottom
+        for (_b0, _b1) in ((_u0 + 0.1, _u0 + 0.14), (_u1 - 0.14, _u1 - 0.1)):
+            _rw.box("Cabinet Wood", _b0, _b1, 0.2, BASE_D - 0.02, _zb, _ztop)                            # sides
+        _rw.box("Cabinet Wood", _u0 + 0.14, _u1 - 0.14, 0.2, 0.24, _zb, _ztop)                           # back
+        _ns = 8; _a, _b = _u0 + 0.14, _u1 - 0.14; _sw = (_b - _a) / _ns
+        for _j in range(1, _ns):
+            _uu = _a + _sw * _j
+            _rw.box("Cabinet Wood", _uu - 0.02, _uu + 0.02, 0.24, BASE_D - 0.25, _zb + 0.04, _ztop - 0.12)   # dividers
+        _fl = _zb + 0.04
+        _pans = [(0.5, "Black Metal", 0.15), (0.47, "Stainless", 0.17), (0.44, "Black Metal", 0.14), (0.42, "Stainless", 0.2),
+                 (0.38, "Black Metal", 0.13), (0.35, "Stainless", 0.16)]
+        for _j, (_R, _m, _dp) in enumerate(_pans):
+            _uc = _a + _sw * (_j + 0.5); _R = min(_R, (_ztop - _fl) / 2 + 0.02); _dc = 1.1; _zc = _fl + _R
+            disc_u(_m, _rw, _uc - _dp / 2, _uc + _dp / 2, _dc, _zc, _R)
+            _h0 = (_dc + _R * 0.55, _zc + _R * 0.83)                                                   # handle off the rim, up toward the front
+            _h1 = (min(BASE_D - 0.12, _h0[0] + 0.62), min(_ztop + 0.06, _h0[1] + 0.25))
+            bar_u("Stainless" if _m == "Stainless" else "Black Metal", _rw, _uc, 0.06, _h0[0], _h0[1], _h1[0], _h1[1])
+        for _j in (6, 7):                                                                                  # lids, three to a slot
+            for _q in range(3):
+                _R = 0.46 - 0.05 * _q - 0.04 * (_j - 6); _uc = _a + _sw * (_j + 0.25 + 0.25 * _q)
+                disc_u("Cabinet Glass", _rw, _uc - 0.012, _uc + 0.012, 0.95 + 0.08 * _q, _fl + _R, _R)
+                _rw.box("Black Metal", _uc - 0.05, _uc + 0.05, 0.95 + 0.08 * _q - 0.04, 0.95 + 0.08 * _q + 0.04, _fl + 2 * _R - 0.01, _fl + 2 * _R + 0.01)
 
 sr = Run("south", RUNS["south"]); sx0, sx1 = RUNS["south"]["sink_x"]
 rec("kitchen.sink", "fixture", "Kitchen sink and faucet", "interior", room="Kitchen",
