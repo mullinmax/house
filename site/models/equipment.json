@@ -591,6 +591,145 @@
    }
   },
   {
+   "id": "laundry_sink",
+   "name": "Laundry utility sink",
+   "category": "Plumbing fixture",
+   "system": "plumbing",
+   "room": "Laundry",
+   "layer": "appliances",
+   "builder": "utility_sink",
+   "size": [
+    40,
+    44,
+    25.5
+   ],
+   "at": [
+    21.747,
+    22.1997,
+    0
+   ],
+   "facing": 0,
+   "info": {
+    "model": "Steelton 522US13621 one compartment utility sink, 16 gauge stainless, 36 x 21 x 14 in bowl, with a 12 in swing spout faucet (190FW812)",
+    "specs": [
+     [
+      "Bowl",
+      "36 W x 21 front to back x 14 deep in"
+     ],
+     [
+      "Overall",
+      "About 40 W x 25 1/2 D x 44 H in to the top of the 8 in backsplash (ASSUMED from the Steelton family)"
+     ],
+     [
+      "Rim",
+      "36 in up"
+     ],
+     [
+      "Faucet",
+      "8 in centres through the backsplash, 12 in swing spout over the bowl"
+     ],
+     [
+      "Water",
+      "Hot and cold 1/2 in PEX up through the slab behind the sink, quarter turn stops about 18 in up"
+     ],
+     [
+      "Drain",
+      "1 1/2 in trap into a 2 in riser behind the sink, air admittance valve on top of the riser"
+     ]
+    ],
+    "notes": [
+     "Drawn on A-11 at the west end of the laundry's south wall, against the hall closet, and named in the plumbing fixture schedule (item 9) of the sealed set. Added at Maxwell's request (11/20/2026).",
+     "The hot and cold are assumed to come under the slab from the utility room, where the house hot and cold go down into the slab, about 20 ft. The drain ties into the building drain under the slab. The air admittance valve stands in for a vent through the wall; the plumber may run a real vent up the wall instead.",
+     "The combo washer dryer's own valves and standpipe are not drawn yet; its drain can share this riser."
+    ],
+    "links": [
+     [
+      "Steelton sink at WebstaurantStore",
+      "https://www.webstaurantstore.com/steelton-36-16-gauge-stainless-steel-one-compartment-commercial-utility-sink-36-x-21-x-14-bowl/522US13621.html"
+     ]
+    ],
+    "placement": "Laundry south wall at the west end, against the hall closet, where A-11 draws it. The faucet is on the backsplash, so nothing is in the wall the Dyson hangs on."
+   }
+  },
+  {
+   "id": "linen_shelves",
+   "name": "Linen shelves",
+   "category": "Storage",
+   "system": "household",
+   "room": "Laundry",
+   "layer": "storage",
+   "builder": "linen_shelves",
+   "size": [
+    36.9,
+    90,
+    24
+   ],
+   "at": [
+    16.664,
+    17.0325,
+    0
+   ],
+   "facing": 90,
+   "shelves": [
+    [
+     7,
+     24,
+     0.75
+    ],
+    [
+     21,
+     24,
+     0.75
+    ],
+    [
+     37,
+     24,
+     1.25
+    ],
+    [
+     53,
+     15,
+     0.75
+    ],
+    [
+     68,
+     15,
+     0.75
+    ],
+    [
+     83,
+     15,
+     0.75
+    ]
+   ],
+   "info": {
+    "model": "Open white oak shelves on cleats, wall to wall in the alcove (ASSUMED build)",
+    "specs": [
+     [
+      "Width",
+      "3 ft 1 in, wall to wall"
+     ],
+     [
+      "Shelves",
+      "7, 21 and 37 in up at 24 in deep; 53, 68 and 83 in up at 15 in deep"
+     ],
+     [
+      "Folding shelf",
+      "The 37 in shelf is 1 1/4 in thick and kept clear for folding; the U-11 outlet at 42 in sits just above it"
+     ],
+     [
+      "Stocked with",
+      "Throws in baskets, folded blankets, bath and hand towels, sheet sets, spare pillows and a comforter, for scale"
+     ]
+    ],
+    "notes": [
+     "A-11 draws 3'-0\" x 2'-0\" B&W cabinets on this wall. Maxwell asked for shelves with towels, sheets and blankets instead (11/20/2026).",
+     "The upper shelves are shallower so they do not catch your head while you work at the folding shelf."
+    ],
+    "placement": "West wall of the laundry's alcove, north of the hall closet, left of the door as you come in from hall 2."
+   }
+  },
+  {
    "id": "car_model_y",
    "name": "Tesla Model Y",
    "category": "Car",
@@ -16829,6 +16968,120 @@
     ]
    ],
    "info_of": "pan_drain_wh"
+  },
+  {
+   "id": "sink_hot",
+   "name": "Laundry sink supplies",
+   "category": "Laundry sink plumbing",
+   "system": "plumbing.laundry",
+   "dia": 0.625,
+   "mat": "pex_hot",
+   "points": [
+    [
+     21.414,
+     22.3038,
+     0
+    ],
+    [
+     21.414,
+     22.3038,
+     3.375
+    ]
+   ],
+   "info": {
+    "model": "1/2 in PEX, hot (red) and cold (blue)",
+    "specs": [],
+    "notes": [
+     "Up through the slab behind the sink to quarter turn stops about 18 in up, then to the faucet shanks. Assumed to run under the slab from the utility room, where the house hot and cold go down, about 20 ft."
+    ]
+   }
+  },
+  {
+   "id": "sink_cold",
+   "category": "Laundry sink plumbing",
+   "system": "plumbing.laundry",
+   "dia": 0.625,
+   "mat": "pex_cold",
+   "points": [
+    [
+     22.081,
+     22.3038,
+     0
+    ],
+    [
+     22.081,
+     22.3038,
+     3.375
+    ]
+   ],
+   "info_of": "sink_hot"
+  },
+  {
+   "id": "sink_trap",
+   "name": "Laundry sink drain",
+   "category": "Laundry sink plumbing",
+   "system": "plumbing.laundry",
+   "dia": 1.9,
+   "mat": "pvc",
+   "points": [
+    [
+     21.747,
+     21.1163,
+     1.4166666666666667
+    ],
+    [
+     21.747,
+     21.1163,
+     1.0
+    ],
+    [
+     21.747,
+     21.2463,
+     0.9
+    ],
+    [
+     21.747,
+     21.3963,
+     1.0
+    ],
+    [
+     21.747,
+     21.3963,
+     1.16
+    ],
+    [
+     21.747,
+     22.1997,
+     1.14
+    ]
+   ],
+   "info": {
+    "model": "1 1/2 in PVC P trap, 2 in PVC riser, air admittance valve",
+    "specs": [],
+    "notes": [
+     "The tailpiece drops into a 1 1/2 in P trap, the trap arm runs back to a 2 in riser that comes up out of the slab behind the sink, and an air admittance valve on top of the riser vents it (about 10 in above the trap weir). The riser drains to the building drain under the slab. The combo washer dryer can share it."
+    ]
+   }
+  },
+  {
+   "id": "sink_riser",
+   "category": "Laundry sink plumbing",
+   "system": "plumbing.laundry",
+   "dia": 2.375,
+   "mat": "pvc",
+   "points": [
+    [
+     21.747,
+     22.1997,
+     0
+    ],
+    [
+     21.747,
+     22.1997,
+     2.0
+    ]
+   ],
+   "info_of": "sink_trap"
   },
   {
    "id": "dsh_0",

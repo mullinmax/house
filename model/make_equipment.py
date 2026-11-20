@@ -112,6 +112,43 @@ items += [
         placement="Laundry south wall, centred where the washer and dryer pair stood.")),
 ]
 
+# Laundry sink and linen shelves (Maxwell, 11/20/2026: "a sink and shelves on the west wall", from the original drawings).
+# A-11 draws the sink at the west end of the south wall, right against the hall closet, and 3'-0" x 2'-0" B&W cabinets on the
+# west wall of the alcove north of that closet (inside x 16.664 to 20.039, y 15.491 to 18.574). The sheet's fixture schedule
+# (item 9) names the sink: Steelton 36 in, 16 gauge stainless, one compartment utility sink #522US13621 with a 12 in swing spout
+# faucet #190FW812. Maxwell asked for open shelves of linens there instead of cabinets.
+LS_X0, LS_Y0, LS_Y1 = 16.664, 15.491, 18.574            # alcove west wall face, north wall face, closet north wall face
+SINK_W, SINK_D, SINK_H = 40, 25.5, 44                    # overall, in (Steelton family size for the 36 x 21 x 14 bowl, ASSUMED)
+SINK_GAP = 2.5 / 12                                      # stands 2 1/2 in off the wall: supplies and the vent riser go up behind it
+SINK_X = 20.039 + (SINK_W / 2 + 0.5) / 12                # west leg 1/2 in off the hall closet wall
+SINK_BACK = 22.408 - SINK_GAP                            # laundry south wall face is y 22.408
+SUP_Y = 22.408 - 1.25 / 12                               # supplies 1 1/4 in off the wall
+items += [
+ dict(id="laundry_sink", name="Laundry utility sink", category="Plumbing fixture", system="plumbing", room="Laundry", layer="appliances",
+      builder="utility_sink", size=[SINK_W, SINK_H, SINK_D], at=[round(SINK_X, 3), round(SINK_BACK, 4), 0], facing=0,
+      info=dict(model="Steelton 522US13621 one compartment utility sink, 16 gauge stainless, 36 x 21 x 14 in bowl, with a 12 in swing spout faucet (190FW812)",
+        specs=[["Bowl", "36 W x 21 front to back x 14 deep in"], ["Overall", "About 40 W x 25 1/2 D x 44 H in to the top of the 8 in backsplash (ASSUMED from the Steelton family)"],
+               ["Rim", "36 in up"], ["Faucet", "8 in centres through the backsplash, 12 in swing spout over the bowl"],
+               ["Water", "Hot and cold 1/2 in PEX up through the slab behind the sink, quarter turn stops about 18 in up"],
+               ["Drain", "1 1/2 in trap into a 2 in riser behind the sink, air admittance valve on top of the riser"]],
+        notes=["Drawn on A-11 at the west end of the laundry's south wall, against the hall closet, and named in the plumbing fixture schedule (item 9) "
+               "of the sealed set. Added at Maxwell's request (11/20/2026).",
+               "The hot and cold are assumed to come under the slab from the utility room, where the house hot and cold go down into the slab, about 20 ft. "
+               "The drain ties into the building drain under the slab. The air admittance valve stands in for a vent through the wall; the plumber may run a real vent up the wall instead.",
+               "The combo washer dryer's own valves and standpipe are not drawn yet; its drain can share this riser."],
+        links=[["Steelton sink at WebstaurantStore", "https://www.webstaurantstore.com/steelton-36-16-gauge-stainless-steel-one-compartment-commercial-utility-sink-36-x-21-x-14-bowl/522US13621.html"]],
+        placement="Laundry south wall at the west end, against the hall closet, where A-11 draws it. The faucet is on the backsplash, so nothing is in the wall the Dyson hangs on.")),
+ dict(id="linen_shelves", name="Linen shelves", category="Storage", system="household", room="Laundry", layer="storage",
+      builder="linen_shelves", size=[round((LS_Y1 - LS_Y0) * 12 - 0.1, 2), 90, 24], at=[LS_X0, round((LS_Y0 + LS_Y1) / 2, 4), 0], facing=90,
+      shelves=[[7, 24, 0.75], [21, 24, 0.75], [37, 24, 1.25], [53, 15, 0.75], [68, 15, 0.75], [83, 15, 0.75]],
+      info=dict(model="Open white oak shelves on cleats, wall to wall in the alcove (ASSUMED build)",
+        specs=[["Width", "3 ft 1 in, wall to wall"], ["Shelves", "7, 21 and 37 in up at 24 in deep; 53, 68 and 83 in up at 15 in deep"],
+               ["Folding shelf", "The 37 in shelf is 1 1/4 in thick and kept clear for folding; the U-11 outlet at 42 in sits just above it"],
+               ["Stocked with", "Throws in baskets, folded blankets, bath and hand towels, sheet sets, spare pillows and a comforter, for scale"]],
+        notes=["A-11 draws 3'-0\" x 2'-0\" B&W cabinets on this wall. Maxwell asked for shelves with towels, sheets and blankets instead (11/20/2026).",
+               "The upper shelves are shallower so they do not catch your head while you work at the folding shelf."],
+        placement="West wall of the laundry's alcove, north of the hall closet, left of the door as you come in from hall 2.")),
+]
 # ------------------------------------------------------------------ garage: the cars and the charger
 # Both cars park nose in (facing north). The Model Y takes the east bay: its charge port is at the left rear, so it
 # ends up beside the Wall Connector on the pier between the doors. Rear bumpers sit 3 ft inside the doors. ASSUMED.
@@ -426,6 +463,26 @@ items += [
                "Not picked yet.", APPROX],
         placement="Inside the sink base, right side, behind the right door.")),
 ]
+# Laundry sink water and drain (see laundry_sink). Everything rises out of the slab in the 2 1/2 in gap behind the sink, so
+# nothing goes in the wall the hall closet's Dyson hangs on, and no pipe runs inside a wall.
+SH_X, SC_X, FAU_Z = SINK_X - 4 / 12, SINK_X + 4 / 12, 40.5 / 12           # hot on the left (west), cold on the right, faucet shanks
+TRAP_Y = SINK_BACK - 13 / 12                                               # under the bowl's drain
+dhw("sink_hot", "Laundry sink supplies", 0.625, "pex_hot", [[round(SH_X, 3), round(SUP_Y, 4), 0], [round(SH_X, 3), round(SUP_Y, 4), FAU_Z]],
+    "1/2 in PEX, hot (red) and cold (blue)", ["Up through the slab behind the sink to quarter turn stops about 18 in up, then to the faucet shanks. "
+    "Assumed to run under the slab from the utility room, where the house hot and cold go down, about 20 ft."],
+    system="plumbing.laundry", category="Laundry sink plumbing")
+dhw("sink_cold", None, 0.625, "pex_cold", [[round(SC_X, 3), round(SUP_Y, 4), 0], [round(SC_X, 3), round(SUP_Y, 4), FAU_Z]], None, None,
+    info_of="sink_hot", system="plumbing.laundry", category="Laundry sink plumbing")
+dhw("sink_trap", "Laundry sink drain", 1.9, "pvc",
+    [[round(SINK_X, 3), round(TRAP_Y, 4), 17 / 12], [round(SINK_X, 3), round(TRAP_Y, 4), 1.0], [round(SINK_X, 3), round(TRAP_Y + 0.13, 4), 0.9],
+     [round(SINK_X, 3), round(TRAP_Y + 0.28, 4), 1.0], [round(SINK_X, 3), round(TRAP_Y + 0.28, 4), 1.16], [round(SINK_X, 3), round(SINK_BACK, 4), 1.14]],
+    "1 1/2 in PVC P trap, 2 in PVC riser, air admittance valve", ["The tailpiece drops into a 1 1/2 in P trap, the trap arm runs back to a 2 in riser that comes up "
+    "out of the slab behind the sink, and an air admittance valve on top of the riser vents it (about 10 in above the trap weir). "
+    "The riser drains to the building drain under the slab. The combo washer dryer can share it."],
+    system="plumbing.laundry", category="Laundry sink plumbing")
+dhw("sink_riser", None, 2.375, "pvc", [[round(SINK_X, 3), round(SINK_BACK, 4), 0], [round(SINK_X, 3), round(SINK_BACK, 4), 2.0]], None, None,
+    info_of="sink_trap", system="plumbing.laundry", category="Laundry sink plumbing")
+
 # Desuperheater (Maxwell, 11/18/2026). The preheat tank stands just east of the heat pump's hot water connections, so the two
 # insulated 3/4 in lines step sideways off the ports and drop straight through the deck into the lane behind the tank.
 # One goes to the tank's drain port (water to the geo), the other tees into the cold drop above the tank (water back).
