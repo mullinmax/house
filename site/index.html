@@ -72,6 +72,22 @@ fieldset > label.stack { display: grid; gap: 2px; }
 .plan .dot { cursor: pointer; stroke: var(--bg); stroke-width: .18; }
 .plan .dot:hover { stroke: var(--fg); stroke-width: .3; }
 .plan .north { stroke: var(--muted); fill: none; stroke-width: .15; }
+.bom { display: grid; gap: 10px; font-size: .85rem; }
+.bom details { border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; }
+.bom summary { cursor: pointer; font-weight: 600; display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; }
+.bom summary .ct { font-weight: 400; color: var(--muted); font-size: .78rem; }
+.bom .tag { font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.bom p { margin: 6px 0; color: var(--muted); }
+.bom .tw { overflow-x: auto; }
+.bom table { border-collapse: collapse; width: 100%; }
+#modalBody, .bom, .bom details { min-width: 0; }
+@media (max-width: 600px) { .bom th:nth-child(3) { display: none; } .bom td:nth-child(3) { display: block; padding-top: 0; border-top: 0; color: var(--muted); } .bom tr { display: grid; grid-template-columns: 1fr auto; border-top: 1px solid var(--line); } .bom tr > td:first-child, .bom tr > td.q { border-top: 0; } .bom td:nth-child(3) { grid-column: 1 / -1; } .bom td:nth-child(4) { display: none; } .bom thead { display: none; } }
+.bom th, .bom td { text-align: left; vertical-align: top; padding: 4px 6px; border-top: 1px solid var(--line); }
+.bom th { font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.bom td.q { white-space: nowrap; text-align: right; font-variant-numeric: tabular-nums; }
+.bom td .sub { color: var(--muted); font-size: .78rem; }
+.bom .ask { color: var(--accent); font-weight: 600; }
+.bom .rule { border-left: 3px solid var(--accent); padding: 4px 10px; margin: 0; color: var(--fg); }
 .equipgrid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(220px, 1fr); gap: 14px; align-items: start; }
 @media (max-width: 760px) { .equipgrid { grid-template-columns: 1fr; } }
 .elist { display: grid; gap: 10px; font-size: .85rem; }
@@ -210,6 +226,7 @@ body.compact .keys td:first-child { white-space: normal; }
     <button data-act="rooms" title="Pick a room on the floor plan">Go to a room</button>
     <button data-act="equip" title="Pick an appliance or a piece of equipment on the plan" hidden>Find equipment</button>
     <button data-act="controls" title="Keys and gestures (H)">Controls</button>
+    <button data-act="bom" title="Bill of materials for the ducts, ERV and HVAC equipment, counted from the model">Materials</button>
   </div>
   <div class="sheethead"><h2 id="sheetTitle"></h2><button id="sheetClose" aria-label="Close">×</button></div>
   <fieldset data-sec="more">
@@ -261,6 +278,7 @@ body.compact .keys td:first-child { white-space: normal; }
   <div class="biglist" data-sec="more">
     <button data-act="equip" hidden>Find equipment</button>
     <button data-act="controls">Controls and gestures</button>
+    <button data-act="bom">Bill of materials</button>
   </div>
 </div>
 

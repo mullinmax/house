@@ -963,6 +963,11 @@ function openModal(kind) {
       list.append(sec);
     });
     grid.append(svg, list); body.append(grid);
+  } else if (kind === 'bom') {
+    $('modalTitle').textContent = 'HVAC bill of materials';
+    body.innerHTML = '<p class="note">Loading</p>';
+    loadBom().then((B) => { if (modalKind === 'bom') renderBom(B, body, tools); })
+      .catch(() => { body.innerHTML = '<p class="note">The bill of materials could not be loaded.</p>'; });
   } else if (kind === 'controls') {
     $('modalTitle').textContent = 'Controls';
     const K = (k) => k.split(' ').map((x) => `<kbd>${x}</kbd>`).join(' ');
@@ -981,10 +986,49 @@ touch || compact ? '' : phone}</div><p class="note">Slow? Add <kbd>?lite</kbd> t
   $('modal').hidden = false;
   $('modalClose').focus();
 }
+// ---------------------------------------------------------------- bill of materials (models/bom.json, written by model/make_bom.py)
+let bomCache = null;
+async function loadBom() {
+  if (!bomCache) { const r = await fetch('models/bom.json', { cache: 'no-cache' }); if (!r.ok) throw new Error('bom'); bomCache = await r.json(); }
+  return bomCache;
+}
+function renderBom(B, body, tools) {
+  const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  let show = 'all';
+  const FILTERS = [['all', 'Everything'], ['order', 'In the order'], ['separate', 'Buy separately']];
+  for (const [k, label] of FILTERS) {
+    const b = document.createElement('button'); b.textContent = label; b.setAttribute('aria-pressed', k === show);
+    b.onclick = () => { show = k; for (const x of tools.querySelectorAll('[aria-pressed]')) x.setAttribute('aria-pressed', x === b); draw(); };
+    tools.append(b);
+  }
+  const dl = document.createElement('button'); dl.textContent = 'Download CSV'; dl.title = 'The whole list as a spreadsheet';
+  dl.onclick = () => {
+    const q = (v) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const lines = [['Section', 'Buy from', 'Item', 'Spec', 'Qty', 'Unit', 'Where', 'Price', 'Status', 'Notes'].map(q).join(',')];
+    for (const s of B.sections) for (const r of s.rows) lines.push([s.title, s.buy, r.item, r.spec, r.qty, r.unit, r.where, r.price, r.status, r.note].map(q).join(','));
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([lines.join('\n') + '\n'], { type: 'text/csv' }));
+    a.download = 'hvac-bom.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  };
+  tools.append(dl);
+  const draw = () => {
+    const secs = B.sections.filter((s) => show === 'all' || (show === 'order') === (s.id === 'order'));
+    const rule = `<p class="rule">${esc(B.meta.truss_rule)}${(B.meta.over_limit || []).map((t) => `<br><span class="sub">${esc(t)}</span>`).join('')}</p>`;
+    const sec = (s) => `<details open><summary><span>${esc(s.title)}</span><span class="ct">${s.rows.length} lines</span><span class="tag">${esc(s.buy)}</span></summary>
+      <p>${esc(s.note)}</p><div class="tw"><table><thead><tr><th>Item</th><th>Qty</th><th>Where and notes</th></tr></thead><tbody>${
+      s.rows.map((r) => `<tr><td>${esc(r.item)}${r.spec ? `<div class="sub">${esc(r.spec)}</div>` : ''}</td><td class="q">${esc(r.qty)} ${esc(r.unit)}</td><td>${
+        r.status && r.status !== 'On the quote' ? `<span class="ask">${esc(r.status)}.</span> ` : ''}${[r.price, r.where, r.note].filter(Boolean).map(esc).join('. ')}</td></tr>`).join('')
+    }</tbody></table></div></details>`;
+    const runs = show === 'order' ? '' : `<details><summary><span>Every duct run in the model</span><span class="ct">${B.runs.length} runs</span></summary><div class="tw"><table><thead><tr><th>Run</th><th>Size</th><th>Length</th><th>Truss crossings</th></tr></thead><tbody>${
+      B.runs.map((r) => `<tr><td>${esc(r.name)}<div class="sub">${esc(r.system)}${r.flex ? ', flex' : ''}${r.cfm ? `, ${r.cfm} CFM` : ''}${r.stacks ? `, ${r.stacks} wall stack${r.stacks > 1 ? 's' : ''}` : ''}</div></td><td>${esc(r.size)}</td><td class="q">${r.ft.toFixed(1)} ft</td><td class="q">${r.crosses || ''}</td></tr>`).join('')
+    }</tbody></table></div></details>`;
+    body.innerHTML = `<div class="bom">${rule}${secs.map(sec).join('')}${runs}<p class="note">Counted from the ducts in this model by model/make_bom.py, so it changes when the design does. Quantities include about 10 percent extra.</p></div>`;
+  };
+  draw();
+}
 function closeModal() { $('modal').hidden = true; modalKind = null; }
 $('modalClose').onclick = closeModal;
 $('modal').addEventListener('click', (e) => { if (e.target === $('modal')) closeModal(); });
-for (const k of ['rooms', 'equip', 'controls']) for (const b of document.querySelectorAll(`[data-act="${k}"]`)) b.onclick = () => { openSheet(null); openModal(k); };
+for (const k of ['rooms', 'equip', 'controls', 'bom']) for (const b of document.querySelectorAll(`[data-act="${k}"]`)) b.onclick = () => { openSheet(null); openModal(k); };
 
 // ---------------------------------------------------------------- compact layout (phones)
 // On a phone the side panel would cover most of the model, so a toolbar runs along the bottom instead and the

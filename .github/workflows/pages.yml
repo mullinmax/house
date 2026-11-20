@@ -10,7 +10,7 @@ name: Deploy walkthrough to GitHub Pages
 on:
   push:
     branches: [main]
-    paths: ["site/**", ".github/workflows/pages.yml"]
+    paths: ["site/**", "model/make_bom.py", ".github/workflows/pages.yml"]
   workflow_dispatch:
 
 permissions:
@@ -32,6 +32,8 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - name: Rebuild the bill of materials from the deployed model
+        run: python3 model/make_bom.py
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
