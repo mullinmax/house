@@ -1,0 +1,138 @@
+{
+ "Light Kitchen 0": [
+  11.99,
+  0.1667
+ ],
+ "Light Kitchen 1": [
+  11.49,
+  0.1667
+ ],
+ "Light Kitchen 2": [
+  13.073,
+  0.1667
+ ],
+ "Light Dining 3": [
+  13.157,
+  0.1667
+ ],
+ "Light Great room 4": [
+  11.823,
+  0.1667
+ ],
+ "Light Great room 5": [
+  11.823,
+  0.1667
+ ],
+ "Light Entry 6": [
+  13.073,
+  0.1667
+ ],
+ "Light Family 7": [
+  11.907,
+  0.1667
+ ],
+ "Light Living 8": [
+  18.063,
+  -0.3183
+ ],
+ "Light Living 9": [
+  16.948,
+  -0.3183
+ ],
+ "Light Bed1 10": [
+  10.836,
+  -0.3183
+ ],
+ "Light Bed2 11": [
+  10.773,
+  -0.3183
+ ],
+ "Light Bed3 12": [
+  9,
+  0
+ ],
+ "Light Study 13": [
+  10.773,
+  -0.3183
+ ],
+ "Light Bath1 14": [
+  9,
+  0
+ ],
+ "Light Bath1 shower 15": [
+  9,
+  0
+ ],
+ "Light Bath1 toilet 16": [
+  9,
+  0
+ ],
+ "Light Bath2 17": [
+  10.9,
+  -0.3183
+ ],
+ "Light Powder 18": [
+  9,
+  0
+ ],
+ "Light Pantry 19": [
+  9,
+  0
+ ],
+ "Light Utility 20": [
+  9,
+  0
+ ],
+ "Light Laundry 21": [
+  9,
+  0
+ ],
+ "Light Closet 1 22": [
+  9,
+  0
+ ],
+ "Light Closet 1 23": [
+  9,
+  0
+ ],
+ "Light Hall 2 24": [
+  9,
+  0
+ ],
+ "Light Hall 2 25": [
+  9,
+  0
+ ],
+ "Light Hall 2 26": [
+  9,
+  0
+ ],
+ "Light Hall 27": [
+  18.699,
+  -0.3183
+ ],
+ "Light Loft 28": [
+  18.158,
+  -0.3183
+ ],
+ "Light Garage 29": [
+  12.167,
+  0.1667
+ ],
+ "Light Garage 30": [
+  12.167,
+  0.1667
+ ],
+ "Light Garage 31": [
+  10.5,
+  0.1667
+ ],
+ "Light Garage 32": [
+  10.5,
+  0.1667
+ ],
+ "Light Porch 33": [
+  9.7,
+  0.1667
+ ]
+}

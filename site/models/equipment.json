@@ -16,7 +16,97 @@
    "Light_Bed3_12_base",
    "Light_Bed3_12_lens",
    "Light_Study_13_base",
-   "Light_Study_13_lens"
+   "Light_Study_13_lens",
+   "Light_Kitchen_0_base",
+   "Light_Kitchen_0_lens",
+   "Light_Kitchen_0_trim",
+   "Light_Kitchen_1_base",
+   "Light_Kitchen_1_lens",
+   "Light_Kitchen_1_trim",
+   "Light_Kitchen_2_base",
+   "Light_Kitchen_2_lens",
+   "Light_Kitchen_2_trim",
+   "Light_Dining_3_base",
+   "Light_Dining_3_lens",
+   "Light_Dining_3_trim",
+   "Light_Great_room_4_base",
+   "Light_Great_room_4_lens",
+   "Light_Great_room_4_trim",
+   "Light_Great_room_5_base",
+   "Light_Great_room_5_lens",
+   "Light_Great_room_5_trim",
+   "Light_Entry_6_base",
+   "Light_Entry_6_lens",
+   "Light_Entry_6_trim",
+   "Light_Family_7_base",
+   "Light_Family_7_lens",
+   "Light_Family_7_trim",
+   "Light_Living_8_base",
+   "Light_Living_8_lens",
+   "Light_Living_8_trim",
+   "Light_Living_9_base",
+   "Light_Living_9_lens",
+   "Light_Living_9_trim",
+   "Light_Bath1_14_base",
+   "Light_Bath1_14_lens",
+   "Light_Bath1_14_trim",
+   "Light_Bath1_shower_15_base",
+   "Light_Bath1_shower_15_lens",
+   "Light_Bath1_shower_15_trim",
+   "Light_Bath1_toilet_16_base",
+   "Light_Bath1_toilet_16_lens",
+   "Light_Bath1_toilet_16_trim",
+   "Light_Bath2_17_base",
+   "Light_Bath2_17_lens",
+   "Light_Bath2_17_trim",
+   "Light_Powder_18_base",
+   "Light_Powder_18_lens",
+   "Light_Powder_18_trim",
+   "Light_Pantry_19_base",
+   "Light_Pantry_19_lens",
+   "Light_Pantry_19_trim",
+   "Light_Utility_20_base",
+   "Light_Utility_20_lens",
+   "Light_Utility_20_trim",
+   "Light_Laundry_21_base",
+   "Light_Laundry_21_lens",
+   "Light_Laundry_21_trim",
+   "Light_Closet_1_22_base",
+   "Light_Closet_1_22_lens",
+   "Light_Closet_1_22_trim",
+   "Light_Closet_1_23_base",
+   "Light_Closet_1_23_lens",
+   "Light_Closet_1_23_trim",
+   "Light_Hall_2_24_base",
+   "Light_Hall_2_24_lens",
+   "Light_Hall_2_24_trim",
+   "Light_Hall_2_25_base",
+   "Light_Hall_2_25_lens",
+   "Light_Hall_2_25_trim",
+   "Light_Hall_2_26_base",
+   "Light_Hall_2_26_lens",
+   "Light_Hall_2_26_trim",
+   "Light_Hall_27_base",
+   "Light_Hall_27_lens",
+   "Light_Hall_27_trim",
+   "Light_Loft_28_base",
+   "Light_Loft_28_lens",
+   "Light_Loft_28_trim",
+   "Light_Garage_29_base",
+   "Light_Garage_29_lens",
+   "Light_Garage_29_trim",
+   "Light_Garage_30_base",
+   "Light_Garage_30_lens",
+   "Light_Garage_30_trim",
+   "Light_Garage_31_base",
+   "Light_Garage_31_lens",
+   "Light_Garage_31_trim",
+   "Light_Garage_32_base",
+   "Light_Garage_32_lens",
+   "Light_Garage_32_trim",
+   "Light_Porch_33_base",
+   "Light_Porch_33_lens",
+   "Light_Porch_33_trim"
   ],
   "lights_moved": {
    "Light Bed1 10": [
@@ -38,6 +128,156 @@
     27.4,
     5.6,
     8.05
+   ],
+   "Light Kitchen 0": [
+    3.999,
+    46.001,
+    11.69
+   ],
+   "Light Kitchen 1": [
+    10.0,
+    48.999,
+    11.19
+   ],
+   "Light Kitchen 2": [
+    10.0,
+    39.501,
+    12.77
+   ],
+   "Light Dining 3": [
+    23.901,
+    38.999,
+    12.86
+   ],
+   "Light Great room 4": [
+    16.499,
+    47.001,
+    11.52
+   ],
+   "Light Great room 5": [
+    31.001,
+    47.001,
+    11.52
+   ],
+   "Light Entry 6": [
+    39.501,
+    39.501,
+    12.77
+   ],
+   "Light Family 7": [
+    37.001,
+    46.499,
+    11.61
+   ],
+   "Light Living 8": [
+    21.001,
+    28.501,
+    17.76
+   ],
+   "Light Living 9": [
+    27.999,
+    25.0,
+    16.65
+   ],
+   "Light Bath1 14": [
+    34.501,
+    26.001,
+    8.7
+   ],
+   "Light Bath1 shower 15": [
+    40.449,
+    29.902,
+    8.7
+   ],
+   "Light Bath1 toilet 16": [
+    34.8,
+    31.099,
+    8.7
+   ],
+   "Light Bath2 17": [
+    19.4,
+    6.001,
+    10.6
+   ],
+   "Light Powder 18": [
+    8.999,
+    31.601,
+    8.7
+   ],
+   "Light Pantry 19": [
+    2.999,
+    31.801,
+    8.7
+   ],
+   "Light Utility 20": [
+    6.299,
+    25.899,
+    8.7
+   ],
+   "Light Laundry 21": [
+    23.999,
+    18.901,
+    8.7
+   ],
+   "Light Closet 1 22": [
+    33.999,
+    18.901,
+    8.7
+   ],
+   "Light Closet 1 23": [
+    40.0,
+    18.901,
+    8.7
+   ],
+   "Light Hall 2 24": [
+    14.4,
+    12.999,
+    8.7
+   ],
+   "Light Hall 2 25": [
+    18.999,
+    12.999,
+    8.7
+   ],
+   "Light Hall 2 26": [
+    27.001,
+    12.999,
+    8.7
+   ],
+   "Light Hall 27": [
+    14.199,
+    30.499,
+    18.4
+   ],
+   "Light Loft 28": [
+    36.801,
+    28.799,
+    17.86
+   ],
+   "Light Garage 29": [
+    71.001,
+    23.999,
+    11.87
+   ],
+   "Light Garage 30": [
+    87.001,
+    23.999,
+    11.87
+   ],
+   "Light Garage 31": [
+    71.001,
+    33.999,
+    10.2
+   ],
+   "Light Garage 32": [
+    87.001,
+    33.999,
+    10.2
+   ],
+   "Light Porch 33": [
+    52.999,
+    34.501,
+    9.4
    ]
   }
  },
@@ -2580,6 +2820,1236 @@
    }
   },
   {
+   "id": "can_light_01",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    3.999,
+    46.001,
+    11.99
+   ],
+   "facing": 0,
+   "slope": 0.1667,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 800 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "11.99 ft, sloped 2.00:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Kitchen, x 4.0 ft, y 46.0 ft."
+   }
+  },
+  {
+   "id": "can_light_02",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    10.0,
+    48.999,
+    11.49
+   ],
+   "facing": 0,
+   "slope": 0.1667,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 800 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "11.49 ft, sloped 2.00:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Kitchen, x 10.0 ft, y 49.0 ft."
+   }
+  },
+  {
+   "id": "can_light_03",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Kitchen",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    10.0,
+    39.501,
+    13.073
+   ],
+   "facing": 0,
+   "slope": 0.1667,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 800 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "13.07 ft, sloped 2.00:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Kitchen, x 10.0 ft, y 39.5 ft."
+   }
+  },
+  {
+   "id": "can_light_04",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Dining",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    23.901,
+    38.999,
+    13.157
+   ],
+   "facing": 0,
+   "slope": 0.1667,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 800 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "13.16 ft, sloped 2.00:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Dining, x 23.9 ft, y 39.0 ft."
+   }
+  },
+  {
+   "id": "can_light_05",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Great room",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    16.499,
+    47.001,
+    11.823
+   ],
+   "facing": 0,
+   "slope": 0.1667,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 800 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "11.82 ft, sloped 2.00:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Great room, x 16.5 ft, y 47.0 ft."
+   }
+  },
+  {
+   "id": "can_light_06",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Great room",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    31.001,
+    47.001,
+    11.823
+   ],
+   "facing": 0,
+   "slope": 0.1667,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 800 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "11.82 ft, sloped 2.00:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Great room, x 31.0 ft, y 47.0 ft."
+   }
+  },
+  {
+   "id": "can_light_07",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Entry",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    39.501,
+    39.501,
+    13.073
+   ],
+   "facing": 0,
+   "slope": 0.1667,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 800 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "13.07 ft, sloped 2.00:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Entry, x 39.5 ft, y 39.5 ft."
+   }
+  },
+  {
+   "id": "can_light_08",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Family",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    37.001,
+    46.499,
+    11.907
+   ],
+   "facing": 0,
+   "slope": 0.1667,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 800 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "11.91 ft, sloped 2.00:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Family, x 37.0 ft, y 46.5 ft."
+   }
+  },
+  {
+   "id": "can_light_09",
+   "name": "Recessed light, 8 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Living",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    7.9,
+    0.5
+   ],
+   "at": [
+    21.001,
+    28.501,
+    18.063
+   ],
+   "facing": 0,
+   "slope": -0.3183,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "8 in"
+     ],
+     [
+      "Light",
+      "About 1,600 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "18.06 ft, sloped 3.82:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Living, x 21.0 ft, y 28.5 ft."
+   }
+  },
+  {
+   "id": "can_light_10",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Living",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    27.999,
+    25.0,
+    16.948
+   ],
+   "facing": 0,
+   "slope": -0.3183,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 800 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "16.95 ft, sloped 3.82:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Living, x 28.0 ft, y 25.0 ft."
+   }
+  },
+  {
+   "id": "can_light_11",
+   "name": "Recessed light, 8 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Bath 1",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    7.9,
+    0.5
+   ],
+   "at": [
+    34.501,
+    26.001,
+    9
+   ],
+   "facing": 0,
+   "slope": 0,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "8 in"
+     ],
+     [
+      "Light",
+      "About 1,200 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "9.00 ft, flat"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Bath 1, x 34.5 ft, y 26.0 ft."
+   }
+  },
+  {
+   "id": "can_light_12",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Bath 1 shower",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    40.449,
+    29.902,
+    9
+   ],
+   "facing": 0,
+   "slope": 0,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 600 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "9.00 ft, flat"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Bath 1 shower, x 40.4 ft, y 29.9 ft."
+   }
+  },
+  {
+   "id": "can_light_13",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Bath 1 toilet",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    34.8,
+    31.099,
+    9
+   ],
+   "facing": 0,
+   "slope": 0,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 600 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "9.00 ft, flat"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Bath 1 toilet, x 34.8 ft, y 31.1 ft."
+   }
+  },
+  {
+   "id": "can_light_14",
+   "name": "Recessed light, 8 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Bath 2",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    7.9,
+    0.5
+   ],
+   "at": [
+    19.4,
+    6.001,
+    10.9
+   ],
+   "facing": 0,
+   "slope": -0.3183,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "8 in"
+     ],
+     [
+      "Light",
+      "About 1,200 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "10.90 ft, sloped 3.82:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Bath 2, x 19.4 ft, y 6.0 ft."
+   }
+  },
+  {
+   "id": "can_light_15",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Powder",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    8.999,
+    31.601,
+    9
+   ],
+   "facing": 0,
+   "slope": 0,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 800 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "9.00 ft, flat"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Powder, x 9.0 ft, y 31.6 ft."
+   }
+  },
+  {
+   "id": "can_light_16",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Pantry",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    2.999,
+    31.801,
+    9
+   ],
+   "facing": 0,
+   "slope": 0,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 800 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "9.00 ft, flat"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Pantry, x 3.0 ft, y 31.8 ft."
+   }
+  },
+  {
+   "id": "can_light_17",
+   "name": "Recessed light, 8 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Utility",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    7.9,
+    0.5
+   ],
+   "at": [
+    6.299,
+    25.899,
+    9
+   ],
+   "facing": 0,
+   "slope": 0,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "8 in"
+     ],
+     [
+      "Light",
+      "About 1,200 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "9.00 ft, flat"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Utility, x 6.3 ft, y 25.9 ft."
+   }
+  },
+  {
+   "id": "can_light_18",
+   "name": "Recessed light, 8 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Laundry",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    7.9,
+    0.5
+   ],
+   "at": [
+    23.999,
+    18.901,
+    9
+   ],
+   "facing": 0,
+   "slope": 0,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "8 in"
+     ],
+     [
+      "Light",
+      "About 1,600 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "9.00 ft, flat"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Laundry, x 24.0 ft, y 18.9 ft."
+   }
+  },
+  {
+   "id": "can_light_19",
+   "name": "Recessed light, 8 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Closet 1",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    7.9,
+    0.5
+   ],
+   "at": [
+    33.999,
+    18.901,
+    9
+   ],
+   "facing": 0,
+   "slope": 0,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "8 in"
+     ],
+     [
+      "Light",
+      "About 1,200 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "9.00 ft, flat"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Closet 1, x 34.0 ft, y 18.9 ft."
+   }
+  },
+  {
+   "id": "can_light_20",
+   "name": "Recessed light, 8 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Closet 1",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    7.9,
+    0.5
+   ],
+   "at": [
+    40.0,
+    18.901,
+    9
+   ],
+   "facing": 0,
+   "slope": 0,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "8 in"
+     ],
+     [
+      "Light",
+      "About 1,200 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "9.00 ft, flat"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Closet 1, x 40.0 ft, y 18.9 ft."
+   }
+  },
+  {
+   "id": "can_light_21",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Hall 2",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    14.4,
+    12.999,
+    9
+   ],
+   "facing": 0,
+   "slope": 0,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 1,000 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "9.00 ft, flat"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Hall 2, x 14.4 ft, y 13.0 ft."
+   }
+  },
+  {
+   "id": "can_light_22",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Hall 2",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    18.999,
+    12.999,
+    9
+   ],
+   "facing": 0,
+   "slope": 0,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 1,000 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "9.00 ft, flat"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Hall 2, x 19.0 ft, y 13.0 ft."
+   }
+  },
+  {
+   "id": "can_light_23",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Hall 2",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    27.001,
+    12.999,
+    9
+   ],
+   "facing": 0,
+   "slope": 0,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 1,000 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "9.00 ft, flat"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Hall 2, x 27.0 ft, y 13.0 ft."
+   }
+  },
+  {
+   "id": "can_light_24",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Hall",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    14.199,
+    30.499,
+    18.699
+   ],
+   "facing": 0,
+   "slope": -0.3183,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 800 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "18.70 ft, sloped 3.82:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Hall, x 14.2 ft, y 30.5 ft."
+   }
+  },
+  {
+   "id": "can_light_25",
+   "name": "Recessed light, 8 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Loft",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    7.9,
+    0.5
+   ],
+   "at": [
+    36.801,
+    28.799,
+    18.158
+   ],
+   "facing": 0,
+   "slope": -0.3183,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "8 in"
+     ],
+     [
+      "Light",
+      "About 1,200 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "18.16 ft, sloped 3.82:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Loft, x 36.8 ft, y 28.8 ft."
+   }
+  },
+  {
+   "id": "can_light_26",
+   "name": "Recessed light, 8 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Garage",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    7.9,
+    0.5
+   ],
+   "at": [
+    71.001,
+    23.999,
+    12.167
+   ],
+   "facing": 0,
+   "slope": 0.1667,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "8 in"
+     ],
+     [
+      "Light",
+      "About 2,500 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "12.17 ft, sloped 2.00:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Garage, x 71.0 ft, y 24.0 ft."
+   }
+  },
+  {
+   "id": "can_light_27",
+   "name": "Recessed light, 8 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Garage",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    7.9,
+    0.5
+   ],
+   "at": [
+    87.001,
+    23.999,
+    12.167
+   ],
+   "facing": 0,
+   "slope": 0.1667,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "8 in"
+     ],
+     [
+      "Light",
+      "About 2,500 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "12.17 ft, sloped 2.00:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Garage, x 87.0 ft, y 24.0 ft."
+   }
+  },
+  {
+   "id": "can_light_28",
+   "name": "Recessed light, 8 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Garage",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    7.9,
+    0.5
+   ],
+   "at": [
+    71.001,
+    33.999,
+    10.5
+   ],
+   "facing": 0,
+   "slope": 0.1667,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "8 in"
+     ],
+     [
+      "Light",
+      "About 2,500 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "10.50 ft, sloped 2.00:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Garage, x 71.0 ft, y 34.0 ft."
+   }
+  },
+  {
+   "id": "can_light_29",
+   "name": "Recessed light, 8 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Garage",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    7.9,
+    0.5
+   ],
+   "at": [
+    87.001,
+    33.999,
+    10.5
+   ],
+   "facing": 0,
+   "slope": 0.1667,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "8 in"
+     ],
+     [
+      "Light",
+      "About 2,500 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "10.50 ft, sloped 2.00:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Garage, x 87.0 ft, y 34.0 ft."
+   }
+  },
+  {
+   "id": "can_light_30",
+   "name": "Recessed light, 6 in",
+   "category": "Lighting",
+   "system": "electrical.lighting",
+   "room": "Porch",
+   "layer": "electrical",
+   "builder": "can_light",
+   "size": [
+    6.7,
+    0.5
+   ],
+   "at": [
+    52.999,
+    34.501,
+    9.7
+   ],
+   "facing": 0,
+   "slope": 0.1667,
+   "info": {
+    "model": "Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)",
+    "specs": [
+     [
+      "Size",
+      "6 in"
+     ],
+     [
+      "Light",
+      "About 1,000 lumens, warm white, dimmable"
+     ],
+     [
+      "Ceiling",
+      "9.70 ft, sloped 2.00:12"
+     ]
+    ],
+    "notes": [
+     "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
+    ],
+    "placement": "Ceiling of Porch, x 53.0 ft, y 34.5 ft."
+   }
+  },
+  {
    "id": "study_temp_sensor",
    "name": "Study temperature sensor spot",
    "category": "Controls",
@@ -2632,7 +4102,7 @@
    ],
    "gangs": 4,
    "at": [
-    27.0,
+    27.33,
     34.616,
     3.479
    ],
@@ -2650,7 +4120,7 @@
      ]
     ],
     "notes": [
-     "U-11 draws four switches (two of them 3-way, for the loft) side by side on this wall, right where the ships ladder now stands. Combined into one 4 gang plate just west of the ladder (Maxwell, 11/19/2026).",
+     "U-11 draws four switches (two of them 3-way, for the loft) side by side on this wall, right where the ships ladder now stands. Combined into one 4 gang plate just west of the ladder (Maxwell, 11/19/2026), on the short wall between the living room opening and the ladder.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 8-11).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
@@ -2833,7 +4303,7 @@
    ],
    "gangs": 1,
    "at": [
-    26.333,
+    26.45,
     10.658,
     3.479
    ],
@@ -3080,8 +4550,8 @@
     0.3
    ],
    "at": [
-    42.482,
-    49.246,
+    42.542,
+    49.55,
     5.812
    ],
    "facing": 270,
@@ -3121,8 +4591,8 @@
    ],
    "tv": null,
    "at": [
-    42.482,
-    49.246,
+    42.542,
+    49.55,
     5.333
    ],
    "facing": 270,
@@ -4024,26 +5494,26 @@
   },
   {
    "id": "elec_switch_24",
-   "name": "Light switch, 44 in",
+   "name": "2 gang light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
    "room": "Kitchen",
    "layer": "electrical",
    "builder": "switch_plate",
    "size": [
-    2.75,
+    4.5600000000000005,
     4.5,
     0.3
    ],
-   "gangs": 1,
+   "gangs": 2,
    "at": [
     0.542,
-    42.173,
+    44.76,
     3.479
    ],
    "facing": 90,
    "info": {
-    "model": "Wall switch with a dimmer (U-11 legend)",
+    "model": "2 gang plate of rocker switches with dimmers",
     "specs": [
      [
       "Height",
@@ -4055,12 +5525,13 @@
      ]
     ],
     "notes": [
-     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 37).",
+     "U-11 draws #37 and #41 as two switches beside the door, where the oven tower now stands. Combined into a 2 gang plate on the backsplash just north of the tower.",
+     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 37+41).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
     ]
    },
-   "src": "U-11 #37"
+   "src": "U-11 #37+41"
   },
   {
    "id": "elec_switch_25",
@@ -4078,7 +5549,7 @@
    "gangs": 1,
    "at": [
     0.542,
-    36.171,
+    37.4,
     3.479
    ],
    "facing": 90,
@@ -4095,6 +5566,7 @@
      ]
     ],
     "notes": [
+     "Moved north into the gap between the over pantry cabinet and the door casing; U-11 draws it where the cabinet now is.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 38).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
@@ -4187,46 +5659,6 @@
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
-   "room": "Kitchen",
-   "layer": "electrical",
-   "builder": "switch_plate",
-   "size": [
-    2.75,
-    4.5,
-    0.3
-   ],
-   "gangs": 1,
-   "at": [
-    0.542,
-    42.887,
-    3.479
-   ],
-   "facing": 90,
-   "info": {
-    "model": "Wall switch with a dimmer (U-11 legend)",
-    "specs": [
-     [
-      "Height",
-      "44 in to the centre"
-     ],
-     [
-      "On",
-      "The east facing wall"
-     ]
-    ],
-    "notes": [
-     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 41).",
-     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
-     "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
-    ]
-   },
-   "src": "U-11 #41"
-  },
-  {
-   "id": "elec_switch_29",
-   "name": "Light switch, 44 in",
-   "category": "Electrical",
-   "system": "electrical.lighting",
    "room": "Dining",
    "layer": "electrical",
    "builder": "switch_plate",
@@ -4263,7 +5695,7 @@
    "src": "U-11 #42"
   },
   {
-   "id": "elec_switch_30",
+   "id": "elec_switch_29",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -4278,7 +5710,7 @@
    "gangs": 1,
    "at": [
     16.664,
-    23.322,
+    23.1,
     3.479
    ],
    "facing": 90,
@@ -4303,7 +5735,7 @@
    "src": "U-11 #43"
   },
   {
-   "id": "elec_switch_31",
+   "id": "elec_switch_30",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -4356,7 +5788,7 @@
     0.3
    ],
    "at": [
-    0.542,
+    0.782,
     47.139,
     1.146
    ],
@@ -4399,7 +5831,7 @@
    ],
    "at": [
     0.542,
-    43.628,
+    48.8,
     3.479
    ],
    "facing": 90,
@@ -4419,6 +5851,7 @@
      ]
     ],
     "notes": [
+     "U-11 puts this GFI where the oven tower now stands; moved to the backsplash north of the cooktop.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 46).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -4440,7 +5873,7 @@
    ],
    "at": [
     0.542,
-    45.066,
+    45.3,
     3.479
    ],
    "facing": 90,
@@ -7053,7 +8486,7 @@
    "src": "U-12 #1"
   },
   {
-   "id": "elec_switch_32",
+   "id": "elec_switch_31",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
@@ -7464,7 +8897,7 @@
    "src": "U-12 #11"
   },
   {
-   "id": "elec_switch_33",
+   "id": "elec_switch_32",
    "name": "Light switch, 44 in",
    "category": "Electrical",
    "system": "electrical.lighting",
