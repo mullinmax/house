@@ -684,7 +684,12 @@ supply("s_loft", "Loft", 88, 8, drop(XB1 + 0.4, YS, 24.6) + [[XB1 + 0.4, 24.6, D
        "Floor register in the loft. 8 in, up from 6 in: the run stays in one truss bay, so the 6 in limit on crossing trusses does not apply (duct balance check, 11/18/2026).")
 for k, x in enumerate([31.7, 37.7]):
     supply(f"s_family{k+1}", "Entry / family", 112, 8, drop(bay(x), YS, YC2 - 0.03), dict(at=[bay(x), YREG_S, ZT], size=[14, 6], wall=S), "Runs in the loft floor to a high sidewall register. 8 in, up from 7 in: 19 ft long but all in one truss bay, so it can be the full size the trusses allow (duct balance check, 11/18/2026).")
-supply("s_bed1", "Bedroom 1", 138, 8, [[40.4, YE - 0.6, 11.0], [40.4, 14.95, 11.0]], dict(at=[40.4, 15.01, 11.0], size=[14, 8], wall=N), "High sidewall register through the attic wall.")
+# Bedroom 1's supply sits high over the middle of its pocket door's header (Maxwell, 11/20/2026: good mixing with both returns
+# east of the header). Nudged 6 in east of the header's centre (x 34.8) to clear the attic outlet in the same wall at x 34.5.
+XB1S = 35.3
+supply("s_bed1", "Bedroom 1", 138, 8, [[XB1S, YE - 0.6, 11.0], [XB1S, 14.95, 11.0]], dict(at=[XB1S, 15.01, 11.0], size=[14, 8], wall=N),
+       "High sidewall register through the attic wall, over the closet 1 pocket door's header (Maxwell, 11/20/2026). The header and its "
+       "flat 2x and cripples stop at the 9' 1\" top plates, so the register and its boot sit in the wall above them.")
 
 # ------------------------------------------------------------------ returns
 # Main: Andy's M-10 return, a 34 x 10 grille high on the hall 1 west wall. Behind it a boot box sits in one truss bay
@@ -802,7 +807,10 @@ stack("return_bed2_stack", XR2, 10.8, "return_bed23", "return_bed2", "Bedroom 2"
 # They come down in one hall 2 bay, cross the laundry and linen trusses west a little apart, and drop south in their own bays.
 # The second run uses the route bedroom 1's return had before it moved up onto the supply trunk.
 XSB, XSB2 = bay(27.7), bay(29.7) - 0.2           # the study's two low grilles east of its door (x 23.37-26.00 with casing to 26.29), Maxwell 11/18/2026
-XB1R = 32.0                                      # bedroom 1's grilles: east of its door wall, which moved to x 30.25 (Maxwell, 11/19/2026)
+# bedroom 1's grilles: both east of the closet 1 pocket door's header (Maxwell, 11/20/2026). The as-built header and its
+# kings run from x 31.75 to 37.85 ([framing] in config.toml, from the 11/19 photos); at x 32.0 and 33.3 the stacks ran through the
+# pocket. The second stack skips the bay with the bedroom outlet at x 39.6.
+XB1R = 38.5
 XSR = bay(25.7)                                   # both runs go south in the 25.7 bay: the laundry and living 1 supplies fill bay 27.7
 YSW, YBW = 19.6, 20.3
 r = ret("return_study", "Study return", 6,
@@ -827,15 +835,16 @@ ret("return_study2", None, 6, bend([[XSB2, 10.85, ZT], [XSB2, 12.0, ZT], [XSR + 
 # north attic wall, comes down onto the deck east of the trunk's west leg and runs south to the return plenum.
 ZR = ZTR + 8 / 12 + 5 / 12 + 0.02                  # centre of a 10 in round lying on top of the 18 x 16 supply trunk
 ZH = ZTR + 8 / 12 + 0.54 + 5 / 12 + 0.04           # centre of the header, clear above the 6 in exhaust main on the trunk
-XB1B = XB1R + 16 / 12                              # the second stack, in the next stud bay east
+XB1B = 40.6                                        # the second stack, one stud bay further east: the outlet at x 39.6 sits between them
 XBH = (XB1R + XB1B) / 2
+HBW = round((XB1B - XB1R) * 12 + 14 + 4)           # header box width (in): over both stacks
 Y_RL, X_RL, Y_RN = YE + 0.31, XJ - 0.31, YN + 0.31 # the return's lane on the trunk top: south side of the east leg, west side of the jog, south side of the north leg
 XRD = RP_E - 7 / 12                                # where it comes down and runs south, in line with the return plenum box
 r = ret("return_bed1", "Bedroom 1 return", 10,
         [[XBH, 15.95, ZH], [XBH, Y_RL, ZH], [XBH, Y_RL, ZR], [X_RL, Y_RL, ZR], [X_RL, Y_RN, ZR], [XRD, Y_RN, ZR], [XRD, YN + 1.3, ZR], [XRD, YN + 2.3, DK], [XRD, RP_N, DK]],
         el=25, model="10 in round on top of the supply trunk",
         grilles=[dict(at=[XB1R, 15.01, LOW], size=[14, 8], wall=N), dict(at=[XB1B, 15.01, LOW], size=[14, 8], wall=N)])
-r["info"]["specs"] = [["Serves", "Bedroom 1 (two low grilles on its south wall, beside the door)"],
+r["info"]["specs"] = [["Serves", "Bedroom 1 (two low grilles on its south wall, east of the closet 1 pocket door)"],
                       ["Duct", "Two 14 x 2-1/2 in wall stacks to a header box, then one 10 in round, about 45 ft"],
                       ["Route", "On top of the supply trunk beside the bath exhaust main, then on the deck beside the trunk to the return plenum"],
                       ["Crosses", "No trusses"]]
@@ -845,7 +854,7 @@ r["info"]["notes"] = ["Replaces a 6 in flex through the laundry and linen trusse
                       "Clearance under the roof is tightest along the north attic wall, about 5 in above the duct in this model. Confirm on site. ASSUMED size and route."]
 stack("return_bed1_stack", XB1R, 15.26, "return_bed1", "return_bed1_head", "Bedroom 1", top=ZH)
 stack("return_bed1_stack2", XB1B, 15.26, "return_bed1", "return_bed1_head", "Bedroom 1", top=ZH)
-ret("return_bed1_head", None, [32, 10], [[XBH, 15.3, ZH], [XBH, 15.95, ZH]], info_of="return_bed1", parent="return_bed1", el=25)
+ret("return_bed1_head", None, [HBW, 10], [[XBH, 15.3, ZH], [XBH, 15.95, ZH]], info_of="return_bed1", parent="return_bed1", el=25)
 
 # Bath 2 supply comes in LOW and the exhaust stays HIGH (Maxwell, 11/18/2026), so the boost exhaust does not pull the fresh
 # supply air straight back out. A bottom takeoff from the trunk drops into hall 2's trusses, runs north in one truss bay to the
