@@ -29,7 +29,7 @@ def truss_xs(r):
     return [min(x1 - CW / 2, max(x0 + CW / 2, x0 + i * (x1 - x0) / n)) for i in range(n + 1)]
 
 
-REG = [(r, truss_xs(r)) for r in T["regions"] + T.get("loft_regions", [])]
+REG = [(r, T["xs"][i] if "xs" in T else truss_xs(r)) for i, r in enumerate(T["regions"] + T.get("loft_regions", []))]
 bad = []
 for dc in D["ducts"]:
     rnd = dc.get("shape") == "round" or isinstance(dc["size"], (int, float))
@@ -52,6 +52,9 @@ for dc in D["ducts"]:
             else:
                 pad = hw if rnd else 0.0                # a rect run's width lies across its length
                 crossed = [x for x in xs if xlo - pad - CW / 2 < x < xhi + pad + CW / 2]
+                for ex, ey0, ey1 in T.get("solid_ends", []):   # a solid trimmable end has no web openings at all
+                    if ex in crossed and ey0 - hw < a[1] < ey1 + hw and a[1] == b[1]:
+                        bad.append(f"{dc['id']}: {size} in run at y {a[1]:.2f} crosses the solid end of the truss at x {ex:.2f} (solid to y {ey1:.2f})")
                 if crossed and (not rnd or size > dc.get("cross_ok", MAX_CROSS)):   # cross_ok: a run the owner has allowed to cross at a bigger size
                     bad.append(f"{dc['id']}: {'round ' if rnd else 'rect '}{dc['size']} crosses {len(crossed)} trusses at y {a[1]:.1f} (max {MAX_CROSS} in round)")
 for b in bad:

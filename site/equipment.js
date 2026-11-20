@@ -1403,10 +1403,11 @@ function buildTrusses(t) {
   // Held just inside each region and above the ceiling drywall, so no truss face lands on a wall, the ceiling or the
   // loft edge (coplanar faces showed the chords and webs through the drywall).
   const E = 0.05, zb = 0.07, zt = 0.01;
-  for (const [rx0, ry0, rx1, ry1] of [...t.regions, ...(t.loft_regions || [])]) {
+  [...t.regions, ...(t.loft_regions || [])].forEach(([rx0, ry0, rx1, ry1], ri) => {
     const x0 = rx0 + E, x1 = rx1 - E, y0 = ry0 + E, y1 = ry1 - E;
     const L = y1 - y0, xs = [];
-    if (t.grid_x0 != null) {                       // one grid across the house: trusses run continuous over the walls, so the bays line up
+    if (t.xs) xs.push(...t.xs[ri]);                // the truss positions worked out by make_equipment.py (measured grid plus extras)
+    else if (t.grid_x0 != null) {                       // one grid across the house: trusses run continuous over the walls, so the bays line up
       for (let k = Math.ceil((x0 + CW / 2 - t.grid_x0) / sp - 1e-6); t.grid_x0 + k * sp <= x1 - CW / 2 + 1e-6; k++) xs.push(t.grid_x0 + k * sp);
     } else {
       const n = Math.max(1, Math.round((x1 - x0) / sp));
@@ -1417,17 +1418,26 @@ function buildTrusses(t) {
         m4.makeTranslation(...plan(x, y0 + L / 2, zc).toArray());
         push(new THREE.BoxGeometry(CW * F, CH * F, L * F), m4.clone());
       }
-      const panels = Math.max(2, Math.round(L / (D * 1.5))), pl = L / panels;     // webs zigzag between the chords
-      for (let k = 0; k < panels; k++) {
+      // a solid trimmable end where the truss bears on a wall (measured, 11/20/2026): a block between the chords, webs start past it
+      let w0 = y0;
+      for (const [ex, ey0, ey1] of t.solid_ends || []) {
+        if (Math.abs(ex - x) > 0.01 || ey1 <= y0 || ey0 >= y1 || ey0 > y0 + 0.2) continue;
+        const e1 = Math.min(ey1, y1), hz = D - zb - zt - 2 * CH - 0.006;
+        m4.makeTranslation(...plan(x, (y0 + e1) / 2, z0 + zb + CH + hz / 2).toArray());
+        push(new THREE.BoxGeometry(CW * 0.9 * F, hz * F, (e1 - y0) * F), m4.clone());
+        w0 = e1;
+      }
+      const WL = y1 - w0, panels = Math.max(2, Math.round(WL / (D * 1.5))), pl = WL / panels;     // webs zigzag between the chords
+      for (let k = 0; WL > 0.3 && k < panels; k++) {
         const lo = z0 + zb + CH, hi = z0 + D - zt - CH;
-        const a = plan(x, y0 + k * pl, k % 2 ? hi : lo), b = plan(x, y0 + (k + 1) * pl, k % 2 ? lo : hi);
+        const a = plan(x, w0 + k * pl, k % 2 ? hi : lo), b = plan(x, w0 + (k + 1) * pl, k % 2 ? lo : hi);
         const d = b.clone().sub(a), len = d.length();
         q.setFromUnitVectors(new THREE.Vector3(0, 0, 1), d.clone().normalize());
         m4.compose(a.clone().addScaledVector(d, 0.5), q, one);
         push(new THREE.BoxGeometry(CW * F, CH * F, len), m4.clone());
       }
     }
-  }
+  });
   if (geos.length) {
     const me = new THREE.Mesh(mergeGeometries(geos), wood); me.name = 'Open web floor trusses';
     me.userData.pass = true; me.userData.equipId = t.id; g.add(me);

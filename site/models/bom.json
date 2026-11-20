@@ -258,18 +258,18 @@
      "status": ""
     },
     {
-     "item": "4 in manual balancing damper with locking quadrant",
-     "spec": "Litter box exhaust",
+     "item": "4 in constant airflow regulator, 20 CFM (for example Aldes CAR-II)",
+     "spec": "Litter box exhaust, holds 20 CFM on boost too",
      "qty": 1,
      "unit": "ea",
      "where": "",
      "note": "",
-     "price": "About $10 to $20",
+     "price": "About $30 to $50",
      "status": ""
     },
     {
-     "item": "Range hood roof blower, about 400 CFM",
-     "spec": "Roof, over the cooktop",
+     "item": "Range hood power pack insert",
+     "spec": "",
      "qty": 1,
      "unit": "ea",
      "where": "",
@@ -278,8 +278,8 @@
      "status": ""
     },
     {
-     "item": "8 in round duct silencer (Fantech LD 8 or similar)",
-     "spec": "In the hood chimney",
+     "item": "8 in range hood wall cap with damper",
+     "spec": "West wall",
      "qty": 1,
      "unit": "ea",
      "where": "",
@@ -338,9 +338,9 @@
     {
      "item": "6 in round pipe, 30 ga snap lock",
      "spec": "Supply",
-     "qty": 11,
+     "qty": 10,
      "unit": "x 5 ft",
-     "where": "46 ft in the model",
+     "where": "43 ft in the model",
      "note": "",
      "price": "",
      "status": ""
@@ -350,7 +350,7 @@
      "spec": "Supply",
      "qty": 5,
      "unit": "x 5 ft",
-     "where": "20 ft in the model",
+     "where": "19 ft in the model",
      "note": "",
      "price": "",
      "status": ""
@@ -388,9 +388,9 @@
     {
      "item": "8 in round pipe, 30 ga snap lock",
      "spec": "Range hood",
-     "qty": 2,
+     "qty": 1,
      "unit": "x 5 ft",
-     "where": "7 ft in the model",
+     "where": "4 ft in the model",
      "note": "",
      "price": "",
      "status": ""
@@ -420,7 +420,7 @@
      "spec": "Return runs through the trusses",
      "qty": 4,
      "unit": "x 25 ft box",
-     "where": "71 ft in the model",
+     "where": "70 ft in the model",
      "note": "Pull it tight, no sags; support every 4 ft",
      "price": "",
      "status": ""
@@ -468,7 +468,7 @@
     {
      "item": "8 in adjustable 90 elbow",
      "spec": "",
-     "qty": 13,
+     "qty": 14,
      "unit": "ea",
      "where": "Counted from the bends in the model",
      "note": "",
@@ -644,7 +644,7 @@
      "status": ""
     },
     {
-     "item": "14 x 8 in south supply main",
+     "item": "12 x 10 in south supply main",
      "spec": "Fabricated",
      "qty": 1,
      "unit": "piece",
@@ -664,7 +664,7 @@
      "status": ""
     },
     {
-     "item": "14 x 8 in kitchen riser",
+     "item": "12 x 10 in kitchen riser",
      "spec": "part of Kitchen supply duct",
      "qty": 1,
      "unit": "piece",
@@ -678,7 +678,7 @@
      "spec": "Fabricated",
      "qty": 1,
      "unit": "piece",
-     "where": "10.4 ft, 0 turns",
+     "where": "8.6 ft, 0 turns",
      "note": "",
      "price": "",
      "status": ""
@@ -1182,7 +1182,7 @@
     {
      "item": "Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap",
      "spec": "Rigid every 5 ft, flex every 4 ft, rect every 4 ft",
-     "qty": 109,
+     "qty": 107,
      "unit": "hangers",
      "where": "About 3 ft of strap each",
      "note": "",
@@ -1255,7 +1255,7 @@
    "system": "Exhaust",
    "room": null,
    "size": "6 in round",
-   "ft": 62.042283885748716,
+   "ft": 62.375283885748715,
    "cfm": null,
    "flex": false,
    "crosses": 0,
@@ -1267,7 +1267,7 @@
    "system": "Exhaust",
    "room": "Powder",
    "size": "4 in round",
-   "ft": 10.176458333333338,
+   "ft": 9.676458333333338,
    "cfm": null,
    "flex": false,
    "crosses": 0,
@@ -1279,7 +1279,7 @@
    "system": "Range hood",
    "room": "Kitchen",
    "size": "8 in round",
-   "ft": 6.559113200145781,
+   "ft": 4.481699999999998,
    "cfm": null,
    "flex": false,
    "crosses": 0,
@@ -1303,7 +1303,7 @@
    "system": "Return",
    "room": "",
    "size": "10 in round",
-   "ft": 21.382228783820604,
+   "ft": 20.31603261178742,
    "cfm": null,
    "flex": true,
    "crosses": 2,
@@ -1339,10 +1339,10 @@
    "system": "Return",
    "room": "",
    "size": "6 in round",
-   "ft": 63.60325470557531,
+   "ft": 63.35082803639486,
    "cfm": null,
    "flex": true,
-   "crosses": 17,
+   "crosses": 26,
    "stacks": 2
   },
   {
@@ -1555,7 +1555,7 @@
    "system": "Supply",
    "room": "Laundry",
    "size": "6 in round",
-   "ft": 5.137851868879232,
+   "ft": 4.454851868879229,
    "cfm": 40,
    "flex": false,
    "crosses": 0,
@@ -1567,7 +1567,7 @@
    "system": "Supply",
    "room": "Living",
    "size": "7 in round",
-   "ft": 13.107851868879232,
+   "ft": 12.77485186887923,
    "cfm": 70,
    "flex": false,
    "crosses": 2,
@@ -1615,10 +1615,10 @@
    "system": "Supply",
    "room": "Powder",
    "size": "6 in round",
-   "ft": 7.6,
+   "ft": 6.8,
    "cfm": 15,
    "flex": false,
-   "crosses": 4,
+   "crosses": 5,
    "stacks": 0
   },
   {
@@ -1651,10 +1651,10 @@
    "system": "Supply",
    "room": "Utility",
    "size": "6 in round",
-   "ft": 1.2000000000000002,
+   "ft": 0.3999999999999999,
    "cfm": 18,
    "flex": false,
-   "crosses": 1,
+   "crosses": 0,
    "stacks": 0
   },
   {
@@ -1663,7 +1663,7 @@
    "system": "Supply",
    "room": "",
    "size": "14 x 8 in",
-   "ft": 11.310625,
+   "ft": 9.510625,
    "cfm": null,
    "flex": false,
    "crosses": 0,
@@ -1674,7 +1674,7 @@
    "name": "South supply main",
    "system": "Supply",
    "room": "",
-   "size": "14 x 8 in",
+   "size": "12 x 10 in",
    "ft": 13.26829166666666,
    "cfm": null,
    "flex": false,

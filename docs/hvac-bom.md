@@ -48,9 +48,9 @@ Listed from the parts in the model. The range hood rows follow whichever hood de
 | 8 in backdraft damper | In the fresh air duct to the supply plenum | 1 | ea |  |  |
 | Hanging chains or straps with vibration isolators (set) | The ERV hangs level from the roof framing | 1 | ea |  |  |
 | Blower interlock wire | ERV to heat pump, so the blower runs with the ERV | 1 | ea |  |  |
-| 4 in manual balancing damper with locking quadrant | Litter box exhaust | 1 | ea |  | About $10 to $20 |
-| Range hood roof blower, about 400 CFM | Roof, over the cooktop | 1 | ea |  |  |
-| 8 in round duct silencer (Fantech LD 8 or similar) | In the hood chimney | 1 | ea |  |  |
+| 4 in constant airflow regulator, 20 CFM (for example Aldes CAR-II) | Litter box exhaust, holds 20 CFM on boost too | 1 | ea |  | About $30 to $50 |
+| Range hood power pack insert |  | 1 | ea |  |  |
+| 8 in range hood wall cap with damper | West wall | 1 | ea |  |  |
 | 8 in insulated backdraft damper for the hood duct | At the hood | 1 | ea |  | Worth it in a house this tight. |
 | Rheem water heater duct kit | 8 in insulated flex SP20889, elbows SP20890, outlet adaptor SP17829 | 1 | kit | Water heater intake and exhaust to the attic | Must not tie into any other duct (Rheem). |
 
@@ -62,20 +62,20 @@ Counted from the model with 10 percent extra. Anything that crosses the floor tr
 |---|---|---|---|---|---|
 | 4 in round pipe, 30 ga snap lock | Exhaust | 5 | x 5 ft | 22 ft in the model |  |
 | 6 in round pipe, 30 ga snap lock | Exhaust | 9 | x 5 ft | 39 ft in the model |  |
-| 6 in round pipe, 30 ga snap lock | Supply | 11 | x 5 ft | 46 ft in the model |  |
-| 7 in round pipe, 30 ga snap lock | Supply | 5 | x 5 ft | 20 ft in the model |  |
+| 6 in round pipe, 30 ga snap lock | Supply | 10 | x 5 ft | 43 ft in the model |  |
+| 7 in round pipe, 30 ga snap lock | Supply | 5 | x 5 ft | 19 ft in the model |  |
 | 8 in round pipe, 30 ga snap lock | ERV | 2 | x 5 ft | 8 ft in the model |  |
 | 8 in round pipe, 30 ga snap lock | ERV outdoor side, insulated | 5 | x 5 ft | 19 ft in the model | Insulate with R-8 wrap or use insulated duct, vapor jacket outside |
 | 8 in round pipe, 30 ga snap lock | Exhaust | 9 | x 5 ft | 37 ft in the model |  |
-| 8 in round pipe, 30 ga snap lock | Range hood | 2 | x 5 ft | 7 ft in the model |  |
+| 8 in round pipe, 30 ga snap lock | Range hood | 1 | x 5 ft | 4 ft in the model |  |
 | 8 in round pipe, 30 ga snap lock | Supply | 13 | x 5 ft | 55 ft in the model |  |
 | 10 in round pipe, 30 ga snap lock | Return | 12 | x 5 ft | 51 ft in the model |  |
-| 6 in flex duct, R-6 insulated | Return runs through the trusses | 4 | x 25 ft box | 71 ft in the model | Pull it tight, no sags; support every 4 ft |
+| 6 in flex duct, R-6 insulated | Return runs through the trusses | 4 | x 25 ft box | 70 ft in the model | Pull it tight, no sags; support every 4 ft |
 | 10 in flex duct, R-6 insulated | Return runs through the trusses | 1 | x 25 ft box | 14 ft in the model | Pull it tight, no sags; support every 4 ft |
 | 4 in adjustable 90 elbow |  | 7 | ea | Counted from the bends in the model |  |
 | 6 in adjustable 90 elbow |  | 13 | ea | Counted from the bends in the model |  |
 | 7 in adjustable 90 elbow |  | 5 | ea | Counted from the bends in the model |  |
-| 8 in adjustable 90 elbow |  | 13 | ea | Counted from the bends in the model |  |
+| 8 in adjustable 90 elbow |  | 14 | ea | Counted from the bends in the model |  |
 | 10 in adjustable 90 elbow |  | 5 | ea | Counted from the bends in the model |  |
 | 10 in adjustable 45 elbow |  | 2 | ea | Counted from the bends in the model |  |
 | 6 in round takeoff (starting collar) | Off a rectangular trunk, main or plenum | 2 | ea |  |  |
@@ -99,10 +99,10 @@ Trunks, plenums and boxes are usually made to measure by a sheet metal shop once
 |---|---|---|---|---|---|
 | 18 x 16 in supply trunk | Fabricated | 1 | piece | 50.8 ft, 3 turns |  |
 | 26 x 24 in supply plenum at the heat pump | part of Supply trunk | 1 | piece | 1.3 ft, 0 turns |  |
-| 14 x 8 in south supply main | Fabricated | 1 | piece | 13.3 ft, 1 turns |  |
+| 12 x 10 in south supply main | Fabricated | 1 | piece | 13.3 ft, 1 turns |  |
 | 10 x 6 in supply to Pantry | Fabricated | 1 | piece | 0.4 ft, 0 turns |  |
-| 14 x 8 in kitchen riser | part of Kitchen supply duct | 1 | piece | 0.9 ft, 0 turns |  |
-| 14 x 8 in kitchen supply duct | Fabricated | 1 | piece | 10.4 ft, 0 turns |  |
+| 12 x 10 in kitchen riser | part of Kitchen supply duct | 1 | piece | 0.9 ft, 0 turns |  |
+| 14 x 8 in kitchen supply duct | Fabricated | 1 | piece | 8.6 ft, 0 turns |  |
 | 34 x 20 in main return grille collar | Fabricated | 1 | piece | 0.6 ft, 0 turns | 1 in acoustic liner |
 | 14 x 36 in main return drop box | part of Main return (M-10) | 1 | piece | 2.9 ft, 0 turns | 1 in acoustic liner |
 | 34 x 14 in main return trunk | part of Main return (M-10) | 1 | piece | 4.8 ft, 0 turns | 1 in acoustic liner |
@@ -165,7 +165,7 @@ Estimated from the joint and length counts above.
 | Foil tape, UL 181A-P / 181B-FX |  | 9 | roll |  |  |
 | #8 x 1/2 in self drilling sheet metal screws | 3 per joint | 700 | ea |  |  |
 | Flex duct clamps or nylon duct ties | 2 per flex connection | 28 | ea |  |  |
-| Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap | Rigid every 5 ft, flex every 4 ft, rect every 4 ft | 109 | hangers | About 3 ft of strap each |  |
+| Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap | Rigid every 5 ft, flex every 4 ft, rect every 4 ft | 107 | hangers | About 3 ft of strap each |  |
 | Acoustic duct liner, 1 in | Main return box and trunk | 1 | roll |  | Often supplied by the sheet metal shop |
 | Duct insulation wrap, R-8 with vapor jacket | ERV outdoor ducts | 21 | ft |  | Supply and return ducts sit inside the SIP envelope, so they do not need insulation by code |
 
@@ -176,14 +176,14 @@ Estimated from the joint and length counts above.
 | Bath 1 exhaust | Exhaust | Bath 1 | 6 in round | 13.0 |  |  |  |  |
 | Bath 2 exhaust | Exhaust | Bath 2 | 6 in round | 0.9 |  |  |  |  |
 | Litter box exhaust | Exhaust | Utility | 4 in round | 12.1 | 20 |  |  | 1 |
-| Bath exhaust main | Exhaust | None | 6 in round | 62.0 |  |  |  |  |
-| Powder exhaust | Exhaust | Powder | 4 in round | 10.2 |  |  |  |  |
-| Range hood duct | Range hood | Kitchen | 8 in round | 6.6 |  |  |  |  |
+| Bath exhaust main | Exhaust | None | 6 in round | 62.4 |  |  |  |  |
+| Powder exhaust | Exhaust | Powder | 4 in round | 9.7 |  |  |  |  |
+| Range hood duct | Range hood | Kitchen | 8 in round | 4.5 |  |  |  |  |
 | Bedroom 1 return | Return |  | 10 in round | 51.9 |  |  |  | 2 |
-| Bedrooms 2 and 3 return | Return |  | 10 in round | 21.4 |  | yes | 2 | 3 |
+| Bedrooms 2 and 3 return | Return |  | 10 in round | 20.3 |  | yes | 2 | 3 |
 | Main return (M-10) | Return |  | 34 x 20 in | 8.3 |  |  |  |  |
 | Return plenum box | Return |  | 14 x 24 in | 3.2 |  |  |  |  |
-| Study return | Return |  | 6 in round | 63.6 |  | yes | 17 | 2 |
+| Study return | Return |  | 6 in round | 63.4 |  | yes | 26 | 2 |
 | Study high return | Return | Bedroom 4 / study | 20 x 4 in | 1.4 |  |  |  |  |
 | Utility room transfer grille | Return |  | 12 x 12 in | 1.0 |  |  |  |  |
 | Supply to Bath 1 | Supply | Bath 1 | 6 in round | 11.5 | 49 |  |  |  |
@@ -201,16 +201,16 @@ Estimated from the joint and length counts above.
 | Supply to Kitchen / dining | Supply | Kitchen / dining | 8 in round | 0.6 | 127 |  |  |  |
 | Supply to Kitchen / dining | Supply | Kitchen / dining | 8 in round | 0.6 | 127 |  |  |  |
 | Supply to Kitchen / dining | Supply | Kitchen / dining | 8 in round | 0.6 | 127 |  |  |  |
-| Supply to Laundry | Supply | Laundry | 6 in round | 5.1 | 40 |  |  |  |
-| Supply to Living | Supply | Living | 7 in round | 13.1 | 70 |  | 2 |  |
+| Supply to Laundry | Supply | Laundry | 6 in round | 4.5 | 40 |  |  |  |
+| Supply to Living | Supply | Living | 7 in round | 12.8 | 70 |  | 2 |  |
 | Supply to Living | Supply | Living | 7 in round | 6.6 | 70 |  |  |  |
 | Supply to Loft | Supply | Loft | 8 in round | 9.1 | 88 |  |  |  |
 | Supply to Pantry | Supply | Pantry | 10 x 6 in | 0.4 | 22 |  |  |  |
-| Supply to Powder | Supply | Powder | 6 in round | 7.6 | 15 |  | 4 |  |
+| Supply to Powder | Supply | Powder | 6 in round | 6.8 | 15 |  | 5 |  |
 | Supply to Bedroom 4 / study, west register | Supply | Bedroom 4 / study | 8 in round | 0.8 | 98 |  |  |  |
 | Supply to Bedroom 4 / study, east register | Supply | Bedroom 4 / study | 8 in round | 0.8 | 98 |  |  |  |
-| Supply to Utility | Supply | Utility | 6 in round | 1.2 | 18 |  | 1 |  |
-| Kitchen supply duct | Supply |  | 14 x 8 in | 11.3 |  |  |  |  |
-| South supply main | Supply |  | 14 x 8 in | 13.3 |  |  |  |  |
+| Supply to Utility | Supply | Utility | 6 in round | 0.4 | 18 |  |  |  |
+| Kitchen supply duct | Supply |  | 14 x 8 in | 9.5 |  |  |  |  |
+| South supply main | Supply |  | 12 x 10 in | 13.3 |  |  |  |  |
 | Supply trunk | Supply |  | 18 x 16 in | 52.1 |  |  |  |  |
 | Water heater intake duct | Water heater air | Utility | 8 in round | 12.8 |  | yes |  |  |

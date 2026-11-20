@@ -53,10 +53,12 @@ walls_stop_at_attic = true      # interior walls with flat ceilings on both side
 [floor_trusses]                 # open web floor trusses under the attic deck and the loft (builder's choice, so returns can be ducted)
 depth_in = 11.875               # 11-7/8" (Maxwell 11/16/2026)
 deck_in = 0.75                  # ASSUMED 3/4" decking
-spacing_in = 24.0               # ASSUMED
-span = "ns"                     # ASSUMED north to south, until the truss drawings exist
+spacing_in = 16.0               # MEASURED by Maxwell 11/20/2026: 16 in on centre (was ASSUMED 24)
+span = "ns"                     # north to south: Maxwell 11/20/2026 lays them out from the west wall eastward
 max_round_duct_in = 6.0        # largest round duct through the webs. Builder, 11/18/2026: the trusses are in, 6 in fits, 7 in only maybe
-grid_x0 = 0.7                   # ASSUMED: every truss on one 24 in grid from here (plan ft), so the bays line up house wide
+grid_x0 = 0.7                   # Maxwell 11/20/2026: the westernmost truss sits tight to the west wall's SIP plywood (face 0.542 + half a 3.5 in chord), every truss on one 16 in grid from here
+extra_x = [42.386]              # Maxwell 11/20/2026: a second truss tight to the east wall's SIP plywood, about 4 in from the last one on the grid
+solid_ends = [ [0, 7, 10.95, 7.0], [8, 16, 10.95, 32.0], [17, 19, 10.95, 7.0] ]   # Maxwell 11/20/2026: solid trimmable ends at the hall 2 north wall (south face y 10.95). [first truss, last truss] counted from the west (0 = the one on the west wall), wall face y, inches they reach south. Trusses 1-8 reach 7 in, 9-17 reach 2 ft 8 in, 18-20 reach 7 in; the web triangles still line up across all of them. East of truss 20 not measured yet
 
 [loft]                          # 134 sf loft over Bath 1 (A-12)
 enabled = true

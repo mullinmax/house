@@ -125,7 +125,7 @@ def truss_xs(r):
     return [g + k * SP for k in range(k0, k0 + 200) if x0 + CW / 2 - 1e-6 <= g + k * SP <= x1 - CW / 2 + 1e-6]
 
 
-REG = [(r, truss_xs(r)) for r in T["regions"] + T.get("loft_regions", [])]
+REG = [(r, T["xs"][i] if "xs" in T else truss_xs(r)) for i, r in enumerate(T["regions"] + T.get("loft_regions", []))]
 Z0, DEP = T["z0"], T["depth_in"] / 12
 
 
