@@ -1705,8 +1705,8 @@ VIDEO = ["Video Maxwell picked: kitchen hood design", "https://www.youtube.com/w
 rec("kitchen.hood", "fixture", "Range hood", "interior", room="Kitchen",
     info=dict(model="Hidden hood: fake white oak cabinet doors over a power pack insert with a heat sensor (Broan PM600SSV suggested)",
               specs=[["Width", f"{ftin(HU1 - HU0)} (cooktop 30-11/16 in)"], ["Depth", f"{ftin(HD_)}, covers the front burners"],
-                     ["Underside", f"{ftin(HB)} above the floor, {round((HB - CTR_Z) * 12)} in above the cooktop"],
-                     ["Sides", "Oven tower on the north, a wood cheek on the south that hangs 6 in lower"],
+                     ["Underside", f"{ftin(HB - CHK)} above the floor, {round((HB - CHK - CTR_Z) * 12)} in above the cooktop"],
+                     ["Sides", f"Oven tower on the north, an end panel on the south; a level {round(CHK * 12)} in valance runs under the doors and round the end"],
                      ["Fan", "Inside the hood, about 0.5 sone on normal, turns itself on and off by sensing heat. 8 in duct out the west wall"]],
               links=[VIDEO],
               notes=["Designed to the advice in the video Maxwell picked (11/20/2026): wider than the cooktop (36 in minimum for a 30 in cooktop, wider is better), "
@@ -1714,7 +1714,7 @@ rec("kitchen.hood", "fixture", "Range hood", "interior", room="Kitchen",
                      "inverted bathtub to catch it, quiet enough to run every time, real HVI certified airflow, and it turns on by itself.",
                      "Nothing inside the hood: no shelf, oil or spices. Anything in there gets coated in grease within a week.",
                      "No microwave hood. The microwave lives elsewhere.",
-                     "The underside is 27 in over the cooktop. The insert allows 24 in. Mock it up in cardboard first to check head height for the tallest cook.",
+                     "The bottom edge is 24 in over the cooktop, the insert's minimum. Mock it up in cardboard first to check head height for the tallest cook.",
                      "Hidden behind two fixed shaker doors that match the kitchen, with the oven tower's crown carried across (Maxwell, 11/20/2026). "
                      "The doors do not open: behind them is the capture box, lined with stainless. A plain drywall chase above the crown hides the duct.",
                      "Hide the drywall and walls layers to see the duct."]))
@@ -1764,12 +1764,14 @@ if HSTYLE == "doors":
     wr.box(K_WOOD := "Cabinet Wood", HU0, HU1, 0, HD_, CRN0 - WT, CRN0)                                 # top of the box
     wr.box(K_WOOD, HU0, HU1 - WT, HD_ - WT, HD_, HB, CRN0 - WT)                                         # face frame behind the doors
     wr.box(K_WOOD, HU1 - WT, HU1, 0, HD_ + FRONT_T, HB - CHK, CRN0)                                      # south end panel
+    wr.box(K_WOOD, HU0, HU1 - WT, HD_ - WT, HD_ + FRONT_T, HB - CHK, HB)                                  # valance: one level band under the doors, flush with them, the same depth as the end panel (Maxwell, 11/20/2026)
     um = (HU0 + HU1 - WT) / 2
     shaker(wr, rdoor, HU0, um, HB, CRN0, HD_, K_WOOD, "door", "L")
     shaker(wr, rdoor, um, HU1 - WT, HB, CRN0, HD_, K_WOOD, "door", "R")
     wr.box(K_WOOD, HU0, HU1 + 0.05, 0, BASE_D + 0.22, CRN0, CRN1)                                        # crown, carried on from the oven tower
     liner(top=CRN0 - WT); pucks(CRN0 - WT - 0.02, d=1.2, n=3)
-    wr.box("Lamp Glass", HU0 + 0.1, HU1 - 0.16, HD_ - 0.2, HD_ - 0.12, HB + 0.005, HB + 0.03)             # LED strip just inside the front edge
+    wr.box("Stainless", HU0, HU1 - WT, HD_ - WT - 0.02, HD_ - WT, HB - CHK + 0.02, HB + 0.02)             # lining behind the valance
+    wr.box("Lamp Glass", HU0 + 0.1, HU1 - 0.16, HD_ - 0.2, HD_ - 0.12, HB - CHK + 0.005, HB - CHK + 0.03)  # LED strip just inside the bottom edge
     to_ceiling("Drywall", _cc - 0.6, _cc + 0.6, 0, 1.2, CRN1)                                              # drywall chase for the duct
 elif HSTYLE == "plaster":
     SL0, SL1 = HB + 0.42, 9.0                      # the slope runs from just above the lip back to 12 in off the wall
