@@ -52,6 +52,7 @@ fieldset > label.stack { display: grid; gap: 2px; }
 .layer { display: grid; grid-template-columns: auto 18px 1fr; gap: 8px; align-items: center; padding: 3px 4px; border-radius: 6px; cursor: pointer; }
 .layer:hover { background: color-mix(in srgb, var(--accent) 10%, transparent); }
 .layer.sub { margin-left: 22px; }
+.layers .preset { margin: 4px 0 2px 4px; padding: 4px 10px; font: inherit; font-size: .85rem; border-radius: 6px; cursor: pointer; justify-self: start; }
 .layer.off { opacity: .45; }
 .layer input { accent-color: var(--accent); margin: 0; }
 .ic { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; color: var(--muted); }
@@ -239,6 +240,12 @@ body.compact .keys td:first-child { white-space: normal; }
     <div class="layers">
       <label class="layer" id="rowRoof" title="Roof, fascia, gutters and ceilings"><input type="checkbox" id="lRoof" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M1.5 8.5 8 2.5l6.5 6"/><path d="M4 7.5V13h8V7.5"/></svg> <span>Roof</span></label>
       <label class="layer" id="rowWalls" title="Off: walls, floors and furniture fade so the systems read"><input type="checkbox" id="lWalls" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="10"/><path d="M2 6.5h12M2 10h12M6 3v3.5M10 6.5V10M6 10v3"/></svg> <span>Walls</span></label>
+      <label class="layer sub" id="rowDrywall" title="Interior partitions, the drywall over door heads, and the loft walls"><input type="checkbox" id="lDrywall" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2h10v12H3z"/><path d="M6 2v12"/></svg> <span>Drywall walls</span></label>
+      <label class="layer sub" id="rowExtwalls" title="SIP exterior walls and the clerestory wall, with their siding and wall lights"><input type="checkbox" id="lExtwalls" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12v10H2z"/><path d="M5 3v10M8 3v10M11 3v10"/></svg> <span>Exterior walls</span></label>
+      <label class="layer sub" id="rowOpenings" title="Doors and windows"><input type="checkbox" id="lOpenings" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4 14V2h8v12"/><circle cx="10" cy="8.5" r=".6"/></svg> <span>Doors and windows</span></label>
+      <label class="layer sub" id="rowFinish" title="Kitchen cabinets, shelves, baseboards and trim, the attic deck and the loft floor, ladder and railing"><input type="checkbox" id="lFinish" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6h12v8H2zM8 6v8M2 3h12"/></svg> <span>Cabinets, trim and decks</span></label>
+      <label class="layer" id="rowFraming" title="As-built framing from the build photos: door and window headers, posts, plates and studs"><input type="checkbox" id="lFraming"> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3h12M2 14h12M3 3v11M13 3v11M8 3v11M3 6h10"/></svg> <span>Framing</span></label>
+      <button class="preset" type="button" data-act="framing-only" title="Show only the framing, trusses and ducts">Framing only</button>
       <label class="layer" id="rowFurniture" title=""><input type="checkbox" id="lFurniture" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 7V12M13.5 7V12M2.5 9.5h11M4 9.5V5.5h8v4"/></svg> <span>Furniture</span></label>
       <label class="layer" id="rowFans" title="Ceiling fans. E or a tap turns one on or off"><input type="checkbox" id="lFans" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M8 1.5v3.5M8 5c-3 0-6 .6-6.5 1.6M8 5c3 0 6 .6 6.5 1.6"/><ellipse cx="8" cy="6.2" rx="2" ry="1.2"/><path d="M7 7.4h2"/></svg> <span>Ceiling fans</span></label>
       <label class="layer" id="rowElectrical" title="Outlets, switches and smoke alarms from Andy's sheets U-11 and U-12"><input type="checkbox" id="lElectrical" checked> <svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><rect x="4" y="2" width="8" height="12" rx="1"/><path d="M6.8 5.5v1.6M9.2 5.5v1.6M6.8 9.5v1.6M9.2 9.5v1.6"/></svg> <span>Electrical</span></label>
