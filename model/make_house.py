@@ -1725,6 +1725,7 @@ rec("kitchen.hood", "fixture", "Range hood", "interior", room="Kitchen",
 #   oak       white oak with a 45 degree chamfer into a tapered chimney and black steel straps
 #   cabinets  painted hood (island green) with shallow white oak glass door cabinets above it, lit inside
 #   steel     blackened steel, sloped front, satin brass band along the bottom edge, slim steel chimney
+#   stainless number 4 in appliance stainless with a level lip all round the bottom
 #   doors     hidden: fake white oak shaker doors and the oven tower crown carried across, drywall chase above (Maxwell's pick)
 import os as _os
 HSTYLE = _os.environ.get("HOOD_STYLE") or HOOD.get("style", "box")
@@ -1824,6 +1825,19 @@ elif HSTYLE == "cabinets":
     wr.box("Cabinet Wood", HU0 - 0.0, HU1 + 0.05, 0, CD + 0.15, CZ1, CZ1 + 0.25)                         # crown
     CUR[0] = BYID["kitchen.hood"]["parts"]
     to_ceiling("Cabinet Wood", _cc - 0.6, _cc + 0.6, 0, 1.2, CZ1 + 0.25)                                   # chase for the duct to the wall exit
+elif HSTYLE == "stainless":
+    # Number 4 in stainless to match the appliances, with one level lip all the way round the bottom (Maxwell, 11/20/2026):
+    # no brass band and no side panel hanging lower than the front.
+    MATERIALS.setdefault("Hood Stainless", dict(color="#C4C6C7", rough=0.5, metal=0.55))   # brushed, like the oven and fridge fronts
+    LB = HB - CHK                                  # bottom edge, level on the front and the side
+    SL0, SL1 = HB + 0.33, HT_ + 0.6
+    wr.box("Hood Stainless", HU0, HU1, HD_ - WT, HD_, LB, SL0)                                                 # front lip
+    slab("Hood Stainless", HU0, HU1, [(HD_ - WT, SL0), (HD_, SL0), (1.25, SL1), (1.25 - WT, SL1)])             # sloped front
+    wr.box("Hood Stainless", HU0, HU1, 0, 1.25, SL1 - WT, SL1)                                                 # top
+    wr.box("Hood Stainless", HU1 - WT, HU1, 0, HD_ - WT, LB, SL0)                                              # south side lip, same bottom as the front
+    slab("Hood Stainless", HU1 - WT, HU1, [(0, SL0), (HD_ - WT, SL0), (1.25 - WT, SL1), (0, SL1)])
+    to_ceiling("Hood Stainless", _cc - 0.55, _cc + 0.55, 0, 1.1, SL1)                                          # slim chimney
+    pucks(HT_ - WT - 0.02, d=0.8)
 elif HSTYLE == "steel":
     SL0, SL1 = HB + 0.33, HT_ + 0.6
     wr.box("Cabinet Pull", HU0, HU1, HD_ - WT, HD_ + 0.02, HB, HB + 0.1)                                  # satin brass band, like the pulls
