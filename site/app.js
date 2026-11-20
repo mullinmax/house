@@ -147,10 +147,12 @@ async function loadAll() {
     parts = parts.filter((p) => !HOUSE_PARTS.test(p.name || p.file.replace(/\.glb$/, '')));
     console.log(`house: ${house.recs.length} records built from house.json`);
   }
-  // Trees and the furniture parts load only once their layer is on (both off by default, Maxwell 11/20/2026: save viewers'
-  // compute). A shared link that shows them loads them with the rest.
+  // Trees load only once their layer is on (off by default, Maxwell 11/20/2026: save viewers' compute). The furniture parts
+  // also hold the baked toilets, vanities, tubs and lights, so they load (after the house) whenever Belongings or
+  // Cabinets, fixtures and trim is on. A shared link that shows a layer loads it with the rest.
   const qs = new URLSearchParams(location.search), shown = new Set((qs.get('show') || '').toLowerCase().split(','));
-  const lazyOn = (p) => (/^trees/i.test(p.name || p.file) ? shown.has('trees') : /^furniture/i.test(p.name || p.file) ? shown.has('furniture') : true);
+  const hidden = new Set((qs.get('hide') || '').toLowerCase().split(','));
+  const lazyOn = (p) => (/^trees/i.test(p.name || p.file) ? shown.has('trees') : /^furniture/i.test(p.name || p.file) ? shown.has('furniture') || !hidden.has('finish') : true);
   for (const p of parts) if (!lazyOn(p)) LAZY.push(p);
   parts = parts.filter(lazyOn);
   const sizes = parts.map((p) => p.bytes || 1);
@@ -265,6 +267,7 @@ function prepare(roots, first) {
     if ((o.userData && o.userData.emissive_night) || RE_FIXTURE.test(n)) nightFixtures.push(o);
   });
   if (equipData) cullBaked(roots, equipData.items);      // the generic appliance boxes make way for the real models
+  for (const r of roots) if (/^furniture/i.test(r.name)) sortBuiltIns(r);
   const merged = mergeStatic(roots, roofSet, utilSet, opRoots, nightFixtures.slice(nFix));
   for (const r of roots) r.updateMatrixWorld(true);
   for (const r of roots) r.traverse((o) => {
@@ -275,7 +278,7 @@ function prepare(roots, first) {
     if (mats.some((m) => m && m.transparent && m.opacity < 0.99)) o.castShadow = false;
     const part = partOf(o);
     if (part && !/^(site|trees)$/i.test(part.name)) for (const m of mats) if (m) { m.clippingPlanes = [upperPlane]; m.clipShadows = true; houseMats.add(m); }
-    if ((part && /^furniture/i.test(part.name)) || o.userData.layer === 'furniture') furnitureMeshes.push(o);
+    if (((part && /^furniture/i.test(part.name)) || o.userData.layer === 'furniture') && !o.userData.tog) furnitureMeshes.push(o);
     if (o.userData.tog) (togMeshes[o.userData.tog] ||= []).push(o);
     if (!o.isInstancedMesh && mats[0] && mats[0].name === 'Attic Deck') bakedDeck.push(o);
     if (o.isInstancedMesh) {          // instanced trees: drawn only, no collision or picking. Names do not survive gltfpack, so the distant woods are told apart by instance count (a hundred or more vs. a few dozen near the house)
@@ -347,7 +350,7 @@ function linkRoom(R, how) {
 //   v=o|w|n  mode     p=x,y,z  camera (plan feet, z up)     t=x,y,z  orbit centre     a=yaw,pitch  walk look (deg)
 //   room=    room     night    cut=ft  height slice         crouch   hide=,show=  layers   info=  equipment id
 const SHARE_KEYS = ['v', 'p', 't', 'a', 'night', 'cut', 'crouch', 'hide', 'show', 'info'];
-const LAYERS_ALL = () => ['Roof', 'Framing', 'Drywall', 'Extwalls', 'Openings', 'Finish', 'Ghost', 'Furniture', 'Fans', 'Electrical', 'Lowvolt', 'Trees', 'Appliances', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
+const LAYERS_ALL = () => ['Roof', 'Framing', 'Drywall', 'Extwalls', 'Openings', 'Finish', 'Furniture', 'Fans', 'Electrical', 'Lowvolt', 'Trees', 'Appliances', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
 const LAYER_DEFAULT = {};
 for (const k of LAYERS_ALL()) LAYER_DEFAULT[k] = $('l' + k).checked;
 const r1 = (n) => String(Math.round(n * 10) / 10);
@@ -387,7 +390,7 @@ function openSharedView() {
   if (q.has('hide') || q.has('show')) {
     const hide = new Set((q.get('hide') || '').toLowerCase().split(',')), showL = new Set((q.get('show') || '').toLowerCase().split(','));
     for (const k of LAYERS_ALL()) { const n = k.toLowerCase(); if (hide.has(n)) $('l' + k).checked = false; if (showL.has(n)) $('l' + k).checked = true; }
-    if (hide.has('walls')) $('lGhost').checked = true;     // links from before 11/20/2026: Walls off meant see-through
+    if (hide.has('walls')) for (const k of WALL_PARTS) $('l' + k).checked = false;     // links from before 11/20/2026: Walls off
     applyToggles();
   }
   if (q.has('night')) setNight(true);
@@ -471,6 +474,60 @@ for (const b of document.querySelectorAll('[data-act="reset"]')) b.onclick = () 
 const RE_FIXTURE = /pendant|lamp|sconce|wall_light|ceiling_light|fixture|can_light|bulb/i;
 function partOf(o) { let p = o; while (p && p.parent && p.parent !== world) p = p.parent; return p && p.parent === world ? p : null; }
 
+// The baked furniture export mixes moved-in things with bolted-down ones (toilets, vanities, the tub, mirrors, wet zone
+// tile, ceiling lights). Belongings is only what moves in (Maxwell, 11/20/2026: anything bolted down is not a belonging),
+// so the bolted pieces join Cabinets and trim, the lights join Electrical and anything left of the washer and dryer joins
+// Appliances. The export merged some pieces into one mesh per material, so those are split triangle by triangle: what
+// lies in a bath, the powder room or the laundry (below the loft floor) is a fixture.
+const MOVED_IN = /towel|throw|pillow|plant|vase|lamp|picture|art_|rug|book|chair|stool|bed|dresser|nightstand|sofa|table|desk|headboard/i;
+const LAUNDRY_APPL = /^(Enamel White|Appliance Interior|Aluminum|Black Glass|Plastic Grey)$/;
+function fixtureZone(x, y, z) {        // world metres in, the room name if it is a fixture room
+  const px = x / F, py = z / F, h = y / F;
+  if (h > 8.5) return '';
+  for (const r of houseMeta.rooms || []) {
+    if (!/^(Bath|Powder|Laundry)/.test(r.name)) continue;
+    const [a, b, c, d] = r.rect;
+    if (px >= a && px <= c && py >= b && py <= d) return r.name;
+  }
+  return '';
+}
+function sortBuiltIns(root) {
+  const split = [];
+  const v = new THREE.Vector3(), w = new THREE.Vector3(), u = new THREE.Vector3();
+  root.traverse((o) => {
+    if (!o.isMesh || o.isInstancedMesh || Array.isArray(o.material) || o.userData.tog) return;
+    const chain = []; for (let p = o; p && p !== root; p = p.parent) chain.push(p.name || '');
+    if (chain.some((n) => /^Light[ _]/.test(n))) { o.userData.tog = 'electrical'; return; }
+    if (chain.some((n) => /^Furniture[ _][EW][ _]/.test(n))) { split.push(o); return; }
+    if (chain.some((n) => MOVED_IN.test(n))) return;
+    const g = o.geometry; if (!g.boundingBox) g.computeBoundingBox();
+    g.boundingBox.getCenter(v).applyMatrix4(o.matrixWorld);
+    if (fixtureZone(v.x, v.y, v.z)) o.userData.tog = 'finish';
+  });
+  for (const o of split) {
+    const g = o.geometry, P = g.attributes.position, idx = g.index ? g.index.array : null;
+    const n = idx ? idx.length : P.count, keep = [], fixed = [];
+    const appl = LAUNDRY_APPL.test(o.material.name || '');
+    let room = '';
+    for (let t = 0; t < n; t += 3) {
+      const a = idx ? idx[t] : t, b = idx ? idx[t + 1] : t + 1, c = idx ? idx[t + 2] : t + 2;
+      v.fromBufferAttribute(P, a).applyMatrix4(o.matrixWorld); w.fromBufferAttribute(P, b).applyMatrix4(o.matrixWorld); u.fromBufferAttribute(P, c).applyMatrix4(o.matrixWorld);
+      v.add(w).add(u).multiplyScalar(1 / 3);
+      const z = fixtureZone(v.x, v.y, v.z);
+      (z ? fixed : keep).push(a, b, c);
+      if (z) room = room || z;
+    }
+    if (!fixed.length) continue;
+    const tog = appl && room === 'Laundry' ? 'appliances' : 'finish';
+    if (!keep.length) { o.userData.tog = tog; continue; }
+    const g2 = g.clone(); g2.setIndex(fixed); g.setIndex(keep);
+    g.computeBoundingBox(); g.computeBoundingSphere();
+    const m = new THREE.Mesh(g2, o.material); m.name = o.name + ' fixtures';
+    m.position.copy(o.position); m.quaternion.copy(o.quaternion); m.scale.copy(o.scale);
+    m.userData.tog = tog; o.parent.add(m); m.updateMatrixWorld(true);
+  }
+}
+
 function mergeStatic(roots, roofSet, utilSet, opRoots, fixtures) {
   const buckets = new Map();
   const fixtureSet = new Set(fixtures);
@@ -489,8 +546,9 @@ function mergeStatic(roots, roofSet, utilSet, opRoots, fixtures) {
     const g = o.geometry; if (!g.attributes.position) return;
     if (!g.boundingBox) g.computeBoundingBox();
     const c = g.boundingBox.getCenter(new THREE.Vector3()).applyMatrix4(o.matrixWorld);
-    const key = [part.name, tag, pass ? 1 : 0, o.material.uuid, Math.floor(c.x / 20), Math.floor(c.z / 20)].join('|');
-    if (!buckets.has(key)) buckets.set(key, { part, tag, pass, mat: o.material, list: [] });
+    const tog = o.userData.tog || '';
+    const key = [part.name, tag, tog, pass ? 1 : 0, o.material.uuid, Math.floor(c.x / 20), Math.floor(c.z / 20)].join('|');
+    if (!buckets.has(key)) buckets.set(key, { part, tag, tog, pass, mat: o.material, list: [] });
     buckets.get(key).list.push(o);
   });
   let groups = 0;
@@ -501,6 +559,7 @@ function mergeStatic(roots, roofSet, utilSet, opRoots, fixtures) {
     const m = new THREE.Mesh(geo, bk.mat);
     m.name = `merged ${bk.part.name} ${bk.mat.name || ''}`.trim();
     m.userData.pass = bk.pass;
+    if (bk.tog) m.userData.tog = bk.tog;
     bk.part.add(m);              // part scenes sit at the origin, so world-space geometry needs no transform
     for (const o of bk.list) o.removeFromParent();
     if (bk.tag === 'roof') roofNodes.push(m);
@@ -608,7 +667,7 @@ const center = new THREE.Vector2(0, 0);
 const ray = new THREE.Raycaster();
 ray.firstHitOnly = true;
 // What is under the crosshair or the pointer: a door or drawer to operate, or a thing with an info card.
-// Hits above the slice are ignored. With the house ghosted or the ducts in x-ray, walls do not block the look.
+// Hits above the slice are ignored. With the ducts in x-ray, walls do not block the look.
 function targetAt(ndc, info = false) {
   ray.setFromCamera(ndc, camera);
   ray.far = mode === 'walk' ? INFO_REACH : 400;
@@ -625,9 +684,9 @@ function targetAt(ndc, info = false) {
       const rec = (house && (houseRecordAt(h, house) || house.byId[u.equipId])) || (equip && equip.byId[u.equipId]);     // press and hold on a door: its card
       return rec ? { equip: rec, house: !!u.house } : null;
     }
-    if (u.equipId && equip && equip.byId[u.equipId] && (!solid || ghost || (xray && u.duct))) return { equip: equip.byId[u.equipId] };
+    if (u.equipId && equip && equip.byId[u.equipId] && (!solid || (xray && u.duct))) return { equip: equip.byId[u.equipId] };
     if (!u.pass) {
-      if (!ghost && !xray) { const rec = houseRecordAt(h, house); return rec ? { equip: rec, house: true } : null; }
+      if (!xray) { const rec = houseRecordAt(h, house); return rec ? { equip: rec, house: true } : null; }
       solid = true;
     }
   }
@@ -716,10 +775,10 @@ function applyToggles() {
   for (const o of roofNodes) show(o, layerOn('Roof') && !sliced);     // a slice lifts the roof off too, or it would cover the cut
   for (const o of utilNodes) show(o, layerOn('Util'));
   if (layerOn('Trees')) loadLazy(/^trees/i);
-  if (layerOn('Furniture')) loadLazy(/^furniture/i);
+  if (layerOn('Furniture') || layerOn('Finish')) loadLazy(/^furniture/i);
   for (const o of furnitureMeshes) show(o, layerOn('Furniture'));
   for (const [k, list] of Object.entries(togMeshes)) {
-    const id = { drywall: 'Drywall', extwalls: 'Extwalls', openings: 'Openings', finish: 'Finish', framing: 'Framing' }[k];
+    const id = { drywall: 'Drywall', extwalls: 'Extwalls', openings: 'Openings', finish: 'Finish', framing: 'Framing', electrical: 'Electrical', appliances: 'Appliances' }[k];
     if (id) for (const o of list) show(o, layerOn(id));
   }
   // One Trees layer for everything that grows (Maxwell, 11/17/2026: no separate Distant trees). ?lite still leaves the far woods out, for slow devices
@@ -737,7 +796,6 @@ function applyToggles() {
     show(equip.layers.trusses, layerOn('Trusses'));
     for (const o of bakedDeck) show(o, house ? true : !layerOn('Trusses'));     // the baked house's thin deck gives way to the trusses' own
   }
-  if (ghost !== layerOn('Ghost')) setGhost(layerOn('Ghost'));
   syncWalls();
   if (xray !== layerOn('Xray')) { xray = layerOn('Xray'); setDuctXray(xray, equip.layers.ducts); }
   $('rowXray').classList.toggle('off', !layerOn('Ducts'));
@@ -752,20 +810,7 @@ function syncWalls() {
 }
 $('lWalls').onchange = () => { for (const k of WALL_PARTS) $('l' + k).checked = $('lWalls').checked; applyToggles(); };
 
-// Walls off: walls, floors and furniture go faint so the systems inside read clearly.
-let ghost = false, xray = false;
-const ghostSaved = new Map();
-function setGhost(on) {
-  ghost = on;
-  for (const m of houseMats) {
-    if (on) {
-      if (!ghostSaved.has(m)) ghostSaved.set(m, [m.transparent, m.opacity, m.depthWrite]);
-      m.transparent = true; m.opacity = Math.min(m.opacity, 0.13); m.depthWrite = false;
-    } else if (ghostSaved.has(m)) { [m.transparent, m.opacity, m.depthWrite] = ghostSaved.get(m); }
-    m.needsUpdate = true;
-  }
-  shadowDirty = true;
-}
+let xray = false;
 
 
 // ---------------------------------------------------------------- modals: rooms, equipment, controls
@@ -1425,5 +1470,5 @@ renderer.setAnimationLoop(() => {
 });
 
 loadAll().catch((e) => { console.error(e); $('loadmsg').textContent = 'The model could not be loaded.'; });
-window.__B = THREE.Box3; window.__T = THREE; window.__walk = { orbit, resetView, setSlice, setGhost, applyToggles, goRoom, closeModal,
+window.__B = THREE.Box3; window.__T = THREE; window.__walk = { orbit, resetView, setSlice, applyToggles, goRoom, closeModal,
   simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, openSheet, act, inspectAt, showInfo, goTo, panOrbit, keys, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };
