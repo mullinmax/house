@@ -996,6 +996,97 @@ const BUILD = {
     }
     return g;
   },
+  utility_sink(s) {
+    // Steelton 522US13621 (A-11 laundry sink, plumbing fixture schedule item 9): 16 gauge stainless, one 36 x 21 x 14 in bowl, rolled
+    // front rim, 8 in backsplash with an 8 in centre splash mount faucet (12 in swing spout), galvanized legs with side rails and bullet
+    // feet. s = [overall width, height to the splash top, overall depth]. The rim is 36 in up. The faucet shanks go back through the
+    // splash to the supply stops behind it; the sink stands 2 1/2 in off the wall so the supplies and the vent rise in that gap.
+    const [W, H, D] = s, g = new THREE.Group(), RIM = 36, BW = 36, BD = 21, BH = 14, ST = 0.12;
+    const st = steel(), z0 = 2.5, zc = z0 + BD / 2, x1 = W / 2;
+    box(g, W, H - RIM, 1, st, 0, (H + RIM) / 2, 0.5);                                       // backsplash
+    box(g, W, 0.6, 1.8, st, 0, H - 0.3, 0.9);                                                // splash top return
+    box(g, W, 1.5, z0 - 1, st, 0, RIM - 0.75, 1 + (z0 - 1) / 2);                             // back deck
+    for (const sx of [-1, 1]) box(g, x1 - BW / 2, 1.5, D - 1, st, sx * (x1 + BW / 2) / 2, RIM - 0.75, 1 + (D - 1) / 2);   // side decks
+    box(g, BW, 1.5, D - z0 - BD, st, 0, RIM - 0.75, z0 + BD + (D - z0 - BD) / 2);           // front deck
+    cyl(g, 0.75, W, st, 0, RIM - 0.75, D - 0.15, 'x', 16);                                   // rolled front rim
+    box(g, BW, ST, BD, st, 0, RIM - BH, zc);                                                 // bowl bottom
+    for (const sx of [-1, 1]) box(g, ST, BH, BD, st, sx * (BW / 2 + ST / 2), RIM - BH / 2, zc);
+    for (const z of [z0 - ST / 2, z0 + BD + ST / 2]) box(g, BW, BH, ST, st, 0, RIM - BH / 2, z);
+    ring(g, 1.75, 0.3, chrome(), 0, RIM - BH + 0.15, zc, 'y', 28);                           // drain basket rim
+    cyl(g, 1.6, 0.1, mat('drain shadow', 0x2a2c2e, 0.6, 0.3), 0, RIM - BH + 0.12, zc, 'y', 24);
+    cyl(g, 0.75, 5, chrome(), 0, RIM - BH - 2.5, zc, 'y', 16);                               // tailpiece down to the trap
+    // legs and rails
+    for (const sx of [-1, 1]) for (const z of [z0 + 1, z0 + BD - 1]) {
+      cyl(g, 0.8, RIM - BH - 2.0, galv(), sx * (BW / 2 - 1), (RIM - BH) / 2 + 0.25, z, 'y', 16);
+      cyl(g, 1.0, 1.6, galv(), sx * (BW / 2 - 1), 0.8, z, 'y', 16, 0.55);                   // adjustable bullet foot
+      cyl(g, 1.3, 1.6, galv(), sx * (BW / 2 - 1), RIM - BH - 1.6, z, 'y', 16, 1.0);          // gusset under the bowl
+    }
+    for (const sx of [-1, 1]) cyl(g, 0.6, BD - 2, galv(), sx * (BW / 2 - 1), 9, zc, 'z', 12);   // side rails
+    // splash mount faucet, 8 in centres: two valve bodies with lever handles, a cross bar, a swing spout reaching over the bowl
+    const FY = RIM + 4.5;
+    for (const sx of [-1, 1]) {
+      cyl(g, 0.9, 2.2, chrome(), sx * 4, FY, 2.1, 'z', 18);
+      cyl(g, 0.38, 2.0, chrome(), sx * 4, FY, -0.6, 'z', 12);                               // shank back through the splash
+      box(g, 0.5, 3.2, 0.7, chrome(), sx * 4, FY + 1.8, 2.6);                               // lever
+      box(g, 1.2, 0.35, 0.35, sx < 0 ? red() : blue(), sx * 4, FY + 3.35, 2.6);             // hot and cold marks
+    }
+    cyl(g, 0.6, 8, chrome(), 0, FY, 2.9, 'x', 14);
+    cyl(g, 0.75, 2.6, chrome(), 0, FY + 1.3, 2.9, 'y', 16);
+    tube(g, new THREE.Vector3(0, FY + 2.4, 2.9), new THREE.Vector3(0, FY + 2.4, 14.5), 0.45, chrome());
+    tube(g, new THREE.Vector3(0, FY + 2.4, 14.5), new THREE.Vector3(0, FY + 0.6, 15.2), 0.45, chrome());
+    // behind the sink: quarter turn stops on the supplies, and the air admittance valve on top of the drain riser
+    for (const sx of [-1, 1]) { box(g, 1.3, 1.6, 1.3, chrome(), sx * 4, 18, -1.25); cyl(g, 0.35, 1.6, chrome(), sx * 4 + sx * 1.3, 18, -1.25, 'x', 10); }
+    cyl(g, 1.3, 1.4, whitePlastic(), 0, 24.7, 0, 'y', 18);
+    cyl(g, 1.55, 2.6, mat('aav grey', 0x6b6e70, 0.55, 0), 0, 26.7, 0, 'y', 18, 1.2);
+    return g;
+  },
+  linen_shelves(s, it) {
+    // Open white oak shelves on side wall cleats, wall to wall in the laundry's west alcove where A-11 draws 3'-0" x 2'-0" B&W cabinets.
+    // s = [width wall to wall, top shelf height, deep shelf depth]. it.shelves = [[top of shelf, depth, thickness]] in inches.
+    // Stocked for scale: blankets in baskets and stacks low, the 37 in shelf left clear to fold on, bath towels, sheet sets, pillows up top.
+    const [W, , ] = s, g = new THREE.Group();
+    const oak = mat('shelf oak', 0xd2b386, 0.5, 0, { map: grain('oak', true) });
+    for (const [top, d, t] of it.shelves) {
+      box(g, W, t, d, oak, 0, top - t / 2, 0.06 + d / 2);
+      for (const sx of [-1, 1]) box(g, 0.75, 1.5, d - 1, oak, sx * (W / 2 - 0.375), top - t - 0.75, 0.06 + (d - 1) / 2);   // cleats
+      box(g, W - 1.6, 1.5, 0.75, oak, 0, top - t - 0.75, 0.06 + 0.375);                    // back cleat
+    }
+    // folded linen: a soft block with rounded front fold, w wide (x), h tall, d deep (z), base centred on x, y, z
+    const fab = (c) => mat('linen ' + c.toString(16), c, 0.95, 0);
+    const fold = (w, h, d, c, x, y, z) => {
+      const geo = new THREE.ExtrudeGeometry(rrShape(d, h, Math.min(h * 0.45, 1.4)), { depth: w, bevelEnabled: false, curveSegments: 6 });
+      geo.translate(0, 0, -w / 2); geo.rotateY(Math.PI / 2);
+      return add(g, geo, fab(c), x, y + h / 2, z);
+    };
+    let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647 - 0.5;
+    const stack = (n, w, h, d, cols, x, y, z) => { for (let k = 0; k < n; k++) fold(w + rnd() * 0.5, h, d + rnd() * 0.4, cols[k % cols.length], x + rnd() * 0.6, y + k * h, z + rnd() * 0.5); };
+    const S = Object.fromEntries(it.shelves.map(([top], i) => [i, top]));
+    // bottom shelf: two woven baskets with throws rolled in them
+    const wick = mat('basket weave', 0x9a7a52, 0.9, 0), wickD = mat('basket rim', 0x6e5436, 0.85, 0);
+    for (const [x, c] of [[-9, 0x8f9a7a], [9, 0xa0583a]]) {
+      box(g, 16, 9, 15, wick, x, S[0] + 4.5, 4 + 7.5); box(g, 16.4, 1, 15.4, wickD, x, S[0] + 9, 4 + 7.5);
+      cyl(g, 3.6, 13.6, fab(c), x - 3.7, S[0] + 8.2, 11.5, 'z', 18); cyl(g, 3.5, 13.6, fab(c - 0x101010), x + 3.7, S[0] + 8.1, 11.5, 'z', 18);
+    }
+    // second shelf: folded blankets and quilts, three stacks
+    stack(3, 11, 3.8, 15, [0xe8dfcc, 0x55585a, 0xcbb89a], -12.2, S[1], 9);
+    stack(3, 11, 4.2, 15, [0x3b4a63, 0xe8dfcc, 0x8f9a7a], 0, S[1], 9);
+    stack(2, 11, 4.6, 15, [0xa0583a, 0xd9d2c3], 12.2, S[1], 9);
+    // folding shelf: kept clear, a few hand towels at the north end
+    stack(3, 9, 1.5, 10, [0xf2efe8, 0xbfc4c6], 13, S[2], 6.5);
+    // bath towels
+    stack(5, 12, 2.4, 13, [0xf4f2ec, 0xeceae2], -12, S[3], 7.2);
+    stack(5, 12, 2.4, 13, [0xf4f2ec, 0xeceae2], 0.2, S[3], 7.2);
+    stack(4, 11, 2.4, 13, [0xb9bec0, 0xa9afb2], 12.3, S[3], 7.2);
+    // sheet sets (fitted, flat and cases folded into one bundle)
+    stack(3, 8.2, 3.0, 12, [0xffffff, 0xf3efe6], -13.4, S[4], 7);
+    stack(3, 8.2, 3.0, 12, [0xc9d6e3, 0xbfcedd], -4.5, S[4], 7);
+    stack(3, 8.2, 3.0, 12, [0xb7c2a6, 0xadb99b], 4.5, S[4], 7);
+    stack(3, 8.2, 3.0, 12, [0xd8cfc0, 0xb9b9b5], 13.4, S[4], 7);
+    // top shelf: spare pillows and a folded comforter
+    for (const x of [-11.5, -1.5]) column(g, 9.5, 6.5, 13.5, fab(0xf6f4ef), x, S[5] + 3.25, 7.3, 3.0);
+    stack(2, 12, 4.2, 13, [0xe9e3d6, 0xdcd5c4], 11.4, S[5], 7.2);
+    return g;
+  },
   car(s, it) { return buildCar(it); },                 // Tesla Model Y and Honda Insight, in vehicles.js
   wall_connector(s) { return buildWallConnector(s); },
   generic(s) {
@@ -1020,7 +1111,7 @@ function place(g, it) {
 // polyline runs (pipes): points in plan feet, radius in inches
 function buildRun(run) {
   const g = new THREE.Group();
-  const m = run.mat === 'pe' ? pe() : run.mat === 'foam' ? foam() : run.mat === 'copper' ? copper() : run.mat === 'condensate' ? greyPlastic() : run.mat === 'pvc' ? whitePlastic() : pe();
+  const m = run.mat === 'pe' ? pe() : run.mat === 'foam' ? foam() : run.mat === 'copper' ? copper() : run.mat === 'condensate' ? greyPlastic() : run.mat === 'pvc' ? whitePlastic() : run.mat === 'pex_hot' ? mat('PEX red', 0xc0322b, 0.5, 0) : run.mat === 'pex_cold' ? mat('PEX blue', 0x2c62b0, 0.5, 0) : pe();
   const r = (run.dia || 1.66) / 2 * IN;
   const pts = run.points.map((p) => plan(p[0], p[1], p[2]));
   for (let i = 0; i < pts.length - 1; i++) tube(g, pts[i], pts[i + 1], r, m);
