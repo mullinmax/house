@@ -1032,8 +1032,9 @@ if FR.get("enabled", True):
                              ["Header", f"bottom {ftin(hbot)}, top {ftin(htop)} above the slab" + (", tight under the top plates" if htop >= ztop - 1e-3 else ", flat 2x and cripples above")],
                              ["Source", spec.get("source", "Typical framing, ASSUMED until a build photo shows it")],
                              ["Confidence", spec.get("confidence", "typical")],
-                             ["Status", "Needs measuring"]],
-                      notes=["NEEDS MEASURING: estimated from the 11/19/2026 drone photos only. Check with a tape before relying on it."] + list(spec.get("notes", []))))
+                             ["Status", ("Measured " + spec["measured"]) if spec.get("measured") else "Needs measuring"]],
+                      notes=([f"MEASURED {spec['measured']}. Its position along the wall is still estimated from the photos."] if spec.get("measured") else
+                             ["NEEDS MEASURING: estimated from the 11/19/2026 drone photos only. Check with a tape before relying on it."]) + list(spec.get("notes", []))))
         lvl = str(spec.get("type", "")).upper().startswith("LVL")
         fbox("LVL" if lvl else "Header", alongx, h0, h1, v0, v1, hbot, htop)
         for e, sg in ((r0, -1), (r1, 1)):
