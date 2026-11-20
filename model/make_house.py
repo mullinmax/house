@@ -209,6 +209,7 @@ MATERIALS = {
     "Island": dict(color=K["island_color"], rough=0.5),
     "Counter": dict(color="#FFFFFF", rough=0.17, map="quartz.jpg", tile=1.6),
     "Glass": dict(color="#C8D4D6", rough=0.05, metal=0.2, opacity=0.14),
+    "Cabinet Glass": dict(color="#B9C9CB", rough=0.04, metal=0.3, opacity=0.32),           # glass door uppers: tinted enough to read as glass
     "Black Glass": dict(color="#0B0B0C", rough=0.05, opacity=0.25),
     "Polycarbonate": dict(color="#F2F2EE", rough=0.2, opacity=0.45),
     "Stainless": dict(color="#C8CACC", rough=0.25, metal=1.0),
@@ -974,7 +975,7 @@ def shaker(run, r, u0, u1, z0, z1, d, mat, kind="door", hinge="L", glass=False, 
         if h < 0.62 and kind == "drawer":
             run.box(mat, u0, u1, d, d + FRONT_T, z0, z1)
         else:
-            run.box("Glass" if glass else mat, u0 + st, u1 - st, d, d + FRONT_T * 0.6, z0 + st, z1 - st)
+            run.box("Cabinet Glass" if glass else mat, u0 + st, u1 - st, d, d + FRONT_T * 0.6, z0 + st, z1 - st)
             run.box(mat, u0, u0 + st, d, d + FRONT_T, z0, z1)
             run.box(mat, u1 - st, u1, d, d + FRONT_T, z0, z1)
             run.box(mat, u0 + st, u1 - st, d, d + FRONT_T, z1 - st, z1)
@@ -992,6 +993,21 @@ def shaker(run, r, u0, u1, z0, z1, d, mat, kind="door", hinge="L", glass=False, 
             if z1 - z0 > 3.5:
                 zc = 3.6 if z0 < 1 else z0 + 0.45
             pull(run, uc, zc, 0.5, dp, vertical=True)
+
+
+def hollow(run, u0, u1, d, z0, z1, mat, shelves=None):
+    """an open cabinet case (back, sides, bottom, top, shelves) behind doors that open, so it reads as storage inside.
+    shelves: heights, or None for one shelf when the box is over 1.4 ft tall (Maxwell 11/19/2026)."""
+    ct = 0.06
+    run.box(mat, u0, u1, 0, ct, z0, z1)
+    for (b0, b1) in ((u0, u0 + ct), (u1 - ct, u1)):
+        run.box(mat, b0, b1, ct, d, z0, z1)
+    run.box(mat, u0 + ct, u1 - ct, ct, d, z0, z0 + ct)
+    run.box(mat, u0 + ct, u1 - ct, ct, d, z1 - ct, z1)
+    if shelves is None:
+        shelves = [(z0 + z1) / 2] if z1 - z0 > 1.4 else []
+    for zz in shelves:
+        run.box(mat, u0 + ct, u1 - ct, ct, d - 0.05, zz, zz + 0.06)
 
 
 def stack(run, r, u0, u1, z0, z1, d, mat, heights):
@@ -1024,7 +1040,12 @@ def base_unit(run, rn, k, u0, u1, typ, mat, depth=BASE_D, counter=True):
             info=dict(model=f"{UNIT_NAMES.get(typ, typ)}, {ftin(u1 - u0)} wide", specs=[["Run", RUN_NAMES.get(rn, rn)], ["Finish", FINISH(mat)], ["Hardware", "Matte black bar pulls"]],
                       notes=["From the Carter Lumber design start plan (Danielle Gross, 11/10/2026) with Erin's 11/12 redline. Wood, door style and pulls from Danielle's 11/19/2026 north wall rendering."]))
     if typ in ("oven_tower", "tall_pantry"):
-        run.box(mat, u0, u1, 0, BASE_D + 0.1, KICK, TALL - 0.25)
+        if typ == "oven_tower":                                   # solid round the oven, an open cabinet above it
+            ot_ = K.get("oven_face_bottom", 1.22) + K.get("oven_face_height_in", 50.75) / 12
+            run.box(mat, u0, u1, 0.03, BASE_D + 0.1, KICK, ot_ + 0.02)              # off the wall by 3/8 in, clear of the oven's back
+            hollow(run, u0, u1, BASE_D + 0.1, ot_ + 0.02, TALL - 0.25, mat)
+        else:
+            run.box(mat, u0, u1, 0, BASE_D + 0.1, KICK, TALL - 0.25)
         run.box(mat, u0 + 0.05, u1 - 0.05, 0, BASE_D - 0.15, 0, KICK)
         run.box(mat, u0 - 0.05, u1 + 0.05, 0, BASE_D + 0.22, TALL - 0.25, TALL)
         df = BASE_D + 0.1
@@ -1047,11 +1068,11 @@ def base_unit(run, rn, k, u0, u1, typ, mat, depth=BASE_D, counter=True):
         if fp:
             for (b0, b1) in ((u0, u0 + fp), (u1 - fp, u1)):
                 run.box(mat, b0, b1, 0, BASE_D + 0.42, 0, 6.0)
-            run.box(mat, u0, u1, 0, BASE_D + 0.1, 6.0, TALL - 0.25)
+            hollow(run, u0, u1, BASE_D + 0.1, 6.0, TALL - 0.25, mat)
             doors(run, r, u0, u1, 6.0, TALL - 0.25, BASE_D + 0.1, mat, 2)
             run.box(mat, u0 - 0.05, u1 + 0.05, 0, BASE_D + 0.22, TALL - 0.25, TALL)
         else:
-            run.box(mat, u0 - 0.1, u1 + 0.1, 0, BASE_D + 0.1, 6.0, TALL - 0.25)
+            hollow(run, u0 - 0.1, u1 + 0.1, BASE_D + 0.1, 6.0, TALL - 0.25, mat)
             doors(run, r, u0 - 0.1, u1 + 0.1, 6.0, TALL - 0.25, BASE_D + 0.1, mat, 2)
             run.box(mat, u0 - 0.15, u1 + 0.15, 0, BASE_D + 0.22, TALL - 0.25, TALL)
         placeholder(run, rn, k, "fridge", "Refrigerator (placeholder)")
@@ -1138,7 +1159,8 @@ for k, up in enumerate(RUNS["north"].get("uppers", [])):
             nr.box("Dishware", u0 + (u1 - u0) * (0.12 + 0.44 * j), u0 + (u1 - u0) * (0.44 + 0.44 * j), ct, ct + 0.06, shelves[1] + 0.06, shelves[1] + 0.86)
         doors(nr, r, u0, u1, UB, zt_, ud, "Cabinet Wood", 2, glass=True)
     else:
-        nr.box("Cabinet Wood", u0, u1, 0, ud, UB, TALL - 0.25)
+        nr.box("Cabinet Wood", u0, u1, 0, ud, UB, UB + 1.55)                               # microwave cubby
+        hollow(nr, u0, u1, ud, UB + 1.55, TALL - 0.25, "Cabinet Wood")                      # open cabinet over it
         nr.box("Stainless", u0 + 0.15, u1 - 0.15, ud - 0.05, ud + 0.02, UB + 0.05, UB + 1.45)
         nr.box("Black Glass", u0 + 0.3, u1 - 0.9, ud + 0.02, ud + 0.03, UB + 0.25, UB + 1.25)
         doors(nr, r, u0, u1, UB + 1.55, TALL - 0.25, ud, "Cabinet Wood", 2)
@@ -1204,7 +1226,7 @@ elif RUNS["north"].get("pantry_door") and PANTRY_STYLE in ("flush", "pocket", "s
                       notes=[note_, "One of three pantry doorway options (config [kitchen.runs.north] pantry_style = flush | pocket | shelf), Maxwell 11/19/2026."]))
     # fixed surround: west end panel, upper cabinet over the doorway, crown
     nr_.box("Cabinet Wood", mx0, mx0 + 0.06, 0, mdf + FRONT_T, 0, TALL - 0.25)
-    nr_.box("Cabinet Wood", mx0 + 0.06, mx1, 0, mdf, ah, TALL - 0.25)
+    hollow(nr_, mx0 + 0.06, mx1, mdf, ah, TALL - 0.25, "Cabinet Wood")
     rr_ = rec("cabinet.north.over_pantry", "cabinet", "Upper cabinet over the pantry doorway", "interior", room="Kitchen",
               info=dict(model=f"{ftin(mx1 - mx0)} wide, {ftin(mdf)} deep", specs=[["Finish", FINISH("Cabinet Wood")]]))
     doors(nr_, rr_, mx0 + 0.06, mx1, ah, TALL - 0.25, mdf, "Cabinet Wood", 2)
