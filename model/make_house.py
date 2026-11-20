@@ -203,7 +203,8 @@ MATERIALS = {
     "Trim": dict(color=MM.get("trim_albedo", MM["trim_color"]), rough=0.5),
     "Window Frame": dict(color=MM["window_exterior_color"], rough=0.35, metal=0.3),
     "White Oak": dict(color="#FFFFFF", rough=0.425, map="white_oak.jpg", normal="oak_normal.jpg", normal_scale=0.5, tile=0.8, grain="long"),
-    "Cabinet Wood": dict(color="#FFFFFF", rough=0.45, map="cabinet_oak.jpg", normal="oak_normal.jpg", normal_scale=0.5, tile=0.8, grain="long"),
+    # light natural wood of Danielle Gross's 11/19/2026 north wall rendering (tools/make_cabinet_texture.py)
+    "Cabinet Wood": dict(color="#FFFFFF", rough=0.45, map=K.get("cabinet_map", "cabinet_natural.jpg"), normal="oak_normal.jpg", normal_scale=0.5, tile=0.8, grain="long"),
     "Island": dict(color=K["island_color"], rough=0.5),
     "Counter": dict(color="#FFFFFF", rough=0.17, map="quartz.jpg", tile=1.6),
     "Glass": dict(color="#C8D4D6", rough=0.05, metal=0.2, opacity=0.14),
@@ -211,6 +212,7 @@ MATERIALS = {
     "Polycarbonate": dict(color="#F2F2EE", rough=0.2, opacity=0.45),
     "Stainless": dict(color="#C8CACC", rough=0.25, metal=1.0),
     "Brushed Nickel": dict(color=K.get("hardware_color", "#B8B8B4"), rough=0.3, metal=1.0),
+    "Cabinet Pull": dict(color=K.get("pull_color", "#1A1A1A"), rough=0.45, metal=0.5),        # matte black bar pulls on every kitchen cabinet
     "Black Metal": dict(color="#151515", rough=0.4, metal=0.6),
     "Aluminum": dict(color="#B9BCBE", rough=0.35, metal=1.0),
     "Gutter": dict(color=MM.get("trim_albedo", MM["trim_color"]), rough=0.45, metal=0.4),
@@ -912,6 +914,8 @@ UNIT_NAMES = {"blind": "Blind corner base", "door1": "Base cabinet, one door", "
               "pullout": "Pullout base", "oven_tower": "Oven tower", "tall_pantry": "Tall pantry", "fridge": "Fridge bay with over fridge cabinet",
               "tray": "Tray divider base", "beverage": "Beverage fridge bay", "panel": "End panel", "drawer_tall": "Tall utensil drawer",
               "pullout_drawer": "Drawer over a sheet pan pullout"}
+ISLAND_MAT = "Cabinet Wood" if K.get("island_finish", "paint") == "wood" else "Island"
+FINISH = lambda m: "Olive green, painted shaker" if m == "Island" else f"KraftMaid light natural wood shaker {K['cabinet_wood']} (species and stain TBD)"
 RUN_NAMES = {"south": "sink wall", "west": "cooktop wall", "north": "fridge wall", "island": "island", "island_east": "island, dining side"}
 
 
@@ -935,11 +939,12 @@ class Run:
         return (0, f_ * dist) if self.run["axis"] == "x" else (f_ * dist, 0)
 
 
-def pull(run, uc, zc, length, d, vertical=False):
+def pull(run, uc, zc, length, d, vertical=False, mat="Cabinet Pull"):
+    """a bar pull. Cabinets get the matte black pulls of Danielle's 11/19/2026 rendering; appliances pass their own metal."""
     if vertical:
-        run.box("Brushed Nickel", uc - 0.02, uc + 0.02, d, d + 0.07, zc - length / 2, zc + length / 2)
+        run.box(mat, uc - 0.02, uc + 0.02, d, d + 0.07, zc - length / 2, zc + length / 2)
     else:
-        run.box("Brushed Nickel", uc - length / 2, uc + length / 2, d, d + 0.07, zc - 0.02, zc + 0.02)
+        run.box(mat, uc - length / 2, uc + length / 2, d, d + 0.07, zc - 0.02, zc + 0.02)
 
 
 def shaker(run, r, u0, u1, z0, z1, d, mat, kind="door", hinge="L", glass=False, moves=None):
@@ -974,10 +979,8 @@ def shaker(run, r, u0, u1, z0, z1, d, mat, kind="door", hinge="L", glass=False, 
             zc = z1 - min(0.25, h / 2) if h > 0.62 else (z0 + z1) / 2
             if w > 2.4 and K.get("wide_drawer_pulls", 2) == 2:
                 pull(run, u0 + w * 0.25, zc, 0.5, dp); pull(run, u0 + w * 0.75, zc, 0.5, dp)
-            elif w > 2.4:
-                pull(run, (u0 + u1) / 2, zc, min(1.6, w * 0.6), dp)
-            else:
-                pull(run, (u0 + u1) / 2, zc, min(0.5, w * 0.5), dp)
+            else:      # one bar about half the drawer's width, as on Danielle's 11/19/2026 rendering
+                pull(run, (u0 + u1) / 2, zc, max(0.33, min(1.6, w * 0.5)), dp)
         elif kind == "door":
             uc = u1 - 0.12 if hinge == "L" else u0 + 0.12
             zc = z1 - 0.45 if z0 < 3.0 and z1 < 3.5 else z0 + 0.45
@@ -1013,9 +1016,8 @@ def base_unit(run, rn, k, u0, u1, typ, mat, depth=BASE_D, counter=True):
     rid = f"cabinet.{rn}.{k}"
     nm = f"{UNIT_NAMES.get(typ, typ)}, {RUN_NAMES.get(rn, rn)}"
     r = rec(rid, "cabinet", nm, "interior", room="Kitchen",
-            info=dict(model=f"{UNIT_NAMES.get(typ, typ)}, {ftin(u1 - u0)} wide", specs=[["Run", RUN_NAMES.get(rn, rn)], ["Finish", "Olive green, painted" if mat == "Island" else f"KraftMaid natural wood {K['cabinet_wood']} (species and stain TBD)"],
-                                                                                      ["Hardware", "Brushed nickel bar pulls"]],
-                      notes=["From the Carter Lumber design start plan (Danielle Gross, 11/10/2026) with Erin's 11/12 redline."]))
+            info=dict(model=f"{UNIT_NAMES.get(typ, typ)}, {ftin(u1 - u0)} wide", specs=[["Run", RUN_NAMES.get(rn, rn)], ["Finish", FINISH(mat)], ["Hardware", "Matte black bar pulls"]],
+                      notes=["From the Carter Lumber design start plan (Danielle Gross, 11/10/2026) with Erin's 11/12 redline. Wood, door style and pulls from Danielle's 11/19/2026 north wall rendering."]))
     if typ in ("oven_tower", "tall_pantry"):
         run.box(mat, u0, u1, 0, BASE_D + 0.1, KICK, TALL - 0.25)
         run.box(mat, u0 + 0.05, u1 - 0.05, 0, BASE_D - 0.15, 0, KICK)
@@ -1029,7 +1031,7 @@ def base_unit(run, rn, k, u0, u1, typ, mat, depth=BASE_D, counter=True):
             run.box("Stainless", u0 + 0.1, u1 - 0.1, df - 0.02, df + 0.05, ob, ot)
             for zz in (ob + 0.15, ob + (ot - ob) / 2):
                 run.box("Black Glass", u0 + 0.45, u1 - 0.45, df + 0.05, df + 0.06, zz + 0.25, zz + 1.05)
-                pull(run, (u0 + u1) / 2, zz + 1.35, u1 - u0 - 0.8, df + 0.06)
+                pull(run, (u0 + u1) / 2, zz + 1.35, u1 - u0 - 0.8, df + 0.06, mat="Brushed Nickel")
         else:
             doors(run, r, u0, u1, KICK, 4.0, df, mat, 2)
             doors(run, r, u0, u1, 4.0, TALL - 0.25, df, mat, 2)
@@ -1052,8 +1054,8 @@ def base_unit(run, rn, k, u0, u1, typ, mat, depth=BASE_D, counter=True):
         run.box("Black Glass", (a0_ + a1_) / 2 - 0.01, (a0_ + a1_) / 2 + 0.01, BASE_D + 0.35, BASE_D + 0.36, 2.15, 5.9)
         run.box("Black Glass", a0_, a1_, BASE_D + 0.35, BASE_D + 0.36, 2.1, 2.15)
         for uc in ((a0_ + a1_) / 2 - 0.12, (a0_ + a1_) / 2 + 0.12):
-            pull(run, uc, 4.0, 2.6, BASE_D + 0.36, vertical=True)
-        pull(run, (a0_ + a1_) / 2, 1.9, a1_ - a0_ - 0.6, BASE_D + 0.36)
+            pull(run, uc, 4.0, 2.6, BASE_D + 0.36, vertical=True, mat="Brushed Nickel")
+        pull(run, (a0_ + a1_) / 2, 1.9, a1_ - a0_ - 0.6, BASE_D + 0.36, mat="Brushed Nickel")
         run.box("Black Glass", a0_ + 0.3, a0_ + 0.8, BASE_D + 0.36, BASE_D + 0.37, 3.6, 4.5)
         return
     if typ == "panel":
@@ -1067,12 +1069,12 @@ def base_unit(run, rn, k, u0, u1, typ, mat, depth=BASE_D, counter=True):
     if typ == "dishwasher":
         placeholder(run, rn, k, "dishwasher", "Dishwasher (placeholder)")
         run.box("Stainless", u0 + REV, u1 - REV, d, d + 0.05, KICK, zt - 0.02)
-        pull(run, (u0 + u1) / 2, zt - 0.2, u1 - u0 - 0.4, d + 0.05); return
+        pull(run, (u0 + u1) / 2, zt - 0.2, u1 - u0 - 0.4, d + 0.05, mat="Brushed Nickel"); return
     if typ == "beverage":
         placeholder(run, rn, k, "beverage", "Beverage fridge (placeholder)")
         run.box("Stainless", u0 + REV, u1 - REV, d - 0.02, d + 0.03, KICK, zt - 0.02)
         run.box("Black Glass", u0 + 0.12, u1 - 0.12, d + 0.03, d + 0.04, KICK + 0.25, zt - 0.15)
-        pull(run, u0 + 0.18, (KICK + zt) / 2, 1.4, d + 0.04, vertical=True); return
+        pull(run, u0 + 0.18, (KICK + zt) / 2, 1.4, d + 0.04, vertical=True, mat="Brushed Nickel"); return
     if typ == "tray":
         shaker(run, r, u0, u1, zt - 0.5, zt, d, mat, "drawer")
         run.box("Appliance Interior", u0 + 0.06, u1 - 0.06, 0.1, 0.15, KICK, zt - 0.5)
@@ -1101,15 +1103,15 @@ def base_unit(run, rn, k, u0, u1, typ, mat, depth=BASE_D, counter=True):
 
 for rn, run_ in RUNS.items():
     run = Run(rn, run_)
-    mat = "Island" if rn.startswith("island") else "Cabinet Wood"
+    mat = ISLAND_MAT if rn.startswith("island") else "Cabinet Wood"
     for k, (u0, u1, typ) in enumerate(run_["units"]):
         base_unit(run, rn, k, u0, u1, typ, mat, run_.get("depth", BASE_D), counter=not rn.startswith("island"))
 nr = Run("north", RUNS["north"]); UB = K.get("upper_bottom", 4.6)
 for k, up in enumerate(RUNS["north"].get("uppers", [])):
     u0, u1, typ = up[:3]; ud = up[3] if len(up) > 3 else 1.1
     r = rec(f"cabinet.north.upper.{k}", "cabinet", "Glass door upper, fridge wall" if typ == "glass" else "Microwave upper, fridge wall", "interior", room="Kitchen",
-            info=dict(model=f"{'Glass door' if typ == 'glass' else 'Microwave'} upper, {ftin(u1 - u0)} wide, {ftin(ud)} deep", specs=[["Underside", ftin(UB)], ["Top", ftin(TALL)]],
-                      notes=["Microwave upper deepened per Erin's redline."] if typ != "glass" else []))
+            info=dict(model=f"{'Glass door' if typ == 'glass' else 'Microwave'} upper, {ftin(u1 - u0)} wide, {ftin(ud)} deep", specs=[["Underside", ftin(UB)], ["Top", ftin(TALL)], ["Finish", FINISH("Cabinet Wood")]],
+                      notes=(["Microwave upper deepened per Erin's redline."] if typ != "glass" else []) + ["Order from Danielle's 11/19/2026 rendering: microwave beside the fridge, glass doors at the east end."]))
     nr.box("Cabinet Wood", u0, u1, 0, ud, UB, TALL - 0.25)
     if typ == "glass":
         doors(nr, r, u0, u1, UB, TALL - 0.25, ud, "Cabinet Wood", 2, glass=True)
@@ -1121,7 +1123,39 @@ for k, up in enumerate(RUNS["north"].get("uppers", [])):
         doors(nr, r, u0, u1, UB + 1.55, TALL - 0.25, ud, "Cabinet Wood", 2)
     nr.box("Cabinet Wood", u0 - 0.03, u1 + 0.03, 0, ud + 0.12, TALL - 0.25, TALL)
 
-if RUNS["north"].get("pantry_door"):
+PANTRY_STYLE = RUNS["north"].get("pantry_style", "door")
+if RUNS["north"].get("pantry_door") and PANTRY_STYLE == "murphy":
+    # Danielle Gross's 11/19/2026 north wall rendering: the tall pantry cabinet left of the fridge is a Murphy door. The whole
+    # cabinet (case, faux door fronts, crown) swings out into the kitchen on a hinge at its west front corner and parks
+    # along the west wall, so the fridge stays reachable; behind it is the 6'-8" passage into the pantry.
+    px0, px1, phd = min(CL["passages"], key=lambda p: p[0])
+    mx0 = T + 0.02                                            # 1/4 in off the west wall's inside face
+    mx1 = RUNS["north"]["units"][0][0] - 0.02                 # 1/4 in short of the fridge bay's side panel
+    mdf = BASE_D + 0.1                                        # face in line with the over-fridge doors
+    msplit = RUNS["north"].get("murphy_split", UB)            # door line in line with the underside of the uppers
+    r = rec("door.pantry", "door", "Pantry Murphy door", "interior", room="Kitchen",
+            info=dict(model=f"Murphy door made as a tall pantry cabinet, {ftin(mx1 - mx0)} wide x {ftin(mdf)} deep x {ftin(TALL)} tall",
+                      specs=[["Opening behind it", f"{ftin(px1 - px0)} x {ftin(phd)} passage into the pantry"], ["Finish", FINISH("Cabinet Wood")],
+                             ["Hardware", "Matte black bar pulls, heavy duty pivot hinge at the west front corner (ASSUMED)"]],
+                      notes=["Danielle Gross's 11/19/2026 north wall rendering shows a tall pantry cabinet here; Maxwell: it is a Murphy door.",
+                             "The whole cabinet swings into the kitchen and parks along the west wall. Which side it hinges on and which way it swings is ASSUMED. "
+                             "Open, it stands partly in front of the glass kitchen door on the west wall.",
+                             "The four doors on its face are drawn shut; whether they open onto shelves is not decided."]))
+    nr_ = Run("north", RUNS["north"])
+    pv = nr_.at(mx0, mdf + FRONT_T)
+    lf = op(r, "door.pantry.leaf", "Pantry Murphy door", "swing", pv + (0,), angle=-RUNS["north"].get("murphy_swing", 92))
+    with into(lf["parts"]):
+        nr_.box("Cabinet Wood", mx0, mx1, 0.02, mdf, KICK, TALL - 0.25)                       # case, 1/4 in off the wall
+        nr_.box("Cabinet Wood", mx0 + 0.05, mx1 - 0.05, 0.02, mdf - 0.15, 0.02, KICK)          # toe kick
+        nr_.box("Cabinet Wood", mx0, mx1, 0.02, mdf + 0.12, TALL - 0.25, TALL)                 # crown, flush with the fridge bay crown
+        for (z0_, z1_) in ((KICK, msplit), (msplit, TALL - 0.25)):
+            um = (mx0 + mx1) / 2
+            shaker(nr_, r, mx0, um, z0_, z1_, mdf, "Cabinet Wood", "door", "L")
+            shaker(nr_, r, um, mx1, z0_, z1_, mdf, "Cabinet Wood", "door", "R")
+    for (a0, a1) in ((px0, px0 + 0.06), (px1 - 0.06, px1)):                                    # oak jambs and head in the wall opening
+        box("White Oak", a0, a1, YC, YC2, 0, phd)
+    box("White Oak", px0, px1, YC, YC2, phd - 0.06, phd)
+elif RUNS["north"].get("pantry_door"):
     px0, px1, phd = min(CL["passages"], key=lambda p: p[0])
     leaf = RUNS["north"].get("pantry_door_leaf", px1 - px0 - 0.2)
     ce, cw = RUNS["north"].get("pantry_casing_east", 0.29), RUNS["north"].get("pantry_casing_west", 0.29)
@@ -1162,9 +1196,9 @@ ix0, iy0, ix1, iy1 = K["island"]
 ir = RUNS["island"]
 rec("kitchen.island", "cabinet", "Kitchen island top and panels", "interior", room="Kitchen",
     info=dict(model=f"{ftin(ix1 - ix0)} x {ftin(iy1 - iy0)} island with a {ftin(K.get('island_overhang', 1.25))} seating overhang",
-              specs=[["Top", f"Quartz {K['counter_color']} (ASSUMED light quartz)"], ["Body", f"Olive green {K['island_color']}"]], notes=["Deepened to 45\" for the overhang (Erin's redline)."]))
-box("Island", ir["units"][0][0], RUNS["island_east"]["back"] if "island_east" in RUNS else ir["units"][-1][1], ir["back"] - 0.06, ir["back"], 0, CTR_Z - CTR_T)
-box("Island", ir["units"][0][0] - 0.06, ir["units"][0][0], ir["back"] - 0.06, ir["back"] + ir.get("depth", BASE_D) + FRONT_T, 0, CTR_Z - CTR_T)
+              specs=[["Top", f"Quartz {K['counter_color']} (ASSUMED light quartz)"], ["Body", FINISH(ISLAND_MAT)]], notes=["Deepened to 45\" for the overhang (Erin's redline)."]))
+box(ISLAND_MAT, ir["units"][0][0], RUNS["island_east"]["back"] if "island_east" in RUNS else ir["units"][-1][1], ir["back"] - 0.06, ir["back"], 0, CTR_Z - CTR_T)
+box(ISLAND_MAT, ir["units"][0][0] - 0.06, ir["units"][0][0], ir["back"] - 0.06, ir["back"] + ir.get("depth", BASE_D) + FRONT_T, 0, CTR_Z - CTR_T)
 box("Counter", ix0, ix1, iy0, iy1, CTR_Z - CTR_T, CTR_Z)
 SH = K["shelves"]
 rec("kitchen.shelves", "fixture", "Open shelves", "interior", room="Kitchen", info=dict(model="White oak open shelves", specs=[["Length", ftin(SH["x"][1] - SH["x"][0])], ["Heights", ", ".join(ftin(z) for z in SH["heights"])]]))
