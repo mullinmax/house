@@ -2061,12 +2061,12 @@
    "builder": "ceiling_fan",
    "size": [
     60,
-    96.9
+    97.8
    ],
    "at": [
-    26.4,
-    28.5,
-    18.072
+    23.89,
+    28.75,
+    18.152
    ],
    "facing": 0,
    "slope": -0.3183,
@@ -2081,11 +2081,11 @@
      ],
      [
       "Blades",
-      "10 ft 0 in above the floor, 87 in below the ceiling at the low side"
+      "10 ft 0 in above the floor, 88 in below the ceiling at the low side"
      ],
      [
       "Downrod",
-      "About 88 in"
+      "About 89 in"
      ],
      [
       "Motor",
@@ -2097,11 +2097,11 @@
      ]
     ],
     "notes": [
-     "Trial fan (Maxwell, 11/19/2026: try one, it may come out later). Over the coffee table and the seating, about 4 ft from the can light and well clear of the high wall registers on the north wall. The ceiling here is about 18 ft, so it hangs on a long rod with the blades about 10 ft up. In winter, on low in reverse, it pushes the warm air that collects up under this tall ceiling back down to the seating.",
+     "Trial fan (Maxwell, 11/19/2026: try one, it may come out later). Centred over the living room itself, x 16.66 to 31.12 and y 22.87 to 34.62, leaving out the loft side (Maxwell, 11/20/2026). The blade tips pass about 5 in from the flush ceiling light at x 21.0 in plan, though 8 ft below it; if the light flickers through the blades, move that light toward the west wall. The ceiling here is about 18 ft, so it hangs on a long rod with the blades about 10 ft up. In winter, on low in reverse, it pushes the warm air that collects up under this tall ceiling back down to the seating.",
      "On the sloped ceiling the fan needs a fan rated box fixed to the roof panel and a canopy that takes the slope (about 18 degrees under the 3.82:12 north roof; most fans allow 30). In a SIP roof the box and the wire chase to it have to be planned with the panel maker before the panels are cut, because there is no stud cavity to fish a cable through later. ASSUMED until the electrician and the SIP maker agree.",
      "For Home Assistant later: a DC fan with a local network control, or a radio remote fan run through a bridge such as Bond, so speed, direction and the light can be automated. Model ASSUMED."
     ],
-    "placement": "Ceiling of Living, x 26.4 ft, y 28.5 ft."
+    "placement": "Ceiling of Living, x 23.9 ft, y 28.8 ft."
    }
   },
   {

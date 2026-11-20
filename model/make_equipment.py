@@ -1012,8 +1012,9 @@ fan("fan_study", "Bedroom 4 / study", 27.4, 5.6, 42, 8.5, True, [
     "air over the whole room.",
     "Warm air from the computers rises toward the high side, where the high return is. The fan mixes; it does not move air out of the room. The supply and "
     "returns still do that, so this is a companion to the ducts, not a fix for an undersized one."], "Light Study 13")
-fan("fan_living", "Living", 26.4, 28.5, 60, 10.0, False, ["Trial fan (Maxwell, 11/19/2026: try one, it may come out later). Over the coffee table and the seating, "
-    "about 4 ft from the can light and well clear of the high wall registers on the north wall. The ceiling here is about 18 ft, so it hangs on a long "
+fan("fan_living", "Living", 23.89, 28.75, 60, 10.0, False, ["Trial fan (Maxwell, 11/19/2026: try one, it may come out later). Centred over the living room "
+    "itself, x 16.66 to 31.12 and y 22.87 to 34.62, leaving out the loft side (Maxwell, 11/20/2026). The blade tips pass about 5 in from the flush ceiling "
+    "light at x 21.0 in plan, though 8 ft below it; if the light flickers through the blades, move that light toward the west wall. The ceiling here is about 18 ft, so it hangs on a long "
     "rod with the blades about 10 ft up. In winter, on low in reverse, it pushes the warm air that collects up under this tall ceiling back down to the seating."])
 fan("fan_family", "Entry / family", 36.5, 42.5, 60, 9.0, False, ["Between the entry and the family cans (both about 4 ft away), so the blades never pass under a light and flicker it. "
     "60 in for the open family and entry area; the high wall registers on the clerestory wall blow south toward it from about 5 ft beyond the blade tips."])
