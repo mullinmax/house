@@ -2154,9 +2154,9 @@
     6
    ],
    "at": [
-    6.57,
-    28.56833333333333,
-    11.420833333333334
+    5.6741666666666655,
+    23.15,
+    12.58125
    ],
    "facing": 90,
    "info": {
@@ -2177,14 +2177,14 @@
      ],
      [
       "Reach",
-      "From the attic deck east of the heat pump, about 1-1/2 ft up. Slides out of its sleeve for a look or a swap"
+      "From the attic deck at the heat pump's north east corner, about 2-1/2 ft up, over the return plenum. Slides out of its sleeve for a look or a swap"
      ]
     ],
     "notes": [
      "Maxwell, 11/20/2026: limit how much air the litter box exhaust pulls from the utility room to something reasonable. This replaces the hand damper, which only set the flow at one fan speed: on boost the branch would have taken about 50 CFM. The model and exact flow ratings are to be confirmed when ordering. ASSUMED position.",
      "Install it with the arrow in the direction of airflow (toward the ERV) and keep it a few duct diameters from the tee."
     ],
-    "placement": "Attic, on the litter box exhaust just east of the powder exhaust riser."
+    "placement": "Attic, on the litter box exhaust 1-1/2 ft before it joins the bath exhaust main."
    }
   },
   {
@@ -22152,7 +22152,7 @@
    "info": {
     "model": "4 in round exhaust",
     "notes": [
-     "ERV pickup grille: the ERV pulls 20 CFM from it continuously and more on boost, from a timer by the door. There is no separate bath fan (Maxwell, 11/19/2026). Allowed by the Ohio residential code (4101:8-15-01, sections 1501.1 and 1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Comes up through the deck, runs along it and rises into the main just before the ERV. The litter box exhaust from the utility room tees into its riser."
+     "ERV pickup grille: the ERV pulls 20 CFM from it continuously and more on boost, from a timer by the door. There is no separate bath fan (Maxwell, 11/19/2026). Allowed by the Ohio residential code (4101:8-15-01, sections 1501.1 and 1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Comes up through the deck, runs along it and rises into the main just before the ERV."
     ]
    },
    "grilles": [
@@ -22226,17 +22226,12 @@
     [
      9.15,
      23.15,
-     11.6
+     12.760416666666666
     ],
     [
-     9.15,
-     28.56833333333333,
-     11.6
-    ],
-    [
-     5.07,
-     28.56833333333333,
-     11.6
+     4.1741666666666655,
+     23.15,
+     12.760416666666666
     ]
    ],
    "name": "Litter box exhaust",
@@ -22261,11 +22256,11 @@
      ],
      [
       "Duct",
-      "6 x 2-1/2 in stack up the stud bay, then 4 in round: 6 in south in the floor trusses, up through the deck, over the main return trunk, south and west into the powder exhaust riser"
+      "6 x 2-1/2 in stack up the stud bay, then 4 in round: 6 in south in the floor trusses, up through the deck about 2-1/2 ft, then straight west about 5 ft over the return plenum"
      ],
      [
       "Into",
-      "The ERV's stale air side, through the powder exhaust riser, about 1 ft before the unit"
+      "The side of the 8 in bath exhaust main where it crosses over the heat pump, about 6 ft before the ERV"
      ],
      [
       "Limiter",

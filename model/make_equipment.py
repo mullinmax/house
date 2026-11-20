@@ -924,21 +924,19 @@ exhaust("ex_bath2", "Bath 2 exhaust", 6, [[XE2, 10.62, ZTOP], [XE2, Y_EN, ZTOP]]
         "It was right beside the supply; the supply now comes in low at the west end of the same wall (Maxwell, 11/18/2026).")
 PWX, PWY = 7.2, 32.2                               # powder room exhaust grille, over the toilet, about 4 ft from the supply by the door (Maxwell, 11/18/2026)
 exhaust("ex_powder", "Powder exhaust", 4, [[PWX, PWY, ZT], [PWX, PWY, EX - 0.08], [4.9, PWY, EX - 0.08], [4.9, HP_S + 1.0, EX - 0.08], [4.9, HP_S + 1.0, ERV_Z], [ERV_XS + 0.1, HP_S + 1.0, ERV_Z]], room="Powder",
-        grilles=[dict(at=[PWX, PWY, CEIL - 0.02], size=[8, 8])], note=ENOTE + " Comes up through the deck, runs along it and rises into the main just before the ERV. "
-        "The litter box exhaust from the utility room tees into its riser.")
+        grilles=[dict(at=[PWX, PWY, CEIL - 0.02], size=[8, 8])], note=ENOTE + " Comes up through the deck, runs along it and rises into the main just before the ERV.")
 # Litter box exhaust (Maxwell, 11/20/2026): the cat's litter box lives in the utility room, so a small duct off the ERV's stale air side pulls
 # a slow, steady 20 CFM from a low grille right behind it, and the smell goes outdoors instead of through the transfer grille into the attic
 # (and from there back into the return). The box sits against the north wall east of the pressure tank, clear of the hall door. The
 # pickup is a 10 x 4 in grille just above the box's back rim in the stud bay x 8.63 to 9.84 (typical 16 in layout until measured); a
 # 6 x 2-1/2 in stack runs up that bay. In the floor trusses a 4 in round steps 6 in south, between the truss at x 8.7 and the study
-# return in bay 9.7, out from under the server rack's pad, rises through the deck north of the main return trunk, crosses over the
-# trunk 1-1/2 ft up, runs south to the line of the powder exhaust's riser and west into that riser just before the ERV.
+# return in bay 9.7, out from under the server rack's pad, rises through the deck north of the main return trunk to the height of
+# the bath exhaust main and runs straight west, over the return plenum, into the main's side where it crosses over the heat pump
+# (Maxwell, 11/20/2026: shorter. The truss bays over the utility room are full, so it cannot stay in the floor).
 LX = 9.15                                          # in the stud bay and in the truss space between the 8.7 truss and the study return
 LWY = (UN + 22.408) / 2                            # centre of the utility room's north wall (bedroom 3 side face 22.408)
 LGZ = 15 / 12                                      # pickup grille centre, its bottom about 1 in above a 12 in tall box's rim
 LRY = 23.15                                        # riser through the deck: south of the rack pad (y 22.94), north of the return trunk (23.38)
-LZ = 11.6                                          # over the 14 in main return trunk (top 11.22) and the water heater intake elbow (top 11.38)
-LTY = HP_S + 1.0                                   # the powder exhaust riser's line
 LIT_CFM = 20
 LNOTE = (f"A slow, steady {LIT_CFM} CFM pulled from right behind the litter box, all the time, so the smell is taken at the box and goes outdoors with the bath air "
          "(Maxwell, 11/20/2026, after a video where a small ERV pickup at a litter box kept the room from ever smelling). "
@@ -947,14 +945,15 @@ LNOTE = (f"A slow, steady {LIT_CFM} CFM pulled from right behind the litter box,
          "the transfer grille into the attic and from there back into the return.")
 ducts.append(dict(id="ex_litter_stack", info_of="ex_litter", type="exhaust", shape="rect", size=[6, 2.5], points=[[LX, LWY, LGZ - 0.2], [LX, LWY, ZT]],
                   grilles=[dict(at=[LX, UN + 0.021, LGZ], size=[10, 4], wall=S)]))
-exhaust("ex_litter", "Litter box exhaust", 4, [[LX, LWY, ZT], [LX, LRY, ZT], [LX, LRY, LZ], [LX, LTY, LZ], [4.9 + 0.17, LTY, LZ]], room="Utility", note=LNOTE)
+LTX = ERV_XS + 4 / 12 + 0.02                      # the side of the 8 in bath exhaust main where it crosses over the heat pump
+exhaust("ex_litter", "Litter box exhaust", 4, [[LX, LWY, ZT], [LX, LRY, ZT], [LX, LRY, ERV_Z], [LTX, LRY, ERV_Z]], room="Utility", note=LNOTE)
 _lx = ducts[-1]
 _lx["cfm"] = LIT_CFM
 _lx["info"].update(model=f"4 in round exhaust, {LIT_CFM} CFM continuous, from a 10 x 4 in low filter grille behind the litter box", specs=[
     ["Airflow", f"Held at {LIT_CFM} CFM, on the continuous setting and on boost, by a constant airflow regulator in the duct (Maxwell, 11/20/2026)"],
     ["Pickup", "10 x 4 in filter grille in the north wall, centre 15 in off the floor, just above the box's back rim. A washable filter behind it keeps litter dust out of the ERV"],
-    ["Duct", "6 x 2-1/2 in stack up the stud bay, then 4 in round: 6 in south in the floor trusses, up through the deck, over the main return trunk, south and west into the powder exhaust riser"],
-    ["Into", "The ERV's stale air side, through the powder exhaust riser, about 1 ft before the unit"],
+    ["Duct", "6 x 2-1/2 in stack up the stud bay, then 4 in round: 6 in south in the floor trusses, up through the deck about 2-1/2 ft, then straight west about 5 ft over the return plenum"],
+    ["Into", "The side of the 8 in bath exhaust main where it crosses over the heat pump, about 6 ft before the ERV"],
     ["Limiter", f"4 in constant airflow regulator, {LIT_CFM} CFM, on the attic run about 1-1/2 ft before the tee. No hand damper to set"]])
 _lx["info"]["notes"] += [
     "Sizing: the video's pickup was about 5 CFM, a computer fan's worth. 20 CFM is used here so the room stays under suction against its supply. "
@@ -968,18 +967,18 @@ _lx["info"]["notes"] += [
     "Clash checks: the stack is in one stud bay (no studs, wall junctions or the door header), the 4 in round is between a truss and the study return in the floor trusses, "
     "and it crosses no trusses. Stud positions are the typical layout until the wall is measured. ASSUMED route and position."]
 _lx["info"]["placement"] = "Utility room north wall, behind the litter box, up into the attic over the utility room."
-LD_X = 4.9 + 0.17 + 1.5                           # flow limiter on the attic run, 1-1/2 ft before the tee: reached from the heat pump's east side
+LD_X = LTX + 1.5                                  # flow limiter on the attic run, 1-1/2 ft before the tee, over the return plenum
 items.append(dict(id="litter_flow_limiter", name="Litter box exhaust flow limiter", category="Ventilation", system="hvac.exhaust", room="Attic", layer="ducts",
-    builder="flow_regulator", size=[4, 6], at=[LD_X, LTY, LZ - 2 / 12 - 0.15 / 12], facing=90,
+    builder="flow_regulator", size=[4, 6], at=[LD_X, LRY, ERV_Z - 2 / 12 - 0.15 / 12], facing=90,
     info=dict(model=f"4 in constant airflow regulator, {LIT_CFM} CFM (for example Aldes CAR-II), in a short galvanized sleeve", price="About $30 to $50 for the insert",
         specs=[["Holds", f"{LIT_CFM} CFM through the litter box exhaust whether the ERV is on continuous or boost"],
                ["How", "A spring loaded flap inside closes down as the suction rises, so the airflow stays put. No setting or balancing"],
                ["Works across", "About 0.2 to 0.8 in of water of suction (check the maker's sheet). Below that it passes a little less than its rating, which is fine on the low setting"],
-               ["Reach", "From the attic deck east of the heat pump, about 1-1/2 ft up. Slides out of its sleeve for a look or a swap"]],
+               ["Reach", "From the attic deck at the heat pump's north east corner, about 2-1/2 ft up, over the return plenum. Slides out of its sleeve for a look or a swap"]],
         notes=["Maxwell, 11/20/2026: limit how much air the litter box exhaust pulls from the utility room to something reasonable. This replaces the hand damper, "
                "which only set the flow at one fan speed: on boost the branch would have taken about 50 CFM. The model and exact flow ratings are to be confirmed when ordering. ASSUMED position.",
                "Install it with the arrow in the direction of airflow (toward the ERV) and keep it a few duct diameters from the tee."],
-        placement="Attic, on the litter box exhaust just east of the powder exhaust riser.")))
+        placement="Attic, on the litter box exhaust 1-1/2 ft before it joins the bath exhaust main.")))
 LB = [24, 12, 18]                                  # a large open high sided litter box, W x H x D in (generic, for scale)
 items.append(dict(id="litter_box", name="Cat litter box", category="Pets", system="household", room="Utility", layer="storage",
     builder="litter_box", size=LB, at=[LX, UN + 2 / 12, 0], facing=180, mat=[26, 16],
