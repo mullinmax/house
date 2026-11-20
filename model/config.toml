@@ -308,6 +308,7 @@ depth_in = 24                            # covers the front burners (an 18 in ca
 above_counter_in = 27                    # underside over the cooktop. The PM600SSV allows 24 in; mock up head height before building
 box_height_in = 24                       # the inverted bathtub that holds the smoke
 cheek_drop_in = 6                        # the south side panel hangs this far below the front edge
+style = "box"                            # box | plaster | oak | cabinets | steel (mockups 11/20/2026; HOOD_STYLE=... overrides for renders)
 [kitchen.runs.south]                     # sink wall, elevation 1
 axis = "x"
 back = 51.458

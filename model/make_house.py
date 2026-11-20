@@ -1713,15 +1713,108 @@ rec("kitchen.hood", "fixture", "Range hood", "interior", room="Kitchen",
                      "No microwave hood. The microwave lives elsewhere.",
                      "The underside is 27 in over the cooktop. The insert allows 24 in. Mock it up in cardboard first to check head height for the tallest cook.",
                      "White oak to match the cabinets, lined with stainless inside. Hide the drywall and walls layers to see the duct."]))
-K_WOOD = "Cabinet Wood"
-wr.box(K_WOOD, HU0, HU1, 0, HD_, HT_ - WT, HT_)        # top
-wr.box(K_WOOD, HU0, HU1 - WT, HD_ - WT, HD_, HB, HT_ - WT)                                          # front
-wr.box(K_WOOD, HU1 - WT, HU1, 0, HD_, HB - CHK, HT_ - WT)                                           # south cheek
-wr.box("Stainless", HU0, HU1 - WT, 0, HD_ - WT, HT_ - WT - 0.02, HT_ - WT)                         # liner under the top
-wr.box("Stainless", HU0, HU1 - WT, HD_ - WT - 0.02, HD_ - WT, HB + 0.02, HT_ - WT - 0.02)           # liner behind the front
-wr.box("Stainless", HU1 - WT - 0.02, HU1 - WT, 0, HD_ - WT - 0.02, HB - CHK + 0.02, HT_ - WT - 0.02)   # liner on the cheek
+# Four looks over the same capture box (Maxwell, 11/20/2026: "very boxy", try 3 or 4 designs). Every style keeps the
+# same 54 x 24 in footprint, the 27 in underside, the 24 in tall box and the south cheek, so the airflow is the same.
+#   box       plain white oak box and chimney (first version)
+#   plaster   sloped front in warm limewash plaster, full width to the ceiling, white oak lip
+#   oak       white oak with a 45 degree chamfer into a tapered chimney and black steel straps
+#   cabinets  painted hood (island green) with shallow white oak glass door cabinets above it, lit inside
+#   steel     blackened steel, sloped front, satin brass band along the bottom edge, slim steel chimney
+import os as _os
+HSTYLE = _os.environ.get("HOOD_STYLE") or HOOD.get("style", "box")
+MATERIALS.setdefault("Hood Plaster", dict(color="#E9E2D4", rough=0.9, map="plaster.jpg", tile=1.2))
+MATERIALS.setdefault("Hood Steel", dict(color="#1E2021", rough=0.45, metal=0.7))
 _cc = (cy0 + cy1) / 2
-wr.box(K_WOOD, _cc - 0.6, _cc + 0.6, 0, 1.2, HT_, south_roof_z(_cc + 0.6) - 0.01)                  # chimney enclosure up to the ceiling, holds the duct
+WX0 = RUNS["west"]["back"]
+def _P(u, d, z): return (WX0 + d, u, z)
+def ceil_at(u): return south_roof_z(u) - 0.03         # just under the drywall ceiling, so the faces do not flicker
+def slab(mat, u0, u1, prof):                       # four point (d, z) profile pushed along the wall from u0 to u1
+    hexa(mat, [_P(u0, d, z) for d, z in prof] + [_P(u1, d, z) for d, z in prof])
+def to_ceiling(mat, u0, u1, d0, d1, z0):           # a box from z0 up to the sloping ceiling
+    hexa(mat, [_P(u0, d0, z0), _P(u0, d1, z0), _P(u0, d1, ceil_at(u0)), _P(u0, d0, ceil_at(u0)),
+               _P(u1, d0, z0), _P(u1, d1, z0), _P(u1, d1, ceil_at(u1)), _P(u1, d0, ceil_at(u1))][::1])
+def liner(top=HT_ - WT, d_top=HD_ - WT, z_front=None):
+    """stainless lining of the capture box. d_top: how far out the underside of the top reaches (less under a sloped front);
+    z_front: how high the lining behind the front and on the cheek goes (the top of the vertical part of a sloped front)."""
+    zf = top if z_front is None else z_front
+    wr.box("Stainless", HU0, HU1 - WT, 0, d_top, top - 0.02, top)                                       # underside of the capture box
+    wr.box("Stainless", HU0, HU1 - WT, HD_ - WT - 0.02, HD_ - WT, HB + 0.02, zf - 0.02)                  # behind the front
+    wr.box("Stainless", HU1 - WT - 0.02, HU1 - WT, 0, HD_ - WT - 0.02, HB - CHK + 0.02, zf - 0.02)      # on the cheek
+def d_on(z, a, b):                                 # d of the line from a = (d, z) to b = (d, z), at height z
+    return a[0] + (z - a[1]) * (b[0] - a[0]) / (b[1] - a[1])
+def pucks(z, d=HD_ / 2, n=3):                      # LED puck lights in the underside of the box
+    for k in range(n):
+        uu = HU0 + (HU1 - HU0) * (k + 0.5) / n
+        cyl("Lamp Glass", WX0 + d, uu, z - 0.03, z - 0.01, 0.12, 0.12)
+
+if HSTYLE == "plaster":
+    SL0, SL1 = HB + 0.42, 9.0                      # the slope runs from just above the lip back to 12 in off the wall
+    DT = 1.0
+    wr.box("White Oak", HU0, HU1, HD_ - WT, HD_ + 0.02, HB, SL0)                                         # oak lip
+    slab("Hood Plaster", HU0, HU1, [(HD_ - WT, SL0), (HD_, SL0), (DT, SL1), (DT - WT, SL1)])             # sloped front
+    to_ceiling("Hood Plaster", HU0, HU1, DT - WT, DT, SL1)                                               # upper front
+    wr.box("Hood Plaster", HU1 - WT, HU1, 0, HD_, HB - CHK, SL0)                                          # south side, lower
+    slab("Hood Plaster", HU1 - WT, HU1, [(0, SL0), (HD_ - WT, SL0), (DT - WT, SL1), (0, SL1)])           # south side, sloped
+    to_ceiling("Hood Plaster", HU1 - WT, HU1, 0, DT - WT, SL1)                                            # south side, upper
+    to_ceiling("Hood Plaster", HU0, HU0 + WT, 0, DT - WT, 8.0)                                            # north side above the oven tower
+    liner(d_top=d_on(HT_ - WT, (HD_ - WT, SL0), (DT - WT, SL1)) - 0.02, z_front=SL0); pucks(HT_ - WT - 0.02, d=0.8)
+elif HSTYLE == "oak":
+    CH = 0.5                                       # 6 in chamfer along the top front edge
+    K_WOOD = "Cabinet Wood"
+    wr.box(K_WOOD, HU0, HU1 - WT, HD_ - WT, HD_, HB, HT_ - CH)                          # front
+    slab(K_WOOD, HU0, HU1, [(HD_ - WT, HT_ - CH), (HD_, HT_ - CH), (HD_ - CH, HT_), (HD_ - CH - WT * 1.4, HT_)])   # chamfer
+    wr.box(K_WOOD, HU0, HU1, 0, HD_ - CH, HT_ - WT, HT_)                                                  # top
+    wr.box(K_WOOD, HU1 - WT, HU1, 0, HD_, HB - CHK, HT_ - CH)                                             # south cheek
+    slab(K_WOOD, HU1 - WT, HU1, [(0, HT_ - CH), (HD_, HT_ - CH), (HD_ - CH, HT_), (0, HT_)])
+    for zb in (HB + 0.12, HT_ - CH - 0.3):                                                                # black steel straps across the front and round the cheek
+        wr.box("Hood Steel", HU0, HU1 + 0.01, HD_, HD_ + 0.012, zb, zb + 0.15)
+        wr.box("Hood Steel", HU1, HU1 + 0.012, 0.02, HD_ + 0.012, zb, zb + 0.15)
+        for uu in (HU0 + 0.25, _cc - 1.2, _cc + 1.2, HU1 - 0.25):
+            wr.box("Black Metal", uu - 0.02, uu + 0.02, HD_ + 0.012, HD_ + 0.03, zb + 0.055, zb + 0.095)
+    CW0, CW1 = 1.15, 0.75                          # chimney: 27 in wide at the hood, tapering to 18 in at the ceiling
+    zc1 = ceil_at(_cc)
+    hexa(K_WOOD, [_P(_cc - CW0, 0, HT_), _P(_cc + CW0, 0, HT_), _P(_cc + CW0, 1.25, HT_), _P(_cc - CW0, 1.25, HT_),
+                  _P(_cc - CW1, 0, zc1), _P(_cc + CW1, 0, zc1), _P(_cc + CW1, 1.1, zc1), _P(_cc - CW1, 1.1, zc1)])
+    wr.box("Hood Steel", _cc - CW0 + 0.03, _cc + CW0 - 0.03, 1.25 - 0.02, 1.262, HT_ + 0.15, HT_ + 0.3)
+    liner(d_top=d_on(HT_ - WT, (HD_ - WT, HT_ - CH), (HD_ - CH - WT * 1.4, HT_)) - 0.02, z_front=HT_ - CH); pucks(HT_ - WT - 0.02, d=0.8)
+elif HSTYLE == "cabinets":
+    MATERIALS.setdefault("Hood Paint", dict(color=K["island_color"], rough=0.5))
+    wr.box("Hood Paint", HU0, HU1, 0, HD_, HT_ - WT, HT_)
+    wr.box("Hood Paint", HU0, HU1 - WT, HD_ - WT, HD_, HB, HT_ - WT)
+    wr.box("Hood Paint", HU1 - WT, HU1, 0, HD_, HB - CHK, HT_ - WT)
+    wr.box("Cabinet Pull", HU0, HU1, HD_, HD_ + 0.015, HB, HB + 0.08)                                     # brass edge along the bottom
+    liner(); pucks(HT_ - WT - 0.02, n=4)
+    rcab = rec("kitchen.hood_cabinets", "cabinet", "Shallow cabinets over the hood", "interior", room="Kitchen",
+               info=dict(model="Two 13 in deep white oak glass door cabinets with LED strips, over the hood",
+                         specs=[["Depth", "13 in"], ["Height", "1 ft 9 in, to the oven tower's top"], ["Centre", "Fixed panel hides the 8 in duct"]],
+                         notes=["Above the capture box, so smoke never reaches them. Keep the dishes you use most out of here anyway, it is still the warmest spot in the kitchen."]))
+    CD, CZ0, CZ1 = 13 / 12, HT_, 9.0
+    for (a0, a1) in ((HU0, _cc - 0.6), (_cc + 0.6, HU1)):
+        hollow(wr, a0, a1, CD, CZ0, CZ1, "Cabinet Wood", shelves=[(CZ0 + CZ1) / 2])
+        wr.box("Lamp Glass", a0 + 0.1, a1 - 0.1, CD - 0.2, CD - 0.12, CZ1 - 0.1, CZ1 - 0.07)                # LED strip at the top of each
+        wr.box("Lamp Glass", a0 + 0.1, a1 - 0.1, CD - 0.2, CD - 0.12, (CZ0 + CZ1) / 2 - 0.04, (CZ0 + CZ1) / 2 - 0.01)
+        doors(wr, rcab, a0, a1, CZ0, CZ1, CD, "Cabinet Wood", 1, glass=True)
+    wr.box("Cabinet Wood", _cc - 0.6, _cc + 0.6, 0, CD + FRONT_T, CZ0, CZ1)                               # fixed panel over the duct
+    wr.box("Cabinet Wood", HU0 - 0.0, HU1 + 0.05, 0, CD + 0.15, CZ1, CZ1 + 0.25)                         # crown
+    CUR[0] = BYID["kitchen.hood"]["parts"]
+    to_ceiling("Cabinet Wood", _cc - 0.6, _cc + 0.6, 0, 1.2, CZ1 + 0.25)                                   # chase for the duct to the wall exit
+elif HSTYLE == "steel":
+    SL0, SL1 = HB + 0.33, HT_ + 0.6
+    wr.box("Cabinet Pull", HU0, HU1, HD_ - WT, HD_ + 0.02, HB, HB + 0.1)                                  # satin brass band, like the pulls
+    wr.box("Hood Steel", HU0, HU1, HD_ - WT, HD_, HB + 0.1, SL0)
+    slab("Hood Steel", HU0, HU1, [(HD_ - WT, SL0), (HD_, SL0), (1.25, SL1), (1.25 - WT, SL1)])
+    wr.box("Hood Steel", HU0, HU1, 0, 1.25, SL1 - WT, SL1)                                                # top
+    wr.box("Hood Steel", HU1 - WT, HU1, 0, HD_, HB - CHK, SL0)
+    slab("Hood Steel", HU1 - WT, HU1, [(0, SL0), (HD_ - WT, SL0), (1.25 - WT, SL1), (0, SL1)])
+    to_ceiling("Hood Steel", _cc - 0.55, _cc + 0.55, 0, 1.1, SL1)                                         # slim chimney
+    liner(d_top=d_on(HT_ - WT, (HD_ - WT, SL0), (1.25 - WT, SL1)) - 0.02, z_front=SL0); pucks(HT_ - WT - 0.02, d=0.8)
+else:
+    K_WOOD = "Cabinet Wood"
+    wr.box(K_WOOD, HU0, HU1, 0, HD_, HT_ - WT, HT_)        # top
+    wr.box(K_WOOD, HU0, HU1 - WT, HD_ - WT, HD_, HB, HT_ - WT)                                          # front
+    wr.box(K_WOOD, HU1 - WT, HU1, 0, HD_, HB - CHK, HT_ - WT)                                           # south cheek
+    liner()
+    wr.box(K_WOOD, _cc - 0.6, _cc + 0.6, 0, 1.2, HT_, south_roof_z(_cc + 0.6) - 0.01)                  # chimney enclosure up to the ceiling, holds the duct
 ix0, iy0, ix1, iy1 = K["island"]
 ir = RUNS["island"]
 rec("kitchen.island", "cabinet", "Kitchen island top and panels", "interior", room="Kitchen",
