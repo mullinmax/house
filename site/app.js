@@ -332,7 +332,7 @@ function linkRoom(R, how) {
 //   v=o|w|n  mode     p=x,y,z  camera (plan feet, z up)     t=x,y,z  orbit centre     a=yaw,pitch  walk look (deg)
 //   room=    room     night    cut=ft  height slice         crouch   hide=,show=  layers   info=  equipment id
 const SHARE_KEYS = ['v', 'p', 't', 'a', 'night', 'cut', 'crouch', 'hide', 'show', 'info'];
-const LAYERS_ALL = () => ['Roof', 'Walls', 'Drywall', 'Extwalls', 'Openings', 'Finish', 'Framing', 'Furniture', 'Fans', 'Electrical', 'Lowvolt', 'Trees', 'Appliances', 'Vehicles', 'Storage', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
+const LAYERS_ALL = () => ['Roof', 'Framing', 'Drywall', 'Extwalls', 'Openings', 'Finish', 'Ghost', 'Furniture', 'Fans', 'Electrical', 'Lowvolt', 'Trees', 'Appliances', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
 const LAYER_DEFAULT = {};
 for (const k of LAYERS_ALL()) LAYER_DEFAULT[k] = $('l' + k).checked;
 const r1 = (n) => String(Math.round(n * 10) / 10);
@@ -372,6 +372,7 @@ function openSharedView() {
   if (q.has('hide') || q.has('show')) {
     const hide = new Set((q.get('hide') || '').toLowerCase().split(',')), showL = new Set((q.get('show') || '').toLowerCase().split(','));
     for (const k of LAYERS_ALL()) { const n = k.toLowerCase(); if (hide.has(n)) $('l' + k).checked = false; if (showL.has(n)) $('l' + k).checked = true; }
+    if (hide.has('walls')) $('lGhost').checked = true;     // links from before 11/20/2026: Walls off meant see-through
     applyToggles();
   }
   if (q.has('night')) setNight(true);
@@ -708,8 +709,8 @@ function applyToggles() {
   for (const o of treeMeshes) show(o, layerOn('Trees') && !(LITE && o.userData.fullCount >= 80));
   if (equip) {
     show(equip.layers.appliances, layerOn('Appliances'));
-    show(equip.layers.vehicles, layerOn('Vehicles'));
-    show(equip.layers.storage, layerOn('Storage'));
+    show(equip.layers.vehicles, layerOn('Furniture'));     // Belongings: furniture, cars and storage are one layer (Maxwell, 11/20/2026)
+    show(equip.layers.storage, layerOn('Furniture'));
     show(equip.layers.mechanical, layerOn('Mechanical'));
     show(equip.layers.fans, layerOn('Fans'));
     show(equip.layers.electrical, layerOn('Electrical'));
@@ -719,22 +720,20 @@ function applyToggles() {
     show(equip.layers.trusses, layerOn('Trusses'));
     for (const o of bakedDeck) show(o, house ? true : !layerOn('Trusses'));     // the baked house's thin deck gives way to the trusses' own
   }
-  if (ghost !== !layerOn('Walls')) setGhost(!layerOn('Walls'));
+  if (ghost !== layerOn('Ghost')) setGhost(layerOn('Ghost'));
+  syncWalls();
   if (xray !== layerOn('Xray')) { xray = layerOn('Xray'); setDuctXray(xray, equip.layers.ducts); }
   $('rowXray').classList.toggle('off', !layerOn('Ducts'));
   shadowDirty = true;
 }
 for (const k of LAYERS) $('l' + k).onchange = applyToggles;
-// Framing only: finishes, furniture and equipment off, so the as-built framing reads against the trusses and ducts.
-// Pressed again it puts every layer back to its default.
-let framingOnly = false;
-for (const b of document.querySelectorAll('[data-act="framing-only"]')) b.onclick = () => {
-  framingOnly = !framingOnly;
-  const keep = new Set(['Framing', 'Ducts', 'Trusses', 'Walls']);
-  for (const k of LAYERS) $('l' + k).checked = framingOnly ? keep.has(k) : LAYER_DEFAULT[k];
-  for (const bb of document.querySelectorAll('[data-act="framing-only"]')) bb.textContent = framingOnly ? 'Back to all layers' : 'Framing only';
-  applyToggles();
-};
+// Walls is the parent of Framing, Drywall and SIP panels: it turns all three on or off, and shows a dash when they differ.
+const WALL_PARTS = ['Framing', 'Drywall', 'Extwalls'];
+function syncWalls() {
+  const on = WALL_PARTS.filter((k) => layerOn(k)).length;
+  $('lWalls').checked = on === WALL_PARTS.length; $('lWalls').indeterminate = on > 0 && on < WALL_PARTS.length;
+}
+$('lWalls').onchange = () => { for (const k of WALL_PARTS) $('l' + k).checked = $('lWalls').checked; applyToggles(); };
 
 // Walls off: walls, floors and furniture go faint so the systems inside read clearly.
 let ghost = false, xray = false;
