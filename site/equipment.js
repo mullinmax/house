@@ -909,6 +909,69 @@ const BUILD = {
     cyl(g, (w - 7) / 2, h - 10.6, darkSteel(), 0, 10.1 + (h - 10.6) / 2, 0, 'y', 4, (w - 1.5) / 2).rotation.y = Math.PI / 4;   // hood
     return g;
   },
+  server_rack(s, it) {
+    // Four post open frame 19 in rack on casters, standing on a plywood pad. it.gear = [[top U (1 = bottom), height U, kind, label]].
+    // Rails are 19 in apart at the ears with 1.75 in per U; posts at the four corners, top and bottom frames, a cable bundle out the back to the deck.
+    const [w, h, d] = s, g = new THREE.Group(), [pw, pt, pd] = it.pad || [0, 0, 0];
+    const frame = mat('rack black', 0x1b1c1e, 0.55, 0.45), rail = mat('rack rail', 0x2a2c2f, 0.45, 0.6);
+    const face = mat('gear face', 0x2b2e32, 0.5, 0.35), faceLight = mat('gear face light', 0x8d9296, 0.45, 0.5);
+    const port = mat('rj45 port', 0x0b0c0d, 0.7, 0), cable = mat('patch cable blue', 0x2f6fd0, 0.6, 0);
+    const led = mat('led green', 0x39ff6a, 0.4, 0, { emissive: 0x39ff6a, emissiveIntensity: 1.2 });
+    if (pt) box(g, pw, pt, pd, plywood(), 0, pt / 2, d / 2);                                      // pad
+    const z0 = pt, cast = 3, fh = h - cast, U = 1.75, units = it.units || 22, railH = units * U, base = z0 + cast + (fh - railH) / 2;
+    for (const sx of [-1, 1]) for (const zz of [1, d - 1]) {                                        // casters
+      cyl(g, 1.2, 1.0, rubber(), sx * (w / 2 - 2), z0 + 1.3, zz, 'x', 14);
+      box(g, 1.6, 1.4, 1.6, darkSteel(), sx * (w / 2 - 2), z0 + cast - 0.7, zz);
+    }
+    for (const y of [z0 + cast + 1, z0 + h - 1]) {                                                 // bottom and top frames
+      box(g, w, 2, 1.6, frame, 0, y, 0.8); box(g, w, 2, 1.6, frame, 0, y, d - 0.8);
+      for (const sx of [-1, 1]) box(g, 1.6, 2, d, frame, sx * (w / 2 - 0.8), y, d / 2);
+    }
+    for (const sx of [-1, 1]) for (const zz of [3, d - 3]) {                                         // four posts with the 19 in rail flange
+      box(g, 1.6, fh, 1.6, frame, sx * (w / 2 - 0.8), z0 + cast + fh / 2, zz < d / 2 ? 0.8 : d - 0.8);
+      box(g, 0.75, railH, 2.4, rail, sx * 9.1, base + railH / 2, zz);
+      box(g, (w / 2 - 0.8) - 9.1, 1.2, 0.8, frame, sx * ((w / 2 - 0.8 + 9.1) / 2), base + railH / 2, zz);
+    }
+    const front = d - 3 + 1.2 + 0.03;                                                             // ears sit just proud of the rail face
+    for (const [top, n, kind] of it.gear || []) {
+      const y0 = base + (top - n) * U, gh = n * U - 0.06, gd = { patch: 4, manager: 3, shelf: 16, switch: 12, router: 11, ups: 20, server: 26, nas: 25 }[kind] || 20;
+      if (kind === 'shelf') {                                                                       // cantilever shelf with a small box and two mini PCs on it
+        box(g, 19, 0.15, gd, faceLight, 0, y0 + 0.1, front - gd / 2);
+        box(g, 7, 1.6, 6, mat('ont white', 0xe8e8e4, 0.5, 0), -5, y0 + 1.0, front - 4);
+        for (const x of [2.5, 7.5]) box(g, 4.5, 1.9, 4.5, face, x, y0 + 1.15, front - 3.5);
+        continue;
+      }
+      box(g, 17.2, gh, gd, face, 0, y0 + gh / 2, front - gd / 2);                                   // chassis between the rails
+      box(g, 19, gh, 0.12, kind === 'manager' ? frame : kind === 'ups' || kind === 'nas' ? face : faceLight, 0, y0 + gh / 2, front + 0.06);   // ears and front panel
+      if (kind === 'patch' || kind === 'switch') {
+        for (let k = 0; k < 24; k++) {
+          const x = -7.6 + (k % 12) * 1.1 + (k % 12 >= 6 ? 0.8 : 0), yy = y0 + gh / 2 + (k < 12 ? 0.32 : -0.32);
+          box(g, 0.55, 0.45, 0.05, port, x, yy, front + 0.13);
+          if (k % 3 !== 2) box(g, 0.3, 0.25, 1.2, cable, x, yy, front + 0.7);                      // patch cords between the panel and the switch
+        }
+        if (kind === 'switch') for (let k = 0; k < 6; k++) box(g, 0.15, 0.15, 0.04, led, 6.8 + k * 0.3, y0 + gh / 2, front + 0.13);
+      } else if (kind === 'manager') {
+        for (let k = 0; k < 5; k++) box(g, 0.6, gh * 0.8, 1.6, frame, -6 + k * 3, y0 + gh / 2, front + 0.8);
+      } else {
+        const bays = kind === 'nas' ? 4 : kind === 'server' ? 8 : 0;
+        for (let k = 0; k < bays; k++) {
+          const bw = kind === 'nas' ? 3.6 : 1.7, x = kind === 'nas' ? -6.3 + k * 4.0 : -7.4 + k * 1.95;
+          box(g, bw - 0.2, gh * (kind === 'nas' ? 0.75 : 0.6), 0.06, mat('drive bay', 0x4c5155, 0.5, 0.4), x, y0 + gh / 2, front + 0.16);
+          box(g, 0.12, 0.12, 0.04, led, x + bw / 2 - 0.4, y0 + gh * (kind === 'nas' ? 0.78 : 0.75), front + 0.2);
+        }
+        if (kind === 'router') for (let k = 0; k < 8; k++) box(g, 0.55, 0.45, 0.05, port, -2 + k * 0.8, y0 + gh / 2, front + 0.13);
+        if (kind === 'ups') { box(g, 3.2, 1.2, 0.05, screenMat('ups screen', 128, 48, (c, cw, ch) => { c.fillStyle = '#0a2a3a'; c.fillRect(0, 0, cw, ch); word('230 W', '#7fe0ff', 'bold 26px Helvetica, Arial, sans-serif')(c, cw, ch); }, 0.8), 5, y0 + gh / 2, front + 0.15); }
+        box(g, 0.14, 0.14, 0.04, led, -8.2, y0 + gh - 0.4, front + 0.16);
+      }
+    }
+    box(g, 1.8, 0.6, 0.8, darkPlastic(), 9.5, base + 1, 2.5);                                         // rear: PDU end and power cord out to the receptacle
+    // home run bundle: up the back right post, across, and down through the deck into the wall under the back edge
+    const bx = -6, bz = 1.5;
+    cyl(g, 1.0, base + railH - 6 - z0 + 12, cable, bx, (base + railH - 6 + z0 - 12) / 2, bz, 'y', 12);
+    box(g, 13, 2.0, 2.0, cable, bx + 6.5, base + railH - 6, bz);
+    cyl(g, 1.3, 1.2, darkPlastic(), bx, z0 + 0.3, bz, 'y', 16);                                      // grommet in the deck
+    return g;
+  },
   tote_stacks(s, it) {
     // 27 gal hardware store totes, stacked: black base tapering toward the bottom, a rim with end handles, a yellow snap lid with a
     // raised centre the next tote sits on. it.stacks = [[dx, dy, facing, count]] in plan feet from the item's anchor; each stack's
