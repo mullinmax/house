@@ -1191,7 +1191,7 @@ elif RUNS["north"].get("pantry_door") and PANTRY_STYLE in ("flush", "pocket", "s
     PANTRY_NOTES = {
         "flush": ("Pantry door, cabinet front", "A 1-3/4 in solid door dressed as a pair of tall shaker pantry doors, flush with the cabinet faces. It hinges on the west and swings into the kitchen, lying flat along the west wall when open. Nothing deep swings, so it clears the fridge and the wall."),
         "pocket": ("Pantry pocket door", "A shaker slab door in the wall opening that slides east into the wall behind the fridge. The wall is a 2x6 bearing wall, so the pocket needs a header sized by the builder."),
-        "shelf": ("Pantry spice rack Murphy door", "A shallow Murphy door made as a spice rack: jar shelves about 5 in deep, its face nearly flush with the fridge cabinet. It hinges at its back west corner and swings through the alcove and the wall opening into the pantry, so it never sweeps the kitchen (Maxwell's pick, 11/19/2026). The latch: push the gold lidded \"Open Sesame\" jar on the east side at hand height; it is fixed over a push-to-open catch."),
+        "shelf": ("Pantry spice rack Murphy door", "A shallow Murphy door made as a spice rack: jar shelves about 5 in deep, its face nearly flush with the fridge cabinet. It hinges on the west and swings out into the kitchen, parking against the west end panel (Maxwell's pick, 11/19/2026). The latch: push the gold lidded \"Open Sesame\" jar on the east side at hand height; it is fixed over a push-to-open catch."),
     }
     nm_, note_ = PANTRY_NOTES[PANTRY_STYLE]
     r = rec("door.pantry", "door", nm_, "interior", room="Kitchen",
@@ -1223,15 +1223,17 @@ elif RUNS["north"].get("pantry_door") and PANTRY_STYLE in ("flush", "pocket", "s
             nr_.box("Cabinet Wood", lx0, lx1, -0.34, -0.26, 0.03, phd - 0.07)
             shaker(nr_, r, lx0, lx1, 0.03, phd - 0.07, -0.26, "Cabinet Wood", "door", "R")
     else:
-        # spice rack Murphy door (Maxwell 11/19/2026): 5 in deep, its face nearly flush with the fridge cabinet. It hinges at its
-        # back west corner and swings north through the alcove and the wall opening into the pantry, parking in the
-        # opening's west side. Checked in plan: no corner crosses the wall outside the opening during the swing.
+        # spice rack Murphy door (Maxwell 11/19/2026): 5 in deep, its face nearly flush with the fridge cabinet. shelf_swing = "out"
+        # (Maxwell's pick): hinged at its front west corner, it swings out into the kitchen and parks along the west end panel;
+        # its back east corner clears the fridge panel by about 5/8 in. "in": hinged at the back west corner, it swings
+        # through the alcove and the wall opening into the pantry (checked in plan, no corner crosses the wall).
         sd = 0.42
         lx0, lx1 = px0 + 0.07, mx1 - 0.08                     # about 3 ft wide, 1 in clear of the fridge panel
         f1 = mdf + FRONT_T - 0.02                              # rack face, 1/4 in behind the cabinet faces
         f0 = f1 - sd
         lt = phd - 0.09                                        # it passes under the wood head of the 6-8 wall opening
-        lf = op(r, "door.pantry.leaf", nm_, "swing", nr_.at(lx0, f0) + (0,), angle=90)
+        out_ = RUNS["north"].get("shelf_swing", "out") == "out"     # Maxwell 11/19/2026: out into the kitchen, simpler hinges
+        lf = op(r, "door.pantry.leaf", nm_, "swing", nr_.at(lx0, f1 if out_ else f0) + (0,), angle=-100 if out_ else 90)
         with into(lf["parts"]):
             nr_.box("Cabinet Wood", lx0, lx1, f0, f0 + 0.06, 0.03, lt)                           # back
             for (b0, b1) in ((lx0, lx0 + 0.06), (lx1 - 0.06, lx1)):
