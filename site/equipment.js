@@ -1087,6 +1087,119 @@ const BUILD = {
     stack(2, 12, 4.2, 13, [0xe9e3d6, 0xdcd5c4], 11.4, S[5], 7.2);
     return g;
   },
+  chest_freezer(s, it) {
+    // A plain white chest freezer: rounded white cabinet, lid hinged along the long back edge, recessed handle on the front edge,
+    // thermostat dial and power light low on the front right, side vent. The lid is its own part so E or a tap lifts it.
+    const [w, h, d] = s, g = new THREE.Group();
+    const wht = mat('freezer white', 0xf1f1ee, 0.38, 0.05), liner = mat('freezer liner', 0xe2e4e3, 0.55, 0), gasket = mat('freezer gasket', 0x2a2b2c, 0.8, 0);
+    const lidT = 2.6, bh = h - lidT, wall = 2.2;
+    box(g, w - 1.2, 0.8, d - 1.2, blackMolded(), 0, 0.4, d / 2);                               // base and feet
+    column(g, w, 1.4, d, gasket, 0, 1.5, d / 2, 0.9);                                          // dark band at the floor
+    column(g, w, bh - 2.2, d, wht, 0, 2.2 + (bh - 2.2) / 2, d / 2, 0.9);                       // cabinet, solid below the cavity
+    // the cavity: liner walls inside the top, floor 9 in down, so an open lid shows an inside
+    const cav = 13;
+    box(g, w - 2 * wall, 0.3, d - 2 * wall, liner, 0, bh - cav, d / 2);
+    box(g, w - 2 * wall, cav - 0.2, 0.2, liner, 0, bh - cav / 2, wall + 0.1);
+    box(g, w - 2 * wall, cav - 0.2, 0.2, liner, 0, bh - cav / 2, d - wall - 0.1);
+    box(g, 0.2, cav - 0.2, d - 2 * wall, liner, -w / 2 + wall + 0.1, bh - cav / 2, d / 2);
+    box(g, 0.2, cav - 0.2, d - 2 * wall, liner, w / 2 - wall - 0.1, bh - cav / 2, d / 2);
+    const basket = mat('freezer basket', 0xdfe1e2, 0.4, 0.6);
+    for (let k = 0; k < 5; k++) box(g, (w - 2 * wall) / 2 - 0.6, 0.25, 0.25, basket, -(w - 2 * wall) / 4 + 0.3 - 0.5 + 1, bh - 1.4 - k * 1.3, d - wall - 0.6);   // hanging wire basket, front rails
+    box(g, 0.25, 6, d - 2 * wall - 1, basket, -0.4, bh - 4, d / 2);
+    // thermostat dial, power light, side vent
+    cyl(g, 1.1, 0.6, whitePlastic(), w / 2 - 3.2, 5.2, d + 0.3, 'z', 24);
+    box(g, 0.3, 1.2, 0.4, greyPlastic(), w / 2 - 3.2, 5.2, d + 0.7);
+    cyl(g, 0.22, 0.2, mat('freezer power led', 0x3fbf4a, 0.3, 0, { emissive: 0x3fbf4a, emissiveIntensity: 0.6 }), w / 2 - 5.6, 5.2, d + 0.1, 'z', 12);
+    for (let k = 0; k < 6; k++) box(g, 0.3, 0.35, 8, mat('vent slat', 0x3c3f42, 0.6), w / 2 + 0.05, 4 + k * 0.9, d / 2);
+    // lid: pivot on the back top edge, built around that line
+    const lid = new THREE.Group(); lid.name = 'lid';
+    column(lid, w, lidT - 0.6, d, wht, 0, 0.6 + (lidT - 0.6) / 2, d / 2, 0.9);
+    box(lid, w - 1.4, 0.6, d - 1.4, gasket, 0, 0.3, d / 2);                                    // magnetic gasket under the lid
+    box(lid, w - 2 * wall - 0.4, 0.4, d - 2 * wall - 0.4, liner, 0, 0.1, d / 2);               // lid liner, seen when it is up
+    box(lid, 9, 0.9, 1.0, greyPlastic(), 0, 0.9, d + 0.3);                                     // handle lip on the front edge
+    for (const x of [-w / 2 + 4, w / 2 - 4]) box(lid, 2.4, 1.6, 0.9, greyPlastic(), x, 0.2, -0.45);   // hinges on the back
+    lid.userData.hub = [0, bh, 0];
+    lid.userData.angle = -(it.lid_open || 80);
+    g.userData.lid = lid;
+    return g;
+  },
+  pantry_goods(s, it) {
+    // Food and supplies on the pantry shelves, for scale. it.shelves: {wall, face, run [plan ft], depth, tops, kinds}. The item sits at the
+    // pantry's northwest inside corner facing south, so local x = plan x and local z = plan y, in inches from that corner.
+    const g = new THREE.Group(), X0 = it.at[0], Y0 = it.at[1];
+    let seed = 23; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const paper = mat('flour bag paper', 0xf3efe4, 0.85, 0), kraft = mat('kraft paper', 0xb89466, 0.9, 0), card = mat('cardboard', 0xa9845a, 0.9, 0);
+    const burlap = mat('rice bag', 0xd8c9a3, 0.95, 0), jarGlass = mat('jar glass', 0xdfeeee, 0.05, 0.1, { transparent: true, opacity: 0.32 });
+    const tin = mat('can tin', 0xc9cccf, 0.3, 0.9), lidW = mat('jar lid wood', 0xb08a5c, 0.6, 0), towel = mat('paper towel', 0xfbfbf8, 0.95, 0);
+    const binM = mat('pantry bin', 0xeceae4, 0.5, 0), potato = mat('potato', 0x9c7a4c, 0.9, 0), onion = mat('onion', 0xb98a52, 0.7, 0);
+    const label = (text, bg, fg) => labelMat('pantry label ' + text + bg, 256, 128, (c, cw, ch) => {
+      c.fillStyle = bg; c.fillRect(0, 0, cw, ch); word(text, fg, 'bold 46px Helvetica, Arial, sans-serif')(c, cw, ch);
+    });
+    const CANS = [0xb3262a, 0x2e6b3a, 0xd8a022, 0x24508f, 0xe0e0d8, 0x7a2f6b];
+    const FILL = [0xe8d9a8, 0x8a4b2a, 0xf4f0e6, 0xd09a3c, 0x5a3a2a, 0x6f8f3a];
+    const BOX = [[0xd23a2e, 'CEREAL'], [0x2f62a8, 'OATS'], [0xf0c330, 'CRACKERS'], [0x2d7a4a, 'PASTA'], [0x7a4a2a, 'GRANOLA']];
+    // each maker puts one thing with its back-left-bottom near (x, 0, z) on the shelf and returns its width along the shelf
+    const put = {
+      bag25(sg, x, D) { const w = 15; box(sg, w, 5, Math.min(13, D - 1), paper, x + w / 2, 2.5, 0.5 + Math.min(13, D - 1) / 2); plate(sg, 8, 3, label('FLOUR 25 LB', '#f3efe4', '#1f3f78'), x + w / 2, 5.02, 0.5 + Math.min(13, D - 1) / 2, true); return w; },
+      rice(sg, x, D) { const w = 12; box(sg, w, 4.5, Math.min(14, D - 1), burlap, x + w / 2, 2.25, 0.5 + Math.min(14, D - 1) / 2); plate(sg, 7, 2.6, label('RICE 20 LB', '#d8c9a3', '#7a2a1c'), x + w / 2, 4.52, 0.5 + Math.min(14, D - 1) / 2, true); return w; },
+      water(sg, x, D) { const w = 16, dd = Math.min(10.5, D - 1); box(sg, w, 9.5, dd, mat('water case wrap', 0xcfe3ef, 0.2, 0, { transparent: true, opacity: 0.55 }), x + w / 2, 4.75, 0.5 + dd / 2);
+        for (let i = 0; i < 6; i++) for (let j = 0; j < 4; j++) if (j === 3 || i === 0 || i === 5) cyl(sg, 1.25, 8.6, mat('water bottle', 0x9fc6de, 0.1, 0, { transparent: true, opacity: 0.6 }), x + 1.4 + i * 2.65, 4.3, 0.5 + 1.3 + j * (dd - 2.6) / 3, 'y', 10);
+        return w; },
+      potatoes(sg, x, D) { const w = 13, dd = Math.min(12, D - 1); box(sg, w, 7, dd, mat('basket weave', 0x9a7a52, 0.9, 0), x + w / 2, 3.5, 0.5 + dd / 2);
+        for (let k = 0; k < 9; k++) { const m = new THREE.Mesh(new THREE.SphereGeometry(1.6, 10, 8), k % 3 ? potato : onion); m.scale.set(1.2, 0.85, 1); m.position.set(x + 2.2 + (k % 3) * 4.2 + rnd(), 7.3, 0.5 + 2.5 + Math.floor(k / 3) * (dd - 5) / 2); sg.add(m); }
+        return w; },
+      bin(sg, x, D) { const w = 10, dd = Math.min(14, D - 1); box(sg, w, 6.5, dd, binM, x + w / 2, 3.25, 0.5 + dd / 2);
+        plate(sg, 5, 1.6, label(['SNACKS', 'BAKING', 'TEA'][Math.floor(rnd() * 3)], '#ffffff', '#333333'), x + w / 2, 4.2, 0.5 + dd + 0.02); return w; },
+      can(sg, x, D) { const c = CANS[Math.floor(rnd() * CANS.length)], m = mat('can label ' + c.toString(16), c, 0.5, 0.1);
+        const rows = Math.max(1, Math.floor((D - 1) / 3.3));
+        for (let j = 0; j < rows; j++) { cyl(sg, 1.55, 4.0, m, x + 1.6, 2.2, D - 1.9 - j * 3.3, 'y', 18); cyl(sg, 1.5, 0.4, tin, x + 1.6, 0.2, D - 1.9 - j * 3.3, 'y', 18); cyl(sg, 1.5, 0.12, tin, x + 1.6, 4.26, D - 1.9 - j * 3.3, 'y', 18); }
+        return 3.3; },
+      jar(sg, x, D) { const r = 2.1, hh = 7 + Math.round(rnd() * 3), f = FILL[Math.floor(rnd() * FILL.length)];
+        cyl(sg, r - 0.15, hh * 0.75, mat('jar fill ' + f.toString(16), f, 0.95, 0), x + r, hh * 0.375 + 0.05, D - r - 1, 'y', 20);
+        cyl(sg, r, hh, jarGlass, x + r, hh / 2, D - r - 1, 'y', 20); cyl(sg, r + 0.05, 0.6, lidW, x + r, hh + 0.3, D - r - 1, 'y', 20);
+        return 2 * r + 0.6; },
+      flour(sg, x, D) { box(sg, 6, 10, 3.6, paper, x + 3, 5, D - 2.8); plate(sg, 4.6, 2, label('FLOUR', '#f3efe4', '#1f3f78'), x + 3, 5.5, D - 0.98); return 6.4; },
+      sugar(sg, x, D) { box(sg, 5.5, 8.5, 3.4, paper, x + 2.75, 4.25, D - 2.7); plate(sg, 4.2, 1.8, label('SUGAR', '#ffffff', '#1d5fae'), x + 2.75, 5, D - 0.98); return 5.9; },
+      box(sg, x, D) { const [c, t] = BOX[Math.floor(rnd() * BOX.length)], tall = t === 'PASTA' ? 8.5 : 11.5, wd = t === 'PASTA' ? 5.5 : 7.75;
+        box(sg, wd, tall, 2.8, mat('food box ' + t, c, 0.6, 0), x + wd / 2, tall / 2, D - 2.4);
+        plate(sg, wd - 1.4, 1.8, label(t, '#' + c.toString(16).padStart(6, '0'), '#ffffff'), x + wd / 2, tall * 0.62, D - 0.98); return wd + 0.5; },
+      mixer(sg, x, D) { const w = 9, z = D / 2, red = mat('mixer red', 0xa8242a, 0.25, 0.2);
+        box(sg, 8.5, 1.6, 13, red, x + w / 2, 0.8, z); box(sg, 4.5, 11, 4.5, red, x + w / 2, 6.5, z - 4.2);
+        column(sg, 6.5, 4.5, 12.5, red, x + w / 2, 12.4, z + 0.5, 2.2); cyl(sg, 3.6, 6, chrome(), x + w / 2, 4.6, z + 3, 'y', 24, 2.8);
+        return w + 2; },
+      towels(sg, x, D) { const n = D > 11 ? 2 : 1;
+        for (let i = 0; i < 3; i++) for (let j = 0; j < n; j++) cyl(sg, 2.7, 11, towel, x + 2.8 + i * 5.5, 5.5, D - 3 - j * 5.6, 'y', 18);
+        return 17; },
+      tp(sg, x, D) { const n = D > 11 ? 2 : 1; for (let i = 0; i < 3; i++) for (let j = 0; j < n; j++) for (let k = 0; k < 2; k++) cyl(sg, 2.3, 4.2, towel, x + 2.4 + i * 4.7, 2.1 + k * 4.25, D - 2.5 - j * 4.8, 'y', 16);
+        return 14.5; },
+    };
+    const MIX = {
+      bulk: ['bag25', 'rice', 'water', 'potatoes'], bins: ['bin', 'bin', 'bin', 'bin', 'bin', 'bin'], mixer: ['mixer', 'bin', 'jar', 'jar', 'jar'],
+      baking: ['flour', 'flour', 'sugar', 'sugar', 'jar', 'jar', 'flour', 'jar'], cans: ['can'], jars: ['jar'], boxes: ['box'], paper: ['towels', 'tp', 'towels', 'tp'],
+    };
+    const IN_ = 12;
+    for (const sh of it.shelves) {
+      const [a0, a1] = sh.run, len = (a1 - a0) * IN_;
+      sh.tops.forEach((top, i) => {
+        const sg = new THREE.Group();
+        if (sh.wall === 'N') { sg.position.set(((a0 - X0) * IN_), top, (sh.face - Y0) * IN_); }
+        else if (sh.wall === 'W') { sg.position.set((sh.face - X0) * IN_, top, (a1 - Y0) * IN_); sg.rotation.y = Math.PI / 2; }
+        else { sg.position.set((sh.face - X0) * IN_, top, (a0 - Y0) * IN_); sg.rotation.y = -Math.PI / 2; }
+        g.add(sg);
+        const list = MIX[sh.kinds[i]] || ['box'];
+        let x = 1 + rnd() * 2, k = 0;
+        while (true) {
+          const kind = list[k % list.length];
+          const probe = new THREE.Group(), w = put[kind](probe, x, sh.depth);
+          if (x + w > len - 1) break;
+          sg.add(...probe.children);
+          x += w + 0.4 + (rnd() < 0.15 ? 4 + rnd() * 6 : rnd() * 0.8);     // a few gaps, as on a real shelf
+          k++;
+        }
+      });
+    }
+    return g;
+  },
   car(s, it) { return buildCar(it); },                 // Tesla Model Y and Honda Insight, in vehicles.js
   wall_connector(s) { return buildWallConnector(s); },
   generic(s) {
@@ -1298,6 +1411,11 @@ export function buildEquipment(data) {
     if (rotor) {                     // a ceiling fan's blades stay their own mesh so they can turn (E or a tap, like a door)
       const r = bake(rotor); r.name = it.id + ' blades'; r.position.set(...rotor.userData.hub);
       r.userData.operable = 'spin'; obj.children[0].add(r);
+    }
+    const lid = built.userData.lid;
+    if (lid) {                       // a chest freezer lid: its own mesh, swung about its back edge (local x) by E or a tap
+      const l = bake(lid); l.name = it.id + ' lid'; l.position.set(...lid.userData.hub);
+      Object.assign(l.userData, { operable: 'swing', axis: 'x', open_angle: lid.userData.angle }); obj.children[0].add(l);
     }
     obj.name = it.id;
     obj.traverse((o) => { o.userData.equipId = it.id; if (['fans', 'electrical', 'lowvolt', 'plantings'].includes(it.layer) || it.builder === 'drive') o.userData.pass = true; });
