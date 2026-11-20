@@ -2154,7 +2154,7 @@
     6
    ],
    "at": [
-    5.6741666666666655,
+    5.137083333333333,
     23.15,
     12.58125
    ],
@@ -2182,9 +2182,9 @@
     ],
     "notes": [
      "Maxwell, 11/20/2026: limit how much air the litter box exhaust pulls from the utility room to something reasonable. This replaces the hand damper, which only set the flow at one fan speed: on boost the branch would have taken about 50 CFM. The model and exact flow ratings are to be confirmed when ordering. ASSUMED position.",
-     "Install it with the arrow in the direction of airflow (toward the ERV) and keep it a few duct diameters from the tee."
+     "Install it with the arrow in the direction of airflow (toward the ERV)."
     ],
-    "placement": "Attic, on the litter box exhaust 1-1/2 ft before it joins the bath exhaust main."
+    "placement": "Attic, on the litter box exhaust between the bath exhaust main and the drop to the utility room."
    }
   },
   {
@@ -2201,7 +2201,7 @@
     18
    ],
    "at": [
-    9.15,
+    7.92,
     23.032666666666668,
     0
    ],
@@ -2215,17 +2215,21 @@
     "specs": [
      [
       "Where",
-      "Utility room north wall, east of the pressure tank, 2 in off the wall, about 2-1/2 ft west of the hall door"
+      "Utility room north wall, right beside the pressure tank, 2 in off the wall, about 3 ft west of the hall door"
      ],
      [
       "Exhaust",
-      "The 10 x 4 in exhaust grille is right behind it, just above the back rim, pulling 20 CFM to the ERV"
+      "The ceiling exhaust grille is about 2 ft west of it, pulling 20 CFM to the ERV"
+     ],
+     [
+      "Cat's way in",
+      "The flap in the utility room door"
      ]
     ],
     "notes": [
-     "Placeholder for where the cat's litter box goes (Maxwell, 11/20/2026). The spot keeps it out of the walkway from the door to the tanks and the manifolds, away from the water heater's noise and clear of the hall door, which swings out into the hall. Any box works as long as its back sits against the grille."
+     "Placeholder for where the cat's litter box goes (Maxwell, 11/20/2026: it can go anywhere, the air comes in under the door and through the cat flap). Shown as close to the exhaust grille as it fits, which helps: the nearer the box is to the grille, the less the room smells. It stays out of the walkway from the door to the tanks and the manifolds and away from the water heater."
     ],
-    "placement": "Utility room, against the north wall, centred on the exhaust grille."
+    "placement": "Utility room, against the north wall, beside the pressure tank."
    }
   },
   {
@@ -22170,42 +22174,6 @@
    ]
   },
   {
-   "id": "ex_litter_stack",
-   "info_of": "ex_litter",
-   "type": "exhaust",
-   "shape": "rect",
-   "size": [
-    6,
-    2.5
-   ],
-   "points": [
-    [
-     9.15,
-     22.637,
-     1.05
-    ],
-    [
-     9.15,
-     22.637,
-     9.494791666666666
-    ]
-   ],
-   "grilles": [
-    {
-     "at": [
-      9.15,
-      22.887,
-      1.25
-     ],
-     "size": [
-      10,
-      4
-     ],
-     "wall": "S"
-    }
-   ]
-  },
-  {
    "id": "ex_litter",
    "category": "Ventilation",
    "system": "hvac.exhaust",
@@ -22214,17 +22182,12 @@
    "size": 4,
    "points": [
     [
-     9.15,
-     22.637,
-     9.494791666666666
-    ],
-    [
-     9.15,
+     6.1,
      23.15,
-     9.494791666666666
+     9.0
     ],
     [
-     9.15,
+     6.1,
      23.15,
      12.760416666666666
     ],
@@ -22237,13 +22200,14 @@
    "name": "Litter box exhaust",
    "room": "Utility",
    "info": {
-    "model": "4 in round exhaust, 20 CFM continuous, from a 10 x 4 in low filter grille behind the litter box",
+    "model": "4 in round exhaust, 20 CFM continuous, from a 6 x 6 in ceiling filter grille by the litter box",
     "notes": [
-     "A slow, steady 20 CFM pulled from right behind the litter box, all the time, so the smell is taken at the box and goes outdoors with the bath air (Maxwell, 11/20/2026, after a video where a small ERV pickup at a litter box kept the room from ever smelling). The utility room is given about 18 CFM of supply (M-10) and has a solid door, so pulling 20 out keeps it slightly under suction: a little air comes in through the transfer grille and under the door and none leaves the room any other way. Before this the room's air, litter smell and all, went up the transfer grille into the attic and from there back into the return.",
-     "Sizing: the video's pickup was about 5 CFM, a computer fan's worth. 20 CFM is used here so the room stays under suction against its supply. If the room's supply is ever cut back, swap the insert for a 15 CFM one. At 20 CFM a 4 in duct is quiet (about 230 ft per minute) and the stack in the wall moves the air at under 200.",
+     "A slow, steady 20 CFM pulled out of the utility room, all the time, from a ceiling grille next to the litter box, so the smell goes outdoors with the bath air (Maxwell, 11/20/2026, after a video where a small ERV pickup at a litter box kept the room from ever smelling). The utility room is given about 18 CFM of supply (M-10) and has a solid door with a cat flap, so pulling 20 out keeps it slightly under suction: a little air comes in under the door, through the flap and down the transfer grille, and none leaves the room any other way. Before this the room's air, litter smell and all, went up the transfer grille into the attic and from there back into the return.",
+     "Pickup trade off: a grille up at the ceiling clears the room rather than catching the smell at the box, so with the door shut the room itself can smell a little for a while after the cat uses it; nothing escapes to the rest of the house because the room is under suction. The closer the box is to the grille the better. If that is not enough, a low grille right behind the box catches the smell at the source (the first version of this duct did that with a stack in the north wall).",
+     "Sizing: the video's pickup was about 5 CFM, a computer fan's worth. 20 CFM is used here so the room stays under suction against its supply, about 2 air changes an hour in this room. If the room's supply is ever cut back, swap the insert for a 15 CFM one. At 20 CFM a 4 in duct is quiet (about 230 ft per minute).",
      "ERV balance: the three bath grilles keep their 20 CFM each (the code minimum), so the ERV's continuous setting goes up from about 65 to 80 CFM, which also brings in 80 CFM of fresh air (about 75 is the house's ventilation need). No bath grille needs trimming. On boost every branch would rise together and a plain damper would let this one take roughly 50 of the unit's 210 CFM. The constant airflow regulator holds it at 20 whatever the fan does, so the bathrooms keep their full boost, about 190 (Maxwell, 11/20/2026: limit the utility room draw to something reasonable).",
      "An ERV core hands some moisture back to the incoming air and a trace of odour can ride along with it. At 20 CFM out of 80, diluted with the bath air, that should not be noticeable. If it ever is, this branch can be split off to its own small fan and wall cap.",
-     "Clash checks: the stack is in one stud bay (no studs, wall junctions or the door header), the 4 in round is between a truss and the study return in the floor trusses, and it crosses no trusses. Stud positions are the typical layout until the wall is measured. ASSUMED route and position."
+     "Clash checks: the drop is in one truss bay and crosses no trusses. ASSUMED route and position."
     ],
     "specs": [
      [
@@ -22252,11 +22216,11 @@
      ],
      [
       "Pickup",
-      "10 x 4 in filter grille in the north wall, centre 15 in off the floor, just above the box's back rim. A washable filter behind it keeps litter dust out of the ERV"
+      "6 x 6 in ceiling grille at the north end of the room, over the pressure tank and about 2 ft from the litter box. A washable filter behind it keeps litter dust out of the ERV"
      ],
      [
       "Duct",
-      "6 x 2-1/2 in stack up the stud bay, then 4 in round: 6 in south in the floor trusses, up through the deck about 2-1/2 ft, then straight west about 5 ft over the return plenum"
+      "4 in round: straight up through one truss bay and the deck, about 3-1/2 ft, then 2 ft west through the flow limiter"
      ],
      [
       "Into",
@@ -22264,11 +22228,24 @@
      ],
      [
       "Limiter",
-      "4 in constant airflow regulator, 20 CFM, on the attic run about 1-1/2 ft before the tee. No hand damper to set"
+      "4 in constant airflow regulator, 20 CFM, right before the drop. No hand damper to set"
      ]
     ],
-    "placement": "Utility room north wall, behind the litter box, up into the attic over the utility room."
+    "placement": "Utility room ceiling, north end over the pressure tank, up into the attic over the heat pump's north east corner."
    },
+   "grilles": [
+    {
+     "at": [
+      6.1,
+      23.15,
+      8.98
+     ],
+     "size": [
+      6,
+      6
+     ]
+    }
+   ],
    "cfm": 20
   },
   {
