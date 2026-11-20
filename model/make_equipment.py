@@ -588,8 +588,8 @@ items += [
                "down the supply trunk to every register, so it works without the heat pump running. Whole house ventilation is about 75 CFM for this size and bedroom count, "
                "and a full boost is about 190 CFM, inside this unit's 210. Andy should confirm the size. The range hood cannot connect here, it has its own duct outdoors.",
                "Litter box exhaust (Maxwell, 11/20/2026): a fourth pickup, 20 CFM from a low grille behind the litter box in the utility room. The bath grilles keep their 20 each, "
-               "so the continuous setting goes from about 65 to 80 CFM (fresh air rises with it, the unit stays balanced). With a 20 CFM constant airflow insert on that branch, boost is unchanged; "
-               "with only a hand damper the litter branch would take about 50 of the 210 on boost."],
+               "so the continuous setting goes from about 65 to 80 CFM (fresh air rises with it, the unit stays balanced). A 20 CFM constant airflow regulator on that branch "
+               "holds it at 20 on boost too, so boost is unchanged for the bathrooms."],
         placement="In line with the heat pump, just south of it, hung at the height of its top. Andy drew it west of HP-01.")),
 ]
 
@@ -951,31 +951,34 @@ exhaust("ex_litter", "Litter box exhaust", 4, [[LX, LWY, ZT], [LX, LRY, ZT], [LX
 _lx = ducts[-1]
 _lx["cfm"] = LIT_CFM
 _lx["info"].update(model=f"4 in round exhaust, {LIT_CFM} CFM continuous, from a 10 x 4 in low filter grille behind the litter box", specs=[
-    ["Airflow", f"{LIT_CFM} CFM all the time, set with the hand damper in the attic. On boost it rises with the bath grilles unless a constant airflow insert is used (notes)"],
+    ["Airflow", f"Held at {LIT_CFM} CFM, on the continuous setting and on boost, by a constant airflow regulator in the duct (Maxwell, 11/20/2026)"],
     ["Pickup", "10 x 4 in filter grille in the north wall, centre 15 in off the floor, just above the box's back rim. A washable filter behind it keeps litter dust out of the ERV"],
     ["Duct", "6 x 2-1/2 in stack up the stud bay, then 4 in round: 6 in south in the floor trusses, up through the deck, over the main return trunk, south and west into the powder exhaust riser"],
     ["Into", "The ERV's stale air side, through the powder exhaust riser, about 1 ft before the unit"],
-    ["Damper", "Hand balancing damper on the attic run, about 1-1/2 ft before the tee"]])
+    ["Limiter", f"4 in constant airflow regulator, {LIT_CFM} CFM, on the attic run about 1-1/2 ft before the tee. No hand damper to set"]])
 _lx["info"]["notes"] += [
-    "Sizing: the video's pickup was about 5 CFM, a computer fan's worth. 20 CFM is used here so the room stays under suction against its supply; turn the damper down "
-    "toward 10 if the room's supply is cut back. At 20 CFM a 4 in duct is quiet (about 230 ft per minute) and the stack in the wall moves the air at under 200.",
+    "Sizing: the video's pickup was about 5 CFM, a computer fan's worth. 20 CFM is used here so the room stays under suction against its supply. "
+    "If the room's supply is ever cut back, swap the insert for a 15 CFM one. At 20 CFM a 4 in duct is quiet (about 230 ft per minute) and the stack in the wall moves the air at under 200.",
     "ERV balance: the three bath grilles keep their 20 CFM each (the code minimum), so the ERV's continuous setting goes up from about 65 to 80 CFM, which "
     "also brings in 80 CFM of fresh air (about 75 is the house's ventilation need). No bath grille needs trimming. "
-    "On boost every branch rises together, so with only a hand damper this one would take roughly 50 of the unit's 210 CFM and the bathrooms about 160 instead of 190. "
-    "A 4 in constant airflow regulator set to 20 CFM (a drop in insert, Aldes makes them, about $30 to $50) holds this branch at 20 whatever the fan does, "
-    "so the boost stays in the bathrooms. Recommended in place of, or with, the hand damper.",
+    "On boost every branch would rise together and a plain damper would let this one take roughly 50 of the unit's 210 CFM. "
+    "The constant airflow regulator holds it at 20 whatever the fan does, so the bathrooms keep their full boost, about 190 (Maxwell, 11/20/2026: limit the utility room draw to something reasonable).",
     "An ERV core hands some moisture back to the incoming air and a trace of odour can ride along with it. At 20 CFM out of 80, diluted with the bath air, that should not be noticeable. "
     "If it ever is, this branch can be split off to its own small fan and wall cap.",
     "Clash checks: the stack is in one stud bay (no studs, wall junctions or the door header), the 4 in round is between a truss and the study return in the floor trusses, "
     "and it crosses no trusses. Stud positions are the typical layout until the wall is measured. ASSUMED route and position."]
 _lx["info"]["placement"] = "Utility room north wall, behind the litter box, up into the attic over the utility room."
-LD_X = 4.9 + 0.17 + 1.5                           # hand damper on the attic run, 1-1/2 ft before the tee: reached from the heat pump's east side
-items.append(dict(id="litter_damper", name="Litter box exhaust damper", category="Ventilation", system="hvac.exhaust", room="Attic", layer="ducts",
-    builder="hand_damper", size=[4, 7], at=[LD_X, LTY, LZ - 2 / 12 - 0.15 / 12], facing=90,
-    info=dict(model="4 in round manual balancing damper with a locking quadrant handle", price="About $10 to $20",
-        specs=[["Set to", f"{LIT_CFM} CFM at the litter grille, with the ERV on its continuous setting"], ["Reach", "From the attic deck east of the heat pump, about 1-1/2 ft up"],
-               ["Upgrade", "A 20 CFM constant airflow regulator in the duct holds the flow on boost too, so the bathrooms keep their boost air"]],
-        notes=["Balancing damper for the litter box exhaust (Maxwell, 11/20/2026). Set once at commissioning, then locked. ASSUMED position."],
+LD_X = 4.9 + 0.17 + 1.5                           # flow limiter on the attic run, 1-1/2 ft before the tee: reached from the heat pump's east side
+items.append(dict(id="litter_flow_limiter", name="Litter box exhaust flow limiter", category="Ventilation", system="hvac.exhaust", room="Attic", layer="ducts",
+    builder="flow_regulator", size=[4, 6], at=[LD_X, LTY, LZ - 2 / 12 - 0.15 / 12], facing=90,
+    info=dict(model=f"4 in constant airflow regulator, {LIT_CFM} CFM (for example Aldes CAR-II), in a short galvanized sleeve", price="About $30 to $50 for the insert",
+        specs=[["Holds", f"{LIT_CFM} CFM through the litter box exhaust whether the ERV is on continuous or boost"],
+               ["How", "A spring loaded flap inside closes down as the suction rises, so the airflow stays put. No setting or balancing"],
+               ["Works across", "About 0.2 to 0.8 in of water of suction (check the maker's sheet). Below that it passes a little less than its rating, which is fine on the low setting"],
+               ["Reach", "From the attic deck east of the heat pump, about 1-1/2 ft up. Slides out of its sleeve for a look or a swap"]],
+        notes=["Maxwell, 11/20/2026: limit how much air the litter box exhaust pulls from the utility room to something reasonable. This replaces the hand damper, "
+               "which only set the flow at one fan speed: on boost the branch would have taken about 50 CFM. The model and exact flow ratings are to be confirmed when ordering. ASSUMED position.",
+               "Install it with the arrow in the direction of airflow (toward the ERV) and keep it a few duct diameters from the tee."],
         placement="Attic, on the litter box exhaust just east of the powder exhaust riser.")))
 LB = [24, 12, 18]                                  # a large open high sided litter box, W x H x D in (generic, for scale)
 items.append(dict(id="litter_box", name="Cat litter box", category="Pets", system="household", room="Utility", layer="storage",

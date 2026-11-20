@@ -2136,22 +2136,22 @@
      "One fan pulls from all three bathrooms, so the whole exhaust duct is under suction and air cannot be pushed from one bathroom into another. Backdraft dampers are for separate fans that share a duct. Each branch gets a balancing damper to set its airflow.",
      "Set out to the Panasonic installation instructions the first unit came with (Maxwell, 11/18/2026); check them against Broan's: the two outdoor hoods are more than 10 ft apart, every duct connection has 2 ft or more of straight run before its first elbow, the outdoor ducts are insulated, the unit hangs level on chains inside the conditioned attic, and the intake is well over 6 ft from the dryer and range hood outlets.",
      "A backdraft damper in the fresh air duct stops the heat pump's blower from pushing supply air backward through the ERV. With the blower off, the ERV's own fan still sends the fresh air down the supply trunk to every register, so it works without the heat pump running. Whole house ventilation is about 75 CFM for this size and bedroom count, and a full boost is about 190 CFM, inside this unit's 210. Andy should confirm the size. The range hood cannot connect here, it has its own duct outdoors.",
-     "Litter box exhaust (Maxwell, 11/20/2026): a fourth pickup, 20 CFM from a low grille behind the litter box in the utility room. The bath grilles keep their 20 each, so the continuous setting goes from about 65 to 80 CFM (fresh air rises with it, the unit stays balanced). With a 20 CFM constant airflow insert on that branch, boost is unchanged; with only a hand damper the litter branch would take about 50 of the 210 on boost."
+     "Litter box exhaust (Maxwell, 11/20/2026): a fourth pickup, 20 CFM from a low grille behind the litter box in the utility room. The bath grilles keep their 20 each, so the continuous setting goes from about 65 to 80 CFM (fresh air rises with it, the unit stays balanced). A 20 CFM constant airflow regulator on that branch holds it at 20 on boost too, so boost is unchanged for the bathrooms."
     ],
     "placement": "In line with the heat pump, just south of it, hung at the height of its top. Andy drew it west of HP-01."
    }
   },
   {
-   "id": "litter_damper",
-   "name": "Litter box exhaust damper",
+   "id": "litter_flow_limiter",
+   "name": "Litter box exhaust flow limiter",
    "category": "Ventilation",
    "system": "hvac.exhaust",
    "room": "Attic",
    "layer": "ducts",
-   "builder": "hand_damper",
+   "builder": "flow_regulator",
    "size": [
     4,
-    7
+    6
    ],
    "at": [
     6.57,
@@ -2160,24 +2160,29 @@
    ],
    "facing": 90,
    "info": {
-    "model": "4 in round manual balancing damper with a locking quadrant handle",
-    "price": "About $10 to $20",
+    "model": "4 in constant airflow regulator, 20 CFM (for example Aldes CAR-II), in a short galvanized sleeve",
+    "price": "About $30 to $50 for the insert",
     "specs": [
      [
-      "Set to",
-      "20 CFM at the litter grille, with the ERV on its continuous setting"
+      "Holds",
+      "20 CFM through the litter box exhaust whether the ERV is on continuous or boost"
+     ],
+     [
+      "How",
+      "A spring loaded flap inside closes down as the suction rises, so the airflow stays put. No setting or balancing"
+     ],
+     [
+      "Works across",
+      "About 0.2 to 0.8 in of water of suction (check the maker's sheet). Below that it passes a little less than its rating, which is fine on the low setting"
      ],
      [
       "Reach",
-      "From the attic deck east of the heat pump, about 1-1/2 ft up"
-     ],
-     [
-      "Upgrade",
-      "A 20 CFM constant airflow regulator in the duct holds the flow on boost too, so the bathrooms keep their boost air"
+      "From the attic deck east of the heat pump, about 1-1/2 ft up. Slides out of its sleeve for a look or a swap"
      ]
     ],
     "notes": [
-     "Balancing damper for the litter box exhaust (Maxwell, 11/20/2026). Set once at commissioning, then locked. ASSUMED position."
+     "Maxwell, 11/20/2026: limit how much air the litter box exhaust pulls from the utility room to something reasonable. This replaces the hand damper, which only set the flow at one fan speed: on boost the branch would have taken about 50 CFM. The model and exact flow ratings are to be confirmed when ordering. ASSUMED position.",
+     "Install it with the arrow in the direction of airflow (toward the ERV) and keep it a few duct diameters from the tee."
     ],
     "placement": "Attic, on the litter box exhaust just east of the powder exhaust riser."
    }
@@ -22060,15 +22065,15 @@
     "model": "4 in round exhaust, 20 CFM continuous, from a 10 x 4 in low filter grille behind the litter box",
     "notes": [
      "A slow, steady 20 CFM pulled from right behind the litter box, all the time, so the smell is taken at the box and goes outdoors with the bath air (Maxwell, 11/20/2026, after a video where a small ERV pickup at a litter box kept the room from ever smelling). The utility room is given about 18 CFM of supply (M-10) and has a solid door, so pulling 20 out keeps it slightly under suction: a little air comes in through the transfer grille and under the door and none leaves the room any other way. Before this the room's air, litter smell and all, went up the transfer grille into the attic and from there back into the return.",
-     "Sizing: the video's pickup was about 5 CFM, a computer fan's worth. 20 CFM is used here so the room stays under suction against its supply; turn the damper down toward 10 if the room's supply is cut back. At 20 CFM a 4 in duct is quiet (about 230 ft per minute) and the stack in the wall moves the air at under 200.",
-     "ERV balance: the three bath grilles keep their 20 CFM each (the code minimum), so the ERV's continuous setting goes up from about 65 to 80 CFM, which also brings in 80 CFM of fresh air (about 75 is the house's ventilation need). No bath grille needs trimming. On boost every branch rises together, so with only a hand damper this one would take roughly 50 of the unit's 210 CFM and the bathrooms about 160 instead of 190. A 4 in constant airflow regulator set to 20 CFM (a drop in insert, Aldes makes them, about $30 to $50) holds this branch at 20 whatever the fan does, so the boost stays in the bathrooms. Recommended in place of, or with, the hand damper.",
+     "Sizing: the video's pickup was about 5 CFM, a computer fan's worth. 20 CFM is used here so the room stays under suction against its supply. If the room's supply is ever cut back, swap the insert for a 15 CFM one. At 20 CFM a 4 in duct is quiet (about 230 ft per minute) and the stack in the wall moves the air at under 200.",
+     "ERV balance: the three bath grilles keep their 20 CFM each (the code minimum), so the ERV's continuous setting goes up from about 65 to 80 CFM, which also brings in 80 CFM of fresh air (about 75 is the house's ventilation need). No bath grille needs trimming. On boost every branch would rise together and a plain damper would let this one take roughly 50 of the unit's 210 CFM. The constant airflow regulator holds it at 20 whatever the fan does, so the bathrooms keep their full boost, about 190 (Maxwell, 11/20/2026: limit the utility room draw to something reasonable).",
      "An ERV core hands some moisture back to the incoming air and a trace of odour can ride along with it. At 20 CFM out of 80, diluted with the bath air, that should not be noticeable. If it ever is, this branch can be split off to its own small fan and wall cap.",
      "Clash checks: the stack is in one stud bay (no studs, wall junctions or the door header), the 4 in round is between a truss and the study return in the floor trusses, and it crosses no trusses. Stud positions are the typical layout until the wall is measured. ASSUMED route and position."
     ],
     "specs": [
      [
       "Airflow",
-      "20 CFM all the time, set with the hand damper in the attic. On boost it rises with the bath grilles unless a constant airflow insert is used (notes)"
+      "Held at 20 CFM, on the continuous setting and on boost, by a constant airflow regulator in the duct (Maxwell, 11/20/2026)"
      ],
      [
       "Pickup",
@@ -22083,8 +22088,8 @@
       "The ERV's stale air side, through the powder exhaust riser, about 1 ft before the unit"
      ],
      [
-      "Damper",
-      "Hand balancing damper on the attic run, about 1-1/2 ft before the tee"
+      "Limiter",
+      "4 in constant airflow regulator, 20 CFM, on the attic run about 1-1/2 ft before the tee. No hand damper to set"
      ]
     ],
     "placement": "Utility room north wall, behind the litter box, up into the attic over the utility room."

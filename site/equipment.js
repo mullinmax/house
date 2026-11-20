@@ -414,6 +414,16 @@ const BUILD = {
     cyl(g, 0.32, 0.5, darkPlastic(), -0.6, 2 * r + 0.45, L / 2, 'y', 12);              // wing nut lock
     return g;
   },
+  flow_regulator(s) {              // constant airflow regulator: galvanized sleeve along local z, bead rings, the white insert's rim and orange flap showing at the inlet, flow arrow label
+    const [dia, L] = s, g = new THREE.Group(), r = dia / 2 + 0.12;
+    cyl(g, r, L, galv(), 0, r, L / 2, 'z', 24);
+    for (const z of [0.9, L - 0.9]) ring(g, r, 0.14, galv(), 0, r, z, 'z', 24);
+    ring(g, r - 0.35, 0.22, whitePlastic(), 0, r, 0.15, 'z', 24);                            // insert rim at the inlet end
+    box(g, dia * 0.55, 0.12, dia * 0.5, mat('regulator flap', 0xe0752a, 0.5, 0.05), 0, r, 0.6).rotation.x = 0.5;   // flap inside
+    box(g, 2.6, 0.06, 1.2, whitePlastic(), 0, 2 * r + 0.03, L / 2);                        // label with the flow arrow
+    box(g, 1.6, 0.08, 0.25, darkPlastic(), 0, 2 * r + 0.08, L / 2);
+    return g;
+  },
   litter_box(s, it = {}) {         // open, high sided cat litter box on a mat: grey plastic tub with a lower entry at the front, litter inside
     const [w, h, d] = s, g = new THREE.Group(), t = 0.35;
     const tub = mat('litter box grey', 0x8d969c, 0.55, 0.02), litter = mat('cat litter', 0xcbbfa6, 0.95, 0), matM = mat('litter mat', 0x3a3d40, 0.9, 0);
