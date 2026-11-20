@@ -639,6 +639,9 @@ def nearest_label(x, y):
 
 
 def door_head_near(x, y):
+    for hx, hy, hh in C.get("framing", {}).get("door_heads", []):     # heads set to clear the as-built headers
+        if math.hypot(hx - x, hy - y) < 1.5:
+            return hh
     lab = nearest_label(x, y)
     return 8.0 if lab is None else (8.0 if lab.endswith("80") else 6.67)
 
@@ -1026,7 +1029,7 @@ if FR.get("enabled", True):
         hid = f"framing.header.{len(FRAMING_META['headers'])}"
         FRAMING_META["headers"].append(dict(id=hid, name=where, box=[round(v, 4) for v in hbox], built=built, photo=photo,
                                             ro=[r0, r1], axis=op_["axis"], kings=[k0, k1], band=[t0, t1], top=ztop + NTOP * SW,
-                                            confidence=spec.get("confidence", "typical"), wall=op_["wall"]))
+                                            confidence=spec.get("confidence", "typical"), wall=op_["wall"], head=op_["head"], gap=[round(op_["g0"], 4), round(op_["g1"], 4)]))
         if not built:
             continue
         rec(hid, "framing", f"Door header {where}".strip(), "framing",
@@ -1700,7 +1703,7 @@ CHK = HOOD.get("cheek_drop_in", 6) / 12           # the south cheek hangs this f
 WT = 0.06
 VIDEO = ["Video Maxwell picked: kitchen hood design", "https://www.youtube.com/watch?v=Qs4wis82NAE"]
 rec("kitchen.hood", "fixture", "Range hood", "interior", room="Kitchen",
-    info=dict(model="Custom white oak hood around a power pack insert with a heat sensor (Broan PM600SSV suggested)",
+    info=dict(model="Hidden hood: fake white oak cabinet doors over a power pack insert with a heat sensor (Broan PM600SSV suggested)",
               specs=[["Width", f"{ftin(HU1 - HU0)} (cooktop 30-11/16 in)"], ["Depth", f"{ftin(HD_)}, covers the front burners"],
                      ["Underside", f"{ftin(HB)} above the floor, {round((HB - CTR_Z) * 12)} in above the cooktop"],
                      ["Sides", "Oven tower on the north, a wood cheek on the south that hangs 6 in lower"],
@@ -1712,7 +1715,9 @@ rec("kitchen.hood", "fixture", "Range hood", "interior", room="Kitchen",
                      "Nothing inside the hood: no shelf, oil or spices. Anything in there gets coated in grease within a week.",
                      "No microwave hood. The microwave lives elsewhere.",
                      "The underside is 27 in over the cooktop. The insert allows 24 in. Mock it up in cardboard first to check head height for the tallest cook.",
-                     "White oak to match the cabinets, lined with stainless inside. Hide the drywall and walls layers to see the duct."]))
+                     "Hidden behind two fixed shaker doors that match the kitchen, with the oven tower's crown carried across (Maxwell, 11/20/2026). "
+                     "The doors do not open: behind them is the capture box, lined with stainless. A plain drywall chase above the crown hides the duct.",
+                     "Hide the drywall and walls layers to see the duct."]))
 # Four looks over the same capture box (Maxwell, 11/20/2026: "very boxy", try 3 or 4 designs). Every style keeps the
 # same 54 x 24 in footprint, the 27 in underside, the 24 in tall box and the south cheek, so the airflow is the same.
 #   box       plain white oak box and chimney (first version)
@@ -1720,6 +1725,7 @@ rec("kitchen.hood", "fixture", "Range hood", "interior", room="Kitchen",
 #   oak       white oak with a 45 degree chamfer into a tapered chimney and black steel straps
 #   cabinets  painted hood (island green) with shallow white oak glass door cabinets above it, lit inside
 #   steel     blackened steel, sloped front, satin brass band along the bottom edge, slim steel chimney
+#   doors     hidden: fake white oak shaker doors and the oven tower crown carried across, drywall chase above (Maxwell's pick)
 import os as _os
 HSTYLE = _os.environ.get("HOOD_STYLE") or HOOD.get("style", "box")
 MATERIALS.setdefault("Hood Plaster", dict(color="#E9E2D4", rough=0.9, map="plaster.jpg", tile=1.2))
@@ -1747,7 +1753,25 @@ def pucks(z, d=HD_ / 2, n=3):                      # LED puck lights in the unde
         uu = HU0 + (HU1 - HU0) * (k + 0.5) / n
         cyl("Lamp Glass", WX0 + d, uu, z - 0.03, z - 0.01, 0.12, 0.12)
 
-if HSTYLE == "plaster":
+if HSTYLE == "doors":
+    # Hidden hood (Maxwell, 11/20/2026: "fake cabinet doors, the best hidden way"). From the room it reads as one more white
+    # oak upper: two shaker fronts that match the kitchen, the oven tower's crown carried straight across, and an end panel on
+    # the south side that drops 6 in lower. The doors are fixed. Behind them is the capture box, taller than before because it
+    # now runs right up under the crown, with the power pack at its top, a stainless lining and LED lights in the underside.
+    # Above the crown the duct rises in a plain drywall chase, painted like the wall, to the exit high in the west wall.
+    rdoor = BYID["kitchen.hood"]
+    CRN0, CRN1 = TALL - 0.25, TALL                 # the crown band, level with the oven tower's
+    wr.box(K_WOOD := "Cabinet Wood", HU0, HU1, 0, HD_, CRN0 - WT, CRN0)                                 # top of the box
+    wr.box(K_WOOD, HU0, HU1 - WT, HD_ - WT, HD_, HB, CRN0 - WT)                                         # face frame behind the doors
+    wr.box(K_WOOD, HU1 - WT, HU1, 0, HD_ + FRONT_T, HB - CHK, CRN0)                                      # south end panel
+    um = (HU0 + HU1 - WT) / 2
+    shaker(wr, rdoor, HU0, um, HB, CRN0, HD_, K_WOOD, "door", "L")
+    shaker(wr, rdoor, um, HU1 - WT, HB, CRN0, HD_, K_WOOD, "door", "R")
+    wr.box(K_WOOD, HU0, HU1 + 0.05, 0, BASE_D + 0.22, CRN0, CRN1)                                        # crown, carried on from the oven tower
+    liner(top=CRN0 - WT); pucks(CRN0 - WT - 0.02, d=1.2, n=3)
+    wr.box("Lamp Glass", HU0 + 0.1, HU1 - 0.16, HD_ - 0.2, HD_ - 0.12, HB + 0.005, HB + 0.03)             # LED strip just inside the front edge
+    to_ceiling("Drywall", _cc - 0.6, _cc + 0.6, 0, 1.2, CRN1)                                              # drywall chase for the duct
+elif HSTYLE == "plaster":
     SL0, SL1 = HB + 0.42, 9.0                      # the slope runs from just above the lip back to 12 in off the wall
     DT = 1.0
     wr.box("White Oak", HU0, HU1, HD_ - WT, HD_ + 0.02, HB, SL0)                                         # oak lip

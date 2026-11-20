@@ -405,6 +405,30 @@ const BUILD = {
     box(g, 0.6, 1.2, 1.2, darkPlastic(), -r - 2.7, r + 1.0, L / 2);
     return g;
   },
+  hand_damper(s) {                 // round manual balancing damper: galvanized sleeve along local z, bead rings, quadrant and locking handle on top
+    const [dia, L] = s, g = new THREE.Group(), r = dia / 2 + 0.12;
+    cyl(g, r, L, galv(), 0, r, L / 2, 'z', 24);
+    for (const z of [1.0, L - 1.0]) ring(g, r, 0.14, galv(), 0, r, z, 'z', 24);
+    box(g, 2.2, 0.2, 1.6, galv(), 0, 2 * r + 0.1, L / 2);                              // quadrant plate
+    box(g, 0.5, 0.45, 2.6, mat('damper handle', 0xc23b2a, 0.5, 0.1), 0.5, 2 * r + 0.42, L / 2);   // handle along the blade
+    cyl(g, 0.32, 0.5, darkPlastic(), -0.6, 2 * r + 0.45, L / 2, 'y', 12);              // wing nut lock
+    return g;
+  },
+  litter_box(s, it = {}) {         // open, high sided cat litter box on a mat: grey plastic tub with a lower entry at the front, litter inside
+    const [w, h, d] = s, g = new THREE.Group(), t = 0.35;
+    const tub = mat('litter box grey', 0x8d969c, 0.55, 0.02), litter = mat('cat litter', 0xcbbfa6, 0.95, 0), matM = mat('litter mat', 0x3a3d40, 0.9, 0);
+    const [mw, md] = it.mat || [w + 2, 16];
+    box(g, mw, 0.3, md, matM, 0, 0.15, d + md / 2 - 1);                                  // mat in front, tucked 1 in under the box
+    box(g, w, 0.4, d, tub, 0, 0.5, d / 2);                                               // floor
+    box(g, w, h, t, tub, 0, 0.3 + h / 2, t / 2);                                         // back
+    for (const x of [-w / 2 + t / 2, w / 2 - t / 2]) box(g, t, h, d, tub, x, 0.3 + h / 2, d / 2);   // sides
+    const fh = 6;                                                                        // front wall is lower: the cat's way in
+    box(g, w, fh, t, tub, 0, 0.3 + fh / 2, d - t / 2);
+    for (const x of [-w / 2 + 3, w / 2 - 3]) box(g, 6 - t, h - fh, t, tub, x, 0.3 + fh + (h - fh) / 2, d - t / 2);   // front corners stay high
+    box(g, w + 0.8, 0.5, 1.0, tub, 0, h + 0.3, 0.5);                                     // rolled rim on the back
+    box(g, w - 2 * t, 0.2, d - 2 * t, litter, 0, 3.6, d / 2);                            // litter about 3 in deep
+    return g;
+  },
   // ---- electrical and low voltage (U-11 / U-12). Local frame: x along the wall, y up, z out of the wall; sizes in inches
   outlet(s, it = {}) {             // cover plate with a duplex face, a GFCI face with its test and reset buttons, a round 240 V face or a weatherproof in use cover
     const [w, h, d] = s, g = new THREE.Group();
@@ -443,6 +467,14 @@ const BUILD = {
     const [dia, t] = s, g = new THREE.Group();
     cyl(g, dia / 2, t, whitePlastic(), 0, -t / 2, 0, 'y', 32);
     cyl(g, dia * 0.28, 0.2, greyPlastic(), 0, -t - 0.1, 0, 'y', 24);
+    return g;
+  },
+  can_light(s, it = {}) {          // slim LED wafer downlight: the item's z is the ceiling; tilted to the ceiling's slope like a fan canopy
+    const [dia, t] = s, g = new THREE.Group(), tilt = new THREE.Group();
+    tilt.rotation.x = Math.atan(-(it.slope || 0)); g.add(tilt);
+    const lens = mat('wafer lens', 0xfbf8f1, 0.35, 0, { emissive: 0xfff3dc, emissiveIntensity: 0.35 });
+    cyl(tilt, dia / 2, t, whitePlastic(), 0, 0.1 - t / 2, 0, 'y', 40);                 // flat trim ring, its top tucked 0.1 in into the drywall
+    cyl(tilt, dia / 2 - 0.6, 0.12, lens, 0, 0.1 - t, 0, 'y', 40);                    // flat lens, 1/16 in proud of the trim so the faces never share a plane
     return g;
   },
   floor_box(s) {                   // flush brass cover in the slab

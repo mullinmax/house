@@ -566,7 +566,7 @@ items += [
       info=dict(model="Broan AI Series 210 ERV, side ports (B210E75RS). Replaces the Panasonic Intelli-Balance 100 that is ERV-01 on M-10", price="About $1,580 to $1,790 (11/19/2026)",
         specs=[["Airflow", "65 to 210 CFM, self balancing. Low all the time, boost from a bathroom timer"], ["Size", "About 24.8 x 21 x 20.8 in, 47 lb, four 6 in ports"],
                ["Ducts", "Exhaust through the west wall beside the unit, intake through the west wall 10 ft further north, both 8 in"],
-               ["Stale air from", "Bath 1, bath 2 and powder exhaust grilles: 20 CFM each all the time, about 80 CFM from each shower room and 30 from the powder room on boost"],
+               ["Stale air from", "Bath 1, bath 2 and powder exhaust grilles: 20 CFM each all the time, about 80 CFM from each shower room and 30 from the powder room on boost. Plus 20 CFM from the litter box in the utility room"],
                ["Fresh air to", "The supply plenum at the heat pump, so it reaches every room through the supply registers"], ["Mounting", "Hung level from the roof framing, its underside about 22 in above the deck"],
                ["Controls", "Runs continuously on low; a 20/40/60 minute wall control (Broan VBATHW, about $34) in each bathroom boosts it; blower interlock wire to the heat pump"]],
         links=[["Broan B210E75RS", "https://broan-nutone.com/en-us/product/freshairsystems/b210e75rs"]],
@@ -586,7 +586,10 @@ items += [
                "before its first elbow, the outdoor ducts are insulated, the unit hangs level on chains inside the conditioned attic, and the intake is well over 6 ft from the dryer and range hood outlets.",
                "A backdraft damper in the fresh air duct stops the heat pump's blower from pushing supply air backward through the ERV. With the blower off, the ERV's own fan still sends the fresh air "
                "down the supply trunk to every register, so it works without the heat pump running. Whole house ventilation is about 75 CFM for this size and bedroom count, "
-               "and a full boost is about 190 CFM, inside this unit's 210. Andy should confirm the size. The range hood cannot connect here, it has its own duct outdoors."],
+               "and a full boost is about 190 CFM, inside this unit's 210. Andy should confirm the size. The range hood cannot connect here, it has its own duct outdoors.",
+               "Litter box exhaust (Maxwell, 11/20/2026): a fourth pickup, 20 CFM from a low grille behind the litter box in the utility room. The bath grilles keep their 20 each, "
+               "so the continuous setting goes from about 65 to 80 CFM (fresh air rises with it, the unit stays balanced). With a 20 CFM constant airflow insert on that branch, boost is unchanged; "
+               "with only a hand damper the litter branch would take about 50 of the 210 on boost."],
         placement="In line with the heat pump, just south of it, hung at the height of its top. Andy drew it west of HP-01.")),
 ]
 
@@ -807,7 +810,8 @@ ret("transfer_utility", "Utility room transfer grille", [12, 12], [[UTX, UTY, CE
     note="The utility room has a solid door (to keep equipment noise out of the hall), a supply register and no return, so the air it is given had no way out. "
          "Maxwell, 11/18/2026: give it a transfer grille to the attic. The sleeve sits in one truss bay between the water heater and the door. "
          "Lining the sleeve keeps light and tank noise from carrying. The attic is inside the SIP roof and has no return opening of its own, so Andy should confirm "
-         "how air gets from the attic back to the heat pump. ASSUMED size and position.")
+         "how air gets from the attic back to the heat pump. ASSUMED size and position. "
+         "Since the litter box exhaust (11/20/2026) pulls 20 CFM from the room against its 18 CFM supply, air now comes DOWN this grille, a little, instead of going up, so the litter smell does not reach the attic.")
 ret("return_plenum", "Return plenum box", [14, 24], [[RP_E - 7 / 12, RP_S, PZ], [RP_E - 7 / 12, RP_N, PZ]], parent=None,
     model="14 x 24 in return plenum box on the deck, along the heat pump's filter rack",
     note="The return trunk comes straight into its east face. The bedroom flex runs come up through collars in the bottom of the trunk just east of it. "
@@ -920,7 +924,68 @@ exhaust("ex_bath2", "Bath 2 exhaust", 6, [[XE2, 10.62, ZTOP], [XE2, Y_EN, ZTOP]]
         "It was right beside the supply; the supply now comes in low at the west end of the same wall (Maxwell, 11/18/2026).")
 PWX, PWY = 7.2, 32.2                               # powder room exhaust grille, over the toilet, about 4 ft from the supply by the door (Maxwell, 11/18/2026)
 exhaust("ex_powder", "Powder exhaust", 4, [[PWX, PWY, ZT], [PWX, PWY, EX - 0.08], [4.9, PWY, EX - 0.08], [4.9, HP_S + 1.0, EX - 0.08], [4.9, HP_S + 1.0, ERV_Z], [ERV_XS + 0.1, HP_S + 1.0, ERV_Z]], room="Powder",
-        grilles=[dict(at=[PWX, PWY, CEIL - 0.02], size=[8, 8])], note=ENOTE + " Comes up through the deck, runs along it and rises into the main just before the ERV.")
+        grilles=[dict(at=[PWX, PWY, CEIL - 0.02], size=[8, 8])], note=ENOTE + " Comes up through the deck, runs along it and rises into the main just before the ERV. "
+        "The litter box exhaust from the utility room tees into its riser.")
+# Litter box exhaust (Maxwell, 11/20/2026): the cat's litter box lives in the utility room, so a small duct off the ERV's stale air side pulls
+# a slow, steady 20 CFM from a low grille right behind it, and the smell goes outdoors instead of through the transfer grille into the attic
+# (and from there back into the return). The box sits against the north wall east of the pressure tank, clear of the hall door. The
+# pickup is a 10 x 4 in grille just above the box's back rim in the stud bay x 8.63 to 9.84 (typical 16 in layout until measured); a
+# 6 x 2-1/2 in stack runs up that bay. In the floor trusses a 4 in round steps 6 in south, between the truss at x 8.7 and the study
+# return in bay 9.7, out from under the server rack's pad, rises through the deck north of the main return trunk, crosses over the
+# trunk 1-1/2 ft up, runs south to the line of the powder exhaust's riser and west into that riser just before the ERV.
+LX = 9.15                                          # in the stud bay and in the truss space between the 8.7 truss and the study return
+LWY = (UN + 22.408) / 2                            # centre of the utility room's north wall (bedroom 3 side face 22.408)
+LGZ = 15 / 12                                      # pickup grille centre, its bottom about 1 in above a 12 in tall box's rim
+LRY = 23.15                                        # riser through the deck: south of the rack pad (y 22.94), north of the return trunk (23.38)
+LZ = 11.6                                          # over the 14 in main return trunk (top 11.22) and the water heater intake elbow (top 11.38)
+LTY = HP_S + 1.0                                   # the powder exhaust riser's line
+LIT_CFM = 20
+LNOTE = (f"A slow, steady {LIT_CFM} CFM pulled from right behind the litter box, all the time, so the smell is taken at the box and goes outdoors with the bath air "
+         "(Maxwell, 11/20/2026, after a video where a small ERV pickup at a litter box kept the room from ever smelling). "
+         "The utility room is given about 18 CFM of supply (M-10) and has a solid door, so pulling 20 out keeps it slightly under suction: a little air comes in "
+         "through the transfer grille and under the door and none leaves the room any other way. Before this the room's air, litter smell and all, went up "
+         "the transfer grille into the attic and from there back into the return.")
+ducts.append(dict(id="ex_litter_stack", info_of="ex_litter", type="exhaust", shape="rect", size=[6, 2.5], points=[[LX, LWY, LGZ - 0.2], [LX, LWY, ZT]],
+                  grilles=[dict(at=[LX, UN + 0.021, LGZ], size=[10, 4], wall=S)]))
+exhaust("ex_litter", "Litter box exhaust", 4, [[LX, LWY, ZT], [LX, LRY, ZT], [LX, LRY, LZ], [LX, LTY, LZ], [4.9 + 0.17, LTY, LZ]], room="Utility", note=LNOTE)
+_lx = ducts[-1]
+_lx["cfm"] = LIT_CFM
+_lx["info"].update(model=f"4 in round exhaust, {LIT_CFM} CFM continuous, from a 10 x 4 in low filter grille behind the litter box", specs=[
+    ["Airflow", f"{LIT_CFM} CFM all the time, set with the hand damper in the attic. On boost it rises with the bath grilles unless a constant airflow insert is used (notes)"],
+    ["Pickup", "10 x 4 in filter grille in the north wall, centre 15 in off the floor, just above the box's back rim. A washable filter behind it keeps litter dust out of the ERV"],
+    ["Duct", "6 x 2-1/2 in stack up the stud bay, then 4 in round: 6 in south in the floor trusses, up through the deck, over the main return trunk, south and west into the powder exhaust riser"],
+    ["Into", "The ERV's stale air side, through the powder exhaust riser, about 1 ft before the unit"],
+    ["Damper", "Hand balancing damper on the attic run, about 1-1/2 ft before the tee"]])
+_lx["info"]["notes"] += [
+    "Sizing: the video's pickup was about 5 CFM, a computer fan's worth. 20 CFM is used here so the room stays under suction against its supply; turn the damper down "
+    "toward 10 if the room's supply is cut back. At 20 CFM a 4 in duct is quiet (about 230 ft per minute) and the stack in the wall moves the air at under 200.",
+    "ERV balance: the three bath grilles keep their 20 CFM each (the code minimum), so the ERV's continuous setting goes up from about 65 to 80 CFM, which "
+    "also brings in 80 CFM of fresh air (about 75 is the house's ventilation need). No bath grille needs trimming. "
+    "On boost every branch rises together, so with only a hand damper this one would take roughly 50 of the unit's 210 CFM and the bathrooms about 160 instead of 190. "
+    "A 4 in constant airflow regulator set to 20 CFM (a drop in insert, Aldes makes them, about $30 to $50) holds this branch at 20 whatever the fan does, "
+    "so the boost stays in the bathrooms. Recommended in place of, or with, the hand damper.",
+    "An ERV core hands some moisture back to the incoming air and a trace of odour can ride along with it. At 20 CFM out of 80, diluted with the bath air, that should not be noticeable. "
+    "If it ever is, this branch can be split off to its own small fan and wall cap.",
+    "Clash checks: the stack is in one stud bay (no studs, wall junctions or the door header), the 4 in round is between a truss and the study return in the floor trusses, "
+    "and it crosses no trusses. Stud positions are the typical layout until the wall is measured. ASSUMED route and position."]
+_lx["info"]["placement"] = "Utility room north wall, behind the litter box, up into the attic over the utility room."
+LD_X = 4.9 + 0.17 + 1.5                           # hand damper on the attic run, 1-1/2 ft before the tee: reached from the heat pump's east side
+items.append(dict(id="litter_damper", name="Litter box exhaust damper", category="Ventilation", system="hvac.exhaust", room="Attic", layer="ducts",
+    builder="hand_damper", size=[4, 7], at=[LD_X, LTY, LZ - 2 / 12 - 0.15 / 12], facing=90,
+    info=dict(model="4 in round manual balancing damper with a locking quadrant handle", price="About $10 to $20",
+        specs=[["Set to", f"{LIT_CFM} CFM at the litter grille, with the ERV on its continuous setting"], ["Reach", "From the attic deck east of the heat pump, about 1-1/2 ft up"],
+               ["Upgrade", "A 20 CFM constant airflow regulator in the duct holds the flow on boost too, so the bathrooms keep their boost air"]],
+        notes=["Balancing damper for the litter box exhaust (Maxwell, 11/20/2026). Set once at commissioning, then locked. ASSUMED position."],
+        placement="Attic, on the litter box exhaust just east of the powder exhaust riser.")))
+LB = [24, 12, 18]                                  # a large open high sided litter box, W x H x D in (generic, for scale)
+items.append(dict(id="litter_box", name="Cat litter box", category="Pets", system="household", room="Utility", layer="storage",
+    builder="litter_box", size=LB, at=[LX, UN + 2 / 12, 0], facing=180, mat=[26, 16],
+    info=dict(model="Large open litter box with high sides, about 24 x 18 x 12 in, on a litter mat (generic, for scale)",
+        specs=[["Where", "Utility room north wall, east of the pressure tank, 2 in off the wall, about 2-1/2 ft west of the hall door"],
+               ["Exhaust", f"The 10 x 4 in exhaust grille is right behind it, just above the back rim, pulling {LIT_CFM} CFM to the ERV"]],
+        notes=["Placeholder for where the cat's litter box goes (Maxwell, 11/20/2026). The spot keeps it out of the walkway from the door to the tanks and the manifolds, "
+               "away from the water heater's noise and clear of the hall door, which swings out into the hall. Any box works as long as its back sits against the grille."],
+        placement="Utility room, against the north wall, centred on the exhaust grille.")))
 ZTOP8 = ZTR + 8 / 12 + 4 / 12 + 0.02              # centre of an 8 in round lying on top of the trunk
 MNOTE = ("Collects the three bathroom exhausts. It rides on top of the supply trunk all the way from bath 1's riser, on the side away from the bedroom 1 return, "
          "down to the heat pump, crosses over the heat pump's top and goes straight into the ERV's stale air inlet, so it takes no floor space (Maxwell, 11/18/2026). "
@@ -1196,6 +1261,37 @@ fan("fan_living", "Living", 23.89, 28.75, 60, 10.0, False, ["Trial fan (Maxwell,
     "rod with the blades about 10 ft up. In winter, on low in reverse, it pushes the warm air that collects up under this tall ceiling back down to the seating."])
 fan("fan_family", "Entry / family", 36.5, 42.5, 60, 9.0, False, ["Between the entry and the family cans (both about 4 ft away), so the blades never pass under a light and flicker it. "
     "60 in for the open family and entry area; the high wall registers on the clerestory wall blow south toward it from about 5 ft beyond the blade tips."])
+
+# ------------------------------------------------------------------ ceiling lights (Maxwell, 11/20/2026)
+# The baked ceiling lights sat level under ceilings that mostly slope, so one edge hung below the drywall, and the old
+# flush mounts were domes. Every one is now a slim flat LED wafer (a canless recessed light: a thin trim ring and a flat
+# lens), seated on its own ceiling and tilted to it. tools/electrical/ceiling.mjs finds each ceiling's height and slope
+# (model/data/ceiling_lights.json); the baked fixture goes (meta replace_nodes) and its night light moves to the wafer.
+# The bath 1 lights were baked up in the loft from before the loft went in over the bath; they now sit on its 9 ft ceiling.
+_CL_P = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "ceiling_lights.json")
+_CL = json.load(open(_CL_P)) if os.path.exists(_CL_P) else {}
+_CL_ROOM = {"Bath1": "Bath 1", "Bath1 shower": "Bath 1 shower", "Bath1 toilet": "Bath 1 toilet", "Bath2": "Bath 2"}
+_n_cl = 0
+for _L in json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "site", "models", "manifest.json"))).get("lights", []):
+    _nm = _L["name"]
+    if not _nm.startswith("Light ") or _nm in FAN_META["lights_moved"] or _nm not in _CL:
+        continue
+    _x, _y = round(_L["pos"][0] / 0.3048, 3), round(-_L["pos"][1] / 0.3048, 3)
+    _z, _sl = _CL[_nm]
+    _big = _L.get("intensity_lm", 800) >= 1200                  # the old flush mounts: an 8 in wafer, the cans 6 in
+    _n_cl += 1
+    _rm = _CL_ROOM.get(_L["room"], _L["room"])
+    _specs = [["Size", "8 in" if _big else "6 in"], ["Light", f"About {_L.get('intensity_lm', 800):,} lumens, warm white, dimmable"],
+              ["Ceiling", f"{_z:.2f} ft" + (f", sloped {abs(_sl) * 12:.2f}:12" if abs(_sl) > 0.001 else ", flat")]]
+    items.append(dict(id=f"can_light_{_n_cl:02d}", name=("Recessed light, 8 in" if _big else "Recessed light, 6 in"), category="Lighting",
+        system="electrical.lighting", room=_rm, layer="electrical", builder="can_light", size=[7.9 if _big else 6.7, 0.5],
+        at=[_x, _y, _z], facing=0, slope=_sl,
+        info=dict(model="Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)", specs=_specs,
+            notes=["Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about "
+                   "1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."],
+            placement=f"Ceiling of {_rm}, x {_x:.1f} ft, y {_y:.1f} ft.")))
+    FAN_META["replace_nodes"] += [f"{_nm} {p_}".replace(" ", "_") for p_ in ("base", "lens", "trim")]
+    FAN_META["lights_moved"][_nm] = [_x, _y, round(_z - 0.3, 2)]
 
 # ------------------------------------------------------------------ study temperature sensor
 # The booster fan, motorized damper and their outlet box were removed (Maxwell, 11/19/2026): two wall registers carry the load on

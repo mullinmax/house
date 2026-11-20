@@ -211,7 +211,7 @@ head = 19.0
 # First (pantry) opening narrowed from A-11 [0.5, 4.414] to fit a 2'-6" door that stops 2" short of the fridge panel. ASSUMED
 # Mudroom cubby and entry closet (Maxwell 11/17/2026): the partition between them moved 6" west (closet 2'-6 1/2" to 3'-0 1/2"
 # inside, cubby 8'-1" to 7'-7"), and the closet door is now 2'-6" x 8'-0", the same height as the cubby opening. Was [31.581, 39.664, 8.0], [40.164, 42.289, 6.67]
-passages = [[0.743, 3.443, 6.67],[12.122, 16.206, 8.0], [20.914, 26.914, 8.0], [31.581, 39.164, 8.0], [39.56, 42.289, 8.0]]
+passages = [[0.743, 3.443, 6.67],[12.122, 16.206, 8.0], [20.914, 26.914, 8.0], [31.581, 39.164, 7.75], [39.56, 42.289, 7.75]]   # the entry cubby and entry closet sit under the cubby beam (bottom 7'-10"), so they stop at 7'-9" (Maxwell 11/20/2026: the beam showed through)
 
 [entry_closet]                  # Maxwell's builder, 11/19/2026: the (2) LVL beam over the mudroom cubby (S-11) needs two 2x4 posts under its
 # east end, beside the closet, so the closet opening shrinks to 18 in (hinge jamb kept on the east). Closet inside stays 3'-0" x 1'-6".
@@ -306,9 +306,9 @@ oven_face_height_in = 50.75              # Frigidaire Gallery GCWD3067AF face he
 span = [44.5, 49.0]                      # along the west wall: from the oven tower's side (it hems in the north end) to 6-1/2 in past the cooktop. 54 in for a 30-11/16 in cooktop
 depth_in = 24                            # covers the front burners (an 18 in cabinet depth hood would not)
 above_counter_in = 27                    # underside over the cooktop. The PM600SSV allows 24 in; mock up head height before building
-box_height_in = 24                       # the inverted bathtub that holds the smoke
+box_height_in = 30                       # the inverted bathtub that holds the smoke: up to the crown line, level with the oven tower top
 cheek_drop_in = 6                        # the south side panel hangs this far below the front edge
-style = "box"                            # box | plaster | oak | cabinets | steel (mockups 11/20/2026; HOOD_STYLE=... overrides for renders)
+style = "doors"                          # doors (Maxwell 11/20/2026: hidden behind fake cabinet doors) | box | plaster | oak | cabinets | steel (mockups); HOOD_STYLE=... overrides
 [kitchen.runs.south]                     # sink wall, elevation 1
 axis = "x"
 back = 51.458
@@ -543,10 +543,11 @@ baseboard_height_in = 4.5          # ASSUMED, white oak to match casings
 casing_width_in = 3.5
 gutters = true
 exterior_lights = true
-door_add = [ { axis = "y", g0 = 15.491, g1 = 18.158, t0 = 31.122, t1 = 31.581, head = 6.67, note = "laundry to Closet 1, A-11 D28-68" },   # ASSUMED leaf 2'-4"
-             { axis = "x", g0 = 39.56, g1 = 42.289, t0 = "clerestory", head = 8.0, header = false, name = "Door, entry closet", note = "Entry closet, A-11 D20-68. 1'-6\" wide since the builder added the beam posts on its west side (11/19/2026); was 2'-6\" x 8'-0\" (Maxwell 11/17/2026). Swing door hinged on the east jamb, opening out into the entry" } ]
+door_add = [ { axis = "x", g0 = 34.372, g1 = 37.039, t0 = 22.408, t1 = 22.866, head = 6.67, name = "Pocket door, closet 1 to bath 1", note = "Closet 1 to bath 1 pocket door (Maxwell 11/20/2026). It slides west into the pocket the framing shows (header 31' 4\" to 37' 3\")." },
+             { axis = "y", g0 = 15.491, g1 = 18.158, t0 = 31.122, t1 = 31.581, head = 6.67, note = "laundry to Closet 1, A-11 D28-68" },   # ASSUMED leaf 2'-4"
+             { axis = "x", g0 = 39.56, g1 = 42.289, t0 = "clerestory", head = 7.75, header = false, name = "Door, entry closet", note = "Entry closet, A-11 D20-68. 1'-6\" wide since the builder added the beam posts on its west side (11/19/2026); was 2'-6\" x 8'-0\" (Maxwell 11/17/2026). Swing door hinged on the east jamb, opening out into the entry" } ]
 door_remove = [ [37.19, 19.99], [38.27, 25.45] ]   # 2nd: Bath 1 wet-room opening (x 38.12-38.41, y 23.95-26.95) is open, no leaf
-door_pocket = [ [14.16, 22.64, -1], [22.08, 15.26, 1], [16.43, 24.97, 1], [35.7, 29.18, -1], [35.7, 15.26, -1], [31.35, 16.82, 1] ]   # first: Maxwell 11/13. The rest are drawn as pocket doors on A-11 (leaf in the opening, pocket in the wall): laundry, living, bath 1 water closet, closet 1 north and west (11/17/2026)
+door_pocket = [ [14.16, 22.64, -1], [35.7, 22.64, -1], [22.08, 15.26, 1], [16.43, 24.97, 1], [35.7, 29.18, -1], [35.7, 15.26, -1], [31.35, 16.82, 1] ]   # first: Maxwell 11/13. The rest are drawn as pocket doors on A-11 (leaf in the opening, pocket in the wall): laundry, living, bath 1 water closet, closet 1 north and west (11/17/2026)
 # hinge side and swing from the A-11 door arcs (11/17/2026): [x, y near the opening, hinge end N/S/E/W, swings toward N/S/E/W]
 # doors not listed keep the default: hinge at the west or north jamb, swinging south or east (closets 2 and 3 already match A-11)
 door_swing = [ [41.23, 34.9, "E", "S"], [14.14, 10.8, "E", "N"], [17.9, 10.8, "W", "N"], [24.7, 10.8, "W", "N"], [30.4, 13.0, "S", "E"], [16.43, 20.64, "S", "W"],
@@ -717,6 +718,7 @@ built = [ { axis = "x", at = 22.64, from = 0.5, to = 42.5, note = "Wall B (livin
           { axis = "y", at = 11.89, from = 22.8, to = 34.7, note = "Hall 1 west wall, framed in the 11/19/2026 drone photos." },
           { axis = "x", at = 10.80, from = 22.6, to = 31.42, note = "Study south wall (hall 2 side), framed in Maxwell's 11/20/2026 photo: the door at its west end, a short bay, then 16 in bays east. How far west of the study it is framed is not known yet." } ]
 all_built = "Framed by 11/20/2026 (Maxwell's site photos show nearly every interior wall standing). Stud positions are typical 16 in o.c. until measured."
+door_heads = [ [14.16, 22.64, 6.67] ]   # hall 1 pocket door: the as-built header sits at 6'-11" (83 in), so the door is 6'-8" (Maxwell 11/20/2026), not the 8 ft A-11 shows
 clerestory_wall = { built = true, stud_d_in = 5.5, note = "Wall A: a stick framed wall stands on the clerestory line, framed to the top plates (9 ft measured 11/20/2026). The model's SIP clerestory wall is drawn around it until we know what goes on top. Stud size ASSUMED 2x6." }
 
 [[framing.headers]]             # A1, pantry door
@@ -780,8 +782,8 @@ new = true
 axis = "x"
 at = [34.25, 22.64]
 band = [22.41, 22.87]
-ro = [31.34, 37.26]             # MEASURED 11/20/2026 (Maxwell: same as the bedroom 1 closet header): 71 in clear, centre kept from the photos
 head = 6.67
+ro = [31.34, 37.26]             # MEASURED 11/20/2026 (Maxwell: same as the bedroom 1 closet header): 71 in clear, centre kept from the photos
 size = "(2) 2x12 class, pale built-up 2x"
 bottom_in = 83                  # MEASURED 11/20/2026: 83 in to the bottom of the header
 jacks = 2                       # MEASURED 11/20/2026: two 2x4s under each end
@@ -793,7 +795,7 @@ notes = ["A-11 shows this as an open gap under the loft; the framing has a door-
 
 [[framing.headers]]             # C1, hall 2 to laundry pocket door
 at = [22.08, 15.26]
-ro = [20.87, 26.78]             # MEASURED 11/20/2026 (Maxwell: same as the bedroom 1 closet header): 71 in clear, centre kept from the photos
+ro = [20.75, 26.67]             # MEASURED 11/20/2026 (Maxwell: same as the bedroom 1 closet header): 71 in clear. West end on the door opening's west edge (the pocket runs east); centred on the photos it put a jack 1 in into the doorway
 type = "LVL"
 size = "LVL (dark brown, about 10 to 14 in)"
 depth_in = 12
