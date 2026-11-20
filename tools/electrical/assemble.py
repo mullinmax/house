@@ -30,7 +30,7 @@ for i,r in enumerate(M):
     if i==53: add(kind='outlet',x=6.0,y=44.11,z_in=24,facing=270,gfi=True,level='main',src=f"U-11 #{i}",note="24 in GFI on the island's west end, per U-11.")
     else: add(kind='outlet',x=13.9,y=46.085,z_in=24,facing=90,gfi=True,level='main',src=f"U-11 #{i}",note="U-11 puts a 24 in GFI on the island's east end. The beverage fridge now fills most of that end, so it is shown on the narrow end panel beside it. Move it to a side of the island if the panel is too narrow.")
     continue
-  if i==72: add(kind='floor_box',x=x,y=y,z_in=0,facing=0,level='main',src=f"U-11 #{i}",note=NOTE[i]); continue
+  if i==72: continue   # U-11's floor outlet in the dining area was never put in: no outlets in the slab (Maxwell, 11/20/2026)
   wx,wy=r['wall']
   if f in (0,180): X,Y=x,wy
   else: X,Y=wx,y

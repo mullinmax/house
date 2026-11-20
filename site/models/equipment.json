@@ -5323,41 +5323,6 @@
    "src": "U-11 #71"
   },
   {
-   "id": "elec_floor_01",
-   "name": "Floor outlet",
-   "category": "Electrical",
-   "system": "electrical.power",
-   "room": "Dining",
-   "layer": "electrical",
-   "builder": "floor_box",
-   "size": [
-    4.6,
-    0.15,
-    4.6
-   ],
-   "at": [
-    31.434,
-    43.899,
-    0.0
-   ],
-   "facing": 0,
-   "info": {
-    "model": "Flush floor box with a brass cover, 120 V duplex",
-    "specs": [
-     [
-      "Where",
-      "In the slab, dining room"
-     ]
-    ],
-    "notes": [
-     "Floor outlet, U-11 says to confirm with the owner.",
-     "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 72).",
-     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
-    ]
-   },
-   "src": "U-11 #72"
-  },
-  {
    "id": "elec_outlet_30",
    "name": "Outlet, 16 in",
    "category": "Electrical",
