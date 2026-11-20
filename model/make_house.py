@@ -621,6 +621,14 @@ for ed in C.get("plan_edits", {}).get("wall_shift", []):      # partitions moved
             break
     else:
         raise SystemExit(f"plan_edits.wall_shift: no interior wall at {ed['at']}")
+for ed in C.get("plan_edits", {}).get("wall_ends", []):       # a wall end moved to where it is framed (a measured door edge)
+    px, py = ed["at"]
+    for i_, (x0, x1, y0, y1) in enumerate(INT_RECTS):
+        if x0 - 0.01 <= px <= x1 + 0.01 and y0 - 0.01 <= py <= y1 + 0.01:
+            INT_RECTS[i_] = (ed.get("x0", x0), ed.get("x1", x1), ed.get("y0", y0), ed.get("y1", y1))
+            break
+    else:
+        raise SystemExit(f"plan_edits.wall_ends: no interior wall at {ed['at']}")
 for ed in C.get("plan_edits", {}).get("wall_remove", []):     # partitions taken out by a decision (a built-in panel stands in)
     px, py = ed["at"]
     hit = [r_ for r_ in INT_RECTS if r_[0] - 0.01 <= px <= r_[1] + 0.01 and r_[2] - 0.01 <= py <= r_[3] + 0.01]
@@ -965,16 +973,17 @@ if FR.get("enabled", True):
 
     # ---- the clerestory line: stick framed to the top plate in the photos (shown inside the SIP wall's thickness)
     CLB = FR.get("clerestory_wall", {})
+    CPT = CLB.get("plate_in", FR.get("plate_height_in", 109)) * IN   # its own measured top plate (9' 0 1/2", Maxwell 11/20/2026)
     if CLB.get("built"):
         a, b = T, HW - T
         v0, v1 = band(YC, YC2, CLB.get("stud_d_in", 5.5) * IN)
         rec("framing.wall.clerestory", "framing", "Studs and plates, bearing wall on the clerestory line", "framing",
             info=dict(model=f"2x{'6' if CLB.get('stud_d_in', 5.5) > 4 else '4'} studs at {FR.get('stud_oc_in', 16):g} in o.c., bottom plate, {NTOP} top plates (stud size ASSUMED)",
-                      specs=[["Top plate", ftin(PLATE_TOP)], ["Length", ftin(b - a)], ["Status", "Needs measuring"]],
-                      notes=["NEEDS MEASURING: estimated from the 11/19/2026 drone photos only. Check with a tape before relying on it.", CLB.get("note", "Framed to the top plate in the 11/19/2026 drone photos.")]))
+                      specs=[["Top plate", ftin(CPT)], ["Length", ftin(b - a)], ["Status", "Top plate measured" if "plate_in" in CLB else "Needs measuring"]],
+                      notes=([] if "plate_in" in CLB else ["NEEDS MEASURING: estimated from the 11/19/2026 drone photos only. Check with a tape before relying on it."]) + [CLB.get("note", "Framed to the top plate in the 11/19/2026 drone photos.")]))
         bottom_plate(True, a, b, v0, v1, [(op_["r0"] - FACE_IN, op_["r1"] + FACE_IN) for op_ in OPEN if op_["wall"] == "clerestory"])
         for n in range(NTOP):
-            fbox("Lumber", True, a, b, v0, v1, PLATE_TOP - (n + 1) * SW, PLATE_TOP - n * SW)
+            fbox("Lumber", True, a, b, v0, v1, CPT - (n + 1) * SW, CPT - n * SW)
         skip = []
         for op_ in OPEN:
             if op_["wall"] == "clerestory":
@@ -986,9 +995,9 @@ if FR.get("enabled", True):
                 continue
             if any(s0 - 0.001 < u + SW and u < s1 + 0.001 for s0, s1 in skip):
                 continue
-            fbox("Lumber", True, u, u + SW, v0, v1, SW, PLATE_TOP - NTOP * SW)
+            fbox("Lumber", True, u, u + SW, v0, v1, SW, CPT - NTOP * SW)
             last = u
-        FRAMING_META["walls"].append(dict(rect=[a, b, YC, YC2], built=True, top=PLATE_TOP))
+        FRAMING_META["walls"].append(dict(rect=[a, b, YC, YC2], built=True, top=CPT))
 
     # ---- headers, kings and jacks for each opening in a built wall; openings in walls not up yet are listed for the clash check
     for op_ in OPEN:

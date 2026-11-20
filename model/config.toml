@@ -53,10 +53,17 @@ walls_stop_at_attic = true      # interior walls with flat ceilings on both side
 [floor_trusses]                 # open web floor trusses under the attic deck and the loft (builder's choice, so returns can be ducted)
 depth_in = 11.875               # 11-7/8" (Maxwell 11/16/2026)
 deck_in = 0.75                  # ASSUMED 3/4" decking
-spacing_in = 24.0               # ASSUMED
-span = "ns"                     # ASSUMED north to south, until the truss drawings exist
-max_round_duct_in = 6.0        # largest round duct through the webs. Builder, 11/18/2026: the trusses are in, 6 in fits, 7 in only maybe
-grid_x0 = 0.7                   # ASSUMED: every truss on one 24 in grid from here (plan ft), so the bays line up house wide
+spacing_in = 16.0               # MEASURED by Maxwell 11/20/2026: 16 in on centre (was ASSUMED 24)
+span = "ns"                     # north to south: Maxwell 11/20/2026 lays them out from the west wall eastward
+max_round_duct_in = 7.0        # largest round duct through the webs. Maxwell measured a web opening 11/20/2026: inside 19.5 in base, 13 in legs, 8.5 in high, so a 7.4 in circle fits; 7 in round passes
+grid_x0 = 0.656                 # Maxwell 11/20/2026: the westernmost truss sits tight to the west wall's SIP plywood (face 0.542 + half a 2.5 in chord + 1/8 in), every truss on one 16 in grid from here
+chord_w_in = 2.5                # Maxwell 11/20/2026: top and bottom chords 2.5 in wide
+web_in = 1.5                    # webs 1.5 x 1.5 in (Maxwell 11/20/2026)
+web_pitch_in = 21.0             # one web triangle along the chord: 19.5 in inside plus the webs (Maxwell 11/20/2026)
+extra_x = [42.427]              # Maxwell 11/20/2026: a second truss tight to the east wall's SIP plywood, about 4 in from the last one on the grid
+solid_ends = [ [0, 0, 10.95, 30.0], [1, 8, 10.95, 7.0], [9, 17, 10.95, 32.0], [18, 20, 10.95, 7.0], [21, 30, 15.41, 25.0], [31, 31, 15.41, 89.4], [23, 31, 34.846, -12.0], [0, 8, 34.616, -9.0] ]   # Maxwell 11/20/2026: solid trimmable ends at the hall 2 north wall (south face y 10.95). [first truss, last truss] counted from the west (0 = the one on the west wall), wall face y, inches they reach south. The truss on the west wall reaches 2 ft 6 in (Maxwell first left it out of his count), then 8 reach 7 in, 9 reach 2 ft 8 in, 3 reach 7 in; the web triangles still line up across all of them. Over bedroom 1 / closet 1 (Maxwell, 11/20/2026, measured from the south face of the laundry / bedroom 1 wall framing, y 15.41, no drywall): 10 trusses reach 2 ft 1 in, the second to last is solid its whole length to the closet 1 south wall, the last one (extra_x) reaches 2 ft 1 in.. A negative length reaches north: the south ends of the 9 grid trusses over the utility, pantry and powder room are solid 9 in north of the clerestory wall (north face 34.616), and the south ends of the 10 trusses from bedroom 1 over the loft are solid 1 ft north of the entry cubby header's back face (header 3 3/4 in thick, flush to the clerestory wall's south face 35.158, so its back is at y 34.846; Maxwell 11/20/2026)
+solid_ends_x = [ [42.427, 15.41, 25.0], [42.427, 34.846, -12.0], [11.89, 22.86, 7.0] ]   # the east wall truss, like its neighbours; the truss on the hall 1 west wall: 7 in solid from its north end (it ends at a web peak), none at its south end (Maxwell 11/20/2026)
+extra_trusses = [ [11.89, 22.86, 34.62] ]   # Maxwell 11/20/2026: one more truss over the utility and powder room, right on the top plate of their east wall (the hall 1 west wall, x 11.89), off the 16 in grid. It starts at the south face of the hall 1 pocket door framing (y 22.87), on three 2x4s that frame that door (Maxwell 11/20/2026)   # the east wall truss, like its neighbours (Maxwell 11/20/2026)
 
 [loft]                          # 134 sf loft over Bath 1 (A-12)
 enabled = true
@@ -211,7 +218,7 @@ head = 19.0
 # First (pantry) opening narrowed from A-11 [0.5, 4.414] to fit a 2'-6" door that stops 2" short of the fridge panel. ASSUMED
 # Mudroom cubby and entry closet (Maxwell 11/17/2026): the partition between them moved 6" west (closet 2'-6 1/2" to 3'-0 1/2"
 # inside, cubby 8'-1" to 7'-7"), and the closet door is now 2'-6" x 8'-0", the same height as the cubby opening. Was [31.581, 39.664, 8.0], [40.164, 42.289, 6.67]
-passages = [[0.743, 3.443, 6.67],[12.122, 16.206, 8.0], [20.914, 26.914, 8.0], [31.581, 39.164, 7.75], [39.56, 42.289, 7.75]]   # the entry cubby and entry closet sit under the cubby beam (bottom 7'-10"), so they stop at 7'-9" (Maxwell 11/20/2026: the beam showed through)
+passages = [[0.743, 3.443, 6.67],[12.122, 16.206, 8.0], [20.914, 26.914, 7.71], [31.581, 39.164, 7.75], [39.56, 42.167, 7.75]]   # the living room opening stops 1 in under its header (bottom 7' 9 1/2", Maxwell 11/20/2026); the entry cubby and entry closet sit under the cubby beam (bottom 7'-10"), so they stop at 7'-9" (Maxwell 11/20/2026: the beam showed through)
 
 [entry_closet]                  # Maxwell's builder, 11/19/2026: the (2) LVL beam over the mudroom cubby (S-11) needs two 2x4 posts under its
 # east end, beside the closet, so the closet opening shrinks to 18 in (hinge jamb kept on the east). Closet inside stays 3'-0" x 1'-6".
@@ -221,7 +228,7 @@ open_post_plies = 3
 open_bench = { x = 36.79, w = 10.34, bays = 4, hooks = 7, cubbies = 3, glass_doors = 10, cull_old = [31.55, 33.05, 42.1, 34.65, 8.0] }   # unit runs 31.62 to 41.96
 rod_z = 5.6                     # coat rod height
 merge_cubby = true              # no oak trim between the cubby and the built-in: one piece, wall strip faced in sage (Maxwell 11/19/2026)
-opening = [39.56, 42.289]       # clear opening, plan x, from just east of the posts to the east wall (Maxwell 11/19/2026: take out most of the
+opening = [39.56, 42.167]       # clear opening, plan x, from just east of the posts to the cubby beam's east jacks (three 2x4s against the east wall, Maxwell 11/20/2026; was 42.289, to the wall) (Maxwell 11/19/2026: take out most of the
                                 # wall to the cubby, so coats go in and out easily). The passage above must match it. Was 18 in, [40.789, 42.289]
 interior = [39.227, 42.497, 33.116, 34.616]   # closet inside faces: x0 (the divider panel), x1, y0 (back), y1 (clerestory wall north face). Was 39.501 at the old partition
 divider = [39.164, 39.227]      # Maxwell 11/19/2026: no wall between the cubby and the coat cabinet (not structural, the header carries it): a 3/4 in panel
@@ -237,6 +244,14 @@ wall_shift = [ { at = [39.81, 34.0], dx = -0.5, note = "cubby / entry closet par
                # return stacks between its door and that wall, each in its own floor truss bay (27.7 and 29.7 on the ASSUMED 24 in truss grid)
                { at = [28.25, 11.2], dx = 2.13, note = "bedroom 1 door wall, north end" },
                { at = [28.25, 14.8], dx = 2.13, note = "bedroom 1 door wall, south end" } ]
+# door edges in the hall 2 north wall as framed (Maxwell's stud readings 11/20/2026, [framing] stud_lines): the bedroom 2, bath 2
+# and study doors are 1 1/2 to 2 in east of A-11 and 32 to 32 1/2 in rough openings
+wall_ends = [ { at = [8.0, 10.8], x1 = 12.938, note = "bedroom 2 door west edge (148.75 in)" },
+              { at = [16.0, 10.8], x0 = 15.646, x1 = 16.667, note = "bedroom 2 door east edge (181 in) and bath 2 door west edge (193.5 in)" },
+              { at = [21.0, 10.8], x0 = 19.333, x1 = 23.521, note = "bath 2 door east edge (225.5 in) and study door west edge (275.75 in)" },
+              { at = [28.0, 10.8], x0 = 26.188, note = "study door east edge (32 in rough opening)" },
+              { at = [33.0, 15.26], x1 = 34.291, note = "closet 1 pocket door: a 32 in door against the east jacks, x 34.29 to 36.96 (Maxwell's stud readings 11/20/2026)" },
+              { at = [38.0, 15.26], x0 = 36.958, note = "closet 1 pocket door east edge" } ]
 wall_remove = [ { at = [39.31, 34.0], note = "that partition is gone: a 3/4 in panel of the coat cabinet divides it from the cubby ([entry_closet] divider, Maxwell 11/19/2026)" } ]
 
 [barn_door]                     # living room "large French barn door" (Maxwell 11/12/2026), D60-80 on A-11
@@ -545,7 +560,7 @@ gutters = true
 exterior_lights = true
 door_add = [ { axis = "x", g0 = 34.372, g1 = 37.039, t0 = 22.408, t1 = 22.866, head = 6.67, name = "Pocket door, closet 1 to bath 1", note = "Closet 1 to bath 1 pocket door (Maxwell 11/20/2026). It slides west into the pocket the framing shows (header 31' 4\" to 37' 3\")." },
              { axis = "y", g0 = 15.491, g1 = 18.158, t0 = 31.122, t1 = 31.581, head = 6.67, note = "laundry to Closet 1, A-11 D28-68" },   # ASSUMED leaf 2'-4"
-             { axis = "x", g0 = 39.56, g1 = 42.289, t0 = "clerestory", head = 7.75, header = false, name = "Door, entry closet", note = "Entry closet, A-11 D20-68. 1'-6\" wide since the builder added the beam posts on its west side (11/19/2026); was 2'-6\" x 8'-0\" (Maxwell 11/17/2026). Swing door hinged on the east jamb, opening out into the entry" } ]
+             { axis = "x", g0 = 39.56, g1 = 42.167, t0 = "clerestory", head = 7.75, header = false, name = "Door, entry closet", note = "Entry closet, A-11 D20-68. 1'-6\" wide since the builder added the beam posts on its west side (11/19/2026); was 2'-6\" x 8'-0\" (Maxwell 11/17/2026). Swing door hinged on the east jamb, opening out into the entry" } ]
 door_remove = [ [37.19, 19.99], [38.27, 25.45] ]   # 2nd: Bath 1 wet-room opening (x 38.12-38.41, y 23.95-26.95) is open, no leaf
 door_pocket = [ [14.16, 22.64, -1], [35.7, 22.64, -1], [22.08, 15.26, 1], [16.43, 24.97, 1], [35.7, 29.18, -1], [35.7, 15.26, -1], [31.35, 16.82, 1] ]   # first: Maxwell 11/13. The rest are drawn as pocket doors on A-11 (leaf in the opening, pocket in the wall): laundry, living, bath 1 water closet, closet 1 north and west (11/17/2026)
 # hinge side and swing from the A-11 door arcs (11/17/2026): [x, y near the opening, hinge end N/S/E/W, swings toward N/S/E/W]
@@ -719,8 +734,11 @@ built = [ { axis = "x", at = 22.64, from = 0.5, to = 42.5, note = "Wall B (livin
           { axis = "y", at = 11.89, from = 22.8, to = 34.7, note = "Hall 1 west wall, framed in the 11/19/2026 drone photos." },
           { axis = "x", at = 10.80, from = 22.6, to = 31.42, note = "Study south wall (hall 2 side), framed in Maxwell's 11/20/2026 photo: the door at its west end, a short bay, then 16 in bays east. How far west of the study it is framed is not known yet." } ]
 all_built = "Framed by 11/20/2026 (Maxwell's site photos show nearly every interior wall standing). Stud positions are typical 16 in o.c. until measured."
+stud_lines = [ { axis = "x", at = 10.8, x0 = 0.5417, right_edges_in = [1.5, 14, 15.5, 46.75, 48.25, 64.25, 80.5, 96.5, 113, 129, 145.75, 147.25, 148.75, 182.5, 184, 192, 193.5, 227, 228.5, 240.75, 256.5, 272.25, 274.25, 275.75], note = "MEASURED by Maxwell 11/20/2026: the hall 2 / bedroom 3 north wall (the bedroom 2, bath 2 and study wall), the east edge of every stud in inches east of the inside of the west wall, from the west wall to the study door. 184 / 192 are the bedroom 2 door's east and the bath 2 door's west framing; 275.75 is the study door's west edge" },
+               { axis = "x", at = 10.8, x0 = 26.188, right_edges_in = [1.5, 3, 12.25, 28.75, 44.5, 59.75, 62.5], note = "MEASURED by Maxwell 11/20/2026: the study's hall wall east of its door, hooked on the west face of the door's east jack, east edges of the studs in inches. That face is x 26.19: the door's west edge at 275.75 in on the long wall reading (x 23.52) plus its 32 in rough opening (the model's door sits about 2 in further west, 23.37 to 26.00)" },
+               { axis = "x", at = 15.26, x0 = 42.5417, west_edges_in = [1.5, 9.25, 25, 40.75, 57.5, 64, 65.5, 67, 133.5, 135.125, 136.5], note = "MEASURED by Maxwell 11/20/2026: bedroom 1's south wall, hooked on the east wall (SIP face, no drywall) and read west, the WEST edge of each stud in inches. 64 / 65.5 / 67 and 133.5 / 135.125 / 136.5 are the closet 1 pocket door's king and two jacks each side" } ]
 door_heads = [ [14.16, 22.64, 6.67] ]   # hall 1 pocket door: the as-built header sits at 6'-11" (83 in), so the door is 6'-8" (Maxwell 11/20/2026), not the 8 ft A-11 shows
-clerestory_wall = { built = true, stud_d_in = 5.5, note = "Wall A: a stick framed wall stands on the clerestory line, framed to the top plates (9 ft measured 11/20/2026). The model's SIP clerestory wall is drawn around it until we know what goes on top. Stud size ASSUMED 2x6." }
+clerestory_wall = { built = true, stud_d_in = 5.5, plate_in = 108.5, note = "Wall A: a stick framed wall stands on the clerestory line, top of its top plate 9 ft 0 1/2 in (Maxwell 11/20/2026). The model's SIP clerestory wall is drawn around it until we know what goes on top. Stud size ASSUMED 2x6." }
 
 [[framing.headers]]             # A1, pantry door
 at = [2.09, 34.89]
@@ -745,17 +763,17 @@ source = "Drone photos 11/19/2026: about 50 in wide, tight under the plates"
 [[framing.headers]]             # A3, living room barn door opening
 at = [23.91, 34.89]
 ro = [20.58, 27.25]             # MEASURED 11/20/2026: 80 in wide (Maxwell), centre kept from the photos. Height not measured yet
-measured = "11/20/2026 by Maxwell: 80 in wide. Header height not measured yet (still the photo estimate)"
+measured = "11/20/2026 by Maxwell: 80 in wide, 7 ft 9 1/2 in from the slab to the bottom of the header"
 size = "built-up 2x (pale, about 7 to 9 in)"
-bottom_in = 98.5
+bottom_in = 93.5               # MEASURED 11/20/2026 (Maxwell): 7' 9 1/2"
 tight = true
 confidence = "medium"
 source = "Drone photos 11/19/2026: 72 in opening (the photos' scale), the shallowest header, tight under the plates"
 
 [[framing.headers]]             # A4, entry cubby beam
 at = [36.79, 34.89]
-ro = [31.51, 42.01]             # MEASURED 11/20/2026: an 11 ft header on two 2x4s at each end, read as 11 ft long overall, so 10 ft 6 in clear (the photos showed about 10 ft 5 in). East end kept from the photos
-measured = "11/20/2026 by Maxwell: 11 ft header with two 2x4s under each end (read as 11 ft overall, 10 ft 6 in clear; asked to confirm). Height not measured yet"
+ro = [31.583, 42.167]           # MEASURED 11/20/2026 (Maxwell): 127 in jack to jack; the east jacks are three 2x4s against the east wall's SIP, 4 1/2 in deep, so their face is at 42.167
+measured = "11/20/2026 by Maxwell: 127 in jack to jack, two 2x6 jacks at the west end, three 2x4s at the east end against the east wall (face 4 1/2 in off it). Height not measured yet"
 type = "LVL"
 size = "LVL (pale, about 11 7/8 in), doubled post at the west end"
 bottom_in = 94
@@ -784,36 +802,36 @@ axis = "x"
 at = [34.25, 22.64]
 band = [22.41, 22.87]
 head = 6.67
-ro = [31.34, 37.26]             # MEASURED 11/20/2026 (Maxwell: same as the bedroom 1 closet header): 71 in clear, centre kept from the photos
+ro = [31.622, 37.039]           # 65 in between the jacks, header about 71 1/4 in (Maxwell 11/20/2026: same as the bedroom 1 closet door). East end on the door's east edge (the pocket runs west)
 size = "(2) 2x12 class, pale built-up 2x"
 bottom_in = 83                  # MEASURED 11/20/2026: 83 in to the bottom of the header
 jacks = 2                       # MEASURED 11/20/2026: two 2x4s under each end
 kings = 0
-measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, 71 in clear, two 2x4s under each end"
+measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, 65 in between the jacks (header about 71 1/4 in long), two jacks under each end"
 confidence = "medium"
 source = "Drone photos 11/19/2026: about 5 1/2 ft opening, 6'8\" door class, flat 2x and cripples above"
 notes = ["A-11 shows this as an open gap under the loft; the framing has a door-height header across it."]
 
 [[framing.headers]]             # C1, hall 2 to laundry pocket door
 at = [22.08, 15.26]
-ro = [20.75, 26.67]             # MEASURED 11/20/2026 (Maxwell: same as the bedroom 1 closet header): 71 in clear. West end on the door opening's west edge (the pocket runs east); centred on the photos it put a jack 1 in into the doorway
+ro = [20.75, 26.188]            # 65 1/4 in between the jacks (Maxwell 11/20/2026: like the bedroom 1 closet door but about 1/4 in longer, a small gap left between header and studs), header about 71 1/2 in on two jacks each end. West end on the door opening's west edge (the pocket runs east)
 type = "LVL"
 size = "LVL (dark brown, about 10 to 14 in)"
 depth_in = 12
 bottom_in = 83                  # MEASURED 11/20/2026: 83 in to the bottom of the header
 jacks = 2                       # MEASURED 11/20/2026: two 2x4s under each end
 kings = 0
-measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, 71 in clear, two 2x4s under each end"
+measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, 65 in between the jacks (header about 71 1/4 in long), two jacks under each end"
 pocket = true
 confidence = "low"
 source = "Drone photos 11/19/2026: about 6 ft opening, header bottom not visible"
 
 [[framing.headers]]             # C2, bedroom 1 to closet 1 pocket door
 at = [35.7, 15.26]
-ro = [31.84, 37.76]              # MEASURED 11/20/2026: 71 in clear between the jacks. Centre kept from the photos (34.8); edge location not measured yet
+ro = [31.542, 36.958]           # MEASURED 11/20/2026 stud by stud from the east wall: 65 in between the jacks (a 32 in pocket door frame). The header on top is about 71 1/4 in long (Maxwell)
 jacks = 2                       # MEASURED 11/20/2026: two 2x4s under each end of the header
-kings = 0
-measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, 71 in clear, two 2x4s under each end"
+kings = 1                       # a full height stud beside the jacks at each end (stud readings 11/20/2026)
+measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, two 2x4s under each end; stud readings put the jacks at 65 in apart, x 31.54 to 36.96"
 size = "(2) 2x12 class, pale built-up 2x"
 bottom_in = 83                  # MEASURED 11/20/2026 (Maxwell, on site): 83 in from the slab to the bottom of the header
 pocket = true

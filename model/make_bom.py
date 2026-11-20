@@ -118,14 +118,14 @@ def dist_to_seg(p, a, b):
 
 
 def truss_xs(r):
-    CW, E, SP = 3.5 / 12, 0.05, T["spacing_in"] / 12
+    CW, E, SP = T.get("chord_w_in", 3.5) / 12, 0.05, T["spacing_in"] / 12
     x0, x1 = r[0] + E, r[2] - E
     g = T.get("grid_x0", 0.0)
     k0 = int((x0 + CW / 2 - g) // SP) - 1
     return [g + k * SP for k in range(k0, k0 + 200) if x0 + CW / 2 - 1e-6 <= g + k * SP <= x1 - CW / 2 + 1e-6]
 
 
-REG = [(r, truss_xs(r)) for r in T["regions"] + T.get("loft_regions", [])]
+REG = [(r, T["xs"][i] if "xs" in T else truss_xs(r)) for i, r in enumerate(T["regions"] + T.get("loft_regions", []))]
 Z0, DEP = T["z0"], T["depth_in"] / 12
 
 

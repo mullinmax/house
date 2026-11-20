@@ -235,11 +235,10 @@ FC_Y, FC_Z = 27.15, 3.0
 # Hot water: both tanks stand off the south wall with a 5 in pipe lane behind them. The preheat tank is as far west as it can
 # go while leaving 2 ft of working room in front of the flow center (pump swaps, flush hoses, topping up), so the desuperheater
 # lines drop down the wall just west of it (Maxwell, 11/18/2026). The water heater is 16 in east of it so the valves, pump and
-# mixing valve between the tanks can be reached, and its two ducts rise in the middle of truss bay 7.7.
+# mixing valve between the tanks can be reached, and its two ducts rise in the middle of the truss bay over the tank.
 WH_X, PH_D = 7.7, 22.0
 TANK_Y = US - 0.42 + 2 / 12                        # the tanks' back point (the builders put each tank 2 in in front of it)
 PH_X = WH_X - ((24.25 + 4) / 24 + 1.0 + (PH_D + 4) / 24)    # preheat tank to the west, drain pans 12 in apart: a 16 in service gap between the tanks
-WH_DUCT_X = WH_X
 # Heat pump: on the attic deck with its length north to south. Supply leaves the north end, the water, desuperheater and
 # electrical connections are on the south end, the return and filter are on the east side, and the service panels face a
 # 2 ft aisle along the west wall (exactly 2 ft from the wall face to the cabinet). Seen from the connection end the return is on the right: a right hand return unit.
@@ -614,13 +613,31 @@ ducts.append(dict(id="supply_plenum", info_of="supply_trunk", type="supply", sha
 def drop(x, y0, ys, zt=ZT):      # leave the trunk's side, drop into the truss space, run to ys
     return [[x, y0, DECK + 0.45], [x, y0 + (0.25 if ys > y0 else -0.25), zt], [x, ys, zt]]
 
-# The floor trusses sit on one 24 in grid across the house (they run continuous over the interior walls), so every
-# truss bay lines up from room to room: trusses at x = TG + 2k, bays centred on TG + 1 + 2k (1.7, 3.7, 5.7, ...).
+# The floor trusses sit on one 16 in grid across the house (they run continuous over the interior walls), so every
+# truss bay lines up from room to room: trusses at x = TG + 4/3 k, bays centred halfway between (Maxwell measured
+# 16 in on centre from the west wall, 11/20/2026). Each bay has about 12 1/2 in clear between the chords.
 # A duct may run north to south inside a bay at any size that fits, but anything crossing the trusses goes through
 # the web openings, so it is round and 6 in or less (tools/truss_clash.py checks both).
 TG = CFG["floor_trusses"].get("grid_x0", 0.7)
+TSP = CFG["floor_trusses"]["spacing_in"] / 12
+TEXTRA = CFG["floor_trusses"].get("extra_x", [])
 def bay(x):                       # centre of the truss bay nearest x
-    return round(TG + 1 + 2 * round((x - TG - 1) / 2), 3)
+    return round(TG + TSP / 2 + TSP * round((x - TG - TSP / 2) / TSP), 3)
+def truss_xs(r, ext=(0.6, 42.4)):  # trusses over one region: the grid ones that fit inside it, plus the extra ones; a truss
+    CW, E = CFG["floor_trusses"].get("chord_w_in", 3.5) / 12, 0.05   # tight to an exterior wall stays even where it overhangs the region's drywall line
+    lo = r[0] + E + CW / 2 if r[0] > ext[0] else r[0] - CW
+    hi = r[2] - E - CW / 2 if r[2] < ext[1] else r[2] + CW
+    k0 = int((lo - TG) // TSP) - 1
+    xs = [round(TG + k * TSP, 4) for k in range(k0, k0 + 200) if lo - 1e-6 <= TG + k * TSP <= hi + 1e-6]
+    xs += [x for x in TEXTRA if lo - 1e-6 <= x <= hi + 1e-6]
+    xs += [x for x, y0, y1 in CFG["floor_trusses"].get("extra_trusses", []) if lo - 1e-6 <= x <= hi + 1e-6 and y0 < r[3] - 0.1 and y1 > r[1] + 0.1]
+    return sorted(xs)
+# Solid trimmable ends (Maxwell, 11/20/2026): where the trusses bear on the hall 2 north wall they are solid for a stretch south of
+# it, so nothing can pass through them there. [x, y from, y to] per truss.
+def _end(x, yw, inch):            # a negative length reaches north of the reference face
+    return [x] + sorted([yw, round(yw + inch / 12, 3)])
+TENDS = [_end(round(TG + k * TSP, 4), yw, inch) for k0, k1, yw, inch in CFG["floor_trusses"].get("solid_ends", []) for k in range(k0, k1 + 1)]
+TENDS += [_end(x, yw, inch) for x, yw, inch in CFG["floor_trusses"].get("solid_ends_x", [])]
 
 S = "S"; N = "N"
 # A wall register's back sits about 1/10 in behind the drywall face and its front stands about 0.6 in proud, so it shows
@@ -666,15 +683,15 @@ supply("s_bed3", "Bedroom 3", 127, 8, [[XB3, 13.4, DECK + 0.3], [XB3, 13.4, ZT],
        "the 6 in run that crossed one truss carried only about three quarters of this room's air (duct balance check, 11/18/2026).")
 # south main: drops from the west side of the supply plenum into the first truss bay at the west wall and runs south in it. Each kitchen and powder
 # register then gets its own round branch through the truss webs (a rectangular main cannot cross the trusses).
-XM = bay(1.7) + 0.2                               # east of centre in the bay, so the geo risers pass on its west side
+XM = bay(2.7)                                     # second bay from the west wall: the geo risers fill the first one (16 in trusses, 11/20/2026)
 KY = CFG["roof"]["clerestory_wall_y"] - 0.02 - 7 / 12   # centreline of the kitchen duct on the deck, tight against the attic side of the clerestory wall
 KZ = DECK + 4 / 12 + 0.02                         # centre of an 8 in tall duct lying on the deck
 SMAIN_END = KY
-ducts.append(dict(id="supply_south_main", name="South supply main", category="HVAC supply duct", system="hvac.supply", type="supply", shape="rect", size=[14, 8],
+ducts.append(dict(id="supply_south_main", name="South supply main", category="HVAC supply duct", system="hvac.supply", type="supply", shape="rect", size=[12, 10],
     points=[[XM, HP_N - 1.4, DECK + 0.2], [XM, HP_N - 1.4, ZT], [XM, SMAIN_END, ZT]], parent="supply_plenum", el=50,
-    info=dict(model="14 x 8 in in the first truss bay, then up onto the deck for the kitchen", specs=[["Serves", "Kitchen and dining 3 x 127 CFM, pantry 22, powder 15, utility 18"]],
-      notes=["New. On M-10 these rooms were fed by branches crossing the attic floor. Here the main runs south in the truss bay along the west wall, "
-             "which is parallel to the trusses so a rectangular duct fits. The small utility and powder branches cross the trusses at 6 in. "
+    info=dict(model="12 x 10 in in the second truss bay from the west wall, then up onto the deck for the kitchen", specs=[["Serves", "Kitchen and dining 3 x 127 CFM, pantry 22, powder 15, utility 18"]],
+      notes=["New. On M-10 these rooms were fed by branches crossing the attic floor. Here the main runs south in a truss bay near the west wall, "
+             "which is parallel to the trusses so a rectangular duct fits. 12 x 10 in, not 14 x 8: the 16 in trusses leave about 12 1/2 in between them (Maxwell, 11/20/2026). The small utility and powder branches cross the trusses at 6 in. "
              "At the clerestory wall the main comes up through the deck and feeds the kitchen duct, so the big kitchen runs never pass through a truss (Maxwell, 11/18/2026). Sizes are schematic."])))
 ducts.append(dict(id="s_pantry", name="Supply to Pantry", category="HVAC supply duct", system="hvac.supply", room="Pantry", type="supply", shape="rect", size=[10, 6],
     points=[[XM, 31.0, ZT], [XM, 31.0, CEIL + 0.05]], cfm=22, parent="supply_south_main", damper=True, grilles=[dict(at=[XM, 31.0, CEIL - 0.02], size=[10, 6])],
@@ -687,7 +704,7 @@ supply("s_powder", "Powder", 15, 6, [[XM, 29.2, ZT], [9.5, 29.2, ZT]], dict(at=[
 # wall and a 14 x 8 duct lies on the deck tight against that wall, over the pantry and powder room. Each register is a short 8 in stub
 # straight through the wall, like the bedroom registers on the north trunk. Nothing here crosses a truss.
 KX = [bay(3.0), bay(7.0), bay(11.0)]
-ducts.append(dict(id="supply_kitchen_riser", info_of="supply_kitchen_main", type="supply", shape="rect", size=[14, 8], parent="supply_south_main", el=30,
+ducts.append(dict(id="supply_kitchen_riser", info_of="supply_kitchen_main", type="supply", shape="rect", size=[12, 10], parent="supply_south_main", el=30,
     points=[[XM, KY, ZT], [XM, KY, KZ]]))
 ducts.append(dict(id="supply_kitchen_main", name="Kitchen supply duct", category="HVAC supply duct", system="hvac.supply", type="supply", shape="rect", size=[14, 8], parent="supply_kitchen_riser",
     points=[[XM, KY, KZ], [KX[-1] + 0.6, KY, KZ]],
@@ -699,22 +716,22 @@ for k, x in enumerate(KX):
            "High sidewall register in the clerestory wall, about 11 in higher than before, on a short 8 in stub from the kitchen duct on the attic deck. M-10 had the third one at x about 17 ft, reached by a duct across the open living room, so it moved west.")
 # east leg
 YS = YE + 0.75
-XL = bay(27.6)                                     # laundry and living 1 share one bay, side by side
+XL, XLV = bay(28.0), bay(26.7)                     # laundry and living 1 in neighbouring bays: at 16 in on centre one bay is too narrow for both
 # The elbow moved east of this bay (Maxwell, 11/19/2026), so these two leave the west face of the trunk's north to south leg, run about
 # a foot west on the deck and then drop into the bay as before.
 def drop_w(x, y0, ys):
     return [[XJ - 0.6, y0, DECK + 0.45], [x, y0, DECK + 0.45], [x, y0 + 0.25, ZT], [x, ys, ZT]]
-supply("s_laundry", "Laundry", 40, 6, drop_w(XL - 0.35, 15.9, 19.0), dict(at=[XL - 0.35, 19.0, CEIL - 0.02], size=[10, 6]))
-supply("s_living1", "Living", 70, 7, drop_w(XL + 0.35, 15.2, 21.4) + [[bay(23.7), 21.4, ZT], [bay(23.7), 22.62, ZT]], dict(at=[bay(23.7), 22.9, ZT], size=[10, 6], wall=S),
-       "Drops in the laundry bay, then crosses the trusses west under the study returns to keep the register near where M-10 has it. "
-       "7 in (Maxwell, 11/18/2026): at 6 in this was the weakest supply in the house. The builder is only sure 6 in passes the truss webs, so check the fit at these two trusses before ordering.")
+supply("s_laundry", "Laundry", 40, 6, drop_w(XL, 15.9, 19.0), dict(at=[XL, 19.0, CEIL - 0.02], size=[10, 6]))
+supply("s_living1", "Living", 70, 7, drop_w(XLV, 15.2, 21.4) + [[bay(23.7), 21.4, ZT], [bay(23.7), 22.62, ZT]], dict(at=[bay(23.7), 22.9, ZT], size=[10, 6], wall=S),
+       "Drops in the bay west of the laundry supply, then crosses the trusses west under the study returns to keep the register near where M-10 has it. "
+       "7 in (Maxwell, 11/18/2026): at 6 in this was the weakest supply in the house. Maxwell measured the web openings (11/20/2026): a 7.4 in circle fits, so 7 in passes.")
 ducts[-1]["cross_ok"] = 7                          # tools/truss_clash.py: this run may cross the trusses at 7 in
 supply("s_living2", "Living", 70, 7, drop(bay(29.7), YS, 22.62), dict(at=[bay(29.7), 22.9, ZT], size=[12, 6], wall=S),
        "Hall 1 has no supply of its own (Maxwell, 11/17/2026): one 3 ft from the main return would short circuit into it. Its 48 CFM from M-10 is split between the two living registers, which open onto the hall through the 8 ft wide cased opening.")
 supply("s_closet1", "Closet 1", 33, 6, drop(bay(33.4), YS, 18.9), dict(at=[bay(33.4), 18.9, CEIL - 0.02], size=[10, 6]))
-XB1 = bay(35.7)                                    # bath 1 and the loft share one bay
-supply("s_bath1", "Bath 1", 49, 6, drop(XB1 - 0.4, YS, 27.6), dict(at=[XB1 - 0.4, 27.6, CEIL - 0.02], size=[10, 6]), "Runs in the loft floor.")
-supply("s_loft", "Loft", 88, 8, drop(XB1 + 0.4, YS, 24.6) + [[XB1 + 0.4, 24.6, DECK + 0.01]], dict(at=[XB1 + 0.4, 24.6, DECK + 0.01], size=[12, 4]),
+XB1A, XB1 = bay(34.7), bay(36.0)                  # bath 1 and the loft in neighbouring bays (16 in trusses leave too little room for both in one)
+supply("s_bath1", "Bath 1", 49, 6, drop(XB1A, YS, 27.6), dict(at=[XB1A, 27.6, CEIL - 0.02], size=[10, 6]), "Runs in the loft floor.")
+supply("s_loft", "Loft", 88, 8, drop(XB1, YS, 24.6) + [[XB1, 24.6, DECK + 0.01]], dict(at=[XB1, 24.6, DECK + 0.01], size=[12, 4]),
        "Floor register in the loft. 8 in, up from 6 in: the run stays in one truss bay, so the 6 in limit on crossing trusses does not apply (duct balance check, 11/18/2026).")
 for k, x in enumerate([31.7, 37.7]):
     supply(f"s_family{k+1}", "Entry / family", 112, 8, drop(bay(x), YS, YC2 - 0.03), dict(at=[bay(x), YREG_S, ZT], size=[14, 6], wall=S), "Runs in the loft floor to a high sidewall register. 8 in, up from 7 in: 19 ft long but all in one truss bay, so it can be the full size the trusses allow (duct balance check, 11/18/2026).")
@@ -820,9 +837,18 @@ ret("return_plenum", "Return plenum box", [14, 24], [[RP_E - 7 / 12, RP_S, PZ], 
 # Bedrooms 2 and 3 (Maxwell, 11/17/2026): bedroom 3's grille moved from beside the bed to its north wall. Both grilles are in
 # the wall the two rooms share, in neighbouring stud bays, and both stacks rise into the trusses over bedroom 3, where they join.
 # Bedroom 3 has a second grille and stack one bay west (duct balance check, 11/18/2026): one 14 x 2-1/2 in stack chokes 127 CFM.
-XR3, XR2, XR3B = bay(7.7), bay(9.7), bay(5.7)
-r = ret("return_bed23", "Bedrooms 2 and 3 return", 10, bend([[XR3, 10.85, ZT], [XR3, RY - 0.7, ZT], [XR3, RY - 0.7, DECK + 0.2]]), flex=True, el=25,
-        grilles=[dict(at=[XR3, 10.97, LOW], size=[14, 8], wall=S), dict(at=[XR3B, 10.97, LOW], size=[14, 8], wall=S)])
+# Maxwell measured the studs in this wall (11/20/2026, [framing] stud_lines): each stack sits in a measured stud bay and its
+# flex leaves the top plate into the truss bay above, which sits about 2 in east of the stud bay.
+def stud_bay(x, line=0, min_in=14.2):
+    sl = CFG["framing"]["stud_lines"][line]
+    ed = ([sl["x0"] + e / 12 for e in sl["right_edges_in"]] if "right_edges_in" in sl
+          else sorted(sl["x0"] - e / 12 + 1.5 / 12 for e in sl["west_edges_in"]))   # east edges either way
+    bays = [((a + b - 1.5 / 12) / 2, b - 1.5 / 12 - a) for a, b in zip(ed, ed[1:]) if b - 1.5 / 12 - a > min_in / 12]
+    return round(min(bays, key=lambda c: abs(c[0] - x))[0], 3)
+SR3, SR2, SR3B = stud_bay(8.0), stud_bay(9.3), stud_bay(6.6)
+XR3, XR2, XR3B = bay(SR3), bay(SR2), bay(SR3B)       # the truss bays over those stud bays
+r = ret("return_bed23", "Bedrooms 2 and 3 return", 10, bend([[SR3, 10.85, CEIL + 0.04], [XR3, 10.85, ZT], [XR3, RY - 0.7, ZT], [XR3, RY - 0.7, DECK + 0.2]]), flex=True, el=25,
+        grilles=[dict(at=[SR3, 10.97, LOW], size=[14, 8], wall=S), dict(at=[SR3B, 10.97, LOW], size=[14, 8], wall=S)])
 r["info"]["specs"] = [["Serves", "Bedroom 3 (two low grilles on its north wall) and bedroom 2 (low grille on its south wall)"],
                       ["Duct", "14 x 2-1/2 in wall stacks, 6 in flex from bedroom 2 and from bedroom 3's second stack through one truss each, 10 in flex south in one truss bay to the plenum"],
                       ["Crosses", "One truss from each side, at 6 in. No supply runs"]]
@@ -831,26 +857,27 @@ r["info"]["notes"] = ["Bedroom 3's grille moved from its south wall, next to the
                       "tees into a 10 in flex that runs south in that bay, parallel to the trusses, to the return plenum box at the heat pump.",
                       "Bedroom 3 has two grilles and two stacks (duct balance check, 11/18/2026): a 14 x 2-1/2 in stack is all a 2x4 wall holds, and one of them alone "
                       "passed only about three quarters of the room's 127 CFM.", RFLEX]
-stack("return_bed3_stack", XR3, 10.8, "return_bed23", "return_bed23", "Bedroom 3")
-stack("return_bed3_stack2", XR3B, 10.8, "return_bed23", "return_bed3b", "Bedroom 3")
-ret("return_bed3b", None, 6, bend([[XR3B, 10.85, ZT], [XR3B, 12.6, ZT], [XR3 - 0.3, 13.4, ZT], [XR3, 13.9, ZT]], 0.4), flex=True, info_of="return_bed23", parent="return_bed23", el=30)
-ret("return_bed2", None, 6, bend([[XR2, 10.85, ZT], [XR2, 11.9, ZT], [XR3 + 0.3, 12.7, ZT], [XR3, 13.2, ZT]], 0.4), flex=True, parent="return_bed23", el=30,
-    grilles=[dict(at=[XR2, 10.64, LOW], size=[14, 8], wall=N)], info_of="return_bed23")
-stack("return_bed2_stack", XR2, 10.8, "return_bed23", "return_bed2", "Bedroom 2")
+stack("return_bed3_stack", SR3, 10.8, "return_bed23", "return_bed23", "Bedroom 3", top=CEIL + 0.04)
+stack("return_bed3_stack2", SR3B, 10.8, "return_bed23", "return_bed3b", "Bedroom 3", top=CEIL + 0.04)
+ret("return_bed3b", None, 6, bend([[SR3B, 10.85, CEIL + 0.04], [XR3B, 10.85, ZT], [XR3B, 12.6, ZT], [XR3 - 0.3, 13.4, ZT], [XR3, 13.9, ZT]], 0.4), flex=True, info_of="return_bed23", parent="return_bed23", el=30)
+ret("return_bed2", None, 6, bend([[SR2, 10.85, CEIL + 0.04], [XR2, 10.85, ZT], [XR2, 11.9, ZT], [XR3 + 0.3, 12.7, ZT], [XR3, 13.2, ZT]], 0.4), flex=True, parent="return_bed23", el=30,
+    grilles=[dict(at=[SR2, 10.64, LOW], size=[14, 8], wall=N)], info_of="return_bed23")
+stack("return_bed2_stack", SR2, 10.8, "return_bed23", "return_bed2", "Bedroom 2", top=CEIL + 0.04)
 
 # Study: two 6 in flex home runs from its one stack (duct balance check, 11/18/2026: one 6 in returned about 60% of the room's air).
 # They come down in one hall 2 bay, cross the laundry and linen trusses west a little apart, and drop south in their own bays.
 # The second run uses the route bedroom 1's return had before it moved up onto the supply trunk.
-XSB, XSB2 = bay(27.7), bay(29.7) - 0.2           # the study's two low grilles east of its door (x 23.37-26.00 with casing to 26.29), Maxwell 11/18/2026
+SSB, SSB2 = stud_bay(27.7, 1), stud_bay(29.0, 1)   # measured stud bays (Maxwell, 11/20/2026); the flex runs leave from the truss bays above
+XSB, XSB2 = bay(SSB), bay(SSB2)                 # the study's two low grilles east of its door (x 23.37-26.00 with casing to 26.29), Maxwell 11/18/2026
 # bedroom 1's grilles: both east of the closet 1 pocket door's header (Maxwell, 11/20/2026). The as-built header and its
-# double jacks run from x 31.59 to 38.01 ([framing] in config.toml, 71 in clear measured 11/20/2026); at x 32.0 and 33.3 the stacks ran through the
+# double jacks and kings run from x 31.16 to 37.34 (stud readings 11/20/2026, 65 in between the jacks); at x 32.0 and 33.3 the stacks ran through the
 # pocket. The second stack skips the bay with the bedroom outlet at x 39.6.
-XB1R = 38.7
-XSR = bay(25.7)                                   # both runs go south in the 25.7 bay: the laundry and living 1 supplies fill bay 27.7
+XB1R = stud_bay(38.6, 2)                           # measured stud bays (Maxwell, 11/20/2026)
+XSR = bay(25.4)                                   # both runs go south side by side in this bay: the living 1 and laundry supplies fill the next two east
 YSW, YBW = 19.6, 20.3
 r = ret("return_study", "Study return", 6,
-        bend([[XSB - 0.3, 10.85, ZT], [XSB - 0.3, 11.4, ZT], [XSR - 0.35, 11.4, ZT], [XSR - 0.35, YSW, ZT], [XR2, YSW, ZT], [XR2, RY + 0.5, ZT], [RPX, RY + 0.5, ZT], [RPX, RY + 0.5, DECK + 0.2]]), flex=True,
-        el=25, grilles=[dict(at=[XSB, 10.64, LOW], size=[14, 8], wall=N), dict(at=[XSB2, 10.64, LOW], size=[14, 8], wall=N)])
+        bend([[SSB, 10.85, CEIL + 0.04], [XSB, 10.85, ZT], [XSB, 11.85, ZT], [XSR - 0.26, 11.85, ZT], [XSR - 0.26, YSW, ZT], [XR2, YSW, ZT], [XR2, RY + 0.5, ZT], [RPX, RY + 0.5, ZT], [RPX, RY + 0.5, DECK + 0.2]]), flex=True,
+        el=25, grilles=[dict(at=[SSB, 10.64, LOW], size=[14, 8], wall=N), dict(at=[SSB2, 10.64, LOW], size=[14, 8], wall=N)])
 r["info"]["model"] = "Two low grilles, each with its own stack and 6 in round flex run"
 r["info"]["specs"] = [["Serves", "Study (low grille on its south wall, east of the door; a separate high grille over the door carries most of the air)"],
                       ["Duct", "Two 14 x 2-1/2 in wall stacks in neighbouring truss bays, each with a 6 in flex home run to the heat pump's return"],
@@ -858,11 +885,11 @@ r["info"]["specs"] = [["Serves", "Study (low grille on its south wall, east of t
 r["info"]["notes"] = ["The study has a low grille (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Two 6 in runs because one big duct "
                       "would not fit through the truss webs and a single 6 in returned only about 60% of the room's 104 CFM (duct balance check, 11/18/2026). "
                       "If the builder confirms 7 in fits the webs, one 7 in run does nearly the same job.",
-                      "Second grille and stack (Maxwell, 11/19/2026): the builder can move bedroom 1's door wall east, so it moved 2 ft 1 1/2 in, just far enough that the study's south wall has two stud bays for stacks, each under its own floor truss bay (27.7 and 29.7). The 24 in truss layout is ASSUMED: if the real trusses sit differently over this wall, the move needed changes, and with a truss right over the stud between the two bays it could be as little as about 8 in. Confirm on site.", RFLEX]
-stack("return_study_stack", XSB, 10.8, "return_study", "return_study", "Bedroom 4 / study")
-stack("return_study_stack2", XSB2, 10.8, "return_study", "return_study2", "Bedroom 4 / study")
-ret("return_study2", None, 6, bend([[XSB2, 10.85, ZT], [XSB2, 12.0, ZT], [XSR + 0.35, 12.0, ZT], [XSR + 0.35, YBW, ZT], [bay(11.7) - 0.2, YBW, ZT],
-                                    [bay(11.7) - 0.2, RY - 1.3, ZT]]), flex=True, info_of="return_study", el=25)
+                      "Second grille and stack (Maxwell, 11/19/2026): the builder can move bedroom 1's door wall east, so it moved 2 ft 1 1/2 in, just far enough that the study's south wall has two stud bays for stacks, each under its own floor truss bay. Maxwell measured the trusses at 16 in on centre from the west wall (11/20/2026), so the stacks sit at x 28.0 and 29.4, centred under two neighbouring truss bays. The studs are 16 in on centre too, but where they fall against the trusses over this wall is not measured yet: a stack whose stud bay sits half a bay off the trusses would land on a truss. Confirm on site.", RFLEX]
+stack("return_study_stack", SSB, 10.8, "return_study", "return_study", "Bedroom 4 / study", top=CEIL + 0.04)
+stack("return_study_stack2", SSB2, 10.8, "return_study", "return_study2", "Bedroom 4 / study", top=CEIL + 0.04)
+ret("return_study2", None, 6, bend([[SSB2, 10.85, CEIL + 0.04], [XSB2, 10.85, ZT], [XSB2, 12.6, ZT], [XSR + 0.26, 12.6, ZT], [XSR + 0.26, YBW, ZT], [bay(10.7), YBW, ZT],
+                                    [bay(10.7), RY - 1.3, ZT]]), flex=True, info_of="return_study", el=25)
 
 # Bedroom 1 (duct balance check, 11/18/2026): its 138 CFM is too much for anything that fits through the truss webs, so its return
 # stays out of the trusses. Two stacks rise side by side in bedroom 1's south wall to a header above the supply trunk, which lies
@@ -870,7 +897,7 @@ ret("return_study2", None, 6, bend([[XSB2, 10.85, ZT], [XSB2, 12.0, ZT], [XSR + 
 # north attic wall, comes down onto the deck east of the trunk's west leg and runs south to the return plenum.
 ZR = ZTR + 8 / 12 + 5 / 12 + 0.02                  # centre of a 10 in round lying on top of the 18 x 16 supply trunk
 ZH = ZTR + 8 / 12 + 0.54 + 5 / 12 + 0.04           # centre of the header, clear above the 6 in exhaust main on the trunk
-XB1B = 40.6                                        # the second stack, one stud bay further east: the outlet at x 39.6 sits between them
+XB1B = stud_bay(41.2, 2)                                        # the second stack, one stud bay further east: the outlet at x 39.6 sits between them
 XBH = (XB1R + XB1B) / 2
 HBW = round((XB1B - XB1R) * 12 + 14 + 4)           # header box width (in): over both stacks
 Y_RL, X_RL, Y_RN = YE + 0.31, XJ - 0.31, YN + 0.31 # the return's lane on the trunk top: south side of the east leg, west side of the jog, south side of the north leg
@@ -894,12 +921,12 @@ ret("return_bed1_head", None, [HBW, 10], [[XBH, 15.3, ZH], [XBH, 15.95, ZH]], in
 # Bath 2 supply comes in LOW and the exhaust stays HIGH (Maxwell, 11/18/2026), so the boost exhaust does not pull the fresh
 # supply air straight back out. A bottom takeoff from the trunk drops into hall 2's trusses, runs north in one truss bay to the
 # bath 2 / hall 2 wall (an interior stud wall, not a SIP), and goes down that stud bay to a low register just east of the door.
-XS2 = 20.1                                        # inside bay 19.7, east of the door casing (door opening x 16.58 to 19.21)
+XS2 = stud_bay(20.0, min_in=10.2)                             # the measured stud bay just east of the bath 2 door (Maxwell, 11/20/2026): 10 3/4 in clear, so a 10 in stack
 supply("s_bath2", "Bath 2", 37, 6, [[XS2, YN, DECK + 0.3], [XS2, YN, ZT], [XS2, 10.85, ZT]], dict(at=[XS2, 10.64, LOW], size=[10, 6], wall=N), el=60, note=
        "Low sidewall register on the south wall (Maxwell, 11/18/2026): supply low, exhaust high on the other end of the same wall, so fresh air "
        "sweeps across the room before the exhaust takes it. Bottom takeoff from the trunk, 6 in round north in one hall 2 truss bay, then a "
-       "12 x 2-1/2 in stack down the stud bay of the interior wall. The register sits east of the door and west of the vanity. ASSUMED sizes.")
-ducts.append(dict(id="s_bath2_stack", info_of="s_bath2", type="supply", shape="rect", size=[12, 2.5], points=[[XS2, 10.8, LOW - 0.25], [XS2, 10.8, ZT]]))
+       "10 x 2-1/2 in stack down the stud bay of the interior wall (the measured bay east of the door is 10 3/4 in clear, Maxwell 11/20/2026). The register sits east of the door and west of the vanity. ASSUMED sizes.")
+ducts.append(dict(id="s_bath2_stack", info_of="s_bath2", type="supply", shape="rect", size=[10, 2.5], points=[[XS2, 10.8, LOW - 0.25], [XS2, 10.8, ZT]]))
 
 # Bath exhaust (Maxwell, 11/17/2026): ceiling or high wall grilles in bath 1, bath 2 and the powder room, ducted to the ERV's stale air inlet
 # instead of separate fans. The run hugs the supply trunk's south side on the deck so it stays in the low, north part of the attic.
@@ -922,16 +949,17 @@ XE2 = 21.9                                        # east end of the south wall, 
 exhaust("ex_bath2", "Bath 2 exhaust", 6, [[XE2, 10.62, ZTOP], [XE2, Y_EN, ZTOP]], room="Bath 2",
         grilles=[dict(at=[XE2, 10.64, ZTOP], size=[10, 6], wall=N)], note=ENOTE + " High on the east end of the bath 2 south wall, through the attic wall and into the main on top of the supply trunk. "
         "It was right beside the supply; the supply now comes in low at the west end of the same wall (Maxwell, 11/18/2026).")
-PWX, PWY = 7.2, 32.2                               # powder room exhaust grille, over the toilet, about 4 ft from the supply by the door (Maxwell, 11/18/2026)
+PWX, PWY = bay(7.2), 32.2                               # powder room exhaust grille, over the toilet, about 4 ft from the supply by the door (Maxwell, 11/18/2026)
 exhaust("ex_powder", "Powder exhaust", 4, [[PWX, PWY, ZT], [PWX, PWY, EX - 0.08], [4.9, PWY, EX - 0.08], [4.9, HP_S + 1.0, EX - 0.08], [4.9, HP_S + 1.0, ERV_Z], [ERV_XS + 0.1, HP_S + 1.0, ERV_Z]], room="Powder",
         grilles=[dict(at=[PWX, PWY, CEIL - 0.02], size=[8, 8])], note=ENOTE + " Comes up through the deck, runs along it and rises into the main just before the ERV.")
 # Litter box exhaust (Maxwell, 11/20/2026): the cat's litter box lives in the utility room, so a small duct off the ERV's stale air side pulls
 # a slow, steady 20 CFM out of the room, and the smell goes outdoors instead of through the transfer grille into the attic (and from there
 # back into the return). Kept as short as it can be (Maxwell, 11/20/2026: the grille can sit at the back of the room, the box can go
 # anywhere near it, the make up air comes under the door and through a cat flap): a 4 in tee off the side of the bath exhaust main where
-# it crosses the heat pump, 2 ft east through the flow limiter, then straight down through the deck and truss bay 5.7 to a ceiling grille
-# at the north end of the room, over the pressure tank. The litter box sits just east of it against the north wall.
-LGX, LRY = 6.1, 23.15                              # the drop: in truss bay 5.7 (4.85 to 6.55), clear of the return plenum (x 5.7) and north of the return trunk (y 23.38)
+# it crosses the heat pump, 2 ft east through the flow limiter, then straight down through the deck and one truss bay to a ceiling grille
+# at the north end of the room, beside the pressure tank. The litter box sits just east of it against the north wall.
+LGX = round(CFG["floor_trusses"]["grid_x0"] + 4.5 * CFG["floor_trusses"]["spacing_in"] / 12, 3)   # the drop: mid bay between the 5th and 6th trusses from the west wall (16 in grid, measured)
+LRY = 23.15                                        # clear of the return plenum (x 5.7), north of the return trunk (y 23.38)
 LIT_CFM = 20
 LNOTE = (f"A slow, steady {LIT_CFM} CFM pulled out of the utility room, all the time, from a ceiling grille next to the litter box, so the smell goes outdoors with the bath air "
          "(Maxwell, 11/20/2026, after a video where a small ERV pickup at a litter box kept the room from ever smelling). "
@@ -945,7 +973,7 @@ _lx = ducts[-1]
 _lx["cfm"] = LIT_CFM
 _lx["info"].update(model=f"4 in round exhaust, {LIT_CFM} CFM continuous, from a 6 x 6 in ceiling filter grille by the litter box", specs=[
     ["Airflow", f"Held at {LIT_CFM} CFM, on the continuous setting and on boost, by a constant airflow regulator in the duct (Maxwell, 11/20/2026)"],
-    ["Pickup", "6 x 6 in ceiling grille at the north end of the room, over the pressure tank and about 2 ft from the litter box. A washable filter behind it keeps litter dust out of the ERV"],
+    ["Pickup", "6 x 6 in ceiling grille at the north end of the room, just east of the pressure tank and about 1 ft from the litter box. A washable filter behind it keeps litter dust out of the ERV"],
     ["Duct", "4 in round: straight up through one truss bay and the deck, about 3-1/2 ft, then 2 ft west through the flow limiter"],
     ["Into", "The side of the 8 in bath exhaust main where it crosses over the heat pump, about 6 ft before the ERV"],
     ["Limiter", f"4 in constant airflow regulator, {LIT_CFM} CFM, right before the drop. No hand damper to set"]])
@@ -962,7 +990,7 @@ _lx["info"]["notes"] += [
     "An ERV core hands some moisture back to the incoming air and a trace of odour can ride along with it. At 20 CFM out of 80, diluted with the bath air, that should not be noticeable. "
     "If it ever is, this branch can be split off to its own small fan and wall cap.",
     "Clash checks: the drop is in one truss bay and crosses no trusses. ASSUMED route and position."]
-_lx["info"]["placement"] = "Utility room ceiling, north end over the pressure tank, up into the attic over the heat pump's north east corner."
+_lx["info"]["placement"] = "Utility room ceiling, north end between the pressure tank and the litter box, up into the attic over the heat pump's north east corner."
 LD_X = (LTX + LGX) / 2                            # flow limiter on the short attic run, between the tee and the drop, over the return plenum
 items.append(dict(id="litter_flow_limiter", name="Litter box exhaust flow limiter", category="Ventilation", system="hvac.exhaust", room="Attic", layer="ducts",
     builder="flow_regulator", size=[4, 6], at=[LD_X, LRY, ERV_Z - 2 / 12 - 0.15 / 12], facing=90,
@@ -981,7 +1009,7 @@ items.append(dict(id="litter_box", name="Cat litter box", category="Pets", syste
     builder="litter_box", size=LB, at=[round(LBX, 3), UN + 2 / 12, 0], facing=180, mat=[26, 16],
     info=dict(model="Large open litter box with high sides, about 24 x 18 x 12 in, on a litter mat (generic, for scale)",
         specs=[["Where", "Utility room north wall, right beside the pressure tank, 2 in off the wall, about 3 ft west of the hall door"],
-               ["Exhaust", f"The ceiling exhaust grille is about 2 ft west of it, pulling {LIT_CFM} CFM to the ERV"],
+               ["Exhaust", f"The ceiling exhaust grille is about 1 ft west of it, pulling {LIT_CFM} CFM to the ERV"],
                ["Cat's way in", "The flap in the utility room door"]],
         notes=["Placeholder for where the cat's litter box goes (Maxwell, 11/20/2026: it can go anywhere, the air comes in under the door and through the cat flap). "
                "Shown as close to the exhaust grille as it fits, which helps: the nearer the box is to the grille, the less the room smells. It stays out of the walkway "
@@ -996,9 +1024,10 @@ exhaust("ex_main", "Bath exhaust main", 6, [[XE1, 17.8, EX], [XE1, 17.3, EX], [X
 exhaust("ex_main_w", None, 8, [[XE2 + 0.6, Y_EN, ZTOP], [XE2 + 0.25, Y_EN, ZTOP8], [ERV_XS, Y_EN, ZTOP8], [ERV_XS, HP_N - 2.5, ZTOP8], [ERV_XS, HP_N - 2.5, ERV_Z], [ERV_XS, ERV_N, ERV_Z]], info_of="ex_main")
 # Heat pump water heater air (Maxwell, 11/18/2026): the utility door stays solid, so the water heater's intake and exhaust are both
 # ducted up into the attic, which is inside the SIP roof. Rheem allows any size room when both are ducted and says never to tie
-# the unit into other ductwork. Both rise straight up in truss bay 7.7, north to south of each other, and come out on open deck
+# the unit into other ductwork. Both rise straight up in the truss bay over the tank, north to south of each other, and come out on open deck
 # in the corner between the return plenum and the return trunk. Each ends in an elbow, pointing apart (Maxwell, 11/18/2026).
 HPWH_TOP = 74.2 / 12
+WH_DUCT_X = bay(WH_X)                             # the truss bay over the tank (16 in trusses, 11/20/2026)
 for k, (nm, yy, tail) in enumerate([("intake", WH_CY - 0.15, [[WH_DUCT_X, WH_CY - 0.15, DECK + 1.0], [WH_DUCT_X + 0.8, WH_CY - 0.15, DECK + 1.0]]),
                                    ("exhaust", WH_CY + 0.62, [[WH_DUCT_X, WH_CY + 0.62, DECK + 0.4], [WH_DUCT_X, WH_CY + 3.6, DECK + 0.4]])]):
     ducts.append(dict(id=f"hpwh_{nm}", name=f"Water heater {nm} duct" if k == 0 else None, category="Hot water", system="plumbing.dhw.air", type="exhaust",
@@ -1520,10 +1549,10 @@ if SP:
 
 _tag()
 trusses = dict(id="floor_trusses", name="Open web floor trusses", category="Structure", system="structure.floor", regions=FLAT, loft_regions=[LOFT],
-    z0=CEIL, depth_in=TRUSS_IN, spacing_in=CFG["floor_trusses"]["spacing_in"], deck_in=DECK_IN, grid_x0=TG, max_cross_in=CFG["floor_trusses"]["max_round_duct_in"],
+    z0=CEIL, depth_in=TRUSS_IN, spacing_in=CFG["floor_trusses"]["spacing_in"], deck_in=DECK_IN, grid_x0=TG, xs=[truss_xs(r) for r in FLAT + [LOFT]], solid_ends=TENDS, chord_w_in=CFG["floor_trusses"].get("chord_w_in", 3.5), web_in=CFG["floor_trusses"].get("web_in", 1.5), web_pitch_in=CFG["floor_trusses"].get("web_pitch_in"), max_cross_in=CFG["floor_trusses"]["max_round_duct_in"],
     info=dict(model="11-7/8 in open web floor trusses",
-      specs=[["Depth", "11-7/8 in (Maxwell, 11/16/2026)"], ["Clear for ducts", "About 8-7/8 in between the chords"], ["Floor top", f"{DECK:.2f} ft above the slab with 3/4 in decking"],
-             ["Spacing", "24 in on centre on one grid across the house, ASSUMED"], ["Span", "North to south, continuous over the interior walls, ASSUMED"]],
+      specs=[["Depth", "11-7/8 in (Maxwell, 11/16/2026)"], ["Chords", "2.5 in wide, webs 1.5 x 1.5 in (Maxwell, 11/20/2026)"], ["Web openings", "Triangles 19.5 in along the chord, 13 in legs, 8.5 in high inside: a 7 in round duct passes (Maxwell, 11/20/2026)"], ["Floor top", f"{DECK:.2f} ft above the slab with 3/4 in decking"],
+             ["Spacing", "16 in on centre from the west wall, doubled at the east wall (Maxwell, 11/20/2026)"], ["Span", "North to south, continuous over the interior walls"], ["Ends", "Solid trimmable ends at the bearing walls, open webs between (Maxwell's photo, 11/20/2026)"]],
       notes=["The attic deck and the loft floor sit on these, about 3 in higher in the attic and 2 in higher in the loft than the sealed plans.",
              "The loft railing, pony wall, ladder and furniture come from the last Blender export and still sit at the old height, about 2 in low, until the next export."]))
 
