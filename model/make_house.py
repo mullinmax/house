@@ -209,6 +209,7 @@ MATERIALS = {
     "Island": dict(color=K["island_color"], rough=0.5),
     "Counter": dict(color="#FFFFFF", rough=0.17, map="quartz.jpg", tile=1.6),
     "Glass": dict(color="#C8D4D6", rough=0.05, metal=0.2, opacity=0.14),
+    "Cabinet Glass": dict(color="#B9C9CB", rough=0.04, metal=0.3, opacity=0.32),           # glass door uppers: tinted enough to read as glass
     "Black Glass": dict(color="#0B0B0C", rough=0.05, opacity=0.25),
     "Polycarbonate": dict(color="#F2F2EE", rough=0.2, opacity=0.45),
     "Stainless": dict(color="#C8CACC", rough=0.25, metal=1.0),
@@ -216,6 +217,8 @@ MATERIALS = {
     "Spice Red": dict(color="#8E2A1C", rough=0.8), "Spice Yellow": dict(color="#C99A22", rough=0.8), "Spice Green": dict(color="#5E6B32", rough=0.8),
     "Spice Brown": dict(color="#6A4426", rough=0.8), "Spice Orange": dict(color="#B4561E", rough=0.8),
     "Sesame": dict(color="#E2CC96", rough=0.8), "Gold Lid": dict(color="#C9A13A", rough=0.3, metal=1.0),
+    "Mug Blue": dict(color="#2F5A8A", rough=0.25), "Mug Mustard": dict(color="#C9952B", rough=0.25), "Mug Sage": dict(color="#8FA285", rough=0.25),
+    "Mug Terracotta": dict(color="#B4583A", rough=0.25), "Mug Cream": dict(color="#EFE6D2", rough=0.25),
     "Dishware": dict(color="#F2F0EA", rough=0.2),                                                 # plates and mugs in the glass door upper
     "Cabinet Pull": dict(color=K.get("pull_color", "#1A1A1A"), rough=0.45, metal=0.5),        # matte black bar pulls on every kitchen cabinet
     "Black Metal": dict(color="#151515", rough=0.4, metal=0.6),
@@ -974,7 +977,7 @@ def shaker(run, r, u0, u1, z0, z1, d, mat, kind="door", hinge="L", glass=False, 
         if h < 0.62 and kind == "drawer":
             run.box(mat, u0, u1, d, d + FRONT_T, z0, z1)
         else:
-            run.box("Glass" if glass else mat, u0 + st, u1 - st, d, d + FRONT_T * 0.6, z0 + st, z1 - st)
+            run.box("Cabinet Glass" if glass else mat, u0 + st, u1 - st, d, d + FRONT_T * 0.6, z0 + st, z1 - st)
             run.box(mat, u0, u0 + st, d, d + FRONT_T, z0, z1)
             run.box(mat, u1 - st, u1, d, d + FRONT_T, z0, z1)
             run.box(mat, u0 + st, u1 - st, d, d + FRONT_T, z1 - st, z1)
@@ -992,6 +995,21 @@ def shaker(run, r, u0, u1, z0, z1, d, mat, kind="door", hinge="L", glass=False, 
             if z1 - z0 > 3.5:
                 zc = 3.6 if z0 < 1 else z0 + 0.45
             pull(run, uc, zc, 0.5, dp, vertical=True)
+
+
+def hollow(run, u0, u1, d, z0, z1, mat, shelves=None):
+    """an open cabinet case (back, sides, bottom, top, shelves) behind doors that open, so it reads as storage inside.
+    shelves: heights, or None for one shelf when the box is over 1.4 ft tall (Maxwell 11/19/2026)."""
+    ct = 0.06
+    run.box(mat, u0, u1, 0, ct, z0, z1)
+    for (b0, b1) in ((u0, u0 + ct), (u1 - ct, u1)):
+        run.box(mat, b0, b1, ct, d, z0, z1)
+    run.box(mat, u0 + ct, u1 - ct, ct, d, z0, z0 + ct)
+    run.box(mat, u0 + ct, u1 - ct, ct, d, z1 - ct, z1)
+    if shelves is None:
+        shelves = [(z0 + z1) / 2] if z1 - z0 > 1.4 else []
+    for zz in shelves:
+        run.box(mat, u0 + ct, u1 - ct, ct, d - 0.05, zz, zz + 0.06)
 
 
 def stack(run, r, u0, u1, z0, z1, d, mat, heights):
@@ -1024,7 +1042,12 @@ def base_unit(run, rn, k, u0, u1, typ, mat, depth=BASE_D, counter=True):
             info=dict(model=f"{UNIT_NAMES.get(typ, typ)}, {ftin(u1 - u0)} wide", specs=[["Run", RUN_NAMES.get(rn, rn)], ["Finish", FINISH(mat)], ["Hardware", "Matte black bar pulls"]],
                       notes=["From the Carter Lumber design start plan (Danielle Gross, 11/10/2026) with Erin's 11/12 redline. Wood, door style and pulls from Danielle's 11/19/2026 north wall rendering."]))
     if typ in ("oven_tower", "tall_pantry"):
-        run.box(mat, u0, u1, 0, BASE_D + 0.1, KICK, TALL - 0.25)
+        if typ == "oven_tower":                                   # solid round the oven, an open cabinet above it
+            ot_ = K.get("oven_face_bottom", 1.22) + K.get("oven_face_height_in", 50.75) / 12
+            run.box(mat, u0, u1, 0.03, BASE_D + 0.1, KICK, ot_ + 0.02)              # off the wall by 3/8 in, clear of the oven's back
+            hollow(run, u0, u1, BASE_D + 0.1, ot_ + 0.02, TALL - 0.25, mat)
+        else:
+            run.box(mat, u0, u1, 0, BASE_D + 0.1, KICK, TALL - 0.25)
         run.box(mat, u0 + 0.05, u1 - 0.05, 0, BASE_D - 0.15, 0, KICK)
         run.box(mat, u0 - 0.05, u1 + 0.05, 0, BASE_D + 0.22, TALL - 0.25, TALL)
         df = BASE_D + 0.1
@@ -1047,11 +1070,11 @@ def base_unit(run, rn, k, u0, u1, typ, mat, depth=BASE_D, counter=True):
         if fp:
             for (b0, b1) in ((u0, u0 + fp), (u1 - fp, u1)):
                 run.box(mat, b0, b1, 0, BASE_D + 0.42, 0, 6.0)
-            run.box(mat, u0, u1, 0, BASE_D + 0.1, 6.0, TALL - 0.25)
+            hollow(run, u0, u1, BASE_D + 0.1, 6.0, TALL - 0.25, mat)
             doors(run, r, u0, u1, 6.0, TALL - 0.25, BASE_D + 0.1, mat, 2)
             run.box(mat, u0 - 0.05, u1 + 0.05, 0, BASE_D + 0.22, TALL - 0.25, TALL)
         else:
-            run.box(mat, u0 - 0.1, u1 + 0.1, 0, BASE_D + 0.1, 6.0, TALL - 0.25)
+            hollow(run, u0 - 0.1, u1 + 0.1, BASE_D + 0.1, 6.0, TALL - 0.25, mat)
             doors(run, r, u0 - 0.1, u1 + 0.1, 6.0, TALL - 0.25, BASE_D + 0.1, mat, 2)
             run.box(mat, u0 - 0.15, u1 + 0.15, 0, BASE_D + 0.22, TALL - 0.25, TALL)
         placeholder(run, rn, k, "fridge", "Refrigerator (placeholder)")
@@ -1129,16 +1152,23 @@ for k, up in enumerate(RUNS["north"].get("uppers", [])):
         for zz in shelves:
             nr.box("Cabinet Wood", u0 + ct, u1 - ct, ct, ud - 0.05, zz, zz + 0.06)
         n_ = max(2, int((u1 - u0 - 2 * ct) / 0.42))
-        for j in range(n_):                                                              # mugs on the bottom, glasses on the first shelf, plates on top
+        MUGS = ["Mug Blue", "Mug Mustard", "Mug Sage", "Mug Terracotta", "Mug Cream"]
+        for j in range(n_):                                                              # colored mugs on the bottom, glasses on the first shelf (Maxwell 11/19/2026)
             uc = u0 + ct + (u1 - u0 - 2 * ct) * (j + 0.5) / n_
-            for (zb, rr, hh, dc) in ((UB + ct, 0.15, 0.32, 0.45), (shelves[0] + 0.06, 0.12, 0.45, 0.45)):
-                cx, cy = nr.at(uc, dc)
-                cyl("Dishware", cx, cy, zb, zb + hh, rr, rr * (1.0 if hh < 0.4 else 1.15))
-        for j in range(2):
-            nr.box("Dishware", u0 + (u1 - u0) * (0.12 + 0.44 * j), u0 + (u1 - u0) * (0.44 + 0.44 * j), ct, ct + 0.06, shelves[1] + 0.06, shelves[1] + 0.86)
+            cx, cy = nr.at(uc, 0.45)
+            cyl(MUGS[j % len(MUGS)], cx, cy, UB + ct, UB + ct + 0.32, 0.15, 0.15)
+            nr.box(MUGS[j % len(MUGS)], uc - 0.02, uc + 0.02, 0.6, 0.68, UB + ct + 0.08, UB + ct + 0.25)   # handle, facing out
+            cx, cy = nr.at(uc, 0.45)
+            cyl("Cabinet Glass", cx, cy, shelves[0] + 0.06, shelves[0] + 0.51, 0.12, 0.14)
+        zs_ = shelves[1] + 0.06                                                          # top shelf: nested bowls (plates live in a sink wall drawer)
+        for j, mt in enumerate(("Mug Sage", "Mug Cream")):
+            cx, cy = nr.at(u0 + (u1 - u0) * (0.27 + 0.46 * j), ud / 2)
+            for q in range(4):
+                cyl(mt, cx, cy, zs_ + q * 0.09, zs_ + q * 0.09 + 0.25, 0.14, 0.26)
         doors(nr, r, u0, u1, UB, zt_, ud, "Cabinet Wood", 2, glass=True)
     else:
-        nr.box("Cabinet Wood", u0, u1, 0, ud, UB, TALL - 0.25)
+        nr.box("Cabinet Wood", u0, u1, 0, ud, UB, UB + 1.55)                               # microwave cubby
+        hollow(nr, u0, u1, ud, UB + 1.55, TALL - 0.25, "Cabinet Wood")                      # open cabinet over it
         nr.box("Stainless", u0 + 0.15, u1 - 0.15, ud - 0.05, ud + 0.02, UB + 0.05, UB + 1.45)
         nr.box("Black Glass", u0 + 0.3, u1 - 0.9, ud + 0.02, ud + 0.03, UB + 0.25, UB + 1.25)
         doors(nr, r, u0, u1, UB + 1.55, TALL - 0.25, ud, "Cabinet Wood", 2)
@@ -1204,7 +1234,7 @@ elif RUNS["north"].get("pantry_door") and PANTRY_STYLE in ("flush", "pocket", "s
                       notes=[note_, "One of three pantry doorway options (config [kitchen.runs.north] pantry_style = flush | pocket | shelf), Maxwell 11/19/2026."]))
     # fixed surround: west end panel, upper cabinet over the doorway, crown
     nr_.box("Cabinet Wood", mx0, mx0 + 0.06, 0, mdf + FRONT_T, 0, TALL - 0.25)
-    nr_.box("Cabinet Wood", mx0 + 0.06, mx1, 0, mdf, ah, TALL - 0.25)
+    hollow(nr_, mx0 + 0.06, mx1, mdf, ah, TALL - 0.25, "Cabinet Wood")
     rr_ = rec("cabinet.north.over_pantry", "cabinet", "Upper cabinet over the pantry doorway", "interior", room="Kitchen",
               info=dict(model=f"{ftin(mx1 - mx0)} wide, {ftin(mdf)} deep", specs=[["Finish", FINISH("Cabinet Wood")]]))
     doors(nr_, rr_, mx0 + 0.06, mx1, ah, TALL - 0.25, mdf, "Cabinet Wood", 2)
@@ -1281,6 +1311,30 @@ elif RUNS["north"].get("pantry_door"):
     box("White Oak", px0, px1, YC, YC2, phd - 0.06, phd)
     for (a0, a1, z0_, z1_) in ((px0 - cw, px0 + 0.02, 0, phd), (px1 - 0.02, px1 + ce, 0, phd), (px0 - cw, px1 + ce, phd, phd + 0.29)):
         box("White Oak", a0, a1, YC2, YC2 + 0.06, z0_, z1_)
+
+# plates in the middle drawer of the easternmost sink wall drawer stack (Maxwell 11/19/2026): an open drawer box that
+# slides out with the front, holding a stack of dinner plates and one of salad plates
+_pd = K.get("plate_drawer", ["cabinet.south.6", 1])
+if _pd and _pd[0] in BYID and len(BYID[_pd[0]].get("ops", [])) > _pd[1]:
+    _r = BYID[_pd[0]]; _o = _r["ops"][_pd[1]]
+    _k = int(_pd[0].rsplit(".", 1)[1]); _u0, _u1 = RUNS["south"]["units"][_k][:2]
+    _rs = Run("south", RUNS["south"]); _zt = CTR_Z - CTR_T
+    _zb = KICK + (_zt - KICK) * 2 / 5 + 0.06; _ztop = KICK + (_zt - KICK) * 4 / 5 - 0.12
+    _r["name"] += ", plates in the middle drawer"
+    with into(_o["parts"]):
+        _rs.box("Cabinet Wood", _u0 + 0.1, _u1 - 0.1, 0.2, BASE_D - 0.02, _zb, _zb + 0.04)               # drawer bottom
+        for (_b0, _b1) in ((_u0 + 0.1, _u0 + 0.14), (_u1 - 0.14, _u1 - 0.1)):
+            _rs.box("Cabinet Wood", _b0, _b1, 0.2, BASE_D - 0.02, _zb, _ztop)                            # sides
+        _rs.box("Cabinet Wood", _u0 + 0.14, _u1 - 0.14, 0.2, 0.24, _zb, _ztop)                           # back
+        for _j, (_rr, _n) in enumerate(((0.43, 12), (0.36, 10))):
+            _cx, _cy = _rs.at(_u0 + (_u1 - _u0) * (0.3 + 0.42 * _j), 1.05)
+            for _q in range(_n):
+                _z = _zb + 0.04 + _q * 0.045
+                cyl("Dishware", _cx, _cy, _z, _z + 0.035, _rr * 0.75, _rr)
+            for _a in range(4):                                                                            # pegs round the stack
+                _px, _py = _rs.at(_u0 + (_u1 - _u0) * (0.3 + 0.42 * _j) + (_rr + 0.05) * math.cos(_a * math.pi / 2 + 0.6),
+                                  1.05 + (_rr + 0.05) * math.sin(_a * math.pi / 2 + 0.6))
+                cyl("Cabinet Wood", _px, _py, _zb + 0.04, _zb + 0.5, 0.035)
 
 sr = Run("south", RUNS["south"]); sx0, sx1 = RUNS["south"]["sink_x"]
 rec("kitchen.sink", "fixture", "Kitchen sink and faucet", "interior", room="Kitchen",
