@@ -193,7 +193,8 @@ function loadSky(file) {
 }
 
 const RE_UTIL = /geothermal|septic|utilit|marker/i;
-const RE_ROOF = /roof|seam|fascia|soffit|gutter|downspout|rafter|ceiling|loft floor|ridge/i;
+// "ridge" must start a word: "fridge wall" cabinets once read as roof and vanished under a height cut (11/20/2026)
+const RE_ROOF = /roof|seam|fascia|soffit|gutter|downspout|rafter|ceiling|loft floor|(?:^|[^a-z])ridge/i;
 const RE_NOCOLLIDE = /utilit|geothermal|septic|marker|leaf|leaves|crown|canopy|foliage|curtain|shade|rug|towel|light|lamp|glass pane|^Ground$/i;
 const roofNodes = [], utilNodes = [], treeMeshes = [];
 const LITE = /[?&]lite\b/.test(location.search);
