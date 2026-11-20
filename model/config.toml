@@ -244,6 +244,12 @@ wall_shift = [ { at = [39.81, 34.0], dx = -0.5, note = "cubby / entry closet par
                # return stacks between its door and that wall, each in its own floor truss bay (27.7 and 29.7 on the ASSUMED 24 in truss grid)
                { at = [28.25, 11.2], dx = 2.13, note = "bedroom 1 door wall, north end" },
                { at = [28.25, 14.8], dx = 2.13, note = "bedroom 1 door wall, south end" } ]
+# door edges in the hall 2 north wall as framed (Maxwell's stud readings 11/20/2026, [framing] stud_lines): the bedroom 2, bath 2
+# and study doors are 1 1/2 to 2 in east of A-11 and 32 to 32 1/2 in rough openings
+wall_ends = [ { at = [8.0, 10.8], x1 = 12.938, note = "bedroom 2 door west edge (148.75 in)" },
+              { at = [16.0, 10.8], x0 = 15.646, x1 = 16.667, note = "bedroom 2 door east edge (181 in) and bath 2 door west edge (193.5 in)" },
+              { at = [21.0, 10.8], x0 = 19.333, x1 = 23.521, note = "bath 2 door east edge (225.5 in) and study door west edge (275.75 in)" },
+              { at = [28.0, 10.8], x0 = 26.188, note = "study door east edge (32 in rough opening)" } ]
 wall_remove = [ { at = [39.31, 34.0], note = "that partition is gone: a 3/4 in panel of the coat cabinet divides it from the cubby ([entry_closet] divider, Maxwell 11/19/2026)" } ]
 
 [barn_door]                     # living room "large French barn door" (Maxwell 11/12/2026), D60-80 on A-11

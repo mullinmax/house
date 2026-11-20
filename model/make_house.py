@@ -620,6 +620,14 @@ for ed in C.get("plan_edits", {}).get("wall_shift", []):      # partitions moved
             break
     else:
         raise SystemExit(f"plan_edits.wall_shift: no interior wall at {ed['at']}")
+for ed in C.get("plan_edits", {}).get("wall_ends", []):       # a wall end moved to where it is framed (a measured door edge)
+    px, py = ed["at"]
+    for i_, (x0, x1, y0, y1) in enumerate(INT_RECTS):
+        if x0 - 0.01 <= px <= x1 + 0.01 and y0 - 0.01 <= py <= y1 + 0.01:
+            INT_RECTS[i_] = (ed.get("x0", x0), ed.get("x1", x1), ed.get("y0", y0), ed.get("y1", y1))
+            break
+    else:
+        raise SystemExit(f"plan_edits.wall_ends: no interior wall at {ed['at']}")
 for ed in C.get("plan_edits", {}).get("wall_remove", []):     # partitions taken out by a decision (a built-in panel stands in)
     px, py = ed["at"]
     hit = [r_ for r_ in INT_RECTS if r_[0] - 0.01 <= px <= r_[1] + 0.01 and r_[2] - 0.01 <= py <= r_[3] + 0.01]
