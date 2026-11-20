@@ -684,6 +684,7 @@ built = [ { axis = "x", at = 22.64, from = 0.5, to = 42.5, note = "Wall B (livin
           { axis = "x", at = 15.26, from = 16.2, to = 42.5, note = "Wall C (hall 2 / laundry / bedroom 1 south wall), framed from x 16' 2\" east in the 11/19/2026 drone photos." },
           { axis = "y", at = 11.89, from = 22.8, to = 34.7, note = "Hall 1 west wall, framed in the 11/19/2026 drone photos." },
           { axis = "x", at = 10.80, from = 22.6, to = 31.42, note = "Study south wall (hall 2 side), framed in Maxwell's 11/20/2026 photo: the door at its west end, a short bay, then 16 in bays east. How far west of the study it is framed is not known yet." } ]
+all_built = "Framed by 11/20/2026 (Maxwell's site photos show nearly every interior wall standing). Stud positions are typical 16 in o.c. until measured."
 clerestory_wall = { built = true, stud_d_in = 5.5, note = "Wall A: a stick framed wall stands on the clerestory line, framed to the top plates (9 ft measured 11/20/2026). The model's SIP clerestory wall is drawn around it until we know what goes on top. Stud size ASSUMED 2x6." }
 
 [[framing.headers]]             # A1, pantry door

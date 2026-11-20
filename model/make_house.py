@@ -842,8 +842,11 @@ if FR.get("enabled", True):
         c, u0, u1 = ((y0 + y1) / 2, x0, x1) if alongx else ((x0 + x1) / 2, y0, y1)
         return abs(c - ln["at"]) < ln.get("tol", 0.35) and u1 > ln["from"] + 0.05 and u0 < ln["to"] - 0.05
 
+    ALL_BUILT = FR.get("all_built")          # Maxwell's 11/20/2026 photos: nearly every interior wall is framed
+
     def is_built(alongx, x0, x1, y0, y1):
-        return next((ln for ln in BUILT if on_line(ln, alongx, x0, x1, y0, y1)), None)
+        ln = next((ln for ln in BUILT if on_line(ln, alongx, x0, x1, y0, y1)), None)
+        return ln or (dict(note=ALL_BUILT) if ALL_BUILT else None)
 
     def fbox(mat, alongx, u0, u1, v0, v1, z0, z1):
         if z1 - z0 < 1e-3 or u1 - u0 < 1e-3:
