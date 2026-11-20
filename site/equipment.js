@@ -891,31 +891,22 @@ const BUILD = {
     for (const x of [-w / 4, 0, w / 4]) for (const z of [d * 0.25, d * 0.75]) cyl(g, 0.22, 0.1, darkSteel(), x, h + 0.02, z, 'y', 8);   // cover screws
     return g;
   },
-  silencer(s) {                    // round duct silencer: galvanized shell, rolled end rings, 8 in collars each end. Vertical, base at the origin.
-    const [od, len] = s, g = new THREE.Group(), r = od / 2;
-    cyl(g, r, len - 4, galv(), 0, len / 2, 0, 'y', 28);
-    for (const y of [2.6, len - 2.6]) cyl(g, r - 0.6, 1.4, galv(), 0, y, 0, 'y', 28, r - 1.6);   // tapered shoulders
-    for (const y of [1, len - 1]) cyl(g, r - 2.0, 2, galv(), 0, y, 0, 'y', 24);                   // duct collars
-    for (const y of [len * 0.3, len * 0.7]) ring(g, r + 0.05, 0.18, galv(), 0, y, 0, 'y', 32);  // seams
-    box(g, 0.05, 3.2, 5.2, mat('rating label', 0xe9e9e2, 0.6), r + 0.03, len / 2, 0);
-    return g;
-  },
-  roof_blower(s) {                 // low profile exterior range hood blower on a roof curb: square curb, flat base, louvred band, domed hood
-    const [w, h, d] = s, g = new THREE.Group(), flash = mat('curb flashing', 0x2a2d2f, 0.5, 0.4);
-    box(g, w + 3, 9, d + 3, flash, 0, 0.5, 0);                                                // curb, flashed into the standing seam (runs into the roof on the uphill side)
-    box(g, w + 1.2, 0.6, d + 1.2, darkSteel(), 0, 5.3, 0);                                     // base flange
-    box(g, w - 2, 3.0, d - 2, darkSteel(), 0, 7.1, 0);                                         // fan housing
-    box(g, w - 2.2, 1.6, d - 2.2, mat('louvre shadow', 0x111213, 0.8), 0, 9.3, 0);             // discharge band
-    cyl(g, (w - 7) / 2, h - 10.6, darkSteel(), 0, 10.1 + (h - 10.6) / 2, 0, 'y', 4, (w - 1.5) / 2).rotation.y = Math.PI / 4;   // hood
-    return g;
-  },
-  wall_blower(s) {                 // exterior range hood blower on a wall: back plate, housing, louvred discharge on the underside, 8 in collar into the wall
+  wall_cap(s) {                    // range hood wall cap: square flange on the siding, a sloped hood over the damper, open at the bottom
     const [w, h, d] = s, g = new THREE.Group(), body = darkSteel();
-    box(g, w + 2, h + 2, 0.6, mat('wall blower flange', 0x1d2222, 0.6, 0.3), 0, h / 2, 0.3);             // mounting flange against the siding
-    box(g, w, h - 1, d - 1.5, body, 0, h / 2 + 0.5, 0.6 + (d - 1.5) / 2);                                // housing
-    box(g, w - 1, 1.2, d - 1.2, body, 0, h - 0.4, 0.6 + (d - 1.2) / 2);                                   // rain cap lip on top
-    box(g, w - 3, 0.4, d - 3, mat('louvre shadow', 0x111213, 0.8), 0, 0.3, 0.6 + (d - 1.5) / 2);          // discharge grille underneath
-    for (let k = -2; k <= 2; k++) box(g, w - 3.4, 0.25, 0.4, body, 0, 0.6, 0.6 + (d - 1.5) / 2 + k * (d - 3) / 5);   // louvre blades
+    box(g, w, h, 0.5, mat('wall cap flange', 0x1d2222, 0.6, 0.3), 0, h / 2, 0.25);                       // flange against the siding
+    box(g, w - 2, 1.0, d - 0.5, body, 0, h - 1.5, 0.5 + (d - 0.5) / 2);                                    // top of the hood
+    for (const x of [-1, 1]) box(g, 0.4, h - 3, d - 0.5, body, x * (w / 2 - 1.2), (h - 3) / 2 + 1, 0.5 + (d - 0.5) / 2);   // sides
+    box(g, w - 2, h - 3, 0.4, body, 0, (h - 3) / 2 + 1, d - 0.2);                                         // front
+    box(g, w - 2.8, 0.3, d - 1.2, mat('louvre shadow', 0x111213, 0.8), 0, 1.2, 0.5 + (d - 0.5) / 2);     // open bottom, damper inside
+    return g;
+  },
+  power_pack(s) {                  // range hood power pack insert: stainless box, baffle filter underneath, round outlet on top, sensor eye at the front
+    const [w, h, d] = s, g = new THREE.Group(), ss = mat('stainless', 0xc9ccce, 0.32, 0.9);
+    box(g, w, h - 0.6, d, ss, 0, (h - 0.6) / 2 + 0.6, d / 2);
+    box(g, w - 1.2, 0.6, d - 1.2, mat('baffle filter', 0x8d9296, 0.4, 0.8), 0, 0.3, d / 2);
+    for (let k = -4; k <= 4; k++) box(g, 0.25, 0.1, d - 1.6, darkSteel(), k * (w - 2) / 9, -0.02, d / 2);   // baffle slots
+    cyl(g, 4, 1.5, ss, 0, h + 0.75, d / 2, 'y', 24);                                                     // 8 in outlet
+    cyl(g, 0.35, 0.15, mat('sensor eye', 0x101112, 0.3), 0, -0.05, d - 0.8, 'y', 12);                   // SmartSense eye
     return g;
   },
   server_rack(s, it) {

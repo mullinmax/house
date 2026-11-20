@@ -958,57 +958,69 @@ ret("return_study_high", "Study high return", [20, 4], [[XSH, 10.6, ZSH], [XSH, 
          "Warm air from the computers collects under the high side of the ceiling, right where this grille is. The roof is about 1 in above the boot in this model: "
          "if it does not fit, drop the exhaust main down the trunk's north face for 2 ft here. An outlet in the attic beside it would make an inline fan easy to add later. ASSUMED.")
 
-# Range hood (Maxwell, 11/20/2026: out the side of the house, not through the roof, up high and tucked under the roof).
-# The hood is a liner or insert with no blower of its own, so the kitchen stays quiet (Maxwell, 11/17/2026). The duct rises inside
-# the chimney cover through a silencer, turns west just under the ceiling and goes straight out through the west SIP wall to an
-# exterior wall blower tucked under the 12 in rake overhang. One elbow, about 6 ft of duct.
+# Range hood (Maxwell, 11/20/2026): out the side of the house, high, tucked under the roof, and designed to the advice in the
+# video he picked (https://www.youtube.com/watch?v=Qs4wis82NAE). The hood itself (make_house.py, [kitchen.hood]) is a wide, deep,
+# low white oak box hemmed in by the oven tower and a south cheek. A power pack insert with a heat sensor sits at the top of it
+# and turns itself on whenever the cooktop is hot, so it gets used every time. 8 in duct up the chimney enclosure, one elbow just
+# under the ceiling, straight out the west SIP wall to a wall cap under the 12 in rake overhang.
 # Code (Ohio Residential Code 4101:8-15-01, eff. 7/1/2019): 1503.3 its own duct to the outdoors, smooth, air tight, backdraft
 # damper, never into an attic or soffit (also 1501.1); 1503.4 galvanized, stainless or copper; 1504.3 opening 3 ft from operable
 # windows and doors, 10 ft from mechanical intakes. 1503.6 makeup air above 400 CFM applies only with a fuel burning appliance
 # that is not direct vent inside the house, and this house is all electric.
-RF = CFG["roof"]
+RF = CFG["roof"]; KH = CFG["kitchen"].get("hood", {})
 def roof_under_s(y):                               # underside of the low (south) roof SIP at y; on the west wall this is also the underside of the rake overhang
     return RF["south_wall_height"] + (CFG["house"]["depth_y"] - y) * RF["south_pitch"] / 12
-HX, HY = CFG["house"]["ext_wall_thickness"] + 0.6, 47.0   # centre of the hood chimney (14-3/8 in deep off the west wall)
-HOOD_TOP, SIL_Z0, SIL_L = 6.35, 7.4, 36
 def ftin_(v): return f"{int(v)} ft {round((v - int(v)) * 12)} in"
+WALL_X = CFG["house"]["ext_wall_thickness"]
+HX, HY = WALL_X + 0.6, 47.0                        # duct centre: in the chimney enclosure (14-3/8 in deep off the west wall), over the cooktop's centre
+HOOD_TOP = 3.0 + KH.get("above_counter_in", 27) / 12 + KH.get("box_height_in", 24) / 12 - 0.06 - 0.02   # underside of the hood's stainless top
+PP = [21.375, 10.5625, 11.4375]                    # Broan PM600SSV power pack, W x H x D in
 HZ = 10.95                                         # centre of the duct through the wall: its top is about 6 in under the roof, clear of the SIP top plate
-BLW = [18, 15, 10]                                 # exterior wall blower W x H x D in (ASSUMED)
-BLW_Z = HZ - 7.5 / 12                              # its bottom; the duct enters the middle of its back
-assert BLW_Z + BLW[1] / 12 < roof_under_s(HY + BLW[0] / 24) - 1 / 12, "wall blower hits the rake overhang"
-HNOTE = ("Hood not picked yet. It needs to be a liner or insert sold for a remote (exterior) blower, with no fan inside the hood. About 300 to 400 CFM is plenty "
-         "for a 30 in induction cooktop on a wall; 400 CFM or less keeps the house from being pulled hard negative, since it is very tight. The chimney cover is drawn "
-         "14-3/8 in square so the silencer fits inside it; a stock chimney is usually narrower, so it may need to be a custom or extended cover.")
-exhaust("ex_hood", "Range hood duct", 8, [[HX, HY, HOOD_TOP + 0.02], [HX, HY, HZ], [-0.06, HY, HZ]], room="Kitchen",
-        note="8 in smooth galvanized duct up inside the hood's chimney cover through the silencer, one elbow just under the ceiling, then straight west through the "
-             "SIP wall to the exterior blower under the rake overhang. A range hood may not connect to the ERV or the return: the Ohio residential code (1503.3) "
-             "requires its own smooth, air tight metal duct to the outdoors with a backdraft damper, and never into an attic or soffit. Where it passes the wall: "
-             "a galvanized sleeve through the SIP, the foam cut back and sealed with the SIP maker's sealant and tape, the hole kept clear of the top plate and panel "
-             "splines, and the sleeve flashed into the rain screen wrap behind the siding. Insulspan should confirm the hole and its spot. " + HNOTE)
-ducts[-1]["info"]["specs"] = [["Duct", "8 in round, smooth galvanized, one elbow"], ["Wall", f"West wall, centre {ftin_(HZ)} up, through the 6-1/2 in SIP"],
-                              ["Fan", "Exterior wall blower under the rake overhang, about 3 ft above the hood"], ["Silencer", "In the chimney cover, between the hood and the fan"]]
+CAP = [12, 12, 7]                                  # 8 in wall cap with a damper, W x H x D in (ASSUMED)
+CAP_Z = HZ - CAP[1] / 24
+assert CAP_Z + CAP[1] / 12 < roof_under_s(HY + CAP[0] / 24) - 1 / 12, "wall cap hits the rake overhang"
+VIDEO = ["Video Maxwell picked: kitchen hood design", "https://www.youtube.com/watch?v=Qs4wis82NAE"]
+exhaust("ex_hood", "Range hood duct", 8, [[HX, HY, HOOD_TOP], [HX, HY, HZ], [-0.06, HY, HZ]], room="Kitchen",
+        note="8 in smooth galvanized duct from the top of the power pack, up the chimney enclosure, one elbow just under the ceiling, then straight west through the "
+             "SIP wall to the wall cap under the rake overhang. 8 in, not 6 in: the video's point that a 6 in duct chokes the real airflow, and the PM600SSV only "
+             "reaches its top speed on 8 in. A range hood may not connect to the ERV or the return: the Ohio residential code (1503.3) requires its own smooth, "
+             "air tight metal duct to the outdoors with a backdraft damper, and never into an attic or soffit. Where it passes the wall: a galvanized sleeve "
+             "through the SIP, the foam cut back and sealed with the SIP maker's sealant and tape, the hole clear of the top plate and panel splines, and the "
+             "sleeve flashed into the rain screen wrap behind the siding. Insulspan should confirm the hole and its spot.")
+ducts[-1]["info"]["specs"] = [["Duct", "8 in round, smooth galvanized, one elbow, about 6 ft"], ["Wall", f"West wall, centre {ftin_(HZ)} up, through the 6-1/2 in SIP"],
+                              ["Outside", "8 in wall cap with a damper, under the rake overhang"]]
+ducts[-1]["info"]["links"] = [VIDEO]
 items += [
- dict(id="hood_silencer", name="Range hood duct silencer", category="Ventilation", system="hvac.exhaust", room="Kitchen", layer="mechanical",
-      builder="silencer", size=[12, SIL_L], at=[HX, HY, SIL_Z0], facing=90,
-      info=dict(model="Fantech LD 8 round duct silencer, or similar (ASSUMED)",
-        specs=[["Duct", "8 in, galvanized, perforated liner with about 2 in of acoustic lining"], ["Size", "About 12 in outside, 3 ft long (approximate)"]],
-        notes=["A duct muffler: it soaks up fan noise travelling down the duct with very little added resistance. Fantech's kitchen guidance puts it between the hood and the fan, "
-               "in any orientation, and puts the fan as far from the hood as possible.",
-               "Hidden inside the hood's chimney cover. Use no clip or the slice slider to see it.", HNOTE],
-        placement="Inside the hood's chimney cover, above the hood.")),
- dict(id="hood_blower", name="Range hood exterior wall blower", category="Ventilation", system="hvac.exhaust", room="Exterior", layer="mechanical",
-      builder="wall_blower", size=BLW, at=[-0.07, HY, round(BLW_Z, 3)], facing=270,
-      info=dict(model="Exterior wall mounted blower for range hoods, about 400 CFM (ASSUMED), for example the hood maker's own external wall blower",
-        specs=[["Size", "About 18 W x 15 H in, sticking out about 10 in (approximate)"], ["Height", f"Centre {ftin_(HZ)} up, top about {round((roof_under_s(HY) - BLW_Z - BLW[1] / 12) * 12)} in under the roof"],
-               ["Duct", "8 in"], ["Damper", "Built in backdraft damper"], ["Control", "Speed from the hood's controls"]],
-        notes=["Out the side of the house instead of through the roof (Maxwell, 11/20/2026), high on the west wall and tucked under the 12 in rake overhang, straight out from the hood. "
-               "The fan still sits outdoors, so most of its noise stays outside, and there is no roof curb to flash.",
+ dict(id="hood_insert", name="Range hood power pack", category="Ventilation", system="hvac.exhaust", room="Kitchen", layer="appliances",
+      builder="power_pack", size=PP, at=[WALL_X + 0.12, HY, round(HOOD_TOP - PP[1] / 12, 3)], facing=90,
+      info=dict(model="Broan Elite PM600SSV power pack insert with SmartSense (suggested, not bought)", price="$789 list (Broan, 11/20/2026)",
+        specs=[["Airflow", "HVI certified, up to about 600 CFM on 8 in duct (650 max blower), 4 speeds"], ["Noise", "0.5 sone on normal speed"],
+               ["Auto", "SmartSense: an infrared sensor watches the cooktop, turns the fan on, sets its speed and turns it off"],
+               ["Filter", "Hybrid baffle, dishwasher safe"], ["Duct", "8 in round up (also 6 in, or 3-1/4 x 10)"], ["Height", "24 in minimum over the cooktop"],
+               ["Size", "21-3/8 W x 10-9/16 H x 11-7/16 D in"]],
+        links=[["Broan PM600SSV", "https://broan-nutone.com/en-us/product/rangehoods/pm600ssv"],
+               ["Spec sheet", "https://www.broan-nutone.com/getmedia/1c978a98-1157-487e-b676-739b3a1f9407/Spec_Sheet_PM600SSV_en_fr_2.pdf"], VIDEO],
+        notes=["Picked to the video's advice (Maxwell, 11/20/2026): the SmartSense unit the video shows, so the hood runs every single time someone cooks; "
+               "HVI certified airflow and noise, not 'equivalent CFM'; very quiet on normal. The video's catch: high speed is loud because 600 CFM squeezes through "
+               "a small screened grille. The big hood box around it is the fix: it holds the smoke so normal speed has time to catch it.",
+               "The fan sits inside the hood, so the duct ends at a plain wall cap outside. A remote exterior blower would be quieter on high, but it loses the "
+               "heat sensor that makes the hood run on its own.",
+               "Ohio only requires makeup air over 400 CFM when a fuel burning appliance is inside, and this house is all electric. Still, this house is very tight, "
+               "so on high crack the kitchen window, or add a makeup air damper later.",
+               "Other HVI listed choices: Broan PM400SSV (450 CFM, 0.5 to 1 sone, 10 minute delay off, 6 in duct only, $564) or Broan PMA400SS (400 CFM, 1 sone, Energy Star)."],
+        placement="At the top of the hood box, centred over the cooktop, its outlet straight under the chimney.")),
+ dict(id="hood_cap", name="Range hood wall cap", category="Ventilation", system="hvac.exhaust", room="Exterior", layer="mechanical",
+      builder="wall_cap", size=CAP, at=[-0.07, HY, round(CAP_Z, 3)], facing=270,
+      info=dict(model="8 in wall cap with a spring or gravity damper, black, for range hoods (ASSUMED)",
+        specs=[["Height", f"Centre {ftin_(HZ)} up, top about {round((roof_under_s(HY) - CAP_Z - CAP[1] / 12) * 12)} in under the roof"], ["Duct", "8 in"],
+               ["Damper", "Built in, closes when the fan is off"]],
+        notes=["Out the side of the house instead of through the roof (Maxwell, 11/20/2026), high on the west wall and tucked under the 12 in rake overhang, straight out from the hood.",
                "Code check (Ohio residential code 4101:8-15-01): the roof is an unvented SIP roof with no soffit vents, so nothing can draw the exhaust back in at the eave, "
                "and 1501.1 only bars discharging INTO an attic, soffit or ridge vent; a wall opening under an overhang is fine. It is about 6 ft from the kitchen door "
                "(3 ft required from operable doors and windows), about 8-1/2 ft from the kitchen window round the corner, and about 24 ft from the ERV's outdoor air "
-               "intake on the same wall (10 ft required). Its discharge should point down or away from the path to the kitchen door (303.5.2: not onto walkways).",
-               "Expect some grease film on the siding and the underside of the overhang over the years; the black trim hides it. Pick a model whose screen or louvre "
-               "can be cleaned (303.6 wants 1/4 to 1/2 in openings on exhaust outlets).", HNOTE],
+               "intake on the same wall (10 ft required). It blows down, away from the path to the kitchen door (303.5.2: not onto walkways).",
+               "Expect some grease film on the siding and the underside of the overhang over the years; the black trim hides it. Pick one whose louvre can be cleaned "
+               "(303.6 wants 1/4 to 1/2 in openings on exhaust outlets). A cap with a fine bug screen would clog with grease."],
         placement="West wall, high, under the rake overhang, straight out from the cooktop.")),
 ]
 

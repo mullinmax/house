@@ -302,6 +302,12 @@ oven_face_height_in = 50.75              # Frigidaire Gallery GCWD3067AF face he
 # and units as [start, end, type] measured along the wall (x for S/N runs, y for W run).
 # Types: blind, door1, doors2, drawers2, drawers3, drawer_door, drawer_doors2, dishwasher,
 #        pullout, oven_tower, tall_pantry, fridge, tray, beverage, panel
+[kitchen.hood]                           # fume hood style range hood (Maxwell 11/20/2026, after the video at https://www.youtube.com/watch?v=Qs4wis82NAE)
+span = [44.5, 49.0]                      # along the west wall: from the oven tower's side (it hems in the north end) to 6-1/2 in past the cooktop. 54 in for a 30-11/16 in cooktop
+depth_in = 24                            # covers the front burners (an 18 in cabinet depth hood would not)
+above_counter_in = 27                    # underside over the cooktop. The PM600SSV allows 24 in; mock up head height before building
+box_height_in = 24                       # the inverted bathtub that holds the smoke
+cheek_drop_in = 6                        # the south side panel hangs this far below the front edge
 [kitchen.runs.south]                     # sink wall, elevation 1
 axis = "x"
 back = 51.458

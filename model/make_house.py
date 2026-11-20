@@ -1687,14 +1687,41 @@ sr.box("Brushed Nickel", (sx0 + sx1) / 2 - 0.04, (sx0 + sx1) / 2 + 0.04, 0.15, 0
 wr = Run("west", RUNS["west"]); cy0, cy1 = RUNS["west"]["cooktop_y"]
 rec("kitchen.cooktop.placeholder", "appliance", "Cooktop (placeholder)", "interior", placeholder_for="cooktop", info=dict(model="Placeholder"))
 wr.box("Black Glass", cy0, cy1, 0.15, 1.85, CTR_Z + 0.004, CTR_Z + 0.035)
+# Range hood (Maxwell, 11/20/2026): built as a fume hood, following Matt Risinger's style "kitchen exhaust" advice in the video he
+# picked (link on the card). Wider than the cooktop, deep enough to cover the front burners, low, hemmed in at the sides (the oven
+# tower on the north, a wood cheek on the south), an open box above it to hold the smoke while the fan catches up, and a power pack
+# insert with a heat sensor so it runs every time someone cooks. Nothing to store inside it.
+HOOD = K.get("hood", {})
+HU0, HU1 = HOOD.get("span", [44.5, 49.0])          # along the west wall: from the oven tower's side to 6-1/2 in past the cooktop's south edge
+HD_ = HOOD.get("depth_in", 24) / 12
+HB = CTR_Z + HOOD.get("above_counter_in", 27) / 12  # underside of the front edge
+HT_ = HB + HOOD.get("box_height_in", 24) / 12
+CHK = HOOD.get("cheek_drop_in", 6) / 12           # the south cheek hangs this far below the front edge
+WT = 0.06
+VIDEO = ["Video Maxwell picked: kitchen hood design", "https://www.youtube.com/watch?v=Qs4wis82NAE"]
 rec("kitchen.hood", "fixture", "Range hood", "interior", room="Kitchen",
-    info=dict(model="Stainless chimney hood, remote blower", specs=[["Width", ftin(cy1 - cy0 - 0.2)], ["Underside", "6' 0\""], ["Chimney cover", "14-3/8 in square, to the ceiling"],
-              ["Fan", "Exterior blower high on the west wall under the roof overhang, with a silencer in the chimney (Maxwell, 11/20/2026)"]],
-              notes=["Model not picked yet. It needs to be a liner or insert sold for a remote blower, with no fan inside the hood, so the kitchen stays quiet.",
-                     "The chimney cover is wider than a stock one so the duct silencer fits inside it. Hide the duct x-ray or use no clip to see the duct, silencer and wall blower."]))
-wr.box("Stainless", cy0 + 0.1, cy1 - 0.1, 0, 1.9, 6.0, 6.35)
+    info=dict(model="Custom white oak hood around a power pack insert with a heat sensor (Broan PM600SSV suggested)",
+              specs=[["Width", f"{ftin(HU1 - HU0)} (cooktop 30-11/16 in)"], ["Depth", f"{ftin(HD_)}, covers the front burners"],
+                     ["Underside", f"{ftin(HB)} above the floor, {round((HB - CTR_Z) * 12)} in above the cooktop"],
+                     ["Sides", "Oven tower on the north, a wood cheek on the south that hangs 6 in lower"],
+                     ["Fan", "Inside the hood, about 0.5 sone on normal, turns itself on and off by sensing heat. 8 in duct out the west wall"]],
+              links=[VIDEO],
+              notes=["Designed to the advice in the video Maxwell picked (11/20/2026): wider than the cooktop (36 in minimum for a 30 in cooktop, wider is better), "
+                     "24 in deep so it covers the front burners, mounted low, sides hemmed in so smoke can only be pushed back toward the wall and up, a big "
+                     "inverted bathtub to catch it, quiet enough to run every time, real HVI certified airflow, and it turns on by itself.",
+                     "Nothing inside the hood: no shelf, oil or spices. Anything in there gets coated in grease within a week.",
+                     "No microwave hood. The microwave lives elsewhere.",
+                     "The underside is 27 in over the cooktop. The insert allows 24 in. Mock it up in cardboard first to check head height for the tallest cook.",
+                     "White oak to match the cabinets, lined with stainless inside. Hide the drywall and walls layers to see the duct."]))
+K_WOOD = "Cabinet Wood"
+wr.box(K_WOOD, HU0, HU1, 0, HD_, HT_ - WT, HT_)        # top
+wr.box(K_WOOD, HU0, HU1 - WT, HD_ - WT, HD_, HB, HT_ - WT)                                          # front
+wr.box(K_WOOD, HU1 - WT, HU1, 0, HD_, HB - CHK, HT_ - WT)                                           # south cheek
+wr.box("Stainless", HU0, HU1 - WT, 0, HD_ - WT, HT_ - WT - 0.02, HT_ - WT)                         # liner under the top
+wr.box("Stainless", HU0, HU1 - WT, HD_ - WT - 0.02, HD_ - WT, HB + 0.02, HT_ - WT - 0.02)           # liner behind the front
+wr.box("Stainless", HU1 - WT - 0.02, HU1 - WT, 0, HD_ - WT - 0.02, HB - CHK + 0.02, HT_ - WT - 0.02)   # liner on the cheek
 _cc = (cy0 + cy1) / 2
-wr.box("Stainless", _cc - 0.6, _cc + 0.6, 0, 1.2, 6.35, south_roof_z(_cc + 0.6) - 0.01)
+wr.box(K_WOOD, _cc - 0.6, _cc + 0.6, 0, 1.2, HT_, south_roof_z(_cc + 0.6) - 0.01)                  # chimney enclosure up to the ceiling, holds the duct
 ix0, iy0, ix1, iy1 = K["island"]
 ir = RUNS["island"]
 rec("kitchen.island", "cabinet", "Kitchen island top and panels", "interior", room="Kitchen",
