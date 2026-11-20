@@ -249,7 +249,9 @@ wall_shift = [ { at = [39.81, 34.0], dx = -0.5, note = "cubby / entry closet par
 wall_ends = [ { at = [8.0, 10.8], x1 = 12.938, note = "bedroom 2 door west edge (148.75 in)" },
               { at = [16.0, 10.8], x0 = 15.646, x1 = 16.667, note = "bedroom 2 door east edge (181 in) and bath 2 door west edge (193.5 in)" },
               { at = [21.0, 10.8], x0 = 19.333, x1 = 23.521, note = "bath 2 door east edge (225.5 in) and study door west edge (275.75 in)" },
-              { at = [28.0, 10.8], x0 = 26.188, note = "study door east edge (32 in rough opening)" } ]
+              { at = [28.0, 10.8], x0 = 26.188, note = "study door east edge (32 in rough opening)" },
+              { at = [33.0, 15.26], x1 = 34.291, note = "closet 1 pocket door: a 32 in door against the east jacks, x 34.29 to 36.96 (Maxwell's stud readings 11/20/2026)" },
+              { at = [38.0, 15.26], x0 = 36.958, note = "closet 1 pocket door east edge" } ]
 wall_remove = [ { at = [39.31, 34.0], note = "that partition is gone: a 3/4 in panel of the coat cabinet divides it from the cubby ([entry_closet] divider, Maxwell 11/19/2026)" } ]
 
 [barn_door]                     # living room "large French barn door" (Maxwell 11/12/2026), D60-80 on A-11
@@ -732,7 +734,8 @@ built = [ { axis = "x", at = 22.64, from = 0.5, to = 42.5, note = "Wall B (livin
           { axis = "x", at = 10.80, from = 22.6, to = 31.42, note = "Study south wall (hall 2 side), framed in Maxwell's 11/20/2026 photo: the door at its west end, a short bay, then 16 in bays east. How far west of the study it is framed is not known yet." } ]
 all_built = "Framed by 11/20/2026 (Maxwell's site photos show nearly every interior wall standing). Stud positions are typical 16 in o.c. until measured."
 stud_lines = [ { axis = "x", at = 10.8, x0 = 0.5417, right_edges_in = [1.5, 14, 15.5, 46.75, 48.25, 64.25, 80.5, 96.5, 113, 129, 145.75, 147.25, 148.75, 182.5, 184, 192, 193.5, 227, 228.5, 240.75, 256.5, 272.25, 274.25, 275.75], note = "MEASURED by Maxwell 11/20/2026: the hall 2 / bedroom 3 north wall (the bedroom 2, bath 2 and study wall), the east edge of every stud in inches east of the inside of the west wall, from the west wall to the study door. 184 / 192 are the bedroom 2 door's east and the bath 2 door's west framing; 275.75 is the study door's west edge" },
-               { axis = "x", at = 10.8, x0 = 26.188, right_edges_in = [1.5, 3, 12.25, 28.75, 44.5, 59.75, 62.5], note = "MEASURED by Maxwell 11/20/2026: the study's hall wall east of its door, hooked on the west face of the door's east jack, east edges of the studs in inches. That face is x 26.19: the door's west edge at 275.75 in on the long wall reading (x 23.52) plus its 32 in rough opening (the model's door sits about 2 in further west, 23.37 to 26.00)" } ]
+               { axis = "x", at = 10.8, x0 = 26.188, right_edges_in = [1.5, 3, 12.25, 28.75, 44.5, 59.75, 62.5], note = "MEASURED by Maxwell 11/20/2026: the study's hall wall east of its door, hooked on the west face of the door's east jack, east edges of the studs in inches. That face is x 26.19: the door's west edge at 275.75 in on the long wall reading (x 23.52) plus its 32 in rough opening (the model's door sits about 2 in further west, 23.37 to 26.00)" },
+               { axis = "x", at = 15.26, x0 = 42.5417, west_edges_in = [1.5, 9.25, 25, 40.75, 57.5, 64, 65.5, 67, 133.5, 135.125, 136.5], note = "MEASURED by Maxwell 11/20/2026: bedroom 1's south wall, hooked on the east wall (SIP face, no drywall) and read west, the WEST edge of each stud in inches. 64 / 65.5 / 67 and 133.5 / 135.125 / 136.5 are the closet 1 pocket door's king and two jacks each side" } ]
 door_heads = [ [14.16, 22.64, 6.67] ]   # hall 1 pocket door: the as-built header sits at 6'-11" (83 in), so the door is 6'-8" (Maxwell 11/20/2026), not the 8 ft A-11 shows
 clerestory_wall = { built = true, stud_d_in = 5.5, note = "Wall A: a stick framed wall stands on the clerestory line, framed to the top plates (9 ft measured 11/20/2026). The model's SIP clerestory wall is drawn around it until we know what goes on top. Stud size ASSUMED 2x6." }
 
@@ -824,10 +827,10 @@ source = "Drone photos 11/19/2026: about 6 ft opening, header bottom not visible
 
 [[framing.headers]]             # C2, bedroom 1 to closet 1 pocket door
 at = [35.7, 15.26]
-ro = [31.84, 37.76]              # MEASURED 11/20/2026: 71 in clear between the jacks. Centre kept from the photos (34.8); edge location not measured yet
+ro = [31.542, 36.958]           # MEASURED 11/20/2026 stud by stud from the east wall: 65 in between the jacks (a 32 in pocket door frame). Maxwell first read 71 in; the stud readings win
 jacks = 2                       # MEASURED 11/20/2026: two 2x4s under each end of the header
-kings = 0
-measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, 71 in clear, two 2x4s under each end"
+kings = 1                       # a full height stud beside the jacks at each end (stud readings 11/20/2026)
+measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, two 2x4s under each end; stud readings put the jacks at 65 in apart, x 31.54 to 36.96"
 size = "(2) 2x12 class, pale built-up 2x"
 bottom_in = 83                  # MEASURED 11/20/2026 (Maxwell, on site): 83 in from the slab to the bottom of the header
 pocket = true

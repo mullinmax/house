@@ -106,7 +106,7 @@ Trunks, plenums and boxes are usually made to measure by a sheet metal shop once
 | 34 x 14 in main return trunk | part of Main return (M-10) | 1 | piece | 4.8 ft, 0 turns | 1 in acoustic liner |
 | 12 x 12 in utility room transfer sleeve | Fabricated | 1 | piece | 1.0 ft, 0 turns | 1 in acoustic liner |
 | 14 x 24 in return plenum box | Fabricated | 1 | piece | 3.2 ft, 0 turns |  |
-| 41 x 10 in bedroom 1 return header box | part of Bedroom 1 return | 1 | piece | 0.6 ft, 0 turns |  |
+| 50 x 10 in bedroom 1 return header box | part of Bedroom 1 return | 1 | piece | 0.6 ft, 0 turns |  |
 | 20 x 4 in study high return boot | Fabricated | 1 | piece | 1.4 ft, 0 turns |  |
 | Wall stack 14 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 7 | ea | 65 ft total | Plus one stack to round head per stack |
 | Stack to round head | Top of each wall stack, into the round run | 7 | ea |  |  |
@@ -177,7 +177,7 @@ Estimated from the joint and length counts above.
 | Bath exhaust main | Exhaust | None | 6 in round | 62.3 |  |  |  |  |
 | Powder exhaust | Exhaust | Powder | 4 in round | 9.6 |  |  |  |  |
 | Range hood duct | Range hood | Kitchen | 8 in round | 4.5 |  |  |  |  |
-| Bedroom 1 return | Return |  | 10 in round | 51.9 |  |  |  | 2 |
+| Bedroom 1 return | Return |  | 10 in round | 52.1 |  |  |  | 2 |
 | Bedrooms 2 and 3 return | Return |  | 10 in round | 21.5 |  | yes | 2 | 3 |
 | Main return (M-10) | Return |  | 34 x 20 in | 8.3 |  |  |  |  |
 | Return plenum box | Return |  | 14 x 24 in | 3.2 |  |  |  |  |

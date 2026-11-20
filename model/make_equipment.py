@@ -841,7 +841,8 @@ ret("return_plenum", "Return plenum box", [14, 24], [[RP_E - 7 / 12, RP_S, PZ], 
 # flex leaves the top plate into the truss bay above, which sits about 2 in east of the stud bay.
 def stud_bay(x, line=0, min_in=14.2):
     sl = CFG["framing"]["stud_lines"][line]
-    ed = [sl["x0"] + e / 12 for e in sl["right_edges_in"]]
+    ed = ([sl["x0"] + e / 12 for e in sl["right_edges_in"]] if "right_edges_in" in sl
+          else sorted(sl["x0"] - e / 12 + 1.5 / 12 for e in sl["west_edges_in"]))   # east edges either way
     bays = [((a + b - 1.5 / 12) / 2, b - 1.5 / 12 - a) for a, b in zip(ed, ed[1:]) if b - 1.5 / 12 - a > min_in / 12]
     return round(min(bays, key=lambda c: abs(c[0] - x))[0], 3)
 SR3, SR2, SR3B = stud_bay(8.0), stud_bay(9.3), stud_bay(6.6)
@@ -869,9 +870,9 @@ stack("return_bed2_stack", SR2, 10.8, "return_bed23", "return_bed2", "Bedroom 2"
 SSB, SSB2 = stud_bay(27.7, 1), stud_bay(29.0, 1)   # measured stud bays (Maxwell, 11/20/2026); the flex runs leave from the truss bays above
 XSB, XSB2 = bay(SSB), bay(SSB2)                 # the study's two low grilles east of its door (x 23.37-26.00 with casing to 26.29), Maxwell 11/18/2026
 # bedroom 1's grilles: both east of the closet 1 pocket door's header (Maxwell, 11/20/2026). The as-built header and its
-# double jacks run from x 31.59 to 38.01 ([framing] in config.toml, 71 in clear measured 11/20/2026); at x 32.0 and 33.3 the stacks ran through the
+# double jacks and kings run from x 31.16 to 37.34 (stud readings 11/20/2026, 65 in between the jacks); at x 32.0 and 33.3 the stacks ran through the
 # pocket. The second stack skips the bay with the bedroom outlet at x 39.6.
-XB1R = 38.7
+XB1R = stud_bay(38.6, 2)                           # measured stud bays (Maxwell, 11/20/2026)
 XSR = bay(25.4)                                   # both runs go south side by side in this bay: the living 1 and laundry supplies fill the next two east
 YSW, YBW = 19.6, 20.3
 r = ret("return_study", "Study return", 6,
@@ -896,7 +897,7 @@ ret("return_study2", None, 6, bend([[SSB2, 10.85, CEIL + 0.04], [XSB2, 10.85, ZT
 # north attic wall, comes down onto the deck east of the trunk's west leg and runs south to the return plenum.
 ZR = ZTR + 8 / 12 + 5 / 12 + 0.02                  # centre of a 10 in round lying on top of the 18 x 16 supply trunk
 ZH = ZTR + 8 / 12 + 0.54 + 5 / 12 + 0.04           # centre of the header, clear above the 6 in exhaust main on the trunk
-XB1B = 40.6                                        # the second stack, one stud bay further east: the outlet at x 39.6 sits between them
+XB1B = stud_bay(41.2, 2)                                        # the second stack, one stud bay further east: the outlet at x 39.6 sits between them
 XBH = (XB1R + XB1B) / 2
 HBW = round((XB1B - XB1R) * 12 + 14 + 4)           # header box width (in): over both stacks
 Y_RL, X_RL, Y_RN = YE + 0.31, XJ - 0.31, YN + 0.31 # the return's lane on the trunk top: south side of the east leg, west side of the jog, south side of the north leg

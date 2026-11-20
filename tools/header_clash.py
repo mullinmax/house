@@ -170,7 +170,8 @@ for dc in D["ducts"]:
 import tomllib
 CFGT = tomllib.load(open(os.path.join(HERE, "..", "model", "config.toml"), "rb"))
 for sl in CFGT.get("framing", {}).get("stud_lines", []):
-    studs = [(sl["x0"] + e / 12 - 1.5 / 12, sl["x0"] + e / 12) for e in sl["right_edges_in"]]
+    studs = ([(sl["x0"] + e / 12 - 1.5 / 12, sl["x0"] + e / 12) for e in sl["right_edges_in"]] if "right_edges_in" in sl
+             else sorted((sl["x0"] - e / 12, sl["x0"] - e / 12 + 1.5 / 12) for e in sl["west_edges_in"]))
     for dc in D["ducts"]:
         for a, b in zip(dc["points"], dc["points"][1:]):
             if abs(a[0] - b[0]) > 1e-3 or abs(a[1] - b[1]) > 1e-3 or abs(a[2] - b[2]) < 1 or abs(a[1] - sl["at"]) > 0.3:
