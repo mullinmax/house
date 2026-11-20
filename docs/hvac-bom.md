@@ -110,7 +110,7 @@ Trunks, plenums and boxes are usually made to measure by a sheet metal shop once
 | 20 x 4 in study high return boot | Fabricated | 1 | piece | 1.4 ft, 0 turns |  |
 | Wall stack 14 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 7 | ea | 65 ft total | Plus one stack to round head per stack |
 | Stack to round head | Top of each wall stack, into the round run | 7 | ea |  |  |
-| Wall stack 12 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 1 | ea | 9 ft total | Plus one stack to round head per stack |
+| Wall stack 10 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 1 | ea | 9 ft total | Plus one stack to round head per stack |
 | Stack to round head | Top of each wall stack, into the round run | 1 | ea |  |  |
 | Wall stack 6 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 1 | ea | 8 ft total | Plus one stack to round head per stack |
 | Stack to round head | Top of each wall stack, into the round run | 1 | ea |  |  |

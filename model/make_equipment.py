@@ -839,10 +839,10 @@ ret("return_plenum", "Return plenum box", [14, 24], [[RP_E - 7 / 12, RP_S, PZ], 
 # Bedroom 3 has a second grille and stack one bay west (duct balance check, 11/18/2026): one 14 x 2-1/2 in stack chokes 127 CFM.
 # Maxwell measured the studs in this wall (11/20/2026, [framing] stud_lines): each stack sits in a measured stud bay and its
 # flex leaves the top plate into the truss bay above, which sits about 2 in east of the stud bay.
-def stud_bay(x, line=0):
+def stud_bay(x, line=0, min_in=14.2):
     sl = CFG["framing"]["stud_lines"][line]
     ed = [sl["x0"] + e / 12 for e in sl["right_edges_in"]]
-    bays = [((a + b - 1.5 / 12) / 2, b - 1.5 / 12 - a) for a, b in zip(ed, ed[1:]) if b - 1.5 / 12 - a > 14.2 / 12]
+    bays = [((a + b - 1.5 / 12) / 2, b - 1.5 / 12 - a) for a, b in zip(ed, ed[1:]) if b - 1.5 / 12 - a > min_in / 12]
     return round(min(bays, key=lambda c: abs(c[0] - x))[0], 3)
 SR3, SR2, SR3B = stud_bay(8.0), stud_bay(9.3), stud_bay(6.6)
 XR3, XR2, XR3B = bay(SR3), bay(SR2), bay(SR3B)       # the truss bays over those stud bays
@@ -920,12 +920,12 @@ ret("return_bed1_head", None, [HBW, 10], [[XBH, 15.3, ZH], [XBH, 15.95, ZH]], in
 # Bath 2 supply comes in LOW and the exhaust stays HIGH (Maxwell, 11/18/2026), so the boost exhaust does not pull the fresh
 # supply air straight back out. A bottom takeoff from the trunk drops into hall 2's trusses, runs north in one truss bay to the
 # bath 2 / hall 2 wall (an interior stud wall, not a SIP), and goes down that stud bay to a low register just east of the door.
-XS2 = 20.1                                        # inside bay 19.7, east of the door casing (door opening x 16.58 to 19.21)
+XS2 = stud_bay(20.0, min_in=10.2)                             # the measured stud bay just east of the bath 2 door (Maxwell, 11/20/2026): 10 3/4 in clear, so a 10 in stack
 supply("s_bath2", "Bath 2", 37, 6, [[XS2, YN, DECK + 0.3], [XS2, YN, ZT], [XS2, 10.85, ZT]], dict(at=[XS2, 10.64, LOW], size=[10, 6], wall=N), el=60, note=
        "Low sidewall register on the south wall (Maxwell, 11/18/2026): supply low, exhaust high on the other end of the same wall, so fresh air "
        "sweeps across the room before the exhaust takes it. Bottom takeoff from the trunk, 6 in round north in one hall 2 truss bay, then a "
-       "12 x 2-1/2 in stack down the stud bay of the interior wall. The register sits east of the door and west of the vanity. ASSUMED sizes.")
-ducts.append(dict(id="s_bath2_stack", info_of="s_bath2", type="supply", shape="rect", size=[12, 2.5], points=[[XS2, 10.8, LOW - 0.25], [XS2, 10.8, ZT]]))
+       "10 x 2-1/2 in stack down the stud bay of the interior wall (the measured bay east of the door is 10 3/4 in clear, Maxwell 11/20/2026). The register sits east of the door and west of the vanity. ASSUMED sizes.")
+ducts.append(dict(id="s_bath2_stack", info_of="s_bath2", type="supply", shape="rect", size=[10, 2.5], points=[[XS2, 10.8, LOW - 0.25], [XS2, 10.8, ZT]]))
 
 # Bath exhaust (Maxwell, 11/17/2026): ceiling or high wall grilles in bath 1, bath 2 and the powder room, ducted to the ERV's stale air inlet
 # instead of separate fans. The run hugs the supply trunk's south side on the deck so it stays in the low, north part of the attic.
