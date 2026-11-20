@@ -629,7 +629,9 @@ def truss_xs(r, ext=(0.6, 42.4)):  # trusses over one region: the grid ones that
     hi = r[2] - E - CW / 2 if r[2] < ext[1] else r[2] + CW
     k0 = int((lo - TG) // TSP) - 1
     xs = [round(TG + k * TSP, 4) for k in range(k0, k0 + 200) if lo - 1e-6 <= TG + k * TSP <= hi + 1e-6]
-    return sorted(xs + [x for x in TEXTRA if lo - 1e-6 <= x <= hi + 1e-6])
+    xs += [x for x in TEXTRA if lo - 1e-6 <= x <= hi + 1e-6]
+    xs += [x for x, y0, y1 in CFG["floor_trusses"].get("extra_trusses", []) if lo - 1e-6 <= x <= hi + 1e-6 and y0 < r[3] - 0.1 and y1 > r[1] + 0.1]
+    return sorted(xs)
 # Solid trimmable ends (Maxwell, 11/20/2026): where the trusses bear on the hall 2 north wall they are solid for a stretch south of
 # it, so nothing can pass through them there. [x, y from, y to] per truss.
 def _end(x, yw, inch):            # a negative length reaches north of the reference face
@@ -876,8 +878,8 @@ r["info"]["notes"] = ["The study has a low grille (Maxwell, 11/17/2026) with a s
                       "Second grille and stack (Maxwell, 11/19/2026): the builder can move bedroom 1's door wall east, so it moved 2 ft 1 1/2 in, just far enough that the study's south wall has two stud bays for stacks, each under its own floor truss bay. Maxwell measured the trusses at 16 in on centre from the west wall (11/20/2026), so the stacks sit at x 28.0 and 29.4, centred under two neighbouring truss bays. The studs are 16 in on centre too, but where they fall against the trusses over this wall is not measured yet: a stack whose stud bay sits half a bay off the trusses would land on a truss. Confirm on site.", RFLEX]
 stack("return_study_stack", XSB, 10.8, "return_study", "return_study", "Bedroom 4 / study")
 stack("return_study_stack2", XSB2, 10.8, "return_study", "return_study2", "Bedroom 4 / study")
-ret("return_study2", None, 6, bend([[XSB2, 10.85, ZT], [XSB2, 12.6, ZT], [XSR + 0.26, 12.6, ZT], [XSR + 0.26, YBW, ZT], [bay(11.7) - 0.2, YBW, ZT],
-                                    [bay(11.7) - 0.2, RY - 1.3, ZT]]), flex=True, info_of="return_study", el=25)
+ret("return_study2", None, 6, bend([[XSB2, 10.85, ZT], [XSB2, 12.6, ZT], [XSR + 0.26, 12.6, ZT], [XSR + 0.26, YBW, ZT], [bay(10.7), YBW, ZT],
+                                    [bay(10.7), RY - 1.3, ZT]]), flex=True, info_of="return_study", el=25)
 
 # Bedroom 1 (duct balance check, 11/18/2026): its 138 CFM is too much for anything that fits through the truss webs, so its return
 # stays out of the trusses. Two stacks rise side by side in bedroom 1's south wall to a header above the supply trunk, which lies

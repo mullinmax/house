@@ -70,7 +70,7 @@ Counted from the model with 10 percent extra. Anything that crosses the floor tr
 | 8 in round pipe, 30 ga snap lock | Range hood | 1 | x 5 ft | 4 ft in the model |  |
 | 8 in round pipe, 30 ga snap lock | Supply | 13 | x 5 ft | 55 ft in the model |  |
 | 10 in round pipe, 30 ga snap lock | Return | 12 | x 5 ft | 51 ft in the model |  |
-| 6 in flex duct, R-6 insulated | Return runs through the trusses | 4 | x 25 ft box | 70 ft in the model | Pull it tight, no sags; support every 4 ft |
+| 6 in flex duct, R-6 insulated | Return runs through the trusses | 4 | x 25 ft box | 71 ft in the model | Pull it tight, no sags; support every 4 ft |
 | 10 in flex duct, R-6 insulated | Return runs through the trusses | 1 | x 25 ft box | 14 ft in the model | Pull it tight, no sags; support every 4 ft |
 | 4 in adjustable 90 elbow |  | 7 | ea | Counted from the bends in the model |  |
 | 6 in adjustable 90 elbow |  | 13 | ea | Counted from the bends in the model |  |
@@ -183,7 +183,7 @@ Estimated from the joint and length counts above.
 | Bedrooms 2 and 3 return | Return |  | 10 in round | 20.3 |  | yes | 2 | 3 |
 | Main return (M-10) | Return |  | 34 x 20 in | 8.3 |  |  |  |  |
 | Return plenum box | Return |  | 14 x 24 in | 3.2 |  |  |  |  |
-| Study return | Return |  | 6 in round | 63.4 |  | yes | 26 | 2 |
+| Study return | Return |  | 6 in round | 64.5 |  | yes | 27 | 2 |
 | Study high return | Return | Bedroom 4 / study | 20 x 4 in | 1.4 |  |  |  |  |
 | Utility room transfer grille | Return |  | 12 x 12 in | 1.0 |  |  |  |  |
 | Supply to Bath 1 | Supply | Bath 1 | 6 in round | 11.5 | 49 |  |  |  |
