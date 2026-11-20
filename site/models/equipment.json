@@ -2106,7 +2106,7 @@
      ],
      [
       "Stale air from",
-      "Bath 1, bath 2 and powder exhaust grilles: 20 CFM each all the time, about 80 CFM from each shower room and 30 from the powder room on boost"
+      "Bath 1, bath 2 and powder exhaust grilles: 20 CFM each all the time, about 80 CFM from each shower room and 30 from the powder room on boost. Plus 20 CFM from the litter box in the utility room"
      ],
      [
       "Fresh air to",
@@ -2135,9 +2135,92 @@
      "Fresh air goes into the supply plenum, not the attic (Maxwell, 11/18/2026). ERV makers' instructions say the furnace blower should run whenever the ERV runs when it is tied into the ductwork, and Building Science Corp. calls for an interlock and a motorized damper on a supply side connection. The heat pump's ECM blower can idle at low speed for this. Andy should confirm the ERV can push against the supply plenum's pressure; the fallback is the return plenum, which the code also counts as supply ventilation (IRC M1505.4.1).",
      "One fan pulls from all three bathrooms, so the whole exhaust duct is under suction and air cannot be pushed from one bathroom into another. Backdraft dampers are for separate fans that share a duct. Each branch gets a balancing damper to set its airflow.",
      "Set out to the Panasonic installation instructions the first unit came with (Maxwell, 11/18/2026); check them against Broan's: the two outdoor hoods are more than 10 ft apart, every duct connection has 2 ft or more of straight run before its first elbow, the outdoor ducts are insulated, the unit hangs level on chains inside the conditioned attic, and the intake is well over 6 ft from the dryer and range hood outlets.",
-     "A backdraft damper in the fresh air duct stops the heat pump's blower from pushing supply air backward through the ERV. With the blower off, the ERV's own fan still sends the fresh air down the supply trunk to every register, so it works without the heat pump running. Whole house ventilation is about 75 CFM for this size and bedroom count, and a full boost is about 190 CFM, inside this unit's 210. Andy should confirm the size. The range hood cannot connect here, it has its own duct outdoors."
+     "A backdraft damper in the fresh air duct stops the heat pump's blower from pushing supply air backward through the ERV. With the blower off, the ERV's own fan still sends the fresh air down the supply trunk to every register, so it works without the heat pump running. Whole house ventilation is about 75 CFM for this size and bedroom count, and a full boost is about 190 CFM, inside this unit's 210. Andy should confirm the size. The range hood cannot connect here, it has its own duct outdoors.",
+     "Litter box exhaust (Maxwell, 11/20/2026): a fourth pickup, 20 CFM from a low grille behind the litter box in the utility room. The bath grilles keep their 20 each, so the continuous setting goes from about 65 to 80 CFM (fresh air rises with it, the unit stays balanced). With a 20 CFM constant airflow insert on that branch, boost is unchanged; with only a hand damper the litter branch would take about 50 of the 210 on boost."
     ],
     "placement": "In line with the heat pump, just south of it, hung at the height of its top. Andy drew it west of HP-01."
+   }
+  },
+  {
+   "id": "litter_damper",
+   "name": "Litter box exhaust damper",
+   "category": "Ventilation",
+   "system": "hvac.exhaust",
+   "room": "Attic",
+   "layer": "ducts",
+   "builder": "hand_damper",
+   "size": [
+    4,
+    7
+   ],
+   "at": [
+    6.57,
+    28.56833333333333,
+    11.420833333333334
+   ],
+   "facing": 90,
+   "info": {
+    "model": "4 in round manual balancing damper with a locking quadrant handle",
+    "price": "About $10 to $20",
+    "specs": [
+     [
+      "Set to",
+      "20 CFM at the litter grille, with the ERV on its continuous setting"
+     ],
+     [
+      "Reach",
+      "From the attic deck east of the heat pump, about 1-1/2 ft up"
+     ],
+     [
+      "Upgrade",
+      "A 20 CFM constant airflow regulator in the duct holds the flow on boost too, so the bathrooms keep their boost air"
+     ]
+    ],
+    "notes": [
+     "Balancing damper for the litter box exhaust (Maxwell, 11/20/2026). Set once at commissioning, then locked. ASSUMED position."
+    ],
+    "placement": "Attic, on the litter box exhaust just east of the powder exhaust riser."
+   }
+  },
+  {
+   "id": "litter_box",
+   "name": "Cat litter box",
+   "category": "Pets",
+   "system": "household",
+   "room": "Utility",
+   "layer": "storage",
+   "builder": "litter_box",
+   "size": [
+    24,
+    12,
+    18
+   ],
+   "at": [
+    9.15,
+    23.032666666666668,
+    0
+   ],
+   "facing": 180,
+   "mat": [
+    26,
+    16
+   ],
+   "info": {
+    "model": "Large open litter box with high sides, about 24 x 18 x 12 in, on a litter mat (generic, for scale)",
+    "specs": [
+     [
+      "Where",
+      "Utility room north wall, east of the pressure tank, 2 in off the wall, about 2-1/2 ft west of the hall door"
+     ],
+     [
+      "Exhaust",
+      "The 10 x 4 in exhaust grille is right behind it, just above the back rim, pulling 20 CFM to the ERV"
+     ]
+    ],
+    "notes": [
+     "Placeholder for where the cat's litter box goes (Maxwell, 11/20/2026). The spot keeps it out of the walkway from the door to the tanks and the manifolds, away from the water heater's noise and clear of the hall door, which swings out into the hall. Any box works as long as its back sits against the grille."
+    ],
+    "placement": "Utility room, against the north wall, centred on the exhaust grille."
    }
   },
   {
@@ -20670,7 +20753,7 @@
    "info": {
     "model": "12 x 12 in ceiling grille and lined sleeve up through the trusses to a grille in the attic deck",
     "notes": [
-     "The utility room has a solid door (to keep equipment noise out of the hall), a supply register and no return, so the air it is given had no way out. Maxwell, 11/18/2026: give it a transfer grille to the attic. The sleeve sits in one truss bay between the water heater and the door. Lining the sleeve keeps light and tank noise from carrying. The attic is inside the SIP roof and has no return opening of its own, so Andy should confirm how air gets from the attic back to the heat pump. ASSUMED size and position."
+     "The utility room has a solid door (to keep equipment noise out of the hall), a supply register and no return, so the air it is given had no way out. Maxwell, 11/18/2026: give it a transfer grille to the attic. The sleeve sits in one truss bay between the water heater and the door. Lining the sleeve keeps light and tank noise from carrying. The attic is inside the SIP roof and has no return opening of its own, so Andy should confirm how air gets from the attic back to the heat pump. ASSUMED size and position. Since the litter box exhaust (11/20/2026) pulls 20 CFM from the room against its 18 CFM supply, air now comes DOWN this grille, a little, instead of going up, so the litter smell does not reach the attic."
     ]
    },
    "grilles": [
@@ -21884,7 +21967,7 @@
    "info": {
     "model": "4 in round exhaust",
     "notes": [
-     "ERV pickup grille: the ERV pulls 20 CFM from it continuously and more on boost, from a timer by the door. There is no separate bath fan (Maxwell, 11/19/2026). Allowed by the Ohio residential code (4101:8-15-01, sections 1501.1 and 1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Comes up through the deck, runs along it and rises into the main just before the ERV."
+     "ERV pickup grille: the ERV pulls 20 CFM from it continuously and more on boost, from a timer by the door. There is no separate bath fan (Maxwell, 11/19/2026). Allowed by the Ohio residential code (4101:8-15-01, sections 1501.1 and 1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Comes up through the deck, runs along it and rises into the main just before the ERV. The litter box exhaust from the utility room tees into its riser."
     ]
    },
    "grilles": [
@@ -21900,6 +21983,113 @@
      ]
     }
    ]
+  },
+  {
+   "id": "ex_litter_stack",
+   "info_of": "ex_litter",
+   "type": "exhaust",
+   "shape": "rect",
+   "size": [
+    6,
+    2.5
+   ],
+   "points": [
+    [
+     9.15,
+     22.637,
+     1.05
+    ],
+    [
+     9.15,
+     22.637,
+     9.494791666666666
+    ]
+   ],
+   "grilles": [
+    {
+     "at": [
+      9.15,
+      22.887,
+      1.25
+     ],
+     "size": [
+      10,
+      4
+     ],
+     "wall": "S"
+    }
+   ]
+  },
+  {
+   "id": "ex_litter",
+   "category": "Ventilation",
+   "system": "hvac.exhaust",
+   "type": "exhaust",
+   "shape": "round",
+   "size": 4,
+   "points": [
+    [
+     9.15,
+     22.637,
+     9.494791666666666
+    ],
+    [
+     9.15,
+     23.15,
+     9.494791666666666
+    ],
+    [
+     9.15,
+     23.15,
+     11.6
+    ],
+    [
+     9.15,
+     28.56833333333333,
+     11.6
+    ],
+    [
+     5.07,
+     28.56833333333333,
+     11.6
+    ]
+   ],
+   "name": "Litter box exhaust",
+   "room": "Utility",
+   "info": {
+    "model": "4 in round exhaust, 20 CFM continuous, from a 10 x 4 in low filter grille behind the litter box",
+    "notes": [
+     "A slow, steady 20 CFM pulled from right behind the litter box, all the time, so the smell is taken at the box and goes outdoors with the bath air (Maxwell, 11/20/2026, after a video where a small ERV pickup at a litter box kept the room from ever smelling). The utility room is given about 18 CFM of supply (M-10) and has a solid door, so pulling 20 out keeps it slightly under suction: a little air comes in through the transfer grille and under the door and none leaves the room any other way. Before this the room's air, litter smell and all, went up the transfer grille into the attic and from there back into the return.",
+     "Sizing: the video's pickup was about 5 CFM, a computer fan's worth. 20 CFM is used here so the room stays under suction against its supply; turn the damper down toward 10 if the room's supply is cut back. At 20 CFM a 4 in duct is quiet (about 230 ft per minute) and the stack in the wall moves the air at under 200.",
+     "ERV balance: the three bath grilles keep their 20 CFM each (the code minimum), so the ERV's continuous setting goes up from about 65 to 80 CFM, which also brings in 80 CFM of fresh air (about 75 is the house's ventilation need). No bath grille needs trimming. On boost every branch rises together, so with only a hand damper this one would take roughly 50 of the unit's 210 CFM and the bathrooms about 160 instead of 190. A 4 in constant airflow regulator set to 20 CFM (a drop in insert, Aldes makes them, about $30 to $50) holds this branch at 20 whatever the fan does, so the boost stays in the bathrooms. Recommended in place of, or with, the hand damper.",
+     "An ERV core hands some moisture back to the incoming air and a trace of odour can ride along with it. At 20 CFM out of 80, diluted with the bath air, that should not be noticeable. If it ever is, this branch can be split off to its own small fan and wall cap.",
+     "Clash checks: the stack is in one stud bay (no studs, wall junctions or the door header), the 4 in round is between a truss and the study return in the floor trusses, and it crosses no trusses. Stud positions are the typical layout until the wall is measured. ASSUMED route and position."
+    ],
+    "specs": [
+     [
+      "Airflow",
+      "20 CFM all the time, set with the hand damper in the attic. On boost it rises with the bath grilles unless a constant airflow insert is used (notes)"
+     ],
+     [
+      "Pickup",
+      "10 x 4 in filter grille in the north wall, centre 15 in off the floor, just above the box's back rim. A washable filter behind it keeps litter dust out of the ERV"
+     ],
+     [
+      "Duct",
+      "6 x 2-1/2 in stack up the stud bay, then 4 in round: 6 in south in the floor trusses, up through the deck, over the main return trunk, south and west into the powder exhaust riser"
+     ],
+     [
+      "Into",
+      "The ERV's stale air side, through the powder exhaust riser, about 1 ft before the unit"
+     ],
+     [
+      "Damper",
+      "Hand balancing damper on the attic run, about 1-1/2 ft before the tee"
+     ]
+    ],
+    "placement": "Utility room north wall, behind the litter box, up into the attic over the utility room."
+   },
+   "cfm": 20
   },
   {
    "id": "ex_main",
