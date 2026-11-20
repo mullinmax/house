@@ -635,16 +635,6 @@
    "src": "U-11 #71"
   },
   {
-   "kind": "floor_box",
-   "x": 31.434,
-   "y": 43.899,
-   "z_in": 0,
-   "facing": 0,
-   "level": "main",
-   "src": "U-11 #72",
-   "note": "Floor outlet, U-11 says to confirm with the owner."
-  },
-  {
    "kind": "outlet",
    "x": 16.25,
    "y": 30.06,
@@ -1150,6 +1140,15 @@
    "facing": 270,
    "level": "upper",
    "src": "U-12 #17"
+  }
+ ],
+ "removed": [
+  {
+   "src": "U-11 #72",
+   "kind": "floor_box",
+   "x": 31.434,
+   "y": 43.899,
+   "why": "No outlets were put in the slab (Maxwell, 11/20/2026). U-11 draws this floor outlet in the dining / common area; it was not installed."
   }
  ]
 }
