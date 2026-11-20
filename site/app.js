@@ -739,7 +739,39 @@ function setMode(m) {
     if (!jumping) { jumping = true; jump(lastRoom || 'Outside_SW'); jumping = false; }
   }
 }
-for (const b of document.querySelectorAll('[data-mode]')) b.onclick = () => { if (mode !== b.dataset.mode) setMode(b.dataset.mode); openSheet(null); };
+// Leaving the overhead view keeps you where you were looking (Maxwell, 11/20/2026: Walk snapped outside the house).
+// Walk drops onto the nearest floor under the orbit centre, facing the way the camera faced. No clip stays exactly
+// where the camera is, looking the same way, and just starts flying.
+function leaveOrbit(fly) {
+  const was = mode;
+  jumping = true; setMode('walk'); jumping = false;
+  if (was !== 'orbit') { if (fly !== undefined && fly !== noclip) setNoclip(fly); return; }
+  vel.set(0, 0, 0); lastRoom = null;
+  if (fly) { camera.up.set(0, 1, 0); setNoclip(true); return; }
+  if (noclip) noclip = false, $('tClip').setAttribute('aria-pressed', false), vy = 0;
+  eyeH = crouch ? CROUCH : EYE;
+  const fwd = orbit.target.clone().sub(camera.position); fwd.y = 0;
+  if (fwd.lengthSq() < 1e-4) { fwd.set(0, 1, 0).applyQuaternion(camera.quaternion); fwd.y = 0; }   // straight down: screen up is ahead
+  if (fwd.lengthSq() < 1e-8) fwd.set(0, 0, -1);
+  fwd.normalize();
+  let spot = dropSpot(orbit.target);
+  if (!spot) { jumping = true; jump('Outside_SW'); jumping = false; return; }
+  // Stand a few steps back from that spot when you can see it from there, so what you were orbiting is in front of you.
+  for (const k of [8, 5, 3]) {
+    const c = spot.clone().addScaledVector(fwd, -k * F), back = nearClear(c.x, c.z, spot.y, 0.4 * F, 0.6 * F);
+    if (!back) continue;
+    const eye = back.clone(); eye.y += eyeH;
+    const to = spot.clone(); to.y += eyeH; const gap = to.clone().sub(eye), len = gap.length();
+    side.set(eye, gap.divideScalar(len)); side.far = len;
+    if (!side.intersectObjects(colliders, false)[0]) { spot = back; break; }
+  }
+  camera.position.copy(spot); camera.position.y += eyeH;
+  camera.lookAt(camera.position.clone().add(fwd));
+}
+for (const b of document.querySelectorAll('[data-mode]')) b.onclick = () => {
+  if (mode !== b.dataset.mode) { if (b.dataset.mode === 'walk') leaveOrbit(false); else setMode(b.dataset.mode); }
+  openSheet(null);
+};
 
 function jump(name) {
   if (!name) return;
@@ -1207,6 +1239,69 @@ function climbAt(p, pad = 0) {
   return null;
 }
 
+// ---------------------------------------------------------------- where Walk lands when you leave orbit
+// Inside the house you land on a real floor level (house.json floors: the slab, and the loft and attic deck), the
+// highest one at or under the orbit centre and under the height slice. Anywhere else (garage, porch, the yard) you
+// land on whatever ground is nearest the orbit centre's height. A spot inside a wall, a cabinet or too close to
+// either moves to the nearest clear spot within a few feet; failing that, the next floor down; failing that, a wider
+// search. Returns the feet position in metres, or null.
+const DROP_BACK = 0.35;          // m: start the body rays this far back so a spot inside a wall still sees its face
+function horizHits(x, z, top, bottom) {
+  down.set(new THREE.Vector3(x, top, z), DOWN); down.far = top - bottom; down.firstHitOnly = false;
+  if (furnSet.size !== furnitureMeshes.length) furnSet = new Set(furnitureMeshes);
+  const n = new THREE.Vector3();
+  const hs = down.intersectObjects(colliders, false).filter((h) => {
+    if (furnSet.has(h.object) || !h.face) return false;
+    n.copy(h.face.normal).transformDirection(h.object.matrixWorld);
+    return n.y > 0.7;
+  });
+  down.firstHitOnly = true;
+  return hs;
+}
+function clearAt(x, feet, z) {    // nothing within a body radius at knee, waist or crouched head height, and headroom
+  if (ceilingAt(x, feet, z) - feet < DUCK_MIN + HEAD + 0.6 * F) return false;
+  const d = new THREE.Vector3();
+  for (const hgt of [1.05 * F, 2.0 * F, CROUCH * 0.95]) for (let i = 0; i < 8; i++) {
+    d.set(Math.cos(i * Math.PI / 4), 0, Math.sin(i * Math.PI / 4));
+    side.set(new THREE.Vector3(x - d.x * DROP_BACK, feet + hgt, z - d.z * DROP_BACK), d); side.far = DROP_BACK + RADIUS;
+    if (side.intersectObjects(colliders, false)[0]) return false;
+  }
+  return true;
+}
+// Search outward from (x, z) in rings for a clear floor within tol of y. Returns the feet position or null.
+function nearClear(x, z, y, tol, maxR) {
+  const step = 0.6 * F;
+  for (let r = 0; r <= maxR + 1e-6; r += step) {
+    const n = r ? Math.max(6, Math.round(2 * Math.PI * r / step)) : 1;
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * 2 * Math.PI, px = x + r * Math.cos(a), pz = z + r * Math.sin(a);
+      const hs = horizHits(px, pz, y + tol, y - tol);
+      if (!hs.length) continue;
+      const h = hs.reduce((b, q) => Math.abs(q.point.y - y) < Math.abs(b.point.y - y) ? q : b);
+      if (clearAt(px, h.point.y, pz)) return new THREE.Vector3(px, h.point.y, pz);
+    }
+  }
+  return null;
+}
+function dropSpot(at) {
+  const x = at.x, z = at.z, px = x / F, py = z / F;
+  const o = houseMeta.outline || { house: [0, 0, 43.0833, 52] }, hr = o.house;
+  let top = at.y + 1 * F;
+  if (upperPlane.constant < 1e5) top = Math.min(top, upperPlane.constant);       // nothing above the slice counts
+  if (px >= hr[0] && px <= hr[2] && py >= hr[1] && py <= hr[3]) {
+    const lv = [...new Set(Object.values(houseMeta.floors || { main: 0 }).map((v) => Math.round(v * 10) / 10))]
+      .map((v) => v * F).filter((y) => y <= top + 0.1).sort((a, b) => b - a);
+    if (!lv.length) lv.push(0);
+    for (const maxR of [3 * F, 12 * F]) for (const y of lv) { const s = nearClear(x, z, y, 0.6 * F, maxR); if (s) return s; }
+    return null;
+  }
+  // outside the house: the ground nearest the orbit centre's height
+  const hs = horizHits(x, z, 300, -100);
+  if (!hs.length) return null;
+  const y = hs.reduce((b, q) => Math.abs(q.point.y - at.y) < Math.abs(b.point.y - at.y) ? q : b).point.y;
+  return nearClear(x, z, y, 2 * F, 12 * F);
+}
+
 // Body rays: knee, waist and the crouched head. Anything higher you duck under instead of walking into.
 function blocked(origin, dir, dist) {
   const feet = origin.y - eyeH;
@@ -1227,7 +1322,7 @@ function setNoclip(on) {
     const g = groundAt(camera.position, eyeH); camera.position.y = Math.max(camera.position.y, g + eyeH);
   }
 }
-$('tClip').onclick = () => { if (mode !== 'walk') setMode('walk'); setNoclip(!noclip); };
+$('tClip').onclick = () => { if (mode !== 'walk') leaveOrbit(true); else setNoclip(!noclip); };
 for (const b of document.querySelectorAll('[data-act="crouch"]')) b.onclick = () => setCrouch(!crouch);
 
 function fly(dt) {
@@ -1322,7 +1417,7 @@ addEventListener('keydown', (e) => {
   keys.add(e.code);
   if (e.code === 'KeyE') act(center);
   if (e.code === 'Escape') { if (modalKind) closeModal(); else if (sheet) openSheet(null); else hideInfo(); }
-  if (e.code === 'KeyN') { if (mode !== 'walk') setMode('walk'); setNoclip(!noclip); }
+  if (e.code === 'KeyN') { if (mode !== 'walk') leaveOrbit(true); else setNoclip(!noclip); }
   if (e.code === 'KeyC' && mode === 'walk' && !noclip) setCrouch(!crouch);
   if (e.code === 'KeyH' || e.key === '?') openModal('controls');
   if (e.code === 'Space') e.preventDefault();
