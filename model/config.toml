@@ -718,6 +718,8 @@ source = "Drone photos 11/19/2026: 72 in opening (the photos' scale), the shallo
 
 [[framing.headers]]             # A4, entry cubby beam
 at = [36.79, 34.89]
+ro = [31.51, 42.01]             # MEASURED 11/20/2026: an 11 ft header on two 2x4s at each end, read as 11 ft long overall, so 10 ft 6 in clear (the photos showed about 10 ft 5 in). East end kept from the photos
+measured = "11/20/2026 by Maxwell: 11 ft header with two 2x4s under each end (read as 11 ft overall, 10 ft 6 in clear; asked to confirm). Height not measured yet"
 type = "LVL"
 size = "LVL (pale, about 11 7/8 in), doubled post at the west end"
 bottom_in = 94
