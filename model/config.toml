@@ -801,33 +801,33 @@ axis = "x"
 at = [34.25, 22.64]
 band = [22.41, 22.87]
 head = 6.67
-ro = [31.34, 37.26]             # MEASURED 11/20/2026 (Maxwell: same as the bedroom 1 closet header): 71 in clear, centre kept from the photos
+ro = [31.622, 37.039]           # 65 in between the jacks, header about 71 1/4 in (Maxwell 11/20/2026: same as the bedroom 1 closet door). East end on the door's east edge (the pocket runs west)
 size = "(2) 2x12 class, pale built-up 2x"
 bottom_in = 83                  # MEASURED 11/20/2026: 83 in to the bottom of the header
 jacks = 2                       # MEASURED 11/20/2026: two 2x4s under each end
 kings = 0
-measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, 71 in clear, two 2x4s under each end"
+measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, 65 in between the jacks (header about 71 1/4 in long), two jacks under each end"
 confidence = "medium"
 source = "Drone photos 11/19/2026: about 5 1/2 ft opening, 6'8\" door class, flat 2x and cripples above"
 notes = ["A-11 shows this as an open gap under the loft; the framing has a door-height header across it."]
 
 [[framing.headers]]             # C1, hall 2 to laundry pocket door
 at = [22.08, 15.26]
-ro = [20.75, 26.67]             # MEASURED 11/20/2026 (Maxwell: same as the bedroom 1 closet header): 71 in clear. West end on the door opening's west edge (the pocket runs east); centred on the photos it put a jack 1 in into the doorway
+ro = [20.75, 26.167]            # 65 in between the jacks, header about 71 1/4 in on two jacks each end (Maxwell 11/20/2026: same as the bedroom 1 closet door). West end on the door opening's west edge (the pocket runs east)
 type = "LVL"
 size = "LVL (dark brown, about 10 to 14 in)"
 depth_in = 12
 bottom_in = 83                  # MEASURED 11/20/2026: 83 in to the bottom of the header
 jacks = 2                       # MEASURED 11/20/2026: two 2x4s under each end
 kings = 0
-measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, 71 in clear, two 2x4s under each end"
+measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, 65 in between the jacks (header about 71 1/4 in long), two jacks under each end"
 pocket = true
 confidence = "low"
 source = "Drone photos 11/19/2026: about 6 ft opening, header bottom not visible"
 
 [[framing.headers]]             # C2, bedroom 1 to closet 1 pocket door
 at = [35.7, 15.26]
-ro = [31.542, 36.958]           # MEASURED 11/20/2026 stud by stud from the east wall: 65 in between the jacks (a 32 in pocket door frame). Maxwell first read 71 in; the stud readings win
+ro = [31.542, 36.958]           # MEASURED 11/20/2026 stud by stud from the east wall: 65 in between the jacks (a 32 in pocket door frame). The header on top is about 71 1/4 in long (Maxwell)
 jacks = 2                       # MEASURED 11/20/2026: two 2x4s under each end of the header
 kings = 1                       # a full height stud beside the jacks at each end (stud readings 11/20/2026)
 measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, two 2x4s under each end; stud readings put the jacks at 65 in apart, x 31.54 to 36.96"
