@@ -418,7 +418,7 @@
      "spec": "Return runs through the trusses",
      "qty": 4,
      "unit": "x 25 ft box",
-     "where": "73 ft in the model",
+     "where": "72 ft in the model",
      "note": "Pull it tight, no sags; support every 4 ft",
      "price": "",
      "status": ""
@@ -1337,7 +1337,7 @@
    "system": "Return",
    "room": "",
    "size": "6 in round",
-   "ft": 65.39568711259922,
+   "ft": 65.25618210139386,
    "cfm": null,
    "flex": true,
    "crosses": 27,
