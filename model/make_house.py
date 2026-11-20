@@ -639,6 +639,9 @@ def nearest_label(x, y):
 
 
 def door_head_near(x, y):
+    for hx, hy, hh in C.get("framing", {}).get("door_heads", []):     # heads set to clear the as-built headers
+        if math.hypot(hx - x, hy - y) < 1.5:
+            return hh
     lab = nearest_label(x, y)
     return 8.0 if lab is None else (8.0 if lab.endswith("80") else 6.67)
 
@@ -1026,7 +1029,7 @@ if FR.get("enabled", True):
         hid = f"framing.header.{len(FRAMING_META['headers'])}"
         FRAMING_META["headers"].append(dict(id=hid, name=where, box=[round(v, 4) for v in hbox], built=built, photo=photo,
                                             ro=[r0, r1], axis=op_["axis"], kings=[k0, k1], band=[t0, t1], top=ztop + NTOP * SW,
-                                            confidence=spec.get("confidence", "typical"), wall=op_["wall"]))
+                                            confidence=spec.get("confidence", "typical"), wall=op_["wall"], head=op_["head"], gap=[round(op_["g0"], 4), round(op_["g1"], 4)]))
         if not built:
             continue
         rec(hid, "framing", f"Door header {where}".strip(), "framing",
