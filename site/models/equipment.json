@@ -1827,6 +1827,158 @@
    }
   },
   {
+   "id": "server_rack",
+   "name": "Server rack",
+   "category": "Network",
+   "system": "lowvolt.network",
+   "room": "Attic",
+   "layer": "mechanical",
+   "builder": "server_rack",
+   "size": [
+    23.6,
+    46.5,
+    31.5
+   ],
+   "pad": [
+    38.0,
+    0.75,
+    36.0
+   ],
+   "at": [
+    10.0,
+    22.75,
+    10.052083333333334
+   ],
+   "facing": 0,
+   "units": 22,
+   "gear": [
+    [
+     22,
+     1,
+     "patch",
+     "24 port Cat 6 patch panel"
+    ],
+    [
+     21,
+     1,
+     "switch",
+     "24 port network switch"
+    ],
+    [
+     20,
+     1,
+     "manager",
+     "Cable manager"
+    ],
+    [
+     18,
+     1,
+     "router",
+     "Router or firewall"
+    ],
+    [
+     16,
+     1,
+     "shelf",
+     "Shelf: modem or ONT, mini PCs"
+    ],
+    [
+     13,
+     2,
+     "server",
+     "2U server"
+    ],
+    [
+     10,
+     4,
+     "nas",
+     "4U storage server"
+    ],
+    [
+     2,
+     2,
+     "ups",
+     "2U UPS"
+    ]
+   ],
+   "info": {
+    "model": "22U four post open frame rack on casters, 19 in rails, about 24 W x 32 D x 46-1/2 H in (ASSUMED, any 12U to 22U fits here)",
+    "price": "About $150 to $350 for the rack, $20 for the plywood pad",
+    "specs": [
+     [
+      "Size",
+      "22U, half of a full 42U rack. Rails adjust for gear 22 to 40 in deep"
+     ],
+     [
+      "Headroom",
+      "About 6 in over the top at its low (north) edge, 16 in at the back"
+     ],
+     [
+      "Service",
+      "About 3 ft clear in front (the walkway); casters let it roll out to reach the back"
+     ],
+     [
+      "Power",
+      "Its own 20 A circuit to a receptacle on the wall beside it, through a 2U UPS"
+     ],
+     [
+      "Cables",
+      "Home runs drop straight down into the wall under its back, then to every data jack"
+     ],
+     [
+      "Gear shown",
+      "Example only, for scale: patch panel, switch, router, servers, shelf, UPS"
+     ]
+    ],
+    "notes": [
+     "Why here: it is the tallest part of the walkway's floor that nothing else needs, so it blocks no path (the heat pump aisle is about 4 ft west of it) and the walkway in front of it is its service space. You reach it from the loft access by walking the length of the walkway, never stepping over a duct.",
+     "Cables: the wall between bedroom 3 and the utility room runs right under its back edge, so the home runs go down through that wall's top plate (a 2 in grommet or a short sleeve) and the utility room, where the internet service and the electrical panel are most likely to land, is one wall away. Leave a pull string and a spare sleeve for later.",
+     "Heat: a small home rack gives off roughly 200 to 600 W all the time. The attic is inside the conditioned envelope but has no return of its own, so that heat mostly sits up here. The heat pump water heater's intake is about 4 ft south, over the return duct, and it pulls attic air whenever it runs, which turns some of the rack's heat into hot water. If the gear grows, the easy fix is a small return grille in the side of the main return's drop box right behind the rack (a question for Andy, it changes the duct balance).",
+     "Weight: a loaded 22U rack can reach 300 to 500 lb on about 4 sq ft. The plywood pad spreads it across the trusses at x 8.7 and 10.7; ask the truss maker what concentrated load the attic deck takes before loading it heavily.",
+     "Headroom is crouching height (about 4-1/2 ft at the front rising to 5-1/2 ft at the back), fine for a rack you work on kneeling. The other spot looked at, over the utility room, has standing room but means climbing over the 14 in tall main return duct to reach it.",
+     "For Home Assistant later: a UPS with a network card or USB reports power and runtime, and a temperature sensor on the rack shows how warm the attic gets."
+    ],
+    "placement": "At the west end of the attic walkway, over the bedroom 3 and utility room wall, back to the main return duct, front facing north into the walkway."
+   }
+  },
+  {
+   "id": "server_rack_outlet",
+   "name": "Rack receptacle",
+   "category": "Outlet",
+   "system": "electrical",
+   "room": "Attic",
+   "layer": "electrical",
+   "builder": "wall_box",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    11.64,
+    23.1,
+    11.552083333333334
+   ],
+   "facing": 270,
+   "info": {
+    "model": "20 A duplex receptacle on its own circuit (ASSUMED)",
+    "specs": [
+     [
+      "Height",
+      "18 in above the attic deck"
+     ],
+     [
+      "Circuit",
+      "Dedicated 20 A, 120 V"
+     ]
+    ],
+    "notes": [
+     "Not on U-12: added for the server rack (Maxwell, 11/20/2026). On the attic side of the wall east of the rack, just north of the main return grille. The UPS plugs in here and everything in the rack plugs into the UPS."
+    ],
+    "placement": "Attic, wall east of the server rack."
+   }
+  },
+  {
    "id": "fan_bed1",
    "name": "Ceiling fan with light",
    "category": "Ceiling fan",
