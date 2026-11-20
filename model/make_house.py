@@ -220,7 +220,8 @@ MATERIALS = {
     "Mug Blue": dict(color="#2F5A8A", rough=0.25), "Mug Mustard": dict(color="#C9952B", rough=0.25), "Mug Sage": dict(color="#8FA285", rough=0.25),
     "Mug Terracotta": dict(color="#B4583A", rough=0.25), "Mug Cream": dict(color="#EFE6D2", rough=0.25),
     "Dishware": dict(color="#F2F0EA", rough=0.2),                                                 # plates and mugs in the glass door upper
-    "Cabinet Pull": dict(color=K.get("pull_color", "#1A1A1A"), rough=0.45, metal=0.5),        # matte black bar pulls on every kitchen cabinet
+    "Cabinet Pull": dict(color=K.get("pull_color", "#C9A465"), rough=0.32, metal=1.0),        # satin brass bar pulls on every kitchen cabinet (Maxwell 11/20/2026)
+    "Butcher Block": dict(color="#FFFFFF", rough=0.5, map=K.get("island_top_map", "butcher_block.jpg"), tile=0.8, grain="long"),   # island top (Maxwell 11/20/2026)
     "Black Metal": dict(color="#151515", rough=0.4, metal=0.6),
     "Aluminum": dict(color="#B9BCBE", rough=0.35, metal=1.0),
     "Gutter": dict(color=MM.get("trim_albedo", MM["trim_color"]), rough=0.45, metal=0.4),
@@ -1163,6 +1164,10 @@ UNIT_NAMES = {"blind": "Blind corner base", "door1": "Base cabinet, one door", "
               "pullout": "Pullout base", "oven_tower": "Oven tower", "tall_pantry": "Tall pantry", "fridge": "Fridge bay with over fridge cabinet",
               "tray": "Tray divider base", "beverage": "Beverage fridge bay", "panel": "End panel", "drawer_tall": "Tall utensil drawer",
               "pullout_drawer": "Drawer over a sheet pan pullout"}
+PULL_NAME = K.get("pull_name", "Satin brass bar pulls")
+ISLAND_TOP = "Butcher Block" if K.get("island_top", "butcher") == "butcher" else "Counter"
+ISLAND_TOP_NAME = ("Edge grain butcher block, 1 1/2 in staves, oiled (species TBD)" if ISLAND_TOP == "Butcher Block"
+                   else f"Quartz {K['counter_color']} (ASSUMED light quartz)")
 ISLAND_MAT = "Cabinet Wood" if K.get("island_finish", "paint") == "wood" else "Island"
 FINISH = lambda m: "Olive green, painted shaker" if m == "Island" else f"KraftMaid natural wood shaker, same white oak as the windows and trim (species and stain TBD)"
 RUN_NAMES = {"south": "sink wall", "west": "cooktop wall", "north": "fridge wall", "island": "island", "island_east": "island, dining side"}
@@ -1189,7 +1194,7 @@ class Run:
 
 
 def pull(run, uc, zc, length, d, vertical=False, mat="Cabinet Pull"):
-    """a bar pull. Cabinets get the matte black pulls of Danielle's 11/19/2026 rendering; appliances pass their own metal."""
+    """a bar pull. Cabinets get satin brass pulls (Maxwell 11/20/2026); appliances pass their own metal."""
     if vertical:
         run.box(mat, uc - 0.02, uc + 0.02, d, d + 0.07, zc - length / 2, zc + length / 2)
     else:
@@ -1280,7 +1285,7 @@ def base_unit(run, rn, k, u0, u1, typ, mat, depth=BASE_D, counter=True):
     rid = f"cabinet.{rn}.{k}"
     nm = f"{UNIT_NAMES.get(typ, typ)}, {RUN_NAMES.get(rn, rn)}"
     r = rec(rid, "cabinet", nm, "interior", room="Kitchen",
-            info=dict(model=f"{UNIT_NAMES.get(typ, typ)}, {ftin(u1 - u0)} wide", specs=[["Run", RUN_NAMES.get(rn, rn)], ["Finish", FINISH(mat)], ["Hardware", "Matte black bar pulls"]],
+            info=dict(model=f"{UNIT_NAMES.get(typ, typ)}, {ftin(u1 - u0)} wide", specs=[["Run", RUN_NAMES.get(rn, rn)], ["Finish", FINISH(mat)], ["Hardware", PULL_NAME]],
                       notes=["From the Carter Lumber design start plan (Danielle Gross, 11/10/2026) with Erin's 11/12 redline. Wood, door style and pulls from Danielle's 11/19/2026 north wall rendering."]))
     if typ in ("oven_tower", "tall_pantry"):
         if typ == "oven_tower":                                   # solid round the oven, an open cabinet above it
@@ -1428,7 +1433,7 @@ if RUNS["north"].get("pantry_door") and PANTRY_STYLE == "murphy":
     r = rec("door.pantry", "door", "Pantry Murphy door", "interior", room="Kitchen",
             info=dict(model=f"Murphy door made as a tall pantry cabinet, {ftin(mx1 - mx0)} wide x {ftin(mdf)} deep x {ftin(TALL)} tall",
                       specs=[["Opening behind it", f"{ftin(px1 - px0)} x {ftin(phd)} passage into the pantry"], ["Finish", FINISH("Cabinet Wood")],
-                             ["Hardware", "Matte black bar pulls, heavy duty pivot hinge at the west front corner (ASSUMED)"]],
+                             ["Hardware", f"{PULL_NAME}, heavy duty pivot hinge at the west front corner (ASSUMED)"]],
                       notes=["Danielle Gross's 11/19/2026 north wall rendering shows a tall pantry cabinet here; Maxwell: it is a Murphy door.",
                              "The whole cabinet swings into the kitchen and parks along the west wall. Which side it hinges on and which way it swings is ASSUMED. "
                              "Open, it stands partly in front of the glass kitchen door on the west wall.",
@@ -1466,7 +1471,7 @@ elif RUNS["north"].get("pantry_door") and PANTRY_STYLE in ("flush", "pocket", "s
     }
     nm_, note_ = PANTRY_NOTES[PANTRY_STYLE]
     HW_ = ("Rockler InvisiDoor pivot bookcase hinge kit, with the Rockler InvisiDoor secret book latch triggered by the Open Sesame jar (Maxwell 11/19/2026)"
-           if PANTRY_STYLE == "shelf" else "Matte black")
+           if PANTRY_STYLE == "shelf" else PULL_NAME)
     LINKS_ = ([["Rockler InvisiDoor Pivot Bookcase Hinge Kit", "https://rockler.com/invisidoor-pivot-bookcase-hinge-kit"],
                ["Rockler Secret Book Latch for InvisiDoor", "https://rockler.com/secret-book-latch-for-invisidoortrade-pivot-bookcase-hinge-kit"]]
               if PANTRY_STYLE == "shelf" else [])
@@ -1521,7 +1526,7 @@ elif RUNS["north"].get("pantry_door") and PANTRY_STYLE in ("flush", "pocket", "s
             zkey = min(range(len(zs)), key=lambda i_: abs(zs[i_] - 4.0))                                 # the Open Sesame jar's shelf, about hand height
             for k_, zz in enumerate(zs):
                 nr_.box("Cabinet Wood", lx0 + 0.06, lx1 - 0.06, f0 + 0.06, f1 - 0.03, zz, zz + 0.05)            # shelf
-                nr_.box("Cabinet Pull", lx0 + 0.06, lx1 - 0.06, f1 - 0.04, f1 - 0.02, zz + 0.16, zz + 0.18)    # black rail that keeps the jars in
+                nr_.box("Cabinet Pull", lx0 + 0.06, lx1 - 0.06, f1 - 0.04, f1 - 0.02, zz + 0.16, zz + 0.18)    # brass rail that keeps the jars in
                 n_ = 8
                 for j in range(n_):
                     cx, cy = nr_.at(lx0 + 0.2 + j * (lx1 - lx0 - 0.4) / (n_ - 1), (f0 + f1) / 2 + 0.02)
@@ -1533,7 +1538,7 @@ elif RUNS["north"].get("pantry_door") and PANTRY_STYLE in ("flush", "pocket", "s
                         box("Dishware", lx_ - 0.05, lx_ + 0.05, ly_, ly_ + 0.006, zz + 0.12, zz + 0.25)              # label
                         continue
                     cyl(cols[(j + k_ * 3) % len(cols)], cx, cy, zz + 0.05, zz + 0.33, 0.075)                    # jar of spice
-                    cyl("Cabinet Pull", cx, cy, zz + 0.33, zz + 0.39, 0.078)                                     # black lid
+                    cyl("Black Metal", cx, cy, zz + 0.33, zz + 0.39, 0.078)                                      # black lid
 elif RUNS["north"].get("pantry_door"):
     px0, px1, phd = min(CL["passages"], key=lambda p: p[0])
     leaf = RUNS["north"].get("pantry_door_leaf", px1 - px0 - 0.2)
@@ -1599,10 +1604,10 @@ ix0, iy0, ix1, iy1 = K["island"]
 ir = RUNS["island"]
 rec("kitchen.island", "cabinet", "Kitchen island top and panels", "interior", room="Kitchen",
     info=dict(model=f"{ftin(ix1 - ix0)} x {ftin(iy1 - iy0)} island with a {ftin(K.get('island_overhang', 1.25))} seating overhang",
-              specs=[["Top", f"Quartz {K['counter_color']} (ASSUMED light quartz)"], ["Body", FINISH(ISLAND_MAT)]], notes=["Deepened to 45\" for the overhang (Erin's redline)."]))
+              specs=[["Top", ISLAND_TOP_NAME], ["Body", FINISH(ISLAND_MAT)]], notes=["Deepened to 45\" for the overhang (Erin's redline)."]))
 box(ISLAND_MAT, ir["units"][0][0], RUNS["island_east"]["back"] if "island_east" in RUNS else ir["units"][-1][1], ir["back"] - 0.06, ir["back"], 0, CTR_Z - CTR_T)
 box(ISLAND_MAT, ir["units"][0][0] - 0.06, ir["units"][0][0], ir["back"] - 0.06, ir["back"] + ir.get("depth", BASE_D) + FRONT_T, 0, CTR_Z - CTR_T)
-box("Counter", ix0, ix1, iy0, iy1, CTR_Z - CTR_T, CTR_Z)
+box(ISLAND_TOP, ix0, ix1, iy0, iy1, CTR_Z - CTR_T, CTR_Z)
 SH = K["shelves"]
 rec("kitchen.shelves", "fixture", "Open shelves", "interior", room="Kitchen", info=dict(model="White oak open shelves", specs=[["Length", ftin(SH["x"][1] - SH["x"][0])], ["Heights", ", ".join(ftin(z) for z in SH["heights"])]]))
 for z in SH["heights"]:
