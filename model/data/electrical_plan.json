@@ -8,13 +8,13 @@
   {
    "kind": "switch",
    "gangs": 4,
-   "x": 27.0,
+   "x": 27.33,
    "y": 34.583,
    "z_in": 44,
    "facing": 0,
    "level": "main",
    "src": "U-11 #8-11",
-   "note": "U-11 draws four switches (two of them 3-way, for the loft) side by side on this wall, right where the ships ladder now stands. Combined into one 4 gang plate just west of the ladder (Maxwell, 11/19/2026)."
+   "note": "U-11 draws four switches (two of them 3-way, for the loft) side by side on this wall, right where the ships ladder now stands. Combined into one 4 gang plate just west of the ladder (Maxwell, 11/19/2026), on the short wall between the living room opening and the ladder."
   },
   {
    "kind": "switch",
@@ -54,7 +54,7 @@
   },
   {
    "kind": "switch",
-   "x": 26.333,
+   "x": 26.45,
    "y": 10.616,
    "z_in": 44,
    "facing": 0,
@@ -105,7 +105,7 @@
   {
    "kind": "tv_data",
    "x": 42.542,
-   "y": 49.246,
+   "y": 49.55,
    "z_in": 72,
    "facing": 270,
    "level": "main",
@@ -302,20 +302,23 @@
   {
    "kind": "switch",
    "x": 0.542,
-   "y": 42.173,
+   "y": 44.76,
    "z_in": 44,
    "facing": 90,
    "level": "main",
-   "src": "U-11 #37"
+   "src": "U-11 #37+41",
+   "gangs": 2,
+   "note": "U-11 draws #37 and #41 as two switches beside the door, where the oven tower now stands. Combined into a 2 gang plate on the backsplash just north of the tower."
   },
   {
    "kind": "switch",
    "x": 0.542,
-   "y": 36.171,
+   "y": 37.4,
    "z_in": 44,
    "facing": 90,
    "level": "main",
-   "src": "U-11 #38"
+   "src": "U-11 #38",
+   "note": "Moved north into the gap between the over pantry cabinet and the door casing; U-11 draws it where the cabinet now is."
   },
   {
    "kind": "switch",
@@ -337,15 +340,6 @@
   },
   {
    "kind": "switch",
-   "x": 0.542,
-   "y": 42.887,
-   "z_in": 44,
-   "facing": 90,
-   "level": "main",
-   "src": "U-11 #41"
-  },
-  {
-   "kind": "switch",
    "x": 17.063,
    "y": 51.458,
    "z_in": 44,
@@ -356,7 +350,7 @@
   {
    "kind": "switch",
    "x": 16.709,
-   "y": 23.322,
+   "y": 23.1,
    "z_in": 44,
    "facing": 90,
    "level": "main",
@@ -385,17 +379,18 @@
   {
    "kind": "outlet",
    "x": 0.572,
-   "y": 43.628,
+   "y": 48.8,
    "z_in": 44,
    "facing": 90,
    "level": "main",
    "src": "U-11 #46",
-   "gfi": true
+   "gfi": true,
+   "note": "U-11 puts this GFI where the oven tower now stands; moved to the backsplash north of the cooktop."
   },
   {
    "kind": "outlet",
    "x": 0.572,
-   "y": 45.066,
+   "y": 45.3,
    "z_in": 44,
    "facing": 90,
    "level": "main",

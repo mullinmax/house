@@ -1169,6 +1169,37 @@ fan("fan_living", "Living", 23.89, 28.75, 60, 10.0, False, ["Trial fan (Maxwell,
 fan("fan_family", "Entry / family", 36.5, 42.5, 60, 9.0, False, ["Between the entry and the family cans (both about 4 ft away), so the blades never pass under a light and flicker it. "
     "60 in for the open family and entry area; the high wall registers on the clerestory wall blow south toward it from about 5 ft beyond the blade tips."])
 
+# ------------------------------------------------------------------ ceiling lights (Maxwell, 11/20/2026)
+# The baked ceiling lights sat level under ceilings that mostly slope, so one edge hung below the drywall, and the old
+# flush mounts were domes. Every one is now a slim flat LED wafer (a canless recessed light: a thin trim ring and a flat
+# lens), seated on its own ceiling and tilted to it. tools/electrical/ceiling.mjs finds each ceiling's height and slope
+# (model/data/ceiling_lights.json); the baked fixture goes (meta replace_nodes) and its night light moves to the wafer.
+# The bath 1 lights were baked up in the loft from before the loft went in over the bath; they now sit on its 9 ft ceiling.
+_CL_P = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "ceiling_lights.json")
+_CL = json.load(open(_CL_P)) if os.path.exists(_CL_P) else {}
+_CL_ROOM = {"Bath1": "Bath 1", "Bath1 shower": "Bath 1 shower", "Bath1 toilet": "Bath 1 toilet", "Bath2": "Bath 2"}
+_n_cl = 0
+for _L in json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "site", "models", "manifest.json"))).get("lights", []):
+    _nm = _L["name"]
+    if not _nm.startswith("Light ") or _nm in FAN_META["lights_moved"] or _nm not in _CL:
+        continue
+    _x, _y = round(_L["pos"][0] / 0.3048, 3), round(-_L["pos"][1] / 0.3048, 3)
+    _z, _sl = _CL[_nm]
+    _big = _L.get("intensity_lm", 800) >= 1200                  # the old flush mounts: an 8 in wafer, the cans 6 in
+    _n_cl += 1
+    _rm = _CL_ROOM.get(_L["room"], _L["room"])
+    _specs = [["Size", "8 in" if _big else "6 in"], ["Light", f"About {_L.get('intensity_lm', 800):,} lumens, warm white, dimmable"],
+              ["Ceiling", f"{_z:.2f} ft" + (f", sloped {abs(_sl) * 12:.2f}:12" if abs(_sl) > 0.001 else ", flat")]]
+    items.append(dict(id=f"can_light_{_n_cl:02d}", name=("Recessed light, 8 in" if _big else "Recessed light, 6 in"), category="Lighting",
+        system="electrical.lighting", room=_rm, layer="electrical", builder="can_light", size=[7.9 if _big else 6.7, 0.5],
+        at=[_x, _y, _z], facing=0, slope=_sl,
+        info=dict(model="Slim canless LED wafer downlight with a flat lens, junction box beside it (ASSUMED)", specs=_specs,
+            notes=["Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about "
+                   "1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."],
+            placement=f"Ceiling of {_rm}, x {_x:.1f} ft, y {_y:.1f} ft.")))
+    FAN_META["replace_nodes"] += [f"{_nm} {p_}".replace(" ", "_") for p_ in ("base", "lens", "trim")]
+    FAN_META["lights_moved"][_nm] = [_x, _y, round(_z - 0.3, 2)]
+
 # ------------------------------------------------------------------ study temperature sensor
 # The booster fan, motorized damper and their outlet box were removed (Maxwell, 11/19/2026): two wall registers carry the load on
 # their own. The sensor spot stays, because it shows whether the fixed airflow is right and is what a later motorized damper would use.

@@ -445,6 +445,14 @@ const BUILD = {
     cyl(g, dia * 0.28, 0.2, greyPlastic(), 0, -t - 0.1, 0, 'y', 24);
     return g;
   },
+  can_light(s, it = {}) {          // slim LED wafer downlight: the item's z is the ceiling; tilted to the ceiling's slope like a fan canopy
+    const [dia, t] = s, g = new THREE.Group(), tilt = new THREE.Group();
+    tilt.rotation.x = Math.atan(-(it.slope || 0)); g.add(tilt);
+    const lens = mat('wafer lens', 0xfbf8f1, 0.35, 0, { emissive: 0xfff3dc, emissiveIntensity: 0.35 });
+    cyl(tilt, dia / 2, t, whitePlastic(), 0, 0.1 - t / 2, 0, 'y', 40);                 // flat trim ring, its top tucked 0.1 in into the drywall
+    cyl(tilt, dia / 2 - 0.6, 0.12, lens, 0, 0.1 - t, 0, 'y', 40);                    // flat lens, 1/16 in proud of the trim so the faces never share a plane
+    return g;
+  },
   floor_box(s) {                   // flush brass cover in the slab
     const [w, t, d] = s, g = new THREE.Group();
     box(g, w, t, d, brass(), 0, t / 2, 0);
