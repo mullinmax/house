@@ -204,7 +204,8 @@ MATERIALS = {
     "Window Frame": dict(color=MM["window_exterior_color"], rough=0.35, metal=0.3),
     "White Oak": dict(color="#FFFFFF", rough=0.425, map="white_oak.jpg", normal="oak_normal.jpg", normal_scale=0.5, tile=0.8, grain="long"),
     # light natural wood of Danielle Gross's 11/19/2026 north wall rendering (tools/make_cabinet_texture.py)
-    "Cabinet Wood": dict(color="#FFFFFF", rough=0.45, map=K.get("cabinet_map", "cabinet_natural.jpg"), normal="oak_normal.jpg", normal_scale=0.5, tile=0.8, grain="long"),
+    # Maxwell 11/19/2026: the cabinets use the same white oak as the windows and trim (cabinet_map = "cabinet_natural.jpg" is Danielle's lighter tone)
+    "Cabinet Wood": dict(color="#FFFFFF", rough=0.425, map=K.get("cabinet_map", "white_oak.jpg"), normal="oak_normal.jpg", normal_scale=0.5, tile=0.8, grain="long"),
     "Island": dict(color=K["island_color"], rough=0.5),
     "Counter": dict(color="#FFFFFF", rough=0.17, map="quartz.jpg", tile=1.6),
     "Glass": dict(color="#C8D4D6", rough=0.05, metal=0.2, opacity=0.14),
@@ -212,6 +213,10 @@ MATERIALS = {
     "Polycarbonate": dict(color="#F2F2EE", rough=0.2, opacity=0.45),
     "Stainless": dict(color="#C8CACC", rough=0.25, metal=1.0),
     "Brushed Nickel": dict(color=K.get("hardware_color", "#B8B8B4"), rough=0.3, metal=1.0),
+    "Spice Red": dict(color="#8E2A1C", rough=0.8), "Spice Yellow": dict(color="#C99A22", rough=0.8), "Spice Green": dict(color="#5E6B32", rough=0.8),
+    "Spice Brown": dict(color="#6A4426", rough=0.8), "Spice Orange": dict(color="#B4561E", rough=0.8),
+    "Sesame": dict(color="#E2CC96", rough=0.8), "Gold Lid": dict(color="#C9A13A", rough=0.3, metal=1.0),
+    "Dishware": dict(color="#F2F0EA", rough=0.2),                                                 # plates and mugs in the glass door upper
     "Cabinet Pull": dict(color=K.get("pull_color", "#1A1A1A"), rough=0.45, metal=0.5),        # matte black bar pulls on every kitchen cabinet
     "Black Metal": dict(color="#151515", rough=0.4, metal=0.6),
     "Aluminum": dict(color="#B9BCBE", rough=0.35, metal=1.0),
@@ -915,7 +920,7 @@ UNIT_NAMES = {"blind": "Blind corner base", "door1": "Base cabinet, one door", "
               "tray": "Tray divider base", "beverage": "Beverage fridge bay", "panel": "End panel", "drawer_tall": "Tall utensil drawer",
               "pullout_drawer": "Drawer over a sheet pan pullout"}
 ISLAND_MAT = "Cabinet Wood" if K.get("island_finish", "paint") == "wood" else "Island"
-FINISH = lambda m: "Olive green, painted shaker" if m == "Island" else f"KraftMaid light natural wood shaker {K['cabinet_wood']} (species and stain TBD)"
+FINISH = lambda m: "Olive green, painted shaker" if m == "Island" else f"KraftMaid natural wood shaker, same white oak as the windows and trim (species and stain TBD)"
 RUN_NAMES = {"south": "sink wall", "west": "cooktop wall", "north": "fridge wall", "island": "island", "island_east": "island, dining side"}
 
 
@@ -1112,12 +1117,28 @@ for k, up in enumerate(RUNS["north"].get("uppers", [])):
     r = rec(f"cabinet.north.upper.{k}", "cabinet", "Glass door upper, fridge wall" if typ == "glass" else "Microwave upper, fridge wall", "interior", room="Kitchen",
             info=dict(model=f"{'Glass door' if typ == 'glass' else 'Microwave'} upper, {ftin(u1 - u0)} wide, {ftin(ud)} deep", specs=[["Underside", ftin(UB)], ["Top", ftin(TALL)], ["Finish", FINISH("Cabinet Wood")]],
                       notes=(["Microwave upper deepened per Erin's redline."] if typ != "glass" else []) + ["Order from Danielle's 11/19/2026 rendering: microwave beside the fridge, glass doors at the east end."]))
-    nr.box("Cabinet Wood", u0, u1, 0, ud, UB, TALL - 0.25)
     if typ == "glass":
-        doors(nr, r, u0, u1, UB, TALL - 0.25, ud, "Cabinet Wood", 2, glass=True)
-        for zz in (5.7, 6.75):
-            nr.box("Cabinet Wood", u0 + 0.06, u1 - 0.06, 0.05, ud - 0.05, zz, zz + 0.06)
+        # a hollow case with two shelves of mugs, glasses and plates behind the glass (Maxwell 11/19/2026, as in Danielle's rendering)
+        ct, zt_ = 0.06, TALL - 0.25
+        nr.box("Cabinet Wood", u0, u1, 0, ct, UB, zt_)                                   # back
+        for (b0, b1) in ((u0, u0 + ct), (u1 - ct, u1)):
+            nr.box("Cabinet Wood", b0, b1, ct, ud, UB, zt_)                               # sides
+        nr.box("Cabinet Wood", u0 + ct, u1 - ct, ct, ud, UB, UB + ct)                     # bottom
+        nr.box("Cabinet Wood", u0 + ct, u1 - ct, ct, ud, zt_ - ct, zt_)                   # top
+        shelves = (5.7, 6.75)
+        for zz in shelves:
+            nr.box("Cabinet Wood", u0 + ct, u1 - ct, ct, ud - 0.05, zz, zz + 0.06)
+        n_ = max(2, int((u1 - u0 - 2 * ct) / 0.42))
+        for j in range(n_):                                                              # mugs on the bottom, glasses on the first shelf, plates on top
+            uc = u0 + ct + (u1 - u0 - 2 * ct) * (j + 0.5) / n_
+            for (zb, rr, hh, dc) in ((UB + ct, 0.15, 0.32, 0.45), (shelves[0] + 0.06, 0.12, 0.45, 0.45)):
+                cx, cy = nr.at(uc, dc)
+                cyl("Dishware", cx, cy, zb, zb + hh, rr, rr * (1.0 if hh < 0.4 else 1.15))
+        for j in range(2):
+            nr.box("Dishware", u0 + (u1 - u0) * (0.12 + 0.44 * j), u0 + (u1 - u0) * (0.44 + 0.44 * j), ct, ct + 0.06, shelves[1] + 0.06, shelves[1] + 0.86)
+        doors(nr, r, u0, u1, UB, zt_, ud, "Cabinet Wood", 2, glass=True)
     else:
+        nr.box("Cabinet Wood", u0, u1, 0, ud, UB, TALL - 0.25)
         nr.box("Stainless", u0 + 0.15, u1 - 0.15, ud - 0.05, ud + 0.02, UB + 0.05, UB + 1.45)
         nr.box("Black Glass", u0 + 0.3, u1 - 0.9, ud + 0.02, ud + 0.03, UB + 0.25, UB + 1.25)
         doors(nr, r, u0, u1, UB + 1.55, TALL - 0.25, ud, "Cabinet Wood", 2)
@@ -1155,6 +1176,93 @@ if RUNS["north"].get("pantry_door") and PANTRY_STYLE == "murphy":
     for (a0, a1) in ((px0, px0 + 0.06), (px1 - 0.06, px1)):                                    # oak jambs and head in the wall opening
         box("White Oak", a0, a1, YC, YC2, 0, phd)
     box("White Oak", px0, px1, YC, YC2, phd - 0.06, phd)
+elif RUNS["north"].get("pantry_door") and PANTRY_STYLE in ("flush", "pocket", "shelf"):
+    # Pantry doorway options after Maxwell found the deep Murphy cabinet could not swing past the fridge and wall (11/19/2026).
+    # All three keep the cabinet run reading as one: a wood end panel on the west wall, an upper cabinet over the doorway
+    # in line with the fridge cabinet, and the fridge bay's own side panel on the east.
+    #   flush:  a 1 3/4 in door dressed as a pair of tall pantry doors, flush with the cabinet faces, swinging out (west hinge)
+    #   pocket: a shaker slab pocket door in the wall opening, sliding east into the wall behind the fridge
+    #   shelf:  a shallow Murphy door of open shelves in the wall opening, swinging into the pantry
+    px0, px1, phd = min(CL["passages"], key=lambda p: p[0])
+    nr_ = Run("north", RUNS["north"])
+    mx0, mx1 = T + 0.02, RUNS["north"]["units"][0][0] - 0.02
+    mdf = BASE_D + 0.1
+    ah = RUNS["north"].get("alcove_head", 6.85)              # underside of the upper cabinet over the doorway
+    PANTRY_NOTES = {
+        "flush": ("Pantry door, cabinet front", "A 1-3/4 in solid door dressed as a pair of tall shaker pantry doors, flush with the cabinet faces. It hinges on the west and swings into the kitchen, lying flat along the west wall when open. Nothing deep swings, so it clears the fridge and the wall."),
+        "pocket": ("Pantry pocket door", "A shaker slab door in the wall opening that slides east into the wall behind the fridge. The wall is a 2x6 bearing wall, so the pocket needs a header sized by the builder."),
+        "shelf": ("Pantry spice rack Murphy door", "A shallow Murphy door made as a spice rack: jar shelves about 5 in deep, its face nearly flush with the fridge cabinet. It hinges on the west and swings out into the kitchen, parking against the west end panel (Maxwell's pick, 11/19/2026). The latch: push the gold lidded \"Open Sesame\" jar on the east side at hand height; it is fixed over a push-to-open catch."),
+    }
+    nm_, note_ = PANTRY_NOTES[PANTRY_STYLE]
+    HW_ = ("Rockler InvisiDoor pivot bookcase hinge kit, with the Rockler InvisiDoor secret book latch triggered by the Open Sesame jar (Maxwell 11/19/2026)"
+           if PANTRY_STYLE == "shelf" else "Matte black")
+    LINKS_ = ([["Rockler InvisiDoor Pivot Bookcase Hinge Kit", "https://rockler.com/invisidoor-pivot-bookcase-hinge-kit"],
+               ["Rockler Secret Book Latch for InvisiDoor", "https://rockler.com/secret-book-latch-for-invisidoortrade-pivot-bookcase-hinge-kit"]]
+              if PANTRY_STYLE == "shelf" else [])
+    r = rec("door.pantry", "door", nm_, "interior", room="Kitchen",
+            info=dict(model=nm_, specs=[["Opening", f"{ftin(px1 - px0)} x {ftin(phd)} passage into the pantry"], ["Finish", FINISH("Cabinet Wood")], ["Hardware", HW_]], links=LINKS_,
+                      notes=[note_, "One of three pantry doorway options (config [kitchen.runs.north] pantry_style = flush | pocket | shelf), Maxwell 11/19/2026."]))
+    # fixed surround: west end panel, upper cabinet over the doorway, crown
+    nr_.box("Cabinet Wood", mx0, mx0 + 0.06, 0, mdf + FRONT_T, 0, TALL - 0.25)
+    nr_.box("Cabinet Wood", mx0 + 0.06, mx1, 0, mdf, ah, TALL - 0.25)
+    rr_ = rec("cabinet.north.over_pantry", "cabinet", "Upper cabinet over the pantry doorway", "interior", room="Kitchen",
+              info=dict(model=f"{ftin(mx1 - mx0)} wide, {ftin(mdf)} deep", specs=[["Finish", FINISH("Cabinet Wood")]]))
+    doors(nr_, rr_, mx0 + 0.06, mx1, ah, TALL - 0.25, mdf, "Cabinet Wood", 2)
+    nr_.box("Cabinet Wood", mx0, mx1, 0, mdf + 0.12, TALL - 0.25, TALL)
+    for (a0, a1) in ((px0, px0 + 0.06), (px1 - 0.06, px1)):                                    # wood jambs and head in the wall opening
+        box("Cabinet Wood", a0, a1, YC, YC2, 0, phd)
+    box("Cabinet Wood", px0, px1, YC, YC2, phd - 0.06, phd)
+    if PANTRY_STYLE == "flush":
+        lx0, lx1 = mx0 + 0.07, mx1 - 0.01
+        lf = op(r, "door.pantry.leaf", nm_, "swing", nr_.at(lx0, mdf + FRONT_T) + (0,), angle=-95)
+        with into(lf["parts"]):
+            nr_.box("Cabinet Wood", lx0, lx1, mdf - 0.09, mdf, KICK, ah - 0.02)                 # door core
+            nr_.box("Cabinet Wood", lx0 + 0.05, lx1 - 0.05, mdf - 0.09, mdf - 0.06, 0.03, KICK)  # toe kick strip
+            um = (lx0 + lx1) / 2
+            shaker(nr_, r, lx0, um, KICK, ah - 0.02, mdf, "Cabinet Wood", "door", "L")
+            shaker(nr_, r, um, lx1, KICK, ah - 0.02, mdf, "Cabinet Wood", "door", "R")
+    elif PANTRY_STYLE == "pocket":
+        lx0, lx1 = px0 + 0.06, px1 - 0.04
+        lf = op(r, "door.pantry.leaf", nm_, "slide", ((lx0 + lx1) / 2, YC + 0.27, 0), slide=(lx1 - lx0 - 0.3, 0, 0))
+        with into(lf["parts"]):
+            nr_.box("Cabinet Wood", lx0, lx1, -0.34, -0.26, 0.03, phd - 0.07)
+            shaker(nr_, r, lx0, lx1, 0.03, phd - 0.07, -0.26, "Cabinet Wood", "door", "R")
+    else:
+        # spice rack Murphy door (Maxwell 11/19/2026): 5 in deep, its face nearly flush with the fridge cabinet. shelf_swing = "out"
+        # (Maxwell's pick): hinged at its front west corner, it swings out into the kitchen and parks along the west end panel;
+        # its back east corner clears the fridge panel by about 5/8 in. "in": hinged at the back west corner, it swings
+        # through the alcove and the wall opening into the pantry (checked in plan, no corner crosses the wall).
+        sd = 0.42
+        lx0, lx1 = px0 + 0.07, mx1 - 0.08                     # about 3 ft wide, 1 in clear of the fridge panel
+        f1 = mdf + FRONT_T - 0.02                              # rack face, 1/4 in behind the cabinet faces
+        f0 = f1 - sd
+        lt = phd - 0.09                                        # it passes under the wood head of the 6-8 wall opening
+        out_ = RUNS["north"].get("shelf_swing", "out") == "out"     # Maxwell 11/19/2026: out into the kitchen, simpler hinges
+        lf = op(r, "door.pantry.leaf", nm_, "swing", nr_.at(lx0, f1 if out_ else f0) + (0,), angle=-100 if out_ else 90)
+        with into(lf["parts"]):
+            nr_.box("Cabinet Wood", lx0, lx1, f0, f0 + 0.06, 0.03, lt)                           # back
+            for (b0, b1) in ((lx0, lx0 + 0.06), (lx1 - 0.06, lx1)):
+                nr_.box("Cabinet Wood", b0, b1, f0, f1, 0.03, lt)                                # stiles
+            nr_.box("Cabinet Wood", lx0 + 0.06, lx1 - 0.06, f0, f1, lt - 0.25, lt)              # top rail
+            nr_.box("Cabinet Wood", lx0 + 0.06, lx1 - 0.06, f0, f1, 0.03, KICK)                 # bottom rail, like a toe kick line
+            zs = [KICK + i_ * 0.62 for i_ in range(10) if KICK + i_ * 0.62 < lt - 0.5]
+            cols = ["Spice Red", "Spice Yellow", "Spice Green", "Spice Brown", "Spice Orange", "Spice Green", "Spice Brown"]
+            zkey = min(range(len(zs)), key=lambda i_: abs(zs[i_] - 4.0))                                 # the Open Sesame jar's shelf, about hand height
+            for k_, zz in enumerate(zs):
+                nr_.box("Cabinet Wood", lx0 + 0.06, lx1 - 0.06, f0 + 0.06, f1 - 0.03, zz, zz + 0.05)            # shelf
+                nr_.box("Cabinet Pull", lx0 + 0.06, lx1 - 0.06, f1 - 0.04, f1 - 0.02, zz + 0.16, zz + 0.18)    # black rail that keeps the jars in
+                n_ = 8
+                for j in range(n_):
+                    cx, cy = nr_.at(lx0 + 0.2 + j * (lx1 - lx0 - 0.4) / (n_ - 1), (f0 + f1) / 2 + 0.02)
+                    if k_ == zkey and j == n_ - 1:
+                        # "Open Sesame": the one fake jar, glued down over a push-to-open catch on the latch edge (Maxwell 11/19/2026)
+                        cyl("Sesame", cx, cy, zz + 0.05, zz + 0.33, 0.075)
+                        cyl("Gold Lid", cx, cy, zz + 0.33, zz + 0.39, 0.078)
+                        lx_, ly_ = nr_.at(lx0 + 0.2 + j * (lx1 - lx0 - 0.4) / (n_ - 1), (f0 + f1) / 2 + 0.02 + 0.074)
+                        box("Dishware", lx_ - 0.05, lx_ + 0.05, ly_, ly_ + 0.006, zz + 0.12, zz + 0.25)              # label
+                        continue
+                    cyl(cols[(j + k_ * 3) % len(cols)], cx, cy, zz + 0.05, zz + 0.33, 0.075)                    # jar of spice
+                    cyl("Cabinet Pull", cx, cy, zz + 0.33, zz + 0.39, 0.078)                                     # black lid
 elif RUNS["north"].get("pantry_door"):
     px0, px1, phd = min(CL["passages"], key=lambda p: p[0])
     leaf = RUNS["north"].get("pantry_door_leaf", px1 - px0 - 0.2)

@@ -286,7 +286,8 @@ south_height = 6.3              # ASSUMED
 island = [6.0, 42.52, 14.0, 46.27]      # 96" top (A-11), deepened to 45" for a 15" seating overhang (redline)
 island_overhang = 1.25                   # 15" seating overhang on the north side (Erin asked for 12" or more)
 island_color = "#56614A"                 # olive green as rendered by Carter. Erin's note said "soft green"
-cabinet_wood = "#DEBA8C"                 # light natural wood as rendered by Danielle Gross, north wall, 11/19/2026 (species/stain TBD). Texture: tools/make_cabinet_texture.py
+cabinet_wood = "#B29373"                 # white oak, same texture as the windows and trim (Maxwell 11/19/2026: Danielle's lighter tone read too bright). Species/stain TBD
+cabinet_map = "white_oak.jpg"            # white_oak.jpg = windows and trim | cabinet_natural.jpg = Danielle's 11/19/2026 rendering (tools/make_cabinet_texture.py)
 island_finish = "paint"                  # paint (olive green, island_color) | wood (same wood as the other cabinets)
 counter_color = "#ECE8E0"                # ASSUMED light quartz
 hardware_color = "#B8B8B4"               # brushed nickel: faucet, lever handles and appliance handles
@@ -319,7 +320,9 @@ back = 35.158
 facing = 1
 units = [[3.9, 7.05, "fridge"], [7.1, 9.4, "drawers3"], [9.4, 11.7, "drawer_doors2"]]
 uppers = [[7.1, 9.4, "microwave", 1.5], [9.4, 11.7, "glass", 1.1]]   # [start, end, type, depth ft]; microwave upper deepened (redline). Order from Danielle's 11/19/2026 rendering: microwave by the fridge, glass at the east end
-pantry_style = "murphy"                  # murphy (Danielle 11/19/2026, Maxwell: the tall cabinet left of the fridge is a Murphy door into the pantry) | door (Erin's redline: oak slab door)
+pantry_style = "shelf"                   # Maxwell 11/19/2026 picked shelf, as a spice rack. The deep Murphy cabinet can't swing past the fridge and wall. Options: flush (thin door dressed as tall pantry doors, swings out) | pocket (slides into the wall behind the fridge) | shelf (shallow Murphy shelf door, swings into the pantry) | murphy (the deep one, PR 53) | door (Erin's redline oak slab)
+shelf_swing = "out"                      # spice rack door: out into the kitchen, hinged at its front west corner (Maxwell 11/19/2026) | in (into the pantry)
+alcove_head = 6.67                       # underside of the upper cabinet over the pantry doorway (flush, pocket, shelf)
 murphy_split = 4.6                       # door line on the Murphy cabinet's face, in line with the underside of the uppers
 murphy_swing = 92                        # degrees it opens, hinged at the west front corner, parking along the west wall. ASSUMED
 pantry_door = [0.743, 3.443]             # redline: door into the pantry where Carter drew a tall cabinet (now a Murphy door, pantry_style). Rough opening = first clerestory passage
