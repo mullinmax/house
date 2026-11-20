@@ -969,7 +969,29 @@ function buildRun(run) {
 function buildDuct(dc) {
   const g = new THREE.Group();
   const m = DUCT[dc.type] || DUCT.supply;
-  const pts = dc.points.map((p) => plan(p[0], p[1], p[2]));
+  const src = dc.points.map((p) => p.slice()), boots = [];
+  if (dc.shape === 'round' || typeof dc.size === 'number') {
+    // A round duct is often taller than its wall register, and its end can reach past the drywall, so it showed around or through the
+    // register from the room. Like a real register boot: the round stops about 5 in behind the register and a rectangular boot a
+    // little smaller than the register carries on to its back.
+    for (const gr of dc.grilles || []) {
+      if (!gr.wall) continue;
+      const ax = /[NS]/.test(gr.wall) ? 1 : 0, ox = 1 - ax, n = src.length;
+      for (const [e, nb] of [[n - 1, n - 2], [0, 1]]) {
+        const P = src[e], Q = src[nb];
+        if (Math.abs(P[ax] - gr.at[ax]) > 0.6 || Math.abs(P[ox] - gr.at[ox]) > 0.05 || Math.abs(P[2] - gr.at[2]) > 0.05) continue;
+        if (Math.abs(Q[ox] - P[ox]) > 0.01 || Math.abs(Q[2] - P[2]) > 0.01) continue;      // the end piece must run straight at the wall
+        const sgn = Math.sign(Q[ax] - gr.at[ax]) || 1, room = Math.abs(Q[ax] - gr.at[ax]);
+        const back = Math.min(5 / 12, room * 0.6);                                          // how far behind the register the round stops
+        if ((P[ax] - gr.at[ax]) * sgn < back) P[ax] = gr.at[ax] + sgn * back;
+        const A = P.slice(), B = P.slice(); B[ax] = gr.at[ax] + sgn * 0.3 / 12;
+        boots.push([A, B, gr.size || [10, 6]]);
+        break;
+      }
+    }
+  }
+  const pts = src.map((p) => plan(p[0], p[1], p[2]));
+  for (const [A, B, sz] of boots) rectDuct(g, plan(A[0], A[1], A[2]), plan(B[0], B[1], B[2]), (sz[0] - 1) * IN, (sz[1] - 1) * IN, m);
   if (dc.shape === 'round' || typeof dc.size === 'number') {
     const r = (typeof dc.size === 'number' ? dc.size : dc.size[0]) / 2 * IN;
     const fm = dc.flex ? (DUCT['flex_' + dc.type] || m) : m;
