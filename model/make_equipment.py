@@ -810,7 +810,7 @@ XSB, XSB2 = bay(27.7), bay(29.7) - 0.2           # the study's two low grilles e
 # bedroom 1's grilles: both east of the closet 1 pocket door's header (Maxwell, 11/20/2026). The as-built header and its
 # kings run from x 31.75 to 37.85 ([framing] in config.toml, from the 11/19 photos); at x 32.0 and 33.3 the stacks ran through the
 # pocket. The second stack skips the bay with the bedroom outlet at x 39.6.
-XB1R = 38.5
+XB1R = 38.7
 XSR = bay(25.7)                                   # both runs go south in the 25.7 bay: the laundry and living 1 supplies fill bay 27.7
 YSW, YBW = 19.6, 20.3
 r = ret("return_study", "Study return", 6,

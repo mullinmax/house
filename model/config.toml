@@ -762,7 +762,9 @@ source = "Drone photos 11/19/2026: about 6 ft opening, header bottom not visible
 
 [[framing.headers]]             # C2, bedroom 1 to closet 1 pocket door
 at = [35.7, 15.26]
-ro = [32.0, 37.6]
+ro = [31.84, 37.76]              # MEASURED 11/20/2026: 71 in clear between the jacks. Centre kept from the photos (34.8); edge location not measured yet
+jacks = 2                       # MEASURED 11/20/2026: two 2x4s under each end of the header
+kings = 0
 size = "(2) 2x12 class, pale built-up 2x"
 bottom_in = 84                  # MEASURED 11/20/2026 (Maxwell, on site): 7 ft up. Read as the header bottom above the slab (asked to confirm)
 pocket = true
