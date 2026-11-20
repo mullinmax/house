@@ -1194,8 +1194,13 @@ elif RUNS["north"].get("pantry_door") and PANTRY_STYLE in ("flush", "pocket", "s
         "shelf": ("Pantry spice rack Murphy door", "A shallow Murphy door made as a spice rack: jar shelves about 5 in deep, its face nearly flush with the fridge cabinet. It hinges on the west and swings out into the kitchen, parking against the west end panel (Maxwell's pick, 11/19/2026). The latch: push the gold lidded \"Open Sesame\" jar on the east side at hand height; it is fixed over a push-to-open catch."),
     }
     nm_, note_ = PANTRY_NOTES[PANTRY_STYLE]
+    HW_ = ("Rockler InvisiDoor pivot bookcase hinge kit, with the Rockler InvisiDoor secret book latch triggered by the Open Sesame jar (Maxwell 11/19/2026)"
+           if PANTRY_STYLE == "shelf" else "Matte black")
+    LINKS_ = ([["Rockler InvisiDoor Pivot Bookcase Hinge Kit", "https://rockler.com/invisidoor-pivot-bookcase-hinge-kit"],
+               ["Rockler Secret Book Latch for InvisiDoor", "https://rockler.com/secret-book-latch-for-invisidoortrade-pivot-bookcase-hinge-kit"]]
+              if PANTRY_STYLE == "shelf" else [])
     r = rec("door.pantry", "door", nm_, "interior", room="Kitchen",
-            info=dict(model=nm_, specs=[["Opening", f"{ftin(px1 - px0)} x {ftin(phd)} passage into the pantry"], ["Finish", FINISH("Cabinet Wood")], ["Hardware", "Matte black"]],
+            info=dict(model=nm_, specs=[["Opening", f"{ftin(px1 - px0)} x {ftin(phd)} passage into the pantry"], ["Finish", FINISH("Cabinet Wood")], ["Hardware", HW_]], links=LINKS_,
                       notes=[note_, "One of three pantry doorway options (config [kitchen.runs.north] pantry_style = flush | pocket | shelf), Maxwell 11/19/2026."]))
     # fixed surround: west end panel, upper cabinet over the doorway, crown
     nr_.box("Cabinet Wood", mx0, mx0 + 0.06, 0, mdf + FRONT_T, 0, TALL - 0.25)
