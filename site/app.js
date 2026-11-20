@@ -124,6 +124,15 @@ async function getHouse() {
   return null;
 }
 
+const LAZY = [];               // .glb parts waiting for their layer to be turned on
+function loadLazy(re) {
+  for (const p of LAZY.filter((q) => re.test(q.name || q.file))) {
+    LAZY.splice(LAZY.indexOf(p), 1);
+    toast(`Loading ${p.name || p.file}`, 1500);
+    loader.load(`models/${p.file}`, (g) => { g.scene.name = p.name || p.file; world.add(g.scene); prepare([g.scene], false); },
+      undefined, (err) => console.warn('failed', p.file, err));
+  }
+}
 async function loadAll() {
   const [man, eq, hd] = await Promise.all([getManifest(), getEquipment(), getHouse()]);
   manifest = man; equipData = eq;
@@ -138,6 +147,12 @@ async function loadAll() {
     parts = parts.filter((p) => !HOUSE_PARTS.test(p.name || p.file.replace(/\.glb$/, '')));
     console.log(`house: ${house.recs.length} records built from house.json`);
   }
+  // Trees and the furniture parts load only once their layer is on (both off by default, Maxwell 11/20/2026: save viewers'
+  // compute). A shared link that shows them loads them with the rest.
+  const qs = new URLSearchParams(location.search), shown = new Set((qs.get('show') || '').toLowerCase().split(','));
+  const lazyOn = (p) => (/^trees/i.test(p.name || p.file) ? shown.has('trees') : /^furniture/i.test(p.name || p.file) ? shown.has('furniture') : true);
+  for (const p of parts) if (!lazyOn(p)) LAZY.push(p);
+  parts = parts.filter(lazyOn);
   const sizes = parts.map((p) => p.bytes || 1);
   const got = new Array(parts.length).fill(0);
   const isLater = parts.map((p) => LATER.test(p.name || p.file) && parts.some((q) => !LATER.test(q.name || q.file)));
@@ -700,6 +715,8 @@ let sliced = false;
 function applyToggles() {
   for (const o of roofNodes) show(o, layerOn('Roof') && !sliced);     // a slice lifts the roof off too, or it would cover the cut
   for (const o of utilNodes) show(o, layerOn('Util'));
+  if (layerOn('Trees')) loadLazy(/^trees/i);
+  if (layerOn('Furniture')) loadLazy(/^furniture/i);
   for (const o of furnitureMeshes) show(o, layerOn('Furniture'));
   for (const [k, list] of Object.entries(togMeshes)) {
     const id = { drywall: 'Drywall', extwalls: 'Extwalls', openings: 'Openings', finish: 'Finish', framing: 'Framing' }[k];
