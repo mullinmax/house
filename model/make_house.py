@@ -229,6 +229,9 @@ MATERIALS = {
     "Plastic Grey": dict(color="#9A9A96", rough=0.5),
     "Appliance Interior": dict(color="#1A1A1A", rough=0.6),
     "Attic Deck": dict(color="#C8B28A", rough=0.85),
+    "Lumber": dict(color="#D9B98A", rough=0.85),                                            # framing (Framing layer)
+    "Header": dict(color="#C07A3A", rough=0.8),                                             # door headers in sawn lumber, darker so they read
+    "LVL": dict(color="#D98C2B", rough=0.7),                                                # engineered beams
     "Gravel": dict(color="#8A8378", rough=0.95),
     "Lamp Glass": dict(color="#FFF1D6", rough=0.3, opacity=0.7, night_glow=True),
 }
@@ -811,6 +814,243 @@ if ATTIC_ACCESS:
                          "The plans ask for a gasketed attic access panel (general notes). A door or a panel in this opening is not modelled yet."]))
     box("Drywall", x0, x1, y0, y1, 0, 9, ztop=lambda x, y: FL_ - LOFT_FIN)
     box("White Oak", x0, x1, y0, y1, FL_ - LOFT_FIN, FL_)               # threshold, flush with the loft floor and the deck
+
+# ------------------------------------------------------------------ as-built framing (Framing layer, Maxwell 11/20/2026)
+# What the build photos show standing: interior walls framed to the top plates (studs, plates, kings, jacks, headers),
+# walls that are still only a bottom plate on the slab, and the stick framed bearing wall on the clerestory line.
+# Hidden inside the walls until the Drywall walls layer is off. [framing] in config.toml says which walls are up and what
+# each header is; anything not in a photo is typical framing, ASSUMED. FRAMING_META goes to house.json for tools/header_clash.py.
+FR = C.get("framing", {})
+FRAMING_META = dict(headers=[], kings=[], junctions=[], walls=[])
+if FR.get("enabled", True):
+    IN = 1 / 12
+    SW = FR.get("stud_w_in", 1.5) * IN
+    OC = FR.get("stud_oc_in", 16) * IN
+    NTOP = FR.get("top_plates", 2)
+    PLATE_TOP = FR.get("plate_height_in", 109) * IN         # top of the double top plate, as built
+    FACE_IN = FR.get("face_inset_in", 0.0625) * IN          # every piece stays just inside the wall box, never flush with the drywall
+    HDR = FR.get("header_default", {})
+    HOVR = FR.get("headers", [])
+    BUILT = FR.get("built", [])
+    USED_OVR = set()
+
+    def on_line(ln, alongx, x0, x1, y0, y1):
+        """is this wall piece on a built line: ln = {axis 'x' (runs east-west) or 'y', at = its y or x, from, to}"""
+        if (ln["axis"] == "x") != alongx:
+            return False
+        c, u0, u1 = ((y0 + y1) / 2, x0, x1) if alongx else ((x0 + x1) / 2, y0, y1)
+        return abs(c - ln["at"]) < ln.get("tol", 0.35) and u1 > ln["from"] + 0.05 and u0 < ln["to"] - 0.05
+
+    def is_built(alongx, x0, x1, y0, y1):
+        return next((ln for ln in BUILT if on_line(ln, alongx, x0, x1, y0, y1)), None)
+
+    def fbox(mat, alongx, u0, u1, v0, v1, z0, z1):
+        if z1 - z0 < 1e-3 or u1 - u0 < 1e-3:
+            return
+        if alongx:
+            box(mat, u0, u1, v0, v1, z0, z1)
+        else:
+            box(mat, v0, v1, u0, u1, z0, z1)
+
+    def band(t0, t1, sd):
+        d = min(sd, t1 - t0 - 2 * FACE_IN)
+        vm = (t0 + t1) / 2
+        return vm - d / 2, vm + d / 2
+
+    # every opening: model door gaps, the clerestory wall's passages, and openings only a photo shows. A header entry in
+    # config matches an opening by its plan point "at"; its "ro" = [u0, u1] is the rough opening seen in the photo
+    # (pocket doors run the header over the pocket too).
+    OPEN = []
+    for (ax, g0, g1, a0, a1, h) in DOOR_GAPS:
+        OPEN.append(dict(axis=ax, g0=g0, g1=g1, t0=a0, t1=a1, head=h, wall="int"))
+    for (px0, px1, phd) in CL["passages"]:
+        OPEN.append(dict(axis="x", g0=px0, g1=px1, t0=YC, t1=YC2, head=phd, wall="clerestory"))
+    for o in HOVR:
+        if o.get("new"):
+            OPEN.append(dict(axis=o["axis"], g0=o["ro"][0], g1=o["ro"][1], t0=o["band"][0], t1=o["band"][1], head=o.get("head", 6.67), wall=o.get("wall", "int"), only=o))
+    for op_ in OPEN:
+        alongx = op_["axis"] == "x"
+        cu, ct = (op_["g0"] + op_["g1"]) / 2, (op_["t0"] + op_["t1"]) / 2
+        cx, cy = (cu, ct) if alongx else (ct, cu)
+        spec, photo = dict(HDR), False
+        for k_, o in enumerate(HOVR):
+            if o.get("new") and op_.get("only") is not o:
+                continue
+            if op_.get("only") is o or math.hypot(o["at"][0] - cx, o["at"][1] - cy) < o.get("r", 1.6):
+                spec, photo = dict(HDR, **o), True
+                USED_OVR.add(k_)
+                break
+        if not photo:
+            if op_["wall"] == "clerestory":
+                spec.update(FR.get("clerestory_default", {}))
+            for lim, dep in HDR.get("depth_by_span", []):
+                if op_["g1"] - op_["g0"] <= lim:
+                    spec["depth_in"] = dep
+                    break
+        r0, r1 = spec.get("ro", (op_["g0"], op_["g1"]))
+        op_.update(spec=spec, photo=photo, r0=r0, r1=r1, cx=cx, cy=cy)
+    if FR.get("strict", True):
+        unused = [o["at"] for k_, o in enumerate(HOVR) if k_ not in USED_OVR]
+        if unused:
+            raise SystemExit(f"[[framing.headers]] entries matched no opening: {unused}")
+
+    def bottom_plate(alongx, a, b, v0, v1, cuts):
+        """the bottom plate, cut out across each opening"""
+        u = a
+        for c0, c1 in sorted(cuts):
+            if c1 <= a or c0 >= b:
+                continue
+            fbox("Lumber", alongx, u, max(u, c0), v0, v1, 0.0, SW)
+            u = max(u, c1)
+        fbox("Lumber", alongx, u, b, v0, v1, 0.0, SW)
+
+    def lines_up(op_, alongx, t0, t1):
+        return (op_["axis"] == "x") == alongx and abs((op_["t0"] + op_["t1"]) / 2 - (t0 + t1) / 2) < 0.3
+
+    # ---- interior walls
+    PIECES = list(WALL_PIECES)
+    if ATTIC_ACCESS:                                      # below the loft floor the attic access is solid wall
+        x0, x1, y0, y1 = ATTIC_ACCESS
+        PIECES.append(((x0, x1, y0, y1), lambda x, y: LOFT["floor_height"] - LOFT_FIN))
+    for k, ((x0, x1, y0, y1), top) in enumerate(PIECES):
+        alongx = (x1 - x0) >= (y1 - y0)
+        a, b = (x0, x1) if alongx else (y0, y1)
+        t0, t1 = (y0, y1) if alongx else (x0, x1)
+        ln = is_built(alongx, x0, x1, y0, y1)
+        v0, v1 = band(t0, t1, FR.get("stud_d_in", 3.5) * IN)
+        nm = between(x0, x1, y0, y1)
+        if not ln:
+            rec(f"framing.plate.{k}", "framing", f"Bottom plate, interior wall {nm}".strip(), "framing",
+                info=dict(model="Bottom plate on the slab, wall not framed yet",
+                          specs=[["Length", ftin(b - a)]], notes=["The 11/19/2026 drone photos show only the bottom plate here."]))
+            fbox("Lumber", alongx, a + FACE_IN, b - FACE_IN, v0, v1, 0.0, SW)
+            FRAMING_META["walls"].append(dict(rect=[x0, x1, y0, y1], built=False))
+            continue
+        zt = lambda u: min(top(u, (t0 + t1) / 2) if alongx else top((t0 + t1) / 2, u), PLATE_TOP)
+        rec(f"framing.wall.{k}", "framing", f"Studs and plates, interior wall {nm}".strip(), "framing",
+            info=dict(model=f"2x4 studs at {FR.get('stud_oc_in', 16):g} in o.c., bottom plate, {NTOP} top plates",
+                      specs=[["Length", ftin(b - a)], ["Top plate", ftin(min(zt(a), zt(b)))], ["Status", "Needs measuring"]],
+                      notes=["NEEDS MEASURING: estimated from the 11/19/2026 drone photos only. Check with a tape before relying on it.", ln.get("note", "Framed in the 11/19/2026 drone photos."),
+                             "Stud positions are the typical layout from the wall's west or north end (ASSUMED); the photos are too far away to count studs."]))
+        FRAMING_META["walls"].append(dict(rect=[x0, x1, y0, y1], built=True, top=min(zt(a), zt(b))))
+        a, b = a + FACE_IN, b - FACE_IN
+        for n in range(NTOP):
+            fbox("Lumber", alongx, a, b, v0, v1, min(zt(a), zt(b)) - (n + 1) * SW, min(zt(a), zt(b)) - n * SW)
+        ztop = min(zt(a), zt(b)) - NTOP * SW
+        # skip studs inside any rough opening (and its kings and jacks) on this wall line
+        skip = []
+        for op_ in OPEN:
+            if lines_up(op_, alongx, t0, t1):
+                kk = op_["spec"].get("jacks", 1) + op_["spec"].get("kings", 1)
+                skip.append((op_["r0"] - kk * SW, op_["r1"] + kk * SW))
+        bottom_plate(alongx, a, b, v0, v1, [(op_["r0"] - FACE_IN, op_["r1"] + FACE_IN) for op_ in OPEN if lines_up(op_, alongx, t0, t1)])
+        us = [a + OC * i for i in range(0, int((b - a) / OC) + 1)] + [b - SW]
+        last = None
+        for u in sorted(us):
+            u = min(max(u, a), b - SW)
+            if last is not None and u - last < SW + 0.01:
+                continue
+            if any(s0 - 0.001 < u + SW and u < s1 + 0.001 for s0, s1 in skip):
+                continue
+            fbox("Lumber", alongx, u, u + SW, v0, v1, SW, ztop)
+            last = u
+
+    # ---- the clerestory line: stick framed to the top plate in the photos (shown inside the SIP wall's thickness)
+    CLB = FR.get("clerestory_wall", {})
+    if CLB.get("built"):
+        a, b = T, HW - T
+        v0, v1 = band(YC, YC2, CLB.get("stud_d_in", 5.5) * IN)
+        rec("framing.wall.clerestory", "framing", "Studs and plates, bearing wall on the clerestory line", "framing",
+            info=dict(model=f"2x{'6' if CLB.get('stud_d_in', 5.5) > 4 else '4'} studs at {FR.get('stud_oc_in', 16):g} in o.c., bottom plate, {NTOP} top plates (stud size ASSUMED)",
+                      specs=[["Top plate", ftin(PLATE_TOP)], ["Length", ftin(b - a)], ["Status", "Needs measuring"]],
+                      notes=["NEEDS MEASURING: estimated from the 11/19/2026 drone photos only. Check with a tape before relying on it.", CLB.get("note", "Framed to the top plate in the 11/19/2026 drone photos.")]))
+        bottom_plate(True, a, b, v0, v1, [(op_["r0"] - FACE_IN, op_["r1"] + FACE_IN) for op_ in OPEN if op_["wall"] == "clerestory"])
+        for n in range(NTOP):
+            fbox("Lumber", True, a, b, v0, v1, PLATE_TOP - (n + 1) * SW, PLATE_TOP - n * SW)
+        skip = []
+        for op_ in OPEN:
+            if op_["wall"] == "clerestory":
+                kk = op_["spec"].get("jacks", 1) + op_["spec"].get("kings", 1)
+                skip.append((op_["r0"] - kk * SW, op_["r1"] + kk * SW))
+        us, last = [a + OC * i for i in range(0, int((b - a) / OC) + 1)] + [b - SW], None
+        for u in sorted(us):
+            if last is not None and u - last < SW + 0.01:
+                continue
+            if any(s0 - 0.001 < u + SW and u < s1 + 0.001 for s0, s1 in skip):
+                continue
+            fbox("Lumber", True, u, u + SW, v0, v1, SW, PLATE_TOP - NTOP * SW)
+            last = u
+        FRAMING_META["walls"].append(dict(rect=[a, b, YC, YC2], built=True, top=PLATE_TOP))
+
+    # ---- headers, kings and jacks for each opening in a built wall; openings in walls not up yet are listed for the clash check
+    for op_ in OPEN:
+        alongx = op_["axis"] == "x"
+        spec, photo = op_["spec"], op_["photo"]
+        t0, t1 = op_["t0"], op_["t1"]
+        if op_["wall"] == "clerestory":
+            built = bool(CLB.get("built"))
+            v0, v1 = band(t0, t1, CLB.get("stud_d_in", 5.5) * IN)
+        else:
+            rx = (op_["r0"], op_["r1"], t0, t1) if alongx else (t0, t1, op_["r0"], op_["r1"])
+            built = bool(is_built(alongx, *rx))
+            v0, v1 = band(t0, t1, FR.get("stud_d_in", 3.5) * IN)
+        r0, r1 = op_["r0"] - FACE_IN, op_["r1"] + FACE_IN       # off the drywall's cut ends, so the faces never flicker
+        jk, kg = spec.get("jacks", 1), spec.get("kings", 1)
+        ztop = PLATE_TOP - NTOP * SW
+        if op_["wall"] != "clerestory":
+            top = wall_top(r0, r1, t0, t1) if alongx else wall_top(t0, t1, r0, r1)
+            ztop = min(PLATE_TOP, top(op_["cx"], op_["cy"])) - NTOP * SW
+        hd = spec.get("depth_in", 3.5) * IN
+        if spec.get("bottom_in") is not None:
+            hb = spec["bottom_in"] * IN
+        else:
+            hb = op_["head"] + spec.get("head_gap_in", 0.5) * IN
+        if spec.get("tight"):
+            hbot, htop = (hb if spec.get("bottom_in") is not None else ztop - hd), ztop
+        else:
+            hbot, htop = hb, min(hb + hd, ztop)
+        flat = spec.get("flat_top", True) and not spec.get("tight") and ztop - htop > 2 * SW
+        h0, h1 = r0 - jk * SW, r1 + jk * SW
+        hbox = (h0, h1, v0, v1, hbot, htop) if alongx else (v0, v1, h0, h1, hbot, htop)
+        k0, k1 = r0 - (jk + kg) * SW, r1 + (jk + kg) * SW
+        size = spec.get("label") or ("LVL" if str(spec.get("type", "")).upper().startswith("LVL") else f"({spec.get('plies', 2)}) 2x")
+        door = nearest_label(op_["cx"], op_["cy"])
+        btw = between(*((r0, r1, t0, t1) if alongx else (t0, t1, r0, r1)))
+        if op_["wall"] == "clerestory":
+            btw = f"in the clerestory wall, {ftin(r0)} to {ftin(r1)}"
+        where = spec.get("name") or f"{btw}" + (f" ({door} door)" if door and op_["wall"] != "clerestory" and not op_.get("only") else "")
+        hid = f"framing.header.{len(FRAMING_META['headers'])}"
+        FRAMING_META["headers"].append(dict(id=hid, name=where, box=[round(v, 4) for v in hbox], built=built, photo=photo,
+                                            ro=[r0, r1], axis=op_["axis"], kings=[k0, k1], band=[t0, t1], top=ztop + NTOP * SW,
+                                            confidence=spec.get("confidence", "typical"), wall=op_["wall"]))
+        if not built:
+            continue
+        rec(hid, "framing", f"Door header {where}".strip(), "framing",
+            info=dict(model=f"{spec.get('size', size)} header, about {ftin(htop - hbot)} deep" + ("" if photo else " (typical, ASSUMED)"),
+                      specs=[["Rough opening", f"{ftin(r1 - r0)} wide" + (" (door and pocket)" if spec.get("pocket") else "")],
+                             ["Header", f"bottom {ftin(hbot)}, top {ftin(htop)} above the slab" + (", tight under the top plates" if htop >= ztop - 1e-3 else ", flat 2x and cripples above")],
+                             ["Source", spec.get("source", "Typical framing, ASSUMED until a build photo shows it")],
+                             ["Confidence", spec.get("confidence", "typical")],
+                             ["Status", "Needs measuring"]],
+                      notes=["NEEDS MEASURING: estimated from the 11/19/2026 drone photos only. Check with a tape before relying on it."] + list(spec.get("notes", []))))
+        lvl = str(spec.get("type", "")).upper().startswith("LVL")
+        fbox("LVL" if lvl else "Header", alongx, h0, h1, v0, v1, hbot, htop)
+        for e, sg in ((r0, -1), (r1, 1)):
+            for jj in range(jk):
+                ua, ub = sorted((e + sg * jj * SW, e + sg * (jj + 1) * SW))
+                fbox("Lumber", alongx, ua, ub, v0, v1, SW, hbot)
+            for kk in range(kg):
+                ua, ub = sorted((e + sg * (jk + kk) * SW, e + sg * (jk + kk + 1) * SW))
+                fbox("Lumber", alongx, ua, ub, v0, v1, SW, ztop)
+        if flat:                                          # flat 2x on the header, cripples up to the top plates
+            fbox("Lumber", alongx, h0, h1, v0, v1, htop, htop + SW)
+            nc = max(1, round((h1 - h0) / OC) - 1)
+            for i_ in range(1, nc + 1):
+                u = h0 + (h1 - h0) * i_ / (nc + 1) - SW / 2
+                fbox("Lumber", alongx, u, u + SW, v0, v1, htop + SW, ztop)
+    for p_ in FR.get("posts", []):                       # posts and beams seen in the photos
+        rec(p_["id"], "framing", p_["name"], "framing", info=dict(model=p_.get("model", ""), notes=p_.get("notes", [])))
+        box("Lumber", *p_["box"])
 
 # ------------------------------------------------------------------ roofs and ceilings
 def roof_slab(y0, y1, zfun):
@@ -2316,8 +2556,8 @@ def faces_of(s):
 def zfight_pairs():
     buckets = {}
     for r in RECS:
-        if r.get("placeholder_for"):
-            continue
+        if r.get("placeholder_for") or r.get("layer") == "framing":
+            continue                                # framing sits inside the walls, flush piece to piece by design
         groups = [("", r.get("parts", []))] + [(o["id"], o["parts"]) for o in r.get("ops", [])]
         for gid, parts in groups:
             for s in parts:
@@ -2391,6 +2631,7 @@ out = dict(
                     + ([dict(name="Porch", rect=list(C["porch"]["rect"]), outside=True)] if C.get("porch", {}).get("enabled", True) and C.get("porch", {}).get("rect") else []),
               outline=dict(house=[0, 0, HW, HD], garage=GA["rect"] if GA.get("enabled") else None, porch=C.get("porch", {}).get("rect")),
               climbs=[dict(id="loft.ladder", rect=list(LOFT["ships_ladder"]), axis="x", z0=0.0, z1=LOFT["floor_height"])] if LOFT.get("enabled") else [],
+              framing=FRAMING_META,
               **WEB_META),
     materials=MATERIALS,
     spawns={k: dict(pos=[p[0], p[1], EYE], look=[l[0], l[1], EYE - 0.3]) for k, (p, l) in SPAWNS.items()},

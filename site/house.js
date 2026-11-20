@@ -196,6 +196,21 @@ function bucketMesh(bk, name) {
   return m;
 }
 
+// ---------------------------------------------------------------- view layers
+// Which Layers checkbox a record answers to, so the finishes can come off and leave the framing (Maxwell, 11/20/2026).
+// '' = always shown (slab, floors, loft ladder and railing).
+export function toggleOf(r) {
+  if (r.tog) return r.tog;
+  if (r.layer === 'framing') return 'framing';
+  if (r.kind === 'wall') return r.layer === 'shell' ? 'extwalls' : 'drywall';
+  if (r.kind === 'door' || r.kind === 'window') return 'openings';
+  if (r.kind === 'fixture' && r.layer === 'shell') return 'extwalls';     // wall lights, outlets and hose bibs on the siding
+  if (r.kind === 'structure') return 'framing';
+  if (['floor', 'stair', 'railing'].includes(r.kind)) return 'finish';    // attic deck, loft floor, ladder and railing: not built yet
+  if (['cabinet', 'trim', 'fixture', 'appliance'].includes(r.kind) && r.layer !== 'shell' && r.layer !== 'roof') return 'finish';
+  return '';
+}
+
 // ---------------------------------------------------------------- build
 // skip: placeholder appliances to leave out (the equipment layer has the real ones).
 // Returns { root, byId }: root holds the meshes, moving parts (glTF style "operable" pivots) and Spawn_<Room> nodes.
@@ -207,10 +222,10 @@ export function buildHouse(data, { skip = new Set() } = {}) {
   const LAYER_NAME = { roof: 'Roof', ceiling: 'ceiling', shell: 'House shell', interior: 'House interior', furniture: 'House furniture' };
   const buckets = new Map();
   let ri = -1;
-  const getter = (group) => (m) => {
-    const key = `${group}|${m}`;
+  const getter = (group, tog) => (m) => {
+    const key = `${group}|${tog}|${m}`;
     let bk = buckets.get(key);
-    if (!bk) { bk = new Bucket(mats[m] || mats.Drywall); bk.group = group; buckets.set(key, bk); }
+    if (!bk) { bk = new Bucket(mats[m] || mats.Drywall); bk.group = group; bk.tog = tog; buckets.set(key, bk); }
     bk.mark(ri);
     return bk;
   };
@@ -221,7 +236,8 @@ export function buildHouse(data, { skip = new Set() } = {}) {
     const rec = { ...r, category: KIND_LABEL[r.kind] || r.kind, box: new THREE.Box3() };
     delete rec.parts; delete rec.ops;
     recs.push(rec); byId[r.id] = rec;
-    const get = getter(r.layer);
+    const tog = toggleOf(r);
+    const get = getter(r.layer, tog);
     for (const s of r.parts || []) shape(get, s, grainOf);
     for (const o of r.ops || []) {
       const local = new Map();
@@ -234,6 +250,7 @@ export function buildHouse(data, { skip = new Set() } = {}) {
     if (!bk.tris) continue;
     const m = bucketMesh(bk, `${LAYER_NAME[bk.group] || 'House'} ${bk.mat.name}`);
     m.userData.layer = bk.group;
+    if (bk.tog) m.userData.tog = bk.tog;
     root.add(m);
   }
   // moving parts: a pivot node carrying the same extras the Blender export wrote (slide in Blender metres, Z up)
@@ -250,6 +267,7 @@ export function buildHouse(data, { skip = new Set() } = {}) {
       const m = bucketMesh(bk, `${r.name} ${bk.mat.name}`);
       m.geometry.translate(-piv.position.x, -piv.position.y, -piv.position.z);
       m.userData.equipId = r.id; m.userData.layer = r.layer;
+      const tg = toggleOf(r); if (tg) m.userData.tog = tg;
       piv.add(m);
     }
     root.add(piv);

@@ -201,6 +201,7 @@ const LITE = /[?&]lite\b/.test(location.search);
 
 const upperPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1e6);   // the slice: everything above it is cut away. 1e6 = nothing clipped
 const houseMats = new Set(), furnitureMeshes = [], bakedDeck = [];
+const togMeshes = {};          // generated house meshes by view layer (house.js toggleOf): drywall, extwalls, openings, finish, framing
 const nightFixtures = [];
 
 // house.json says what of the baked export the generated house replaces: furniture now built in the browser
@@ -260,6 +261,7 @@ function prepare(roots, first) {
     const part = partOf(o);
     if (part && !/^(site|trees)$/i.test(part.name)) for (const m of mats) if (m) { m.clippingPlanes = [upperPlane]; m.clipShadows = true; houseMats.add(m); }
     if ((part && /^furniture/i.test(part.name)) || o.userData.layer === 'furniture') furnitureMeshes.push(o);
+    if (o.userData.tog) (togMeshes[o.userData.tog] ||= []).push(o);
     if (!o.isInstancedMesh && mats[0] && mats[0].name === 'Attic Deck') bakedDeck.push(o);
     if (o.isInstancedMesh) {          // instanced trees: drawn only, no collision or picking. Names do not survive gltfpack, so the distant woods are told apart by instance count (a hundred or more vs. a few dozen near the house)
       for (const mm of mats) if (mm && mm.transparent) {
@@ -330,7 +332,7 @@ function linkRoom(R, how) {
 //   v=o|w|n  mode     p=x,y,z  camera (plan feet, z up)     t=x,y,z  orbit centre     a=yaw,pitch  walk look (deg)
 //   room=    room     night    cut=ft  height slice         crouch   hide=,show=  layers   info=  equipment id
 const SHARE_KEYS = ['v', 'p', 't', 'a', 'night', 'cut', 'crouch', 'hide', 'show', 'info'];
-const LAYERS_ALL = () => ['Roof', 'Walls', 'Furniture', 'Fans', 'Electrical', 'Lowvolt', 'Trees', 'Appliances', 'Vehicles', 'Storage', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
+const LAYERS_ALL = () => ['Roof', 'Walls', 'Drywall', 'Extwalls', 'Openings', 'Finish', 'Framing', 'Furniture', 'Fans', 'Electrical', 'Lowvolt', 'Trees', 'Appliances', 'Vehicles', 'Storage', 'Mechanical', 'Ducts', 'Xray', 'Trusses', 'Util'];
 const LAYER_DEFAULT = {};
 for (const k of LAYERS_ALL()) LAYER_DEFAULT[k] = $('l' + k).checked;
 const r1 = (n) => String(Math.round(n * 10) / 10);
@@ -698,6 +700,10 @@ function applyToggles() {
   for (const o of roofNodes) show(o, layerOn('Roof') && !sliced);     // a slice lifts the roof off too, or it would cover the cut
   for (const o of utilNodes) show(o, layerOn('Util'));
   for (const o of furnitureMeshes) show(o, layerOn('Furniture'));
+  for (const [k, list] of Object.entries(togMeshes)) {
+    const id = { drywall: 'Drywall', extwalls: 'Extwalls', openings: 'Openings', finish: 'Finish', framing: 'Framing' }[k];
+    if (id) for (const o of list) show(o, layerOn(id));
+  }
   // One Trees layer for everything that grows (Maxwell, 11/17/2026: no separate Distant trees). ?lite still leaves the far woods out, for slow devices
   for (const o of treeMeshes) show(o, layerOn('Trees') && !(LITE && o.userData.fullCount >= 80));
   if (equip) {
@@ -719,6 +725,16 @@ function applyToggles() {
   shadowDirty = true;
 }
 for (const k of LAYERS) $('l' + k).onchange = applyToggles;
+// Framing only: finishes, furniture and equipment off, so the as-built framing reads against the trusses and ducts.
+// Pressed again it puts every layer back to its default.
+let framingOnly = false;
+for (const b of document.querySelectorAll('[data-act="framing-only"]')) b.onclick = () => {
+  framingOnly = !framingOnly;
+  const keep = new Set(['Framing', 'Ducts', 'Trusses', 'Walls']);
+  for (const k of LAYERS) $('l' + k).checked = framingOnly ? keep.has(k) : LAYER_DEFAULT[k];
+  for (const bb of document.querySelectorAll('[data-act="framing-only"]')) bb.textContent = framingOnly ? 'Back to all layers' : 'Framing only';
+  applyToggles();
+};
 
 // Walls off: walls, floors and furniture go faint so the systems inside read clearly.
 let ghost = false, xray = false;
