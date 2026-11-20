@@ -49,7 +49,7 @@ items += [
         links=[["Lowe's product page", "https://www.lowes.com/pd/Frigidaire-30-in-Self-cleaning-Air-Fry-Single-fan-European-Element-Double-Electric-Wall-Oven-Smudge-proof-Stainless-Steel/5013113761"]],
         placement="West wall oven tower, per the cabinet plan.")),
  dict(id="cooktop", name="LG smart induction cooktop", category="Kitchen appliance", system="kitchen", room="Kitchen", layer="appliances",
-      builder="cooktop_induction", size=[30.69, 3.69, 21.06], at=[0.74, 47.0, 3.127], facing=90,
+      builder="cooktop_induction", size=[30.69, 3.69, 21.06], at=[0.74, 47.0, 3.0], facing=90,
       cull=[dict(box=[0.5, 45.4, 3.05, 2.9, 48.6, 3.35], materials=["Black Glass"])],
       info=dict(model="LG CBIH3013BE, 30 in smart induction cooktop, 4 elements, black ceramic glass", price="$999 at LG on 11/17/2026 ($899 on Erin's list)",
         specs=[["Size", "30 11/16 W x 21 1/16 D x 3 11/16 H in"], ["Cutout", "28 1/2 W x 19 5/8 D in, 5 3/4 in deep"],
