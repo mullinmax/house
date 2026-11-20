@@ -1042,6 +1042,7 @@ def ftin_(v): return f"{int(v)} ft {round((v - int(v)) * 12)} in"
 WALL_X = CFG["house"]["ext_wall_thickness"]
 HX, HY = WALL_X + 0.6, 47.0                        # duct centre: in the chimney enclosure (14-3/8 in deep off the west wall), over the cooktop's centre
 HOOD_TOP = 3.0 + KH.get("above_counter_in", 27) / 12 + KH.get("box_height_in", 24) / 12 - 0.06 - 0.02   # underside of the hood's stainless top
+if __import__("os").environ.get("HOOD_INSERT_TOP"): HOOD_TOP = float(__import__("os").environ["HOOD_INSERT_TOP"])   # renders of the shorter stainless shells
 PP = [21.375, 10.5625, 11.4375]                    # Broan PM600SSV power pack, W x H x D in
 HZ = 10.95                                         # centre of the duct through the wall: its top is about 6 in under the roof, clear of the SIP top plate
 CAP = [12, 12, 7]                                  # 8 in wall cap with a damper, W x H x D in (ASSUMED)

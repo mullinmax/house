@@ -1825,6 +1825,34 @@ elif HSTYLE == "cabinets":
     wr.box("Cabinet Wood", HU0 - 0.0, HU1 + 0.05, 0, CD + 0.15, CZ1, CZ1 + 0.25)                         # crown
     CUR[0] = BYID["kitchen.hood"]["parts"]
     to_ceiling("Cabinet Wood", _cc - 0.6, _cc + 0.6, 0, 1.2, CZ1 + 0.25)                                   # chase for the duct to the wall exit
+elif HSTYLE.startswith("ss_"):
+    # Lower, cleaner stainless shells around the Broan PM600SSV (Maxwell, 11/20/2026: the slope was too steep and looked big;
+    # flatter, maybe curved, closer to the kitchen designer's square hood with a right angle into the duct cover). All 60 in
+    # wide centred on the cooktop so they meet the oven tower, 24 in deep, one level bottom edge 24 in over the cooktop, a flat
+    # top, and a 14 in square duct cover straight up to the ceiling. Profiles are (d, z) from the bottom front edge up to the top.
+    MATERIALS.setdefault("Hood Stainless", dict(color="#C4C6C7", rough=0.5, metal=0.55))
+    SS = "Hood Stainless"
+    S0, S1 = _cc - 2.5, _cc + 2.5                  # 60 in, centred on the cooktop: the north end meets the oven tower
+    LB = CTR_Z + 24 / 12
+    if HSTYLE == "ss_box":                         # the designer's look: a straight 16 in front, flat top, right angle into the cover
+        TOP = LB + 16 / 12; prof = [(HD_, LB), (HD_, TOP)]
+    elif HSTYLE == "ss_low":                       # 9 in straight front, then a low 30 degree slope back to the top
+        TOP = LB + 15 / 12; prof = [(HD_, LB), (HD_, LB + 9 / 12), (HD_ - 10 / 12, TOP)]
+    elif HSTYLE == "ss_curve":                     # 4 in straight front rolling over in a 10 in radius curve into the flat top
+        import math as _m
+        RC = 10 / 12; TOP = LB + 4 / 12 + RC
+        prof = [(HD_, LB), (HD_, LB + 4 / 12)] + [(HD_ - RC + RC * _m.cos(a), LB + 4 / 12 + RC * _m.sin(a)) for a in [_m.pi / 2 * k / 6 for k in range(1, 7)]]
+    else:                                          # ss_chamfer: 12 in straight front, a 3 in 45 degree chamfer, flat top
+        TOP = LB + 15 / 12; prof = [(HD_, LB), (HD_, LB + 12 / 12), (HD_ - 3 / 12, TOP)]
+    for (d0, z0), (d1, z1) in zip(prof, prof[1:]):
+        slab(SS, S0, S1, [(d0 - WT, z0), (d0, z0), (d1, z1), (d1 - WT, z1)])                              # front, piece by piece
+        for (a0, a1) in ((S0, S0 + WT), (S1 - WT, S1)):                                                   # both ends follow the same outline
+            slab(SS, a0, a1, [(0, z0), (d0 - WT, z0), (d1 - WT, z1), (0, z1)])
+    dtop = prof[-1][0]
+    wr.box(SS, S0, S1, 0, dtop, TOP - WT, TOP)                                                                # flat top
+    to_ceiling(SS, _cc - 7 / 12, _cc + 7 / 12, 0, 14 / 12, TOP)                                             # 14 in square duct cover
+    for k in range(3):                                                                                    # LED pucks in the underside
+        cyl("Lamp Glass", WX0 + 1.4, S0 + 5 * (k + 0.5) / 3, TOP - WT - 0.03, TOP - WT - 0.01, 0.12, 0.12)
 elif HSTYLE == "stainless":
     # Number 4 in stainless to match the appliances, with one level lip all the way round the bottom (Maxwell, 11/20/2026):
     # no brass band and no side panel hanging lower than the front.
