@@ -176,8 +176,8 @@ for sl in CFGT.get("framing", {}).get("stud_lines", []):
             if abs(a[0] - b[0]) > 1e-3 or abs(a[1] - b[1]) > 1e-3 or abs(a[2] - b[2]) < 1 or abs(a[1] - sl["at"]) > 0.3:
                 continue
             w = (dc["size"] if isinstance(dc["size"], (int, float)) else dc["size"][0]) * IN
-            if a[0] - w / 2 > studs[-1][1]:
-                continue                               # past the measured part of the wall
+            if a[0] - w / 2 > studs[-1][1] or a[0] + w / 2 < studs[0][0]:
+                continue                               # outside the measured part of the wall
             hit = [s0 for s0, s1 in studs if ovl(a[0] - w / 2, a[0] + w / 2, s0, s1, -1e-3)]
             if hit:
                 add("CLASH", dc["id"], None, f"{dc['id']} stack at x {a[0]:.2f} ({w * 12:.0f} in wide) hits a measured stud at x {hit[0]:.2f}")

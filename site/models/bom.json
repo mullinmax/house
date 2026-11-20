@@ -418,7 +418,7 @@
      "spec": "Return runs through the trusses",
      "qty": 4,
      "unit": "x 25 ft box",
-     "where": "72 ft in the model",
+     "where": "73 ft in the model",
      "note": "Pull it tight, no sags; support every 4 ft",
      "price": "",
      "status": ""
@@ -756,7 +756,7 @@
      "spec": "In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit)",
      "qty": 7,
      "unit": "ea",
-     "where": "66 ft total",
+     "where": "65 ft total",
      "note": "Plus one stack to round head per stack",
      "price": "",
      "status": ""
@@ -1180,7 +1180,7 @@
     {
      "item": "Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap",
      "spec": "Rigid every 5 ft, flex every 4 ft, rect every 4 ft",
-     "qty": 107,
+     "qty": 108,
      "unit": "hangers",
      "where": "About 3 ft of strap each",
      "note": "",
@@ -1337,7 +1337,7 @@
    "system": "Return",
    "room": "",
    "size": "6 in round",
-   "ft": 64.48348635782551,
+   "ft": 65.39568711259922,
    "cfm": null,
    "flex": true,
    "crosses": 27,

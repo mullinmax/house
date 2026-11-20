@@ -36,7 +36,7 @@ Buy separately: ERV and ventilation equipment,Separately,Rheem water heater duct
 "Buy separately: round duct, flex and fittings",Separately,"8 in round pipe, 30 ga snap lock",Range hood,1,x 5 ft,4 ft in the model,,,
 "Buy separately: round duct, flex and fittings",Separately,"8 in round pipe, 30 ga snap lock",Supply,13,x 5 ft,55 ft in the model,,,
 "Buy separately: round duct, flex and fittings",Separately,"10 in round pipe, 30 ga snap lock",Return,12,x 5 ft,51 ft in the model,,,
-"Buy separately: round duct, flex and fittings",Separately,"6 in flex duct, R-6 insulated",Return runs through the trusses,4,x 25 ft box,72 ft in the model,,,"Pull it tight, no sags; support every 4 ft"
+"Buy separately: round duct, flex and fittings",Separately,"6 in flex duct, R-6 insulated",Return runs through the trusses,4,x 25 ft box,73 ft in the model,,,"Pull it tight, no sags; support every 4 ft"
 "Buy separately: round duct, flex and fittings",Separately,"10 in flex duct, R-6 insulated",Return runs through the trusses,1,x 25 ft box,14 ft in the model,,,"Pull it tight, no sags; support every 4 ft"
 "Buy separately: round duct, flex and fittings",Separately,4 in adjustable 90 elbow,,7,ea,Counted from the bends in the model,,,
 "Buy separately: round duct, flex and fittings",Separately,6 in adjustable 90 elbow,,13,ea,Counted from the bends in the model,,,
@@ -69,7 +69,7 @@ Buy separately: ERV and ventilation equipment,Separately,Rheem water heater duct
 "Buy separately: rectangular duct, plenums and stacks",Sheet metal shop,14 x 24 in return plenum box,Fabricated,1,piece,"3.2 ft, 0 turns",,,
 "Buy separately: rectangular duct, plenums and stacks",Sheet metal shop,41 x 10 in bedroom 1 return header box,part of Bedroom 1 return,1,piece,"0.6 ft, 0 turns",,,
 "Buy separately: rectangular duct, plenums and stacks",Sheet metal shop,20 x 4 in study high return boot,Fabricated,1,piece,"1.4 ft, 0 turns",,,
-"Buy separately: rectangular duct, plenums and stacks",Sheet metal shop,Wall stack 14 x 2-1/2 in,In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit),7,ea,66 ft total,,,Plus one stack to round head per stack
+"Buy separately: rectangular duct, plenums and stacks",Sheet metal shop,Wall stack 14 x 2-1/2 in,In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit),7,ea,65 ft total,,,Plus one stack to round head per stack
 "Buy separately: rectangular duct, plenums and stacks",Sheet metal shop,Stack to round head,"Top of each wall stack, into the round run",7,ea,,,,
 "Buy separately: rectangular duct, plenums and stacks",Sheet metal shop,Wall stack 12 x 2-1/2 in,In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit),1,ea,9 ft total,,,Plus one stack to round head per stack
 "Buy separately: rectangular duct, plenums and stacks",Sheet metal shop,Stack to round head,"Top of each wall stack, into the round run",1,ea,,,,
@@ -110,6 +110,6 @@ Buy separately: ERV and ventilation equipment,Separately,Rheem water heater duct
 "Buy separately: sealing, hanging and insulation",Separately,"Foil tape, UL 181A-P / 181B-FX",,9,roll,,,,
 "Buy separately: sealing, hanging and insulation",Separately,#8 x 1/2 in self drilling sheet metal screws,3 per joint,700,ea,,,,
 "Buy separately: sealing, hanging and insulation",Separately,Flex duct clamps or nylon duct ties,2 per flex connection,28,ea,,,,
-"Buy separately: sealing, hanging and insulation",Separately,"Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap","Rigid every 5 ft, flex every 4 ft, rect every 4 ft",107,hangers,About 3 ft of strap each,,,
+"Buy separately: sealing, hanging and insulation",Separately,"Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap","Rigid every 5 ft, flex every 4 ft, rect every 4 ft",108,hangers,About 3 ft of strap each,,,
 "Buy separately: sealing, hanging and insulation",Separately,"Acoustic duct liner, 1 in",Main return box and trunk,1,roll,,,,Often supplied by the sheet metal shop
 "Buy separately: sealing, hanging and insulation",Separately,"Duct insulation wrap, R-8 with vapor jacket",ERV outdoor ducts,21,ft,,,,"Supply and return ducts sit inside the SIP envelope, so they do not need insulation by code"

@@ -866,7 +866,8 @@ stack("return_bed2_stack", SR2, 10.8, "return_bed23", "return_bed2", "Bedroom 2"
 # Study: two 6 in flex home runs from its one stack (duct balance check, 11/18/2026: one 6 in returned about 60% of the room's air).
 # They come down in one hall 2 bay, cross the laundry and linen trusses west a little apart, and drop south in their own bays.
 # The second run uses the route bedroom 1's return had before it moved up onto the supply trunk.
-XSB, XSB2 = bay(28.0), bay(29.4)                 # the study's two low grilles east of its door (x 23.37-26.00 with casing to 26.29), Maxwell 11/18/2026
+SSB, SSB2 = stud_bay(27.7, 1), stud_bay(29.0, 1)   # measured stud bays (Maxwell, 11/20/2026); the flex runs leave from the truss bays above
+XSB, XSB2 = bay(SSB), bay(SSB2)                 # the study's two low grilles east of its door (x 23.37-26.00 with casing to 26.29), Maxwell 11/18/2026
 # bedroom 1's grilles: both east of the closet 1 pocket door's header (Maxwell, 11/20/2026). The as-built header and its
 # double jacks run from x 31.59 to 38.01 ([framing] in config.toml, 71 in clear measured 11/20/2026); at x 32.0 and 33.3 the stacks ran through the
 # pocket. The second stack skips the bay with the bedroom outlet at x 39.6.
@@ -874,8 +875,8 @@ XB1R = 38.7
 XSR = bay(25.4)                                   # both runs go south side by side in this bay: the living 1 and laundry supplies fill the next two east
 YSW, YBW = 19.6, 20.3
 r = ret("return_study", "Study return", 6,
-        bend([[XSB, 10.85, ZT], [XSB, 11.85, ZT], [XSR - 0.26, 11.85, ZT], [XSR - 0.26, YSW, ZT], [XR2, YSW, ZT], [XR2, RY + 0.5, ZT], [RPX, RY + 0.5, ZT], [RPX, RY + 0.5, DECK + 0.2]]), flex=True,
-        el=25, grilles=[dict(at=[XSB, 10.64, LOW], size=[14, 8], wall=N), dict(at=[XSB2, 10.64, LOW], size=[14, 8], wall=N)])
+        bend([[SSB, 10.85, CEIL + 0.04], [XSB, 10.85, ZT], [XSB, 11.85, ZT], [XSR - 0.26, 11.85, ZT], [XSR - 0.26, YSW, ZT], [XR2, YSW, ZT], [XR2, RY + 0.5, ZT], [RPX, RY + 0.5, ZT], [RPX, RY + 0.5, DECK + 0.2]]), flex=True,
+        el=25, grilles=[dict(at=[SSB, 10.64, LOW], size=[14, 8], wall=N), dict(at=[SSB2, 10.64, LOW], size=[14, 8], wall=N)])
 r["info"]["model"] = "Two low grilles, each with its own stack and 6 in round flex run"
 r["info"]["specs"] = [["Serves", "Study (low grille on its south wall, east of the door; a separate high grille over the door carries most of the air)"],
                       ["Duct", "Two 14 x 2-1/2 in wall stacks in neighbouring truss bays, each with a 6 in flex home run to the heat pump's return"],
@@ -884,9 +885,9 @@ r["info"]["notes"] = ["The study has a low grille (Maxwell, 11/17/2026) with a s
                       "would not fit through the truss webs and a single 6 in returned only about 60% of the room's 104 CFM (duct balance check, 11/18/2026). "
                       "If the builder confirms 7 in fits the webs, one 7 in run does nearly the same job.",
                       "Second grille and stack (Maxwell, 11/19/2026): the builder can move bedroom 1's door wall east, so it moved 2 ft 1 1/2 in, just far enough that the study's south wall has two stud bays for stacks, each under its own floor truss bay. Maxwell measured the trusses at 16 in on centre from the west wall (11/20/2026), so the stacks sit at x 28.0 and 29.4, centred under two neighbouring truss bays. The studs are 16 in on centre too, but where they fall against the trusses over this wall is not measured yet: a stack whose stud bay sits half a bay off the trusses would land on a truss. Confirm on site.", RFLEX]
-stack("return_study_stack", XSB, 10.8, "return_study", "return_study", "Bedroom 4 / study")
-stack("return_study_stack2", XSB2, 10.8, "return_study", "return_study2", "Bedroom 4 / study")
-ret("return_study2", None, 6, bend([[XSB2, 10.85, ZT], [XSB2, 12.6, ZT], [XSR + 0.26, 12.6, ZT], [XSR + 0.26, YBW, ZT], [bay(10.7), YBW, ZT],
+stack("return_study_stack", SSB, 10.8, "return_study", "return_study", "Bedroom 4 / study", top=CEIL + 0.04)
+stack("return_study_stack2", SSB2, 10.8, "return_study", "return_study2", "Bedroom 4 / study", top=CEIL + 0.04)
+ret("return_study2", None, 6, bend([[SSB2, 10.85, CEIL + 0.04], [XSB2, 10.85, ZT], [XSB2, 12.6, ZT], [XSR + 0.26, 12.6, ZT], [XSR + 0.26, YBW, ZT], [bay(10.7), YBW, ZT],
                                     [bay(10.7), RY - 1.3, ZT]]), flex=True, info_of="return_study", el=25)
 
 # Bedroom 1 (duct balance check, 11/18/2026): its 138 CFM is too much for anything that fits through the truss webs, so its return
