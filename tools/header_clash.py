@@ -166,6 +166,22 @@ for dc in D["ducts"]:
             if ovl(u - w / 2, u + w / 2, wu0, wu1, -1e-3) and (abs(wc0 - c) < 0.35 or abs(wc1 - c) < 0.35 or wc0 <= c <= wc1):
                 add("CLASH", dc["id"], None, f"{dc['id']} stack at {'x' if ax else 'y'} {u:.2f} sits where a wall meets its wall ({'built' if wl['built'] else 'not framed yet'}, {wu0:.2f} to {wu1:.2f}): corner studs fill that bay")
 
+# wall stacks against the studs Maxwell measured ([framing] stud_lines in config.toml)
+import tomllib
+CFGT = tomllib.load(open(os.path.join(HERE, "..", "model", "config.toml"), "rb"))
+for sl in CFGT.get("framing", {}).get("stud_lines", []):
+    studs = [(sl["x0"] + e / 12 - 1.5 / 12, sl["x0"] + e / 12) for e in sl["right_edges_in"]]
+    for dc in D["ducts"]:
+        for a, b in zip(dc["points"], dc["points"][1:]):
+            if abs(a[0] - b[0]) > 1e-3 or abs(a[1] - b[1]) > 1e-3 or abs(a[2] - b[2]) < 1 or abs(a[1] - sl["at"]) > 0.3:
+                continue
+            w = (dc["size"] if isinstance(dc["size"], (int, float)) else dc["size"][0]) * IN
+            if a[0] - w / 2 > studs[-1][1]:
+                continue                               # past the measured part of the wall
+            hit = [s0 for s0, s1 in studs if ovl(a[0] - w / 2, a[0] + w / 2, s0, s1, -1e-3)]
+            if hit:
+                add("CLASH", dc["id"], None, f"{dc['id']} stack at x {a[0]:.2f} ({w * 12:.0f} in wide) hits a measured stud at x {hit[0]:.2f}")
+
 seen, n_bad = set(), 0
 for kind, did, hd, text in finds:
     if text in seen:

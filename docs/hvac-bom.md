@@ -68,7 +68,7 @@ Counted from the model with 10 percent extra. Anything that crosses the floor tr
 | 8 in round pipe, 30 ga snap lock | Range hood | 1 | x 5 ft | 4 ft in the model |  |
 | 8 in round pipe, 30 ga snap lock | Supply | 13 | x 5 ft | 55 ft in the model |  |
 | 10 in round pipe, 30 ga snap lock | Return | 12 | x 5 ft | 51 ft in the model |  |
-| 6 in flex duct, R-6 insulated | Return runs through the trusses | 4 | x 25 ft box | 71 ft in the model | Pull it tight, no sags; support every 4 ft |
+| 6 in flex duct, R-6 insulated | Return runs through the trusses | 4 | x 25 ft box | 72 ft in the model | Pull it tight, no sags; support every 4 ft |
 | 10 in flex duct, R-6 insulated | Return runs through the trusses | 1 | x 25 ft box | 14 ft in the model | Pull it tight, no sags; support every 4 ft |
 | 4 in adjustable 90 elbow |  | 7 | ea | Counted from the bends in the model |  |
 | 6 in adjustable 90 elbow |  | 13 | ea | Counted from the bends in the model |  |
@@ -108,7 +108,7 @@ Trunks, plenums and boxes are usually made to measure by a sheet metal shop once
 | 14 x 24 in return plenum box | Fabricated | 1 | piece | 3.2 ft, 0 turns |  |
 | 41 x 10 in bedroom 1 return header box | part of Bedroom 1 return | 1 | piece | 0.6 ft, 0 turns |  |
 | 20 x 4 in study high return boot | Fabricated | 1 | piece | 1.4 ft, 0 turns |  |
-| Wall stack 14 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 7 | ea | 68 ft total | Plus one stack to round head per stack |
+| Wall stack 14 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 7 | ea | 66 ft total | Plus one stack to round head per stack |
 | Stack to round head | Top of each wall stack, into the round run | 7 | ea |  |  |
 | Wall stack 12 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 1 | ea | 9 ft total | Plus one stack to round head per stack |
 | Stack to round head | Top of each wall stack, into the round run | 1 | ea |  |  |
@@ -178,7 +178,7 @@ Estimated from the joint and length counts above.
 | Powder exhaust | Exhaust | Powder | 4 in round | 9.6 |  |  |  |  |
 | Range hood duct | Range hood | Kitchen | 8 in round | 4.5 |  |  |  |  |
 | Bedroom 1 return | Return |  | 10 in round | 51.9 |  |  |  | 2 |
-| Bedrooms 2 and 3 return | Return |  | 10 in round | 20.3 |  | yes | 2 | 3 |
+| Bedrooms 2 and 3 return | Return |  | 10 in round | 21.5 |  | yes | 2 | 3 |
 | Main return (M-10) | Return |  | 34 x 20 in | 8.3 |  |  |  |  |
 | Return plenum box | Return |  | 14 x 24 in | 3.2 |  |  |  |  |
 | Study return | Return |  | 6 in round | 64.5 |  | yes | 27 | 2 |

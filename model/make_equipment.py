@@ -837,9 +837,17 @@ ret("return_plenum", "Return plenum box", [14, 24], [[RP_E - 7 / 12, RP_S, PZ], 
 # Bedrooms 2 and 3 (Maxwell, 11/17/2026): bedroom 3's grille moved from beside the bed to its north wall. Both grilles are in
 # the wall the two rooms share, in neighbouring stud bays, and both stacks rise into the trusses over bedroom 3, where they join.
 # Bedroom 3 has a second grille and stack one bay west (duct balance check, 11/18/2026): one 14 x 2-1/2 in stack chokes 127 CFM.
-XR3, XR2, XR3B = bay(8.0), bay(9.4), bay(6.7)       # 16 in trusses (11/20/2026): bedroom 3's second stack moved a bay east, clear of the wall junction at x 5.6 to 5.9
-r = ret("return_bed23", "Bedrooms 2 and 3 return", 10, bend([[XR3, 10.85, ZT], [XR3, RY - 0.7, ZT], [XR3, RY - 0.7, DECK + 0.2]]), flex=True, el=25,
-        grilles=[dict(at=[XR3, 10.97, LOW], size=[14, 8], wall=S), dict(at=[XR3B, 10.97, LOW], size=[14, 8], wall=S)])
+# Maxwell measured the studs in this wall (11/20/2026, [framing] stud_lines): each stack sits in a measured stud bay and its
+# flex leaves the top plate into the truss bay above, which sits about 2 in east of the stud bay.
+def stud_bay(x, line=0):
+    sl = CFG["framing"]["stud_lines"][line]
+    ed = [sl["x0"] + e / 12 for e in sl["right_edges_in"]]
+    bays = [((a + b - 1.5 / 12) / 2, b - 1.5 / 12 - a) for a, b in zip(ed, ed[1:]) if b - 1.5 / 12 - a > 14.2 / 12]
+    return round(min(bays, key=lambda c: abs(c[0] - x))[0], 3)
+SR3, SR2, SR3B = stud_bay(8.0), stud_bay(9.3), stud_bay(6.6)
+XR3, XR2, XR3B = bay(SR3), bay(SR2), bay(SR3B)       # the truss bays over those stud bays
+r = ret("return_bed23", "Bedrooms 2 and 3 return", 10, bend([[SR3, 10.85, CEIL + 0.04], [XR3, 10.85, ZT], [XR3, RY - 0.7, ZT], [XR3, RY - 0.7, DECK + 0.2]]), flex=True, el=25,
+        grilles=[dict(at=[SR3, 10.97, LOW], size=[14, 8], wall=S), dict(at=[SR3B, 10.97, LOW], size=[14, 8], wall=S)])
 r["info"]["specs"] = [["Serves", "Bedroom 3 (two low grilles on its north wall) and bedroom 2 (low grille on its south wall)"],
                       ["Duct", "14 x 2-1/2 in wall stacks, 6 in flex from bedroom 2 and from bedroom 3's second stack through one truss each, 10 in flex south in one truss bay to the plenum"],
                       ["Crosses", "One truss from each side, at 6 in. No supply runs"]]
@@ -848,12 +856,12 @@ r["info"]["notes"] = ["Bedroom 3's grille moved from its south wall, next to the
                       "tees into a 10 in flex that runs south in that bay, parallel to the trusses, to the return plenum box at the heat pump.",
                       "Bedroom 3 has two grilles and two stacks (duct balance check, 11/18/2026): a 14 x 2-1/2 in stack is all a 2x4 wall holds, and one of them alone "
                       "passed only about three quarters of the room's 127 CFM.", RFLEX]
-stack("return_bed3_stack", XR3, 10.8, "return_bed23", "return_bed23", "Bedroom 3")
-stack("return_bed3_stack2", XR3B, 10.8, "return_bed23", "return_bed3b", "Bedroom 3")
-ret("return_bed3b", None, 6, bend([[XR3B, 10.85, ZT], [XR3B, 12.6, ZT], [XR3 - 0.3, 13.4, ZT], [XR3, 13.9, ZT]], 0.4), flex=True, info_of="return_bed23", parent="return_bed23", el=30)
-ret("return_bed2", None, 6, bend([[XR2, 10.85, ZT], [XR2, 11.9, ZT], [XR3 + 0.3, 12.7, ZT], [XR3, 13.2, ZT]], 0.4), flex=True, parent="return_bed23", el=30,
-    grilles=[dict(at=[XR2, 10.64, LOW], size=[14, 8], wall=N)], info_of="return_bed23")
-stack("return_bed2_stack", XR2, 10.8, "return_bed23", "return_bed2", "Bedroom 2")
+stack("return_bed3_stack", SR3, 10.8, "return_bed23", "return_bed23", "Bedroom 3", top=CEIL + 0.04)
+stack("return_bed3_stack2", SR3B, 10.8, "return_bed23", "return_bed3b", "Bedroom 3", top=CEIL + 0.04)
+ret("return_bed3b", None, 6, bend([[SR3B, 10.85, CEIL + 0.04], [XR3B, 10.85, ZT], [XR3B, 12.6, ZT], [XR3 - 0.3, 13.4, ZT], [XR3, 13.9, ZT]], 0.4), flex=True, info_of="return_bed23", parent="return_bed23", el=30)
+ret("return_bed2", None, 6, bend([[SR2, 10.85, CEIL + 0.04], [XR2, 10.85, ZT], [XR2, 11.9, ZT], [XR3 + 0.3, 12.7, ZT], [XR3, 13.2, ZT]], 0.4), flex=True, parent="return_bed23", el=30,
+    grilles=[dict(at=[SR2, 10.64, LOW], size=[14, 8], wall=N)], info_of="return_bed23")
+stack("return_bed2_stack", SR2, 10.8, "return_bed23", "return_bed2", "Bedroom 2", top=CEIL + 0.04)
 
 # Study: two 6 in flex home runs from its one stack (duct balance check, 11/18/2026: one 6 in returned about 60% of the room's air).
 # They come down in one hall 2 bay, cross the laundry and linen trusses west a little apart, and drop south in their own bays.

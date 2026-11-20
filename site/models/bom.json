@@ -418,7 +418,7 @@
      "spec": "Return runs through the trusses",
      "qty": 4,
      "unit": "x 25 ft box",
-     "where": "71 ft in the model",
+     "where": "72 ft in the model",
      "note": "Pull it tight, no sags; support every 4 ft",
      "price": "",
      "status": ""
@@ -756,7 +756,7 @@
      "spec": "In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit)",
      "qty": 7,
      "unit": "ea",
-     "where": "68 ft total",
+     "where": "66 ft total",
      "note": "Plus one stack to round head per stack",
      "price": "",
      "status": ""
@@ -1301,7 +1301,7 @@
    "system": "Return",
    "room": "",
    "size": "10 in round",
-   "ft": 20.31603261178742,
+   "ft": 21.46240967152047,
    "cfm": null,
    "flex": true,
    "crosses": 2,
