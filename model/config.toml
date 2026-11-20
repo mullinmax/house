@@ -667,7 +667,7 @@ look = "AgX - Medium High Contrast"
 interior_light_w = 250          # per ceiling light
 
 [framing]                       # as-built framing on its own layer (Maxwell 11/20/2026), read off the 11/19/2026 drone photos (DJI_0276 to 0294)
-# Only aerial shots so far: every size and height here is estimated from them (confidence per header). Better ground photos
+# NEEDS MEASURING: only aerial shots so far, every size and height here is estimated from them (confidence per header). Better ground photos
 # with a tape will firm them up. A header entry matches an opening by its plan point "at" (within r, default 1.6 ft).
 enabled = true
 stud_w_in = 1.5

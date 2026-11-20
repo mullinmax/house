@@ -392,9 +392,10 @@ def window_unit(o):
     wbox(inner, wall, u0, u0 + 0.06, jd0, jd1, z0, z1 - 0.06)
     wbox(inner, wall, u1 - 0.06, u1, jd0, jd1, z0, z1 - 0.06)
     wbox(inner, wall, u0, u1, jd0, jd1, z1 - 0.06, z1)
-    if not door:
-        wbox(inner, wall, u0 - 0.15, u1 + 0.15, jd0, jd1 + 0.12, z0 - 0.07, z0)
     cw = 3.5 / 12
+    if not door:                                            # stool: horns 1" past the casing, nose 2 1/2" proud of the drywall
+        horn, nose = cw + 1 / 12, 2.5 / 12
+        wbox(inner, wall, u0 - horn, u1 + horn, jd0, jd1 + nose, z0 - 0.07, z0)
     wbox(inner, wall, u0 - cw, u0, jd1, jd1 + 0.06, z0, z1)
     wbox(inner, wall, u1, u1 + cw, jd1, jd1 + 0.06, z0, z1)
     wbox(inner, wall, u0 - cw, u1 + cw, jd1, jd1 + 0.06, z1, z1 + cw)
@@ -928,8 +929,8 @@ if FR.get("enabled", True):
         zt = lambda u: min(top(u, (t0 + t1) / 2) if alongx else top((t0 + t1) / 2, u), PLATE_TOP)
         rec(f"framing.wall.{k}", "framing", f"Studs and plates, interior wall {nm}".strip(), "framing",
             info=dict(model=f"2x4 studs at {FR.get('stud_oc_in', 16):g} in o.c., bottom plate, {NTOP} top plates",
-                      specs=[["Length", ftin(b - a)], ["Top plate", ftin(min(zt(a), zt(b)))]],
-                      notes=[ln.get("note", "Framed in the 11/19/2026 drone photos."),
+                      specs=[["Length", ftin(b - a)], ["Top plate", ftin(min(zt(a), zt(b)))], ["Status", "Needs measuring"]],
+                      notes=["NEEDS MEASURING: estimated from the 11/19/2026 drone photos only. Check with a tape before relying on it.", ln.get("note", "Framed in the 11/19/2026 drone photos."),
                              "Stud positions are the typical layout from the wall's west or north end (ASSUMED); the photos are too far away to count studs."]))
         FRAMING_META["walls"].append(dict(rect=[x0, x1, y0, y1], built=True, top=min(zt(a), zt(b))))
         a, b = a + FACE_IN, b - FACE_IN
@@ -961,8 +962,8 @@ if FR.get("enabled", True):
         v0, v1 = band(YC, YC2, CLB.get("stud_d_in", 5.5) * IN)
         rec("framing.wall.clerestory", "framing", "Studs and plates, bearing wall on the clerestory line", "framing",
             info=dict(model=f"2x{'6' if CLB.get('stud_d_in', 5.5) > 4 else '4'} studs at {FR.get('stud_oc_in', 16):g} in o.c., bottom plate, {NTOP} top plates (stud size ASSUMED)",
-                      specs=[["Top plate", ftin(PLATE_TOP)], ["Length", ftin(b - a)]],
-                      notes=[CLB.get("note", "Framed to the top plate in the 11/19/2026 drone photos.")]))
+                      specs=[["Top plate", ftin(PLATE_TOP)], ["Length", ftin(b - a)], ["Status", "Needs measuring"]],
+                      notes=["NEEDS MEASURING: estimated from the 11/19/2026 drone photos only. Check with a tape before relying on it.", CLB.get("note", "Framed to the top plate in the 11/19/2026 drone photos.")]))
         bottom_plate(True, a, b, v0, v1, [(op_["r0"] - FACE_IN, op_["r1"] + FACE_IN) for op_ in OPEN if op_["wall"] == "clerestory"])
         for n in range(NTOP):
             fbox("Lumber", True, a, b, v0, v1, PLATE_TOP - (n + 1) * SW, PLATE_TOP - n * SW)
@@ -1029,8 +1030,9 @@ if FR.get("enabled", True):
                       specs=[["Rough opening", f"{ftin(r1 - r0)} wide" + (" (door and pocket)" if spec.get("pocket") else "")],
                              ["Header", f"bottom {ftin(hbot)}, top {ftin(htop)} above the slab" + (", tight under the top plates" if htop >= ztop - 1e-3 else ", flat 2x and cripples above")],
                              ["Source", spec.get("source", "Typical framing, ASSUMED until a build photo shows it")],
-                             ["Confidence", spec.get("confidence", "typical")]],
-                      notes=list(spec.get("notes", []))))
+                             ["Confidence", spec.get("confidence", "typical")],
+                             ["Status", "Needs measuring"]],
+                      notes=["NEEDS MEASURING: estimated from the 11/19/2026 drone photos only. Check with a tape before relying on it."] + list(spec.get("notes", []))))
         lvl = str(spec.get("type", "")).upper().startswith("LVL")
         fbox("LVL" if lvl else "Header", alongx, h0, h1, v0, v1, hbot, htop)
         for e, sg in ((r0, -1), (r1, 1)):
