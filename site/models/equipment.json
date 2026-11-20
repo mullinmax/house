@@ -18908,12 +18908,12 @@
    "size": 8,
    "points": [
     [
-     40.4,
+     35.3,
      15.500000000000002,
      11.0
     ],
     [
-     40.4,
+     35.3,
      14.95,
      11.0
     ]
@@ -18938,13 +18938,13 @@
      ]
     ],
     "notes": [
-     "High sidewall register through the attic wall."
+     "High sidewall register through the attic wall, over the closet 1 pocket door's header (Maxwell, 11/20/2026). The header and its flat 2x and cripples stop at the 9' 1\" top plates, so the register and its boot sit in the wall above them."
     ]
    },
    "grilles": [
     {
      "at": [
-      40.4,
+      35.3,
       15.01,
       11.0
      ],
@@ -19918,17 +19918,17 @@
    "type": "return",
    "points": [
     [
-     32.66666666666667,
+     39.55,
      15.95,
      12.402083333333332
     ],
     [
-     32.66666666666667,
+     39.55,
      16.41,
      12.402083333333332
     ],
     [
-     32.66666666666667,
+     39.55,
      16.41,
      11.842083333333331
     ],
@@ -19976,7 +19976,7 @@
     "specs": [
      [
       "Serves",
-      "Bedroom 1 (two low grilles on its south wall, beside the door)"
+      "Bedroom 1 (two low grilles on its south wall, east of the closet 1 pocket door)"
      ],
      [
       "Duct",
@@ -19995,7 +19995,7 @@
    "grilles": [
     {
      "at": [
-      32.0,
+      38.5,
       15.01,
       1.0
      ],
@@ -20007,7 +20007,7 @@
     },
     {
      "at": [
-      33.333333333333336,
+      40.6,
       15.01,
       1.0
      ],
@@ -20026,12 +20026,12 @@
    "type": "return",
    "points": [
     [
-     32.0,
+     38.5,
      15.26,
      0.6699999999999999
     ],
     [
-     32.0,
+     38.5,
      15.26,
      12.402083333333332
     ]
@@ -20054,12 +20054,12 @@
    "type": "return",
    "points": [
     [
-     33.333333333333336,
+     40.6,
      15.26,
      0.6699999999999999
     ],
     [
-     33.333333333333336,
+     40.6,
      15.26,
      12.402083333333332
     ]
@@ -20082,12 +20082,12 @@
    "type": "return",
    "points": [
     [
-     32.66666666666667,
+     39.55,
      15.3,
      12.402083333333332
     ],
     [
-     32.66666666666667,
+     39.55,
      15.95,
      12.402083333333332
     ]
@@ -20096,7 +20096,7 @@
    "el": 25,
    "shape": "rect",
    "size": [
-    32,
+    43,
     10
    ],
    "info_of": "return_bed1"
