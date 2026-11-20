@@ -1933,36 +1933,40 @@
     "notes": [
      "A duct muffler: it soaks up fan noise travelling down the duct with very little added resistance. Fantech's kitchen guidance puts it between the hood and the fan, in any orientation, and puts the fan as far from the hood as possible.",
      "Hidden inside the hood's chimney cover. Use no clip or the slice slider to see it.",
-     "Hood not picked yet. It needs to be a liner or insert sold for a remote blower (no fan inside the hood), 400 CFM or less ASSUMED so no makeup air is required. The chimney cover is drawn 14-3/8 in square so the silencer fits inside it; a stock chimney is usually narrower, so it may need to be a custom or extended cover."
+     "Hood not picked yet. It needs to be a liner or insert sold for a remote (exterior) blower, with no fan inside the hood. About 300 to 400 CFM is plenty for a 30 in induction cooktop on a wall; 400 CFM or less keeps the house from being pulled hard negative, since it is very tight. The chimney cover is drawn 14-3/8 in square so the silencer fits inside it; a stock chimney is usually narrower, so it may need to be a custom or extended cover."
     ],
     "placement": "Inside the hood's chimney cover, above the hood."
    }
   },
   {
    "id": "hood_blower",
-   "name": "Range hood roof blower",
+   "name": "Range hood exterior wall blower",
    "category": "Ventilation",
    "system": "hvac.exhaust",
-   "room": "Roof",
+   "room": "Exterior",
    "layer": "mechanical",
-   "builder": "roof_blower",
+   "builder": "wall_blower",
    "size": [
-    22,
-    13,
-    22
+    18,
+    15,
+    10
    ],
    "at": [
-    1.1417,
+    -0.07,
     47.0,
-    12.77911320014578
+    10.325
    ],
-   "facing": 0,
+   "facing": 270,
    "info": {
-    "model": "Low profile exterior roof blower for range hoods, about 400 CFM (ASSUMED), for example Fantech's RE series or the hood maker's own roof blower",
+    "model": "Exterior wall mounted blower for range hoods, about 400 CFM (ASSUMED), for example the hood maker's own external wall blower",
     "specs": [
      [
       "Size",
-      "About 22 x 22 in on its curb, about 13 in tall above the roof (approximate)"
+      "About 18 W x 15 H in, sticking out about 10 in (approximate)"
+     ],
+     [
+      "Height",
+      "Centre 10 ft 11 in up, top about 3 in under the roof"
      ],
      [
       "Duct",
@@ -1970,7 +1974,7 @@
      ],
      [
       "Damper",
-      "Built in gravity backdraft damper"
+      "Built in backdraft damper"
      ],
      [
       "Control",
@@ -1978,11 +1982,12 @@
      ]
     ],
     "notes": [
-     "The fan sits outside on the roof, the furthest point from the kitchen, so most of its noise stays outdoors (Maxwell, 11/17/2026). Replaces the wall cap on the west wall, which stuck out about 9 in.",
-     "On a curb flashed into the standing seam roof, just in from the west eave. The roofer and the SIP maker should agree on the curb and the 8 in hole through the panel.",
-     "Hood not picked yet. It needs to be a liner or insert sold for a remote blower (no fan inside the hood), 400 CFM or less ASSUMED so no makeup air is required. The chimney cover is drawn 14-3/8 in square so the silencer fits inside it; a stock chimney is usually narrower, so it may need to be a custom or extended cover."
+     "Out the side of the house instead of through the roof (Maxwell, 11/20/2026), high on the west wall and tucked under the 12 in rake overhang, straight out from the hood. The fan still sits outdoors, so most of its noise stays outside, and there is no roof curb to flash.",
+     "Code check (Ohio residential code 4101:8-15-01): the roof is an unvented SIP roof with no soffit vents, so nothing can draw the exhaust back in at the eave, and 1501.1 only bars discharging INTO an attic, soffit or ridge vent; a wall opening under an overhang is fine. It is about 6 ft from the kitchen door (3 ft required from operable doors and windows), about 8-1/2 ft from the kitchen window round the corner, and about 24 ft from the ERV's outdoor air intake on the same wall (10 ft required). Its discharge should point down or away from the path to the kitchen door (303.5.2: not onto walkways).",
+     "Expect some grease film on the siding and the underside of the overhang over the years; the black trim hides it. Pick a model whose screen or louvre can be cleaned (303.6 wants 1/4 to 1/2 in openings on exhaust outlets).",
+     "Hood not picked yet. It needs to be a liner or insert sold for a remote (exterior) blower, with no fan inside the hood. About 300 to 400 CFM is plenty for a 30 in induction cooktop on a wall; 400 CFM or less keeps the house from being pulled hard negative, since it is very tight. The chimney cover is drawn 14-3/8 in square so the silencer fits inside it; a stock chimney is usually narrower, so it may need to be a custom or extended cover."
     ],
-    "placement": "Low roof, about 1 ft in from the west wall, straight above the cooktop."
+    "placement": "West wall, high, under the rake overhang, straight out from the cooktop."
    }
   },
   {
@@ -20703,7 +20708,12 @@
     [
      1.1417,
      47.0,
-     12.92911320014578
+     10.95
+    ],
+    [
+     -0.06,
+     47.0,
+     10.95
     ]
    ],
    "name": "Range hood duct",
@@ -20711,16 +20721,20 @@
    "info": {
     "model": "8 in round exhaust",
     "notes": [
-     "8 in smooth galvanized duct straight up inside the hood's chimney cover, through the roof to the roof mounted blower. One straight run with no elbows is the quietest and moves the most air. A range hood may not connect to the ERV or the return: IRC M1503 (adopted in the Ohio residential code) requires its own duct to the outdoors. The blower's own gravity damper closes it when off; an insulated backdraft damper at the hood is worth adding in a house this tight. Hood not picked yet. It needs to be a liner or insert sold for a remote blower (no fan inside the hood), 400 CFM or less ASSUMED so no makeup air is required. The chimney cover is drawn 14-3/8 in square so the silencer fits inside it; a stock chimney is usually narrower, so it may need to be a custom or extended cover."
+     "8 in smooth galvanized duct up inside the hood's chimney cover through the silencer, one elbow just under the ceiling, then straight west through the SIP wall to the exterior blower under the rake overhang. A range hood may not connect to the ERV or the return: the Ohio residential code (1503.3) requires its own smooth, air tight metal duct to the outdoors with a backdraft damper, and never into an attic or soffit. Where it passes the wall: a galvanized sleeve through the SIP, the foam cut back and sealed with the SIP maker's sealant and tape, the hole kept clear of the top plate and panel splines, and the sleeve flashed into the rain screen wrap behind the siding. Insulspan should confirm the hole and its spot. Hood not picked yet. It needs to be a liner or insert sold for a remote (exterior) blower, with no fan inside the hood. About 300 to 400 CFM is plenty for a 30 in induction cooktop on a wall; 400 CFM or less keeps the house from being pulled hard negative, since it is very tight. The chimney cover is drawn 14-3/8 in square so the silencer fits inside it; a stock chimney is usually narrower, so it may need to be a custom or extended cover."
     ],
     "specs": [
      [
       "Duct",
-      "8 in round, smooth galvanized"
+      "8 in round, smooth galvanized, one elbow"
+     ],
+     [
+      "Wall",
+      "West wall, centre 10 ft 11 in up, through the 6-1/2 in SIP"
      ],
      [
       "Fan",
-      "Exterior roof blower, about 11 ft above the cooktop"
+      "Exterior wall blower under the rake overhang, about 3 ft above the hood"
      ],
      [
       "Silencer",

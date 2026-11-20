@@ -909,6 +909,15 @@ const BUILD = {
     cyl(g, (w - 7) / 2, h - 10.6, darkSteel(), 0, 10.1 + (h - 10.6) / 2, 0, 'y', 4, (w - 1.5) / 2).rotation.y = Math.PI / 4;   // hood
     return g;
   },
+  wall_blower(s) {                 // exterior range hood blower on a wall: back plate, housing, louvred discharge on the underside, 8 in collar into the wall
+    const [w, h, d] = s, g = new THREE.Group(), body = darkSteel();
+    box(g, w + 2, h + 2, 0.6, mat('wall blower flange', 0x1d2222, 0.6, 0.3), 0, h / 2, 0.3);             // mounting flange against the siding
+    box(g, w, h - 1, d - 1.5, body, 0, h / 2 + 0.5, 0.6 + (d - 1.5) / 2);                                // housing
+    box(g, w - 1, 1.2, d - 1.2, body, 0, h - 0.4, 0.6 + (d - 1.2) / 2);                                   // rain cap lip on top
+    box(g, w - 3, 0.4, d - 3, mat('louvre shadow', 0x111213, 0.8), 0, 0.3, 0.6 + (d - 1.5) / 2);          // discharge grille underneath
+    for (let k = -2; k <= 2; k++) box(g, w - 3.4, 0.25, 0.4, body, 0, 0.6, 0.6 + (d - 1.5) / 2 + k * (d - 3) / 5);   // louvre blades
+    return g;
+  },
   server_rack(s, it) {
     // Four post open frame 19 in rack on casters, standing on a plywood pad. it.gear = [[top U (1 = bottom), height U, kind, label]].
     // Rails are 19 in apart at the ears with 1.75 in per U; posts at the four corners, top and bottom frames, a cable bundle out the back to the deck.

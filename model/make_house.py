@@ -1689,9 +1689,9 @@ rec("kitchen.cooktop.placeholder", "appliance", "Cooktop (placeholder)", "interi
 wr.box("Black Glass", cy0, cy1, 0.15, 1.85, CTR_Z + 0.004, CTR_Z + 0.035)
 rec("kitchen.hood", "fixture", "Range hood", "interior", room="Kitchen",
     info=dict(model="Stainless chimney hood, remote blower", specs=[["Width", ftin(cy1 - cy0 - 0.2)], ["Underside", "6' 0\""], ["Chimney cover", "14-3/8 in square, to the ceiling"],
-              ["Fan", "On the roof, with a silencer in the chimney (Maxwell, 11/17/2026)"]],
+              ["Fan", "Exterior blower high on the west wall under the roof overhang, with a silencer in the chimney (Maxwell, 11/20/2026)"]],
               notes=["Model not picked yet. It needs to be a liner or insert sold for a remote blower, with no fan inside the hood, so the kitchen stays quiet.",
-                     "The chimney cover is wider than a stock one so the duct silencer fits inside it. Hide the duct x-ray or use no clip to see the duct, silencer and roof blower."]))
+                     "The chimney cover is wider than a stock one so the duct silencer fits inside it. Hide the duct x-ray or use no clip to see the duct, silencer and wall blower."]))
 wr.box("Stainless", cy0 + 0.1, cy1 - 0.1, 0, 1.9, 6.0, 6.35)
 _cc = (cy0 + cy1) / 2
 wr.box("Stainless", _cc - 0.6, _cc + 0.6, 0, 1.2, 6.35, south_roof_z(_cc + 0.6) - 0.01)
