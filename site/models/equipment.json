@@ -730,6 +730,162 @@
    }
   },
   {
+   "id": "chest_freezer",
+   "name": "Chest freezer",
+   "category": "Kitchen appliance",
+   "system": "kitchen",
+   "room": "Pantry",
+   "layer": "appliances",
+   "builder": "chest_freezer",
+   "size": [
+    24.5,
+    33,
+    21.5
+   ],
+   "at": [
+    2.749,
+    28.8247,
+    0
+   ],
+   "facing": 180,
+   "lid_open": 80,
+   "info": {
+    "model": "Chest freezer Maxwell already owns (make and model not recorded yet)",
+    "specs": [
+     [
+      "Size",
+      "24.5 W x 33 H x 21.5 D in"
+     ],
+     [
+      "Lid",
+      "Hinged along the 24.5 in back edge, lifts up toward the wall (E or a tap opens it)"
+     ],
+     [
+      "Clearance",
+      "3.5 in off the back wall for the hinges and the condenser; about 4 in to the shelves each side"
+     ],
+     [
+      "Power",
+      "Plugs into the U-11 outlet on the back wall behind it, 41 3/4 in up"
+     ],
+     [
+      "Open lid",
+      "Top edge about 54 in up; the back wall shelves start at 64 in"
+     ]
+    ],
+    "notes": [
+     "Added at Maxwell's request (11/20/2026). The look is a generic white chest freezer; send the model number to get its real details."
+    ],
+    "placement": "Back (north) wall of the pantry, centred between the shelves, front facing the doorway."
+   }
+  },
+  {
+   "id": "pantry_goods",
+   "name": "Pantry food and supplies",
+   "category": "Storage",
+   "system": "household",
+   "room": "Pantry",
+   "layer": "storage",
+   "builder": "pantry_goods",
+   "size": [
+    1,
+    1,
+    1
+   ],
+   "at": [
+    0.5417,
+    28.533,
+    0
+   ],
+   "facing": 180,
+   "shelves": [
+    {
+     "wall": "W",
+     "face": 0.5417,
+     "run": [
+      28.533,
+      33.4
+     ],
+     "depth": 10,
+     "tops": [
+      16,
+      32,
+      48,
+      64,
+      78,
+      90
+     ],
+     "kinds": [
+      "cans",
+      "jars",
+      "baking",
+      "boxes",
+      "cans",
+      "bins"
+     ]
+    },
+    {
+     "wall": "E",
+     "face": 5.456,
+     "run": [
+      28.533,
+      34.616
+     ],
+     "depth": 16,
+     "tops": [
+      6,
+      21,
+      36,
+      52,
+      66,
+      80,
+      92
+     ],
+     "kinds": [
+      "bulk",
+      "bins",
+      "mixer",
+      "baking",
+      "cans",
+      "jars",
+      "paper"
+     ]
+    },
+    {
+     "wall": "N",
+     "face": 28.533,
+     "run": [
+      1.375,
+      4.123
+     ],
+     "depth": 12,
+     "tops": [
+      64,
+      78,
+      90
+     ],
+     "kinds": [
+      "jars",
+      "cans",
+      "boxes"
+     ]
+    }
+   ],
+   "info": {
+    "model": "Everyday pantry goods, for scale",
+    "specs": [
+     [
+      "Stocked with",
+      "25 lb flour and 20 lb rice bags, a case of water, a potato bin, 5 lb flour and 4 lb sugar bags, canned goods, jars of pasta, beans and grains, cereal and pasta boxes, a stand mixer, paper towels"
+     ]
+    ],
+    "notes": [
+     "Belongings only: they give the shelves a sense of scale (Maxwell, 11/20/2026)."
+    ],
+    "placement": "On the pantry shelves."
+   }
+  },
+  {
    "id": "car_model_y",
    "name": "Tesla Model Y",
    "category": "Car",

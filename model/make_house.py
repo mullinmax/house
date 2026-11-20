@@ -1704,6 +1704,39 @@ rec("kitchen.shelves", "fixture", "Open shelves", "interior", room="Kitchen", in
 for z in SH["heights"]:
     box("White Oak", SH["x"][0], SH["x"][1], HD - T - SH["depth"], HD - T, z, z + 0.15)
 
+# Pantry shelves (Maxwell 11/20/2026: "simple shelving"): 3/4 in white oak on 1x2 cleats, around a chest freezer on the back wall.
+# They are built in, so they live with the house; what is on them is in the Belongings layer (make_equipment.py pantry_goods).
+PA = C.get("pantry")
+if PA:
+    px0, px1, py0, py1 = PA["inside"]
+    rows = PA["shelves"]
+    rec("pantry.shelves", "fixture", "Pantry shelves", "interior", room="Pantry",
+        info=dict(model="Open white oak shelves on wall cleats, ASSUMED build",
+                  specs=[["West wall", f"{rows[0]['depth']} in deep, tops at {', '.join(str(t) for t in rows[0]['tops'])} in"],
+                         ["East wall", f"{rows[1]['depth']} in deep, tops at {', '.join(str(t) for t in rows[1]['tops'])} in; the 36 in shelf is counter height for small appliances, under the U-11 outlet"],
+                         ["Back wall", f"{rows[2]['depth']} in deep over the chest freezer, tops at {', '.join(str(t) for t in rows[2]['tops'])} in"]],
+                  notes=["Maxwell asked for simple shelving around the chest freezer (11/20/2026). Depths and heights are placeholders to adjust.",
+                         "The back wall shelves start at 64 in so the freezer lid, about 55 in at its top when open, clears them by 8 in.",
+                         "The west run stops 14 in short of the doorway wall so the door opening stays full width where you step in."]))
+    TH, CL_ = 0.75 / 12, 1.5 / 12
+    for row in rows:
+        a0, a1 = row["run"]
+        d = row["depth"] / 12
+        for top in row["tops"]:
+            z1 = top / 12
+            z0 = z1 - TH
+            if row["wall"] == "W":
+                box("White Oak", px0, px0 + d, a0, a1, z0, z1)
+                box("White Oak", px0, px0 + TH, a0, a1, z0 - CL_, z0)                      # back cleat
+            elif row["wall"] == "E":
+                box("White Oak", px1 - d, px1, a0, a1, z0, z1)
+                box("White Oak", px1 - TH, px1, a0, a1, z0 - CL_, z0)
+            else:
+                box("White Oak", a0, a1, py0, py0 + d, z0, z1)
+                box("White Oak", a0, a1, py0, py0 + TH, z0 - CL_, z0)
+        if row["wall"] == "W" and a1 < py1 - 0.1:          # the west run ends in the open: a 3/4 in end panel carries the shelf ends
+            box("White Oak", px0, px0 + d, a1, a1 + TH, 0, max(row["tops"]) / 12)
+
 BD = C.get("barn_door", {})
 if BD.get("enabled"):
     bx0, bx1, bhd = min(CL["passages"], key=lambda p: abs((p[0] + p[1]) / 2 - BD["center_x"]))
