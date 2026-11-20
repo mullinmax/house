@@ -1,0 +1,1709 @@
+{
+ "meta": {
+  "generated_from": "site/models/equipment.json",
+  "by": "model/make_bom.py",
+  "truss_rule": "Ducts through the open web floor trusses: 6 in round max (7 in only if verified). Use more runs, not bigger ones.",
+  "over_limit": [
+   "Supply to Living (7 in round) crosses 2 trusses. Allowed in the model, still needs the builder's OK on the web openings."
+  ],
+  "quote": {
+   "ref": "MMUL8476-8",
+   "date": "11/19/2026",
+   "total": "$11,904.57",
+   "vendor": "Geo-Hydro Supply (Greg Beach)",
+   "terms": "Prices held through 12/31/2026. About 2 weeks from order to shipping. Freight $550 is an estimate, not a firm rate. Tax 6.75%."
+  }
+ },
+ "sections": [
+  {
+   "id": "order",
+   "title": "In the equipment order (MMUL8476-8)",
+   "buy": "Geo-Hydro Supply",
+   "note": "Geo-Hydro Supply (Greg Beach), quote MMUL8476-8 of 11/19/2026, total $11,904.57. Prices held through 12/31/2026. About 2 weeks from order to shipping. Freight $550 is an estimate, not a firm rate. Tax 6.75%.",
+   "rows": [
+    {
+     "item": "GZT048J11RM1CCS",
+     "spec": "GeoComfort 4 ton two stage compact horizontal, right hand return, multi position discharge, R-454B, desuperheater (hot water generator), copper coax, EPIC controls, 208-230 V",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "$9,979.20",
+     "status": "On the quote"
+    },
+    {
+     "item": "WD-RES1-1000",
+     "spec": "10 year parts only warranty (deducts $499.80, no labor allowance)",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "-$499.80",
+     "status": "On the quote"
+    },
+    {
+     "item": "AXCH151MB",
+     "spec": "15 kW external close coupled electric heater for ZT042 to 048, single point wiring",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "It bolts onto the discharge: confirm it fits the end discharge this layout uses (the quote calls the package side discharge).",
+     "price": "$514.20",
+     "status": "On the quote"
+    },
+    {
+     "item": "AFR1836A",
+     "spec": "Galvanized filter rack 18 x 36",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "$132.00",
+     "status": "On the quote"
+    },
+    {
+     "item": "AHEF1836C",
+     "spec": "MERV 13 2 in pleated filter 18 x 36",
+     "qty": 2,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "$87.84 each",
+     "status": "On the quote"
+    },
+    {
+     "item": "ACDT1A",
+     "spec": "EZ-Trap 3/4 in condensate trap kit",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "Needs 6-1/2 in under the unit, so the unit sits on a 6-1/2 in pad.",
+     "price": "$29.34",
+     "status": "On the quote"
+    },
+    {
+     "item": "ATSWE42D",
+     "spec": "Emerson Sensi Touch Wi-Fi thermostat, black",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "$271.20",
+     "status": "On the quote"
+    },
+    {
+     "item": "LTL freight",
+     "spec": "Delivered to the house (estimate)",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "A regional freight terminal pickup is cheaper.",
+     "price": "$550.00",
+     "status": "On the quote"
+    },
+    {
+     "item": "Hose kit (heat pump to loop)",
+     "spec": "Rubber hose kit with the right fittings for the GZT048, the model assumes a Geo-Flo GF-1366",
+     "qty": 1,
+     "unit": "",
+     "where": "",
+     "note": "Not on MMUL8476-8. The July loop quote MMUL8476-5 listed a GF-1366 1 in hose kit ($201), but Greg suggested holding it until the heat pump was picked. Check the barn box from the 7/31 pickup and ask Greg whether it fits the right hand GZT048.",
+     "price": "",
+     "status": "Ask Greg"
+    },
+    {
+     "item": "Flow center placement",
+     "spec": "Non pressurized flow center about 9 ft below the heat pump",
+     "qty": 1,
+     "unit": "",
+     "where": "",
+     "note": "Asked Greg on 11/18, not answered yet. Confirm before ordering, or move it to the attic.",
+     "price": "",
+     "status": "Ask Greg"
+    }
+   ]
+  },
+  {
+   "id": "equipment",
+   "title": "Buy separately: heat pump install parts",
+   "buy": "Separately",
+   "note": "Not on Greg's quote and not drawn in the model yet.",
+   "rows": [
+    {
+     "item": "Secondary drain pan with float switch",
+     "spec": "Under the heat pump, about 30 x 60 in, galvanized or plastic, with a float switch wired to stop the unit",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "Usual code answer for equipment over a finished ceiling (IRC M1411.3). Not drawn yet.",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Vibration isolation pad",
+     "spec": "Under the heat pump, on the 6-1/2 in pad",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "Keeps compressor hum out of the trusses.",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Condensate line",
+     "spec": "3/4 in PVC from the EZ-Trap to a drain, sloped 1/4 in per ft, plus a pump if gravity cannot reach",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "Route not drawn yet.",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Spare MERV 13 filters 18 x 36 x 2",
+     "spec": "Two come with the order",
+     "qty": 4,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Flexible duct connectors (canvas)",
+     "spec": "Supply and return collars at the heat pump, stops vibration carrying into the ducts",
+     "qty": 2,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    }
+   ]
+  },
+  {
+   "id": "vent",
+   "title": "Buy separately: ERV and ventilation equipment",
+   "buy": "Separately",
+   "note": "Listed from the parts in the model. The range hood rows follow whichever hood design is in the model.",
+   "rows": [
+    {
+     "item": "Broan AI Series 210 ERV, side ports (B210E75RS)",
+     "spec": "65 to 210 CFM",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "About $1,580 to $1,790",
+     "status": ""
+    },
+    {
+     "item": "Broan VBATHW 20/40/60 minute boost control",
+     "spec": "One per bathroom: bath 1, bath 2, powder",
+     "qty": 3,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "About $34 each",
+     "status": ""
+    },
+    {
+     "item": "8 in wall hood with screen, for ERV intake and exhaust",
+     "spec": "Two hoods on the west wall, more than 10 ft apart",
+     "qty": 2,
+     "unit": "ea",
+     "where": "",
+     "note": "Match the maker's hood or an insulated hood.",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "6 to 8 in increaser",
+     "spec": "At the ERV's four 6 in ports (ducts are 8 in)",
+     "qty": 4,
+     "unit": "ea",
+     "where": "",
+     "note": "Port size ASSUMED from the side port model; check Broan's drawing.",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "8 in backdraft damper",
+     "spec": "In the fresh air duct to the supply plenum",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Hanging chains or straps with vibration isolators (set)",
+     "spec": "The ERV hangs level from the roof framing",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Blower interlock wire",
+     "spec": "ERV to heat pump, so the blower runs with the ERV",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "4 in manual balancing damper with locking quadrant",
+     "spec": "Litter box exhaust",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "About $10 to $20",
+     "status": ""
+    },
+    {
+     "item": "Range hood roof blower, about 400 CFM",
+     "spec": "Roof, over the cooktop",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "8 in round duct silencer (Fantech LD 8 or similar)",
+     "spec": "In the hood chimney",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "8 in insulated backdraft damper for the hood duct",
+     "spec": "At the hood",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "Worth it in a house this tight.",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Rheem water heater duct kit",
+     "spec": "8 in insulated flex SP20889, elbows SP20890, outlet adaptor SP17829",
+     "qty": 1,
+     "unit": "kit",
+     "where": "Water heater intake and exhaust to the attic",
+     "note": "Must not tie into any other duct (Rheem).",
+     "price": "",
+     "status": ""
+    }
+   ]
+  },
+  {
+   "id": "round",
+   "title": "Buy separately: round duct, flex and fittings",
+   "buy": "Separately",
+   "note": "Counted from the model with 10 percent extra. Anything that crosses the floor trusses must be 6 in round or smaller (7 in only if the builder confirms the web openings).",
+   "rows": [
+    {
+     "item": "4 in round pipe, 30 ga snap lock",
+     "spec": "Exhaust",
+     "qty": 5,
+     "unit": "x 5 ft",
+     "where": "22 ft in the model",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "6 in round pipe, 30 ga snap lock",
+     "spec": "Exhaust",
+     "qty": 9,
+     "unit": "x 5 ft",
+     "where": "39 ft in the model",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "6 in round pipe, 30 ga snap lock",
+     "spec": "Supply",
+     "qty": 11,
+     "unit": "x 5 ft",
+     "where": "46 ft in the model",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "7 in round pipe, 30 ga snap lock",
+     "spec": "Supply",
+     "qty": 5,
+     "unit": "x 5 ft",
+     "where": "20 ft in the model",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "8 in round pipe, 30 ga snap lock",
+     "spec": "ERV",
+     "qty": 2,
+     "unit": "x 5 ft",
+     "where": "8 ft in the model",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "8 in round pipe, 30 ga snap lock",
+     "spec": "ERV outdoor side, insulated",
+     "qty": 5,
+     "unit": "x 5 ft",
+     "where": "19 ft in the model",
+     "note": "Insulate with R-8 wrap or use insulated duct, vapor jacket outside",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "8 in round pipe, 30 ga snap lock",
+     "spec": "Exhaust",
+     "qty": 9,
+     "unit": "x 5 ft",
+     "where": "37 ft in the model",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "8 in round pipe, 30 ga snap lock",
+     "spec": "Range hood",
+     "qty": 2,
+     "unit": "x 5 ft",
+     "where": "7 ft in the model",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "8 in round pipe, 30 ga snap lock",
+     "spec": "Supply",
+     "qty": 13,
+     "unit": "x 5 ft",
+     "where": "55 ft in the model",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 in round pipe, 30 ga snap lock",
+     "spec": "Return",
+     "qty": 12,
+     "unit": "x 5 ft",
+     "where": "51 ft in the model",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "6 in flex duct, R-6 insulated",
+     "spec": "Return runs through the trusses",
+     "qty": 4,
+     "unit": "x 25 ft box",
+     "where": "71 ft in the model",
+     "note": "Pull it tight, no sags; support every 4 ft",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 in flex duct, R-6 insulated",
+     "spec": "Return runs through the trusses",
+     "qty": 1,
+     "unit": "x 25 ft box",
+     "where": "14 ft in the model",
+     "note": "Pull it tight, no sags; support every 4 ft",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "4 in adjustable 90 elbow",
+     "spec": "",
+     "qty": 7,
+     "unit": "ea",
+     "where": "Counted from the bends in the model",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "6 in adjustable 90 elbow",
+     "spec": "",
+     "qty": 13,
+     "unit": "ea",
+     "where": "Counted from the bends in the model",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "7 in adjustable 90 elbow",
+     "spec": "",
+     "qty": 5,
+     "unit": "ea",
+     "where": "Counted from the bends in the model",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "8 in adjustable 90 elbow",
+     "spec": "",
+     "qty": 13,
+     "unit": "ea",
+     "where": "Counted from the bends in the model",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 in adjustable 90 elbow",
+     "spec": "",
+     "qty": 5,
+     "unit": "ea",
+     "where": "Counted from the bends in the model",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 in adjustable 45 elbow",
+     "spec": "",
+     "qty": 2,
+     "unit": "ea",
+     "where": "Counted from the bends in the model",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "6 in round takeoff (starting collar)",
+     "spec": "Off a rectangular trunk, main or plenum",
+     "qty": 2,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "6 in round takeoff (starting collar) with volume damper",
+     "spec": "Off a rectangular trunk, main or plenum",
+     "qty": 11,
+     "unit": "ea",
+     "where": "",
+     "note": "Supply branches get a manual damper to set at air balancing (M-10)",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "7 in round takeoff (starting collar) with volume damper",
+     "spec": "Off a rectangular trunk, main or plenum",
+     "qty": 2,
+     "unit": "ea",
+     "where": "",
+     "note": "Supply branches get a manual damper to set at air balancing (M-10)",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "8 in round takeoff (starting collar) with volume damper",
+     "spec": "Off a rectangular trunk, main or plenum",
+     "qty": 10,
+     "unit": "ea",
+     "where": "",
+     "note": "Supply branches get a manual damper to set at air balancing (M-10)",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 in round takeoff (starting collar)",
+     "spec": "Off a rectangular trunk, main or plenum",
+     "qty": 2,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 x 6 in tee or wye",
+     "spec": "Branch into a round main",
+     "qty": 2,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "4 x 4 in wye",
+     "spec": "Branch into a round main",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "6 x 6 in wye",
+     "spec": "Branch into a round main",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "8 x 4 in wye",
+     "spec": "Branch into a round main",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "8 x 6 in wye",
+     "spec": "Branch into a round main",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "4 in manual balancing damper",
+     "spec": "One per ERV exhaust branch",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "Set each bathroom to 20 CFM continuous",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "6 in manual balancing damper",
+     "spec": "One per ERV exhaust branch",
+     "qty": 2,
+     "unit": "ea",
+     "where": "",
+     "note": "Set each bathroom to 20 CFM continuous",
+     "price": "",
+     "status": ""
+    }
+   ]
+  },
+  {
+   "id": "rect",
+   "title": "Buy separately: rectangular duct, plenums and stacks",
+   "buy": "Sheet metal shop",
+   "note": "Trunks, plenums and boxes are usually made to measure by a sheet metal shop once the equipment is set. Sizes and lengths are from the model.",
+   "rows": [
+    {
+     "item": "18 x 16 in supply trunk",
+     "spec": "Fabricated",
+     "qty": 1,
+     "unit": "piece",
+     "where": "50.8 ft, 3 turns",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "26 x 24 in supply plenum at the heat pump",
+     "spec": "part of Supply trunk",
+     "qty": 1,
+     "unit": "piece",
+     "where": "1.3 ft, 0 turns",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "14 x 8 in south supply main",
+     "spec": "Fabricated",
+     "qty": 1,
+     "unit": "piece",
+     "where": "13.3 ft, 1 turns",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 x 6 in supply to Pantry",
+     "spec": "Fabricated",
+     "qty": 1,
+     "unit": "piece",
+     "where": "0.4 ft, 0 turns",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "14 x 8 in kitchen riser",
+     "spec": "part of Kitchen supply duct",
+     "qty": 1,
+     "unit": "piece",
+     "where": "0.9 ft, 0 turns",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "14 x 8 in kitchen supply duct",
+     "spec": "Fabricated",
+     "qty": 1,
+     "unit": "piece",
+     "where": "10.4 ft, 0 turns",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "34 x 20 in main return grille collar",
+     "spec": "Fabricated",
+     "qty": 1,
+     "unit": "piece",
+     "where": "0.6 ft, 0 turns",
+     "note": "1 in acoustic liner",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "14 x 36 in main return drop box",
+     "spec": "part of Main return (M-10)",
+     "qty": 1,
+     "unit": "piece",
+     "where": "2.9 ft, 0 turns",
+     "note": "1 in acoustic liner",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "34 x 14 in main return trunk",
+     "spec": "part of Main return (M-10)",
+     "qty": 1,
+     "unit": "piece",
+     "where": "4.8 ft, 0 turns",
+     "note": "1 in acoustic liner",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "12 x 12 in utility room transfer sleeve",
+     "spec": "Fabricated",
+     "qty": 1,
+     "unit": "piece",
+     "where": "1.0 ft, 0 turns",
+     "note": "1 in acoustic liner",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "14 x 24 in return plenum box",
+     "spec": "Fabricated",
+     "qty": 1,
+     "unit": "piece",
+     "where": "3.2 ft, 0 turns",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "41 x 10 in bedroom 1 return header box",
+     "spec": "part of Bedroom 1 return",
+     "qty": 1,
+     "unit": "piece",
+     "where": "0.6 ft, 0 turns",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "20 x 4 in study high return boot",
+     "spec": "Fabricated",
+     "qty": 1,
+     "unit": "piece",
+     "where": "1.4 ft, 0 turns",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Wall stack 14 x 2-1/2 in",
+     "spec": "In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit)",
+     "qty": 7,
+     "unit": "ea",
+     "where": "68 ft total",
+     "note": "Plus one stack to round head per stack",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Stack to round head",
+     "spec": "Top of each wall stack, into the round run",
+     "qty": 7,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Wall stack 12 x 2-1/2 in",
+     "spec": "In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit)",
+     "qty": 1,
+     "unit": "ea",
+     "where": "9 ft total",
+     "note": "Plus one stack to round head per stack",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Stack to round head",
+     "spec": "Top of each wall stack, into the round run",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Wall stack 6 x 2-1/2 in",
+     "spec": "In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit)",
+     "qty": 1,
+     "unit": "ea",
+     "where": "8 ft total",
+     "note": "Plus one stack to round head per stack",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Stack to round head",
+     "spec": "Top of each wall stack, into the round run",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    }
+   ]
+  },
+  {
+   "id": "grilles",
+   "title": "Buy separately: boots, registers and grilles",
+   "buy": "Separately",
+   "note": "Sidewall supply registers in the door walls should be long throw types aimed across the room. Grille sizes are the duct openings.",
+   "rows": [
+    {
+     "item": "10 x 10 in ceiling boot x 6 in round",
+     "spec": "",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 x 6 in ceiling boot x 6 in round",
+     "spec": "",
+     "qty": 3,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 x 6 in sidewall boot x 6 in round",
+     "spec": "",
+     "qty": 3,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 x 6 in sidewall boot x 7 in round",
+     "spec": "",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "12 x 4 in ceiling boot x 8 in round",
+     "spec": "",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "12 x 6 in sidewall boot x 6 in round",
+     "spec": "",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "12 x 6 in sidewall boot x 7 in round",
+     "spec": "",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "14 x 6 in sidewall boot x 8 in round",
+     "spec": "",
+     "qty": 7,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "14 x 8 in ceiling boot x 8 in round",
+     "spec": "",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "14 x 8 in sidewall boot x 8 in round",
+     "spec": "",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "8 x 6 in ceiling boot x 6 in round",
+     "spec": "",
+     "qty": 4,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "8 x 8 in ceiling boot x 4 in round",
+     "spec": "",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Wall stack boot for a 10 x 4 in grille",
+     "spec": "",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Wall stack boot for a 10 x 6 in grille",
+     "spec": "",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Wall stack boot for a 14 x 8 in grille",
+     "spec": "",
+     "qty": 7,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 x 10 in ceiling exhaust grille",
+     "spec": "Exhaust",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 x 4 in sidewall filter grille (litter box pickup)",
+     "spec": "Exhaust",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 x 6 in sidewall exhaust grille",
+     "spec": "Exhaust",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "8 x 8 in ceiling exhaust grille",
+     "spec": "Exhaust",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "12 x 12 in ceiling transfer grille",
+     "spec": "Return",
+     "qty": 2,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "14 x 8 in sidewall return grille",
+     "spec": "Return",
+     "qty": 7,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "22 x 4-1/2 in sidewall return grille",
+     "spec": "Return",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "34 x 20 in sidewall return grille",
+     "spec": "Return",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 x 6 in ceiling supply register",
+     "spec": "Supply",
+     "qty": 4,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 x 6 in sidewall supply register",
+     "spec": "Supply",
+     "qty": 4,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "12 x 4 in ceiling supply register",
+     "spec": "Supply",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "12 x 6 in sidewall supply register",
+     "spec": "Supply",
+     "qty": 2,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "14 x 6 in sidewall supply register",
+     "spec": "Supply",
+     "qty": 7,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "14 x 8 in ceiling supply register",
+     "spec": "Supply",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "14 x 8 in sidewall supply register",
+     "spec": "Supply",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "8 x 6 in ceiling supply register",
+     "spec": "Supply",
+     "qty": 4,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    }
+   ]
+  },
+  {
+   "id": "supplies",
+   "title": "Buy separately: sealing, hanging and insulation",
+   "buy": "Separately",
+   "note": "Estimated from the joint and length counts above.",
+   "rows": [
+    {
+     "item": "Duct mastic, water based, UL 181",
+     "spec": "",
+     "qty": 6,
+     "unit": "gal",
+     "where": "About 216 joints",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Foil tape, UL 181A-P / 181B-FX",
+     "spec": "",
+     "qty": 9,
+     "unit": "roll",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "#8 x 1/2 in self drilling sheet metal screws",
+     "spec": "3 per joint",
+     "qty": 700,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Flex duct clamps or nylon duct ties",
+     "spec": "2 per flex connection",
+     "qty": 28,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap",
+     "spec": "Rigid every 5 ft, flex every 4 ft, rect every 4 ft",
+     "qty": 109,
+     "unit": "hangers",
+     "where": "About 3 ft of strap each",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Acoustic duct liner, 1 in",
+     "spec": "Main return box and trunk",
+     "qty": 1,
+     "unit": "roll",
+     "where": "",
+     "note": "Often supplied by the sheet metal shop",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Duct insulation wrap, R-8 with vapor jacket",
+     "spec": "ERV outdoor ducts",
+     "qty": 21,
+     "unit": "ft",
+     "where": "",
+     "note": "Supply and return ducts sit inside the SIP envelope, so they do not need insulation by code",
+     "price": "",
+     "status": ""
+    }
+   ]
+  }
+ ],
+ "runs": [
+  {
+   "id": "ex_bath1",
+   "name": "Bath 1 exhaust",
+   "system": "Exhaust",
+   "room": "Bath 1",
+   "size": "6 in round",
+   "ft": 13.007291666666667,
+   "cfm": null,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "ex_bath2",
+   "name": "Bath 2 exhaust",
+   "system": "Exhaust",
+   "room": "Bath 2",
+   "size": "6 in round",
+   "ft": 0.9000000000000004,
+   "cfm": null,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "ex_litter",
+   "name": "Litter box exhaust",
+   "system": "Exhaust",
+   "room": "Utility",
+   "size": "4 in round",
+   "ft": 12.116541666666665,
+   "cfm": 20,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 1
+  },
+  {
+   "id": "ex_main",
+   "name": "Bath exhaust main",
+   "system": "Exhaust",
+   "room": null,
+   "size": "6 in round",
+   "ft": 62.042283885748716,
+   "cfm": null,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "ex_powder",
+   "name": "Powder exhaust",
+   "system": "Exhaust",
+   "room": "Powder",
+   "size": "4 in round",
+   "ft": 10.176458333333338,
+   "cfm": null,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "ex_hood",
+   "name": "Range hood duct",
+   "system": "Range hood",
+   "room": "Kitchen",
+   "size": "8 in round",
+   "ft": 6.559113200145781,
+   "cfm": null,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "return_bed1",
+   "name": "Bedroom 1 return",
+   "system": "Return",
+   "room": "",
+   "size": "10 in round",
+   "ft": 51.895502869613985,
+   "cfm": null,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 2
+  },
+  {
+   "id": "return_bed23",
+   "name": "Bedrooms 2 and 3 return",
+   "system": "Return",
+   "room": "",
+   "size": "10 in round",
+   "ft": 21.382228783820604,
+   "cfm": null,
+   "flex": true,
+   "crosses": 2,
+   "stacks": 3
+  },
+  {
+   "id": "return_main",
+   "name": "Main return (M-10)",
+   "system": "Return",
+   "room": "",
+   "size": "34 x 20 in",
+   "ft": 8.273333333333333,
+   "cfm": null,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "return_plenum",
+   "name": "Return plenum box",
+   "system": "Return",
+   "room": "",
+   "size": "14 x 24 in",
+   "ft": 3.1999999999999993,
+   "cfm": null,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "return_study",
+   "name": "Study return",
+   "system": "Return",
+   "room": "",
+   "size": "6 in round",
+   "ft": 63.60325470557531,
+   "cfm": null,
+   "flex": true,
+   "crosses": 17,
+   "stacks": 2
+  },
+  {
+   "id": "return_study_high",
+   "name": "Study high return",
+   "system": "Return",
+   "room": "Bedroom 4 / study",
+   "size": "20 x 4 in",
+   "ft": 1.4100000000000001,
+   "cfm": null,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "transfer_utility",
+   "name": "Utility room transfer grille",
+   "system": "Return",
+   "room": "",
+   "size": "12 x 12 in",
+   "ft": 1.0220833333333346,
+   "cfm": null,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_bath1",
+   "name": "Supply to Bath 1",
+   "system": "Supply",
+   "room": "Bath 1",
+   "size": "6 in round",
+   "ft": 11.537851868879232,
+   "cfm": 49,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_bath2",
+   "name": "Supply to Bath 2",
+   "system": "Supply",
+   "room": "Bath 2",
+   "size": "6 in round",
+   "ft": 2.007291666666669,
+   "cfm": 37,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 1
+  },
+  {
+   "id": "s_bed1",
+   "name": "Supply to Bedroom 1",
+   "system": "Supply",
+   "room": "Bedroom 1",
+   "size": "8 in round",
+   "ft": 0.5500000000000025,
+   "cfm": 138,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_bed2",
+   "name": "Supply to Bedroom 2",
+   "system": "Supply",
+   "room": "Bedroom 2",
+   "size": "6 in round",
+   "ft": 0.8000000000000007,
+   "cfm": 78,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_bed3",
+   "name": "Supply to Bedroom 3",
+   "system": "Supply",
+   "room": "Bedroom 3",
+   "size": "8 in round",
+   "ft": 4.05729166666667,
+   "cfm": 127,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_closet1",
+   "name": "Supply to Closet 1",
+   "system": "Supply",
+   "room": "Closet 1",
+   "size": "6 in round",
+   "ft": 2.837851868879228,
+   "cfm": 33,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_closet2",
+   "name": "Supply to Closet 2",
+   "system": "Supply",
+   "room": "Closet 2",
+   "size": "6 in round",
+   "ft": 5.958240422210494,
+   "cfm": 32,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_closet3",
+   "name": "Supply to Closet 3",
+   "system": "Supply",
+   "room": "Closet 3",
+   "size": "6 in round",
+   "ft": 0.8000000000000007,
+   "cfm": 26,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_family1",
+   "name": "Supply to Entry / family",
+   "system": "Supply",
+   "room": "Entry / family",
+   "size": "8 in round",
+   "ft": 19.065551868879226,
+   "cfm": 112,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_family2",
+   "name": "Supply to Entry / family",
+   "system": "Supply",
+   "room": "Entry / family",
+   "size": "8 in round",
+   "ft": 19.065551868879226,
+   "cfm": 112,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_hall2a",
+   "name": "Supply to Hall 2",
+   "system": "Supply",
+   "room": "Hall 2",
+   "size": "6 in round",
+   "ft": 5.837851868879231,
+   "cfm": 15,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_hall2b",
+   "name": "Supply to Hall 2",
+   "system": "Supply",
+   "room": "Hall 2",
+   "size": "6 in round",
+   "ft": 1.8378518688792316,
+   "cfm": 16,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_kitchen1",
+   "name": "Supply to Kitchen / dining",
+   "system": "Supply",
+   "room": "Kitchen / dining",
+   "size": "8 in round",
+   "ft": 0.5650333333333393,
+   "cfm": 127,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_kitchen2",
+   "name": "Supply to Kitchen / dining",
+   "system": "Supply",
+   "room": "Kitchen / dining",
+   "size": "8 in round",
+   "ft": 0.5650333333333393,
+   "cfm": 127,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_kitchen3",
+   "name": "Supply to Kitchen / dining",
+   "system": "Supply",
+   "room": "Kitchen / dining",
+   "size": "8 in round",
+   "ft": 0.5650333333333393,
+   "cfm": 127,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_laundry",
+   "name": "Supply to Laundry",
+   "system": "Supply",
+   "room": "Laundry",
+   "size": "6 in round",
+   "ft": 5.137851868879232,
+   "cfm": 40,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_living1",
+   "name": "Supply to Living",
+   "system": "Supply",
+   "room": "Living",
+   "size": "7 in round",
+   "ft": 13.107851868879232,
+   "cfm": 70,
+   "flex": false,
+   "crosses": 2,
+   "stacks": 0
+  },
+  {
+   "id": "s_living2",
+   "name": "Supply to Living",
+   "system": "Supply",
+   "room": "Living",
+   "size": "7 in round",
+   "ft": 6.55785186887923,
+   "cfm": 70,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_loft",
+   "name": "Supply to Loft",
+   "system": "Supply",
+   "room": "Loft",
+   "size": "8 in round",
+   "ft": 9.1051435355459,
+   "cfm": 88,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_pantry",
+   "name": "Supply to Pantry",
+   "system": "Supply",
+   "room": "Pantry",
+   "size": "10 x 6 in",
+   "ft": 0.44479166666666536,
+   "cfm": 22,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_powder",
+   "name": "Supply to Powder",
+   "system": "Supply",
+   "room": "Powder",
+   "size": "6 in round",
+   "ft": 7.6,
+   "cfm": 15,
+   "flex": false,
+   "crosses": 4,
+   "stacks": 0
+  },
+  {
+   "id": "s_study",
+   "name": "Supply to Bedroom 4 / study, west register",
+   "system": "Supply",
+   "room": "Bedroom 4 / study",
+   "size": "8 in round",
+   "ft": 0.8000000000000007,
+   "cfm": 98,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_study2",
+   "name": "Supply to Bedroom 4 / study, east register",
+   "system": "Supply",
+   "room": "Bedroom 4 / study",
+   "size": "8 in round",
+   "ft": 0.8000000000000007,
+   "cfm": 98,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "s_utility",
+   "name": "Supply to Utility",
+   "system": "Supply",
+   "room": "Utility",
+   "size": "6 in round",
+   "ft": 1.2000000000000002,
+   "cfm": 18,
+   "flex": false,
+   "crosses": 1,
+   "stacks": 0
+  },
+  {
+   "id": "supply_kitchen_main",
+   "name": "Kitchen supply duct",
+   "system": "Supply",
+   "room": "",
+   "size": "14 x 8 in",
+   "ft": 11.310625,
+   "cfm": null,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "supply_south_main",
+   "name": "South supply main",
+   "system": "Supply",
+   "room": "",
+   "size": "14 x 8 in",
+   "ft": 13.26829166666666,
+   "cfm": null,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "supply_trunk",
+   "name": "Supply trunk",
+   "system": "Supply",
+   "room": "",
+   "size": "18 x 16 in",
+   "ft": 52.09583333333333,
+   "cfm": null,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "hpwh_intake",
+   "name": "Water heater intake duct",
+   "system": "Water heater air",
+   "room": "Utility",
+   "size": "8 in round",
+   "ft": 12.817500000000003,
+   "cfm": null,
+   "flex": true,
+   "crosses": 0,
+   "stacks": 0
+  }
+ ]
+}

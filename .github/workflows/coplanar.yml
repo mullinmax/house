@@ -28,3 +28,5 @@ jobs:
         run: python3 tools/truss_clash.py
       - name: Check pipes, ducts and equipment against each other and the walls
         run: python3 tools/pipe_clash.py
+      - name: Is the bill of materials up to date? (a warning only, the Pages deploy rebuilds it)
+        run: python3 model/make_bom.py --check || echo "::warning::docs/hvac-bom.md is out of date, run python3 model/make_bom.py"
