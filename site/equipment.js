@@ -1397,7 +1397,7 @@ function buildTrusses(t) {
   if (!t) return g;
   const wood = mat('truss lumber', 0xd9bf8f, 0.8), deckM = mat('attic deck', 0xc9a978, 0.85);
   const geos = [];
-  const D = t.depth_in / 12, CH = 1.5 / 12, CW = 3.5 / 12, sp = t.spacing_in / 12, z0 = t.z0;
+  const D = t.depth_in / 12, CH = 1.5 / 12, CW = (t.chord_w_in || 3.5) / 12, WW = (t.web_in || 1.5) / 12, PITCH = (t.web_pitch_in || 0) / 24, sp = t.spacing_in / 12, z0 = t.z0;
   const push = (geo, m4) => { geo.applyMatrix4(m4); geos.push(geo); };
   const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), one = new THREE.Vector3(1, 1, 1);
   // Held just inside each region and above the ceiling drywall, so no truss face lands on a wall, the ceiling or the
@@ -1429,14 +1429,14 @@ function buildTrusses(t) {
         push(new THREE.BoxGeometry(CW * 0.9 * F, hz * F, (e1 - e0) * F), m4.clone());
         if (atN) w0 = Math.max(w0, e1); else w1 = Math.min(w1, e0);
       }
-      const WL = w1 - w0, panels = Math.max(2, Math.round(WL / (D * 1.5))), pl = WL / panels;     // webs zigzag between the chords
+      const WL = w1 - w0, panels = Math.max(2, Math.round(WL / (PITCH || D * 1.5))), pl = WL / panels;     // webs zigzag between the chords
       for (let k = 0; WL > 0.3 && k < panels; k++) {
         const lo = z0 + zb + CH, hi = z0 + D - zt - CH;
         const a = plan(x, w0 + k * pl, k % 2 ? hi : lo), b = plan(x, w0 + (k + 1) * pl, k % 2 ? lo : hi);
         const d = b.clone().sub(a), len = d.length();
         q.setFromUnitVectors(new THREE.Vector3(0, 0, 1), d.clone().normalize());
         m4.compose(a.clone().addScaledVector(d, 0.5), q, one);
-        push(new THREE.BoxGeometry(CW * F, CH * F, len), m4.clone());
+        push(new THREE.BoxGeometry(WW * F, WW * F, len), m4.clone());
       }
     }
   });

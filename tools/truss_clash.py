@@ -15,7 +15,7 @@ D = json.load(open(os.path.join(HERE, "..", "site", "models", "equipment.json"))
 T = D["trusses"]
 MAX_CROSS = T.get("max_cross_in", 6.0)               # largest round duct that passes the web openings ([floor_trusses] in config.toml)
 DEP, SP, Z0 = T["depth_in"] / 12, T["spacing_in"] / 12, T["z0"]
-CW, E = 3.5 / 12, 0.05
+CW, E = T.get("chord_w_in", 3.5) / 12, 0.05
 
 
 def truss_xs(r):

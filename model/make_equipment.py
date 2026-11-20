@@ -624,7 +624,7 @@ TEXTRA = CFG["floor_trusses"].get("extra_x", [])
 def bay(x):                       # centre of the truss bay nearest x
     return round(TG + TSP / 2 + TSP * round((x - TG - TSP / 2) / TSP), 3)
 def truss_xs(r, ext=(0.6, 42.4)):  # trusses over one region: the grid ones that fit inside it, plus the extra ones; a truss
-    CW, E = 3.5 / 12, 0.05         # tight to an exterior wall stays even where it overhangs the region's drywall line
+    CW, E = CFG["floor_trusses"].get("chord_w_in", 3.5) / 12, 0.05   # tight to an exterior wall stays even where it overhangs the region's drywall line
     lo = r[0] + E + CW / 2 if r[0] > ext[0] else r[0] - CW
     hi = r[2] - E - CW / 2 if r[2] < ext[1] else r[2] + CW
     k0 = int((lo - TG) // TSP) - 1
@@ -724,7 +724,7 @@ def drop_w(x, y0, ys):
 supply("s_laundry", "Laundry", 40, 6, drop_w(XL, 15.9, 19.0), dict(at=[XL, 19.0, CEIL - 0.02], size=[10, 6]))
 supply("s_living1", "Living", 70, 7, drop_w(XLV, 15.2, 21.4) + [[bay(23.7), 21.4, ZT], [bay(23.7), 22.62, ZT]], dict(at=[bay(23.7), 22.9, ZT], size=[10, 6], wall=S),
        "Drops in the bay west of the laundry supply, then crosses the trusses west under the study returns to keep the register near where M-10 has it. "
-       "7 in (Maxwell, 11/18/2026): at 6 in this was the weakest supply in the house. The builder is only sure 6 in passes the truss webs, so check the fit at these two trusses before ordering.")
+       "7 in (Maxwell, 11/18/2026): at 6 in this was the weakest supply in the house. Maxwell measured the web openings (11/20/2026): a 7.4 in circle fits, so 7 in passes.")
 ducts[-1]["cross_ok"] = 7                          # tools/truss_clash.py: this run may cross the trusses at 7 in
 supply("s_living2", "Living", 70, 7, drop(bay(29.7), YS, 22.62), dict(at=[bay(29.7), 22.9, ZT], size=[12, 6], wall=S),
        "Hall 1 has no supply of its own (Maxwell, 11/17/2026): one 3 ft from the main return would short circuit into it. Its 48 CFM from M-10 is split between the two living registers, which open onto the hall through the 8 ft wide cased opening.")
@@ -1540,9 +1540,9 @@ if SP:
 
 _tag()
 trusses = dict(id="floor_trusses", name="Open web floor trusses", category="Structure", system="structure.floor", regions=FLAT, loft_regions=[LOFT],
-    z0=CEIL, depth_in=TRUSS_IN, spacing_in=CFG["floor_trusses"]["spacing_in"], deck_in=DECK_IN, grid_x0=TG, xs=[truss_xs(r) for r in FLAT + [LOFT]], solid_ends=TENDS, max_cross_in=CFG["floor_trusses"]["max_round_duct_in"],
+    z0=CEIL, depth_in=TRUSS_IN, spacing_in=CFG["floor_trusses"]["spacing_in"], deck_in=DECK_IN, grid_x0=TG, xs=[truss_xs(r) for r in FLAT + [LOFT]], solid_ends=TENDS, chord_w_in=CFG["floor_trusses"].get("chord_w_in", 3.5), web_in=CFG["floor_trusses"].get("web_in", 1.5), web_pitch_in=CFG["floor_trusses"].get("web_pitch_in"), max_cross_in=CFG["floor_trusses"]["max_round_duct_in"],
     info=dict(model="11-7/8 in open web floor trusses",
-      specs=[["Depth", "11-7/8 in (Maxwell, 11/16/2026)"], ["Clear for ducts", "About 8-7/8 in between the chords"], ["Floor top", f"{DECK:.2f} ft above the slab with 3/4 in decking"],
+      specs=[["Depth", "11-7/8 in (Maxwell, 11/16/2026)"], ["Chords", "2.5 in wide, webs 1.5 x 1.5 in (Maxwell, 11/20/2026)"], ["Web openings", "Triangles 19.5 in along the chord, 13 in legs, 8.5 in high inside: a 7 in round duct passes (Maxwell, 11/20/2026)"], ["Floor top", f"{DECK:.2f} ft above the slab with 3/4 in decking"],
              ["Spacing", "16 in on centre from the west wall, doubled at the east wall (Maxwell, 11/20/2026)"], ["Span", "North to south, continuous over the interior walls"], ["Ends", "Solid trimmable ends at the bearing walls, open webs between (Maxwell's photo, 11/20/2026)"]],
       notes=["The attic deck and the loft floor sit on these, about 3 in higher in the attic and 2 in higher in the loft than the sealed plans.",
              "The loft railing, pony wall, ladder and furniture come from the last Blender export and still sit at the old height, about 2 in low, until the next export."]))

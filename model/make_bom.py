@@ -118,7 +118,7 @@ def dist_to_seg(p, a, b):
 
 
 def truss_xs(r):
-    CW, E, SP = 3.5 / 12, 0.05, T["spacing_in"] / 12
+    CW, E, SP = T.get("chord_w_in", 3.5) / 12, 0.05, T["spacing_in"] / 12
     x0, x1 = r[0] + E, r[2] - E
     g = T.get("grid_x0", 0.0)
     k0 = int((x0 + CW / 2 - g) // SP) - 1
