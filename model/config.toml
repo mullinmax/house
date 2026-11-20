@@ -701,14 +701,16 @@ stud_w_in = 1.5
 stud_d_in = 3.5                 # 2x4 partitions at 16 in o.c. (photos)
 stud_oc_in = 16
 top_plates = 2                  # double top plate (photos)
-plate_height_in = 109           # top of the top plates, 9'-1" above the slab. ASSUMED from the photos (scaled off the 6 ft barn door opening)
+plate_height_in = 108           # top of the top plates, 9 ft above the slab. MEASURED by Maxwell at the bedroom 1 closet header, 11/20/2026
 header_default = { depth_in = 11.25, plies = 2, jacks = 1, kings = 1, flat_top = true, head_gap_in = 2.5, depth_by_span = [] }   # what the built walls show: (2) 2x12 class, flat 2x and cripples above
 clerestory_default = { type = "LVL", depth_in = 11.875, tight = true }
 # Walls standing in the 11/19 photos. axis "x" = a wall running east-west at y = at, from/to along it. Everything else is a bottom plate only.
 built = [ { axis = "x", at = 22.64, from = 0.5, to = 42.5, note = "Wall B (living / laundry line), full width, framed to the top plates in the 11/19/2026 drone photos." },
           { axis = "x", at = 15.26, from = 16.2, to = 42.5, note = "Wall C (hall 2 / laundry / bedroom 1 south wall), framed from x 16' 2\" east in the 11/19/2026 drone photos." },
-          { axis = "y", at = 11.89, from = 22.8, to = 34.7, note = "Hall 1 west wall, framed in the 11/19/2026 drone photos." } ]
-clerestory_wall = { built = true, stud_d_in = 5.5, note = "Wall A: a stick framed wall stands on the clerestory line, framed to 9' 1\" in the 11/19/2026 drone photos. The model's SIP clerestory wall is drawn around it until we know what goes on top. Stud size ASSUMED 2x6." }
+          { axis = "y", at = 11.89, from = 22.8, to = 34.7, note = "Hall 1 west wall, framed in the 11/19/2026 drone photos." },
+          { axis = "x", at = 10.80, from = 22.6, to = 31.42, note = "Study south wall (hall 2 side), framed in Maxwell's 11/20/2026 photo: the door at its west end, a short bay, then 16 in bays east. How far west of the study it is framed is not known yet." } ]
+all_built = "Framed by 11/20/2026 (Maxwell's site photos show nearly every interior wall standing). Stud positions are typical 16 in o.c. until measured."
+clerestory_wall = { built = true, stud_d_in = 5.5, note = "Wall A: a stick framed wall stands on the clerestory line, framed to the top plates (9 ft measured 11/20/2026). The model's SIP clerestory wall is drawn around it until we know what goes on top. Stud size ASSUMED 2x6." }
 
 [[framing.headers]]             # A1, pantry door
 at = [2.09, 34.89]
@@ -732,6 +734,8 @@ source = "Drone photos 11/19/2026: about 50 in wide, tight under the plates"
 
 [[framing.headers]]             # A3, living room barn door opening
 at = [23.91, 34.89]
+ro = [20.58, 27.25]             # MEASURED 11/20/2026: 80 in wide (Maxwell), centre kept from the photos. Height not measured yet
+measured = "11/20/2026 by Maxwell: 80 in wide. Header height not measured yet (still the photo estimate)"
 size = "built-up 2x (pale, about 7 to 9 in)"
 bottom_in = 98.5
 tight = true
@@ -740,6 +744,8 @@ source = "Drone photos 11/19/2026: 72 in opening (the photos' scale), the shallo
 
 [[framing.headers]]             # A4, entry cubby beam
 at = [36.79, 34.89]
+ro = [31.51, 42.01]             # MEASURED 11/20/2026: an 11 ft header on two 2x4s at each end, read as 11 ft long overall, so 10 ft 6 in clear (the photos showed about 10 ft 5 in). East end kept from the photos
+measured = "11/20/2026 by Maxwell: 11 ft header with two 2x4s under each end (read as 11 ft overall, 10 ft 6 in clear; asked to confirm). Height not measured yet"
 type = "LVL"
 size = "LVL (pale, about 11 7/8 in), doubled post at the west end"
 bottom_in = 94
@@ -751,11 +757,12 @@ source = "Drone photos 11/19/2026: about 10 to 11 ft span, on a doubled post at 
 
 [[framing.headers]]             # B1, hall 1 to the linen / hall 2 pocket door
 at = [14.16, 22.64]
-ro = [13.0, 18.6]
+ro = [12.51, 19.09]             # MEASURED 11/20/2026: 79 in wide (door and pocket), centre kept from the photos (15.8). It runs past the linen partition, as the photos showed
 type = "LVL"
 size = "LVL (dark brown, about 11 to 13 in)"
 depth_in = 12
-bottom_in = 85.5
+bottom_in = 83                  # MEASURED 11/20/2026: 83 in to the bottom of the header
+measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, 79 in wide"
 pocket = true
 confidence = "low-medium"
 source = "Drone photos 11/19/2026: 5 to 6 1/2 ft opening, flat 2x and 3 to 6 in cripples above"
@@ -766,30 +773,50 @@ new = true
 axis = "x"
 at = [34.25, 22.64]
 band = [22.41, 22.87]
-ro = [31.6, 37.0]
+ro = [31.34, 37.26]             # MEASURED 11/20/2026 (Maxwell: same as the bedroom 1 closet header): 71 in clear, centre kept from the photos
 head = 6.67
 size = "(2) 2x12 class, pale built-up 2x"
-bottom_in = 85
+bottom_in = 83                  # MEASURED 11/20/2026: 83 in to the bottom of the header
+jacks = 2                       # MEASURED 11/20/2026: two 2x4s under each end
+kings = 0
+measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, 71 in clear, two 2x4s under each end"
 confidence = "medium"
 source = "Drone photos 11/19/2026: about 5 1/2 ft opening, 6'8\" door class, flat 2x and cripples above"
 notes = ["A-11 shows this as an open gap under the loft; the framing has a door-height header across it."]
 
 [[framing.headers]]             # C1, hall 2 to laundry pocket door
 at = [22.08, 15.26]
-ro = [20.75, 26.9]
+ro = [20.87, 26.78]             # MEASURED 11/20/2026 (Maxwell: same as the bedroom 1 closet header): 71 in clear, centre kept from the photos
 type = "LVL"
 size = "LVL (dark brown, about 10 to 14 in)"
 depth_in = 12
-bottom_in = 85
+bottom_in = 83                  # MEASURED 11/20/2026: 83 in to the bottom of the header
+jacks = 2                       # MEASURED 11/20/2026: two 2x4s under each end
+kings = 0
+measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, 71 in clear, two 2x4s under each end"
 pocket = true
 confidence = "low"
 source = "Drone photos 11/19/2026: about 6 ft opening, header bottom not visible"
 
 [[framing.headers]]             # C2, bedroom 1 to closet 1 pocket door
 at = [35.7, 15.26]
-ro = [32.0, 37.6]
+ro = [31.84, 37.76]              # MEASURED 11/20/2026: 71 in clear between the jacks. Centre kept from the photos (34.8); edge location not measured yet
+jacks = 2                       # MEASURED 11/20/2026: two 2x4s under each end of the header
+kings = 0
+measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, 71 in clear, two 2x4s under each end"
 size = "(2) 2x12 class, pale built-up 2x"
-bottom_in = 86.5
+bottom_in = 83                  # MEASURED 11/20/2026 (Maxwell, on site): 83 in from the slab to the bottom of the header
 pocket = true
-confidence = "low-medium"
-source = "Drone photos 11/19/2026: about 5 1/2 ft opening (door plus pocket, west), flat 2x and cripples above"
+confidence = "medium"
+source = "Drone photos 11/19/2026: about 5 1/2 ft opening (door plus pocket, west), flat 2x and cripples above. Tape 11/20/2026: header bottom 83 in, top plate 9 ft"
+
+[[framing.headers]]             # S1, study door (Maxwell's photo 11/20/2026)
+at = [24.69, 10.80]
+size = "single deep 2x (photo), short studs above"
+plies = 1
+bottom_in = 83                  # MEASURED 11/20/2026: 83 in to the bottom of the header (all headers so far)
+jacks = 1                       # MEASURED 11/20/2026: one 2x4 under each end, a full height stud beside it (photo)
+kings = 1
+confidence = "medium"
+measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, one 2x4 under each end. Width still to confirm (he said 75 in; the photo shows a door width opening)"
+source = "Maxwell's photo 11/20/2026 from hall 2: door at the west end of the study wall, then a short bay and 16 in bays east"

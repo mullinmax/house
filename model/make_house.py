@@ -842,8 +842,11 @@ if FR.get("enabled", True):
         c, u0, u1 = ((y0 + y1) / 2, x0, x1) if alongx else ((x0 + x1) / 2, y0, y1)
         return abs(c - ln["at"]) < ln.get("tol", 0.35) and u1 > ln["from"] + 0.05 and u0 < ln["to"] - 0.05
 
+    ALL_BUILT = FR.get("all_built")          # Maxwell's 11/20/2026 photos: nearly every interior wall is framed
+
     def is_built(alongx, x0, x1, y0, y1):
-        return next((ln for ln in BUILT if on_line(ln, alongx, x0, x1, y0, y1)), None)
+        ln = next((ln for ln in BUILT if on_line(ln, alongx, x0, x1, y0, y1)), None)
+        return ln or (dict(note=ALL_BUILT) if ALL_BUILT else None)
 
     def fbox(mat, alongx, u0, u1, v0, v1, z0, z1):
         if z1 - z0 < 1e-3 or u1 - u0 < 1e-3:
@@ -1032,8 +1035,9 @@ if FR.get("enabled", True):
                              ["Header", f"bottom {ftin(hbot)}, top {ftin(htop)} above the slab" + (", tight under the top plates" if htop >= ztop - 1e-3 else ", flat 2x and cripples above")],
                              ["Source", spec.get("source", "Typical framing, ASSUMED until a build photo shows it")],
                              ["Confidence", spec.get("confidence", "typical")],
-                             ["Status", "Needs measuring"]],
-                      notes=["NEEDS MEASURING: estimated from the 11/19/2026 drone photos only. Check with a tape before relying on it."] + list(spec.get("notes", []))))
+                             ["Status", ("Measured " + spec["measured"]) if spec.get("measured") else "Needs measuring"]],
+                      notes=([f"MEASURED {spec['measured']}. Its position along the wall is still estimated from the photos."] if spec.get("measured") else
+                             ["NEEDS MEASURING: estimated from the 11/19/2026 drone photos only. Check with a tape before relying on it."]) + list(spec.get("notes", []))))
         lvl = str(spec.get("type", "")).upper().startswith("LVL")
         fbox("LVL" if lvl else "Header", alongx, h0, h1, v0, v1, hbot, htop)
         for e, sg in ((r0, -1), (r1, 1)):
@@ -1985,7 +1989,7 @@ def entry_closet():
             box("Rubber", a0, a1, b0, b1, 0.02, 0.11)
 
     if EC_STYLE in ("closet", "split"):            # an 18 in door; inside: shelves up top, hooks, a boot tray
-        r = rec("furniture.entry_closet", "furniture", "Entry closet fittings", "furniture", room="Entry",
+        r = rec("furniture.entry_closet", "furniture", "Entry closet fittings", "furniture", room="Entry", tog="finish",
                 info=dict(model="Coat closet behind an 18 in door: two shelves up top, coat hooks on three walls, a rubber boot tray",
                           specs=[["Inside", f"{ftin(ix1 - ix0)} wide x {ftin(iy1 - iy0)} deep"], ["Door", f"{ftin(W)} wide"]],
                           notes=["Mockup for the new 18 in opening (11/19/2026). Hooks instead of a rod: at 18 in deep a hanger does not fit across the closet."]))
@@ -2022,7 +2026,7 @@ def entry_closet():
     box(M, ox0 + 0.06, ox1 - 0.06, YC, yf - 0.25, 0.0, 0.33)                             # recessed toe kick
     box(M, ix0 + 0.003, ix1 - 0.003, iy0 + 0.003, yf - 0.1, 0.33, 0.38)                  # carcass floor
     if EC_STYLE == "coat":
-        r = rec("furniture.entry_closet", "furniture", "Entry coat cabinet", "furniture", room="Entry",
+        r = rec("furniture.entry_closet", "furniture", "Entry coat cabinet", "furniture", room="Entry", tog="finish",
                 info=dict(model="Built-in coat cabinet, painted light sage to match the mudroom unit: a pair of tall doors over a coat rod, a pair of small doors over the top shelf",
                           specs=[["Opening", f"{ftin(W)} wide x 8' 0\""], ["Inside", f"{ftin(ix1 - ix0)} wide x {ftin(yf - 0.1 - iy0)} deep, back wall to the doors"],
                                  ["Rod", f"{ftin(ix1 - ix0)} long at {ftin(EC.get('rod_z', 5.6))}, 12 in off the back wall, so 17 1/2 in hangers fit"],
@@ -2081,7 +2085,7 @@ def entry_closet():
                     knob(a1 - 0.12 if side == "left" else a0 + 0.12, kz, yf - 0.02)
         return
     if EC_STYLE == "cabinet":
-        r = rec("furniture.entry_closet", "furniture", "Entry closet cabinet", "furniture", room="Entry",
+        r = rec("furniture.entry_closet", "furniture", "Entry closet cabinet", "furniture", room="Entry", tog="finish",
                 info=dict(model="Built-in tall cabinet, painted light sage to match the mudroom unit: a tall door and a top door, adjustable shelves across the whole closet",
                           specs=[["Opening", f"{ftin(W)} wide x 8' 0\""], ["Shelves", f"5, each {ftin(ix1 - ix0)} wide x {ftin(yf - 0.1 - iy0)} deep"]],
                           notes=["Mockup for the new 18 in opening (11/19/2026). Good for bags, bins, dog gear, cleaning supplies; the shelves run behind the wall on the west side too."]))
@@ -2096,7 +2100,7 @@ def entry_closet():
                 knob(ox0 + 0.2, kz, yf - 0.02)
         return
     # pullout: a full height coat tower on full extension slides, hooks on both sides of a centre spine
-    r = rec("furniture.entry_closet", "furniture", "Pull-out coat tower", "furniture", room="Entry",
+    r = rec("furniture.entry_closet", "furniture", "Pull-out coat tower", "furniture", room="Entry", tog="finish",
             info=dict(model="Full height pull-out coat tower, painted light sage to match the mudroom unit, on heavy full extension slides",
                       specs=[["Front", f"{ftin(W)} wide x 7' 6\""], ["Pulls out", "about 1' 9\" into the entry"],
                              ["Inside", "centre spine with coat hooks on both faces, a hat shelf on top, a boot tray at the bottom; fixed shelves in the closet's west half"]],
@@ -2429,7 +2433,7 @@ for it in FURN:
     x0w, y0w, y1w = it["x0"], it["y0"], it["y1"]
     o0, o1 = it["walk_in"]
     WEB_META["cull"].append(dict(box=[x0w - 0.02, y0w - 0.05, -0.1, x0w + 0.04, y1w + 0.05, 9.2], materials=["Tile Wall"]))
-    rec(f"furniture.{it['id']}.west_tile", "furniture", "Shower wall tile", "furniture", room=room_at(x0w + 1, (o0 + o1) / 2),
+    rec(f"furniture.{it['id']}.west_tile", "furniture", "Shower wall tile", "furniture", tog="finish", room=room_at(x0w + 1, (o0 + o1) / 2),
         info=dict(model="Wall tile, wet room west wall (ASSUMED finish)", notes=["Open between the jambs per A-11 so you can walk into the shower."]))
     for a, b_ in ((y0w, o0), (o1, y1w)):
         box("Tile Wall", x0w, x0w + 0.02, a, b_, 0.02, it.get("ceiling", 9.0))
@@ -2568,6 +2572,9 @@ WEB_INFO = {
                              notes=["Rubber boot trays with dividers instead of shoe cubbies, and the mudroom layout from his reference photo (Maxwell, 11/17/2026)."]),
     "towel_warmer": lambda it: dict(model="Wall mounted towel warmer (A-11, model ASSUMED)", notes=["Moved here from the WC doorway, where it hung in the air (Maxwell, 11/17/2026)."]),
 }
+# Bolted down pieces show with the cabinets and trim, not with Belongings (Maxwell, 11/20/2026: anything bolted down is
+# not a belonging).
+BUILT_IN = {"bench", "towel_warmer"}
 WEB_NAMES = {"bench": "Mudroom bench and cabinets", "bed": "Queen bed", "nightstand": "Nightstand", "table_lamp": "Table lamp", "desk_lamp": "Desk lamp", "l_desk": "L-shaped standing desk", "office_chair": "Office chair", "towel_warmer": "Towel warmer"}
 for it in FURN:
     if it.get("moved_from"):
@@ -2594,7 +2601,7 @@ for it in FURN:
     cx = it.get("x", it.get("x0", it.get("corner", [0, 0])[0] - 1.0))
     cy = it.get("y", it.get("y0", it.get("corner", [0, 0])[1] + 1.0))
     rec(f"furniture.{it['id']}", "furniture", WEB_NAMES.get(t, t), "furniture", room=room_at(cx, cy),
-        info=WEB_INFO.get(t, lambda i: dict(model=t))(it))
+        info=WEB_INFO.get(t, lambda i: dict(model=t))(it), tog="finish" if t in BUILT_IN else None)
     WEB_BUILD[t](it)
     if t in ("table_lamp", "desk_lamp"):                    # the night light for a lamp follows it
         WEB_META.setdefault("lights_moved", {})[f"{it['id']} bulb"] = [it["x"], it["y"], rnd(top_of(it) + 1.2)]
