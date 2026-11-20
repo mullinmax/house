@@ -676,14 +676,14 @@ stud_w_in = 1.5
 stud_d_in = 3.5                 # 2x4 partitions at 16 in o.c. (photos)
 stud_oc_in = 16
 top_plates = 2                  # double top plate (photos)
-plate_height_in = 109           # top of the top plates, 9'-1" above the slab. ASSUMED from the photos (scaled off the 6 ft barn door opening)
+plate_height_in = 108           # top of the top plates, 9 ft above the slab. MEASURED by Maxwell at the bedroom 1 closet header, 11/20/2026
 header_default = { depth_in = 11.25, plies = 2, jacks = 1, kings = 1, flat_top = true, head_gap_in = 2.5, depth_by_span = [] }   # what the built walls show: (2) 2x12 class, flat 2x and cripples above
 clerestory_default = { type = "LVL", depth_in = 11.875, tight = true }
 # Walls standing in the 11/19 photos. axis "x" = a wall running east-west at y = at, from/to along it. Everything else is a bottom plate only.
 built = [ { axis = "x", at = 22.64, from = 0.5, to = 42.5, note = "Wall B (living / laundry line), full width, framed to the top plates in the 11/19/2026 drone photos." },
           { axis = "x", at = 15.26, from = 16.2, to = 42.5, note = "Wall C (hall 2 / laundry / bedroom 1 south wall), framed from x 16' 2\" east in the 11/19/2026 drone photos." },
           { axis = "y", at = 11.89, from = 22.8, to = 34.7, note = "Hall 1 west wall, framed in the 11/19/2026 drone photos." } ]
-clerestory_wall = { built = true, stud_d_in = 5.5, note = "Wall A: a stick framed wall stands on the clerestory line, framed to 9' 1\" in the 11/19/2026 drone photos. The model's SIP clerestory wall is drawn around it until we know what goes on top. Stud size ASSUMED 2x6." }
+clerestory_wall = { built = true, stud_d_in = 5.5, note = "Wall A: a stick framed wall stands on the clerestory line, framed to the top plates (9 ft measured 11/20/2026). The model's SIP clerestory wall is drawn around it until we know what goes on top. Stud size ASSUMED 2x6." }
 
 [[framing.headers]]             # A1, pantry door
 at = [2.09, 34.89]
@@ -764,7 +764,7 @@ source = "Drone photos 11/19/2026: about 6 ft opening, header bottom not visible
 at = [35.7, 15.26]
 ro = [32.0, 37.6]
 size = "(2) 2x12 class, pale built-up 2x"
-bottom_in = 86.5
+bottom_in = 84                  # MEASURED 11/20/2026 (Maxwell, on site): 7 ft up. Read as the header bottom above the slab (asked to confirm)
 pocket = true
-confidence = "low-medium"
-source = "Drone photos 11/19/2026: about 5 1/2 ft opening (door plus pocket, west), flat 2x and cripples above"
+confidence = "medium"
+source = "Drone photos 11/19/2026: about 5 1/2 ft opening (door plus pocket, west), flat 2x and cripples above. Tape 11/20/2026: header 7 ft up, top plate 9 ft"
