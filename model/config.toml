@@ -708,6 +708,8 @@ source = "Drone photos 11/19/2026: about 50 in wide, tight under the plates"
 
 [[framing.headers]]             # A3, living room barn door opening
 at = [23.91, 34.89]
+ro = [20.58, 27.25]             # MEASURED 11/20/2026: 80 in wide (Maxwell), centre kept from the photos. Height not measured yet
+measured = "11/20/2026 by Maxwell: 80 in wide. Header height not measured yet (still the photo estimate)"
 size = "built-up 2x (pale, about 7 to 9 in)"
 bottom_in = 98.5
 tight = true
