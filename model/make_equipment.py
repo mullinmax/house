@@ -157,20 +157,23 @@ PA = CFG["pantry"]
 PX0, PX1, PY0, PY1 = PA["inside"]
 FZ_W, FZ_H, FZ_D = PA["freezer_size"]
 FZ_BACK = PY0 + PA["freezer_gap_in"] / 12
+PL = PA["layouts"][PA["layout"]]
+FZ_WHERE = {"right": "Back left corner of the pantry, 1 in off the left wall, front facing the doorway; the shelves are on the right and above it.",
+            "u": "Back (north) wall of the pantry, centred between the shelves, front facing the doorway."}[PA["layout"]]
 items += [
  dict(id="chest_freezer", name="Chest freezer", category="Kitchen appliance", system="kitchen", room="Pantry", layer="appliances",
-      builder="chest_freezer", size=[FZ_W, FZ_H, FZ_D], at=[PA["freezer_x"], round(FZ_BACK, 4), 0], facing=180, lid_open=80,
+      builder="chest_freezer", size=[FZ_W, FZ_H, FZ_D], at=[PL["freezer_x"], round(FZ_BACK, 4), 0], facing=180, lid_open=80,
       info=dict(model="Chest freezer Maxwell already owns (make and model not recorded yet)",
         specs=[["Size", f"{FZ_W} W x {FZ_H} H x {FZ_D} D in"], ["Lid", "Hinged along the 24.5 in back edge, lifts up toward the wall (E or a tap opens it)"],
-               ["Clearance", f"{PA['freezer_gap_in']} in off the back wall for the hinges and the condenser; about 4 in to the shelves each side"],
-               ["Power", "Plugs into the U-11 outlet on the back wall behind it, 41 3/4 in up"],
+               ["Clearance", f"{PA['freezer_gap_in']} in off the back wall for the hinges and the condenser"],
+               ["Power", "Plugs into the U-11 outlet on the back wall, 41 3/4 in up at x 3.06"],
                ["Open lid", f"Top edge about {round(FZ_H + FZ_D * 0.985)} in up; the back wall shelves start at 64 in"]],
         notes=["Added at Maxwell's request (11/20/2026). The look is a generic white chest freezer; send the model number to get its real details."],
-        placement="Back (north) wall of the pantry, centred between the shelves, front facing the doorway.")),
+        placement=FZ_WHERE)),
  dict(id="pantry_goods", name="Pantry food and supplies", category="Storage", system="household", room="Pantry", layer="storage",
       builder="pantry_goods", size=[1, 1, 1], at=[PX0, PY0, 0], facing=180,
       shelves=[dict(wall=r["wall"], face=round({"W": PX0, "E": PX1, "N": PY0}[r["wall"]], 4), run=r["run"], depth=r["depth"], tops=r["tops"], kinds=r["kinds"])
-               for r in PA["shelves"]],
+               for r in PL["shelves"]],
       info=dict(model="Everyday pantry goods, for scale",
         specs=[["Stocked with", "25 lb flour and 20 lb rice bags, a case of water, a potato bin, 5 lb flour and 4 lb sugar bags, canned goods, jars of pasta, beans and grains, cereal and pasta boxes, a stand mixer, paper towels"]],
         notes=["Belongings only: they give the shelves a sense of scale (Maxwell, 11/20/2026)."],

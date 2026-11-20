@@ -353,13 +353,22 @@ depth = 0.9
 [pantry]                                 # walk-in pantry behind the spice rack door (Maxwell 11/20/2026). Inside faces: x 0.542 (west wall) to 5.456 (powder wall), y 28.533 (utility wall) to 34.616 (clerestory wall)
 inside = [0.5417, 5.456, 28.533, 34.616]
 # Chest freezer Maxwell owns: 24.5 in along the back wall, 21.5 in out from it, 33 in tall. The lid hinges on the long back edge (a 24.5 in side) and lifts toward the wall.
-freezer_x = 2.749                        # centre, plan ft: halfway between the west and east shelf fronts, in front of the U-11 outlet at x 3.056 (41 3/4 in up)
 freezer_gap_in = 3.5                     # off the back wall, for the hinges and the condenser air
 freezer_size = [24.5, 33, 21.5]          # width along the wall, height, depth from the wall (in)
+layout = "right"                         # right (Maxwell's mockup 11/20/2026: freezer in the back left corner, deep shelves on the right and over the freezer) | u (shelves on three walls, freezer centred)
 # Simple open shelves (ASSUMED build): 3/4 in white oak on wall cleats. wall = W | E | N, run = [from, to] in plan ft along that wall,
 # depth and tops in inches, kinds = what the Belongings layer stocks each shelf with (bulk, bins, cans, jars, baking, boxes, mixer, paper).
-# The back wall shelves start at 64 in so the open freezer lid (top about 55 in) clears them. The west run stops 14 in short of the
-# doorway wall so the 32 in doorway is not narrowed where you step in.
+# Back wall shelves start at 64 in in both layouts so the open freezer lid (top about 55 in) clears them.
+
+[pantry.layouts.right]                   # nothing on the left wall: the freezer sits 1 in off it, and the right shelves are 24 in deep, their fronts in line with the doorway's east jamb (35 in aisle)
+freezer_x = 1.646
+shelves = [
+  { wall = "E", run = [28.533, 34.616], depth = 24, tops = [6, 21, 36, 52, 66, 80, 92], kinds = ["bulk", "bins", "mixer", "baking", "cans", "jars", "paper"] },
+  { wall = "N", run = [0.5417, 3.456],  depth = 16, tops = [64, 78, 92],                 kinds = ["jars", "cans", "boxes"] },
+]
+
+[pantry.layouts.u]                       # first version (PR 70): the west run stops 14 in short of the doorway wall so the 32 in doorway is not narrowed where you step in
+freezer_x = 2.749                        # halfway between the west and east shelf fronts, in front of the U-11 outlet at x 3.056 (41 3/4 in up)
 shelves = [
   { wall = "W", run = [28.533, 33.4],   depth = 10, tops = [16, 32, 48, 64, 78, 90],     kinds = ["cans", "jars", "baking", "boxes", "cans", "bins"] },
   { wall = "E", run = [28.533, 34.616], depth = 16, tops = [6, 21, 36, 52, 66, 80, 92], kinds = ["bulk", "bins", "mixer", "baking", "cans", "jars", "paper"] },

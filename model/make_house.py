@@ -1709,15 +1709,15 @@ for z in SH["heights"]:
 PA = C.get("pantry")
 if PA:
     px0, px1, py0, py1 = PA["inside"]
-    rows = PA["shelves"]
+    rows = PA["layouts"][PA["layout"]]["shelves"]
+    WALLN = {"W": "West wall", "E": "East wall (right as you walk in)", "N": "Back wall, over the freezer"}
     rec("pantry.shelves", "fixture", "Pantry shelves", "interior", room="Pantry",
         info=dict(model="Open white oak shelves on wall cleats, ASSUMED build",
-                  specs=[["West wall", f"{rows[0]['depth']} in deep, tops at {', '.join(str(t) for t in rows[0]['tops'])} in"],
-                         ["East wall", f"{rows[1]['depth']} in deep, tops at {', '.join(str(t) for t in rows[1]['tops'])} in; the 36 in shelf is counter height for small appliances, under the U-11 outlet"],
-                         ["Back wall", f"{rows[2]['depth']} in deep over the chest freezer, tops at {', '.join(str(t) for t in rows[2]['tops'])} in"]],
-                  notes=["Maxwell asked for simple shelving around the chest freezer (11/20/2026). Depths and heights are placeholders to adjust.",
-                         "The back wall shelves start at 64 in so the freezer lid, about 55 in at its top when open, clears them by 8 in.",
-                         "The west run stops 14 in short of the doorway wall so the door opening stays full width where you step in."]))
+                  specs=[[WALLN[r["wall"]], f"{r['depth']} in deep, tops at {', '.join(str(t) for t in r['tops'])} in"] for r in rows]
+                        + [["Layout", f"{PA['layout']} (config [pantry] layout = right | u)"]],
+                  notes=["Maxwell asked for simple shelving around the chest freezer (11/20/2026), then for a version with shelves only on the right and "
+                         "on the back, deeper, so large items fit (layout right). Depths and heights are placeholders to adjust.",
+                         "The back wall shelves start at 64 in so the freezer lid, about 55 in at its top when open, clears them by 8 in."]))
     TH, CL_ = 0.75 / 12, 1.5 / 12
     for row in rows:
         a0, a1 = row["run"]

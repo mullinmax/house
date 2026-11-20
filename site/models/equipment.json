@@ -743,7 +743,7 @@
     21.5
    ],
    "at": [
-    2.749,
+    1.646,
     28.8247,
     0
    ],
@@ -762,11 +762,11 @@
      ],
      [
       "Clearance",
-      "3.5 in off the back wall for the hinges and the condenser; about 4 in to the shelves each side"
+      "3.5 in off the back wall for the hinges and the condenser"
      ],
      [
       "Power",
-      "Plugs into the U-11 outlet on the back wall behind it, 41 3/4 in up"
+      "Plugs into the U-11 outlet on the back wall, 41 3/4 in up at x 3.06"
      ],
      [
       "Open lid",
@@ -776,7 +776,7 @@
     "notes": [
      "Added at Maxwell's request (11/20/2026). The look is a generic white chest freezer; send the model number to get its real details."
     ],
-    "placement": "Back (north) wall of the pantry, centred between the shelves, front facing the doorway."
+    "placement": "Back left corner of the pantry, 1 in off the left wall, front facing the doorway; the shelves are on the right and above it."
    }
   },
   {
@@ -800,38 +800,13 @@
    "facing": 180,
    "shelves": [
     {
-     "wall": "W",
-     "face": 0.5417,
-     "run": [
-      28.533,
-      33.4
-     ],
-     "depth": 10,
-     "tops": [
-      16,
-      32,
-      48,
-      64,
-      78,
-      90
-     ],
-     "kinds": [
-      "cans",
-      "jars",
-      "baking",
-      "boxes",
-      "cans",
-      "bins"
-     ]
-    },
-    {
      "wall": "E",
      "face": 5.456,
      "run": [
       28.533,
       34.616
      ],
-     "depth": 16,
+     "depth": 24,
      "tops": [
       6,
       21,
@@ -855,14 +830,14 @@
      "wall": "N",
      "face": 28.533,
      "run": [
-      1.375,
-      4.123
+      0.5417,
+      3.456
      ],
-     "depth": 12,
+     "depth": 16,
      "tops": [
       64,
       78,
-      90
+      92
      ],
      "kinds": [
       "jars",
