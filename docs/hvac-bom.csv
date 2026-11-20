@@ -26,7 +26,7 @@ Buy separately: ERV and ventilation equipment,Separately,Range hood power pack i
 Buy separately: ERV and ventilation equipment,Separately,8 in range hood wall cap with damper,West wall,1,ea,,,,
 Buy separately: ERV and ventilation equipment,Separately,8 in insulated backdraft damper for the hood duct,At the hood,1,ea,,,,Worth it in a house this tight.
 Buy separately: ERV and ventilation equipment,Separately,Rheem water heater duct kit,"8 in insulated flex SP20889, elbows SP20890, outlet adaptor SP17829",1,kit,Water heater intake and exhaust to the attic,,,Must not tie into any other duct (Rheem).
-"Buy separately: round duct, flex and fittings",Separately,"4 in round pipe, 30 ga snap lock",Exhaust,5,x 5 ft,22 ft in the model,,,
+"Buy separately: round duct, flex and fittings",Separately,"4 in round pipe, 30 ga snap lock",Exhaust,4,x 5 ft,16 ft in the model,,,
 "Buy separately: round duct, flex and fittings",Separately,"6 in round pipe, 30 ga snap lock",Exhaust,9,x 5 ft,39 ft in the model,,,
 "Buy separately: round duct, flex and fittings",Separately,"6 in round pipe, 30 ga snap lock",Supply,10,x 5 ft,43 ft in the model,,,
 "Buy separately: round duct, flex and fittings",Separately,"7 in round pipe, 30 ga snap lock",Supply,5,x 5 ft,19 ft in the model,,,
@@ -38,7 +38,7 @@ Buy separately: ERV and ventilation equipment,Separately,Rheem water heater duct
 "Buy separately: round duct, flex and fittings",Separately,"10 in round pipe, 30 ga snap lock",Return,12,x 5 ft,51 ft in the model,,,
 "Buy separately: round duct, flex and fittings",Separately,"6 in flex duct, R-6 insulated",Return runs through the trusses,4,x 25 ft box,72 ft in the model,,,"Pull it tight, no sags; support every 4 ft"
 "Buy separately: round duct, flex and fittings",Separately,"10 in flex duct, R-6 insulated",Return runs through the trusses,1,x 25 ft box,14 ft in the model,,,"Pull it tight, no sags; support every 4 ft"
-"Buy separately: round duct, flex and fittings",Separately,4 in adjustable 90 elbow,,7,ea,Counted from the bends in the model,,,
+"Buy separately: round duct, flex and fittings",Separately,4 in adjustable 90 elbow,,5,ea,Counted from the bends in the model,,,
 "Buy separately: round duct, flex and fittings",Separately,6 in adjustable 90 elbow,,13,ea,Counted from the bends in the model,,,
 "Buy separately: round duct, flex and fittings",Separately,7 in adjustable 90 elbow,,5,ea,Counted from the bends in the model,,,
 "Buy separately: round duct, flex and fittings",Separately,8 in adjustable 90 elbow,,14,ea,Counted from the bends in the model,,,
@@ -50,9 +50,8 @@ Buy separately: ERV and ventilation equipment,Separately,Rheem water heater duct
 "Buy separately: round duct, flex and fittings",Separately,8 in round takeoff (starting collar) with volume damper,"Off a rectangular trunk, main or plenum",10,ea,,,,Supply branches get a manual damper to set at air balancing (M-10)
 "Buy separately: round duct, flex and fittings",Separately,10 in round takeoff (starting collar),"Off a rectangular trunk, main or plenum",2,ea,,,,
 "Buy separately: round duct, flex and fittings",Separately,10 x 6 in tee or wye,Branch into a round main,2,ea,,,,
-"Buy separately: round duct, flex and fittings",Separately,4 x 4 in wye,Branch into a round main,1,ea,,,,
 "Buy separately: round duct, flex and fittings",Separately,6 x 6 in wye,Branch into a round main,1,ea,,,,
-"Buy separately: round duct, flex and fittings",Separately,8 x 4 in wye,Branch into a round main,1,ea,,,,
+"Buy separately: round duct, flex and fittings",Separately,8 x 4 in wye,Branch into a round main,2,ea,,,,
 "Buy separately: round duct, flex and fittings",Separately,8 x 6 in wye,Branch into a round main,1,ea,,,,
 "Buy separately: round duct, flex and fittings",Separately,4 in manual balancing damper,One per ERV exhaust branch,1,ea,,,,Set each bathroom to 20 CFM continuous
 "Buy separately: round duct, flex and fittings",Separately,6 in manual balancing damper,One per ERV exhaust branch,2,ea,,,,Set each bathroom to 20 CFM continuous
@@ -73,8 +72,6 @@ Buy separately: ERV and ventilation equipment,Separately,Rheem water heater duct
 "Buy separately: rectangular duct, plenums and stacks",Sheet metal shop,Stack to round head,"Top of each wall stack, into the round run",7,ea,,,,
 "Buy separately: rectangular duct, plenums and stacks",Sheet metal shop,Wall stack 10 x 2-1/2 in,In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit),1,ea,9 ft total,,,Plus one stack to round head per stack
 "Buy separately: rectangular duct, plenums and stacks",Sheet metal shop,Stack to round head,"Top of each wall stack, into the round run",1,ea,,,,
-"Buy separately: rectangular duct, plenums and stacks",Sheet metal shop,Wall stack 6 x 2-1/2 in,In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit),1,ea,8 ft total,,,Plus one stack to round head per stack
-"Buy separately: rectangular duct, plenums and stacks",Sheet metal shop,Stack to round head,"Top of each wall stack, into the round run",1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,10 x 10 in ceiling boot x 6 in round,,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,10 x 6 in ceiling boot x 6 in round,,3,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,10 x 6 in sidewall boot x 6 in round,,3,ea,,,,
@@ -85,14 +82,14 @@ Buy separately: ERV and ventilation equipment,Separately,Rheem water heater duct
 "Buy separately: boots, registers and grilles",Separately,14 x 6 in sidewall boot x 8 in round,,7,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,14 x 8 in ceiling boot x 8 in round,,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,14 x 8 in sidewall boot x 8 in round,,1,ea,,,,
+"Buy separately: boots, registers and grilles",Separately,6 x 6 in ceiling boot x 4 in round,,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,8 x 6 in ceiling boot x 6 in round,,4,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,8 x 8 in ceiling boot x 4 in round,,1,ea,,,,
-"Buy separately: boots, registers and grilles",Separately,Wall stack boot for a 10 x 4 in grille,,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,Wall stack boot for a 10 x 6 in grille,,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,Wall stack boot for a 14 x 8 in grille,,7,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,10 x 10 in ceiling exhaust grille,Exhaust,1,ea,,,,
-"Buy separately: boots, registers and grilles",Separately,10 x 4 in sidewall filter grille (litter box pickup),Exhaust,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,10 x 6 in sidewall exhaust grille,Exhaust,1,ea,,,,
+"Buy separately: boots, registers and grilles",Separately,6 x 6 in ceiling exhaust grille,Exhaust,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,8 x 8 in ceiling exhaust grille,Exhaust,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,12 x 12 in ceiling transfer grille,Return,2,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,14 x 8 in sidewall return grille,Return,7,ea,,,,
@@ -106,10 +103,10 @@ Buy separately: ERV and ventilation equipment,Separately,Rheem water heater duct
 "Buy separately: boots, registers and grilles",Separately,14 x 8 in ceiling supply register,Supply,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,14 x 8 in sidewall supply register,Supply,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,8 x 6 in ceiling supply register,Supply,4,ea,,,,
-"Buy separately: sealing, hanging and insulation",Separately,"Duct mastic, water based, UL 181",,6,gal,About 216 joints,,,
+"Buy separately: sealing, hanging and insulation",Separately,"Duct mastic, water based, UL 181",,6,gal,About 209 joints,,,
 "Buy separately: sealing, hanging and insulation",Separately,"Foil tape, UL 181A-P / 181B-FX",,9,roll,,,,
 "Buy separately: sealing, hanging and insulation",Separately,#8 x 1/2 in self drilling sheet metal screws,3 per joint,700,ea,,,,
 "Buy separately: sealing, hanging and insulation",Separately,Flex duct clamps or nylon duct ties,2 per flex connection,28,ea,,,,
-"Buy separately: sealing, hanging and insulation",Separately,"Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap","Rigid every 5 ft, flex every 4 ft, rect every 4 ft",108,hangers,About 3 ft of strap each,,,
+"Buy separately: sealing, hanging and insulation",Separately,"Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap","Rigid every 5 ft, flex every 4 ft, rect every 4 ft",106,hangers,About 3 ft of strap each,,,
 "Buy separately: sealing, hanging and insulation",Separately,"Acoustic duct liner, 1 in",Main return box and trunk,1,roll,,,,Often supplied by the sheet metal shop
 "Buy separately: sealing, hanging and insulation",Separately,"Duct insulation wrap, R-8 with vapor jacket",ERV outdoor ducts,21,ft,,,,"Supply and return ducts sit inside the SIP envelope, so they do not need insulation by code"

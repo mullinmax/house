@@ -228,6 +228,7 @@ MATERIALS = {
     "Standing Seam": dict(color=MM["roof_color"], rough=0.41, metal=0.6),
     "Garage Door": dict(color="#2A2A2A", rough=0.5),
     "Plastic Grey": dict(color="#9A9A96", rough=0.5),
+    "Smoked Flap": dict(color="#3B3A36", rough=0.2),
     "Appliance Interior": dict(color="#1A1A1A", rough=0.6),
     "Attic Deck": dict(color="#C8B28A", rough=0.85),
     "Lumber": dict(color="#D9B98A", rough=0.85),                                            # framing (Framing layer)
@@ -2053,6 +2054,24 @@ if FU.get("enabled"):
                 lf = op(r, f"{r['id']}.leaf{suffix}", r["name"], "swing", (hp[0], hp[1], 0), angle=90 * sgn_)
                 with into(lf["parts"]):
                     B("White Oak", l0, l1, tm - 0.07, tm + 0.07, 0.04, DOOR_LEAF_TOP.get((g0, g1), h) - 0.08)
+                    cd_ = FU.get("cat_door")
+                    if cd_ and math.hypot(cd_["at"][0] - gc[0], cd_["at"][1] - gc[1]) < 1.5:
+                        # flapped cat door through the leaf (Maxwell, 11/20/2026): a frame on each face, a smoked flap inside the
+                        # opening, set toward the hinge side so it clears the lever. Sizes in inches from config [furnishings].cat_door
+                        fw, fh, ow, oh, zb = (v / 12 for v in (cd_["frame_w_in"], cd_["frame_h_in"], cd_["open_w_in"], cd_["open_h_in"], cd_["bottom_in"]))
+                        cc = (l0 + 0.95) if k_ == 0 else (l1 - 0.95)
+                        r.setdefault("info", {}).setdefault("notes", []).append(
+                            f"Cat flap through the leaf for the litter box (Maxwell, 11/20/2026): about {cd_['open_w_in']:g} x {cd_['open_h_in']:g} in opening in a "
+                            f"{cd_['frame_w_in']:g} x {cd_['frame_h_in']:g} in frame, {cd_['bottom_in']:g} in off the floor, toward the hinge side, clear of the lever. "
+                            "Pick one rated for a solid core door this thick, with a magnetic or brush seal: the flap keeps most of the room's sound out of the hall, "
+                            "and it is one of the ways the air the litter box exhaust pulls out gets back into the room. Size and model ASSUMED.")
+                        for sgn in (-1, 1):
+                            f0 = tm + sgn * 0.07; f1 = f0 + sgn * 0.03
+                            for (a0, a1, z0, z1) in ((cc - fw / 2, cc - ow / 2, zb, zb + fh), (cc + ow / 2, cc + fw / 2, zb, zb + fh),
+                                                     (cc - ow / 2, cc + ow / 2, zb, zb + (fh - oh) / 2), (cc - ow / 2, cc + ow / 2, zb + (fh + oh) / 2, zb + fh)):
+                                B("Plastic Grey", a0, a1, min(f0, f1), max(f0, f1), z0, z1)
+                            fa, fb = tm + sgn * 0.073, tm + sgn * 0.08
+                            B("Smoked Flap", cc - ow / 2, cc + ow / 2, min(fa, fb), max(fa, fb), zb + (fh - oh) / 2, zb + (fh + oh) / 2)
                     lx = l1 - 0.25 if k_ == 0 else l0 + 0.25
                     for sgn in (-1, 1):
                         b0 = tm + sgn * 0.07; b1 = b0 + sgn * 0.06

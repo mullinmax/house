@@ -316,9 +316,9 @@
     {
      "item": "4 in round pipe, 30 ga snap lock",
      "spec": "Exhaust",
-     "qty": 5,
+     "qty": 4,
      "unit": "x 5 ft",
-     "where": "22 ft in the model",
+     "where": "16 ft in the model",
      "note": "",
      "price": "",
      "status": ""
@@ -436,7 +436,7 @@
     {
      "item": "4 in adjustable 90 elbow",
      "spec": "",
-     "qty": 7,
+     "qty": 5,
      "unit": "ea",
      "where": "Counted from the bends in the model",
      "note": "",
@@ -554,16 +554,6 @@
      "status": ""
     },
     {
-     "item": "4 x 4 in wye",
-     "spec": "Branch into a round main",
-     "qty": 1,
-     "unit": "ea",
-     "where": "",
-     "note": "",
-     "price": "",
-     "status": ""
-    },
-    {
      "item": "6 x 6 in wye",
      "spec": "Branch into a round main",
      "qty": 1,
@@ -576,7 +566,7 @@
     {
      "item": "8 x 4 in wye",
      "spec": "Branch into a round main",
-     "qty": 1,
+     "qty": 2,
      "unit": "ea",
      "where": "",
      "note": "",
@@ -790,26 +780,6 @@
      "note": "",
      "price": "",
      "status": ""
-    },
-    {
-     "item": "Wall stack 6 x 2-1/2 in",
-     "spec": "In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit)",
-     "qty": 1,
-     "unit": "ea",
-     "where": "8 ft total",
-     "note": "Plus one stack to round head per stack",
-     "price": "",
-     "status": ""
-    },
-    {
-     "item": "Stack to round head",
-     "spec": "Top of each wall stack, into the round run",
-     "qty": 1,
-     "unit": "ea",
-     "where": "",
-     "note": "",
-     "price": "",
-     "status": ""
     }
    ]
   },
@@ -920,6 +890,16 @@
      "status": ""
     },
     {
+     "item": "6 x 6 in ceiling boot x 4 in round",
+     "spec": "",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
      "item": "8 x 6 in ceiling boot x 6 in round",
      "spec": "",
      "qty": 4,
@@ -931,16 +911,6 @@
     },
     {
      "item": "8 x 8 in ceiling boot x 4 in round",
-     "spec": "",
-     "qty": 1,
-     "unit": "ea",
-     "where": "",
-     "note": "",
-     "price": "",
-     "status": ""
-    },
-    {
-     "item": "Wall stack boot for a 10 x 4 in grille",
      "spec": "",
      "qty": 1,
      "unit": "ea",
@@ -980,7 +950,7 @@
      "status": ""
     },
     {
-     "item": "10 x 4 in sidewall filter grille (litter box pickup)",
+     "item": "10 x 6 in sidewall exhaust grille",
      "spec": "Exhaust",
      "qty": 1,
      "unit": "ea",
@@ -990,7 +960,7 @@
      "status": ""
     },
     {
-     "item": "10 x 6 in sidewall exhaust grille",
+     "item": "6 x 6 in ceiling exhaust grille",
      "spec": "Exhaust",
      "qty": 1,
      "unit": "ea",
@@ -1142,7 +1112,7 @@
      "spec": "",
      "qty": 6,
      "unit": "gal",
-     "where": "About 216 joints",
+     "where": "About 209 joints",
      "note": "",
      "price": "",
      "status": ""
@@ -1180,7 +1150,7 @@
     {
      "item": "Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap",
      "spec": "Rigid every 5 ft, flex every 4 ft, rect every 4 ft",
-     "qty": 108,
+     "qty": 106,
      "unit": "hangers",
      "where": "About 3 ft of strap each",
      "note": "",
@@ -1241,11 +1211,11 @@
    "system": "Exhaust",
    "room": "Utility",
    "size": "4 in round",
-   "ft": 12.116541666666665,
+   "ft": 6.24225,
    "cfm": 20,
    "flex": false,
    "crosses": 0,
-   "stacks": 1
+   "stacks": 0
   },
   {
    "id": "ex_main",

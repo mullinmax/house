@@ -567,6 +567,7 @@ door_pocket = [ [14.16, 22.64, -1], [35.7, 22.64, -1], [22.08, 15.26, 1], [16.43
 # doors not listed keep the default: hinge at the west or north jamb, swinging south or east (closets 2 and 3 already match A-11)
 door_swing = [ [41.23, 34.9, "E", "S"], [14.14, 10.8, "E", "N"], [17.9, 10.8, "W", "N"], [24.7, 10.8, "W", "N"], [30.4, 13.0, "S", "E"], [16.43, 20.64, "S", "W"],
                [11.97, 12.99, "N", "W"], [11.89, 25.1, "N", "E"], [11.89, 30.6, "N", "W"] ]   # utility door: still hinged on the north jamb but swings OUT into hall 1 (Maxwell, 11/19/2026)   # door between the bedroom wing and the common space: pocket door sliding west into the wall (Maxwell 11/13)   # opening inside Closet 1: left open, no door (Maxwell 11/13)
+cat_door = { at = [11.89, 25.1], frame_w_in = 9.5, frame_h_in = 11.75, open_w_in = 7.0, open_h_in = 9.25, bottom_in = 5.0 }   # flapped cat door in the utility room door, for the litter box (Maxwell, 11/20/2026). Medium cat flap class, ASSUMED size; the flap blocks most of the room's sound
 items = [
   # ---- living room (vaulted, x 16.7-31.1, y 22.9-34.6)
   { id = "living_rug", type = "rug", x = 26.4, y = 27.8, w = 7.5, l = 9.0, facing = 270, color = "#B9AE9A" },

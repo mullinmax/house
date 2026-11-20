@@ -58,7 +58,7 @@ Counted from the model with 10 percent extra. Anything that crosses the floor tr
 
 | Item | Spec | Qty | Unit | Where | Notes |
 |---|---|---|---|---|---|
-| 4 in round pipe, 30 ga snap lock | Exhaust | 5 | x 5 ft | 22 ft in the model |  |
+| 4 in round pipe, 30 ga snap lock | Exhaust | 4 | x 5 ft | 16 ft in the model |  |
 | 6 in round pipe, 30 ga snap lock | Exhaust | 9 | x 5 ft | 39 ft in the model |  |
 | 6 in round pipe, 30 ga snap lock | Supply | 10 | x 5 ft | 43 ft in the model |  |
 | 7 in round pipe, 30 ga snap lock | Supply | 5 | x 5 ft | 19 ft in the model |  |
@@ -70,7 +70,7 @@ Counted from the model with 10 percent extra. Anything that crosses the floor tr
 | 10 in round pipe, 30 ga snap lock | Return | 12 | x 5 ft | 51 ft in the model |  |
 | 6 in flex duct, R-6 insulated | Return runs through the trusses | 4 | x 25 ft box | 72 ft in the model | Pull it tight, no sags; support every 4 ft |
 | 10 in flex duct, R-6 insulated | Return runs through the trusses | 1 | x 25 ft box | 14 ft in the model | Pull it tight, no sags; support every 4 ft |
-| 4 in adjustable 90 elbow |  | 7 | ea | Counted from the bends in the model |  |
+| 4 in adjustable 90 elbow |  | 5 | ea | Counted from the bends in the model |  |
 | 6 in adjustable 90 elbow |  | 13 | ea | Counted from the bends in the model |  |
 | 7 in adjustable 90 elbow |  | 5 | ea | Counted from the bends in the model |  |
 | 8 in adjustable 90 elbow |  | 14 | ea | Counted from the bends in the model |  |
@@ -82,9 +82,8 @@ Counted from the model with 10 percent extra. Anything that crosses the floor tr
 | 8 in round takeoff (starting collar) with volume damper | Off a rectangular trunk, main or plenum | 10 | ea |  | Supply branches get a manual damper to set at air balancing (M-10) |
 | 10 in round takeoff (starting collar) | Off a rectangular trunk, main or plenum | 2 | ea |  |  |
 | 10 x 6 in tee or wye | Branch into a round main | 2 | ea |  |  |
-| 4 x 4 in wye | Branch into a round main | 1 | ea |  |  |
 | 6 x 6 in wye | Branch into a round main | 1 | ea |  |  |
-| 8 x 4 in wye | Branch into a round main | 1 | ea |  |  |
+| 8 x 4 in wye | Branch into a round main | 2 | ea |  |  |
 | 8 x 6 in wye | Branch into a round main | 1 | ea |  |  |
 | 4 in manual balancing damper | One per ERV exhaust branch | 1 | ea |  | Set each bathroom to 20 CFM continuous |
 | 6 in manual balancing damper | One per ERV exhaust branch | 2 | ea |  | Set each bathroom to 20 CFM continuous |
@@ -112,8 +111,6 @@ Trunks, plenums and boxes are usually made to measure by a sheet metal shop once
 | Stack to round head | Top of each wall stack, into the round run | 7 | ea |  |  |
 | Wall stack 10 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 1 | ea | 9 ft total | Plus one stack to round head per stack |
 | Stack to round head | Top of each wall stack, into the round run | 1 | ea |  |  |
-| Wall stack 6 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 1 | ea | 8 ft total | Plus one stack to round head per stack |
-| Stack to round head | Top of each wall stack, into the round run | 1 | ea |  |  |
 
 ## Buy separately: boots, registers and grilles
 
@@ -131,14 +128,14 @@ Sidewall supply registers in the door walls should be long throw types aimed acr
 | 14 x 6 in sidewall boot x 8 in round |  | 7 | ea |  |  |
 | 14 x 8 in ceiling boot x 8 in round |  | 1 | ea |  |  |
 | 14 x 8 in sidewall boot x 8 in round |  | 1 | ea |  |  |
+| 6 x 6 in ceiling boot x 4 in round |  | 1 | ea |  |  |
 | 8 x 6 in ceiling boot x 6 in round |  | 4 | ea |  |  |
 | 8 x 8 in ceiling boot x 4 in round |  | 1 | ea |  |  |
-| Wall stack boot for a 10 x 4 in grille |  | 1 | ea |  |  |
 | Wall stack boot for a 10 x 6 in grille |  | 1 | ea |  |  |
 | Wall stack boot for a 14 x 8 in grille |  | 7 | ea |  |  |
 | 10 x 10 in ceiling exhaust grille | Exhaust | 1 | ea |  |  |
-| 10 x 4 in sidewall filter grille (litter box pickup) | Exhaust | 1 | ea |  |  |
 | 10 x 6 in sidewall exhaust grille | Exhaust | 1 | ea |  |  |
+| 6 x 6 in ceiling exhaust grille | Exhaust | 1 | ea |  |  |
 | 8 x 8 in ceiling exhaust grille | Exhaust | 1 | ea |  |  |
 | 12 x 12 in ceiling transfer grille | Return | 2 | ea |  |  |
 | 14 x 8 in sidewall return grille | Return | 7 | ea |  |  |
@@ -159,11 +156,11 @@ Estimated from the joint and length counts above.
 
 | Item | Spec | Qty | Unit | Where | Notes |
 |---|---|---|---|---|---|
-| Duct mastic, water based, UL 181 |  | 6 | gal | About 216 joints |  |
+| Duct mastic, water based, UL 181 |  | 6 | gal | About 209 joints |  |
 | Foil tape, UL 181A-P / 181B-FX |  | 9 | roll |  |  |
 | #8 x 1/2 in self drilling sheet metal screws | 3 per joint | 700 | ea |  |  |
 | Flex duct clamps or nylon duct ties | 2 per flex connection | 28 | ea |  |  |
-| Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap | Rigid every 5 ft, flex every 4 ft, rect every 4 ft | 108 | hangers | About 3 ft of strap each |  |
+| Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap | Rigid every 5 ft, flex every 4 ft, rect every 4 ft | 106 | hangers | About 3 ft of strap each |  |
 | Acoustic duct liner, 1 in | Main return box and trunk | 1 | roll |  | Often supplied by the sheet metal shop |
 | Duct insulation wrap, R-8 with vapor jacket | ERV outdoor ducts | 21 | ft |  | Supply and return ducts sit inside the SIP envelope, so they do not need insulation by code |
 
@@ -173,7 +170,7 @@ Estimated from the joint and length counts above.
 |---|---|---|---|---|---|---|---|---|
 | Bath 1 exhaust | Exhaust | Bath 1 | 6 in round | 13.0 |  |  |  |  |
 | Bath 2 exhaust | Exhaust | Bath 2 | 6 in round | 0.9 |  |  |  |  |
-| Litter box exhaust | Exhaust | Utility | 4 in round | 12.1 | 20 |  |  | 1 |
+| Litter box exhaust | Exhaust | Utility | 4 in round | 6.2 | 20 |  |  |  |
 | Bath exhaust main | Exhaust | None | 6 in round | 62.3 |  |  |  |  |
 | Powder exhaust | Exhaust | Powder | 4 in round | 9.6 |  |  |  |  |
 | Range hood duct | Range hood | Kitchen | 8 in round | 4.5 |  |  |  |  |
