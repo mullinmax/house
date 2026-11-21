@@ -8660,7 +8660,7 @@
     0.3
    ],
    "at": [
-    37.9,
+    37.05,
     22.866,
     11.198
    ],
@@ -8681,7 +8681,7 @@
      ]
     ],
     "notes": [
-     "Moved west out of the attic access, which now opens 1 ft off the east wall (U-12 has it at x 39.0): Maxwell, 11/19/2026.",
+     "Moved west out of the attic access twice: it opened 1 ft off the east wall (U-12 has it at x 39.0, Maxwell 11/19/2026), then the opening moved west again and left it floating in the doorway (11/21/2026). Now on the wall just west of the attic door casing, past the end of the loveseat (Maxwell 11/21/2026).",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 5).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -8949,7 +8949,7 @@
    ],
    "gangs": 1,
    "at": [
-    38.298,
+    37.25,
     22.408,
     13.531
    ],
@@ -8967,6 +8967,7 @@
      ]
     ],
     "notes": [
+     "Attic light switch, on the attic side of the loft north wall. It floated in the attic opening after the opening moved west (11/21/2026); now on the wall just west of the opening, the latch side of the attic door (Maxwell 11/21/2026).",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 12).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."

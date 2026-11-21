@@ -1,3 +1,7 @@
 # Coplanar pairs accepted on purpose (tools/coplanar_audit.mjs skips them). One regular expression per line, tested
 # against the pair as the audit prints it: "record (material) vs record (material)". Say why on the line above.
 # Better to fix the geometry: grow one face 1/32 in past the other, or let model/make_house.py nudge() do it.
+# The pantry passage's east king stud (clerestory wall framing) shares its north face with the clerestory wall's inner drywall
+# block, but both sit behind the wall's 1/2 in north skin, so neither is seen. The audit's ray vote on it flips with unrelated
+# geometry changes elsewhere in the house (it showed up when the attic door and TV console were added, 11/21/2026).
+^framing\.header\.17 \(Lumber\) vs wall\.ext\.C \(Drywall\)$
