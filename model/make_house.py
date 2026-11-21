@@ -1827,66 +1827,84 @@ elif HSTYLE == "cabinets":
     CUR[0] = BYID["kitchen.hood"]["parts"]
     to_ceiling("Cabinet Wood", _cc - 0.6, _cc + 0.6, 0, 1.2, CZ1 + 0.25)                                   # chase for the duct to the wall exit
 elif HSTYLE == "farmhouse":
-    # Farmhouse hood (Maxwell, 11/20/2026, from two photos he sent): a painted plaster hood that tapers in on the front and
-    # both sides, sitting on a chunky white oak mantel beam with a curved corbel under each end. Its bottom edge is 30 in over
-    # the cooktop (his number, also the PM600SSV's recommended maximum). It stops at a crown at 8 ft, level with the oven
-    # tower's crown, with no chimney above: the duct turns once inside the hood and goes straight out the west wall.
-    # The open shelves wrap round from the sink wall along this wall into the hood's south side, and a short shelf joins
-    # its north side to the oven tower.
-    MATERIALS.setdefault("Hood Beam", dict(color="#C9A57C", rough=0.6, map="white_oak.jpg", normal="oak_normal.jpg", normal_scale=0.8, tile=0.8, grain="long"))
-    PL, BM = "Hood Plaster", "Hood Beam"
-    FW = HOOD.get("farm_width_in", 48) / 12
+    # Farmhouse hood (Maxwell, 11/20/2026, from two photos he sent): a painted hood that tapers in on the front and both sides,
+    # sitting on a white oak mantel beam (the cabinet and window oak) with a slim curved corbel under each end. The beam's
+    # underside is 30 in over the cooktop (his number, also the PM600SSV's recommended maximum). An oak band trims the top.
+    # The open shelves wrap round from the sink wall into the hood's south side, and a short shelf joins it to the oven tower.
+    # No chimney is needed for the duct: it turns once inside the hood and goes straight out the west wall. Variants
+    # (HOOD_FARM env or [kitchen.hood] farm_variant) try paint, taper and what happens above the top:
+    #   top     "cab" = level with the cabinet tops (8 ft), a height in ft, or "ceiling" (taper all the way up)
+    #   chim    None, or (width in, depth in, paint) for a straight chimney from the top to the ceiling
+    FV = {
+        "1": dict(paint="wall", top="cab", tw=30, td=14, chim=None),
+        "2": dict(paint="sage", top="cab", tw=30, td=14, chim=None),
+        "3": dict(paint="wall", top="ceiling", tw=20, td=12, chim=None),
+        "4": dict(paint="sage", top="cab", tw=30, td=16, chim=(20, 12, "sage")),
+        "5": dict(paint="wall", top=9.25, tw=22, td=12, chim=None),
+        "6": dict(paint="sage", top="cab", tw=28, td=14, chim=(24, 14, "wall")),
+    }
+    V = FV[_os.environ.get("HOOD_FARM") or str(HOOD.get("farm_variant", 1))]
+    MATERIALS.setdefault("Hood Sage", dict(color="#7B8770", rough=0.8))   # Sherwin-Williams Dried Thyme, the sink window's paint
+    PAINT = {"wall": "Drywall", "sage": "Hood Sage"}
+    PL, OAK = PAINT[V["paint"]], "White Oak"
+    FW = HOOD.get("farm_width_in", 42) / 12        # 42 in (Maxwell 11/20/2026: slimmer corbels, so pull the hood in and give the north shelf more room)
     FU0, FU1 = _cc - FW / 2, _cc + FW / 2
-    FB = CTR_Z + 30 / 12                           # bottom of the beam, 30 in over the cooktop
-    BH, BF = 7 / 12, 5 / 12                        # beam height, depth of its front piece
-    ZB = FB + BH                                   # the plaster starts on top of the beam
-    ZT = TALL                                      # top of the taper, under a crown level with the oven tower's
-    IN = 1.5 / 12                                  # the plaster sits this far in from the beam's ends and front
-    TW, TD = 32 / 12, 14 / 12                      # plaster width and depth at the top
+    FB = CTR_Z + 30 / 12                           # underside of the beam, 30 in over the cooktop
+    BH, BF = 5 / 12, 3.5 / 12                      # beam height, depth of its front piece
+    ZB = FB + BH                                   # the paint starts on top of the beam
+    if V["top"] == "cab": ZT = TALL
+    elif V["top"] == "ceiling": ZT = min(ceil_at(FU0), ceil_at(FU1))
+    else: ZT = V["top"]
+    IN = 1 / 12                                    # the paint sits this far in from the beam's ends and front
+    TW, TD = V["tw"] / 12, V["td"] / 12
     def a0(z): t = (z - ZB) / (ZT - ZB); return FU0 + IN + t * ((_cc - TW / 2) - (FU0 + IN))
     def a1(z): return 2 * _cc - a0(z)
     def df(z): t = (z - ZB) / (ZT - ZB); return HD_ - IN + t * (TD - (HD_ - IN))
-    # mantel beam: a front piece and two end pieces, open in the middle over the power pack
-    wr.box(BM, FU0, FU1, HD_ - BF, HD_, FB, ZB)
-    for u0, u1 in ((FU0, FU0 + 0.33), (FU1 - 0.33, FU1)):
-        wr.box(BM, u0, u1, 0, HD_ - BF, FB, ZB)
-    # thin plaster walls round the capture box, then solid plaster up to the crown
-    ZC = FB + 15 / 12
+    wr.box(OAK, FU0, FU1, HD_ - BF, HD_, FB, ZB)                         # mantel beam: front piece and two ends, open over the power pack
+    for u0, u1 in ((FU0, FU0 + 0.25), (FU1 - 0.25, FU1)):
+        wr.box(OAK, u0, u1, 0, HD_ - BF, FB, ZB)
+    ZC = FB + 15 / 12                              # top of the open capture box
     z0 = ZB - 0.01
-    def front(zl, zh, th):
-        hexa(PL, [_P(a0(zl), df(zl) - th, zl), _P(a0(zl), df(zl), zl), _P(a0(zh), df(zh), zh), _P(a0(zh), df(zh) - th, zh),
-                  _P(a1(zl), df(zl) - th, zl), _P(a1(zl), df(zl), zl), _P(a1(zh), df(zh), zh), _P(a1(zh), df(zh) - th, zh)])
-    front(z0, ZC, WT)
+    hexa(PL, [_P(a0(z0), df(z0) - WT, z0), _P(a0(z0), df(z0), z0), _P(a0(ZC), df(ZC), ZC), _P(a0(ZC), df(ZC) - WT, ZC),
+              _P(a1(z0), df(z0) - WT, z0), _P(a1(z0), df(z0), z0), _P(a1(ZC), df(ZC), ZC), _P(a1(ZC), df(ZC) - WT, ZC)])
     for s in (1, -1):
-        hexa(PL, [_P(a0(z0) if s > 0 else a1(z0) - WT, 0, z0), _P(a0(z0) if s > 0 else a1(z0) - WT, df(z0) - WT, z0),
-                  _P(a0(ZC) if s > 0 else a1(ZC) - WT, df(ZC) - WT, ZC), _P(a0(ZC) if s > 0 else a1(ZC) - WT, 0, ZC),
-                  _P(a0(z0) + WT if s > 0 else a1(z0), 0, z0), _P(a0(z0) + WT if s > 0 else a1(z0), df(z0) - WT, z0),
-                  _P(a0(ZC) + WT if s > 0 else a1(ZC), df(ZC) - WT, ZC), _P(a0(ZC) + WT if s > 0 else a1(ZC), 0, ZC)])
-    ZT_ = ZT - 0.1                                 # the solid stops inside the crown so their tops do not flicker
+        def ux(z, inner): return (a0(z) + (WT if inner else 0)) if s > 0 else (a1(z) - (0 if inner else WT))
+        hexa(PL, [_P(ux(z0, 0), 0, z0), _P(ux(z0, 0), df(z0) - WT, z0), _P(ux(ZC, 0), df(ZC) - WT, ZC), _P(ux(ZC, 0), 0, ZC),
+                  _P(ux(z0, 1), 0, z0), _P(ux(z0, 1), df(z0) - WT, z0), _P(ux(ZC, 1), df(ZC) - WT, ZC), _P(ux(ZC, 1), 0, ZC)])
+    BT = 3 / 12                                    # oak band round the top: 3 in tall, 3/4 in proud
+    ZT_ = ZT - 0.1
     hexa(PL, [_P(a0(ZC), 0, ZC), _P(a0(ZC), df(ZC), ZC), _P(a0(ZT_), df(ZT_), ZT_), _P(a0(ZT_), 0, ZT_),
               _P(a1(ZC), 0, ZC), _P(a1(ZC), df(ZC), ZC), _P(a1(ZT_), df(ZT_), ZT_), _P(a1(ZT_), 0, ZT_)])
-    wr.box(PL, a0(ZT) - 0.12, a1(ZT) + 0.12, 0, df(ZT) + 0.12, ZT - 0.25, ZT)        # crown
+    wr.box(OAK, a0(ZT - BT) - 0.06, a1(ZT - BT) + 0.06, 0, df(ZT - BT) + 0.06, ZT - BT, ZT)
+    if V["chim"]:
+        cw, cd, cp = V["chim"]
+        to_ceiling(PAINT[cp], _cc - cw / 24, _cc + cw / 24, 0, cd / 12, ZT - 0.05)
+        wr.box(OAK, _cc - cw / 24 - 0.05, _cc + cw / 24 + 0.05, 0, cd / 12 + 0.05, ceil_at(_cc + cw / 24) - 0.2, ceil_at(_cc + cw / 24) - 0.04)   # oak band at the ceiling
     wr.box("Stainless", a0(ZC) + WT, a1(ZC) - WT, 0, df(ZC) - WT, ZC - 0.025, ZC - 0.008)   # stainless top of the capture box
-    # curved corbels under the beam ends, 3-1/2 in thick, 16 in tall, 14 in out from the wall
-    import math as _m
-    CH, CD, CMIN = 16 / 12, 14 / 12, 2.5 / 12
-    pts = [(CD - (CD - CMIN) * _m.cos(_m.pi / 2 * k / 8), FB - CH + CH * _m.sin(_m.pi / 2 * k / 8)) for k in range(9)]
-    for u0, u1 in ((FU0 + 0.02, FU0 + 0.31), (FU1 - 0.31, FU1 - 0.02)):
+    import math as _m                              # slim curved corbels under the beam ends: 1-3/4 in thick, 12 in tall, 10 in out
+    CH, CD, CMIN = 12 / 12, 10 / 12, 1.5 / 12
+    pts = [(CD - (CD - CMIN) * _m.cos(_m.pi / 2 * k / 10), FB - CH + CH * _m.sin(_m.pi / 2 * k / 10)) for k in range(11)]
+    pts[-1] = (pts[-1][0], FB - 0.002)
+    for u0, u1 in ((FU0 + 0.05, FU0 + 0.05 + 1.75 / 12), (FU1 - 0.05 - 1.75 / 12, FU1 - 0.05)):
         for (d0_, zz0), (d1_, zz1) in zip(pts, pts[1:]):
-            slab(BM, u0, u1, [(0, zz0), (d0_, zz0), (d1_, zz1 - (0.002 if zz1 >= FB - 1e-6 else 0)), (0, zz1 - (0.002 if zz1 >= FB - 1e-6 else 0))])
+            slab(OAK, u0, u1, [(0, zz0), (d0_, zz0), (d1_, zz1), (0, zz1)])
     pucks(ZC - 0.03, d=HD_ - 0.6, n=2)
     FARM = dict(lo=FB, beam=(FU0, FU1, ZB), side=lambda z, s: (a1(z) if s > 0 else a0(z)))
+    top_txt = {"cab": "level with the cabinet tops at 8 ft", "ceiling": "tapering all the way to the ceiling"}.get(V["top"], f"at {ftin(ZT)}")
     BYID["kitchen.hood"]["info"] = dict(
-        model="Farmhouse hood: tapered painted plaster on a white oak mantel beam with curved corbels, over a Broan PM600SSV power pack (suggested)",
-        specs=[["Width", f"{ftin(FW)} at the beam, tapering to {ftin(TW)} at the crown (cooktop 30-11/16 in)"], ["Depth", f"{ftin(HD_)} at the beam, {ftin(TD)} at the crown"],
-               ["Underside", f"{ftin(FB)} above the floor, 30 in above the cooktop"], ["Top", "Crown at 8 ft, level with the oven tower. No chimney above"],
+        model=f"Farmhouse hood: tapered, painted {'Dried Thyme sage' if V['paint'] == 'sage' else 'to match the walls'}, white oak mantel beam, "
+              "curved corbels and oak band at the top, over a Broan PM600SSV power pack (suggested)",
+        specs=[["Width", f"{ftin(FW)} at the beam, tapering to {ftin(TW)} (cooktop 30-11/16 in)"], ["Depth", f"{ftin(HD_)} at the beam, {ftin(TD)} at the top"],
+               ["Underside", f"{ftin(FB)} above the floor, 30 in above the cooktop"],
+               ["Top", top_txt + (f", then a {V['chim'][0]} x {V['chim'][1]} in chimney to the ceiling" if V["chim"] else "")],
                ["Fan", "Power pack inside, about 0.5 sone on normal, turns itself on by sensing heat. 8 in duct up, one elbow, straight out the west wall"]],
         links=[VIDEO],
-        notes=["Mocked up from two photos Maxwell sent (11/20/2026): plaster hood tapering on three sides, a chunky wood mantel beam and curved supports.",
+        notes=["Mocked up from two photos Maxwell sent (11/20/2026): a painted hood tapering on three sides, a wood mantel beam and curved supports, "
+               "in the same white oak as the cabinets and windows.",
                "30 in over the cooktop is the PM600SSV's recommended maximum (24 to 30 in). The open shelves on either side meet the beam.",
-               "No chimney: the duct rises about 10 in off the power pack, turns once inside the plaster and goes straight through the wall. A shorter duct "
-               "with the same one elbow performs at least as well as the tall version.",
-               "The corbels sit about 5 in from the cooktop's sides: fine for induction, but keep pans and handles clear."])
+               "The duct rises about 10 in off the power pack, turns once inside the hood and goes straight through the wall: the 8 in round outlet "
+               "only points up (Broan install guide), and a short run with one elbow performs at least as well as a tall chimney.",
+               "The corbels sit about 3 in from the cooktop's sides: fine for induction (no flame), but keep pan handles clear."])
 elif HSTYLE.startswith("ss_"):
     # Lower, cleaner stainless shells around the Broan PM600SSV (Maxwell, 11/20/2026: the slope was too steep and looked big;
     # flatter, maybe curved, closer to the kitchen designer's square hood with a right angle into the duct cover). All 60 in
