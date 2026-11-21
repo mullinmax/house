@@ -4663,7 +4663,7 @@
   },
   {
    "id": "elec_data_02",
-   "name": "TV network outlet, 72 in",
+   "name": "Network outlet, 16 in",
    "category": "Low voltage",
    "system": "low_voltage",
    "room": "Entry / family",
@@ -4677,7 +4677,7 @@
    "at": [
     42.542,
     49.55,
-    5.812
+    1.146
    ],
    "facing": 270,
    "info": {
@@ -4685,7 +4685,7 @@
     "specs": [
      [
       "Height",
-      "72 in to the centre"
+      "16 in to the centre"
      ],
      [
       "Jacks",
@@ -4693,7 +4693,7 @@
      ]
     ],
     "notes": [
-     "U-11 draws an optional TV mount here (72 in, blocking and a 2 in sleeve). No TV mount in this corner (Maxwell 11/21/2026); the network outlet stays at 72 in as drawn. ASSUMED, confirm the height.",
+     "U-11 draws a TV network outlet and optional TV mount here at 72 in. No TV in this corner: mount removed and the jack dropped to 16 in (Maxwell 11/21/2026).",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 14).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "No coax anywhere in the house (Maxwell, 11/19/2026): each U-11 cable TV and CAT-5 outlet becomes two network jacks, each with its own cable back to the network spot.",
@@ -4704,7 +4704,7 @@
   },
   {
    "id": "elec_outlet_02",
-   "name": "Outlet by the TV, 72 in",
+   "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
    "room": "Entry / family",
@@ -4718,7 +4718,7 @@
    "at": [
     42.542,
     50.059,
-    5.812
+    1.146
    ],
    "facing": 270,
    "gfi": false,
@@ -4729,7 +4729,7 @@
     "specs": [
      [
       "Height",
-      "72 in to the centre"
+      "16 in to the centre (U-11 legend)"
      ],
      [
       "On",
@@ -4737,7 +4737,7 @@
      ]
     ],
     "notes": [
-     "Behind the entry and family room TV. U-11: 72 in to the TV, confirm with the owner.",
+     "U-11 draws this at 72 in behind a TV. No TV in this corner, so it drops to the standard 16 in (Maxwell 11/21/2026).",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 15).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -8612,82 +8612,34 @@
    "src": "U-12 #2"
   },
   {
-   "id": "elec_data_07",
-   "name": "Network outlet, 16 in",
-   "category": "Low voltage",
-   "system": "low_voltage",
-   "room": "Loft",
-   "layer": "lowvolt",
-   "builder": "data_jack",
-   "size": [
-    2.75,
-    4.5,
-    0.3
-   ],
-   "at": [
-    31.9,
-    22.832,
-    11.198
-   ],
-   "facing": 180,
-   "info": {
-    "model": "Two port network outlet, CAT-6 (U-11 draws cable TV and CAT-5; CAT-6 costs about the same now)",
-    "specs": [
-     [
-      "Height",
-      "16 in to the centre"
-     ],
-     [
-      "Jacks",
-      "Two network jacks, no coax"
-     ]
-    ],
-    "notes": [
-     "U-12 draws this on a 36 in pony wall along the loft's west edge (y 28.293). The model has an open railing there instead (Maxwell 11/13/2026), so it floated on the railing (Maxwell 11/21/2026: not on the railing). Moved to the west end of the loft north wall, facing south, beside the railing corner. ASSUMED, confirm.",
-     "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 3).",
-     "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
-     "No coax anywhere in the house (Maxwell, 11/19/2026): each U-11 cable TV and CAT-5 outlet becomes two network jacks, each with its own cable back to the network spot.",
-     "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."
-    ]
-   },
-   "src": "U-12 #3"
-  },
-  {
-   "id": "elec_outlet_65",
-   "name": "Outlet, 16 in",
+   "id": "elec_floor_01",
+   "name": "Floor outlet",
    "category": "Electrical",
    "system": "electrical.power",
    "room": "Loft",
    "layer": "electrical",
-   "builder": "outlet",
+   "builder": "floor_box",
    "size": [
-    2.75,
-    4.5,
-    0.3
+    4.6,
+    0.15,
+    4.6
    ],
    "at": [
-    32.55,
-    22.832,
-    11.198
+    31.85,
+    27.4,
+    10.052
    ],
-   "facing": 180,
-   "gfi": false,
-   "wp": false,
-   "volts": 120,
+   "facing": 0,
    "info": {
-    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "model": "Flush floor box with a brass cover, 120 V duplex",
     "specs": [
      [
-      "Height",
-      "16 in to the centre (U-11 legend)"
-     ],
-     [
-      "On",
-      "The south facing wall"
+      "Where",
+      "In the loft floor"
      ]
     ],
     "notes": [
-     "U-12 draws this on a 36 in pony wall along the loft's west edge (y 29.106). The model has an open railing there instead (Maxwell 11/13/2026), so it floated on the railing (Maxwell 11/21/2026: not on the railing). Moved to the west end of the loft north wall, facing south, beside the railing corner. ASSUMED, confirm.",
+     "U-12 draws this on a 36 in pony wall along the loft's west edge; the model has an open railing there. NEC 210.52(A) counts a railing as wall space, so its 9 ft run needs an outlet within 6 ft of every point. A flush floor box within 18 in of the railing counts (210.52(A)(3)), at the railing's midpoint it covers it end to end. Maxwell 11/21/2026: keep only what code needs. The loft floor is framed, so this is not a slab outlet.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 4).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -8695,7 +8647,7 @@
    "src": "U-12 #4"
   },
   {
-   "id": "elec_outlet_66",
+   "id": "elec_outlet_65",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -8737,7 +8689,7 @@
    "src": "U-12 #5"
   },
   {
-   "id": "elec_outlet_67",
+   "id": "elec_outlet_66",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -8778,7 +8730,7 @@
    "src": "U-12 #6"
   },
   {
-   "id": "elec_outlet_68",
+   "id": "elec_outlet_67",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -8819,7 +8771,7 @@
    "src": "U-12 #7"
   },
   {
-   "id": "elec_outlet_69",
+   "id": "elec_outlet_68",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -8860,7 +8812,7 @@
    "src": "U-12 #8"
   },
   {
-   "id": "elec_outlet_70",
+   "id": "elec_outlet_69",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -8901,7 +8853,7 @@
    "src": "U-12 #9"
   },
   {
-   "id": "elec_outlet_71",
+   "id": "elec_outlet_70",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -8942,7 +8894,7 @@
    "src": "U-12 #10"
   },
   {
-   "id": "elec_outlet_72",
+   "id": "elec_outlet_71",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9140,7 +9092,7 @@
    "src": "U-12 #15"
   },
   {
-   "id": "elec_outlet_73",
+   "id": "elec_outlet_72",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9181,7 +9133,7 @@
    "src": "U-12 #16"
   },
   {
-   "id": "elec_outlet_74",
+   "id": "elec_outlet_73",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9222,7 +9174,7 @@
    "src": "U-12 #17"
   },
   {
-   "id": "elec_outlet_75",
+   "id": "elec_outlet_74",
    "name": "Outlet, 18 in",
    "category": "Electrical",
    "system": "electrical.power",

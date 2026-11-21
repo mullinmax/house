@@ -1429,8 +1429,8 @@ for dv in _EP["devices"]:
     z_in = dv["z_in"]
     if k == "floor_box":
         items.append(dict(id=_eid("floor"), name="Floor outlet", category="Electrical", system="electrical.power", room=room, layer="electrical",
-            builder="floor_box", size=[4.6, 0.15, 4.6], at=[x, y, 0.0], facing=0,
-            info=dict(model="Flush floor box with a brass cover, 120 V duplex", specs=[["Where", "In the slab, dining room"]], notes=notes)))
+            builder="floor_box", size=[4.6, 0.15, 4.6], at=[x, y, round(floor, 3)], facing=0,
+            info=dict(model="Flush floor box with a brass cover, 120 V duplex", specs=[["Where", f"In the {room.lower()} floor"]], notes=notes)))
         continue
     if k in ("outlet", "special"):
         volts = dv.get("volts", 240 if k == "special" else 120)
