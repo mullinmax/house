@@ -587,7 +587,7 @@ items = [
   { id = "sofa", type = "model", model = "sofa_03", x = 29.7, y = 27.8, facing = 270, len = 7.0, removed = true },
   { id = "coffee_table", type = "model", model = "modern_coffee_table_01", x = 25.0, y = 28.4, facing = 270, len = 4.0, moved_from = [26.4, 27.8, 270] },
   { id = "lounge_chair_n", type = "model", model = "mid_century_lounge_chair", x = 24.4, y = 24.9, facing = 120, len = 2.8, removed = true },
-  { id = "lounge_chair_s", type = "model", model = "mid_century_lounge_chair", x = 26.2, y = 32.0, facing = 20, len = 2.8 },
+  { id = "lounge_chair_s", type = "model", model = "mid_century_lounge_chair", x = 26.2, y = 32.0, facing = 20, len = 2.8, removed = true },   # swivel chair taken out (Maxwell 11/21/2026)
   { id = "side_table_n", type = "model", model = "side_table_01", x = 20.85, y = 23.65, facing = 270, len = 1.3, moved_from = [30.3, 23.65, 270] },
   { id = "living_lamp", type = "table_lamp", web = true, x = 20.85, y = 23.65, z = 1.3, on = "side_table_n", cull_old = [29.8, 23.1, 30.8, 24.2, 3.2] },
   { id = "pillows", type = "model", model = "throw_pillows_01", x = 29.9, y = 27.8, z = 1.45, facing = 270, len = 4.5, removed = true },
@@ -693,8 +693,8 @@ exterior_fixtures = [
   { type = "light", wall = "S", u = 16.9, z = 8.6 },
   { type = "light", wall = "S", u = 30.7, z = 8.6 },
   # the E and W outlets that were here (u 42.2 and 36.6) were Blender era guesses; U-11 #104 and #105 draw them, and the
-  # electrical layer (electrical_plan.json) builds those, so they went (Maxwell 11/21/2026: two boxes touching by the west door)
-  { type = "outlet", wall = "N", u = 21.0, z = 1.5 },
+  # electrical layer (electrical_plan.json) builds those, so they went (Maxwell 11/21/2026: two boxes touching by the west door).
+  # The N wall outlet (u 21.0) went too: U-11 draws no outlet there (Maxwell 11/21/2026)
   { type = "hose_bib", wall = "W", u = 30.0, z = 1.3 },
   { type = "hose_bib", wall = "N", u = 22.35, z = 1.3, note = "Tapped off the bath 2 tub and shower supply in the pipe chase at the tub's valve end (x 22.12-22.58), since nothing comes up through the slab at the old spot by the NW corner (Maxwell 11/17/2026)" },
   { type = "hose_bib", wall = "E", u = 20.0, z = 1.3 },
