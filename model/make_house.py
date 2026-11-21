@@ -1888,6 +1888,9 @@ elif HSTYLE == "doors_flush":
     wr.box(K_WOOD, UE, HU1, 0, HD_ + FRONT_T, LB, CRN0)                                                  # south end panel
     if LIP:
         wr.box(K_WOOD, HU0, UE, HD_ - WT, HD_ + FRONT_T, LB, DB)                                          # level lip under the doors
+        wr.box("Stainless", HU0, UE, HD_ - WT - 0.012, HD_ - WT - 0.004, LB + 0.004, DB - 0.004)          # stainless lining: behind the lip,
+        wr.box("Stainless", UE - 0.012, UE - 0.004, 0, HD_ - WT - 0.004, LB + 0.004, DB - 0.004)           # inside the end panel,
+        wr.box("Stainless", HU0 + 0.004, HU0 + 0.012, 0, HD_ - WT - 0.004, LB + 0.004, DB - 0.004)         # against the oven tower side (Maxwell 11/20/2026: line it in stainless)
     PW = 21.375 / 12                               # Broan PM600SSV: 21-3/8 W x 10-9/16 H x 11-7/16 D
     lu0, lu1 = _cc - PW / 2 - 0.06, _cc + PW / 2 + 0.06
     ct = 0.06                                      # the case, as hollow() builds it, but with the floor cut round the power pack
@@ -1923,8 +1926,8 @@ elif HSTYLE == "doors_flush":
                "metal liner (the stainless box); centred side to side over the burners; 8 in round goes up only.",
                "Trade-off: the fan sits flush in the cabinet floor with no box below to hold smoke, and higher than the 24 in minimum, so it catches less on "
                "high heat than a deep hood. The heat sensor still turns it on every time.",
-               "The cabinet's underside over the cooktop is sheathed in stainless: the cooktop maker's usual rule is 30 in to unprotected wood above, "
-               "less only with a hood or a protected underside. Confirm in the LG installation manual.",
+               "Lined in stainless (Maxwell, 11/20/2026): the cabinet's whole underside and the inside of the lip, so no bare wood faces the cooktop "
+               "(cooktop makers usually want 30 in to unprotected wood above). Worth a look at the LG installation manual too.",
                "Keep heat proof things in this cabinet (sheet pans, boards, trays), not oils or spices."])
 elif HSTYLE == "farmhouse":
     # Farmhouse hood (Maxwell, 11/20/2026, from two photos he sent): a painted hood that tapers in on the front and both sides,
