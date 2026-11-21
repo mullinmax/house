@@ -12,6 +12,7 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { buildEquipment, cullBaked, setDuctXray, infoHTML, equipMaterials } from './equipment.js';
 import { buildHouse, houseRecordAt } from './house.js';
+import { createMeasure } from './measure.js';
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
@@ -727,6 +728,7 @@ function opAt(ndc) { const t = targetAt(ndc); return t && t.op ? t.op : null; }
 // Press and hold on a thing brings up its card (Maxwell, 11/17/2026). A tap anywhere else puts the card away.
 // A mouse click still shows the card, as it always has: a click is deliberate in a way a finger lift is not.
 function act(ndc, card = true) {
+  if (measure.on) { measure.pick(ndc); return; }      // measuring: every click or tap is a pick
   const t = targetAt(ndc);
   if (t && t.op) return toggle(t.op);
   if (t && card) showInfo(t.equip); else hideInfo();
@@ -973,13 +975,13 @@ function openModal(kind) {
     const K = (k) => k.split(' ').map((x) => `<kbd>${x}</kbd>`).join(' ');
     const sect = (title, rows) => `<div><h3>${title}</h3><table>${rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</table></div>`;
     const phone = sect('Phone or tablet', [['Drag', 'Turn the view (Orbit), or look around (Walk)'], ['Pinch', 'Zoom (in Orbit)'], ['Two finger drag', 'Slide the view (in Orbit)'], ['Left stick', 'Move (in Walk)'],
-      ['Tap', 'Open or close a door or a drawer'], ['Press and hold', 'Read about what is under your finger. Tap elsewhere to put the card away'], ['Layers', 'Height slice, and show or hide parts of the model'], ['More', 'Find equipment, day and night, no clip']]);
+      ['Tap', 'Open or close a door or a drawer, or pick a point when measuring'], ['More, Measure', 'Tape measure: tap two points to read the distance between them'], ['Press and hold', 'Read about what is under your finger. Tap elsewhere to put the card away'], ['Layers', 'Height slice, and show or hide parts of the model'], ['More', 'Find equipment, day and night, no clip']]);
     body.innerHTML = `<div class="keys">${touch || compact ? phone : ''}${
       sect('Orbit (the default)', [['Drag', 'Turn around the house'], ['Right drag', 'Slide the view'], ['Scroll', 'Zoom'], [K('W A S D'), 'Slide the point you turn around'], [K('Space') + ' ' + K('Shift'), 'Raise or lower that point'], ['Click', 'Open a door, or read about what you click'], ['Press and hold', 'Read about a door instead of opening it']])
     }${
-      sect('Walk', [['Click the view', 'Look with the mouse'], [K('W A S D'), 'Move'], [K('Shift'), 'Walk faster'], [K('C'), 'Crouch. You also duck under low roofs on your own'], [K('E'), 'Open or close, or read about what is under the dot'], [K('N'), 'No clip: fly through walls'], [K('Space') + ' ' + K('C'), 'Up and down while flying'], [K('Esc'), 'Free the mouse']])
+      sect('Walk', [['Click the view', 'Look with the mouse'], [K('W A S D'), 'Move'], [K('Shift'), 'Walk faster'], [K('C'), 'Crouch. You also duck under low roofs on your own'], [K('E'), 'Open or close, or read about what is under the dot (or pick a point when measuring)'], [K('N'), 'No clip: fly through walls'], [K('Space') + ' ' + K('C'), 'Up and down while flying'], [K('Esc'), 'Free the mouse']])
     }${
-      sect('Anywhere', [[K('H'), 'This page'], ['Go to a room', 'Pick a room on the plan'], ['Find equipment', 'Pick a piece of equipment on the plan'], ['Height slice', 'Cut the house at any height'], ['Layers', 'Show or hide parts of the model']])
+      sect('Anywhere', [[K('H'), 'This page'], [K('M') + ' or Measure', 'Tape measure: click two points, each snaps to the nearest corner, and read the distance in feet and inches. ' + K('Esc') + ' clears, ' + K('M') + ' again turns it off'], ['Go to a room', 'Pick a room on the plan'], ['Find equipment', 'Pick a piece of equipment on the plan'], ['Height slice', 'Cut the house at any height'], ['Layers', 'Show or hide parts of the model']])
     }${
 touch || compact ? '' : phone}</div><p class="note">Slow? Add <kbd>?lite</kbd> to the address: no shadows and no far woods.</p>`;
   }
@@ -1109,6 +1111,15 @@ function setupSlice() {
   setSlice(SLICE_MAX);
 }
 const cutY = () => upperPlane.constant;
+// ---------------------------------------------------------------- tape measure (measure.js): M or the Measure button
+// The ground's mesh corners sit on a 10 ft survey grid that means nothing on site, so the ground never snaps.
+const measure = createMeasure({ scene, camera, renderer, pickables, cutY, F, touch,
+  noSnap: (o) => /^(Terrain|Ground skirt)/i.test([].concat(o.material)[0]?.name || ''), onChange: (on) => {
+  for (const b of document.querySelectorAll('[data-act="measure"]')) b.setAttribute('aria-pressed', on);
+  document.body.classList.toggle('measuring', on);
+  if (on) { hideInfo(); if (compact) openSheet(null); }
+} });
+for (const b of document.querySelectorAll('[data-act="measure"]')) b.onclick = () => measure.toggle();
 
 // ---------------------------------------------------------------- equipment, ducts, info card
 function addEquipment() {
@@ -1491,7 +1502,12 @@ addEventListener('keydown', (e) => {
   if (modalKind && e.code !== 'Escape') return;
   keys.add(e.code);
   if (e.code === 'KeyE') act(center);
-  if (e.code === 'Escape') { if (modalKind) closeModal(); else if (sheet) openSheet(null); else hideInfo(); }
+  if (e.code === 'Escape') {
+    if (modalKind) closeModal(); else if (sheet) openSheet(null);
+    else if (measure.on && !$('info').hidden) hideInfo();
+    else if (measure.on) { if (!measure.clear()) measure.setActive(false); } else hideInfo();
+  }
+  if (e.code === 'KeyM') measure.toggle();
   if (e.code === 'KeyN') { if (mode !== 'walk') leaveOrbit(true); else setNoclip(!noclip); }
   if (e.code === 'KeyC' && mode === 'walk' && !noclip) setCrouch(!crouch);
   if (e.code === 'KeyH' || e.key === '?') openModal('controls');
@@ -1529,6 +1545,7 @@ canvas.addEventListener('pointerdown', (e) => {
   } else if (gesture) { gesture.multi = true; endHold(); }
 });
 canvas.addEventListener('pointermove', (e) => {
+  if (measure.on && e.pointerType === 'mouse' && !(mode === 'walk' && look.isLocked)) measure.hoverAt(ndcOf(e));
   if (gesture && e.pointerId === gesture.id && !gesture.moved && Math.hypot(e.clientX - gesture.x, e.clientY - gesture.y) > slop(e.pointerType)) { gesture.moved = true; endHold(); }
 });
 canvas.addEventListener('pointerup', (e) => {
@@ -1540,6 +1557,7 @@ canvas.addEventListener('pointerup', (e) => {
   clickOK = false;
   if (tap) act(ndcOf(e), false);
 });
+canvas.addEventListener('pointerleave', () => { if (measure.on) measure.hoverAt(null); });
 canvas.addEventListener('pointercancel', (e) => { fingers.delete(e.pointerId); endHold(); if (gesture) gesture.multi = true; if (!fingers.size) gesture = null; });
 canvas.addEventListener('contextmenu', (e) => e.preventDefault());     // a long press must not raise the browser's menu
 canvas.addEventListener('click', (e) => {
@@ -1629,7 +1647,9 @@ renderer.setAnimationLoop(() => {
   }
   shadowDirty = false;
   placeLights(false);
-  if (mode === 'walk' && !touch && (++promptFrame % 6 === 0)) {
+  measure.update(mode === 'walk' && look.isLocked ? center : null);
+  if (measure.on) $('prompt').hidden = true;
+  else if (mode === 'walk' && !touch && (++promptFrame % 6 === 0)) {
     const t = targetAt(center);
     const shown = t && !t.house;                 // walls and trim answer a click, but do not prompt
     $('prompt').hidden = !shown;
@@ -1641,4 +1661,4 @@ renderer.setAnimationLoop(() => {
 
 loadAll().catch((e) => { console.error(e); $('loadmsg').textContent = 'The model could not be loaded.'; });
 window.__B = THREE.Box3; window.__T = THREE; window.__walk = { orbit, resetView, setSlice, applyToggles, goRoom, closeModal,
-  simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, openSheet, act, inspectAt, showInfo, goTo, panOrbit, keys, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip };
+  simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, openSheet, act, inspectAt, showInfo, goTo, panOrbit, keys, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip, measure };

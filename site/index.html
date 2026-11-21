@@ -147,6 +147,17 @@ kbd { font: 500 .75rem ui-monospace, Menlo, Consolas, monospace; border: 1px sol
 #info details > summary { padding: 4px 0; }
 #info details ul { margin-top: 4px; }
 #info .links a { color: var(--accent); }
+/* tape measure: the readout card and the distance on the line */
+#measure { position: fixed; left: 50%; bottom: max(14px, env(safe-area-inset-bottom)); transform: translateX(-50%); background: var(--scrim); color: #fff;
+  padding: 8px 14px; border-radius: 8px; font-size: .82rem; pointer-events: none; min-width: 220px; max-width: calc(100vw - 24px); z-index: 6; }
+#measure .mtot { font: 600 1.15rem var(--display); }
+#measure dl { display: grid; grid-template-columns: auto auto; gap: 1px 14px; margin: 4px 0 0; }
+#measure dt { opacity: .75; } #measure dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; }
+#measure .mhint { margin: 4px 0 0; opacity: .8; font-size: .76rem; }
+#mLabel { position: fixed; transform: translate(-50%, -140%); background: #ffb000; color: #1b1b1b; font: 600 .82rem var(--display);
+  padding: 2px 7px; border-radius: 5px; pointer-events: none; white-space: nowrap; z-index: 5; }
+body.measuring canvas { cursor: crosshair; }
+body.compact #measure { bottom: calc(var(--bar) + 8px); }
 #toast { position: fixed; left: 50%; top: max(14px, env(safe-area-inset-top)); transform: translateX(-50%); background: var(--scrim); color: #fff;
   padding: 7px 14px; border-radius: 999px; font-size: .85rem; pointer-events: none; z-index: 8; max-width: calc(100vw - 24px); text-align: center; }
 .sheethead, #bar, #fCrouch { display: none; }
@@ -242,6 +253,9 @@ body.compact .keys td:first-child { white-space: normal; }
       <button id="tNight" aria-pressed="false" title="Turn the sun off and the room lights on">Night</button>
     </div>
     <div class="row">
+      <button data-act="measure" aria-pressed="false" title="Tape measure (M): click two points, each snaps to the nearest corner, to read the distance in feet and inches"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" style="vertical-align:-4px;margin-right:4px;color:inherit"><path d="M1.5 10.5 10.5 1.5l4 4-9 9z"/><path d="M4.5 7.5l1.5 1.5M6.5 5.5l1 1M8.5 3.5l1.5 1.5"/></svg>Measure</button>
+    </div>
+    <div class="row">
       <button data-act="share" title="Copy a link that opens this exact view: mode, camera, room, day or night, slice and layers"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" style="vertical-align:-4px;margin-right:4px;color:inherit"><path d="M8 10V2.2M5 5 8 2l3 3"/><path d="M3.5 8v5.5h9V8"/></svg>Share this view</button>
       <button data-act="reset" title="Back to the view the page opens with: orbit from the southwest, day, whole house, default layers"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" style="vertical-align:-4px;margin-right:4px;color:inherit"><path d="M3 8a5 5 0 1 0 1.5-3.6"/><path d="M3.2 2.2v3h3"/></svg>Reset view</button>
     </div>
@@ -306,6 +320,8 @@ body.compact .keys td:first-child { white-space: normal; }
 </aside>
 
 <div id="cross" hidden></div>
+<div id="measure" hidden aria-live="polite"></div>
+<div id="mLabel" hidden></div>
 <div id="prompt" hidden><kbd>E</kbd><span id="promptTxt">Open</span></div>
 <div id="stick" hidden><div></div></div>
 <div id="hint" hidden>Click to look around. <kbd>H</kbd> for controls</div>
