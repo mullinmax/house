@@ -2068,9 +2068,24 @@ elif HSTYLE == "shelf_wrap":
         BT = None
     UP = None
     if BT:
-        wr.box("Drywall", B0, B0 + q, 0, BD, SB + ST, BT)
-        wr.box("Drywall", B1 - q, B1, 0, BD, SB + ST, BT)
-        wr.box("Drywall", B0 + q, B1 - q, BD - q, BD, SB + ST, BT)
+        if WV == "2":
+            # Maxwell, 11/21/2026: curve the box to match the shelves. Its sides flare back to the wall in the same S curve as the
+            # shelf transitions, outside the fan's clearance, so the box reads as a soft bump between the two shelves.
+            BL = 0.75
+            def depb(u):
+                x = abs(u - _cc) - ((B1 - B0) / 2 - q)
+                if x <= 0: return BD
+                t = min(1.0, x / BL); return max(0.002, BD * (1 + _m.cos(_m.pi * t)) / 2)
+            wr.box("Drywall", B0 + q, B1 - q, BD - q, BD, SB + ST, BT)
+            for sgn in (-1, 1):
+                us = [_cc + sgn * ((B1 - B0) / 2 - q + BL * k / 10) for k in range(11)]
+                for ua, ub in zip(us, us[1:]):
+                    a, b = (ua, ub) if sgn > 0 else (ub, ua)
+                    seg("Drywall", a, b, 0, SB + ST, BT, dep=depb)
+        else:
+            wr.box("Drywall", B0, B0 + q, 0, BD, SB + ST, BT)
+            wr.box("Drywall", B1 - q, B1, 0, BD, SB + ST, BT)
+            wr.box("Drywall", B0 + q, B1 - q, BD - q, BD, SB + ST, BT)
         if WV == "2":
             # Maxwell, 11/21/2026: the upper shelf comes down onto the box and runs right over it, so the box hides between the two
             # shelves. Over the box the upper shelf gets 1 in deeper than the box, with the same S curves as the lower shelf.
@@ -2093,7 +2108,7 @@ elif HSTYLE == "shelf_wrap":
     LT = SB + 11.5 / 12                            # stainless liner round the power pack inside the box
     wr.box("Stainless", lu0, lu0 + 0.02, 0.06, LF, SB, LT); wr.box("Stainless", lu1 - 0.02, lu1, 0.06, LF, SB, LT)
     wr.box("Stainless", lu0, lu1, LF - 0.02, LF, SB, LT); wr.box("Stainless", lu0, lu1, 0.06, LF, LT, LT + 0.02)
-    WRAP = dict(lo=SB, box=(B0, B1), uc=UC, up=UP)
+    WRAP = dict(lo=SB, box=(B0, B1), uc=UC, up=UP, big=[(_cc - hw, SB - 0.009), (_cc + hw, SB - 0.009)] if WV != "1" else [])
     vtxt = {"1": "deep from the oven tower to 6 in past the cooktop, one S curve back to shelf depth on the south; 8 in round duct, box just over the elbow",
             "2": "deep part centred on the cooktop with S curves both sides; 3-1/4 x 10 in duct, so the box is a low bump with the upper shelf running right over it",
             "3": "deep part centred on the cooktop with straight tapers both sides; the box is a slim chase to the ceiling"}[WV]
@@ -2101,7 +2116,7 @@ elif HSTYLE == "shelf_wrap":
         model=f"Wraparound shelf hood {WV}: the lower white oak shelf runs to the oven tower and gets deeper over the cooktop, a drywall box hugs a Broan PM600SSV power pack (suggested)",
         specs=[["Shelf", f"{round(ST * 12, 1)} in thick like the other shelves, {round(D0 * 12, 1)} in deep, {round(DD * 12)} in over the cooktop"],
                ["Underside", f"30 in over the cooktop glass, {ftin(SB)} above the floor, stainless sheet over the cooktop (Broan: 24 to 30 in)"],
-               ["Box", f"Drywall painted like the walls, {round((B1 - B0) * 12)} W x {round(BD * 12)} D in" + (f", up to {ftin(BT + (0 if UP else q))}" + (", the upper shelf sits on it" if UP else "") if BT else ", up to the ceiling")],
+               ["Box", f"Drywall painted like the walls, {round((B1 - B0) * 12)} W x {round(BD * 12)} D in" + (f", up to {ftin(BT + (0 if UP else q))}" + (", sides curved back to the wall like the shelves, the upper shelf sits on it" if UP else "") if BT else ", up to the ceiling")],
                ["Version", vtxt]],
         links=[VIDEO],
         notes=["Maxwell, 11/21/2026: the shelves wrap round the kitchen to the ovens and line up with the hood, the hood is just a deeper part of the "
@@ -2350,6 +2365,33 @@ for z in SHZ:
         wb0, wb1 = WRAP["box"]
         box("White Oak", WX0, WX0 + SH["depth"], HU0, wb0, z, z + 0.15)
         box("White Oak", WX0, WX0 + SH["depth"], wb1, WRAP["uc"], z, z + 0.15)
+
+if WRAP:
+    # Curved white oak corbels under the shelves (Maxwell, 11/21/2026: the curved supports from the farmhouse mockups). The two
+    # biggest frame the hood's deep part, about 3-1/2 in clear of the cooktop's sides; smaller ones every 2 ft or so carry the rest.
+    import math as _m
+    CT = 1.75 / 12                                 # 1-3/4 in thick, like the farmhouse corbels
+    def corbel(wall, uc, cd, ch, ztop):
+        cmin = 1.5 / 12
+        pts = [(cd - (cd - cmin) * _m.cos(_m.pi / 2 * k / 12), ztop - ch + ch * _m.sin(_m.pi / 2 * k / 12)) for k in range(13)]
+        pts[-1] = (pts[-1][0], ztop)
+        u0, u1 = uc - CT / 2, uc + CT / 2
+        P = (lambda u, d, z: (WX0 + d, u, z)) if wall == "W" else (lambda u, d, z: (u, HD - T - d, z))
+        for (d0_, z0_), (d1_, z1_) in zip(pts, pts[1:]):
+            hexa("White Oak", [P(u0, 0, z0_), P(u0, d0_, z0_), P(u0, d1_, z1_), P(u0, 0, z1_),
+                               P(u1, 0, z0_), P(u1, d0_, z0_), P(u1, d1_, z1_), P(u1, 0, z1_)])
+    for (uc_, zt) in WRAP["big"]:                  # the big pair under the hood: 20 in out, 14 in tall
+        corbel("W", uc_, 20 / 12, 14 / 12, zt)
+    small = (8 / 12, 7 / 12)                       # the rest: 8 in out under the 10.8 in shelves, 7 in tall
+    for z in SHZ:
+        for x in (2.0, 4.25, 6.45):                # sink wall run, x 0.54 to 6.7
+            corbel("S", x, *small, z - 0.002)
+        corbel("W", 50.15, *small, z - 0.002)      # cooktop wall, between the hood and the corner
+    BYID["kitchen.shelves"]["info"] = dict(model="White oak open shelves, wrapping round the kitchen from the sink wall to the oven tower",
+        specs=[["Heights", ", ".join(ftin(z) for z in SHZ) + " (the lower one level with the hood's underside, the upper one on the hood box)"],
+               ["Depth", f"{round(SH['depth'] * 12, 1)} in, deeper over the cooktop where the lower one is the hood"],
+               ["Supports", "Curved white oak corbels, 1-3/4 in thick: a 20 in pair frames the hood, 8 in ones about every 2 ft under the rest"]],
+        notes=["Maxwell, 11/21/2026: the shelves wrap round to the ovens and line up with the hood, with the curved supports from the farmhouse mockups."])
 
 # Pantry shelves (Maxwell 11/20/2026: "simple shelving"): 3/4 in white oak on 1x2 cleats, around a chest freezer on the back wall.
 # They are built in, so they live with the house; what is on them is in the Belongings layer (make_equipment.py pantry_goods).
