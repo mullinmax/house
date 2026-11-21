@@ -13,8 +13,8 @@ NOTE={45:"Marked RANGE on U-11. The kitchen now has the LG induction cooktop on 
       108:"U-11's utility room outlet, beside the pressure tank: handy for the UV sterilizer and well controls. The stick vacuum has its own added outlet by its dock in the northeast corner."}
 dev=[]
 def add(**k): dev.append(k)
-SKIP={8,9,10,11}   # the four switches U-11 puts behind the loft ladder: one 4 gang plate west of it instead (Maxwell, 11/19/2026)
-add(kind='switch',gangs=4,x=27.33,y=34.583,z_in=44,facing=0,level='main',src="U-11 #8-11",note="U-11 draws four switches (two of them 3-way, for the loft) side by side on this wall, right where the ships ladder now stands. Combined into one 4 gang plate just west of the ladder (Maxwell, 11/19/2026).")
+SKIP={8,9,10,11}   # the four switches U-11 puts behind the loft ladder: one 4 gang plate instead (Maxwell, 11/19/2026), on the bath 1 west wall north of the code length ladder (11/21/2026)
+add(kind='switch',gangs=4,x=31.089,y=31.45,z_in=44,facing=270,level='main',src="U-11 #8-11",note="U-11 draws four switches (two of them 3-way, for the loft) side by side on the clerestory wall, right where the ships ladder stands. Combined into one 4 gang plate (Maxwell, 11/19/2026). The code ships ladder (11/21/2026) is 1' 10\" longer and covers the short wall west of it, so the plate moved to the bath 1 west wall just north of the ladder, facing the living room. ASSUMED, confirm.")
 MOVE={12:(16.709,30.9,90),13:(16.709,30.4,90)}   # living room TV: west wall, not east (Maxwell, 11/19/2026)
 NOTE[13]="Behind the living room TV. U-11 draws it on the east wall; moved to the west wall facing the couch (Maxwell, 11/19/2026). U-11: 72 in to the TV, confirm with the owner."
 for i,r in enumerate(M):

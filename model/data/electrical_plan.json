@@ -8,13 +8,13 @@
   {
    "kind": "switch",
    "gangs": 4,
-   "x": 27.33,
-   "y": 34.583,
+   "x": 31.089,
+   "y": 31.45,
    "z_in": 44,
-   "facing": 0,
+   "facing": 270,
    "level": "main",
    "src": "U-11 #8-11",
-   "note": "U-11 draws four switches (two of them 3-way, for the loft) side by side on this wall, right where the ships ladder now stands. Combined into one 4 gang plate just west of the ladder (Maxwell, 11/19/2026), on the short wall between the living room opening and the ladder."
+   "note": "U-11 draws four switches (two of them 3-way, for the loft) side by side on the clerestory wall, right where the ships ladder stands. Combined into one 4 gang plate (Maxwell, 11/19/2026). The code ships ladder (11/21/2026) is 1' 10\" longer and covers the short wall west of it, so the plate moved to the bath 1 west wall just north of the ladder, facing the living room. ASSUMED, confirm."
   },
   {
    "kind": "switch",

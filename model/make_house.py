@@ -1138,17 +1138,54 @@ if LOFT["enabled"]:
     rec("ceiling.loft", "ceiling", "Flat ceiling under the loft", "ceiling",
         info=dict(model=f"Drywall on the underside of the loft floor, {ftin(FL - FLOOR_T)}", specs=[["Rooms", "Bath 1, the mudroom cubby and the entry closet"]]))
     box("Drywall", IN_X, LX1, LY0, LY1, FL - FLOOR_T, FL - FLOOR_T + 0.04)
+    # Ships ladder, the steepest the RCO / IRC R311.7.12 allows (Maxwell 11/21/2026): risers of 9.5 in or less, 5 in going
+    # nosing to nosing, treads 8.5 in deep (going + nosing), 20 in clear width, handrails on both sides 30 to 34 in up.
+    # Nosing k (1 = bottom tread) sits at x0 + (k - 1) * going, k * rise up; the loft edge is nosing 13, a 3.5 in oak
+    # nosing proud of the bath 1 west wall, and the top tread tucks under it against the wall.
     lx0, ly0, lx1, ly1 = LOFT["ships_ladder"]
-    n = 11
+    NR = LOFT.get("ladder_risers", 13)
+    GO, TD = LOFT.get("ladder_going_in", 5.0) / 12, LOFT.get("ladder_tread_in", 8.5) / 12
+    RI = FL / NR
+    WALL = EDGE_X - 0.01                                     # backs of the treads and stringers, a hair off the wall
+    assert abs((lx0 + (NR - 1) * GO + (TD - GO)) - lx1) < 0.03, "ships_ladder x0 does not match its risers, going and tread"
+    assert RI <= 9.5 / 12 + 1e-6 and GO >= 5 / 12 - 1e-6 and TD >= 8.5 / 12 - 1e-6, "ships ladder outside R311.7.12"
+    SL = RI / GO                                              # slope of the nosing line
+    zn = lambda x: RI + (x - lx0) * SL                       # nosing line
+    SW, RW = 0.15, 0.125                                      # stringer and handrail widths
+    HR = LOFT.get("ladder_handrail_in", 32.0) / 12
+    assert 2.5 <= HR <= 34 / 12 and (ly1 - ly0 - 2 * SW) * 12 >= 20, "ships ladder handrail height or width"
     rec("loft.ladder", "stair", "Ships ladder to the loft", "interior", room="Loft",
-        info=dict(model="White oak ships ladder (A-11 footprint)", specs=[["Treads", f"{n}, rising {ftin(FL / (n + 1))} each"], ["Rise", ftin(FL)], ["Run", ftin(lx1 - lx0)]]))
-    for k in range(n):
-        x = lx0 + (lx1 - lx0) * k / n
-        z = FL * (k + 1) / (n + 1)
-        box("White Oak", x, x + 0.75, ly0 + 0.15, ly1 - 0.15, z - 0.12, z)
-    for yy in (ly0, ly1 - 0.15):
-        hexa("White Oak", [(lx0, yy, 0), (lx0 + 0.35, yy, 0), (lx1, yy, FL), (lx1 - 0.35, yy, FL),
-                           (lx0, yy + 0.15, 0), (lx0 + 0.35, yy + 0.15, 0), (lx1, yy + 0.15, FL), (lx1 - 0.35, yy + 0.15, FL)])
+        info=dict(model="White oak ships ladder, steepest to code (IRC R311.7.12, Residential Code of Ohio)",
+                  specs=[["Risers", f"{NR} at {ftin(RI)}"], ["Treads", f"{NR - 1}, {ftin(TD)} deep, {ftin(GO)} nosing to nosing"],
+                         ["Angle", f"{math.degrees(math.atan(SL)):.0f}\u00b0"], ["Rise", ftin(FL)], ["Footprint", f"{ftin(lx1 - lx0)} long, {ftin(ly1 - ly0)} wide"],
+                         ["Clear width", ftin(ly1 - ly0 - 2 * SW)], ["Handrails", f"both sides, {ftin(HR)} above the nosings"]],
+                  notes=["Code limits: riser 9 1/2 in max, going 5 in min, going + nosing 8 1/2 in min, 20 in clear at and below the handrails, handrails both sides 30 to 34 in. A ships ladder may serve a loft of 200 sq ft or less (this one is 134).",
+                         "A-11 drew it 3' 5\" long with 12 risers of about 10 in and 3 3/4 in going, which is not to code; lengthened to the west 11/21/2026."]))
+    for k in range(1, NR):
+        xk = lx0 + (k - 1) * GO
+        box("White Oak", xk, min(xk + TD, WALL), ly0 + SW + 0.005, ly1 - SW - 0.005, k * RI - 0.12, k * RI)
+    box("White Oak", lx1 - (TD - GO), WALL, ly0 + SW + 0.005, ly1 - SW - 0.005, FL - 0.1, FL - 0.004)   # loft edge nosing
+    xf = lx0 - 0.04                                           # plumb cut at the toe
+    zt = lambda x: zn(x) + 0.1                                # stringer top, just above the nosings
+    zb = lambda x: zt(x) - 1.0                                # 12 in deep measured plumb
+    xb = lx0 + (0.9 - RI) / SL                                # where the bottom edge meets the slab
+    xd = lx0 + (FL - 0.01 - 0.1 - RI) / SL                    # where the top edge reaches the loft floor
+    for ya in (ly0, ly1 - SW):
+        yb = ya + SW
+        def seg(xa, xc, za0, za1, zc0, zc1):
+            hexa("White Oak", [(xa, ya, za0), (xc, ya, zc0), (xc, ya, zc1), (xa, ya, za1),
+                               (xa, yb, za0), (xc, yb, zc0), (xc, yb, zc1), (xa, yb, za1)])
+        seg(xf, xb, 0.0, zt(xf), 0.0, zt(xb))
+        seg(xb, xd, 0.0, zt(xb), zb(xd), FL - 0.01)
+        seg(xd, WALL, zb(xd), FL - 0.01, zb(WALL), FL - 0.01)
+    # handrails on top of the stringers, parallel to the nosing line, from over the bottom nosing to over the loft edge
+    xr0, xr1 = lx0, lx1 - (TD - GO)
+    for yc in (ly0 + SW / 2, ly1 - SW / 2):
+        y0_, y1_ = yc - RW / 2, yc + RW / 2
+        hexa("Black Metal", [(xr0, y0_, zn(xr0) + HR - 0.13), (xr1, y0_, zn(xr1) + HR - 0.13), (xr1, y0_, zn(xr1) + HR), (xr0, y0_, zn(xr0) + HR),
+                             (xr0, y1_, zn(xr0) + HR - 0.13), (xr1, y1_, zn(xr1) + HR - 0.13), (xr1, y1_, zn(xr1) + HR), (xr0, y1_, zn(xr0) + HR)])
+        for xp, zp in ((xr0 + 0.05, zt(xr0 + 0.05) - 0.05), (xr1 - 0.05, FL - 0.01)):
+            box("Black Metal", xp - 0.05, xp + 0.05, yc - 0.04, yc + 0.04, zp, zn(xp) + HR - 0.06)
     if LOFT.get("railing"):
         RH = LOFT.get("railing_height", 3.0)
         rec("loft.railing", "railing", "Loft railing", "interior", room="Loft",
@@ -1165,11 +1202,6 @@ if LOFT["enabled"]:
         while yb_ < yb - 0.2:
             box("Black Metal", rx0 + 0.04, rx0 + 0.08, yb_ - 0.02, yb_ + 0.02, FL + 0.2, FL + RH - 0.12)
             yb_ += 0.33
-        for yy in (ly0 - 0.08, ly1 + 0.02):                 # sloped handrails along the ladder, 34" above the treads
-            hexa("Black Metal", [(lx0 + 0.3, yy, 2.83), (lx1 + 0.3, yy, FL + 2.83), (lx1 + 0.3, yy, FL + 2.95), (lx0 + 0.3, yy, 2.95),
-                                 (lx0 + 0.3, yy + 0.06, 2.83), (lx1 + 0.3, yy + 0.06, FL + 2.83), (lx1 + 0.3, yy + 0.06, FL + 2.95), (lx0 + 0.3, yy + 0.06, 2.95)])
-            for (xa, za) in ((lx0 + 0.3, 0.0), (lx1 + 0.3, FL)):
-                box("Black Metal", xa - 0.05, xa + 0.05, yy, yy + 0.06, za, za + 2.95)
 
 # ------------------------------------------------------------------ kitchen (Carter Lumber design start plan, Erin's redline)
 BASE_D, CTR_D, FRONT_T, REV = 1.9, 2.08, 0.06, 0.012
