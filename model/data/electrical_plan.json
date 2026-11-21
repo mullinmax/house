@@ -110,7 +110,9 @@
    "facing": 270,
    "level": "main",
    "src": "U-11 #14",
-   "tv": false
+   "tv": false,
+   "mount": false,
+   "note": "U-11 draws an optional TV mount here (72 in, blocking and a 2 in sleeve). No TV mount in this corner (Maxwell 11/21/2026); the network outlet stays at 72 in as drawn. ASSUMED, confirm the height."
   },
   {
    "kind": "outlet",
@@ -1006,23 +1008,23 @@
   },
   {
    "kind": "data",
-   "x": 31.29,
-   "y": 28.293,
+   "x": 31.9,
+   "y": 22.832,
    "z_in": 16,
-   "facing": 90,
+   "facing": 180,
    "level": "upper",
    "src": "U-12 #3",
-   "note": "U-12 shows a 36 in pony wall along the loft's west edge here. The model has an open railing, so this needs a short pony wall, a post mounted box or a floor box."
+   "note": "U-12 draws this on a 36 in pony wall along the loft's west edge (y 28.293). The model has an open railing there instead (Maxwell 11/13/2026), so it floated on the railing (Maxwell 11/21/2026: not on the railing). Moved to the west end of the loft north wall, facing south, beside the railing corner. ASSUMED, confirm."
   },
   {
    "kind": "outlet",
-   "x": 31.29,
-   "y": 29.106,
+   "x": 32.55,
+   "y": 22.832,
    "z_in": 16,
-   "facing": 90,
+   "facing": 180,
    "level": "upper",
    "src": "U-12 #4",
-   "note": "U-12 shows a 36 in pony wall along the loft's west edge here. The model has an open railing, so this needs a short pony wall, a post mounted box or a floor box."
+   "note": "U-12 draws this on a 36 in pony wall along the loft's west edge (y 29.106). The model has an open railing there instead (Maxwell 11/13/2026), so it floated on the railing (Maxwell 11/21/2026: not on the railing). Moved to the west end of the loft north wall, facing south, beside the railing corner. ASSUMED, confirm."
   },
   {
    "kind": "outlet",
