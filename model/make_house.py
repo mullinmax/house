@@ -3102,9 +3102,8 @@ WEB_META = dict(replace_nodes=[], cull=[], move_nodes={})
 # Baked pieces that sat flush with another and flickered (tools/coplanar_audit.mjs): move_nodes [dx, dy, turn, dz] in plan
 # feet. The chairs' rails were flush with the dining table's stretchers (two also with its doors), and the kitchen light's
 # lens with its trim ring. Moves are 1/16 to 1/8 in.
-for _n, _mv in {"gallinera_chair": [0, 0, 0, -0.005], "gallinera_chair_1": [0, -0.01, 0, -0.005], "gallinera_chair_2": [0, 0, 0, -0.005],
-                "gallinera_chair_3": [0, 0, 0, -0.005], "gallinera_chair_4": [0, 0.01, 0, -0.005], "gallinera_chair_5": [0, 0, 0, -0.005],
-                "Light_Kitchen_1_lens": [0, 0, 0, -0.005]}.items():
+# (The Gallinera dining set that needed the same is gone: the Shaker set below replaced it 11/21/2026.)
+for _n, _mv in {"Light_Kitchen_1_lens": [0, 0, 0, -0.005]}.items():
     WEB_META["move_nodes"][_n] = _mv
 FURN_MATS = ["Bedding", "Fabric #F1EEE8", "Fabric #9A6B4A", "Fabric #7D8A6C", "Fabric #56614A", "White Oak", "Upholstery", "Black Metal",
              "Brushed Nickel", "Cabinet Wood", "Plastic Grey", "painted_wooden_nightstand", "Lamp Shade", "Porcelain"]
@@ -3433,10 +3432,113 @@ def web_l_couch(it):
         box(paint(c), px, px + 0.7, py, py + 0.35, SEAT + 0.02, SEAT + 0.72)
 
 
+MATERIALS.update({
+    "Honey Maple": dict(color="#E6B47C", rough=0.4, map="white_oak.jpg", normal="oak_normal.jpg", normal_scale=0.35, tile=0.8, grain="long"),
+    "Jute Rug": dict(color="#8C7C66", rough=0.95),
+    "Green Apple": dict(color="#8DB43C", rough=0.45),
+})
+
+
+def lhexa(mat, fr, corners):
+    """hexahedron in a piece's local frame: corners = 8 (a, b, z), bottom four then top four, both counterclockwise"""
+    hexa(mat, [(*fr(a, b), z) for a, b, z in corners])
+
+
+def web_dining_table(it):
+    """Shaker style solid maple table from Maxwell's reference photo (11/21/2026): plain thick top, a deep apron set
+    back under it, square legs tapered on their two inside faces. facing = the way the long axis runs (0 = east west)."""
+    L, W, H = it.get("l", 7.0), it.get("w", 40 / 12), it.get("h", 30 / 12)
+    T, AP, LG, FT, SET = 1.25 / 12, 4 / 12, 2.75 / 12, 1.5 / 12, 1.5 / 12      # top, apron depth, leg at the top and foot, apron setback
+    fr = frame_at(it["x"], it["y"], it.get("facing", 0))
+    M = "Honey Maple"
+    lbox(M, fr, -L / 2, L / 2, -W / 2, W / 2, H - T, H)                                   # top
+    a1, b1 = L / 2 - SET, W / 2 - SET                                                     # outer faces of the legs and apron
+    za = H - T - AP
+    for sa in (-1, 1):
+        lbox(M, fr, sa * a1, sa * (a1 - 0.07), -b1 + LG, b1 - LG, za, H - T)                  # end aprons
+    for sb in (-1, 1):
+        lbox(M, fr, -a1 + LG, a1 - LG, sb * b1, sb * (b1 - 0.07), za, H - T)                 # side aprons
+    for sa in (-1, 1):
+        for sb in (-1, 1):
+            oa, ob = sa * a1, sb * b1                                                      # outer corner of the leg
+            ia, ib = sa * (a1 - LG), sb * (b1 - LG)                                         # inner corner at the top
+            fa, fb = sa * (a1 - FT), sb * (b1 - FT)                                         # inner corner at the foot
+            zt = za - 0.02                                                                  # taper starts just under the apron
+            lhexa(M, fr, [(oa, ob, 0.0), (fa, ob, 0.0), (fa, fb, 0.0), (oa, fb, 0.0),
+                          (oa, ob, zt), (ia, ob, zt), (ia, ib, zt), (oa, ib, zt)])
+            lbox(M, fr, min(oa, ia), max(oa, ia), min(ob, ib), max(ob, ib), zt, H - T)       # square block behind the apron
+
+
+def web_dining_chair(it):
+    """Matching side chair: square legs, the back legs raked back, a wide flat back panel with a lower rail under it,
+    a sculpted (dished) seat, low side stretchers and a higher front stretcher. facing = the way the sitter faces."""
+    W, D, SH = it.get("w", 18.5 / 12), it.get("d", 19.5 / 12), it.get("seat", 18 / 12)
+    BH = it.get("back", 34 / 12)
+    LG, RK = 1.5 / 12, 1.4 / 12                                                          # leg size, back rake at the top
+    fr = frame_at(it["x"], it["y"], it["facing"])
+    M = "Honey Maple"
+    a0, a1, b0, b1 = -W / 2, W / 2, -D / 2, D / 2
+    zs = SH - 1.25 / 12                                                                  # seat underside
+    def bk(z):                                                                           # back face of the back legs at height z
+        return b0 - RK * max(0.0, z - zs) / (BH - zs)
+    for sa in (-1, 1):
+        ao, ai = (a0, a0 + LG) if sa < 0 else (a1 - LG, a1)
+        lbox(M, fr, ao, ai, b1 - LG, b1, 0.0, zs)                                          # front leg
+        lhexa(M, fr, [(ao, b0, 0.0), (ai, b0, 0.0), (ai, b0 + LG, 0.0), (ao, b0 + LG, 0.0),
+                      (ao, b0, zs), (ai, b0, zs), (ai, b0 + LG, zs), (ao, b0 + LG, zs)])  # back leg, straight to the seat
+        lhexa(M, fr, [(ao, b0, zs), (ai, b0, zs), (ai, b0 + LG, zs), (ao, b0 + LG, zs),
+                      (ao, bk(BH), BH), (ai, bk(BH), BH), (ai, bk(BH) + LG, BH), (ao, bk(BH) + LG, BH)])   # then raked back
+        am = (ao + ai) / 2
+        lbox(M, fr, am - 0.03, am + 0.03, b0 + LG, b1 - LG, 0.42, 0.53)                  # low side stretcher
+    lbox(M, fr, a0 + LG, a1 - LG, b1 - LG / 2 - 0.03, b1 - LG / 2 + 0.03, 0.72, 0.83)    # front stretcher, higher
+    lbox(M, fr, a0 + LG, a1 - LG, b0 + LG / 2 - 0.03, b0 + LG / 2 + 0.03, 0.42, 0.53)    # back stretcher
+    for (p0, p1, q0, q1) in ((a0 + LG, a1 - LG, b1 - 0.07, b1 - 0.01), (a0 + LG, a1 - LG, b0 + 0.02, b0 + 0.08),
+                             (a0 + 0.01, a0 + 0.07, b0 + LG, b1 - LG), (a1 - 0.07, a1 - 0.01, b0 + LG, b1 - LG)):
+        lbox(M, fr, p0, p1, q0, q1, zs - 0.2, zs)                                         # seat rails
+    # sculpted seat: thick at the back and sides, dished in the middle, rolled down at the front edge
+    e, sb0, sb1 = 0.03, b0 - 0.01, b1 + 0.04
+    zt, zd, zf = SH, SH - 0.05, SH - 0.04
+    bm0, bm1 = sb0 + 0.45, sb1 - 0.3
+    for (q0, q1, tq0, tq1) in ((sb0, bm0, zt, zd), (bm0, bm1, zd, zd), (bm1, sb1 - 0.08, zd, zt - 0.01), (sb1 - 0.08, sb1, zt - 0.01, zf)):
+        lhexa(M, fr, [(a0 - e, q0, zs), (a1 + e, q0, zs), (a1 + e, q1, zs), (a0 - e, q1, zs),
+                      (a0 - e, q0, tq0), (a1 + e, q0, tq0), (a1 + e, q1, tq1), (a0 - e, q1, tq1)])
+    def at(z, d=0.0):
+        return bk(z) + LG / 2 + d
+    def tilted(p0, p1, z0, z1, t):                                                        # a board between the back legs, leaning with them
+        lhexa(M, fr, [(p0, at(z0, -t / 2), z0), (p1, at(z0, -t / 2), z0), (p1, at(z0, t / 2), z0), (p0, at(z0, t / 2), z0),
+                      (p0, at(z1, -t / 2), z1), (p1, at(z1, -t / 2), z1), (p1, at(z1, t / 2), z1), (p0, at(z1, t / 2), z1)])
+    tilted(a0 + LG, a1 - LG, BH - 7.5 / 12, BH - 0.25 / 12, 0.07)                         # wide flat back panel
+    tilted(a0 + LG, a1 - LG, BH - 12 / 12, BH - 10.5 / 12, 0.07)                          # lower rail
+
+
+def web_fruit_bowl(it):
+    z = it.get("z", 2.5)
+    x, y = it["x"], it["y"]
+    cyl("Honey Maple", x, y, z, z + 0.05, 0.28, 0.33)                                     # turned wooden bowl
+    cyl("Honey Maple", x, y, z + 0.05, z + 0.3, 0.33, 0.52)
+    for k, (dx, dy) in enumerate(((0, 0), (0.22, 0.08), (-0.2, 0.12), (0.05, -0.23), (-0.12, -0.15))):
+        ax, ay, az = x + dx, y + dy, z + 0.22 + (0.06 if k == 0 else 0)
+        cyl("Green Apple", ax, ay, az - 0.12, az, 0.07, 0.13)
+        cyl("Green Apple", ax, ay, az, az + 0.11, 0.13, 0.05)
+
+
+def web_jute_rug(it):
+    fr = frame_at(it["x"], it["y"], it.get("facing", 0))
+    lbox("Jute Rug", fr, -it["l"] / 2, it["l"] / 2, -it["w"] / 2, it["w"] / 2, 0.003, 0.033)
+
+
 WEB_BUILD = {"bed": web_bed, "nightstand": web_nightstand, "table_lamp": web_table_lamp, "desk_lamp": web_desk_lamp,
              "l_desk": web_l_desk, "office_chair": web_office_chair, "towel_warmer": web_towel_warmer, "bench": web_bench,
-             "tv_console": web_tv_console, "l_couch": web_l_couch}
+             "tv_console": web_tv_console, "l_couch": web_l_couch, "dining_table": web_dining_table, "dining_chair": web_dining_chair,
+             "fruit_bowl": web_fruit_bowl, "jute_rug": web_jute_rug}
 WEB_INFO = {
+    "dining_table": lambda it: dict(model=f"Shaker style solid maple dining table, honey finish, {round(it.get('l', 7.0) * 12)} x {round(it.get('w', 40 / 12) * 12)} in, {round(it.get('h', 2.5) * 12)} in high (style from Maxwell's reference photo; maker and size ASSUMED)",
+                                    specs=[["Seats", "8: three on each side and one at each end"], ["Legs", "square, tapered on the inside faces"], ["Clearance", "about 3 ft or more behind every chair pulled out"]],
+                                    notes=["Replaced the Gallinera table and six chairs (Maxwell 11/21/2026, from his reference photo)."]),
+    "dining_chair": lambda it: dict(model="Maple side chair to match the table: wide flat back panel and lower rail, sculpted seat, square legs with stretchers (style from Maxwell's reference photo, ASSUMED)",
+                                    specs=[["Size", f"{round(it.get('w', 18.5 / 12) * 12, 1)} in wide, {round(it.get('d', 19.5 / 12) * 12, 1)} in deep, seat {round(it.get('seat', 1.5) * 12)} in, back {round(it.get('back', 34 / 12) * 12)} in"]]),
+    "fruit_bowl": lambda it: dict(model="Wooden bowl of green apples"),
+    "jute_rug": lambda it: dict(model=f"Natural jute rug, {ftin(it['w'])} x {ftin(it['l'])} (ASSUMED)", notes=["Big enough that the chairs stay on it when pulled out."]),
     "l_couch": lambda it: dict(model=f"L sectional, {ftin(it.get('nl', 9.5))} along the north wall by {ftin(it.get('el', 7.5))} along the bath 1 wall, {ftin(it.get('d', 3.1))} deep, seat 17 in, back 33 in (size from the ladder mockup, model ASSUMED)",
                                notes=["The L couch from the corner landing ladder mockup (option E) that Maxwell picked 11/21/2026. Its short leg runs under the ladder's upper flight; the flight's underside is well above the couch back there."]),
     "bed": lambda it: dict(model="Queen bed, 60 x 80 in mattress on a white oak platform (ASSUMED)", notes=["Queen, and placed so the side tables clear both doors (Maxwell, 11/16/2026)."]),
@@ -3467,7 +3569,8 @@ WEB_INFO = {
 # Bolted down pieces show with the cabinets and trim, not with Belongings (Maxwell, 11/20/2026: anything bolted down is
 # not a belonging).
 BUILT_IN = {"bench", "towel_warmer"}
-WEB_NAMES = {"bench": "Mudroom bench and cabinets", "bed": "Queen bed", "nightstand": "Nightstand", "table_lamp": "Table lamp", "desk_lamp": "Desk lamp", "l_desk": "L-shaped standing desk", "office_chair": "Office chair", "towel_warmer": "Towel warmer", "tv_console": "TV console", "l_couch": "L sectional couch"}
+WEB_NAMES = {"bench": "Mudroom bench and cabinets", "bed": "Queen bed", "nightstand": "Nightstand", "table_lamp": "Table lamp", "desk_lamp": "Desk lamp", "l_desk": "L-shaped standing desk", "office_chair": "Office chair", "towel_warmer": "Towel warmer", "tv_console": "TV console", "l_couch": "L sectional couch",
+             "dining_table": "Dining table", "dining_chair": "Dining chair", "fruit_bowl": "Fruit bowl", "jute_rug": "Dining rug"}
 for it in FURN:
     if it.get("moved_from"):
         ox, oy, of = it["moved_from"]
