@@ -1,4 +1,4 @@
-# Loft furniture (Maxwell 11/21/2026), run by make_house.py after the loft is built. [loft] furniture = "chest" | "none";
+# Loft furniture (Maxwell 11/21/2026), run by make_house.py after the loft is built. [loft] furniture = "chest" | "sleeper" | "none";
 # [loft] bed_open = true draws the bed down (LOFT_BED_OPEN for mockups).
 # (LOFT_LAYOUT overrides it for mockups). Everything is ASSUMED placement, in the Belongings layer, heights from the loft floor.
 def _loft_furniture():
@@ -16,8 +16,11 @@ def _loft_furniture():
     def b(mat, x0, x1, y0, y1, z0, z1):
         box(mat, x0, x1, y0, y1, FL + z0, FL + z1)
 
-    def piece(id_, name, model, specs, notes=None):
-        rec(f"furniture.loft_{id_}", "furniture", name, "furniture", room="Loft", info=dict(model=model, specs=specs, notes=(notes or []) + ["Placement ASSUMED, mockup 11/21/2026."]))
+    def piece(id_, name, model, specs, notes=None, links=None):
+        info = dict(model=model, specs=specs, notes=(notes or []) + ["Placement ASSUMED, mockup 11/21/2026."])
+        if links:
+            info["links"] = links
+        rec(f"furniture.loft_{id_}", "furniture", name, "furniture", room="Loft", info=info)
 
     def shelf_unit(x0, x1, y0, y1, h, n, face, stuff=()):
         """Open oak shelving: sides, back, n shelves; face = the open side (W or N or S). stuff = colours of boxes and books on it."""
@@ -144,6 +147,43 @@ def _loft_furniture():
     CW, CD, CH, CL = 58 / 12, 23 / 12, 39 / 12, 76 / 12        # Arason Creden-ZzZ full: 58 W x 23 D x 39 H in, opens to 76 in
     SILL = 13.67 - FL                                         # east window sill above the loft floor (A-21)
     WY0, WY1 = 26.71, 30.71                                   # east window rough opening
+    if lay == "sleeper":
+        # Mockup for Maxwell 11/21/2026: one sleeper sofa does the couch and the bed. IKEA FRIHETEN: 88 5/8 x 41 3/8 x 32 5/8 in,
+        # the seat pulls forward into a 56 3/4 x 78 3/8 in bed that lies along the sofa, so it only comes 56 3/4 in off the wall.
+        SW_, SD_, SH_, SO_ = 88.625 / 12, 41.375 / 12, 32.625 / 12, 56.75 / 12
+        wc = (WY0 + WY1) / 2
+        s0, s1 = wc - SW_ / 2, wc + SW_ / 2
+        bx = piano(X0 + 0.05)
+        bench(bx, 32.0)
+        piece("sleeper_sofa", "Sleeper sofa", "IKEA FRIHETEN sleeper sofa: the seat pulls forward into a bed that lies along the sofa",
+              [["Closed", "88 5/8 in wide, 41 3/8 in deep, 32 5/8 in high"], ["Bed", "56 3/4 in x 78 3/8 in (a full is 54 x 75)"], ["Open", "56 3/4 in from the wall"],
+               ["Packages", "Two, 105 lb and 125 lb"], ["Clear when open", f"{ftin(X1 - SO_ - (X0 + 0.05 + 4.55))} past the end of the piano"]],
+              ["Under the east window facing the railing and the TV. The back stands about 10 in below the sill.",
+               "You sleep on the seat and back cushions, there is no separate mattress: fine for guests, firmer than the cabinet bed's 6 in foam mattress. A topper helps.",
+               "Bedding stores under the seat."],
+              links=[["IKEA product page", "https://www.ikea.com/us/en/p/friheten-sleeper-sofa-faringe-light-gray-40551231/"]])
+        b(fab2, X1 - 0.75, X1, s0, s1, 0.2, SH_)                                   # back
+        b(fab2, X1 - SD_, X1 - 0.75, s0, s1, 0.2, 0.95)                            # base with the bedding box
+        if OPEN:
+            b(fab2, X1 - SO_, X1 - SD_, s0 + 0.05, s1 - 0.05, 0.2, 0.95)
+            b(fab, X1 - SO_, X1 - 0.75, s0 + 0.05, s1 - 0.05, 0.95, 1.35)
+            bedding(X1 - SO_ + 0.03, X1 - 0.78, s0 + 0.1, s1 - 0.1, 1.35, "N")
+        else:
+            b(fab, X1 - SD_, X1 - 0.75, s0 + 0.05, s1 - 0.05, 0.95, 1.35)
+            for k in range(3):
+                ya = s0 + 0.08 + k * (SW_ - 0.16) / 3
+                b(fab, X1 - 1.2, X1 - 0.75, ya, ya + (SW_ - 0.16) / 3 - 0.06, 1.35, 2.5)
+        bd = 23 / 12
+        piece("bookcase", "Bookcase north of the window", "White oak bookcase from the floor to 6 ft, in the north east corner",
+              [["Size", f"{ftin(s0 - 0.05 - Y0)} wide, 23 in deep, 6' high"]])
+        shelf_unit(X1 - bd, X1, Y0, s0 - 0.05, 6.0, 5, "W", GAMES)
+        piece("bookcase_s", "Bookcase south of the window", "White oak bookcase from the floor to 6 ft, in the south east corner",
+              [["Size", f"{ftin(Y1 - (s1 + 0.05))} wide, 23 in deep, 6' high"]])
+        shelf_unit(X1 - bd, X1, s1 + 0.05, Y1, 6.0, 5, "W", BOOKS)
+        piece("low_shelf", "Low shelves on the north wall", "White oak shelves, 3 ft high", [["Size", "3' 6\" long, 14 in deep, 3' high"]])
+        shelf_unit(X0 + 0.3, X0 + 3.8, Y0, Y0 + 1.17, 3.0, 2, "S", GAMES)
+        swivel(36.0, 24.6, "N")
+        return
     loveseat(31.6, 36.8)
     bx = piano(X0 + 0.05)
     bench(bx, 32.0)
@@ -154,7 +194,9 @@ def _loft_furniture():
            ["Weight", "220 lb in its carton"], ["Clear when open", f"{ftin(X1 - CL - (X0 + 0.05 + 4.55))} to the piano, {ftin(cy0 - 28.75)} to the swivel chair"]],
           ["Free standing, no wall anchors. It ships as one 220 lb carton, so it has to be hoisted over the loft railing; it will not go up the ladder.",
            "Dimensions from Arason's Creden-ZzZ collection sheet. The queen is 64 x 23 x 43 in and opens to 81 in: it would touch the piano and stand as high as the window sill.",
-           "A flat packed alternative: Night and Day Murphy Cube (queen 64.1 x 26.4 x 36.6 in, opens 80.3 in, 128 lb)."])
+           "A flat packed alternative: Night and Day Murphy Cube (queen 64.1 x 26.4 x 36.6 in, opens 80.3 in, 128 lb)."],
+          links=[["Arason collection sheet with dimensions (PDF)", "https://cdn.shopify.com/s/files/1/0690/0226/4860/files/Creden-ZzZ-Cabinet-Bed-Collection.pdf"],
+                               ["A retailer page, full size", "https://www.zfurniture.com/products/creden-zzz-full-pekoe-murphy-cabinet-bed"]])
     b(OAK, X1 - CD, X1, cy0, cy0 + 0.08, 0.0, CH); b(OAK, X1 - CD, X1, cy1 - 0.08, cy1, 0.0, CH); b(OAK, X1 - 0.06, X1, cy0, cy1, 0.0, CH)
     if OPEN:
         bx0 = X1 - CL
