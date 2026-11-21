@@ -2246,9 +2246,9 @@
     11.4375
    ],
    "at": [
-    0.6617,
+    1.0625333333333333,
     47.0,
-    6.79
+    5.454
    ],
    "facing": 90,
    "info": {
@@ -2323,7 +2323,7 @@
    "at": [
     -0.07,
     47.0,
-    10.45
+    6.93
    ],
    "facing": 270,
    "info": {
@@ -2331,7 +2331,7 @@
     "specs": [
      [
       "Height",
-      "Centre 10 ft 11 in up, top about 5 in under the roof"
+      "Centre 7 ft 5 in up, top about 47 in under the roof"
      ],
      [
       "Duct",
@@ -22601,19 +22601,19 @@
    "size": 8,
    "points": [
     [
-     1.1417,
+     1.5390958333333333,
      47.0,
-     7.670000000000001
+     6.334375
     ],
     [
-     1.1417,
+     1.5390958333333333,
      47.0,
-     10.95
+     7.43
     ],
     [
      -0.06,
      47.0,
-     10.95
+     7.43
     ]
    ],
    "name": "Range hood duct",
@@ -22630,7 +22630,7 @@
      ],
      [
       "Wall",
-      "West wall, centre 10 ft 11 in up, through the 6-1/2 in SIP"
+      "West wall, centre 7 ft 5 in up, through the 6-1/2 in SIP"
      ],
      [
       "Outside",

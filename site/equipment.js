@@ -950,13 +950,38 @@ const BUILD = {
     box(g, w - 2.8, 0.3, d - 1.2, mat('louvre shadow', 0x111213, 0.8), 0, 1.2, 0.5 + (d - 0.5) / 2);     // open bottom, damper inside
     return g;
   },
-  power_pack(s) {                  // range hood power pack insert: stainless box, baffle filter underneath, round outlet on top, sensor eye at the front
+  power_pack(s) {
+    // Broan PM600SSV power pack (install guide p. 16 to 18, spec sheet): a stainless box with a flush faceplate underneath. One
+    // hybrid baffle filter over the back of the faceplate; along the front edge two LED light modules at the ends and a black
+    // glass key strip in the middle (Master, Fan, Lights, Auto / SmartSense, Wi-Fi), each key backlit; the SmartSense infrared eye
+    // beside the keys; 8 in round damper collar on top. Key and light positions follow typical photos (ASSUMED).
     const [w, h, d] = s, g = new THREE.Group(), ss = mat('stainless', 0xc9ccce, 0.32, 0.9);
-    box(g, w, h - 0.6, d, ss, 0, (h - 0.6) / 2 + 0.6, d / 2);
-    box(g, w - 1.2, 0.6, d - 1.2, mat('baffle filter', 0x8d9296, 0.4, 0.8), 0, 0.3, d / 2);
-    for (let k = -4; k <= 4; k++) box(g, 0.25, 0.1, d - 1.6, darkSteel(), k * (w - 2) / 9, -0.02, d / 2);   // baffle slots
-    cyl(g, 4, 1.5, ss, 0, h + 0.75, d / 2, 'y', 24);                                                     // 8 in outlet
-    cyl(g, 0.35, 0.15, mat('sensor eye', 0x101112, 0.3), 0, -0.05, d - 0.8, 'y', 12);                   // SmartSense eye
+    const face = mat('brushed faceplate', 0xbfc2c4, 0.38, 0.85), dark = darkSteel();
+    const FP = 0.3, FR = 3.6;                                                                            // faceplate thickness, front control strip depth
+    box(g, w - 0.4, h - FP, d - 0.4, ss, 0, FP + (h - FP) / 2, d / 2);                                    // body
+    box(g, w, FP, d, face, 0, FP / 2, d / 2);                                                             // faceplate
+    const fw = w - 2.4, fd = d - FR - 1.0, fz = 0.6 + fd / 2;                                             // baffle filter over the back
+    box(g, fw, 0.06, fd, mat('baffle frame', 0xd4d6d8, 0.3, 0.9), 0, -0.03, fz);
+    for (let k = 0; k < 14; k++) {                                                                        // baffle blades, side to side
+      const x = -fw / 2 + 0.9 + k * (fw - 1.8) / 13;
+      box(g, 0.55, 0.12, fd - 0.8, k % 2 ? dark : mat('baffle blade', 0xaeb2b5, 0.35, 0.9), x, -0.09, fz);
+    }
+    box(g, 1.6, 0.1, 0.5, dark, 0, -0.08, 0.6 + fd - 0.6);                                                // filter pull tab
+    const zc = d - FR / 2;                                                                                // front control strip centre
+    const led = mat('hood led', 0xfff6e3, 0.3, 0, { emissive: 0xfff1d6, emissiveIntensity: 0.9 });
+    for (const sx of [-1, 1]) {                                                                           // two LED light modules
+      cyl(g, 1.25, 0.12, mat('led bezel', 0xa9acaf, 0.3, 0.9), sx * (w / 2 - 3.2), -0.04, zc, 'y', 24);
+      cyl(g, 0.95, 0.06, led, sx * (w / 2 - 3.2), -0.1, zc, 'y', 24);
+    }
+    box(g, 7.2, 0.08, 1.15, mat('key glass', 0x0e0f10, 0.08, 0.2), -0.6, -0.04, zc);                      // key strip
+    const key = mat('hood key', 0x2c3033, 0.3, 0.2), lit = mat('key backlight', 0xdfe9ff, 0.4, 0, { emissive: 0xbfd6ff, emissiveIntensity: 0.7 });
+    for (let k = 0; k < 5; k++) {                                                                         // Master, Fan, Lights, Auto, Wi-Fi
+      const x = -0.6 - 2.8 + k * 1.4;
+      box(g, 0.9, 0.04, 0.7, key, x, -0.09, zc);
+      box(g, 0.32, 0.03, 0.12, lit, x, -0.12, zc + 0.15);
+    }
+    cyl(g, 0.4, 0.2, mat('sensor eye', 0x101112, 0.1, 0.3), 4.2, -0.1, zc, 'y', 16);                      // SmartSense infrared eye
+    cyl(g, 4, 2.0, ss, 0, h + 1.0, d / 2, 'y', 28);                                                       // 8 in round damper collar
     return g;
   },
   server_rack(s, it) {
