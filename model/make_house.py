@@ -27,7 +27,7 @@ import json, math, os, sys
 import tomllib
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-OUT = os.path.join(HERE, "..", "site", "models", "house.json")
+OUT = os.environ.get("HOUSE_OUT") or os.path.join(HERE, "..", "site", "models", "house.json")
 with open(os.path.join(HERE, "config.toml"), "rb") as _f:
     C = tomllib.load(_f)
 with open(os.path.join(HERE, C["house"]["int_wall_source"])) as _f:
@@ -1154,54 +1154,68 @@ if LOFT["enabled"]:
     SW, RW = 0.15, 0.125                                      # stringer and handrail widths
     HR = LOFT.get("ladder_handrail_in", 32.0) / 12
     assert 2.5 <= HR <= 34 / 12 and (ly1 - ly0 - 2 * SW) * 12 >= 20, "ships ladder handrail height or width"
-    rec("loft.ladder", "stair", "Ships ladder to the loft", "interior", room="Loft",
-        info=dict(model="White oak ships ladder, steepest to code (IRC R311.7.12, Residential Code of Ohio)",
-                  specs=[["Risers", f"{NR} at {ftin(RI)}"], ["Treads", f"{NR - 1}, {ftin(TD)} deep, {ftin(GO)} nosing to nosing"],
-                         ["Angle", f"{math.degrees(math.atan(SL)):.0f}\u00b0"], ["Rise", ftin(FL)], ["Footprint", f"{ftin(lx1 - lx0)} long, {ftin(ly1 - ly0)} wide"],
-                         ["Clear width", ftin(ly1 - ly0 - 2 * SW)], ["Handrails", f"both sides, {ftin(HR)} above the nosings"]],
-                  notes=["Code limits: riser 9 1/2 in max, going 5 in min, going + nosing 8 1/2 in min, 20 in clear at and below the handrails, handrails both sides 30 to 34 in. A ships ladder may serve a loft of 200 sq ft or less (this one is 134).",
-                         "A-11 drew it 3' 5\" long with 12 risers of about 10 in and 3 3/4 in going, which is not to code; lengthened to the west 11/21/2026."]))
-    for k in range(1, NR):
-        xk = lx0 + (k - 1) * GO
-        box("White Oak", xk, min(xk + TD, WALL), ly0 + SW + 0.005, ly1 - SW - 0.005, k * RI - 0.12, k * RI)
-    box("White Oak", lx1 - (TD - GO), WALL, ly0 + SW + 0.005, ly1 - SW - 0.005, FL - 0.1, FL - 0.004)   # loft edge nosing
-    xf = lx0 - 0.04                                           # plumb cut at the toe
-    zt = lambda x: zn(x) + 0.1                                # stringer top, just above the nosings
-    zb = lambda x: zt(x) - 1.0                                # 12 in deep measured plumb
-    xb = lx0 + (0.9 - RI) / SL                                # where the bottom edge meets the slab
-    xd = lx0 + (FL - 0.01 - 0.1 - RI) / SL                    # where the top edge reaches the loft floor
-    for ya in (ly0, ly1 - SW):
-        yb = ya + SW
-        def seg(xa, xc, za0, za1, zc0, zc1):
-            hexa("White Oak", [(xa, ya, za0), (xc, ya, zc0), (xc, ya, zc1), (xa, ya, za1),
-                               (xa, yb, za0), (xc, yb, zc0), (xc, yb, zc1), (xa, yb, za1)])
-        seg(xf, xb, 0.0, zt(xf), 0.0, zt(xb))
-        seg(xb, xd, 0.0, zt(xb), zb(xd), FL - 0.01)
-        seg(xd, WALL, zb(xd), FL - 0.01, zb(WALL), FL - 0.01)
-    # handrails on top of the stringers, parallel to the nosing line, from over the bottom nosing to over the loft edge
-    xr0, xr1 = lx0, lx1 - (TD - GO)
-    for yc in (ly0 + SW / 2, ly1 - SW / 2):
-        y0_, y1_ = yc - RW / 2, yc + RW / 2
-        hexa("Black Metal", [(xr0, y0_, zn(xr0) + HR - 0.13), (xr1, y0_, zn(xr1) + HR - 0.13), (xr1, y0_, zn(xr1) + HR), (xr0, y0_, zn(xr0) + HR),
-                             (xr0, y1_, zn(xr0) + HR - 0.13), (xr1, y1_, zn(xr1) + HR - 0.13), (xr1, y1_, zn(xr1) + HR), (xr0, y1_, zn(xr0) + HR)])
-        for xp, zp in ((xr0 + 0.05, zt(xr0 + 0.05) - 0.05), (xr1 - 0.05, FL - 0.01)):
-            box("Black Metal", xp - 0.05, xp + 0.05, yc - 0.04, yc + 0.04, zp, zn(xp) + HR - 0.06)
+    DESIGN = os.environ.get("LADDER_DESIGN") or LOFT.get("ladder_design", "code")              # code | pullout | flip | lturn | side | alt: options drawn 11/21/2026 to keep the foot clear of the living room opening
+    RAIL_SPAN = (LY0 + 0.1, ly0 - 0.05)                      # loft guard: everything but where the ladder lands
+    if DESIGN == "code":
+        rec("loft.ladder", "stair", "Ships ladder to the loft", "interior", room="Loft",
+            info=dict(model="White oak ships ladder, steepest to code (IRC R311.7.12, Residential Code of Ohio)",
+                      specs=[["Risers", f"{NR} at {ftin(RI)}"], ["Treads", f"{NR - 1}, {ftin(TD)} deep, {ftin(GO)} nosing to nosing"],
+                             ["Angle", f"{math.degrees(math.atan(SL)):.0f}\u00b0"], ["Rise", ftin(FL)], ["Footprint", f"{ftin(lx1 - lx0)} long, {ftin(ly1 - ly0)} wide"],
+                             ["Clear width", ftin(ly1 - ly0 - 2 * SW)], ["Handrails", f"both sides, {ftin(HR)} above the nosings"]],
+                      notes=["Code limits: riser 9 1/2 in max, going 5 in min, going + nosing 8 1/2 in min, 20 in clear at and below the handrails, handrails both sides 30 to 34 in. A ships ladder may serve a loft of 200 sq ft or less (this one is 134).",
+                             "A-11 drew it 3' 5\" long with 12 risers of about 10 in and 3 3/4 in going, which is not to code; lengthened to the west 11/21/2026."]))
+        for k in range(1, NR):
+            xk = lx0 + (k - 1) * GO
+            box("White Oak", xk, min(xk + TD, WALL), ly0 + SW + 0.005, ly1 - SW - 0.005, k * RI - 0.12, k * RI)
+        box("White Oak", lx1 - (TD - GO), WALL, ly0 + SW + 0.005, ly1 - SW - 0.005, FL - 0.1, FL - 0.004)   # loft edge nosing
+        xf = lx0 - 0.04                                           # plumb cut at the toe
+        zt = lambda x: zn(x) + 0.1                                # stringer top, just above the nosings
+        zb = lambda x: zt(x) - 1.0                                # 12 in deep measured plumb
+        xb = lx0 + (0.9 - RI) / SL                                # where the bottom edge meets the slab
+        xd = lx0 + (FL - 0.01 - 0.1 - RI) / SL                    # where the top edge reaches the loft floor
+        for ya in (ly0, ly1 - SW):
+            yb = ya + SW
+            def seg(xa, xc, za0, za1, zc0, zc1):
+                hexa("White Oak", [(xa, ya, za0), (xc, ya, zc0), (xc, ya, zc1), (xa, ya, za1),
+                                   (xa, yb, za0), (xc, yb, zc0), (xc, yb, zc1), (xa, yb, za1)])
+            seg(xf, xb, 0.0, zt(xf), 0.0, zt(xb))
+            seg(xb, xd, 0.0, zt(xb), zb(xd), FL - 0.01)
+            seg(xd, WALL, zb(xd), FL - 0.01, zb(WALL), FL - 0.01)
+        # handrails on top of the stringers, parallel to the nosing line, from over the bottom nosing to over the loft edge
+        xr0, xr1 = lx0, lx1 - (TD - GO)
+        for yc in (ly0 + SW / 2, ly1 - SW / 2):
+            y0_, y1_ = yc - RW / 2, yc + RW / 2
+            hexa("Black Metal", [(xr0, y0_, zn(xr0) + HR - 0.13), (xr1, y0_, zn(xr1) + HR - 0.13), (xr1, y0_, zn(xr1) + HR), (xr0, y0_, zn(xr0) + HR),
+                                 (xr0, y1_, zn(xr0) + HR - 0.13), (xr1, y1_, zn(xr1) + HR - 0.13), (xr1, y1_, zn(xr1) + HR), (xr0, y1_, zn(xr0) + HR)])
+            for xp, zp in ((xr0 + 0.05, zt(xr0 + 0.05) - 0.05), (xr1 - 0.05, FL - 0.01)):
+                box("Black Metal", xp - 0.05, xp + 0.05, yc - 0.04, yc + 0.04, zp, zn(xp) + HR - 0.06)
+    else:
+        exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "ladder_options.py")).read())
     if LOFT.get("railing"):
         RH = LOFT.get("railing_height", 3.0)
         rec("loft.railing", "railing", "Loft railing", "interior", room="Loft",
             info=dict(model=f"{ftin(RH)} guard, black steel posts and balusters with a white oak cap (ASSUMED)", specs=[["Edge", "Open west edge of the loft, open where the ladder lands"], ["Top", ftin(FL + RH)]]))
-        ya, yb = LY0 + 0.1, ly0 - 0.05
-        rx0, rx1 = LX0, LX0 + 0.12
-        box("White Oak", rx0 - 0.04, rx1 + 0.04, ya, yb, FL + RH - 0.12, FL + RH)
-        box("Black Metal", rx0, rx1, ya, yb, FL + 0.1, FL + 0.2)
-        npost = max(2, int((yb - ya) / 4.0) + 1)
-        for k in range(npost):
-            yp = ya + (yb - ya) * k / (npost - 1)
-            box("Black Metal", rx0, rx1, yp - 0.06, yp + 0.06, FL, FL + RH - 0.12)
-        yb_ = ya + 0.33
-        while yb_ < yb - 0.2:
-            box("Black Metal", rx0 + 0.04, rx0 + 0.08, yb_ - 0.02, yb_ + 0.02, FL + 0.2, FL + RH - 0.12)
-            yb_ += 0.33
+        for ya, yb in (RAIL_SPAN if isinstance(RAIL_SPAN, list) else [RAIL_SPAN]):
+            rx0, rx1 = LX0, LX0 + 0.12
+            box("White Oak", rx0 - 0.04, rx1 + 0.04, ya, yb, FL + RH - 0.12, FL + RH)
+            box("Black Metal", rx0, rx1, ya, yb, FL + 0.1, FL + 0.2)
+            npost = max(2, int((yb - ya) / 4.0) + 1)
+            for k in range(npost):
+                yp = ya + (yb - ya) * k / (npost - 1)
+                box("Black Metal", rx0, rx1, yp - 0.06, yp + 0.06, FL, FL + RH - 0.12)
+            yb_ = ya + 0.33
+            while yb_ < yb - 0.2:
+                box("Black Metal", rx0 + 0.04, rx0 + 0.08, yb_ - 0.02, yb_ + 0.02, FL + 0.2, FL + RH - 0.12)
+                yb_ += 0.33
+
+if os.environ.get("MOCK_COUCH"):                          # mockups only: a plain L couch in the living room's north east corner
+    _cx1, _cy0 = LX0 - 0.06, 22.95
+    _nl, _el, _dp = [float(v_) for v_ in os.environ["MOCK_COUCH"].split(",")] + [3.1]
+    _cm, _cb = paint("#8E9388"), paint("#7C8177")
+    rec("mock.couch", "trim", "L couch (mockup)", "interior", room="Living")
+    box(_cm, _cx1 - _nl, _cx1, _cy0, _cy0 + _dp, 0.25, 1.45); box(_cm, _cx1 - _dp, _cx1, _cy0 + _dp, _cy0 + _el, 0.25, 1.45)
+    box(_cb, _cx1 - _nl, _cx1, _cy0, _cy0 + 0.6, 1.45, 2.75); box(_cb, _cx1 - 0.6, _cx1, _cy0 + 0.6, _cy0 + _el, 1.45, 2.75)
+    box(_cb, _cx1 - _nl - 0.5, _cx1 - _nl, _cy0, _cy0 + _dp, 0.25, 2.1); box(_cb, _cx1 - _dp, _cx1, _cy0 + _el, _cy0 + _el + 0.5, 0.25, 2.1)
 
 # ------------------------------------------------------------------ kitchen (Carter Lumber design start plan, Erin's redline)
 BASE_D, CTR_D, FRONT_T, REV = 1.9, 2.08, 0.06, 0.012
