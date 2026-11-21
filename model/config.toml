@@ -311,7 +311,7 @@ island_finish = "paint"                  # paint (olive green, island_color) | w
 counter_color = "#ECE8E0"                # ASSUMED light quartz
 hardware_color = "#B8B8B4"               # brushed nickel: faucet, lever handles and appliance handles
 pull_color = "#C9A465"                   # satin brass bar pulls on every kitchen cabinet (Maxwell 11/20/2026; was matte black #1A1A1A from Danielle's 11/19/2026 rendering)
-island_top = "butcher"                   # butcher (edge grain butcher block, Maxwell 11/20/2026) | quartz (counter_color)
+island_top = "quartz"                    # quartz: same counter as the rest of the kitchen (Maxwell 11/20/2026, was butcher block) | butcher (edge grain butcher block)
 wide_drawer_pulls = 1                    # Erin redline 11/12: one long pull on wide drawers (2 = Carter drawing)
 upper_bottom = 4.6                       # underside of the uppers on the fridge wall (from elevation)
 tall_height = 8.0                        # top of tall cabinets incl. crown (from elevation)
