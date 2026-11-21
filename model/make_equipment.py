@@ -1079,6 +1079,19 @@ if HSTYLE == "doors_func":
     # 8 in round straight up into a chase at the back of the cabinet, one elbow, out the wall.
     HOOD_TOP = 3.0 + 24 / 12 + 0.04 + PP[1] / 12
     HZ = round(HOOD_TOP + 0.25 + (HX - WALL_X) * 0.85, 2)
+if HSTYLE == "shelf_box":
+    # Shelf hood (Maxwell 11/21/2026): power pack against the wall, faceplate flush with the shelf underside 30 in over the cooktop glass
+    PP_D = 0.12
+    HX = WALL_X + PP_D + PP[2] / 24
+    HOOD_TOP = 3.0 + 0.035 + 30 / 12 - 0.015 + PP[1] / 12
+    HZ = round(HOOD_TOP + 0.25 + (HX - WALL_X) * 0.85, 2)
+WRAP_V = str(__import__("os").environ.get("HOOD_WRAP") or KH.get("wrap_variant", 1))
+if HSTYLE == "shelf_wrap":
+    # Wraparound shelf hood (Maxwell 11/21/2026): as shelf_box, power pack against the wall in the deep part of the shelf
+    PP_D = 0.12
+    HX = WALL_X + PP_D + PP[2] / 24
+    HOOD_TOP = 3.0 + 0.035 + 30 / 12 - 0.015 + PP[1] / 12
+    HZ = round(HOOD_TOP + 0.25 + (HX - WALL_X) * 0.85, 2) if WRAP_V != "2" else round(HOOD_TOP + 0.5, 2)   # 2: about 2 in adapter and damper, then a flat elbow
 if HSTYLE == "doors_flush":
     # Doors level with the oven tower's; the power pack drops into the cabinet floor (HOOD_LIP in adds a lip below)
     _K = CFG["kitchen"]
@@ -1096,6 +1109,7 @@ if HSTYLE == "farmhouse":
     HOOD_TOP = 3.0 + 30 / 12 + 0.04 + PP[1] / 12
     HZ = round(HOOD_TOP + 0.25 + (HX - WALL_X) * 0.85, 2)   # about 3 in collar, then the elbow's turn
 CAP = [12, 12, 7]                                  # 8 in wall cap with a damper, W x H x D in (ASSUMED)
+if HSTYLE == "shelf_wrap" and WRAP_V == "2": CAP = [14, 7, 5]   # 3-1/4 x 10 in wall cap with a damper (ASSUMED)
 CAP_Z = HZ - CAP[1] / 24
 assert CAP_Z + CAP[1] / 12 < roof_under_s(HY + CAP[0] / 24) - 1 / 12, "wall cap hits the rake overhang"
 VIDEO = ["Video Maxwell picked: kitchen hood design", "https://www.youtube.com/watch?v=Qs4wis82NAE"]
@@ -1106,9 +1120,18 @@ exhaust("ex_hood", "Range hood duct", 8, [[HX, HY, HOOD_TOP], [HX, HY, HZ], [-0.
              "air tight metal duct to the outdoors with a backdraft damper, and never into an attic or soffit. Where it passes the wall: a galvanized sleeve "
              "through the SIP, the foam cut back and sealed with the SIP maker's sealant and tape, the hole clear of the top plate and panel splines, and the "
              "sleeve flashed into the rain screen wrap behind the siding. Insulspan should confirm the hole and its spot.")
+if HSTYLE == "shelf_wrap" and WRAP_V == "2":      # 3-1/4 x 10 in adapter on top of the unit (Broan guide p. 5, 11), a flat elbow, straight out the wall
+    ducts[-1].update(shape="rect", size=[10, 3.25], points=[[HX, HY, HOOD_TOP], [HX, HY, HZ], [-0.06, HY, HZ]])
+    ducts[-1]["info"]["model"] = "3-1/4 x 10 in rectangular exhaust"
+    ducts[-1]["info"]["notes"] = ["3-1/4 x 10 in galvanized duct off the PM600SSV's rectangular adapter on top of the unit, a flat elbow, straight west through the "
+        "SIP wall to a wall cap. Keeps the box over the shelf low, but moves less air than 8 in round (the video and Broan's top speed want 8 in). "
+        "Same code rules as the round duct: its own smooth metal duct to the outdoors with a backdraft damper."]
 ducts[-1]["info"]["specs"] = [["Duct", "8 in round, smooth galvanized, one elbow, about 6 ft"], ["Wall", f"West wall, centre {ftin_(HZ)} up, through the 6-1/2 in SIP"],
                               ["Outside", "8 in wall cap with a damper, under the rake overhang"]]
 ducts[-1]["info"]["links"] = [VIDEO]
+if HSTYLE == "shelf_wrap" and WRAP_V == "2":
+    ducts[-1]["info"]["specs"] = [["Duct", "3-1/4 x 10 in, galvanized, one flat elbow, about 1-1/2 ft"], ["Wall", f"West wall, centre {ftin_(HZ)} up, through the 6-1/2 in SIP"],
+                                  ["Outside", "3-1/4 x 10 in wall cap with a damper"]]
 items += [
  dict(id="hood_insert", name="Range hood power pack", category="Ventilation", system="hvac.exhaust", room="Kitchen", layer="appliances",
       builder="power_pack", size=PP, at=[WALL_X + PP_D, HY, round(HOOD_TOP - PP[1] / 12, 3)], facing=90,
@@ -1142,6 +1165,12 @@ items += [
                "(303.6 wants 1/4 to 1/2 in openings on exhaust outlets). A cap with a fine bug screen would clog with grease."],
         placement="West wall, high, under the rake overhang, straight out from the cooktop.")),
 ]
+if HSTYLE == "shelf_wrap" and WRAP_V == "2":
+    _cap = items[-1]["info"]
+    _cap["model"] = "3-1/4 x 10 in wall cap with a damper, black, for range hoods (ASSUMED)"
+    _cap["specs"] = [["Height", f"Centre {ftin_(HZ)} up"], ["Duct", "3-1/4 x 10 in, about 1 ft from the unit to the inside face of the wall, then 6-1/2 in of SIP and the siding"],
+                     ["Damper", "Built in, closes when the fan is off"]]
+
 
 # ERV ducts. The unit is drawn with two 6 in ports on each end (the Broan side port layout, ASSUMED): outdoor air and exhaust air on the wall end,
 # stale air in and fresh air out on the room end. The unit lies with its long side east-west so the wall end meets the west wall.
