@@ -1842,10 +1842,15 @@ elif HSTYLE == "farmhouse":
         "4": dict(paint="sage", top="cab", tw=30, td=16, chim=(20, 12, "sage")),
         "5": dict(paint="wall", top=9.25, tw=22, td=12, chim=None),
         "6": dict(paint="sage", top="cab", tw=28, td=14, chim=(24, 14, "wall")),
+        "7": dict(paint="steel", top="cab", tw=30, td=14, chim=None),                 # Maxwell 11/20/2026: try it in stainless
+        "8": dict(paint="steel", top="ceiling", tw=20, td=12, chim=None),
+        "9": dict(paint="plaster", top="ceiling", tw=40, td=23, chim=None),           # straight plaster box to the ceiling, no slopes
+        "10": dict(paint="wall", top="cab", tw=30, td=14, chim=("flush", None, "wall")),   # 1 with a straight chimney flush with the oak band's outer edges
     }
     V = FV[_os.environ.get("HOOD_FARM") or str(HOOD.get("farm_variant", 1))]
     MATERIALS.setdefault("Hood Sage", dict(color="#7B8770", rough=0.8))   # Sherwin-Williams Dried Thyme, the sink window's paint
-    PAINT = {"wall": "Drywall", "sage": "Hood Sage"}
+    MATERIALS.setdefault("Hood Stainless", dict(color="#C4C6C7", rough=0.5, metal=0.55))
+    PAINT = {"wall": "Drywall", "sage": "Hood Sage", "steel": "Hood Stainless", "plaster": "Hood Plaster"}
     PL, OAK = PAINT[V["paint"]], "White Oak"
     FW = HOOD.get("farm_width_in", 42) / 12        # 42 in (Maxwell 11/20/2026: slimmer corbels, so pull the hood in and give the north shelf more room)
     FU0, FU1 = _cc - FW / 2, _cc + FW / 2
@@ -1878,7 +1883,11 @@ elif HSTYLE == "farmhouse":
     wr.box(OAK, a0(ZT - BT) - 0.06, a1(ZT - BT) + 0.06, 0, df(ZT - BT) + 0.06, ZT - BT, ZT)
     if V["chim"]:
         cw, cd, cp = V["chim"]
-        to_ceiling(PAINT[cp], _cc - cw / 24, _cc + cw / 24, 0, cd / 12, ZT - 0.05)
+        zc0 = ZT - 0.05
+        if cw == "flush":                          # right out to the oak band's edges, standing on it
+            cw, cd, zc0 = (a1(ZT - BT) - a0(ZT - BT) + 0.12) * 12, (df(ZT - BT) + 0.06) * 12, ZT
+        V["chim_wd"] = (round(cw), round(cd))
+        to_ceiling(PAINT[cp], _cc - cw / 24, _cc + cw / 24, 0, cd / 12, zc0)
         wr.box(OAK, _cc - cw / 24 - 0.05, _cc + cw / 24 + 0.05, 0, cd / 12 + 0.05, ceil_at(_cc + cw / 24) - 0.2, ceil_at(_cc + cw / 24) - 0.04)   # oak band at the ceiling
     wr.box("Stainless", a0(ZC) + WT, a1(ZC) - WT, 0, df(ZC) - WT, ZC - 0.025, ZC - 0.008)   # stainless top of the capture box
     import math as _m                              # slim curved corbels under the beam ends: 1-3/4 in thick, 12 in tall, 10 in out
@@ -1892,11 +1901,11 @@ elif HSTYLE == "farmhouse":
     FARM = dict(lo=FB, beam=(FU0, FU1, ZB), side=lambda z, s: (a1(z) if s > 0 else a0(z)))
     top_txt = {"cab": "level with the cabinet tops at 8 ft", "ceiling": "tapering all the way to the ceiling"}.get(V["top"], f"at {ftin(ZT)}")
     BYID["kitchen.hood"]["info"] = dict(
-        model=f"Farmhouse hood: tapered, painted {'Dried Thyme sage' if V['paint'] == 'sage' else 'to match the walls'}, white oak mantel beam, "
+        model=f"Farmhouse hood: {dict(sage='tapered, painted Dried Thyme sage', wall='tapered, painted to match the walls', steel='tapered brushed stainless', plaster='a straight plaster box to the ceiling')[V['paint']] if V['tw'] < 40 or V['paint'] != 'plaster' else 'a straight plaster box to the ceiling'}, white oak mantel beam, "
               "curved corbels and oak band at the top, over a Broan PM600SSV power pack (suggested)",
         specs=[["Width", f"{ftin(FW)} at the beam, tapering to {ftin(TW)} (cooktop 30-11/16 in)"], ["Depth", f"{ftin(HD_)} at the beam, {ftin(TD)} at the top"],
                ["Underside", f"{ftin(FB)} above the floor, 30 in above the cooktop"],
-               ["Top", top_txt + (f", then a {V['chim'][0]} x {V['chim'][1]} in chimney to the ceiling" if V["chim"] else "")],
+               ["Top", top_txt + (f", then a {V['chim_wd'][0]} x {V['chim_wd'][1]} in chimney to the ceiling" if V["chim"] else "")],
                ["Fan", "Power pack inside, about 0.5 sone on normal, turns itself on by sensing heat. 8 in duct up, one elbow, straight out the west wall"]],
         links=[VIDEO],
         notes=["Mocked up from two photos Maxwell sent (11/20/2026): a painted hood tapering on three sides, a wood mantel beam and curved supports, "
