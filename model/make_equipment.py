@@ -1079,6 +1079,12 @@ if HSTYLE == "doors_func":
     # 8 in round straight up into a chase at the back of the cabinet, one elbow, out the wall.
     HOOD_TOP = 3.0 + 24 / 12 + 0.04 + PP[1] / 12
     HZ = round(HOOD_TOP + 0.25 + (HX - WALL_X) * 0.85, 2)
+if HSTYLE == "shelf_box":
+    # Shelf hood (Maxwell 11/21/2026): power pack against the wall, faceplate flush with the shelf underside 30 in over the cooktop glass
+    PP_D = 0.12
+    HX = WALL_X + PP_D + PP[2] / 24
+    HOOD_TOP = 3.0 + 0.035 + 30 / 12 - 0.015 + PP[1] / 12
+    HZ = round(HOOD_TOP + 0.25 + (HX - WALL_X) * 0.85, 2)
 if HSTYLE == "doors_flush":
     # Doors level with the oven tower's; the power pack drops into the cabinet floor (HOOD_LIP in adds a lip below)
     _K = CFG["kitchen"]

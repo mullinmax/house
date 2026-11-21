@@ -1905,6 +1905,45 @@ elif HSTYLE == "doors_func":
                "Trade-off: there is no big box above the fan to hold smoke while it catches up, which the video recommends. Expect more to escape on "
                "high heat searing than with a deep hood; the heat sensor still turns it on every time.",
                "The duct could go away with the PM600SSV's rear 3-1/4 x 10 in outlet straight into the wall, at some cost in airflow."])
+elif HSTYLE == "shelf_box":
+    # Shelf hood (Maxwell, 11/21/2026: "a shelf with a box behind it"). A thick white oak shelf, 24 in deep, is the hood's
+    # underside: 30 in over the cooktop glass, centred on the cooktop and about 6 in past it each side, so it stops short of
+    # the oven tower. A white oak box against the wall sits on the shelf and holds the power pack (against the wall, its
+    # faceplate flush with the shelf's stainless underside) and the 8 in duct, which turns inside and goes out the west wall.
+    # The front of the shelf in front of the box is a real shelf.
+    K_WOOD = "Cabinet Wood"
+    SW = (30.6875 + 2 * 6) / 12                    # LG CBIH3013BE is 30-11/16 in wide; 6 in past it each side
+    S0, S1 = _cc - SW / 2, _cc + SW / 2
+    SB = CTR_Z + 0.035 + 30 / 12                   # underside: 30 in over the cooktop glass (Broan: 24 to 30 in)
+    ST = 3 / 12                                    # shelf thickness
+    BD = 14 / 12                                   # box depth off the wall
+    BW = 36 / 12                                   # box width
+    B0, B1 = _cc - BW / 2, _cc + BW / 2
+    BT = TALL                                      # box top, level with the oven tower's top
+    PW = 21.375 / 12
+    lu0, lu1 = _cc - PW / 2 - 0.06, _cc + PW / 2 + 0.06
+    LF = 0.12 + 11.4375 / 12 + 0.02                # front of the cutout round the power pack (against the wall), inside the box's front wall
+    for (a0, a1, e0, e1) in ((S0, lu0, 0, HD_), (lu1, S1, 0, HD_), (lu0, lu1, LF, HD_)):     # the shelf, cut round the power pack
+        wr.box(K_WOOD, a0, a1, e0, e1, SB, SB + ST)
+        wr.box("Stainless", a0, a1, e0, e1, SB - 0.008, SB - 0.002)                          # stainless underside
+    q = 0.0625                                     # 3/4 in box walls
+    wr.box(K_WOOD, B0, B0 + q, 0, BD, SB + ST, BT)
+    wr.box(K_WOOD, B1 - q, B1, 0, BD, SB + ST, BT)
+    wr.box(K_WOOD, B0, B1, BD - q, BD, SB + ST, BT)
+    wr.box(K_WOOD, B0 - 0.04, B1 + 0.04, 0, BD + 0.04, BT, BT + 0.08)                          # small cap
+    LT = SB + 11.5 / 12                            # liner box round the power pack inside the oak box
+    wr.box("Stainless", lu0, lu0 + 0.02, 0.06, LF, SB, LT); wr.box("Stainless", lu1 - 0.02, lu1, 0.06, LF, SB, LT)
+    wr.box("Stainless", lu0, lu1, LF - 0.02, LF, SB, LT); wr.box("Stainless", lu0, lu1, 0.06, LF, LT, LT + 0.02)
+    BYID["kitchen.hood"]["info"] = dict(
+        model="Shelf hood: a white oak shelf with an oak box behind it holding a Broan PM600SSV power pack (suggested)",
+        specs=[["Width", f"{ftin(SW)}, centred on the cooktop, about 6 in past it each side; {round((S0 - HU0) * 12)} in clear of the oven tower"],
+               ["Depth", f"Shelf {ftin(HD_)}, box {round(BD * 12)} in"], ["Underside", f"30 in over the cooktop glass, {ftin(SB)} above the floor (Broan: 24 to 30 in)"],
+               ["Box", f"{round(BW * 12)} in wide, up to the oven tower's top at {ftin(BT)}"],
+               ["Fan", "Against the wall in the box, faceplate flush with the shelf's stainless underside, 8 in duct up, one elbow, out the west wall"]],
+        links=[VIDEO],
+        notes=["Maxwell, 11/21/2026: a shelf with a box behind it, 30 in over the cooktop, narrower so it does not touch the oven tower, centred.",
+               "The front 10 in of the shelf is a usable shelf, but it sits over the cooktop: heat proof things only.",
+               "Trade-off: a flat shelf with no sides holds less smoke than a box hood, and 30 in is Broan's highest mount. The heat sensor still turns it on."])
 elif HSTYLE == "doors_flush":
     # Doors level with the oven tower's (Maxwell, 11/20/2026: "bottom of the doors level with the other cabinets ... seamless").
     # The hood cabinet's doors run from the tower's upper door line to the crown, so the two read as one row. The power pack
