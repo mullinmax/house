@@ -1770,6 +1770,7 @@ rec("kitchen.hood", "fixture", "Range hood", "interior", room="Kitchen",
 #   stainless number 4 in appliance stainless with a level lip all round the bottom
 #   doors     hidden: fake white oak shaker doors and the oven tower crown carried across, drywall chase above (Maxwell's pick)
 FARM = None
+WRAP = None
 import os as _os
 HSTYLE = _os.environ.get("HOOD_STYLE") or HOOD.get("style", "box")
 MATERIALS.setdefault("Hood Plaster", dict(color="#E9E2D4", rough=0.9, map="plaster.jpg", tile=1.2))
@@ -1944,6 +1945,94 @@ elif HSTYLE == "shelf_box":
         notes=["Maxwell, 11/21/2026: a shelf with a box behind it, 30 in over the cooktop, narrower so it does not touch the oven tower, centred.",
                "The front 10 in of the shelf is a usable shelf, but it sits over the cooktop: heat proof things only.",
                "Trade-off: a flat shelf with no sides holds less smoke than a box hood, and 30 in is Broan's highest mount. The heat sensor still turns it on."])
+elif HSTYLE == "shelf_wrap":
+    # Wraparound shelf hood (Maxwell, 11/21/2026). The lower open shelf runs from the sink wall round the corner and along the
+    # cooktop wall to the oven tower, its underside level with the hood: 30 in over the cooktop glass. Over the cooktop the same
+    # shelf just gets deeper (24 in, counter depth) with a smooth transition, and the power pack drops into it, faceplate flush
+    # with a stainless sheet on the underside. Behind it a drywall box, painted like the walls, hugs the power pack and its duct.
+    # The shelf is as thin as the other shelves (1.8 in): Broan's guide has no lip, skirt or recess rule, only 24 to 30 in over the
+    # cooktop, the unit inside an enclosure, and at least 1/4 in of material round the cutout for the flange screws.
+    # Variants (HOOD_WRAP env or [kitchen.hood] wrap_variant):
+    #   1  deep from the oven tower to 6 in past the cooktop, one S curve back to shelf depth on the south; box up just past the 8 in elbow
+    #   2  deep part centred on the cooktop with S curves both sides; 3-1/4 x 10 in duct off the top, so the box is a low bump
+    #   3  deep part centred, straight 45ish degree tapers both sides; the box is a slim chase to the ceiling
+    import math as _m
+    WV = str(_os.environ.get("HOOD_WRAP") or HOOD.get("wrap_variant", 1))
+    K_WOOD = "White Oak"
+    SB = CTR_Z + 0.035 + 30 / 12                   # shelf underside, 30 in over the cooktop glass
+    ST = 0.15                                      # same thickness as the other open shelves
+    D0, DD = K["shelves"]["depth"], HD_            # regular shelf depth, deep part (24 in)
+    UC = HD - T - D0                               # west wall run ends where the sink wall shelf begins
+    hw = 1.279 + 4 / 12                            # half the deep part for variants 2 and 3: cooktop half width plus 4 in
+    if WV == "1":
+        E = cy1 + 0.5
+        def dep(u):
+            if u <= E: return DD
+            t = min(1.0, (u - E) / 1.0); return D0 + (DD - D0) * (1 + _m.cos(_m.pi * t)) / 2
+        ks = [HU0, E] + [E + k / 12 for k in range(1, 13)] + [UC]
+    else:
+        L = (_cc - hw) - HU0                       # taper length: from the oven tower to the deep part, mirrored on the south
+        def dep(u):
+            x = abs(u - _cc)
+            if x <= hw: return DD
+            t = min(1.0, (x - hw) / L)
+            return D0 + (DD - D0) * ((1 + _m.cos(_m.pi * t)) / 2 if WV == "2" else 1 - t)
+        ks = [HU0] + [(_cc - hw) - L + L * k / 12 for k in range(1, 12)] + [_cc - hw, _cc + hw] + [_cc + hw + L * k / 12 for k in range(1, 13)] + [UC]
+    PW = 21.375 / 12
+    lu0, lu1 = _cc - PW / 2 - 0.06, _cc + PW / 2 + 0.06
+    LF = 0.12 + 11.4375 / 12 + 0.02                # front of the cutout round the power pack, which sits against the wall
+    ks = sorted(set([round(k, 4) for k in ks] + [round(lu0, 4), round(lu1, 4)]))
+    SS0, SS1 = cy0 - 0.5, cy1 + 0.5                # stainless underside over the cooktop and 6 in past it
+    def seg(mat, ua, ub, d0, z0, z1):
+        hexa(mat, [_P(ua, d0, z0), _P(ua, dep(ua), z0), _P(ua, dep(ua), z1), _P(ua, d0, z1),
+                   _P(ub, d0, z0), _P(ub, dep(ub), z0), _P(ub, dep(ub), z1), _P(ub, d0, z1)])
+    for ua, ub in zip(ks, ks[1:]):
+        cut = LF if (ua >= lu0 - 1e-4 and ub <= lu1 + 1e-4) else 0
+        seg(K_WOOD, ua, ub, cut, SB, SB + ST)
+        if ua >= SS0 - 0.6 and ub <= SS1 + 1.1 and dep(ua) > D0 + 0.01 or (ua >= SS0 and ub <= SS1):
+            seg("Stainless", ua, ub, cut, SB - 0.008, SB - 0.002)
+    # drywall box round the power pack and its duct
+    q = 1 / 12                                     # 1/2 in drywall on light framing
+    BD = LF + q + 0.02
+    B0, B1 = lu0 - 0.03 - q, lu1 + 0.03 + q
+    PT = SB - 0.015 + 10.5625 / 12                 # top of the power pack
+    if WV == "1":
+        BT = PT + 0.25 + (0.12 + 11.4375 / 24) * 0.85 + 0.45     # just over the 8 in round elbow
+    elif WV == "2":
+        BT = PT + 0.25 + 3.25 / 24 + 0.1           # just over the 3-1/4 x 10 in duct
+    else:
+        BT = None
+    if BT:
+        wr.box("Drywall", B0, B0 + q, 0, BD, SB + ST, BT)
+        wr.box("Drywall", B1 - q, B1, 0, BD, SB + ST, BT)
+        wr.box("Drywall", B0 + q, B1 - q, BD - q, BD, SB + ST, BT)
+        wr.box("Drywall", B0, B1, 0, BD, BT, BT + q)
+    else:
+        to_ceiling("Drywall", B0, B0 + q, 0, BD, SB + ST)
+        to_ceiling("Drywall", B1 - q, B1, 0, BD, SB + ST)
+        to_ceiling("Drywall", B0 + q, B1 - q, BD - q, BD, SB + ST)
+    LT = SB + 11.5 / 12                            # stainless liner round the power pack inside the box
+    wr.box("Stainless", lu0, lu0 + 0.02, 0.06, LF, SB, LT); wr.box("Stainless", lu1 - 0.02, lu1, 0.06, LF, SB, LT)
+    wr.box("Stainless", lu0, lu1, LF - 0.02, LF, SB, LT); wr.box("Stainless", lu0, lu1, 0.06, LF, LT, LT + 0.02)
+    WRAP = dict(lo=SB, box=(B0, B1), uc=UC)
+    vtxt = {"1": "deep from the oven tower to 6 in past the cooktop, one S curve back to shelf depth on the south; 8 in round duct, box just over the elbow",
+            "2": "deep part centred on the cooktop with S curves both sides; 3-1/4 x 10 in duct, so the box is a low bump",
+            "3": "deep part centred on the cooktop with straight tapers both sides; the box is a slim chase to the ceiling"}[WV]
+    BYID["kitchen.hood"]["info"] = dict(
+        model=f"Wraparound shelf hood {WV}: the lower white oak shelf runs to the oven tower and gets deeper over the cooktop, a drywall box hugs a Broan PM600SSV power pack (suggested)",
+        specs=[["Shelf", f"{round(ST * 12, 1)} in thick like the other shelves, {round(D0 * 12, 1)} in deep, {round(DD * 12)} in over the cooktop"],
+               ["Underside", f"30 in over the cooktop glass, {ftin(SB)} above the floor, stainless sheet over the cooktop (Broan: 24 to 30 in)"],
+               ["Box", f"Drywall painted like the walls, {round((B1 - B0) * 12)} W x {round(BD * 12)} D in" + (f", up to {ftin(BT + q)}" if BT else ", up to the ceiling")],
+               ["Version", vtxt]],
+        links=[VIDEO],
+        notes=["Maxwell, 11/21/2026: the shelves wrap round the kitchen to the ovens and line up with the hood, the hood is just a deeper part of the "
+               "shelf, and a minimal box the colour of the wall holds the power pack.",
+               "Broan's PM400/600SSV guide has no rule on a lip, skirt, recess or hood size round the insert: the bottom of the hood 24 in minimum and 30 in "
+               "recommended maximum over the cooktop, centred side to side over the burners, the unit inside an enclosure, its flange screwed up into at least "
+               "1/4 in of material round the cutout, and a metal liner under 30 in. So the lip can be the shelf itself.",
+               "Broan also says never use the unit itself as a shelf: keep things off the deep part over the fan.",
+               "Trade-off: a flat shelf with nothing hanging down holds less smoke than a box hood, and 30 in is the highest mount. The heat sensor still turns it on."]
+              + (["The 3-1/4 x 10 in duct (adapter on top of the unit) keeps the box low, but moves less air than 8 in round, which the video recommends."] if WV == "2" else []))
 elif HSTYLE == "doors_flush":
     # Doors level with the oven tower's (Maxwell, 11/20/2026: "bottom of the doors level with the other cabinets ... seamless").
     # The hood cabinet's doors run from the tower's upper door line to the crown, so the two read as one row. The power pack
@@ -2165,6 +2254,8 @@ box(ISLAND_TOP, ix0, ix1, iy0, iy1, CTR_Z - CTR_T, CTR_Z)
 SH = K["shelves"]
 rec("kitchen.shelves", "fixture", "Open shelves", "interior", room="Kitchen", info=dict(model="White oak open shelves", specs=[["Length", ftin(SH["x"][1] - SH["x"][0])], ["Heights", ", ".join(ftin(z) for z in SH["heights"])]]))
 SHZ = list(SH["heights"])
+if WRAP:                                           # the lower shelf is the hood's shelf (built with the hood); the upper one wraps to the oven tower too
+    SHZ[0] = WRAP["lo"]
 if FARM:                                           # the lower shelf lines up with the hood's beam
     SHZ[0] = FARM["lo"]
 for z in SHZ:
@@ -2175,6 +2266,10 @@ for z in SHZ:
         hn = fu0 if z < fzb else FARM["side"](z + 0.15, -1)
         box("White Oak", WX0, WX0 + SH["depth"], hs, HD - T - SH["depth"], z, z + 0.15)
         box("White Oak", WX0, WX0 + SH["depth"], HU0, hn, z, z + 0.15)   # short shelf from the oven tower to the hood's north side
+    if WRAP and z > WRAP["lo"] + 0.2:              # upper shelf: from the oven tower to the box, and from the box to the corner
+        wb0, wb1 = WRAP["box"]
+        box("White Oak", WX0, WX0 + SH["depth"], HU0, wb0, z, z + 0.15)
+        box("White Oak", WX0, WX0 + SH["depth"], wb1, WRAP["uc"], z, z + 0.15)
 
 # Pantry shelves (Maxwell 11/20/2026: "simple shelving"): 3/4 in white oak on 1x2 cleats, around a chest freezer on the back wall.
 # They are built in, so they live with the house; what is on them is in the Belongings layer (make_equipment.py pantry_goods).
