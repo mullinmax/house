@@ -1863,6 +1863,58 @@ elif HSTYLE == "doors_func":
                "Trade-off: there is no big box above the fan to hold smoke while it catches up, which the video recommends. Expect more to escape on "
                "high heat searing than with a deep hood; the heat sensor still turns it on every time.",
                "The duct could go away with the PM600SSV's rear 3-1/4 x 10 in outlet straight into the wall, at some cost in airflow."])
+elif HSTYLE == "doors_flush":
+    # Doors level with the oven tower's (Maxwell, 11/20/2026: "bottom of the doors level with the other cabinets ... seamless").
+    # The hood cabinet's doors run from the tower's upper door line to the crown, so the two read as one row. The power pack
+    # drops into the cabinet floor (the way Broan's cabinet install works) inside a stainless liner box at the back centre;
+    # the rest of the cabinet is storage. HOOD_LIP (in) adds a level oak lip under the doors to bring the fan lower.
+    rdoor = BYID["kitchen.hood"]
+    K_WOOD = "Cabinet Wood"
+    DB = K.get("oven_face_bottom", 1.22) + K.get("oven_face_height_in", 50.75) / 12 + 0.02   # the tower's upper door line
+    LIP = float(_os.environ.get("HOOD_LIP", HOOD.get("lip_in", 0))) / 12
+    LB = DB - LIP                                  # underside of the hood
+    CRN0, CRN1 = TALL - 0.25, TALL
+    UE = HU1 - WT
+    wr.box(K_WOOD, UE, HU1, 0, HD_ + FRONT_T, LB, CRN0)                                                  # south end panel
+    if LIP:
+        wr.box(K_WOOD, HU0, UE, HD_ - WT, HD_ + FRONT_T, LB, DB)                                          # level lip under the doors
+    PW = 21.375 / 12                               # Broan PM600SSV: 21-3/8 W x 10-9/16 H x 11-7/16 D
+    lu0, lu1 = _cc - PW / 2 - 0.06, _cc + PW / 2 + 0.06
+    ct = 0.06                                      # the case, as hollow() builds it, but with the floor cut round the power pack
+    wr.box(K_WOOD, HU0, UE, 0, ct, DB, CRN0)
+    for (b0, b1) in ((HU0, HU0 + ct), (UE - ct, UE)):
+        wr.box(K_WOOD, b0, b1, ct, HD_, DB, CRN0)
+    wr.box(K_WOOD, HU0 + ct, UE - ct, ct, HD_, CRN0 - ct, CRN0)
+    for (b0, b1, e0) in ((HU0 + ct, lu0, ct), (lu1, UE - ct, ct), (lu0, lu1, 1.12)):
+        wr.box(K_WOOD, b0, b1, e0, HD_, DB, DB + ct)
+    for (b0, b1, e0) in ((HU0, lu0, 0), (lu1, UE, 0), (lu0, lu1, 1.12)):                     # stainless sheet on the underside: the cooktop
+        wr.box("Stainless", b0, b1, e0, HD_ - (WT if LIP else 0), DB - 0.012, DB - 0.004)     # wants wood over it under 30 in protected
+    if not _os.environ.get("HOOD_DOORS_OFF"):
+        doors(wr, rdoor, HU0, UE, DB, CRN0, HD_, K_WOOD, 2)
+    wr.box(K_WOOD, HU0, HU1 + 0.05, 0, BASE_D + 0.22, CRN0, CRN1)                                        # crown, carried on from the oven tower
+    LT = LB + 11.5 / 12                            # top of the liner box round the power pack
+    wr.box("Stainless", lu0, lu0 + 0.02, 0.06, 1.12, LB + 0.01, LT)                                       # liner box: two sides, front, top
+    wr.box("Stainless", lu1 - 0.02, lu1, 0.06, 1.12, LB + 0.01, LT)
+    wr.box("Stainless", lu0, lu1, 1.10, 1.12, LB + 0.01, LT)
+    wr.box("Stainless", lu0, lu1, 0.06, 1.12, LT, LT + 0.02)
+    above = round((LB - CTR_Z) * 12, 1)
+    IW, ID_, IH = (UE - HU0 - 0.12), HD_ - 0.06, CRN0 - DB - 0.12
+    FREE = IW * ID_ * IH - (lu1 - lu0) * 1.06 * (LT - DB) - 0.75 * 1.0 * 0.9
+    BYID["kitchen.hood"]["info"] = dict(
+        model="Cabinet hood, doors level with the oven tower's: a working white oak upper with a Broan PM600SSV power pack in its floor (suggested)",
+        specs=[["Width", f"{ftin(HU1 - HU0)}, from the oven tower to 6-1/2 in past the cooktop"], ["Depth", ftin(HD_)],
+               ["Underside", f"{ftin(LB)} above the floor, {above} in over the cooktop (Broan: 24 to 30 in)"],
+               ["Cabinet", f"Two doors that open, about {round(IW * 12)} W x {round(ID_ * 12)} D x {round(IH * 12)} H in inside, about {FREE:.0f} cu ft free"],
+               ["Fan", "In a stainless liner box at the back centre of the cabinet floor, 8 in duct up, one elbow, straight out the west wall"]],
+        links=[VIDEO],
+        notes=["Maxwell, 11/20/2026: the doors line up with the oven tower's upper doors so the row looks seamless.",
+               "Broan (PM400/600SSV install guide): bottom of the hood 24 in minimum and 30 in maximum over the cooktop; under 30 in the insert must sit in a "
+               "metal liner (the stainless box); centred side to side over the burners; 8 in round goes up only.",
+               "Trade-off: the fan sits flush in the cabinet floor with no box below to hold smoke, and higher than the 24 in minimum, so it catches less on "
+               "high heat than a deep hood. The heat sensor still turns it on every time.",
+               "The cabinet's underside over the cooktop is sheathed in stainless: the cooktop maker's usual rule is 30 in to unprotected wood above, "
+               "less only with a hood or a protected underside. Confirm in the LG installation manual.",
+               "Keep heat proof things in this cabinet (sheet pans, boards, trays), not oils or spices."])
 elif HSTYLE == "farmhouse":
     # Farmhouse hood (Maxwell, 11/20/2026, from two photos he sent): a painted hood that tapers in on the front and both sides,
     # sitting on a white oak mantel beam (the cabinet and window oak) with a slim curved corbel under each end. The beam's
