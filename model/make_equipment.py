@@ -1459,7 +1459,7 @@ for dv in _EP["devices"]:
             info=dict(model="Two port network outlet, CAT-6 (U-11 draws cable TV and CAT-5; CAT-6 costs about the same now)",
                 specs=[["Height", f"{z_in} in to the centre"], ["Jacks", "Two network jacks, no coax"]],
                 notes=notes + ["No coax anywhere in the house (Maxwell, 11/19/2026): each U-11 cable TV and CAT-5 outlet becomes two network jacks, each with its own cable back to the network spot.", "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."])))
-        if k == "tv_data":
+        if k == "tv_data" and dv.get("mount", True):   # mount false: jack only, no TV mount (SE corner, Maxwell 11/21/2026)
             tv = dv.get("tv", False)
             ty = 30.65 if tv else y                    # the living room TV centres between its outlet and data jack
             items.append(dict(id=_eid("tv"), name="65 in TV on its wall mount" if tv else "TV mount", category="Low voltage", system="low_voltage", room=room, layer="lowvolt",
