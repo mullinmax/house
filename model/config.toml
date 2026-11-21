@@ -323,7 +323,8 @@ depth_in = 24                            # covers the front burners (an 18 in ca
 above_counter_in = 27                    # bottom of the doors over the cooktop; the valance below brings the edge to 24 in, the PM600SSV minimum. Mock up head height before building
 box_height_in = 30                       # the inverted bathtub that holds the smoke: up to the crown line, level with the oven tower top
 cheek_drop_in = 3                        # a level valance this deep runs under the doors and the end panel (Maxwell 11/20/2026: was a 6 in drop on the south side only)
-style = "doors"                          # doors (Maxwell 11/20/2026: hidden behind fake cabinet doors) | box | plaster | oak | cabinets | steel (mockups); HOOD_STYLE=... overrides
+style = "doors_flush"                    # doors_flush (Maxwell 11/20/2026: working upper, doors level with the oven tower, power pack in its floor) | doors | farmhouse | ss_* | stainless | box | plaster | oak | cabinets | steel; HOOD_STYLE=... overrides
+lip_in = 0                               # doors_flush: a level oak lip under the doors, in (3 brings the fan to 26.6 in over the cooktop)
 [kitchen.runs.south]                     # sink wall, elevation 1
 axis = "x"
 back = 51.458
