@@ -1,4 +1,4 @@
-# Loft furniture (Maxwell 11/21/2026), run by make_house.py after the loft is built. [loft] furniture = "chest" | "murphy" | "table" | "none";
+# Loft furniture (Maxwell 11/21/2026), run by make_house.py after the loft is built. [loft] furniture = "chest" | "none";
 # [loft] bed_open = true draws the bed down (LOFT_BED_OPEN for mockups).
 # (LOFT_LAYOUT overrides it for mockups). Everything is ASSUMED placement, in the Belongings layer, heights from the loft floor.
 def _loft_furniture():
@@ -139,78 +139,55 @@ def _loft_furniture():
             fy = (y0, y0 + 2.2) if head == "S" else (y1 - 2.2, y1)
             b(paint("#6F7F74"), x0, x1, fy[0], fy[1], z + 0.04, z + 0.14)
 
-    if lay == "table":
-        tx0, ty0 = 34.2, 25.0
-        tx1, ty1 = tx0 + 6.0, ty0 + 6.0
-        piece("game_table", "Game table, 6 ft square", "Wood top stained the red brown of the concrete floor, on galvanized steel pipe legs",
-              [["Top", "6' x 6', 1 3/4 in thick"], ["Colour", "Red brown stain to match the stained concrete (Maxwell 11/21/2026)"], ["Height", "30 in"],
-               ["Legs", "1 1/2 in galvanized pipe with floor flanges, pipe stretchers"],
-               ["Clear around it", f"{ftin(tx0 - X0)} to the railing, {ftin(X1 - tx1)} to the east wall, {ftin(ty0 - Y0)} north, {ftin(Y1 - 1.42 - ty1)} to the piano"]],
-              ["A bed cannot open with the table in place. One idea: a twin mattress on a rolling platform that stores under the table."])
-        b(TW, tx0, tx1, ty0, ty1, 2.354, 2.5)
-        for lx_, ly_ in ((tx0 + 0.6, ty0 + 0.6), (tx1 - 0.6, ty0 + 0.6), (tx0 + 0.6, ty1 - 0.6), (tx1 - 0.6, ty1 - 0.6)):
-            pipe_leg(lx_, ly_, 2.354)
-        for ly_ in (ty0 + 0.6, ty1 - 0.6):
-            b(PIPE, tx0 + 0.6, tx1 - 0.6, ly_ - 0.07, ly_ + 0.07, 0.5, 0.64)
-        b(PIPE, (tx0 + tx1) / 2 - 0.07, (tx0 + tx1) / 2 + 0.07, ty0 + 0.6, ty1 - 0.6, 0.5, 0.64)
-        bx = piano(33.2)
-        bench(bx, 32.0, "Bench, shared by the piano and the table")
-        for i_, (sx_, sy_) in enumerate(((tx0 - 0.9, ty0 + 1.6), (tx0 - 0.9, ty1 - 1.6), (tx1 + 0.9, ty0 + 1.6), (tx1 + 0.9, ty1 - 1.6), (tx0 + 1.6, ty0 - 0.9), (tx1 - 1.6, ty0 - 0.9))):
-            piece(f"stool_{i_}", "Stool", "Round wood seat on a galvanized pipe post", [["Height", "18 in"]])
-            cyl(TW, sx_, sy_, FL + 1.38, FL + 1.5, 0.55); pipe_leg(sx_, sy_, 1.38)
-        piece("game_shelves", "Game shelves", "Open white oak shelves for board games, 7 ft high", [["Size", "4' 4\" wide, 12 in deep"], ["Wall", "South wall, east of the piano"]])
-        shelf_unit(38.05, 42.4, Y1 - 1.0, Y1, 7.0, 6, "N", GAMES)
+    # Maxwell 11/21/2026: no big table. Loveseat on the north wall, piano on the south wall, a full size cabinet bed in the
+    # south east corner, and bookshelves along the east wall that frame the window, deep enough to sit on under it.
+    CW, CD, CH, CL = 58 / 12, 23 / 12, 39 / 12, 76 / 12        # Arason Creden-ZzZ full: 58 W x 23 D x 39 H in, opens to 76 in
+    SILL = 13.67 - FL                                         # east window sill above the loft floor (A-21)
+    WY0, WY1 = 26.71, 30.71                                   # east window rough opening
+    loveseat(31.6, 36.8)
+    bx = piano(X0 + 0.05)
+    bench(bx, 32.0)
+    cy1 = Y1 - 0.02
+    cy0 = cy1 - CW
+    piece("cabinet_bed", "Cabinet bed, full size", "Arason Creden-ZzZ full size cabinet bed: a free standing wood chest that unfolds into a bed",
+          [["Closed", "58 in wide, 23 in deep, 39 in high"], ["Open", "76 in from the wall"], ["Mattress", "Full, 6 in two layer foam, stored inside"],
+           ["Weight", "220 lb in its carton"], ["Clear when open", f"{ftin(X1 - CL - (X0 + 0.05 + 4.55))} to the piano, {ftin(cy0 - 28.75)} to the swivel chair"]],
+          ["Free standing, no wall anchors. It ships as one 220 lb carton, so it has to be hoisted over the loft railing; it will not go up the ladder.",
+           "Dimensions from Arason's Creden-ZzZ collection sheet. The queen is 64 x 23 x 43 in and opens to 81 in: it would touch the piano and stand as high as the window sill.",
+           "A flat packed alternative: Night and Day Murphy Cube (queen 64.1 x 26.4 x 36.6 in, opens 80.3 in, 128 lb)."])
+    b(OAK, X1 - CD, X1, cy0, cy0 + 0.08, 0.0, CH); b(OAK, X1 - CD, X1, cy1 - 0.08, cy1, 0.0, CH); b(OAK, X1 - 0.06, X1, cy0, cy1, 0.0, CH)
+    if OPEN:
+        bx0 = X1 - CL
+        b(OAK, X1 - CD, X1, cy0, cy1, 0.0, 0.9); b(OAK, bx0, X1 - CD, cy0 + 0.1, cy1 - 0.1, 0.75, 0.9)
+        for k in range(2):
+            b(OAK, bx0 + 0.1 + k * 2.2, bx0 + 0.25 + k * 2.2, cy0 + 0.1, cy1 - 0.1, 0.0, 0.75)
+        b(PIL, bx0 + 0.05, X1 - 0.1, cy0 + 0.17, cy1 - 0.17, 0.9, 1.4)
+        bedding(bx0 + 0.05, X1 - 0.1, cy0 + 0.17, cy1 - 0.17, 1.4, "E")
     else:
-        loveseat(32.0, 37.2)
-        if lay == "murphy":
-            bx = piano(31.95)
-            bench(bx, 32.0)
-            mx0, mx1, md, mh = 36.85, 42.4, 1.4, 7.5
-            piece("murphy", "Murphy bed", "Queen wall bed in a white oak cabinet, folds up against the south wall",
-                  [["Cabinet", f"{ftin(mx1 - mx0)} wide, 16 3/4 in deep, 7' 6\" high"], ["Open", "reaches 7' 2\" from the wall"], ["Wall", "South wall, 10 ft of headroom there"]],
-                  ["Must be anchored to the wall framing. The swivel chair moves aside when the bed comes down."])
-            b(OAK, mx0, mx0 + 0.08, Y1 - md, Y1, 0.0, mh); b(OAK, mx1 - 0.08, mx1, Y1 - md, Y1, 0.0, mh); b(OAK, mx0, mx1, Y1 - md, Y1, mh - 0.08, mh); b(OAK, mx0, mx1, Y1 - 0.05, Y1, 0.0, mh)
-            if OPEN:
-                by0 = Y1 - 0.25 - 6.9
-                b(OAK, mx0 + 0.15, mx1 - 0.15, by0, Y1 - 0.25, 1.05, 1.2); b(OAK, mx0 + 0.15, mx1 - 0.15, by0 - 0.06, by0, 0.0, 1.2)
-                b(PIL, mx0 + 0.27, mx1 - 0.27, by0 + 0.05, Y1 - 0.35, 1.2, 2.0)
-                bedding(mx0 + 0.27, mx1 - 0.27, by0 + 0.05, Y1 - 0.35, 2.0, "S")
-                swivel(34.6, 29.2, "E")
-            else:
-                b(OAK, mx0 + 0.08, mx1 - 0.08, Y1 - md, Y1 - md + 0.08, 0.1, mh - 0.08)
-                for k in (1, 2):
-                    b(OAK, mx0 + (mx1 - mx0) * k / 3 - 0.02, mx0 + (mx1 - mx0) * k / 3 + 0.02, Y1 - md - 0.02, Y1 - md, 0.1, mh - 0.08)
-                b("Black Metal", mx0 + 1.5, mx1 - 1.5, Y1 - md - 0.1, Y1 - md - 0.05, 5.3, 5.38)
-                swivel(39.6, 29.4, "E")
-            piece("wall_shelves", "Shelves over the piano", "Two white oak wall shelves", [["Size", "4' 6\" long, 10 in deep"]])
-            for z_ in (4.4, 5.8):
-                b(OAK, 31.95, 36.5, Y1 - 0.85, Y1, z_, z_ + 0.12)
-                for k in range(9):
-                    if k % 4 != 3:
-                        b(paint(BOOKS[k % len(BOOKS)]), 32.1 + k * 0.47, 32.1 + k * 0.47 + 0.3 + 0.05 * (k % 3), Y1 - 0.75, Y1 - 0.08, z_ + 0.12, z_ + 0.75 + 0.1 * (k % 2))
-        else:                                                    # chest: a cabinet bed under the east window
-            bx = piano(34.1)
-            bench(bx, 32.0)
-            swivel(32.65, 32.7, "E")
-            piece("bookcase", "Tall bookcase", "Open white oak bookcase, 7 ft high", [["Size", "3' 5\" wide, 12 in deep"], ["Wall", "South wall, east of the piano"]])
-            shelf_unit(38.95, 42.4, Y1 - 1.0, Y1, 7.0, 6, "N", BOOKS)
-            cy0, cy1, cd, ch = 26.0, 31.4, 2.05, 3.4
-            piece("cabinet_bed", "Cabinet bed", "Queen cabinet bed (chest bed): a free standing wood chest that unfolds into a bed",
-                  [["Closed", "64 in wide, 24 1/2 in deep, 41 in high: under the window sill"], ["Open", "reaches 6' 8\" from the wall"], ["Mattress", "Queen, 6 in tri fold foam"]],
-                  ["Free standing: no wall anchors, and it can come up the ladder in pieces. Examples of the type: Night and Day Murphy Cube, Arason Creden-ZzZ.", "Closed, its top is a shelf under the window."])
-            b(OAK, X1 - cd, X1, cy0, cy0 + 0.08, 0.0, ch); b(OAK, X1 - cd, X1, cy1 - 0.08, cy1, 0.0, ch); b(OAK, X1 - 0.06, X1, cy0, cy1, 0.0, ch)
-            if OPEN:
-                bx0 = X1 - 6.7
-                b(OAK, X1 - cd, X1, cy0, cy1, 0.0, 0.9); b(OAK, bx0, X1 - cd, cy0 + 0.1, cy1 - 0.1, 0.75, 0.9)
-                for k in range(2):
-                    b(OAK, bx0 + 0.1 + k * 2.2, bx0 + 0.25 + k * 2.2, cy0 + 0.1, cy1 - 0.1, 0.0, 0.75)
-                b(PIL, bx0 + 0.05, X1 - 0.1, cy0 + 0.2, cy1 - 0.2, 0.9, 1.4)
-                bedding(bx0 + 0.05, X1 - 0.1, cy0 + 0.2, cy1 - 0.2, 1.4, "E")
-            else:
-                b(OAK, X1 - cd, X1, cy0, cy1, ch - 0.1, ch); b(OAK, X1 - cd, X1 - cd + 0.08, cy0, cy1, 0.0, ch - 0.1)
-                b(OAK, X1 - cd - 0.02, X1 - cd, cy0 + 0.08, cy1 - 0.08, 0.85, 0.89)
-                for k in (-1, 1):
-                    b("Black Metal", X1 - cd - 0.08, X1 - cd - 0.02, (cy0 + cy1) / 2 + k * 1.2 - 0.25, (cy0 + cy1) / 2 + k * 1.2 + 0.25, 2.5, 2.56)
+        b(OAK, X1 - CD, X1, cy0, cy1, CH - 0.1, CH); b(OAK, X1 - CD, X1 - CD + 0.08, cy0, cy1, 0.0, CH - 0.1)
+        b(OAK, X1 - CD - 0.02, X1 - CD, cy0 + 0.08, cy1 - 0.08, 0.85, 0.89)
+        for k in (-1, 1):
+            b("Black Metal", X1 - CD - 0.08, X1 - CD - 0.02, (cy0 + cy1) / 2 + k * 1.1 - 0.25, (cy0 + cy1) / 2 + k * 1.1 + 0.25, 2.5, 2.56)
+    swivel(38.3, 27.55, "E")
+    # east wall shelving, the same 23 in depth as the cabinet bed so the fronts line up
+    sx0 = X1 - CD
+    seat_h = SILL - 0.17                                       # top 2 in under the sill
+    piece("window_seat", "Window seat shelves", "White oak shelves under the east window, built to sit on",
+          [["Size", f"{ftin(cy0 - 0.05 - (WY0 - 0.1))} long, 23 in deep, {ftin(seat_h)} high"], ["Top", "2 in under the window sill, with a seat pad"]],
+          [f"At {ftin(seat_h)} the top is counter height: a perch more than a bench. The low shelf doubles as a step up."])
+    shelf_unit(sx0, X1, WY0 - 0.1, cy0 - 0.05, seat_h, 3, "W", BOOKS)
+    b(fab, sx0 + 0.05, X1 - 0.05, WY0, cy0 - 0.15, seat_h, seat_h + 0.17)
+    piece("bookcase", "Bookcase north of the window", "White oak bookcase from the floor to 6 ft, in the north east corner",
+          [["Size", f"{ftin(WY0 - 0.15 - Y0)} wide, 23 in deep, 6' high"], ["Behind it", "Solid north wall: the attic entrance moved west to clear it (Maxwell 11/21/2026)"], ["Roof above", ftin(north_roof_z(Y0) - FL) + " at the north wall"]])
+    shelf_unit(sx0, X1, Y0, WY0 - 0.15, 6.0, 5, "W", GAMES)
+    piece("wall_shelves", "Shelves south of the window", "Three white oak wall shelves over the cabinet bed, matching the bookcase across the window",
+          [["Size", f"{ftin(cy1 - (WY1 + 0.15))} long, 10 in deep"], ["Heights", "4' 6\", 5' 6\" and 6' 6\""]])
+    for z_ in (4.5, 5.5, 6.5):
+        b(OAK, X1 - 0.85, X1, WY1 + 0.15, cy1, z_ - 0.1, z_)
+        for k in range(7):
+            if k % 4 != 3:
+                ya = WY1 + 0.3 + k * 0.5
+                b(paint(BOOKS[(k + int(z_)) % len(BOOKS)]), X1 - 0.75, X1 - 0.08, ya, ya + 0.3 + 0.05 * (k % 3), z_, z_ + 0.6 + 0.1 * (k % 2))
 
 
 _loft_furniture()
