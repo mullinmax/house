@@ -635,6 +635,40 @@ for ed in C.get("plan_edits", {}).get("wall_remove", []):     # partitions taken
     if not hit:
         raise SystemExit(f"plan_edits.wall_remove: no interior wall at {ed['at']}")
     INT_RECTS.remove(hit[0])
+
+# Real drywall on the partitions (Maxwell 11/21/2026: studs showed through the bedroom walls). A-11 draws most bedroom
+# and hall partitions 3 1/2 in thick, the bare 2x4, so the drywall box was the stud's own thickness and the studs sat
+# 1/16 in behind its faces, close enough to bleed through on screen. Those walls are now a 2x4 plus a sheet of drywall
+# each side ([framing] drywall_in, 5/8 in), grown evenly about the A-11 centre line, so each face moves 5/8 in into the
+# room. Where a wall end meets another wall it also runs 5/8 in into it, so the corners close up. The 5 1/2 in walls
+# already have room for a 2x4 and 5/8 in drywall each side and stay as drawn.
+DW = C.get("framing", {}).get("drywall_in", 0.625) / 12
+_SD = C.get("framing", {}).get("stud_d_in", 3.5) / 12
+
+
+def _grow_thin(rects):
+    def thin(r_):
+        return 3.3 / 12 < min(r_[1] - r_[0], r_[3] - r_[2]) < 3.7 / 12 and max(r_[1] - r_[0], r_[3] - r_[2]) >= 0.5
+
+    def meets_thin(x0, x1, y0, y1, me):
+        """does this probe just past a wall end touch a wall that grows? (touching counts: a crossing wall can end flush
+        with that wall's far face, and then the end has to follow the face out or it leaves a slit at the corner)"""
+        k = 0.005
+        return any(o is not me and thin(o) and o[0] < x1 + k and o[1] > x0 - k and o[2] < y1 + k and o[3] > y0 - k for o in rects)
+
+    out, e = [], 0.03
+    for r_ in rects:
+        x0, x1, y0, y1 = r_
+        g = (_SD + 2 * DW - min(x1 - x0, y1 - y0)) / 2 if thin(r_) else 0.0
+        if (x1 - x0) >= (y1 - y0):
+            out.append((x0 - (DW if meets_thin(x0 - e, x0, y0, y1, r_) else 0), x1 + (DW if meets_thin(x1, x1 + e, y0, y1, r_) else 0), y0 - g, y1 + g))
+        else:
+            out.append((x0 - g, x1 + g, y0 - (DW if meets_thin(x0, x1, y0 - e, y0, r_) else 0), y1 + (DW if meets_thin(x0, x1, y1, y1 + e, r_) else 0)))
+    return out
+
+
+INT_RECTS_A11 = list(INT_RECTS)                               # as A-11 draws them (tools/drywall_check.py)
+INT_RECTS = _grow_thin(INT_RECTS)
 DOORS = G.get("door_labels_A11", [])
 
 
@@ -887,7 +921,7 @@ if FR.get("enabled", True):
     OC = FR.get("stud_oc_in", 16) * IN
     NTOP = FR.get("top_plates", 2)
     PLATE_TOP = FR.get("plate_height_in", 109) * IN         # top of the double top plate, as built
-    FACE_IN = FR.get("face_inset_in", 0.0625) * IN          # every piece stays just inside the wall box, never flush with the drywall
+    FACE_IN = FR.get("face_inset_in", 0.0625) * IN          # ends of plates and headers stay just inside the wall box, never flush with the drywall
     HDR = FR.get("header_default", {})
     HOVR = FR.get("headers", [])
     BUILT = FR.get("built", [])
@@ -915,7 +949,9 @@ if FR.get("enabled", True):
             box(mat, v0, v1, u0, u1, z0, z1)
 
     def band(t0, t1, sd):
-        d = min(sd, t1 - t0 - 2 * FACE_IN)
+        # partitions are now drawn a 2x4 plus 5/8 in drywall each side thick, so the studs, centred, stay a full sheet
+        # behind each face; a wall still drawn thinner than its studs squeezes them just inside its faces
+        d = sd if t1 - t0 - sd > 2 * FACE_IN else t1 - t0 - 2 * FACE_IN
         vm = (t0 + t1) / 2
         return vm - d / 2, vm + d / 2
 
@@ -3455,6 +3491,90 @@ def nudge():
     return moved, len(zfight_pairs())
 
 
+# Furniture, fixtures and cabinets were placed against the A-11 faces of the partitions. Those faces moved 5/8 in into the
+# rooms when the walls got real drywall (_grow_thin), so slide each piece that now sits in the new drywall back out of it,
+# the whole record together. tools/drywall_check.py lists anything still buried.
+def drywall_slabs():
+    out = []
+    for a, b in zip(INT_RECTS_A11, INT_RECTS):
+        if a == b:
+            continue
+        for ax, sg, sl in ((1, -1, (b[0], b[1], b[2], a[2])), (1, 1, (b[0], b[1], a[3], b[3])), (0, -1, (b[0], a[0], b[2], b[3])), (0, 1, (a[1], b[1], b[2], b[3]))):
+            if sl[1] - sl[0] > 1e-4 and sl[3] - sl[2] > 1e-4:
+                out.append((ax, sg, sl, a))
+    return out
+
+
+def shape_bounds(s):
+    if s[0] == "b":
+        return (s[2], s[3], s[4], s[5]), (s[6], s[7])
+    if s[0] == "x":
+        a = s[2]
+        return (min(a[0::3]), max(a[0::3]), min(a[1::3]), max(a[1::3])), (min(a[2::3]), max(a[2::3]))
+    if s[0] == "c":
+        return (s[2] - max(s[6], s[7]), s[2] + max(s[6], s[7]), s[3] - max(s[6], s[7]), s[3] + max(s[6], s[7])), (s[4], s[5])
+    if s[0] == "q":
+        p = s[2]
+        return (min(q[0] for q in p), max(q[0] for q in p), min(q[1] for q in p), max(q[1] for q in p)), (min(q[2] for q in p), max(q[2] for q in p))
+    return None, None
+
+
+def buried_in_drywall(s, slabs, eps=0.004):
+    """(axis, push) for each new drywall slab this shape sits in but does not run on through (floors and the like do)"""
+    bx, z = shape_bounds(s)
+    if not bx:
+        return []
+    out = []
+    for ax, sg, sl, a in slabs:
+        if min(bx[1], sl[1]) - max(bx[0], sl[0]) > eps and min(bx[3], sl[3]) - max(bx[2], sl[2]) > eps:
+            if min(bx[1], a[1]) - max(bx[0], a[0]) > eps and min(bx[3], a[3]) - max(bx[2], a[2]) > eps:
+                continue
+            lo, hi = (bx[0], bx[1]) if ax == 0 else (bx[2], bx[3])
+            out.append((ax, (sl[1 if ax == 0 else 3] - lo) if sg > 0 else -(hi - sl[0 if ax == 0 else 2])))
+    return out
+
+
+def shift_shape(s, d):
+    if s[0] == "b":
+        for k in range(2):
+            s[2 + k] = rnd(s[2 + k] + d[0]); s[4 + k] = rnd(s[4 + k] + d[1])
+    elif s[0] == "x":
+        for k in range(8):
+            s[2][k * 3] = rnd(s[2][k * 3] + d[0]); s[2][k * 3 + 1] = rnd(s[2][k * 3 + 1] + d[1])
+    elif s[0] == "c":
+        s[2] = rnd(s[2] + d[0]); s[3] = rnd(s[3] + d[1])
+    elif s[0] == "q":
+        for q in s[2]:
+            q[0] = rnd(q[0] + d[0]); q[1] = rnd(q[1] + d[1])
+
+
+def settle_off_drywall():
+    slabs, moved = drywall_slabs(), []
+    for r in RECS:
+        if r.get("kind") not in ("furniture", "fixture", "cabinet", "appliance"):
+            continue
+        shapes = list(r.get("parts", [])) + [s for o in r.get("ops", []) for s in o["parts"]]
+        push = [0.0, 0.0, 0.0, 0.0]                      # -x, +x, -y, +y
+        for s in shapes:
+            for ax, d in buried_in_drywall(s, slabs):
+                i = ax * 2 + (1 if d > 0 else 0)
+                push[i] = max(push[i], abs(d) + 0.0005)
+        if not any(push):
+            continue
+        d = (push[1] - push[0], push[3] - push[2])
+        if (push[0] and push[1]) or (push[2] and push[3]):
+            print(f"drywall: {r['id']} is squeezed between two walls that grew, moved by the net {d}")
+        for s in shapes:
+            shift_shape(s, d)
+        for o in r.get("ops", []):
+            o["pivot"][0] = rnd(o["pivot"][0] + d[0]); o["pivot"][1] = rnd(o["pivot"][1] + d[1])
+        moved.append((r["id"], round(d[0] * 12, 2), round(d[1] * 12, 2)))
+    return moved
+
+
+SETTLED = settle_off_drywall()
+print("off the new drywall (in):", ", ".join(f"{i} {dx:+g},{dy:+g}" for i, dx, dy in SETTLED))
+
 NUDGED = nudge()
 
 # ------------------------------------------------------------------ write
@@ -3469,6 +3589,7 @@ out = dict(
               outline=dict(house=[0, 0, HW, HD], garage=GA["rect"] if GA.get("enabled") else None, porch=C.get("porch", {}).get("rect")),
               climbs=(LADDER_CLIMBS if LADDER_CLIMBS is not None else [dict(id="loft.ladder", rect=list(LOFT["ships_ladder"]), axis="x", z0=0.0, z1=LOFT["floor_height"])]) if LOFT.get("enabled") else [],
               framing=FRAMING_META,
+              partitions=[dict(a11=[rnd(v) for v in a], built=[rnd(v) for v in b]) for a, b in zip(INT_RECTS_A11, INT_RECTS) if a != b],
               **WEB_META),
     materials=MATERIALS,
     spawns={k: dict(pos=[p[0], p[1], EYE], look=[l[0], l[1], EYE - 0.3]) for k, (p, l) in SPAWNS.items()},
