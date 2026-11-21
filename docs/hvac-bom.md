@@ -65,7 +65,7 @@ Counted from the model with 10 percent extra. Anything that crosses the floor tr
 | 8 in round pipe, 30 ga snap lock | ERV | 2 | x 5 ft | 8 ft in the model |  |
 | 8 in round pipe, 30 ga snap lock | ERV outdoor side, insulated | 5 | x 5 ft | 19 ft in the model | Insulate with R-8 wrap or use insulated duct, vapor jacket outside |
 | 8 in round pipe, 30 ga snap lock | Exhaust | 9 | x 5 ft | 37 ft in the model |  |
-| 8 in round pipe, 30 ga snap lock | Range hood | 1 | x 5 ft | 4 ft in the model |  |
+| 8 in round pipe, 30 ga snap lock | Range hood | 1 | x 5 ft | 3 ft in the model |  |
 | 8 in round pipe, 30 ga snap lock | Supply | 13 | x 5 ft | 55 ft in the model |  |
 | 10 in round pipe, 30 ga snap lock | Return | 12 | x 5 ft | 51 ft in the model |  |
 | 6 in flex duct, R-6 insulated | Return runs through the trusses | 4 | x 25 ft box | 72 ft in the model | Pull it tight, no sags; support every 4 ft |
@@ -173,7 +173,7 @@ Estimated from the joint and length counts above.
 | Litter box exhaust | Exhaust | Utility | 4 in round | 6.2 | 20 |  |  |  |
 | Bath exhaust main | Exhaust | None | 6 in round | 62.3 |  |  |  |  |
 | Powder exhaust | Exhaust | Powder | 4 in round | 9.6 |  |  |  |  |
-| Range hood duct | Range hood | Kitchen | 8 in round | 4.5 |  |  |  |  |
+| Range hood duct | Range hood | Kitchen | 8 in round | 2.7 |  |  |  |  |
 | Bedroom 1 return | Return |  | 10 in round | 52.1 |  |  |  | 2 |
 | Bedrooms 2 and 3 return | Return |  | 10 in round | 21.5 |  | yes | 2 | 3 |
 | Main return (M-10) | Return |  | 34 x 20 in | 8.3 |  |  |  |  |

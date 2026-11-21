@@ -1490,13 +1490,15 @@ for dv in _EP["devices"]:
                 notes=notes + ["No coax anywhere in the house (Maxwell, 11/19/2026): each U-11 cable TV and CAT-5 outlet becomes two network jacks, each with its own cable back to the network spot.", "Every network cable runs back to one spot. U-11 does not say where; the utility room or the mechanical platform by the electric panel are the usual choices."])))
         if k == "tv_data" and dv.get("mount", True):   # mount false: jack only, no TV mount (SE corner, Maxwell 11/21/2026)
             tv = dv.get("tv", False)
+            tv_in = dv.get("tv_in", 70)                 # living room TV: 70 in (Maxwell 11/21/2026), was a generic 65
+            tv_w, tv_h = round(tv_in * 0.8716 + 0.7, 1), round(tv_in * 0.4903 + 1.2, 1)   # 16:9 panel plus a thin bezel
             ty = 30.65 if tv else y                    # the living room TV centres between its outlet and data jack
-            items.append(dict(id=_eid("tv"), name="65 in TV on its wall mount" if tv else "TV mount", category="Low voltage", system="low_voltage", room=room, layer="lowvolt",
-                builder="tv_mount", size=[24, 16, 1.6], tv=[57.1, 32.7, 1.1] if tv else None, at=[x, ty, round(floor + 72 / 12 - 8 / 12, 3)], facing=dv["facing"],
+            items.append(dict(id=_eid("tv"), name=f"{tv_in} in TV on its wall mount" if tv else "TV mount", category="Low voltage", system="low_voltage", room=room, layer="lowvolt",
+                builder="tv_mount", size=[24, 16, 1.6], tv=[tv_w, tv_h, 1.1] if tv else None, at=[x, ty, round(floor + 72 / 12 - 8 / 12, 3)], facing=dv["facing"],
                 info=dict(model="Flat screen TV mount at 72 in, wall blocking behind it, 2 in sleeve down to a single gang box (U-11 legend)",
                     specs=[["Height", "72 in to the TV centre, confirm with the owner"], ["Blocking", "Needed in the wall before drywall"]],
                     notes=notes + ["The bracket is drawn generic: the TV and its mount are not picked yet. A recessed power and cable box behind the TV hides the cords."]
-                        + (["The TV is a generic 65 in set (about 57 x 33 in), the size Andy's site plan furniture shows. Its centre is at 72 in as U-11 draws it, which is high for watching from the couch; 42 to 48 in is more usual, so confirm before the blocking goes in."] if tv else []))))
+                        + ([f"The TV is a generic {tv_in} in set (about {tv_w:.0f} x {tv_h:.0f} in), the size Maxwell asked for 11/21/2026 (Andy's site plan furniture showed a 65). Its centre is at 72 in as U-11 draws it, which is high for watching from the couch; 42 to 48 in is more usual, so confirm before the blocking goes in."] if tv else []))))
 
 
 # ERV boost controls (Maxwell, 11/20/2026: add them to the model). One push button timer in each room the ERV exhausts, in its own

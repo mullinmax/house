@@ -4576,7 +4576,7 @@
   },
   {
    "id": "elec_tv_01",
-   "name": "65 in TV on its wall mount",
+   "name": "70 in TV on its wall mount",
    "category": "Low voltage",
    "system": "low_voltage",
    "room": "Living",
@@ -4588,8 +4588,8 @@
     1.6
    ],
    "tv": [
-    57.1,
-    32.7,
+    61.7,
+    35.5,
     1.1
    ],
    "at": [
@@ -4614,7 +4614,7 @@
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 12).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "The bracket is drawn generic: the TV and its mount are not picked yet. A recessed power and cable box behind the TV hides the cords.",
-     "The TV is a generic 65 in set (about 57 x 33 in), the size Andy's site plan furniture shows. Its centre is at 72 in as U-11 draws it, which is high for watching from the couch; 42 to 48 in is more usual, so confirm before the blocking goes in."
+     "The TV is a generic 70 in set (about 62 x 36 in), the size Maxwell asked for 11/21/2026 (Andy's site plan furniture showed a 65). Its centre is at 72 in as U-11 draws it, which is high for watching from the couch; 42 to 48 in is more usual, so confirm before the blocking goes in."
     ]
    },
    "src": "U-11 #12"

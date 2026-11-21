@@ -388,7 +388,7 @@
      "spec": "Range hood",
      "qty": 1,
      "unit": "x 5 ft",
-     "where": "4 ft in the model",
+     "where": "3 ft in the model",
      "note": "",
      "price": "",
      "status": ""
@@ -1247,7 +1247,7 @@
    "system": "Range hood",
    "room": "Kitchen",
    "size": "8 in round",
-   "ft": 4.481699999999998,
+   "ft": 2.6947208333333332,
    "cfm": null,
    "flex": false,
    "crosses": 0,

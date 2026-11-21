@@ -1315,11 +1315,15 @@ function climbAt(p, pad = 0) {
   for (const c of houseMeta.climbs || []) {
     const [x0, y0, x1, y1] = c.rect, x = p.x / F, y = p.z / F;
     const feet = (p.y - eyeH) / F;
-    if (y < y0 || y > y1 || x < x0 - 0.3 || x > x1 + RADIUS / F + pad / F) continue;
-    const t = Math.min(1, Math.max(0, (x - x0) / (x1 - x0)));
+    const alongY = c.axis === 'y';                         // a flight can run along y, and rise toward the low end (rev)
+    const [u, v, u0, u1, v0, v1] = alongY ? [y, x, y0, y1, x0, x1] : [x, y, x0, x1, y0, y1];
+    const len = u1 - u0, s_ = c.rev ? u1 - u : u - u0;
+    const past = Math.min((RADIUS + pad) / F, c.pad ?? Infinity);   // c.pad: a short landing with a guard beyond the top
+    if (v < v0 || v > v1 || s_ < -0.3 || s_ > len + past) continue;
+    const t = Math.min(1, Math.max(0, s_ / len));
     const z = c.z0 + (c.z1 - c.z0) * t;
     if (Math.abs(feet - z) > 2.5) continue;              // walking under it or on the loft beside it
-    if (x > x1) return null;                              // past the top: the loft floor takes over
+    if (s_ > len) return null;                            // past the top: the landing or the loft floor takes over
     return z * F;
   }
   return null;
@@ -1391,7 +1395,7 @@ function dropSpot(at) {
 // Body rays: knee, waist and the crouched head. Anything higher you duck under instead of walking into.
 function blocked(origin, dir, dist) {
   const feet = origin.y - eyeH;
-  for (const hgt of [1.05 * F, 2.0 * F, Math.min(eyeH, CROUCH) * 0.95]) {
+  for (const hgt of [1.05 * F, 2.0 * F, 2.94 * F, Math.min(eyeH, CROUCH) * 0.95]) {   // 2.94 ft: the cap of a 36 in guard, whose balusters the other rays slip between
     side.set(new THREE.Vector3(origin.x, feet + hgt, origin.z), dir);
     side.far = dist + RADIUS;
     const h = side.intersectObjects(colliders, false)[0];
