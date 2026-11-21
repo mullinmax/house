@@ -1893,24 +1893,28 @@ elif HSTYLE == "doors_flush":
         wr.box("Stainless", HU0 + 0.004, HU0 + 0.012, 0, HD_ - WT - 0.004, LB + 0.004, DB - 0.004)         # against the oven tower side (Maxwell 11/20/2026: line it in stainless)
     PW = 21.375 / 12                               # Broan PM600SSV: 21-3/8 W x 10-9/16 H x 11-7/16 D
     lu0, lu1 = _cc - PW / 2 - 0.06, _cc + PW / 2 + 0.06
+    IB = HOOD.get("insert_setback_in", 1.44) / 12        # back of the power pack off the wall
+    LF = IB + 11.4375 / 12 + 0.05                  # front of the cutout and the liner box
     ct = 0.06                                      # the case, as hollow() builds it, but with the floor cut round the power pack
     wr.box(K_WOOD, HU0, UE, 0, ct, DB, CRN0)
     for (b0, b1) in ((HU0, HU0 + ct), (UE - ct, UE)):
         wr.box(K_WOOD, b0, b1, ct, HD_, DB, CRN0)
     wr.box(K_WOOD, HU0 + ct, UE - ct, ct, HD_, CRN0 - ct, CRN0)
-    for (b0, b1, e0) in ((HU0 + ct, lu0, ct), (lu1, UE - ct, ct), (lu0, lu1, 1.12)):
-        wr.box(K_WOOD, b0, b1, e0, HD_, DB, DB + ct)
-    for (b0, b1, e0) in ((HU0, lu0, 0), (lu1, UE, 0), (lu0, lu1, 1.12)):                     # stainless sheet on the underside: the cooktop
-        wr.box("Stainless", b0, b1, e0, HD_ - (WT if LIP else 0), DB - 0.012, DB - 0.004)     # wants wood over it under 30 in protected
+    for (b0, b1, e0, e1) in ((HU0 + ct, lu0, ct, HD_), (lu1, UE - ct, ct, HD_), (lu0, lu1, LF, HD_), (lu0, lu1, ct, IB - 0.05)):
+        wr.box(K_WOOD, b0, b1, e0, e1, DB, DB + ct)
+    for (b0, b1, e0, e1) in ((HU0, lu0, 0, HD_), (lu1, UE, 0, HD_), (lu0, lu1, LF, HD_), (lu0, lu1, 0, IB - 0.05)):   # stainless sheet on the underside: the cooktop
+        wr.box("Stainless", b0, b1, e0, e1 - (WT if LIP and e1 == HD_ else 0), DB - 0.012, DB - 0.004)          # wants wood over it under 30 in protected
     if not _os.environ.get("HOOD_DOORS_OFF"):
         doors(wr, rdoor, HU0, UE, DB, CRN0, HD_, K_WOOD, 2)
         rdoor["ops"][-2]["angle"] = 90 if rdoor["ops"][-2]["angle"] > 0 else -90   # the north door stops square, clear of the deeper oven tower
     wr.box(K_WOOD, HU0, HU1 + 0.05, 0, BASE_D + 0.22, CRN0, CRN1)                                        # crown, carried on from the oven tower
-    LT = LB + 11.5 / 12                            # top of the liner box round the power pack
-    wr.box("Stainless", lu0, lu0 + 0.02, 0.06, 1.12, LB + 0.01, LT)                                       # liner box: two sides, front, top
-    wr.box("Stainless", lu1 - 0.02, lu1, 0.06, 1.12, LB + 0.01, LT)
-    wr.box("Stainless", lu0, lu1, 1.10, 1.12, LB + 0.01, LT)
-    wr.box("Stainless", lu0, lu1, 0.06, 1.12, LT, LT + 0.02)
+    LT = DB + 11.0 / 12                            # top of the liner box round the power pack, whose faceplate is flush with the underside
+    lb = IB - 0.05                                 # liner box: two sides, back, front, top, round the power pack
+    wr.box("Stainless", lu0, lu0 + 0.02, lb, LF, DB + 0.004, LT)
+    wr.box("Stainless", lu1 - 0.02, lu1, lb, LF, DB + 0.004, LT)
+    wr.box("Stainless", lu0, lu1, LF - 0.02, LF, DB + 0.004, LT)
+    if lb > 0.1: wr.box("Stainless", lu0, lu1, lb, lb + 0.02, DB + 0.07, LT)
+    wr.box("Stainless", lu0, lu1, lb, LF, LT, LT + 0.02)
     above = round((LB - CTR_Z) * 12, 1)
     IW, ID_, IH = (UE - HU0 - 0.12), HD_ - 0.06, CRN0 - DB - 0.12
     FREE = IW * ID_ * IH - (lu1 - lu0) * 1.06 * (LT - DB) - 0.75 * 1.0 * 0.9
@@ -1919,7 +1923,7 @@ elif HSTYLE == "doors_flush":
         specs=[["Width", f"{ftin(HU1 - HU0)}, from the oven tower to 6-1/2 in past the cooktop"], ["Depth", ftin(HD_)],
                ["Underside", f"{ftin(LB)} above the floor, {above} in over the cooktop (Broan: 24 to 30 in)"],
                ["Cabinet", f"Two doors that open, about {round(IW * 12)} W x {round(ID_ * 12)} D x {round(IH * 12)} H in inside, about {FREE:.0f} cu ft free"],
-               ["Fan", "In a stainless liner box at the back centre of the cabinet floor, 8 in duct up, one elbow, straight out the west wall"]],
+               ["Fan", "In a stainless liner box in the cabinet floor, centred over the cooktop side to side and front to back, 8 in duct up, one elbow, straight out the west wall"]],
         links=[VIDEO],
         notes=["Maxwell, 11/20/2026: the doors line up with the oven tower's upper doors so the row looks seamless.",
                "Broan (PM400/600SSV install guide): bottom of the hood 24 in minimum and 30 in maximum over the cooktop; under 30 in the insert must sit in a "
