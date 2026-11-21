@@ -30,5 +30,7 @@ jobs:
         run: python3 tools/pipe_clash.py
       - name: Is anything buried in the 5/8 in drywall the partitions gained?
         run: python3 tools/drywall_check.py
+      - name: Look around every room for ducts showing through a wall or ceiling
+        run: node tools/duct_visible.mjs
       - name: Is the bill of materials up to date? (a warning only, the Pages deploy rebuilds it)
         run: python3 model/make_bom.py --check || echo "::warning::docs/hvac-bom.md is out of date, run python3 model/make_bom.py"

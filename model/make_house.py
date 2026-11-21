@@ -1292,15 +1292,6 @@ if LOFT["enabled"]:
                 yb_ += 0.33
 
 exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "loft_furniture.py")).read())
-if os.environ.get("MOCK_COUCH"):                          # mockups only: a plain L couch in the living room's north east corner
-    _cx1, _cy0 = LX0 - 0.06, 22.95
-    _nl, _el, _dp = [float(v_) for v_ in os.environ["MOCK_COUCH"].split(",")] + [3.1]
-    _cm, _cb = paint("#8E9388"), paint("#7C8177")
-    rec("mock.couch", "trim", "L couch (mockup)", "interior", room="Living")
-    box(_cm, _cx1 - _nl, _cx1, _cy0, _cy0 + _dp, 0.25, 1.45); box(_cm, _cx1 - _dp, _cx1, _cy0 + _dp, _cy0 + _el, 0.25, 1.45)
-    box(_cb, _cx1 - _nl, _cx1, _cy0, _cy0 + 0.6, 1.45, 2.75); box(_cb, _cx1 - 0.6, _cx1, _cy0 + 0.6, _cy0 + _el, 1.45, 2.75)
-    box(_cb, _cx1 - _nl - 0.5, _cx1 - _nl, _cy0, _cy0 + _dp, 0.25, 2.1); box(_cb, _cx1 - _dp, _cx1, _cy0 + _el, _cy0 + _el + 0.5, 0.25, 2.1)
-
 # ------------------------------------------------------------------ kitchen (Carter Lumber design start plan, Erin's redline)
 BASE_D, CTR_D, FRONT_T, REV = 1.9, 2.08, 0.06, 0.012
 KICK, CTR_Z, CTR_T = 0.33, 3.0, 0.125
@@ -2104,9 +2095,24 @@ elif HSTYLE == "shelf_wrap":
         BT = None
     UP = None
     if BT:
-        wr.box("Drywall", B0, B0 + q, 0, BD, SB + ST, BT)
-        wr.box("Drywall", B1 - q, B1, 0, BD, SB + ST, BT)
-        wr.box("Drywall", B0 + q, B1 - q, BD - q, BD, SB + ST, BT)
+        if WV == "2":
+            # Maxwell, 11/21/2026: curve the box to match the shelves. Its sides flare back to the wall in the same S curve as the
+            # shelf transitions, outside the fan's clearance, so the box reads as a soft bump between the two shelves.
+            BL = 0.75
+            def depb(u):
+                x = abs(u - _cc) - ((B1 - B0) / 2 - q)
+                if x <= 0: return BD
+                t = min(1.0, x / BL); return max(0.002, BD * (1 + _m.cos(_m.pi * t)) / 2)
+            wr.box("Drywall", B0 + q, B1 - q, BD - q, BD, SB + ST, BT)
+            for sgn in (-1, 1):
+                us = [_cc + sgn * ((B1 - B0) / 2 - q + BL * k / 10) for k in range(11)]
+                for ua, ub in zip(us, us[1:]):
+                    a, b = (ua, ub) if sgn > 0 else (ub, ua)
+                    seg("Drywall", a, b, 0, SB + ST, BT, dep=depb)
+        else:
+            wr.box("Drywall", B0, B0 + q, 0, BD, SB + ST, BT)
+            wr.box("Drywall", B1 - q, B1, 0, BD, SB + ST, BT)
+            wr.box("Drywall", B0 + q, B1 - q, BD - q, BD, SB + ST, BT)
         if WV == "2":
             # Maxwell, 11/21/2026: the upper shelf comes down onto the box and runs right over it, so the box hides between the two
             # shelves. Over the box the upper shelf gets 1 in deeper than the box, with the same S curves as the lower shelf.
@@ -2129,7 +2135,7 @@ elif HSTYLE == "shelf_wrap":
     LT = SB + 11.5 / 12                            # stainless liner round the power pack inside the box
     wr.box("Stainless", lu0, lu0 + 0.02, 0.06, LF, SB, LT); wr.box("Stainless", lu1 - 0.02, lu1, 0.06, LF, SB, LT)
     wr.box("Stainless", lu0, lu1, LF - 0.02, LF, SB, LT); wr.box("Stainless", lu0, lu1, 0.06, LF, LT, LT + 0.02)
-    WRAP = dict(lo=SB, box=(B0, B1), uc=UC, up=UP)
+    WRAP = dict(lo=SB, box=(B0, B1), uc=UC, up=UP, big=[(_cc - hw, SB - 0.009), (_cc + hw, SB - 0.009)] if WV != "1" else [])
     vtxt = {"1": "deep from the oven tower to 6 in past the cooktop, one S curve back to shelf depth on the south; 8 in round duct, box just over the elbow",
             "2": "deep part centred on the cooktop with S curves both sides; 3-1/4 x 10 in duct, so the box is a low bump with the upper shelf running right over it",
             "3": "deep part centred on the cooktop with straight tapers both sides; the box is a slim chase to the ceiling"}[WV]
@@ -2137,7 +2143,7 @@ elif HSTYLE == "shelf_wrap":
         model=f"Wraparound shelf hood {WV}: the lower white oak shelf runs to the oven tower and gets deeper over the cooktop, a drywall box hugs a Broan PM600SSV power pack (suggested)",
         specs=[["Shelf", f"{round(ST * 12, 1)} in thick like the other shelves, {round(D0 * 12, 1)} in deep, {round(DD * 12)} in over the cooktop"],
                ["Underside", f"30 in over the cooktop glass, {ftin(SB)} above the floor, stainless sheet over the cooktop (Broan: 24 to 30 in)"],
-               ["Box", f"Drywall painted like the walls, {round((B1 - B0) * 12)} W x {round(BD * 12)} D in" + (f", up to {ftin(BT + (0 if UP else q))}" + (", the upper shelf sits on it" if UP else "") if BT else ", up to the ceiling")],
+               ["Box", f"Drywall painted like the walls, {round((B1 - B0) * 12)} W x {round(BD * 12)} D in" + (f", up to {ftin(BT + (0 if UP else q))}" + (", sides curved back to the wall like the shelves, the upper shelf sits on it" if UP else "") if BT else ", up to the ceiling")],
                ["Version", vtxt]],
         links=[VIDEO],
         notes=["Maxwell, 11/21/2026: the shelves wrap round the kitchen to the ovens and line up with the hood, the hood is just a deeper part of the "
@@ -2386,6 +2392,33 @@ for z in SHZ:
         wb0, wb1 = WRAP["box"]
         box("White Oak", WX0, WX0 + SH["depth"], HU0, wb0, z, z + 0.15)
         box("White Oak", WX0, WX0 + SH["depth"], wb1, WRAP["uc"], z, z + 0.15)
+
+if WRAP:
+    # Curved white oak corbels under the shelves (Maxwell, 11/21/2026: the curved supports from the farmhouse mockups). The two
+    # biggest frame the hood's deep part, about 3-1/2 in clear of the cooktop's sides; smaller ones every 2 ft or so carry the rest.
+    import math as _m
+    CT = 1.75 / 12                                 # 1-3/4 in thick, like the farmhouse corbels
+    def corbel(wall, uc, cd, ch, ztop):
+        cmin = 1.5 / 12
+        pts = [(cd - (cd - cmin) * _m.cos(_m.pi / 2 * k / 12), ztop - ch + ch * _m.sin(_m.pi / 2 * k / 12)) for k in range(13)]
+        pts[-1] = (pts[-1][0], ztop)
+        u0, u1 = uc - CT / 2, uc + CT / 2
+        P = (lambda u, d, z: (WX0 + d, u, z)) if wall == "W" else (lambda u, d, z: (u, HD - T - d, z))
+        for (d0_, z0_), (d1_, z1_) in zip(pts, pts[1:]):
+            hexa("White Oak", [P(u0, 0, z0_), P(u0, d0_, z0_), P(u0, d1_, z1_), P(u0, 0, z1_),
+                               P(u1, 0, z0_), P(u1, d0_, z0_), P(u1, d1_, z1_), P(u1, 0, z1_)])
+    for (uc_, zt) in WRAP["big"]:                  # the big pair under the hood: 20 in out, 14 in tall
+        corbel("W", uc_, 20 / 12, 14 / 12, zt)
+    small = (8 / 12, 7 / 12)                       # the rest: 8 in out under the 10.8 in shelves, 7 in tall
+    for z in SHZ:
+        for x in (2.0, 4.25, 6.45):                # sink wall run, x 0.54 to 6.7
+            corbel("S", x, *small, z - 0.002)
+        corbel("W", 50.15, *small, z - 0.002)      # cooktop wall, between the hood and the corner
+    BYID["kitchen.shelves"]["info"] = dict(model="White oak open shelves, wrapping round the kitchen from the sink wall to the oven tower",
+        specs=[["Heights", ", ".join(ftin(z) for z in SHZ) + " (the lower one level with the hood's underside, the upper one on the hood box)"],
+               ["Depth", f"{round(SH['depth'] * 12, 1)} in, deeper over the cooktop where the lower one is the hood"],
+               ["Supports", "Curved white oak corbels, 1-3/4 in thick: a 20 in pair frames the hood, 8 in ones about every 2 ft under the rest"]],
+        notes=["Maxwell, 11/21/2026: the shelves wrap round to the ovens and line up with the hood, with the curved supports from the farmhouse mockups."])
 
 # Pantry shelves (Maxwell 11/20/2026: "simple shelving"): 3/4 in white oak on 1x2 cleats, around a chest freezer on the back wall.
 # They are built in, so they live with the house; what is on them is in the Belongings layer (make_equipment.py pantry_goods).
@@ -3153,6 +3186,17 @@ def web_office_chair(it):
 # The baked site has a concrete pad under the kitchen's south service window that is not on the drawings (Maxwell,
 # 11/16/2026). The pads at the bi-parting door and the west door stay.
 WEB_META["cull"].append(dict(box=[6.9, 51.9, -1.0, 13.1, 56.1, 0.2], materials=["Concrete"], parts="site"))
+# The baked pad at the bi-parting door ran x 17-29, 10 in west of the D120-80 rough opening (x 17.81-29.81; Maxwell,
+# 11/21/2026). Drop it and pour it here centred on the door, same 12 x 4 ft and same height.
+_sl = next(o_ for o_ in C["openings"] if o_["kind"] == "slider" and o_["wall"] == "S")
+WEB_META["cull"].append(dict(box=[16.9, 51.9, -1.0, 29.1, 56.1, 0.2], materials=["Concrete"], parts="site"))
+_pw, _pd = 12.0, 4.0
+_pc = (_sl["start"] + _sl["end"]) / 2
+rec("site.slider_pad", "slab", "Concrete pad at the bi-parting door", "shell", room="Yard",
+    info=dict(model="Concrete landing pad outside the south bi-parting door (ASSUMED, not on the drawings)",
+              specs=[["Size", f"{ftin(_pw)} x {ftin(_pd)}"], ["Position", "centred on the D120-80 door opening"]],
+              notes=["Centred on the door (Maxwell, 11/21/2026); the Blender pad sat 10 in to the west."]))
+box("Concrete", _pc - _pw / 2, _pc + _pw / 2, HD + 0.0, HD + _pd, -0.6, -0.05)
 
 # The baked bath 1 wet room tiled its whole west wall, straight across the A-11 walk in opening (x 38.12-38.41,
 # y 23.59-26.95; Maxwell, 11/17/2026). Drop that slab and tile the wall here with the opening left open.
@@ -3280,10 +3324,50 @@ def web_towel_warmer(it):
 # the old towel bar (merged into the baked Brushed Nickel mesh) hung in the WC pocket door opening
 WEB_META["cull"].append(dict(box=[33.0, 28.8, 3.9, 35.6, 29.25, 4.1], materials=["Brushed Nickel"]))
 
+def web_l_couch(it):
+    """L sectional in the living room's north east corner, from the ships ladder mockup Maxwell picked (option E,
+    11/21/2026): the long leg along the north wall facing south, the short leg along the bath 1 wall facing west, its
+    south end under the ladder's upper flight. Plain sage fabric, low black legs. corner = [x, y] of the outside
+    corner (east end of the back, against the walls); nl, el = overall lengths along the north and east walls."""
+    x1, y0 = it["corner"]
+    NL, EL, D = it.get("nl", 9.5), it.get("el", 7.5), it.get("d", 3.1)
+    AW, BD, LEG, SEAT, BASE, BACK, ARM = 0.5, 0.75, 0.25, 1.45, 1.05, 2.75, 2.1
+    fab, dark = paint(it.get("color", "#8E9388")), paint(it.get("color2", "#7C8177"))
+    xw, ys = x1 - NL, y0 + EL                                                      # west end, south end
+    for (a0, a1, b0, b1) in ((xw, x1, y0, y0 + D), (x1 - D, x1, y0 + D, ys)):   # legs at the corners of both pieces
+        for xa, ya in ((a0 + 0.1, b0 + 0.1), (a1 - 0.18, b0 + 0.1), (a0 + 0.1, b1 - 0.18), (a1 - 0.18, b1 - 0.18)):
+            box("Black Metal", xa, xa + 0.08, ya, ya + 0.08, 0.0, LEG)
+    box(dark, xw + AW, x1, y0, y0 + D, LEG, BASE)                                  # base, north leg
+    box(dark, x1 - D, x1, y0 + D, ys - AW, LEG, BASE)                              # base, east leg
+    box(dark, xw + AW, x1, y0, y0 + BD - 0.3, BASE, BACK)                          # back frames
+    box(dark, x1 - BD + 0.3, x1, y0 + BD - 0.3, ys - AW, BASE, BACK)
+    box(dark, xw, xw + AW, y0, y0 + D, LEG, ARM)                                   # arms
+    box(dark, x1 - D, x1, ys - AW, ys, LEG, ARM)
+    xs = x1 - BD                                                                   # seat cushions: three along the north leg, a corner one, two on the east leg
+    n0 = xw + AW + 0.02
+    step = (x1 - D - n0) / 3
+    for k in range(3):
+        box(fab, n0 + k * step + 0.01, n0 + (k + 1) * step - 0.01, y0 + BD, y0 + D - 0.02, BASE, SEAT)
+    box(fab, x1 - D + 0.01, xs, y0 + BD, y0 + D + 0.01, BASE, SEAT)
+    e0, e1 = y0 + D + 0.03, ys - AW - 0.02
+    for k in range(2):
+        box(fab, x1 - D + 0.02, xs, e0 + k * (e1 - e0) / 2 + 0.01, e0 + (k + 1) * (e1 - e0) / 2 - 0.01, BASE, SEAT)
+    for k in range(4):                                                             # back cushions
+        a = n0 + k * (xs - n0) / 4
+        box(fab, a + 0.01, a + (xs - n0) / 4 - 0.01, y0 + BD - 0.3, y0 + BD, SEAT, BACK - 0.12)
+    for k in range(3):
+        b = y0 + BD + k * (e1 - y0 - BD) / 3
+        box(fab, xs, xs + 0.3, b + 0.01, b + (e1 - y0 - BD) / 3 - 0.01, SEAT, BACK - 0.12)
+    for (px, py, c) in ((xs - 0.75, y0 + BD + 0.05, "#B9AE9A"), (xs - 1.6, y0 + BD + 0.05, "#5E6D63")):   # two throw pillows in the corner
+        box(paint(c), px, px + 0.7, py, py + 0.35, SEAT + 0.02, SEAT + 0.72)
+
+
 WEB_BUILD = {"bed": web_bed, "nightstand": web_nightstand, "table_lamp": web_table_lamp, "desk_lamp": web_desk_lamp,
              "l_desk": web_l_desk, "office_chair": web_office_chair, "towel_warmer": web_towel_warmer, "bench": web_bench,
-             "tv_console": web_tv_console}
+             "tv_console": web_tv_console, "l_couch": web_l_couch}
 WEB_INFO = {
+    "l_couch": lambda it: dict(model=f"L sectional, {ftin(it.get('nl', 9.5))} along the north wall by {ftin(it.get('el', 7.5))} along the bath 1 wall, {ftin(it.get('d', 3.1))} deep, seat 17 in, back 33 in (size from the ladder mockup, model ASSUMED)",
+                               notes=["The L couch from the corner landing ladder mockup (option E) that Maxwell picked 11/21/2026. Its short leg runs under the ladder's upper flight; the flight's underside is well above the couch back there."]),
     "bed": lambda it: dict(model="Queen bed, 60 x 80 in mattress on a white oak platform (ASSUMED)", notes=["Queen, and placed so the side tables clear both doors (Maxwell, 11/16/2026)."]),
     "nightstand": lambda it: dict(model=f"Nightstand, {ftin(it.get('w', 1.4))} wide (ASSUMED)"),
     "table_lamp": lambda it: dict(model="Table lamp (ASSUMED)"),
@@ -3312,7 +3396,7 @@ WEB_INFO = {
 # Bolted down pieces show with the cabinets and trim, not with Belongings (Maxwell, 11/20/2026: anything bolted down is
 # not a belonging).
 BUILT_IN = {"bench", "towel_warmer"}
-WEB_NAMES = {"bench": "Mudroom bench and cabinets", "bed": "Queen bed", "nightstand": "Nightstand", "table_lamp": "Table lamp", "desk_lamp": "Desk lamp", "l_desk": "L-shaped standing desk", "office_chair": "Office chair", "towel_warmer": "Towel warmer", "tv_console": "TV console"}
+WEB_NAMES = {"bench": "Mudroom bench and cabinets", "bed": "Queen bed", "nightstand": "Nightstand", "table_lamp": "Table lamp", "desk_lamp": "Desk lamp", "l_desk": "L-shaped standing desk", "office_chair": "Office chair", "towel_warmer": "Towel warmer", "tv_console": "TV console", "l_couch": "L sectional couch"}
 for it in FURN:
     if it.get("moved_from"):
         ox, oy, of = it["moved_from"]

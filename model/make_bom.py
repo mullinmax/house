@@ -195,7 +195,10 @@ for dc in DUCTS:
 INSULATED_FAMS = {"hpwh_intake"}                 # the Rheem kit is insulated flex
 ERV_OUTDOOR = {"erv_wall_0", "erv_wall_1"}       # outdoor side of the ERV: insulated with a vapor jacket
 
+HEADS = [dc for dc in DUCTS if dc.get("stack_head")]
 for dc in DUCTS:
+    if dc.get("stack_head"):                      # counted below as a stack head per stack, not a made to measure piece
+        continue
     pts, L = dc["points"], length(dc["points"])
     fam = family(dc)
     grp = system_of(dc)
@@ -341,8 +344,11 @@ for r in rect_rows:
                     "1 in acoustic liner" if r["lined"] else ""))
 for k in stack_ct:
     rows.append(row(f"Wall stack {k}", "In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit)", stack_ct[k], "ea", f"{stack_ft[k]:.0f} ft total",
-                    "Plus one stack to round head per stack"))
-    rows.append(row(f"Stack to round head", "Top of each wall stack, into the round run", stack_ct[k], "ea"))
+                    "Plus one stack head per stack, or a header box"))
+if HEADS:
+    rows.append(row("Stack head, wall stack to side round collar", "Sits on the top plate in the truss bay over the stack; the round collar is on its "
+                    f"south face, so the round runs straight off it with no elbow beside the wall. About 12 x 4 in, 8 to 11 in tall",
+                    len(HEADS), "ea", "", "The stud bay and the truss bay over it are about 2 in apart: the head is as wide as the part they share"))
 sections.append(dict(id="rect", title="Buy separately: rectangular duct, plenums and stacks", buy="Sheet metal shop",
                      note="Trunks, plenums and boxes are usually made to measure by a sheet metal shop once the equipment is set. Sizes and lengths are from the model.",
                      rows=rows))

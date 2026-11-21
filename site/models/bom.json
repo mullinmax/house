@@ -385,16 +385,6 @@
     },
     {
      "item": "8 in round pipe, 30 ga snap lock",
-     "spec": "Range hood",
-     "qty": 1,
-     "unit": "x 5 ft",
-     "where": "3 ft in the model",
-     "note": "",
-     "price": "",
-     "status": ""
-    },
-    {
-     "item": "8 in round pipe, 30 ga snap lock",
      "spec": "Supply",
      "qty": 13,
      "unit": "x 5 ft",
@@ -418,7 +408,7 @@
      "spec": "Return runs through the trusses",
      "qty": 4,
      "unit": "x 25 ft box",
-     "where": "72 ft in the model",
+     "where": "70 ft in the model",
      "note": "Pull it tight, no sags; support every 4 ft",
      "price": "",
      "status": ""
@@ -466,7 +456,7 @@
     {
      "item": "8 in adjustable 90 elbow",
      "spec": "",
-     "qty": 14,
+     "qty": 13,
      "unit": "ea",
      "where": "Counted from the bends in the model",
      "note": "",
@@ -742,22 +732,22 @@
      "status": ""
     },
     {
+     "item": "10 x 3-1/4 in range hood duct",
+     "spec": "Fabricated",
+     "qty": 1,
+     "unit": "piece",
+     "where": "1.7 ft, 1 turns",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
      "item": "Wall stack 14 x 2-1/2 in",
      "spec": "In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit)",
      "qty": 7,
      "unit": "ea",
      "where": "65 ft total",
-     "note": "Plus one stack to round head per stack",
-     "price": "",
-     "status": ""
-    },
-    {
-     "item": "Stack to round head",
-     "spec": "Top of each wall stack, into the round run",
-     "qty": 7,
-     "unit": "ea",
-     "where": "",
-     "note": "",
+     "note": "Plus one stack head per stack, or a header box",
      "price": "",
      "status": ""
     },
@@ -767,17 +757,17 @@
      "qty": 1,
      "unit": "ea",
      "where": "9 ft total",
-     "note": "Plus one stack to round head per stack",
+     "note": "Plus one stack head per stack, or a header box",
      "price": "",
      "status": ""
     },
     {
-     "item": "Stack to round head",
-     "spec": "Top of each wall stack, into the round run",
-     "qty": 1,
+     "item": "Stack head, wall stack to side round collar",
+     "spec": "Sits on the top plate in the truss bay over the stack; the round collar is on its south face, so the round runs straight off it with no elbow beside the wall. About 12 x 4 in, 8 to 11 in tall",
+     "qty": 5,
      "unit": "ea",
      "where": "",
-     "note": "",
+     "note": "The stud bay and the truss bay over it are about 2 in apart: the head is as wide as the part they share",
      "price": "",
      "status": ""
     }
@@ -1112,7 +1102,7 @@
      "spec": "",
      "qty": 6,
      "unit": "gal",
-     "where": "About 209 joints",
+     "where": "About 208 joints",
      "note": "",
      "price": "",
      "status": ""
@@ -1150,7 +1140,7 @@
     {
      "item": "Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap",
      "spec": "Rigid every 5 ft, flex every 4 ft, rect every 4 ft",
-     "qty": 106,
+     "qty": 105,
      "unit": "hangers",
      "where": "About 3 ft of strap each",
      "note": "",
@@ -1246,8 +1236,8 @@
    "name": "Range hood duct",
    "system": "Range hood",
    "room": "Kitchen",
-   "size": "8 in round",
-   "ft": 2.6947208333333332,
+   "size": "10 x 3-1/4 in",
+   "ft": 1.6980541666666669,
    "cfm": null,
    "flex": false,
    "crosses": 0,
@@ -1271,7 +1261,7 @@
    "system": "Return",
    "room": "",
    "size": "10 in round",
-   "ft": 21.46240967152047,
+   "ft": 22.322032625191113,
    "cfm": null,
    "flex": true,
    "crosses": 2,
@@ -1307,7 +1297,7 @@
    "system": "Return",
    "room": "",
    "size": "6 in round",
-   "ft": 65.25618210139386,
+   "ft": 65.74076533211934,
    "cfm": null,
    "flex": true,
    "crosses": 27,

@@ -329,7 +329,7 @@ depth_in = 24                            # covers the front burners (an 18 in ca
 above_counter_in = 27                    # bottom of the doors over the cooktop; the valance below brings the edge to 24 in, the PM600SSV minimum. Mock up head height before building
 box_height_in = 30                       # the inverted bathtub that holds the smoke: up to the crown line, level with the oven tower top
 cheek_drop_in = 3                        # a level valance this deep runs under the doors and the end panel (Maxwell 11/20/2026: was a 6 in drop on the south side only)
-style = "doors_flush"                    # doors_flush (Maxwell 11/20/2026: working upper, doors level with the oven tower, power pack in its floor) | shelf_box (mockup 11/21/2026) | shelf_wrap (wraparound shelf mockups 11/21/2026, wrap_variant 1 to 3) | doors | farmhouse | ss_* | stainless | box | plaster | oak | cabinets | steel; HOOD_STYLE=... overrides
+style = "shelf_wrap"                     # shelf_wrap (Maxwell 11/21/2026: the default, version 2) | doors_flush (Maxwell 11/20/2026: working upper, doors level with the oven tower, power pack in its floor) | shelf_box (mockup 11/21/2026) | shelf_wrap (wraparound shelf mockups 11/21/2026, wrap_variant 1 to 3) | doors | farmhouse | ss_* | stainless | box | plaster | oak | cabinets | steel; HOOD_STYLE=... overrides
 lip_in = 3                               # doors_flush (Maxwell 11/20/2026: prefers the 3 in lip): a level oak lip under the doors, in (3 brings the fan to 26.6 in over the cooktop)
 insert_setback_in = 6.25                 # doors_flush: back of the power pack off the wall. 6-1/4 in centres it front to back over the cooktop (Maxwell 11/20/2026 asked; Broan leaves depth to local code)
 wrap_variant = 2                         # shelf_wrap: 1 deep to the oven tower, S curve south | 2 centred, S curves, low box on a 3-1/4 x 10 duct | 3 centred, straight tapers, chase to the ceiling. Maxwell 11/21/2026 picked 2, upper shelf raised onto the box
@@ -579,14 +579,18 @@ door_swing = [ [41.23, 34.9, "E", "S"], [14.14, 10.8, "E", "N"], [17.9, 10.8, "W
 cat_door = { at = [11.89, 25.1], frame_w_in = 9.5, frame_h_in = 11.75, open_w_in = 7.0, open_h_in = 9.25, bottom_in = 5.0 }   # flapped cat door in the utility room door, for the litter box (Maxwell, 11/20/2026). Medium cat flap class, ASSUMED size; the flap blocks most of the room's sound
 items = [
   # ---- living room (vaulted, x 16.7-31.1, y 22.9-34.6)
-  { id = "living_rug", type = "rug", x = 26.4, y = 27.8, w = 7.5, l = 9.0, facing = 270, color = "#B9AE9A" },
-  { id = "sofa", type = "model", model = "sofa_03", x = 29.7, y = 27.8, facing = 270, len = 7.0 },
-  { id = "coffee_table", type = "model", model = "modern_coffee_table_01", x = 26.4, y = 27.8, facing = 270, len = 4.0 },
-  { id = "lounge_chair_n", type = "model", model = "mid_century_lounge_chair", x = 24.4, y = 24.9, facing = 120, len = 2.8 },
+  # L couch from the corner landing ladder mockup (option E), which Maxwell picked 11/21/2026: 9'-6" along the north wall by 7'-6" along
+  # the bath 1 wall, its south end under the ladder's upper flight. It replaces the 7 ft sofa; the rug and coffee table move west and
+  # south into the L, the side table and lamp move to the couch's west arm, and the north lounge chair (where the long leg now is) goes.
+  { id = "l_couch", type = "l_couch", web = true, corner = [31.06, 22.95], nl = 9.5, el = 7.5, d = 3.1 },
+  { id = "living_rug", type = "rug", x = 24.0, y = 28.5, w = 7.5, l = 9.0, facing = 270, color = "#B9AE9A", moved_from = [26.4, 27.8, 270] },
+  { id = "sofa", type = "model", model = "sofa_03", x = 29.7, y = 27.8, facing = 270, len = 7.0, removed = true },
+  { id = "coffee_table", type = "model", model = "modern_coffee_table_01", x = 25.0, y = 28.4, facing = 270, len = 4.0, moved_from = [26.4, 27.8, 270] },
+  { id = "lounge_chair_n", type = "model", model = "mid_century_lounge_chair", x = 24.4, y = 24.9, facing = 120, len = 2.8, removed = true },
   { id = "lounge_chair_s", type = "model", model = "mid_century_lounge_chair", x = 26.2, y = 32.0, facing = 20, len = 2.8 },
-  { id = "side_table_n", type = "model", model = "side_table_01", x = 30.3, y = 23.65, facing = 270, len = 1.3 },
-  { id = "living_lamp", type = "table_lamp", x = 30.3, y = 23.65, on = "side_table_n" },
-  { id = "pillows", type = "model", model = "throw_pillows_01", x = 29.9, y = 27.8, z = 1.45, facing = 270, len = 4.5 },
+  { id = "side_table_n", type = "model", model = "side_table_01", x = 20.85, y = 23.65, facing = 270, len = 1.3, moved_from = [30.3, 23.65, 270] },
+  { id = "living_lamp", type = "table_lamp", web = true, x = 20.85, y = 23.65, z = 1.3, on = "side_table_n", cull_old = [29.8, 23.1, 30.8, 24.2, 3.2] },
+  { id = "pillows", type = "model", model = "throw_pillows_01", x = 29.9, y = 27.8, z = 1.45, facing = 270, len = 4.5, removed = true },
   { id = "floor_lamp", type = "floor_lamp", x = 17.6, y = 33.8 },
   { id = "plant_living", type = "model", model = "potted_plant_01", x = 19.3, y = 33.9, facing = 90, len = 2.0, moved_from = [17.5, 31.6, 90] },   # out from under the TV for the console (11/21/2026)
   { id = "tv_console", type = "tv_console", web = true, x = 17.45, y = 30.65, facing = 90, w = 5.5 },   # under the 70 in TV, centred on it (Maxwell 11/21/2026). Size and style ASSUMED
@@ -688,8 +692,8 @@ exterior_fixtures = [
   { type = "light", wall = "W", u = 42.0, z = 7.0 },
   { type = "light", wall = "S", u = 16.9, z = 8.6 },
   { type = "light", wall = "S", u = 30.7, z = 8.6 },
-  { type = "outlet", wall = "E", u = 42.2, z = 1.5 },
-  { type = "outlet", wall = "W", u = 36.6, z = 1.5 },
+  # the E and W outlets that were here (u 42.2 and 36.6) were Blender era guesses; U-11 #104 and #105 draw them, and the
+  # electrical layer (electrical_plan.json) builds those, so they went (Maxwell 11/21/2026: two boxes touching by the west door)
   { type = "outlet", wall = "N", u = 21.0, z = 1.5 },
   { type = "hose_bib", wall = "W", u = 30.0, z = 1.3 },
   { type = "hose_bib", wall = "N", u = 22.35, z = 1.3, note = "Tapped off the bath 2 tub and shower supply in the pipe chase at the tub's valve end (x 22.12-22.58), since nothing comes up through the slab at the old spot by the NW corner (Maxwell 11/17/2026)" },
