@@ -1937,7 +1937,10 @@ elif HSTYLE == "doors_flush":
     for (b0, b1, e0, e1) in ((HU0, lu0, 0, HD_), (lu1, UE, 0, HD_), (lu0, lu1, LF, HD_), (lu0, lu1, 0, IB - 0.05)):   # stainless sheet on the underside: the cooktop
         wr.box("Stainless", b0, b1, e0, e1 - (WT if LIP and e1 == HD_ else 0), DB - 0.012, DB - 0.004)          # wants wood over it under 30 in protected
     if not _os.environ.get("HOOD_DOORS_OFF"):
-        doors(wr, rdoor, HU0, UE, DB, CRN0, HD_, K_WOOD, 2)
+        um, MS = (HU0 + UE) / 2, 1.5 / 12           # a fixed 1-1/2 in centre stile between the doors (Maxwell 11/20/2026)
+        wr.box(K_WOOD, um - MS / 2, um + MS / 2, HD_ - WT, HD_ + FRONT_T, DB, CRN0)
+        shaker(wr, rdoor, HU0, um - MS / 2, DB, CRN0, HD_, K_WOOD, "door", "L", moves="door")
+        shaker(wr, rdoor, um + MS / 2, UE, DB, CRN0, HD_, K_WOOD, "door", "R", moves="door")
         rdoor["ops"][-2]["angle"] = 90 if rdoor["ops"][-2]["angle"] > 0 else -90   # the north door stops square, clear of the deeper oven tower
     wr.box(K_WOOD, HU0, HU1 + 0.05, 0, BASE_D + 0.22, CRN0, CRN1)                                        # crown, carried on from the oven tower
     LT = DB + 11.0 / 12                            # top of the liner box round the power pack, whose faceplate is flush with the underside
