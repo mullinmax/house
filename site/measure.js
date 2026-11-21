@@ -38,8 +38,22 @@ export function createMeasure({ scene, camera, renderer, pickables, cutY, F, onC
   const band = new THREE.Line(bandGeo, new THREE.LineDashedMaterial({ color: 0xffffff, dashSize: 0.08, gapSize: 0.06, depthTest: false, depthWrite: false, transparent: true, toneMapped: false }));
   band.renderOrder = 51; band.frustumCulled = false; band.visible = false; group.add(band);
 
+  // faint edges of the model that meet at each picked corner (orange) and at the corner under the pointer (white),
+  // so turning the view shows exactly which corner was taken (Maxwell, 11/21/2026)
+  const edgeMat = (c, o) => new THREE.LineBasicMaterial({ color: c, opacity: o, depthTest: false, depthWrite: false, transparent: true, toneMapped: false });
+  const pinEdges = new THREE.LineSegments(new THREE.BufferGeometry(), edgeMat(0xffc94d, 0.7));
+  const hoverEdges = new THREE.LineSegments(new THREE.BufferGeometry(), edgeMat(0xffffff, 0.45));
+  for (const e of [pinEdges, hoverEdges]) { e.renderOrder = 50; e.frustumCulled = false; e.visible = false; group.add(e); }
+  const setSegs = (obj, segs) => {
+    const a = new Float32Array(segs.length * 6);
+    segs.forEach(([p, q], i) => { a.set(p.toArray(), i * 6); a.set(q.toArray(), i * 6 + 3); });
+    obj.geometry.dispose(); obj.geometry = new THREE.BufferGeometry().setAttribute('position', new THREE.BufferAttribute(a, 3));
+    obj.visible = segs.length > 0;
+  };
+  const edgeCache = new Map();
+
   const label = document.getElementById('mLabel'), card = document.getElementById('measure');
-  let on = false, pts = [], hoverNdc = null, hover = null, dirty = false;
+  let on = false, pts = [], snappedPins = [], hoverNdc = null, hover = null, dirty = false;
 
   const pxToWorld = (d) => (2 * d * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2)) / renderer.domElement.clientHeight;
   const toScreen = (p) => { const v = p.clone().project(camera); return [(v.x + 1) / 2 * innerWidth, (1 - v.y) / 2 * innerHeight, v.z]; };
@@ -92,6 +106,52 @@ export function createMeasure({ scene, camera, renderer, pickables, cutY, F, onC
     for (const c of list.slice(0, 10)) if (visible(c.p)) return c.p;
     return null;
   }
+  // The real edges that meet at a corner: every triangle edge from the corner, less the diagonals that only split a
+  // flat face (both triangles on it lie in one plane). Faces are compared without their facing, so a face and its
+  // back face read as one plane. Edges stop at the height slice.
+  function cornerEdges(c) {
+    const key = `${Math.round(c.x * 2000)},${Math.round(c.y * 2000)},${Math.round(c.z * 2000)}`;
+    if (edgeCache.has(key)) return edgeCache.get(key);
+    const EPS = 0.001, top = cutY() + 1e-4, edges = new Map();
+    _sph.set(c, EPS);
+    const A = new THREE.Vector3(), B = new THREE.Vector3(), C = new THREE.Vector3(), n = new THREE.Vector3();
+    for (const o of pickables) {
+      const g = o.geometry; if (!g.boundsTree || !o.layers.test(ray.layers) || noSnap(o)) continue;
+      if (!g.boundingSphere) g.computeBoundingSphere();
+      _bs.copy(g.boundingSphere).applyMatrix4(o.matrixWorld);
+      if (!_bs.intersectsSphere(_sph)) continue;
+      _inv.copy(o.matrixWorld).invert();
+      _ls.copy(_sph).applyMatrix4(_inv);
+      g.boundsTree.shapecast({
+        intersectsBounds: (box) => box.intersectsSphere(_ls),
+        intersectsTriangle: (tri) => {
+          A.copy(tri.a).applyMatrix4(o.matrixWorld); B.copy(tri.b).applyMatrix4(o.matrixWorld); C.copy(tri.c).applyMatrix4(o.matrixWorld);
+          const vs = [A, B, C], i = vs.findIndex((v) => v.distanceTo(c) < EPS);
+          if (i < 0) return false;
+          n.subVectors(B, A).cross(C.clone().sub(A)); if (n.lengthSq() < 1e-14) return false;
+          n.normalize();
+          for (const v of [vs[(i + 1) % 3], vs[(i + 2) % 3]]) {
+            const k = `${Math.round(v.x * 2000)},${Math.round(v.y * 2000)},${Math.round(v.z * 2000)}`;
+            if (!edges.has(k)) edges.set(k, { end: v.clone(), normals: [] });
+            edges.get(k).normals.push(n.clone());
+          }
+          return false;
+        },
+      });
+    }
+    const segs = [];
+    for (const { end, normals } of edges.values()) {
+      const crease = normals.length === 1 || normals.some((m) => Math.abs(m.dot(normals[0])) < 0.985);
+      if (!crease) continue;
+      let q = end;
+      if (c.y > top) continue;
+      if (q.y > top) q = c.clone().lerp(q, (top - c.y) / (q.y - c.y));
+      segs.push([c.clone(), q.clone()]);
+    }
+    if (edgeCache.size > 200) edgeCache.clear();
+    edgeCache.set(key, segs);
+    return segs;
+  }
   function snapAt(ndc) {
     const hit = surfaceAt(ndc);
     if (!hit) return null;
@@ -122,19 +182,22 @@ export function createMeasure({ scene, camera, renderer, pickables, cutY, F, onC
     }
   }
   function setActive(v) {
-    on = !!v; if (!on) { pts = []; hover = null; hoverNdc = null; }
+    on = !!v; if (!on) { pts = []; snappedPins = []; hover = null; hoverNdc = null; setSegs(pinEdges, []); setSegs(hoverEdges, []); }
+    edgeCache.clear();          // the slice may have moved since last time
     group.visible = on; cursor.visible = false; band.visible = false;
     render(); onChange && onChange(on);
   }
   function pick(ndc) {
     const s = snapAt(ndc);
     if (!s) return false;
-    if (pts.length >= 2) pts = [];
-    pts.push(s.p);
+    edgeCache.clear();          // the slice may have moved
+    if (pts.length >= 2) { pts = []; snappedPins = []; }
+    pts.push(s.p); snappedPins.push(s.snapped);
+    setSegs(pinEdges, pts.flatMap((p, i) => (snappedPins[i] ? cornerEdges(p) : [])));
     hover = null; render();
     return true;
   }
-  function clear() { if (!pts.length) return false; pts = []; render(); return true; }
+  function clear() { if (!pts.length) return false; pts = []; snappedPins = []; setSegs(pinEdges, []); render(); return true; }
   function hoverAt(ndc) { if (on) { hoverNdc = ndc ? ndc.clone() : null; dirty = true; } }
   // once a frame: run the pending hover snap, keep markers a fixed size on screen, place the distance label
   function update(lockedNdc) {
@@ -142,10 +205,14 @@ export function createMeasure({ scene, camera, renderer, pickables, cutY, F, onC
     if (lockedNdc) { hoverNdc = lockedNdc; dirty = true; }
     if (dirty) {
       dirty = false;
+      const was = hover && hover.snapped ? hover.p : null;
       hover = hoverNdc ? snapAt(hoverNdc) : null;
+      const now = hover && hover.snapped && pts.length < 2 ? hover.p : null;
+      if (!now) { if (hoverEdges.visible) setSegs(hoverEdges, []); } else if (!was || !was.equals(now) || !hoverEdges.visible) setSegs(hoverEdges, cornerEdges(now));
       render();
     }
     const showCursor = !!hover && pts.length < 2;
+    if (!showCursor && hoverEdges.visible) setSegs(hoverEdges, []);
     cursor.visible = showCursor;
     if (showCursor) { cursor.position.copy(hover.p); cursor.material = hover.snapped ? snapMat : freeMat; }
     band.visible = showCursor && pts.length === 1;
@@ -164,5 +231,5 @@ export function createMeasure({ scene, camera, renderer, pickables, cutY, F, onC
   // plan feet of the picked points, for tests and the console
   const picked = () => pts.map((p) => [p.x / F, p.z / F, p.y / F]);
   group.visible = false;
-  return { get on() { return on; }, setActive, toggle: () => setActive(!on), pick, clear, hoverAt, update, picked, snapAt };
+  return { cornerEdges, get on() { return on; }, setActive, toggle: () => setActive(!on), pick, clear, hoverAt, update, picked, snapAt };
 }
