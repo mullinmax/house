@@ -1735,7 +1735,9 @@ rec("kitchen.hood", "fixture", "Range hood", "interior", room="Kitchen",
 #   oak       white oak with a 45 degree chamfer into a tapered chimney and black steel straps
 #   cabinets  painted hood (island green) with shallow white oak glass door cabinets above it, lit inside
 #   steel     blackened steel, sloped front, satin brass band along the bottom edge, slim steel chimney
+#   stainless number 4 in appliance stainless with a level lip all round the bottom
 #   doors     hidden: fake white oak shaker doors and the oven tower crown carried across, drywall chase above (Maxwell's pick)
+FARM = None
 import os as _os
 HSTYLE = _os.environ.get("HOOD_STYLE") or HOOD.get("style", "box")
 MATERIALS.setdefault("Hood Plaster", dict(color="#E9E2D4", rough=0.9, map="plaster.jpg", tile=1.2))
@@ -1834,6 +1836,225 @@ elif HSTYLE == "cabinets":
     wr.box("Cabinet Wood", HU0 - 0.0, HU1 + 0.05, 0, CD + 0.15, CZ1, CZ1 + 0.25)                         # crown
     CUR[0] = BYID["kitchen.hood"]["parts"]
     to_ceiling("Cabinet Wood", _cc - 0.6, _cc + 0.6, 0, 1.2, CZ1 + 0.25)                                   # chase for the duct to the wall exit
+elif HSTYLE == "doors_func":
+    # Working cabinet over a slim hood (Maxwell, 11/20/2026: the door version again, but with cabinets you can use, the hood
+    # mostly in the band at the bottom and the duct straight out the wall). The power pack fills a 12 in oak band whose
+    # underside is 24 in over the cooktop (the PM600SSV minimum), lined with stainless. Above it is an ordinary upper with two
+    # doors that open: the 8 in duct rises off the back of the power pack at the back centre of the cabinet floor, turns once
+    # and goes straight through the wall, left bare so it is plain how much room is left. Everything else in the cabinet is storage.
+    rdoor = BYID["kitchen.hood"]
+    K_WOOD = "Cabinet Wood"
+    LB = CTR_Z + 24 / 12                           # underside of the band: 24 in over the cooktop
+    CB = LB + 1.0                                  # 12 in band, then the cabinet floor
+    CRN0, CRN1 = TALL - 0.25, TALL
+    UE = HU1 - WT                                  # inside of the south end panel
+    wr.box(K_WOOD, UE, HU1, 0, HD_ + FRONT_T, LB, CRN0)                                                  # south end panel, level with the band
+    wr.box(K_WOOD, HU0, UE, HD_ - WT, HD_ + FRONT_T, LB, CB)                                              # the band's front: one plain level panel, flush with the doors
+    hollow(wr, HU0, UE, HD_, CB, CRN0, K_WOOD, shelves=[])
+    if not _os.environ.get("HOOD_DOORS_OFF"):     # renders only: leave the doors off to show inside
+        doors(wr, rdoor, HU0, UE, CB, CRN0, HD_, K_WOOD, 2)
+    wr.box(K_WOOD, HU0, HU1 + 0.05, 0, BASE_D + 0.22, CRN0, CRN1)                                        # crown, carried on from the oven tower
+    # no chase: the bare duct and its elbow show when the doors are open, so the free space is plain (Maxwell, 11/20/2026)
+    wr.box("Stainless", HU0, UE, 0, HD_ - WT, CB - 0.025, CB - 0.008)                                    # stainless underside of the band
+    wr.box("Stainless", HU0, UE, HD_ - WT - 0.02, HD_ - WT, LB + 0.02, CB - 0.03)                         # lining behind the band front
+    wr.box("Lamp Glass", HU0 + 0.1, UE - 0.1, HD_ - 0.2, HD_ - 0.12, LB + 0.005, LB + 0.03)              # LED strip just inside the bottom edge
+    IW, ID_, IH = (UE - HU0 - 0.12), HD_ - 0.06, CRN0 - CB - 0.12
+    FREE = IW * ID_ * IH - 0.75 * 1.0 * 0.95
+    BYID["kitchen.hood"]["info"] = dict(
+        model="Cabinet hood: a working white oak upper over a slim band that holds a Broan PM600SSV power pack (suggested)",
+        specs=[["Width", f"{ftin(HU1 - HU0)}, from the oven tower to 6-1/2 in past the cooktop"], ["Depth", ftin(HD_)],
+               ["Band", f"12 in tall, underside {ftin(LB)} above the floor, 24 in over the cooktop"],
+               ["Cabinet", f"Two doors that open, inside about {round(IW * 12)} W x {round(ID_ * 12)} D x {round(IH * 12)} H in, about {FREE:.0f} cu ft free"],
+               ["Duct", "8 in round up off the power pack at the back centre, one elbow, straight out the west wall. Left bare inside the cabinet"]],
+        links=[VIDEO],
+        notes=["Maxwell, 11/20/2026: the cabinet door look, but the cabinets work. Only the 12 in band at the bottom is hood.",
+               "Storage: either side of the duct holds tall things (about 19 in), and in front of it about 13 in deep. Keep this cabinet for "
+               "things heat will not hurt: sheet pans, cutting boards, trays. No oils or spices.",
+               "Trade-off: there is no big box above the fan to hold smoke while it catches up, which the video recommends. Expect more to escape on "
+               "high heat searing than with a deep hood; the heat sensor still turns it on every time.",
+               "The duct could go away with the PM600SSV's rear 3-1/4 x 10 in outlet straight into the wall, at some cost in airflow."])
+elif HSTYLE == "doors_flush":
+    # Doors level with the oven tower's (Maxwell, 11/20/2026: "bottom of the doors level with the other cabinets ... seamless").
+    # The hood cabinet's doors run from the tower's upper door line to the crown, so the two read as one row. The power pack
+    # drops into the cabinet floor (the way Broan's cabinet install works) inside a stainless liner box at the back centre;
+    # the rest of the cabinet is storage. HOOD_LIP (in) adds a level oak lip under the doors to bring the fan lower.
+    rdoor = BYID["kitchen.hood"]
+    K_WOOD = "Cabinet Wood"
+    DB = K.get("oven_face_bottom", 1.22) + K.get("oven_face_height_in", 50.75) / 12 + 0.02   # the tower's upper door line
+    LIP = float(_os.environ.get("HOOD_LIP", HOOD.get("lip_in", 0))) / 12
+    LB = DB - LIP                                  # underside of the hood
+    CRN0, CRN1 = TALL - 0.25, TALL
+    UE = HU1 - WT
+    wr.box(K_WOOD, UE, HU1, 0, HD_ + FRONT_T, LB, CRN0)                                                  # south end panel
+    if LIP:
+        wr.box(K_WOOD, HU0, UE, HD_ - WT, HD_ + FRONT_T, LB, DB)                                          # level lip under the doors
+    PW = 21.375 / 12                               # Broan PM600SSV: 21-3/8 W x 10-9/16 H x 11-7/16 D
+    lu0, lu1 = _cc - PW / 2 - 0.06, _cc + PW / 2 + 0.06
+    ct = 0.06                                      # the case, as hollow() builds it, but with the floor cut round the power pack
+    wr.box(K_WOOD, HU0, UE, 0, ct, DB, CRN0)
+    for (b0, b1) in ((HU0, HU0 + ct), (UE - ct, UE)):
+        wr.box(K_WOOD, b0, b1, ct, HD_, DB, CRN0)
+    wr.box(K_WOOD, HU0 + ct, UE - ct, ct, HD_, CRN0 - ct, CRN0)
+    for (b0, b1, e0) in ((HU0 + ct, lu0, ct), (lu1, UE - ct, ct), (lu0, lu1, 1.12)):
+        wr.box(K_WOOD, b0, b1, e0, HD_, DB, DB + ct)
+    for (b0, b1, e0) in ((HU0, lu0, 0), (lu1, UE, 0), (lu0, lu1, 1.12)):                     # stainless sheet on the underside: the cooktop
+        wr.box("Stainless", b0, b1, e0, HD_ - (WT if LIP else 0), DB - 0.012, DB - 0.004)     # wants wood over it under 30 in protected
+    if not _os.environ.get("HOOD_DOORS_OFF"):
+        doors(wr, rdoor, HU0, UE, DB, CRN0, HD_, K_WOOD, 2)
+    wr.box(K_WOOD, HU0, HU1 + 0.05, 0, BASE_D + 0.22, CRN0, CRN1)                                        # crown, carried on from the oven tower
+    LT = LB + 11.5 / 12                            # top of the liner box round the power pack
+    wr.box("Stainless", lu0, lu0 + 0.02, 0.06, 1.12, LB + 0.01, LT)                                       # liner box: two sides, front, top
+    wr.box("Stainless", lu1 - 0.02, lu1, 0.06, 1.12, LB + 0.01, LT)
+    wr.box("Stainless", lu0, lu1, 1.10, 1.12, LB + 0.01, LT)
+    wr.box("Stainless", lu0, lu1, 0.06, 1.12, LT, LT + 0.02)
+    above = round((LB - CTR_Z) * 12, 1)
+    IW, ID_, IH = (UE - HU0 - 0.12), HD_ - 0.06, CRN0 - DB - 0.12
+    FREE = IW * ID_ * IH - (lu1 - lu0) * 1.06 * (LT - DB) - 0.75 * 1.0 * 0.9
+    BYID["kitchen.hood"]["info"] = dict(
+        model="Cabinet hood, doors level with the oven tower's: a working white oak upper with a Broan PM600SSV power pack in its floor (suggested)",
+        specs=[["Width", f"{ftin(HU1 - HU0)}, from the oven tower to 6-1/2 in past the cooktop"], ["Depth", ftin(HD_)],
+               ["Underside", f"{ftin(LB)} above the floor, {above} in over the cooktop (Broan: 24 to 30 in)"],
+               ["Cabinet", f"Two doors that open, about {round(IW * 12)} W x {round(ID_ * 12)} D x {round(IH * 12)} H in inside, about {FREE:.0f} cu ft free"],
+               ["Fan", "In a stainless liner box at the back centre of the cabinet floor, 8 in duct up, one elbow, straight out the west wall"]],
+        links=[VIDEO],
+        notes=["Maxwell, 11/20/2026: the doors line up with the oven tower's upper doors so the row looks seamless.",
+               "Broan (PM400/600SSV install guide): bottom of the hood 24 in minimum and 30 in maximum over the cooktop; under 30 in the insert must sit in a "
+               "metal liner (the stainless box); centred side to side over the burners; 8 in round goes up only.",
+               "Trade-off: the fan sits flush in the cabinet floor with no box below to hold smoke, and higher than the 24 in minimum, so it catches less on "
+               "high heat than a deep hood. The heat sensor still turns it on every time.",
+               "The cabinet's underside over the cooktop is sheathed in stainless: the cooktop maker's usual rule is 30 in to unprotected wood above, "
+               "less only with a hood or a protected underside. Confirm in the LG installation manual.",
+               "Keep heat proof things in this cabinet (sheet pans, boards, trays), not oils or spices."])
+elif HSTYLE == "farmhouse":
+    # Farmhouse hood (Maxwell, 11/20/2026, from two photos he sent): a painted hood that tapers in on the front and both sides,
+    # sitting on a white oak mantel beam (the cabinet and window oak) with a slim curved corbel under each end. The beam's
+    # underside is 30 in over the cooktop (his number, also the PM600SSV's recommended maximum). An oak band trims the top.
+    # The open shelves wrap round from the sink wall into the hood's south side, and a short shelf joins it to the oven tower.
+    # No chimney is needed for the duct: it turns once inside the hood and goes straight out the west wall. Variants
+    # (HOOD_FARM env or [kitchen.hood] farm_variant) try paint, taper and what happens above the top:
+    #   top     "cab" = level with the cabinet tops (8 ft), a height in ft, or "ceiling" (taper all the way up)
+    #   chim    None, or (width in, depth in, paint) for a straight chimney from the top to the ceiling
+    FV = {
+        "1": dict(paint="wall", top="cab", tw=30, td=14, chim=None),
+        "2": dict(paint="sage", top="cab", tw=30, td=14, chim=None),
+        "3": dict(paint="wall", top="ceiling", tw=20, td=12, chim=None),
+        "4": dict(paint="sage", top="cab", tw=30, td=16, chim=(20, 12, "sage")),
+        "5": dict(paint="wall", top=9.25, tw=22, td=12, chim=None),
+        "6": dict(paint="sage", top="cab", tw=28, td=14, chim=(24, 14, "wall")),
+        "7": dict(paint="steel", top="cab", tw=30, td=14, chim=None),                 # Maxwell 11/20/2026: try it in stainless
+        "8": dict(paint="steel", top="ceiling", tw=20, td=12, chim=None),
+        "9": dict(paint="plaster", top="ceiling", tw=40, td=23, chim=None),           # straight plaster box to the ceiling, no slopes
+        "10": dict(paint="wall", top="cab", tw=30, td=14, chim=("flush", None, "wall")),   # 1 with a straight chimney flush with the oak band's outer edges
+        "11": dict(paint="oak", top="cab", tw=40, td=23, chim=None),               # 9 stopped at cabinet height, all white oak
+    }
+    V = FV[_os.environ.get("HOOD_FARM") or str(HOOD.get("farm_variant", 1))]
+    MATERIALS.setdefault("Hood Sage", dict(color="#7B8770", rough=0.8))   # Sherwin-Williams Dried Thyme, the sink window's paint
+    MATERIALS.setdefault("Hood Stainless", dict(color="#C4C6C7", rough=0.5, metal=0.55))
+    PAINT = {"wall": "Drywall", "sage": "Hood Sage", "steel": "Hood Stainless", "plaster": "Hood Plaster", "oak": "White Oak"}
+    PL, OAK = PAINT[V["paint"]], "White Oak"
+    FW = HOOD.get("farm_width_in", 42) / 12        # 42 in (Maxwell 11/20/2026: slimmer corbels, so pull the hood in and give the north shelf more room)
+    FU0, FU1 = _cc - FW / 2, _cc + FW / 2
+    FB = CTR_Z + 30 / 12                           # underside of the beam, 30 in over the cooktop
+    BH, BF = 5 / 12, 3.5 / 12                      # beam height, depth of its front piece
+    ZB = FB + BH                                   # the paint starts on top of the beam
+    if V["top"] == "cab": ZT = TALL
+    elif V["top"] == "ceiling": ZT = min(ceil_at(FU0), ceil_at(FU1))
+    else: ZT = V["top"]
+    IN = 1 / 12                                    # the paint sits this far in from the beam's ends and front
+    TW, TD = V["tw"] / 12, V["td"] / 12
+    def a0(z): t = (z - ZB) / (ZT - ZB); return FU0 + IN + t * ((_cc - TW / 2) - (FU0 + IN))
+    def a1(z): return 2 * _cc - a0(z)
+    def df(z): t = (z - ZB) / (ZT - ZB); return HD_ - IN + t * (TD - (HD_ - IN))
+    wr.box(OAK, FU0, FU1, HD_ - BF, HD_, FB, ZB)                         # mantel beam: front piece and two ends, open over the power pack
+    for u0, u1 in ((FU0, FU0 + 0.25), (FU1 - 0.25, FU1)):
+        wr.box(OAK, u0, u1, 0, HD_ - BF, FB, ZB)
+    ZC = FB + 15 / 12                              # top of the open capture box
+    z0 = ZB - 0.01
+    hexa(PL, [_P(a0(z0), df(z0) - WT, z0), _P(a0(z0), df(z0), z0), _P(a0(ZC), df(ZC), ZC), _P(a0(ZC), df(ZC) - WT, ZC),
+              _P(a1(z0), df(z0) - WT, z0), _P(a1(z0), df(z0), z0), _P(a1(ZC), df(ZC), ZC), _P(a1(ZC), df(ZC) - WT, ZC)])
+    for s in (1, -1):
+        def ux(z, inner): return (a0(z) + (WT if inner else 0)) if s > 0 else (a1(z) - (0 if inner else WT))
+        hexa(PL, [_P(ux(z0, 0), 0, z0), _P(ux(z0, 0), df(z0) - WT, z0), _P(ux(ZC, 0), df(ZC) - WT, ZC), _P(ux(ZC, 0), 0, ZC),
+                  _P(ux(z0, 1), 0, z0), _P(ux(z0, 1), df(z0) - WT, z0), _P(ux(ZC, 1), df(ZC) - WT, ZC), _P(ux(ZC, 1), 0, ZC)])
+    BT = 3 / 12                                    # oak band round the top: 3 in tall, 3/4 in proud
+    ZT_ = ZT - 0.1
+    hexa(PL, [_P(a0(ZC), 0, ZC), _P(a0(ZC), df(ZC), ZC), _P(a0(ZT_), df(ZT_), ZT_), _P(a0(ZT_), 0, ZT_),
+              _P(a1(ZC), 0, ZC), _P(a1(ZC), df(ZC), ZC), _P(a1(ZT_), df(ZT_), ZT_), _P(a1(ZT_), 0, ZT_)])
+    wr.box(OAK, a0(ZT - BT) - 0.06, a1(ZT - BT) + 0.06, 0, df(ZT - BT) + 0.06, ZT - BT, ZT)
+    if V["chim"]:
+        cw, cd, cp = V["chim"]
+        zc0 = ZT - 0.05
+        if cw == "flush":                          # right out to the oak band's edges, standing on it
+            cw, cd, zc0 = (a1(ZT - BT) - a0(ZT - BT) + 0.12) * 12, (df(ZT - BT) + 0.06) * 12, ZT
+        V["chim_wd"] = (round(cw), round(cd))
+        to_ceiling(PAINT[cp], _cc - cw / 24, _cc + cw / 24, 0, cd / 12, zc0)
+        wr.box(OAK, _cc - cw / 24 - 0.05, _cc + cw / 24 + 0.05, 0, cd / 12 + 0.05, ceil_at(_cc + cw / 24) - 0.2, ceil_at(_cc + cw / 24) - 0.04)   # oak band at the ceiling
+    wr.box("Stainless", a0(ZC) + WT, a1(ZC) - WT, 0, df(ZC) - WT, ZC - 0.025, ZC - 0.008)   # stainless top of the capture box
+    import math as _m                              # slim curved corbels under the beam ends: 1-3/4 in thick, 12 in tall, 10 in out
+    CH, CD, CMIN = 12 / 12, 10 / 12, 1.5 / 12
+    pts = [(CD - (CD - CMIN) * _m.cos(_m.pi / 2 * k / 10), FB - CH + CH * _m.sin(_m.pi / 2 * k / 10)) for k in range(11)]
+    pts[-1] = (pts[-1][0], FB - 0.002)
+    for u0, u1 in ((FU0 + 0.05, FU0 + 0.05 + 1.75 / 12), (FU1 - 0.05 - 1.75 / 12, FU1 - 0.05)):
+        for (d0_, zz0), (d1_, zz1) in zip(pts, pts[1:]):
+            slab(OAK, u0, u1, [(0, zz0), (d0_, zz0), (d1_, zz1), (0, zz1)])
+    pucks(ZC - 0.03, d=HD_ - 0.6, n=2)
+    FARM = dict(lo=FB, beam=(FU0, FU1, ZB), side=lambda z, s: (a1(z) if s > 0 else a0(z)))
+    top_txt = {"cab": "level with the cabinet tops at 8 ft", "ceiling": "tapering all the way to the ceiling"}.get(V["top"], f"at {ftin(ZT)}")
+    BYID["kitchen.hood"]["info"] = dict(
+        model=f"Farmhouse hood: {dict(sage='tapered, painted Dried Thyme sage', wall='tapered, painted to match the walls', steel='tapered brushed stainless', plaster='a straight plaster box to the ceiling', oak='a straight white oak box')[V['paint']] if V['tw'] < 40 or V['paint'] != 'plaster' else 'a straight plaster box to the ceiling'}, white oak mantel beam, "
+              "curved corbels and oak band at the top, over a Broan PM600SSV power pack (suggested)",
+        specs=[["Width", f"{ftin(FW)} at the beam, tapering to {ftin(TW)} (cooktop 30-11/16 in)"], ["Depth", f"{ftin(HD_)} at the beam, {ftin(TD)} at the top"],
+               ["Underside", f"{ftin(FB)} above the floor, 30 in above the cooktop"],
+               ["Top", top_txt + (f", then a {V['chim_wd'][0]} x {V['chim_wd'][1]} in chimney to the ceiling" if V["chim"] else "")],
+               ["Fan", "Power pack inside, about 0.5 sone on normal, turns itself on by sensing heat. 8 in duct up, one elbow, straight out the west wall"]],
+        links=[VIDEO],
+        notes=["Mocked up from two photos Maxwell sent (11/20/2026): a painted hood tapering on three sides, a wood mantel beam and curved supports, "
+               "in the same white oak as the cabinets and windows.",
+               "30 in over the cooktop is the PM600SSV's recommended maximum (24 to 30 in). The open shelves on either side meet the beam.",
+               "The duct rises about 10 in off the power pack, turns once inside the hood and goes straight through the wall: the 8 in round outlet "
+               "only points up (Broan install guide), and a short run with one elbow performs at least as well as a tall chimney.",
+               "The corbels sit about 3 in from the cooktop's sides: fine for induction (no flame), but keep pan handles clear."])
+elif HSTYLE.startswith("ss_"):
+    # Lower, cleaner stainless shells around the Broan PM600SSV (Maxwell, 11/20/2026: the slope was too steep and looked big;
+    # flatter, maybe curved, closer to the kitchen designer's square hood with a right angle into the duct cover). All 60 in
+    # wide centred on the cooktop so they meet the oven tower, 24 in deep, one level bottom edge 24 in over the cooktop, a flat
+    # top, and a 14 in square duct cover straight up to the ceiling. Profiles are (d, z) from the bottom front edge up to the top.
+    MATERIALS.setdefault("Hood Stainless", dict(color="#C4C6C7", rough=0.5, metal=0.55))
+    SS = "Hood Stainless"
+    S0, S1 = _cc - 2.5, _cc + 2.5                  # 60 in, centred on the cooktop: the north end meets the oven tower
+    LB = CTR_Z + 24 / 12
+    if HSTYLE == "ss_box":                         # the designer's look: a straight 16 in front, flat top, right angle into the cover
+        TOP = LB + 16 / 12; prof = [(HD_, LB), (HD_, TOP)]
+    elif HSTYLE == "ss_low":                       # 9 in straight front, then a low 30 degree slope back to the top
+        TOP = LB + 15 / 12; prof = [(HD_, LB), (HD_, LB + 9 / 12), (HD_ - 10 / 12, TOP)]
+    elif HSTYLE == "ss_curve":                     # 4 in straight front rolling over in a 10 in radius curve into the flat top
+        import math as _m
+        RC = 10 / 12; TOP = LB + 4 / 12 + RC
+        prof = [(HD_, LB), (HD_, LB + 4 / 12)] + [(HD_ - RC + RC * _m.cos(a), LB + 4 / 12 + RC * _m.sin(a)) for a in [_m.pi / 2 * k / 6 for k in range(1, 7)]]
+    else:                                          # ss_chamfer: 12 in straight front, a 3 in 45 degree chamfer, flat top
+        TOP = LB + 15 / 12; prof = [(HD_, LB), (HD_, LB + 12 / 12), (HD_ - 3 / 12, TOP)]
+    for (d0, z0), (d1, z1) in zip(prof, prof[1:]):
+        slab(SS, S0, S1, [(d0 - WT, z0), (d0, z0), (d1, z1), (d1 - WT, z1)])                              # front, piece by piece
+        for (a0, a1) in ((S0, S0 + WT), (S1 - WT, S1)):                                                   # both ends follow the same outline
+            slab(SS, a0, a1, [(0, z0), (d0 - WT, z0), (d1 - WT, z1), (0, z1)])
+    dtop = prof[-1][0]
+    wr.box(SS, S0, S1, 0, dtop, TOP - WT, TOP)                                                                # flat top
+    to_ceiling(SS, _cc - 7 / 12, _cc + 7 / 12, 0, 14 / 12, TOP)                                             # 14 in square duct cover
+    for k in range(3):                                                                                    # LED pucks in the underside
+        cyl("Lamp Glass", WX0 + 1.4, S0 + 5 * (k + 0.5) / 3, TOP - WT - 0.03, TOP - WT - 0.01, 0.12, 0.12)
+elif HSTYLE == "stainless":
+    # Number 4 in stainless to match the appliances, with one level lip all the way round the bottom (Maxwell, 11/20/2026):
+    # no brass band and no side panel hanging lower than the front.
+    MATERIALS.setdefault("Hood Stainless", dict(color="#C4C6C7", rough=0.5, metal=0.55))   # brushed, like the oven and fridge fronts
+    LB = HB - CHK                                  # bottom edge, level on the front and the side
+    SL0, SL1 = HB + 0.33, HT_ + 0.6
+    wr.box("Hood Stainless", HU0, HU1, HD_ - WT, HD_, LB, SL0)                                                 # front lip
+    slab("Hood Stainless", HU0, HU1, [(HD_ - WT, SL0), (HD_, SL0), (1.25, SL1), (1.25 - WT, SL1)])             # sloped front
+    wr.box("Hood Stainless", HU0, HU1, 0, 1.25, SL1 - WT, SL1)                                                 # top
+    wr.box("Hood Stainless", HU1 - WT, HU1, 0, HD_ - WT, LB, SL0)                                              # south side lip, same bottom as the front
+    slab("Hood Stainless", HU1 - WT, HU1, [(0, SL0), (HD_ - WT, SL0), (1.25 - WT, SL1), (0, SL1)])
+    to_ceiling("Hood Stainless", _cc - 0.55, _cc + 0.55, 0, 1.1, SL1)                                          # slim chimney
+    pucks(HT_ - WT - 0.02, d=0.8)
 elif HSTYLE == "steel":
     SL0, SL1 = HB + 0.33, HT_ + 0.6
     wr.box("Cabinet Pull", HU0, HU1, HD_ - WT, HD_ + 0.02, HB, HB + 0.1)                                  # satin brass band, like the pulls
@@ -1861,8 +2082,17 @@ box(ISLAND_MAT, ir["units"][0][0] - 0.06, ir["units"][0][0], ir["back"] - 0.06, 
 box(ISLAND_TOP, ix0, ix1, iy0, iy1, CTR_Z - CTR_T, CTR_Z)
 SH = K["shelves"]
 rec("kitchen.shelves", "fixture", "Open shelves", "interior", room="Kitchen", info=dict(model="White oak open shelves", specs=[["Length", ftin(SH["x"][1] - SH["x"][0])], ["Heights", ", ".join(ftin(z) for z in SH["heights"])]]))
-for z in SH["heights"]:
+SHZ = list(SH["heights"])
+if FARM:                                           # the lower shelf lines up with the hood's beam
+    SHZ[0] = FARM["lo"]
+for z in SHZ:
     box("White Oak", SH["x"][0], SH["x"][1], HD - T - SH["depth"], HD - T, z, z + 0.15)
+    if FARM:                                       # wrapped round the corner onto the cooktop wall, into the hood's south side
+        fu0, fu1, fzb = FARM["beam"]
+        hs = fu1 if z < fzb else FARM["side"](z + 0.15, 1)
+        hn = fu0 if z < fzb else FARM["side"](z + 0.15, -1)
+        box("White Oak", WX0, WX0 + SH["depth"], hs, HD - T - SH["depth"], z, z + 0.15)
+        box("White Oak", WX0, WX0 + SH["depth"], HU0, hn, z, z + 0.15)   # short shelf from the oven tower to the hood's north side
 
 # Pantry shelves (Maxwell 11/20/2026: "simple shelving"): 3/4 in white oak on 1x2 cleats, around a chest freezer on the back wall.
 # They are built in, so they live with the house; what is on them is in the Belongings layer (make_equipment.py pantry_goods).
