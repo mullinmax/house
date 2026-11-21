@@ -20916,6 +20916,32 @@
    }
   },
   {
+   "id": "return_bed3_head",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     7.942,
+     10.866,
+     9.01
+    ],
+    [
+     7.942,
+     10.866,
+     9.953
+    ]
+   ],
+   "parent": "return_bed23",
+   "shape": "rect",
+   "size": [
+    11.88,
+    4.0
+   ],
+   "info_of": "return_bed23",
+   "stack_head": true
+  },
+  {
    "id": "return_bed23",
    "name": "Bedrooms 2 and 3 return",
    "category": "HVAC return duct",
@@ -20923,34 +20949,9 @@
    "type": "return",
    "points": [
     [
-     7.854,
-     10.85,
-     9.04
-    ],
-    [
-     7.921,
-     10.85,
-     9.267
-    ],
-    [
-     7.951,
-     10.865,
-     9.367
-    ],
-    [
-     7.972,
-     10.909,
-     9.438
-    ],
-    [
-     7.985,
-     10.983,
-     9.481
-    ],
-    [
      7.989,
-     11.087,
-     9.495
+     11.013,
+     9.494791666666666
     ],
     [
      7.989,
@@ -20993,6 +20994,7 @@
     "notes": [
      "Bedroom 3's grille moved from its south wall, next to the bed, to its north wall (Maxwell, 11/17/2026). It shares that wall with bedroom 2, so the stacks rise side by side into the trusses over bedroom 3 and join there: bedroom 2's 6 in flex crosses one truss into bedroom 3's bay and tees into a 10 in flex that runs south in that bay, parallel to the trusses, to the return plenum box at the heat pump.",
      "Bedroom 3 has two grilles and two stacks (duct balance check, 11/18/2026): a 14 x 2-1/2 in stack is all a 2x4 wall holds, and one of them alone passed only about three quarters of the room's 127 CFM.",
+     "Each stack ends in a stack head on the top plate (Maxwell, 11/21/2026): a sheet metal box in the truss bay over the stud bay, with the stack in its bottom and a round collar on its south face. The round runs straight south off it, so there is no elbow beside the wall to stick through the drywall of the vaulted room on the other side. The head is about 12 x 4 in, as wide as the part of the stud bay that sits under the truss bay (they are about 2 in apart).",
      "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 6 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
     ],
     "specs": [
@@ -21051,7 +21053,7 @@
     [
      7.854,
      10.8,
-     9.04
+     9.03
     ]
    ],
    "parent": "return_bed23",
@@ -21079,7 +21081,7 @@
     [
      6.51,
      10.8,
-     9.04
+     9.03
     ]
    ],
    "parent": "return_bed3b",
@@ -21094,40 +21096,41 @@
    "info_of": "return_bed23"
   },
   {
+   "id": "return_bed3b_head",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     6.609,
+     10.866,
+     9.01
+    ],
+    [
+     6.609,
+     10.866,
+     9.786
+    ]
+   ],
+   "parent": "return_bed3b",
+   "shape": "rect",
+   "size": [
+    11.88,
+    4.0
+   ],
+   "info_of": "return_bed23",
+   "stack_head": true
+  },
+  {
    "id": "return_bed3b",
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
    "points": [
     [
-     6.51,
-     10.85,
-     9.04
-    ],
-    [
-     6.583,
-     10.85,
-     9.267
-    ],
-    [
-     6.615,
-     10.865,
-     9.367
-    ],
-    [
-     6.638,
-     10.91,
-     9.438
-    ],
-    [
-     6.651,
-     10.984,
-     9.481
-    ],
-    [
      6.656,
-     11.089,
-     9.495
+     11.013,
+     9.494791666666666
     ],
     [
      6.656,
@@ -21193,40 +21196,41 @@
    "info_of": "return_bed23"
   },
   {
+   "id": "return_bed2_head",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     9.297,
+     10.866,
+     9.01
+    ],
+    [
+     9.297,
+     10.866,
+     9.786
+    ]
+   ],
+   "parent": "return_bed2",
+   "shape": "rect",
+   "size": [
+    12.37,
+    4.0
+   ],
+   "info_of": "return_bed23",
+   "stack_head": true
+  },
+  {
    "id": "return_bed2",
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
    "points": [
     [
-     9.208,
-     10.85,
-     9.04
-    ],
-    [
-     9.265,
-     10.85,
-     9.267
-    ],
-    [
-     9.291,
-     10.865,
-     9.367
-    ],
-    [
-     9.309,
-     10.909,
-     9.438
-    ],
-    [
-     9.319,
-     10.982,
-     9.481
-    ],
-    [
      9.323,
-     11.085,
-     9.495
+     11.013,
+     9.494791666666666
     ],
     [
      9.323,
@@ -21319,7 +21323,7 @@
     [
      9.208,
      10.8,
-     9.04
+     9.03
     ]
    ],
    "parent": "return_bed2",
@@ -21334,6 +21338,32 @@
    "info_of": "return_bed23"
   },
   {
+   "id": "return_study_head",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     27.943,
+     10.866,
+     9.01
+    ],
+    [
+     27.943,
+     10.866,
+     9.786
+    ]
+   ],
+   "parent": "return_study",
+   "shape": "rect",
+   "size": [
+    11.89,
+    4.0
+   ],
+   "info_of": "return_study",
+   "stack_head": true
+  },
+  {
    "id": "return_study",
    "name": "Study return",
    "category": "HVAC return duct",
@@ -21341,57 +21371,32 @@
    "type": "return",
    "points": [
     [
-     27.834,
-     10.85,
-     9.04
-    ],
-    [
-     27.912,
-     10.85,
-     9.267
-    ],
-    [
-     27.945,
-     10.865,
-     9.367
-    ],
-    [
-     27.97,
-     10.91,
-     9.438
-    ],
-    [
-     27.984,
-     10.985,
-     9.481
+     27.989,
+     11.013,
+     9.494791666666666
     ],
     [
      27.989,
-     11.09,
+     11.431,
      9.495
     ],
     [
-     27.989,
-     11.35,
+     27.963,
+     11.615,
      9.495
     ],
     [
-     27.958,
-     11.569,
+     27.884,
+     11.745,
      9.495
     ],
     [
-     27.864,
-     11.725,
+     27.754,
+     11.824,
      9.495
     ],
     [
-     27.708,
-     11.819,
-     9.495
-    ],
-    [
-     27.489,
+     27.571,
      11.85,
      9.495
     ],
@@ -21535,6 +21540,7 @@
     "model": "Two low grilles, each with its own stack and 6 in round flex run",
     "notes": [
      "The study has a low grille (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Two 6 in runs because one big duct would not fit through the truss webs and a single 6 in returned only about 60% of the room's 104 CFM (duct balance check, 11/18/2026). If the builder confirms 7 in fits the webs, one 7 in run does nearly the same job.",
+     "Each stack ends in a stack head on the top plate (Maxwell, 11/21/2026): a sheet metal box in the truss bay over the stud bay, with the stack in its bottom and a round collar on its south face. The round runs straight south off it, so there is no elbow beside the wall to stick through the drywall of the vaulted room on the other side. The head is about 12 x 4 in, as wide as the part of the stud bay that sits under the truss bay (they are about 2 in apart).",
      "Second grille and stack (Maxwell, 11/19/2026): the builder can move bedroom 1's door wall east, so it moved 2 ft 1 1/2 in, just far enough that the study's south wall has two stud bays for stacks, each under its own floor truss bay. Maxwell measured the trusses at 16 in on centre from the west wall (11/20/2026), so the stacks sit at x 28.0 and 29.4, centred under two neighbouring truss bays. The studs are 16 in on centre too, but where they fall against the trusses over this wall is not measured yet: a stack whose stud bay sits half a bay off the trusses would land on a truss. Confirm on site.",
      "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 6 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
     ],
@@ -21594,7 +21600,7 @@
     [
      27.834,
      10.8,
-     9.04
+     9.03
     ]
    ],
    "parent": "return_study",
@@ -21622,7 +21628,7 @@
     [
      29.178,
      10.8,
-     9.04
+     9.03
     ]
    ],
    "parent": "return_study2",
@@ -21637,40 +21643,41 @@
    "info_of": "return_study"
   },
   {
+   "id": "return_study2_head",
+   "category": "HVAC return duct",
+   "system": "hvac.return",
+   "type": "return",
+   "points": [
+    [
+     29.266,
+     10.866,
+     9.01
+    ],
+    [
+     29.266,
+     10.866,
+     9.786
+    ]
+   ],
+   "parent": "return_study2",
+   "shape": "rect",
+   "size": [
+    11.63,
+    4.0
+   ],
+   "info_of": "return_study",
+   "stack_head": true
+  },
+  {
    "id": "return_study2",
    "category": "HVAC return duct",
    "system": "hvac.return",
    "type": "return",
    "points": [
     [
-     29.178,
-     10.85,
-     9.04
-    ],
-    [
-     29.251,
-     10.85,
-     9.267
-    ],
-    [
-     29.282,
-     10.865,
-     9.367
-    ],
-    [
-     29.305,
-     10.91,
-     9.438
-    ],
-    [
-     29.318,
-     10.984,
-     9.481
-    ],
-    [
      29.323,
-     11.089,
-     9.495
+     11.013,
+     9.494791666666666
     ],
     [
      29.323,
