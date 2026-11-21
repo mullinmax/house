@@ -103,26 +103,24 @@
    "note": "Behind the living room TV. U-11 draws it on the east wall; moved to the west wall facing the couch (Maxwell, 11/19/2026). U-11: 72 in to the TV, confirm with the owner."
   },
   {
-   "kind": "tv_data",
+   "kind": "data",
    "x": 42.542,
    "y": 49.55,
-   "z_in": 72,
+   "z_in": 16,
    "facing": 270,
    "level": "main",
    "src": "U-11 #14",
-   "tv": false,
-   "mount": false,
-   "note": "U-11 draws an optional TV mount here (72 in, blocking and a 2 in sleeve). No TV mount in this corner (Maxwell 11/21/2026); the network outlet stays at 72 in as drawn. ASSUMED, confirm the height."
+   "note": "U-11 draws a TV network outlet and optional TV mount here at 72 in. No TV in this corner: mount removed and the jack dropped to 16 in (Maxwell 11/21/2026)."
   },
   {
    "kind": "outlet",
    "x": 42.542,
    "y": 50.059,
-   "z_in": 72,
+   "z_in": 16,
    "facing": 270,
    "level": "main",
    "src": "U-11 #15",
-   "note": "Behind the entry and family room TV. U-11: 72 in to the TV, confirm with the owner."
+   "note": "U-11 draws this at 72 in behind a TV. No TV in this corner, so it drops to the standard 16 in (Maxwell 11/21/2026)."
   },
   {
    "kind": "smoke",
@@ -1007,24 +1005,14 @@
    "src": "U-12 #2"
   },
   {
-   "kind": "data",
-   "x": 31.9,
-   "y": 22.832,
-   "z_in": 16,
-   "facing": 180,
-   "level": "upper",
-   "src": "U-12 #3",
-   "note": "U-12 draws this on a 36 in pony wall along the loft's west edge (y 28.293). The model has an open railing there instead (Maxwell 11/13/2026), so it floated on the railing (Maxwell 11/21/2026: not on the railing). Moved to the west end of the loft north wall, facing south, beside the railing corner. ASSUMED, confirm."
-  },
-  {
-   "kind": "outlet",
-   "x": 32.55,
-   "y": 22.832,
-   "z_in": 16,
-   "facing": 180,
+   "kind": "floor_box",
+   "x": 31.85,
+   "y": 27.4,
+   "z_in": 0,
+   "facing": 0,
    "level": "upper",
    "src": "U-12 #4",
-   "note": "U-12 draws this on a 36 in pony wall along the loft's west edge (y 29.106). The model has an open railing there instead (Maxwell 11/13/2026), so it floated on the railing (Maxwell 11/21/2026: not on the railing). Moved to the west end of the loft north wall, facing south, beside the railing corner. ASSUMED, confirm."
+   "note": "U-12 draws this on a 36 in pony wall along the loft's west edge; the model has an open railing there. NEC 210.52(A) counts a railing as wall space, so its 9 ft run needs an outlet within 6 ft of every point. A flush floor box within 18 in of the railing counts (210.52(A)(3)), at the railing's midpoint it covers it end to end. Maxwell 11/21/2026: keep only what code needs. The loft floor is framed, so this is not a slab outlet."
   },
   {
    "kind": "outlet",
@@ -1146,6 +1134,13 @@
    "x": 31.434,
    "y": 43.899,
    "why": "No outlets were put in the slab (Maxwell, 11/20/2026). U-11 draws this floor outlet in the dining / common area; it was not installed."
+  },
+  {
+   "src": "U-12 #3",
+   "kind": "data",
+   "x": 31.29,
+   "y": 28.293,
+   "why": "Drawn on the U-12 loft west pony wall, which became an open railing. Not needed by code; dropped (Maxwell 11/21/2026: loft only needs the code outlets)."
   }
  ]
 }
