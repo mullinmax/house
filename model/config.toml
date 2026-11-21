@@ -737,6 +737,7 @@ interior_light_w = 250          # per ceiling light
 enabled = true
 stud_w_in = 1.5
 stud_d_in = 3.5                 # 2x4 partitions at 16 in o.c. (photos)
+drywall_in = 0.625             # drywall on each face of the partitions (Maxwell 11/21/2026). Walls A-11 draws as a bare 3 1/2 in stud are built this much thicker each side
 stud_oc_in = 16
 top_plates = 2                  # double top plate (photos)
 plate_height_in = 108           # top of the top plates, 9 ft above the slab. MEASURED by Maxwell at the bedroom 1 closet header, 11/20/2026

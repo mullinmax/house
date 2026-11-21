@@ -385,16 +385,6 @@
     },
     {
      "item": "8 in round pipe, 30 ga snap lock",
-     "spec": "Range hood",
-     "qty": 1,
-     "unit": "x 5 ft",
-     "where": "3 ft in the model",
-     "note": "",
-     "price": "",
-     "status": ""
-    },
-    {
-     "item": "8 in round pipe, 30 ga snap lock",
      "spec": "Supply",
      "qty": 13,
      "unit": "x 5 ft",
@@ -466,7 +456,7 @@
     {
      "item": "8 in adjustable 90 elbow",
      "spec": "",
-     "qty": 14,
+     "qty": 13,
      "unit": "ea",
      "where": "Counted from the bends in the model",
      "note": "",
@@ -737,6 +727,16 @@
      "qty": 1,
      "unit": "piece",
      "where": "1.4 ft, 0 turns",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 x 3-1/4 in range hood duct",
+     "spec": "Fabricated",
+     "qty": 1,
+     "unit": "piece",
+     "where": "1.7 ft, 1 turns",
      "note": "",
      "price": "",
      "status": ""
@@ -1102,7 +1102,7 @@
      "spec": "",
      "qty": 6,
      "unit": "gal",
-     "where": "About 209 joints",
+     "where": "About 208 joints",
      "note": "",
      "price": "",
      "status": ""
@@ -1236,8 +1236,8 @@
    "name": "Range hood duct",
    "system": "Range hood",
    "room": "Kitchen",
-   "size": "8 in round",
-   "ft": 2.6947208333333332,
+   "size": "10 x 3-1/4 in",
+   "ft": 1.6980541666666669,
    "cfm": null,
    "flex": false,
    "crosses": 0,

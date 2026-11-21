@@ -65,7 +65,6 @@ Counted from the model with 10 percent extra. Anything that crosses the floor tr
 | 8 in round pipe, 30 ga snap lock | ERV | 2 | x 5 ft | 8 ft in the model |  |
 | 8 in round pipe, 30 ga snap lock | ERV outdoor side, insulated | 5 | x 5 ft | 19 ft in the model | Insulate with R-8 wrap or use insulated duct, vapor jacket outside |
 | 8 in round pipe, 30 ga snap lock | Exhaust | 9 | x 5 ft | 37 ft in the model |  |
-| 8 in round pipe, 30 ga snap lock | Range hood | 1 | x 5 ft | 3 ft in the model |  |
 | 8 in round pipe, 30 ga snap lock | Supply | 13 | x 5 ft | 55 ft in the model |  |
 | 10 in round pipe, 30 ga snap lock | Return | 12 | x 5 ft | 51 ft in the model |  |
 | 6 in flex duct, R-6 insulated | Return runs through the trusses | 4 | x 25 ft box | 70 ft in the model | Pull it tight, no sags; support every 4 ft |
@@ -73,7 +72,7 @@ Counted from the model with 10 percent extra. Anything that crosses the floor tr
 | 4 in adjustable 90 elbow |  | 5 | ea | Counted from the bends in the model |  |
 | 6 in adjustable 90 elbow |  | 13 | ea | Counted from the bends in the model |  |
 | 7 in adjustable 90 elbow |  | 5 | ea | Counted from the bends in the model |  |
-| 8 in adjustable 90 elbow |  | 14 | ea | Counted from the bends in the model |  |
+| 8 in adjustable 90 elbow |  | 13 | ea | Counted from the bends in the model |  |
 | 10 in adjustable 90 elbow |  | 5 | ea | Counted from the bends in the model |  |
 | 10 in adjustable 45 elbow |  | 2 | ea | Counted from the bends in the model |  |
 | 6 in round takeoff (starting collar) | Off a rectangular trunk, main or plenum | 2 | ea |  |  |
@@ -107,6 +106,7 @@ Trunks, plenums and boxes are usually made to measure by a sheet metal shop once
 | 14 x 24 in return plenum box | Fabricated | 1 | piece | 3.2 ft, 0 turns |  |
 | 50 x 10 in bedroom 1 return header box | part of Bedroom 1 return | 1 | piece | 0.6 ft, 0 turns |  |
 | 20 x 4 in study high return boot | Fabricated | 1 | piece | 1.4 ft, 0 turns |  |
+| 10 x 3-1/4 in range hood duct | Fabricated | 1 | piece | 1.7 ft, 1 turns |  |
 | Wall stack 14 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 7 | ea | 65 ft total | Plus one stack head per stack, or a header box |
 | Wall stack 10 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 1 | ea | 9 ft total | Plus one stack head per stack, or a header box |
 | Stack head, wall stack to side round collar | Sits on the top plate in the truss bay over the stack; the round collar is on its south face, so the round runs straight off it with no elbow beside the wall. About 12 x 4 in, 8 to 11 in tall | 5 | ea |  | The stud bay and the truss bay over it are about 2 in apart: the head is as wide as the part they share |
@@ -155,7 +155,7 @@ Estimated from the joint and length counts above.
 
 | Item | Spec | Qty | Unit | Where | Notes |
 |---|---|---|---|---|---|
-| Duct mastic, water based, UL 181 |  | 6 | gal | About 209 joints |  |
+| Duct mastic, water based, UL 181 |  | 6 | gal | About 208 joints |  |
 | Foil tape, UL 181A-P / 181B-FX |  | 9 | roll |  |  |
 | #8 x 1/2 in self drilling sheet metal screws | 3 per joint | 700 | ea |  |  |
 | Flex duct clamps or nylon duct ties | 2 per flex connection | 28 | ea |  |  |
@@ -172,7 +172,7 @@ Estimated from the joint and length counts above.
 | Litter box exhaust | Exhaust | Utility | 4 in round | 6.2 | 20 |  |  |  |
 | Bath exhaust main | Exhaust | None | 6 in round | 62.3 |  |  |  |  |
 | Powder exhaust | Exhaust | Powder | 4 in round | 9.6 |  |  |  |  |
-| Range hood duct | Range hood | Kitchen | 8 in round | 2.7 |  |  |  |  |
+| Range hood duct | Range hood | Kitchen | 10 x 3-1/4 in | 1.7 |  |  |  |  |
 | Bedroom 1 return | Return |  | 10 in round | 52.1 |  |  |  | 2 |
 | Bedrooms 2 and 3 return | Return |  | 10 in round | 22.3 |  | yes | 2 | 3 |
 | Main return (M-10) | Return |  | 34 x 20 in | 8.3 |  |  |  |  |

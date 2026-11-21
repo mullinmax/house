@@ -107,6 +107,7 @@ function hexa(get, pts, mats, grainOf) {
   const c = new THREE.Vector3(); for (const p of pts) c.add(p); c.divideScalar(8);
   const long = longAxis(pts);
   HEX_FACES.forEach((f, i) => {
+    if (mats[i] === null) return;            // a face left out: a wall end buried in the piece it butts into
     const bk = get(mats[i]);
     const q = f.map((k) => pts[k]);
     const fc = new THREE.Vector3(); for (const p of q) fc.add(p); fc.divideScalar(4);

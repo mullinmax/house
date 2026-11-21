@@ -26,6 +26,20 @@ RH = 8                                            # tallest duct that passes bet
 ZTR = DECK + 8.0 / 12 + 0.02                      # centre of the 18 x 16 supply trunk sitting on the deck
 FLAT = CFG["ceilings"]["flat_rooms"]
 LOFT = CFG["loft"]["rect"]
+# Partitions A-11 draws as a bare 3 1/2 in stud are built 2x4 plus 5/8 in drywall each side (make_house.py, Maxwell
+# 11/21/2026), so their faces sit about 5/8 in further into the rooms than the plan lines. built_face(plan face, axis,
+# point along the wall) gives the finished face for a plan face: axis "x" for a wall face at x = const, "y" for y = const.
+_PARTS = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "site", "models", "house.json")))["meta"].get("partitions", [])
+def built_face(v, axis, along):
+    k = 0 if axis == "x" else 2
+    for p_ in _PARTS:
+        a, b = p_["a11"], p_["built"]
+        lo, hi = (a[2], a[3]) if axis == "x" else (a[0], a[1])
+        if lo - 0.01 <= along <= hi + 0.01:
+            for i in (k, k + 1):
+                if abs(a[i] - v) < 0.002:
+                    return b[i]
+    return v
 OVEN_Z = CFG["kitchen"].get("oven_face_bottom", 1.22)            # bottom of the wall oven's face, ft
 OVEN_H = CFG["kitchen"].get("oven_face_height_in", 50.75)
 
@@ -117,10 +131,10 @@ items += [
 # west wall of the alcove north of that closet (inside x 16.664 to 20.039, y 15.491 to 18.574). The sheet's fixture schedule
 # (item 9) names the sink: Steelton 36 in, 16 gauge stainless, one compartment utility sink #522US13621 with a 12 in swing spout
 # faucet #190FW812. Maxwell asked for open shelves of linens there instead of cabinets.
-LS_X0, LS_Y0, LS_Y1 = 16.664, 15.491, 18.574            # alcove west wall face, north wall face, closet north wall face
+LS_X0, LS_Y0, LS_Y1 = 16.664, 15.491, built_face(18.574, "y", 18.0)   # alcove west wall face, north wall face, closet north wall face
 SINK_W, SINK_D, SINK_H = 40, 25.5, 44                    # overall, in (Steelton family size for the 36 x 21 x 14 bowl, ASSUMED)
 SINK_GAP = 2.5 / 12                                      # stands 2 1/2 in off the wall: supplies and the vent riser go up behind it
-SINK_X = 20.039 + (SINK_W / 2 + 0.5) / 12                # west leg 1/2 in off the hall closet wall
+SINK_X = built_face(20.039, "x", 21.0) + (SINK_W / 2 + 0.5) / 12   # west leg 1/2 in off the hall closet wall
 SINK_BACK = 22.408 - SINK_GAP                            # laundry south wall face is y 22.408
 SUP_Y = 22.408 - 1.25 / 12                               # supplies 1 1/4 in off the wall
 items += [
@@ -223,7 +237,7 @@ items += [
 
 # ------------------------------------------------------------------ utility room: geothermal and hot water
 # The utility room's walls as traced from A-11 (the room list rounds the south one to 29.03, which is really the powder room side).
-UW, UN, US, UE = 0.497, 22.866, 28.241, 11.664    # inside faces: west, north, south, east
+UW, UN, US, UE = 0.497, 22.866, built_face(28.241, "y", 6.0), 11.664    # inside faces: west, north, south, east
 # Geothermal: the five loops come up through the slab in one sleeve at the north wall, about 1-1/2 ft east of the west wall
 # (Maxwell, 11/19/2026, measured on site; it was drawn at 2 ft), fan out to the manifolds on the west wall, and the flow center sits further south on the same wall,
 # right under the heat pump's water connections in the attic.
@@ -356,7 +370,7 @@ PT_CY = UN + (1 + PT_D / 2) / 12
 UV_Z, UV_H = 2.55, 42.0
 # Stick vacuum (Maxwell, 11/19/2026): moved from the utility room to the hall closet off hall 2 (inside x 16.664 to 19.747, y 18.866 to 22.408,
 # door on its west side). It hangs on the closet's back (east) wall, straight across from the door.
-VAC_WALL, VAC_Y = 19.747, 20.64                    # back wall inside face, and the dock's centre along it (the door's centre line)
+VAC_WALL, VAC_Y = built_face(19.747, "x", 20.64), 20.64   # back wall inside face, and the dock's centre along it (the door's centre line)
 def dhw(id, name, dia, mat, points, model, notes, specs=None, info_of=None, system="plumbing.dhw", category="Hot water"):
     r = dict(id=id, name=name, category=category, system=system, dia=dia, mat=mat, points=points)
     if info_of: r["info_of"] = info_of; r.pop("name")
@@ -1638,6 +1652,35 @@ trusses = dict(id="floor_trusses", name="Open web floor trusses", category="Stru
              ["Spacing", "16 in on centre from the west wall, doubled at the east wall (Maxwell, 11/20/2026)"], ["Span", "North to south, continuous over the interior walls"], ["Ends", "Solid trimmable ends at the bearing walls, open webs between (Maxwell's photo, 11/20/2026)"]],
       notes=["The attic deck and the loft floor sit on these, about 3 in higher in the attic and 2 in higher in the loft than the sealed plans.",
              "The loft railing, pony wall, ladder and furniture come from the last Blender export and still sit at the old height, about 2 in low, until the next export."]))
+
+# Wall grilles were placed against the A-11 faces of the partitions. make_house.py builds the walls A-11 draws as a bare
+# 3 1/2 in stud a 2x4 plus 5/8 in drywall each side thick (Maxwell 11/21/2026), so those faces moved about 5/8 in into the
+# rooms (house.json meta.partitions). Move each wall grille on such a face out with it, keeping its offset from the face.
+def _follow_drywall():
+    parts = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "site", "models", "house.json")))["meta"].get("partitions", [])
+    for d in ducts:
+        for gr in d.get("grilles", []):
+            if not gr.get("wall"):
+                continue
+            x, y = gr["at"][0], gr["at"][1]
+            for p_ in parts:
+                a, b = p_["a11"], p_["built"]
+                alongx = a[1] - a[0] >= a[3] - a[2]
+                u, v, k = (x, y, 2) if alongx else (y, x, 0)          # u along the wall, v across it, k: index of the low face
+                lo, hi = (a[0], a[1]) if alongx else (a[2], a[3])
+                if not (lo - 0.01 <= u <= hi + 0.01):
+                    continue
+                for old, new in ((a[k], b[k]), (a[k + 1], b[k + 1])):
+                    if old != new and abs(v - old) < 0.1 and (v - old) * (new - old) > -0.1 * abs(new - old):
+                        v2 = round(v + (new - old), 4)
+                        gr["at"] = [v2, y] + gr["at"][2:] if not alongx else [x, v2] + gr["at"][2:]
+                        break
+                else:
+                    continue
+                break
+
+
+_follow_drywall()
 
 out = dict(
     meta=dict(units="plan feet for positions, inches for sizes", generated_by="model/make_equipment.py",

@@ -130,7 +130,9 @@ def op(r, id, name, type, pivot, angle=None, slide=None):
     return o
 
 
-def box(mat, x0, x1, y0, y1, z0, z1, ztop=None):
+def box(mat, x0, x1, y0, y1, z0, z1, ztop=None, open_ends=()):
+    """open_ends (ztop boxes only): faces left out, by X_FACES index (2 y0, 3 x1, 4 y1, 5 x0): an end buried in the
+    piece it butts into, whose edge would otherwise draw a hairline along the wall face"""
     xs, ys = sorted((x0, x1)), sorted((y0, y1))
     zs = sorted((z0, z1)) if ztop is None else (z0, z1)
     if ztop is None:
@@ -141,7 +143,7 @@ def box(mat, x0, x1, y0, y1, z0, z1, ztop=None):
     pts = [(xs[0], ys[0], z0), (xs[1], ys[0], z0), (xs[1], ys[1], z0), (xs[0], ys[1], z0),
            (xs[0], ys[0], ztop(xs[0], ys[0])), (xs[1], ys[0], ztop(xs[1], ys[0])),
            (xs[1], ys[1], ztop(xs[1], ys[1])), (xs[0], ys[1], ztop(xs[0], ys[1]))]
-    hexa(mat, pts)
+    hexa(mat, pts, [None if i in open_ends else mat for i in range(6)] if open_ends else None)
 
 
 def hexa(mat, pts, faces=None):
@@ -635,6 +637,40 @@ for ed in C.get("plan_edits", {}).get("wall_remove", []):     # partitions taken
     if not hit:
         raise SystemExit(f"plan_edits.wall_remove: no interior wall at {ed['at']}")
     INT_RECTS.remove(hit[0])
+
+# Real drywall on the partitions (Maxwell 11/21/2026: studs showed through the bedroom walls). A-11 draws most bedroom
+# and hall partitions 3 1/2 in thick, the bare 2x4, so the drywall box was the stud's own thickness and the studs sat
+# 1/16 in behind its faces, close enough to bleed through on screen. Those walls are now a 2x4 plus a sheet of drywall
+# each side ([framing] drywall_in, 5/8 in), grown evenly about the A-11 centre line, so each face moves 5/8 in into the
+# room. Where a wall end meets another wall it also runs 5/8 in into it, so the corners close up. The 5 1/2 in walls
+# already have room for a 2x4 and 5/8 in drywall each side and stay as drawn.
+DW = C.get("framing", {}).get("drywall_in", 0.625) / 12
+_SD = C.get("framing", {}).get("stud_d_in", 3.5) / 12
+
+
+def _grow_thin(rects):
+    def thin(r_):
+        return 3.3 / 12 < min(r_[1] - r_[0], r_[3] - r_[2]) < 3.7 / 12 and max(r_[1] - r_[0], r_[3] - r_[2]) >= 0.5
+
+    def meets_thin(x0, x1, y0, y1, me):
+        """does this probe just past a wall end touch a wall that grows? (touching counts: a crossing wall can end flush
+        with that wall's far face, and then the end has to follow the face out or it leaves a slit at the corner)"""
+        k = 0.005
+        return any(o is not me and thin(o) and o[0] < x1 + k and o[1] > x0 - k and o[2] < y1 + k and o[3] > y0 - k for o in rects)
+
+    out, e = [], 0.03
+    for r_ in rects:
+        x0, x1, y0, y1 = r_
+        g = (_SD + 2 * DW - min(x1 - x0, y1 - y0)) / 2 if thin(r_) else 0.0
+        if (x1 - x0) >= (y1 - y0):
+            out.append((x0 - (DW if meets_thin(x0 - e, x0, y0, y1, r_) else 0), x1 + (DW if meets_thin(x1, x1 + e, y0, y1, r_) else 0), y0 - g, y1 + g))
+        else:
+            out.append((x0 - g, x1 + g, y0 - (DW if meets_thin(x0, x1, y0 - e, y0, r_) else 0), y1 + (DW if meets_thin(x0, x1, y1, y1 + e, r_) else 0)))
+    return out
+
+
+INT_RECTS_A11 = list(INT_RECTS)                               # as A-11 draws them (tools/drywall_check.py)
+INT_RECTS = _grow_thin(INT_RECTS)
 DOORS = G.get("door_labels_A11", [])
 
 
@@ -721,14 +757,38 @@ if LOFT["enabled"] and LOFT.get("attic_access"):
     else:
         raise SystemExit(f"loft attic_access: no solid wall north of the loft spans x {ax0:.2f}-{ax1:.2f}")
 
-for k, ((x0, x1, y0, y1), top) in enumerate(WALL_PIECES):
-    ln, th = max(x1 - x0, y1 - y0), min(x1 - x0, y1 - y0)
-    zt = top((x0 + x1) / 2, (y0 + y1) / 2)
-    rec(f"wall.int.{k}", "wall", f"Interior wall {between(x0, x1, y0, y1)}".strip(), "interior",
-        info=dict(model=f"{ftin(th)} interior partition", specs=[["Length", ftin(ln)], ["Height", ftin(zt) if abs(top(x0, y0) - top(x1, y1)) < 0.05 else "Up to the roof"],
-                                                                ["Finish", f"Drywall, {MM['wall_paint']}"]],
-                  notes=["Traced from the A-11 floor plan vectors."]))
-    box("Drywall", x0, x1, y0, y1, 0, 9, ztop=top)
+# Seams: two drywall boxes that only butt end to end leave a hairline crack on screen where their faces meet (the GPU
+# rounds the shared edge a little differently for each), and the dark inside of the wall shows through it, over doors
+# most of all (Maxwell 11/21/2026). So each piece runs JOIN past its end into the piece it meets, where that piece is at
+# least as tall there, so the overlap stays hidden inside it. Same material, so the overlap never flickers.
+JOIN = 0.125 / 12
+
+
+def piece_top_at(x, y):
+    tops = [top(x, y) for (r_, top) in WALL_PIECES if r_[0] - 1e-4 <= x <= r_[1] + 1e-4 and r_[2] - 1e-4 <= y <= r_[3] + 1e-4]
+    return max(tops) if tops else None
+
+
+def sealed(x0, x1, y0, y1, top):
+    """the box grown JOIN along its length at each end that runs into a wall piece at least as tall"""
+    alongx = (x1 - x0) >= (y1 - y0)
+    vm = (y0 + y1) / 2 if alongx else (x0 + x1) / 2
+    a, b = (x0, x1) if alongx else (y0, y1)
+    def ok(u, u_in):
+        p_, q_ = ((u, vm), (u_in, vm)) if alongx else ((vm, u), (vm, u_in))
+        t = piece_top_at(*p_)
+        return t is not None and t >= top(*q_) - 1e-3
+    ja, jb = ok(a - JOIN / 2, a), ok(b + JOIN / 2, b)
+    a2, b2 = a - JOIN * ja, b + JOIN * jb
+    ends = tuple(f for f, j in zip(((5, 3) if alongx else (2, 4)), (ja, jb)) if j)
+    return dict(zip("abcd", (a2, b2, y0, y1) if alongx else (x0, x1, a2, b2)), ends=ends)
+
+
+def sealed_box(rect, top, z0):
+    """a drywall wall box run into the pieces it meets (see JOIN), its buried ends left open"""
+    s_ = sealed(*rect, top)
+    box("Drywall", s_["a"], s_["b"], s_["c"], s_["d"], z0, 9, ztop=top, open_ends=s_["ends"])
+
 
 DOOR_GAPS, FIXES = [], []
 
@@ -794,18 +854,51 @@ def make_headers():
 
 
 make_headers()
+
+for k, ((x0, x1, y0, y1), top) in enumerate(WALL_PIECES):
+    ln, th = max(x1 - x0, y1 - y0), min(x1 - x0, y1 - y0)
+    zt = top((x0 + x1) / 2, (y0 + y1) / 2)
+    rec(f"wall.int.{k}", "wall", f"Interior wall {between(x0, x1, y0, y1)}".strip(), "interior",
+        info=dict(model=f"{ftin(th)} interior partition", specs=[["Length", ftin(ln)], ["Height", ftin(zt) if abs(top(x0, y0) - top(x1, y1)) < 0.05 else "Up to the roof"],
+                                                                ["Finish", f"Drywall, {MM['wall_paint']}"]],
+                  notes=["Traced from the A-11 floor plan vectors."]))
+    s_ = sealed(x0, x1, y0, y1, top)
+    # an end at a doorway with wall over it: the face above the door head would meet the header piece edge on and draw
+    # a hairline up the wall, so leave the end open and close only the part down in the doorway (behind the jamb)
+    alongx = (x1 - x0) >= (y1 - y0)
+    ends, caps = list(s_["ends"]), []
+    for f_ in FIXES:
+        if f_[0] != "header":
+            continue
+        _, hx0, hx1, hy0, hy1, _t, h = f_
+        for fi, u in (((5, x0), (3, x1)) if alongx else ((2, y0), (4, y1))):
+            if fi in ends:
+                continue
+            hu0, hu1, hv0, hv1 = (hx0, hx1, hy0, hy1) if alongx else (hy0, hy1, hx0, hx1)
+            v0_, v1_ = (y0, y1) if alongx else (x0, x1)
+            if (abs(hu0 - u) < 0.01 or abs(hu1 - u) < 0.01) and hv0 < v1_ - 0.01 and hv1 > v0_ + 0.01:
+                ends.append(fi)
+                # a door's jamb covers the end below the head; an opening left without a door (door_remove) shows it, so close it there
+                gcx, gcy = (hx0 + hx1) / 2, (hy0 + hy1) / 2
+                if not any(math.hypot(rx - gcx, ry - gcy) < 1.5 for (rx, ry) in C.get("furnishings", {}).get("door_remove", [])):
+                    continue
+                caps.append([(u, v0_, 0), (u, v1_, 0), (u, v1_, h), (u, v0_, h)] if alongx else [(v0_, u, 0), (v1_, u, 0), (v1_, u, h), (v0_, u, h)])
+    box("Drywall", s_["a"], s_["b"], s_["c"], s_["d"], 0, 9, ztop=top, open_ends=tuple(ends))
+    for c_ in caps:
+        quad("Drywall", c_)
+
 nh = 0
 for f_ in FIXES:
     if f_[0] == "sliver":
         _, x0, x1, y0, y1, top, z0 = f_
         rec(f"wall.fill.{nh}", "wall", f"Interior wall {between(x0, x1, y0, y1)}".strip(), "interior",
             info=dict(model="Short wall piece", notes=["Fills a gap of under 1' 5\" between two traced wall ends" + (", above the attic deck." if z0 else ".")]))
-        box("Drywall", x0, x1, y0, y1, z0, 9, ztop=top)
+        sealed_box((x0, x1, y0, y1), top, z0)
     else:
         _, x0, x1, y0, y1, top, h = f_
         rec(f"wall.header.{nh}", "wall", "Wall over a doorway", "interior",
             info=dict(model="Drywall over the door head", specs=[["Door head", ftin(h)]]))
-        box("Drywall", x0, x1, y0, y1, h, 9, ztop=top)
+        sealed_box((x0, x1, y0, y1), top, h)
     nh += 1
 
 for k, (x0, x1, y0, y1) in enumerate(LOFT_GAP_FILLS):
@@ -813,7 +906,7 @@ for k, (x0, x1, y0, y1) in enumerate(LOFT_GAP_FILLS):
         info=dict(model="Drywall from the ceiling up to the roof", specs=[["Width", ftin(x1 - x0)]],
                   notes=["A-11 leaves this part of the wall open from the slab to the roof. Below the ceiling it is the opening between bath 1 and closet 1, "
                          "which stays. Above it, it was the way into the attic from the loft until the attic access moved east (Maxwell, 11/19/2026)."]))
-    box("Drywall", x0, x1, y0, y1, FH, 9, ztop=wall_top(x0, x1, y0, y1, True))
+    sealed_box((x0, x1, y0, y1), wall_top(x0, x1, y0, y1, True), FH)
 if ATTIC_ACCESS:
     x0, x1, y0, y1 = ATTIC_ACCESS
     FL_ = LOFT["floor_height"]
@@ -887,7 +980,7 @@ if FR.get("enabled", True):
     OC = FR.get("stud_oc_in", 16) * IN
     NTOP = FR.get("top_plates", 2)
     PLATE_TOP = FR.get("plate_height_in", 109) * IN         # top of the double top plate, as built
-    FACE_IN = FR.get("face_inset_in", 0.0625) * IN          # every piece stays just inside the wall box, never flush with the drywall
+    FACE_IN = FR.get("face_inset_in", 0.0625) * IN          # ends of plates and headers stay just inside the wall box, never flush with the drywall
     HDR = FR.get("header_default", {})
     HOVR = FR.get("headers", [])
     BUILT = FR.get("built", [])
@@ -915,7 +1008,9 @@ if FR.get("enabled", True):
             box(mat, v0, v1, u0, u1, z0, z1)
 
     def band(t0, t1, sd):
-        d = min(sd, t1 - t0 - 2 * FACE_IN)
+        # partitions are now drawn a 2x4 plus 5/8 in drywall each side thick, so the studs, centred, stay a full sheet
+        # behind each face; a wall still drawn thinner than its studs squeezes them just inside its faces
+        d = sd if t1 - t0 - sd > 2 * FACE_IN else t1 - t0 - 2 * FACE_IN
         vm = (t0 + t1) / 2
         return vm - d / 2, vm + d / 2
 
@@ -1150,7 +1245,19 @@ FR_ = C["ceilings"]["flat_rooms"]
 for k, (x0, y0, x1, y1) in enumerate(FR_):
     rec(f"ceiling.flat.{k}", "ceiling", f"Flat ceiling, {room_at((x0 + x1) / 2, (y0 + y1) / 2) or 'room'}", "ceiling",
         info=dict(model=f"{ftin(FH)} flat ceiling (A-11)", specs=[["Above it", f"Floor trusses and the attic deck, top at {ftin(FH + FLOOR_T)}"]]))
-    box("Drywall", x0, x1, y0, y1, FH, FH + FLOOR_T - DECK_T)
+    # run JOIN into each flat ceiling it butts against, so their seam does not show as a hairline (see JOIN)
+    def _meets(side):
+        for j, (a0, b0, a1, b1) in enumerate(FR_):
+            if j == k:
+                continue
+            if side == 0 and abs(a1 - x0) < 0.01 and b0 < y1 and b1 > y0: return True
+            if side == 1 and abs(a0 - x1) < 0.01 and b0 < y1 and b1 > y0: return True
+            if side == 2 and abs(b1 - y0) < 0.01 and a0 < x1 and a1 > x0: return True
+            if side == 3 and abs(b0 - y1) < 0.01 and a0 < x1 and a1 > x0: return True
+        return False
+    m_ = [_meets(i) for i in range(4)]
+    box("Drywall", x0 - JOIN * m_[0], x1 + JOIN * m_[1], y0 - JOIN * m_[2], y1 + JOIN * m_[3], FH, 9, ztop=lambda x, y: FH + FLOOR_T - DECK_T,
+        open_ends=tuple(f for f, m in zip((5, 3, 2, 4), m_) if m))      # the buried edges left open, so no hairline at the seam
 if C["ceilings"].get("attic_floor"):
     rec("attic.deck", "floor", "Attic deck", "interior",
         info=dict(model="Walkable attic deck over the flat ceilings", specs=[["Top", f"{ftin(FH + FLOOR_T)} above the slab"], ["Build up", f"{_ft['depth_in'] if _ft else ''}\" floor trusses + {_ft['deck_in'] if _ft else ''}\" decking"]],
@@ -3539,6 +3646,90 @@ def nudge():
     return moved, len(zfight_pairs())
 
 
+# Furniture, fixtures and cabinets were placed against the A-11 faces of the partitions. Those faces moved 5/8 in into the
+# rooms when the walls got real drywall (_grow_thin), so slide each piece that now sits in the new drywall back out of it,
+# the whole record together. tools/drywall_check.py lists anything still buried.
+def drywall_slabs():
+    out = []
+    for a, b in zip(INT_RECTS_A11, INT_RECTS):
+        if a == b:
+            continue
+        for ax, sg, sl in ((1, -1, (b[0], b[1], b[2], a[2])), (1, 1, (b[0], b[1], a[3], b[3])), (0, -1, (b[0], a[0], b[2], b[3])), (0, 1, (a[1], b[1], b[2], b[3]))):
+            if sl[1] - sl[0] > 1e-4 and sl[3] - sl[2] > 1e-4:
+                out.append((ax, sg, sl, a))
+    return out
+
+
+def shape_bounds(s):
+    if s[0] == "b":
+        return (s[2], s[3], s[4], s[5]), (s[6], s[7])
+    if s[0] == "x":
+        a = s[2]
+        return (min(a[0::3]), max(a[0::3]), min(a[1::3]), max(a[1::3])), (min(a[2::3]), max(a[2::3]))
+    if s[0] == "c":
+        return (s[2] - max(s[6], s[7]), s[2] + max(s[6], s[7]), s[3] - max(s[6], s[7]), s[3] + max(s[6], s[7])), (s[4], s[5])
+    if s[0] == "q":
+        p = s[2]
+        return (min(q[0] for q in p), max(q[0] for q in p), min(q[1] for q in p), max(q[1] for q in p)), (min(q[2] for q in p), max(q[2] for q in p))
+    return None, None
+
+
+def buried_in_drywall(s, slabs, eps=0.004):
+    """(axis, push) for each new drywall slab this shape sits in but does not run on through (floors and the like do)"""
+    bx, z = shape_bounds(s)
+    if not bx:
+        return []
+    out = []
+    for ax, sg, sl, a in slabs:
+        if min(bx[1], sl[1]) - max(bx[0], sl[0]) > eps and min(bx[3], sl[3]) - max(bx[2], sl[2]) > eps:
+            if min(bx[1], a[1]) - max(bx[0], a[0]) > eps and min(bx[3], a[3]) - max(bx[2], a[2]) > eps:
+                continue
+            lo, hi = (bx[0], bx[1]) if ax == 0 else (bx[2], bx[3])
+            out.append((ax, (sl[1 if ax == 0 else 3] - lo) if sg > 0 else -(hi - sl[0 if ax == 0 else 2])))
+    return out
+
+
+def shift_shape(s, d):
+    if s[0] == "b":
+        for k in range(2):
+            s[2 + k] = rnd(s[2 + k] + d[0]); s[4 + k] = rnd(s[4 + k] + d[1])
+    elif s[0] == "x":
+        for k in range(8):
+            s[2][k * 3] = rnd(s[2][k * 3] + d[0]); s[2][k * 3 + 1] = rnd(s[2][k * 3 + 1] + d[1])
+    elif s[0] == "c":
+        s[2] = rnd(s[2] + d[0]); s[3] = rnd(s[3] + d[1])
+    elif s[0] == "q":
+        for q in s[2]:
+            q[0] = rnd(q[0] + d[0]); q[1] = rnd(q[1] + d[1])
+
+
+def settle_off_drywall():
+    slabs, moved = drywall_slabs(), []
+    for r in RECS:
+        if r.get("kind") not in ("furniture", "fixture", "cabinet", "appliance"):
+            continue
+        shapes = list(r.get("parts", [])) + [s for o in r.get("ops", []) for s in o["parts"]]
+        push = [0.0, 0.0, 0.0, 0.0]                      # -x, +x, -y, +y
+        for s in shapes:
+            for ax, d in buried_in_drywall(s, slabs):
+                i = ax * 2 + (1 if d > 0 else 0)
+                push[i] = max(push[i], abs(d) + 0.0005)
+        if not any(push):
+            continue
+        d = (push[1] - push[0], push[3] - push[2])
+        if (push[0] and push[1]) or (push[2] and push[3]):
+            print(f"drywall: {r['id']} is squeezed between two walls that grew, moved by the net {d}")
+        for s in shapes:
+            shift_shape(s, d)
+        for o in r.get("ops", []):
+            o["pivot"][0] = rnd(o["pivot"][0] + d[0]); o["pivot"][1] = rnd(o["pivot"][1] + d[1])
+        moved.append((r["id"], round(d[0] * 12, 2), round(d[1] * 12, 2)))
+    return moved
+
+
+SETTLED = settle_off_drywall()
+print("off the new drywall (in):", ", ".join(f"{i} {dx:+g},{dy:+g}" for i, dx, dy in SETTLED))
+
 NUDGED = nudge()
 
 # ------------------------------------------------------------------ write
@@ -3553,6 +3744,7 @@ out = dict(
               outline=dict(house=[0, 0, HW, HD], garage=GA["rect"] if GA.get("enabled") else None, porch=C.get("porch", {}).get("rect")),
               climbs=(LADDER_CLIMBS if LADDER_CLIMBS is not None else [dict(id="loft.ladder", rect=list(LOFT["ships_ladder"]), axis="x", z0=0.0, z1=LOFT["floor_height"])]) if LOFT.get("enabled") else [],
               framing=FRAMING_META,
+              partitions=[dict(a11=[rnd(v) for v in a], built=[rnd(v) for v in b]) for a, b in zip(INT_RECTS_A11, INT_RECTS) if a != b],
               **WEB_META),
     materials=MATERIALS,
     spawns={k: dict(pos=[p[0], p[1], EYE], look=[l[0], l[1], EYE - 0.3]) for k, (p, l) in SPAWNS.items()},
