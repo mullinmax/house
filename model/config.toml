@@ -74,6 +74,8 @@ railing = true                  # 36" guard along the open loft edge. ASSUMED
 railing_height = 3.0
 railing_style = "steel_oak"     # black steel posts and balusters, white oak cap. ASSUMED
 ships_ladder = [25.828, 31.92, 31.12, 34.48]   # [x0, y0, x1, y1]: x0 is the first riser, x1 the bath 1 west wall it lands on. Steepest ships ladder the RCO / IRC R311.7.12 allows (Maxwell 11/21/2026): 13 risers (9.5 in max), 5 in going (min), 8.5 in treads (tread + nosing min), so x1 - x0 = 12 x 5 in + 3.5 in landing nosing. Was [27.7, 32.0, 31.12, 34.56] on A-11 (11 treads, 10 in risers, 3.7 in going: not to code). Moved 1 in north so the wall side handrail clears the clerestory wall by 1.5 in
+ladder_design = "corner"          # Maxwell 11/21/2026: narrow ships ladder (24 in overall, 20 3/8 in clear) east along the south wall from just inside the living room opening's jamb, a landing in the south east corner, then north along the bath 1 wall to a balcony at loft level. "code" = the straight ladder above (its foot stood 13 in past the jamb). Other mockups in model/ladder_options.py: pullout, flip, lturn, side, winder, alt
+furniture = "lounge"              # loft furniture, all ASSUMED (Maxwell 11/21/2026): "lounge" = couch facing the railing and the living room TV, compact wood console piano, bookcase and low shelf; "table" = 6 ft square oak table on galvanized pipe legs, benches, game shelves; "none"
 ladder_risers = 13
 ladder_going_in = 5.0             # nosing to nosing
 ladder_tread_in = 8.5             # each tread overlaps the next by 3.5 in; the loft edge gets a 3.5 in oak nosing over the top tread

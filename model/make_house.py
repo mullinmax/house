@@ -1155,6 +1155,7 @@ if LOFT["enabled"]:
     HR = LOFT.get("ladder_handrail_in", 32.0) / 12
     assert 2.5 <= HR <= 34 / 12 and (ly1 - ly0 - 2 * SW) * 12 >= 20, "ships ladder handrail height or width"
     DESIGN = os.environ.get("LADDER_DESIGN") or LOFT.get("ladder_design", "code")              # code | pullout | flip | lturn | side | alt: options drawn 11/21/2026 to keep the foot clear of the living room opening
+    LADDER_CLIMBS = None                                     # walk mode ramps, when they are not the one straight flight
     RAIL_SPAN = (LY0 + 0.1, ly0 - 0.05)                      # loft guard: everything but where the ladder lands
     if DESIGN == "code":
         rec("loft.ladder", "stair", "Ships ladder to the loft", "interior", room="Loft",
@@ -1208,6 +1209,7 @@ if LOFT["enabled"]:
                 box("Black Metal", rx0 + 0.04, rx0 + 0.08, yb_ - 0.02, yb_ + 0.02, FL + 0.2, FL + RH - 0.12)
                 yb_ += 0.33
 
+exec(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "loft_furniture.py")).read())
 if os.environ.get("MOCK_COUCH"):                          # mockups only: a plain L couch in the living room's north east corner
     _cx1, _cy0 = LX0 - 0.06, 22.95
     _nl, _el, _dp = [float(v_) for v_ in os.environ["MOCK_COUCH"].split(",")] + [3.1]
@@ -3227,7 +3229,7 @@ out = dict(
                     + ([dict(name="Garage", rect=list(GA["rect"]))] if GA.get("enabled") else [])
                     + ([dict(name="Porch", rect=list(C["porch"]["rect"]), outside=True)] if C.get("porch", {}).get("enabled", True) and C.get("porch", {}).get("rect") else []),
               outline=dict(house=[0, 0, HW, HD], garage=GA["rect"] if GA.get("enabled") else None, porch=C.get("porch", {}).get("rect")),
-              climbs=[dict(id="loft.ladder", rect=list(LOFT["ships_ladder"]), axis="x", z0=0.0, z1=LOFT["floor_height"])] if LOFT.get("enabled") else [],
+              climbs=(LADDER_CLIMBS if LADDER_CLIMBS is not None else [dict(id="loft.ladder", rect=list(LOFT["ships_ladder"]), axis="x", z0=0.0, z1=LOFT["floor_height"])]) if LOFT.get("enabled") else [],
               framing=FRAMING_META,
               **WEB_META),
     materials=MATERIALS,

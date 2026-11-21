@@ -67,6 +67,7 @@ def flight(T, z0, nr, ri, go, td, w, treads=None, u_lo=-0.04, u_hi=None, leg=Fal
 def guard(x0, x1, y0, y1, z, h=3.0):
     """Black steel guard with an oak cap along a platform edge (a thin box in plan)."""
     box("White Oak", x0 - 0.04, x1 + 0.04, y0 - 0.04, y1 + 0.04, z + h - 0.12, z + h)
+    box("Black Metal", x0, x1, y0, y1, z + 0.1, z + 0.2)     # bottom rail, like the loft guard (it is also what stops a walker)
     alongx = (x1 - x0) > (y1 - y0)
     n_ = max(2, int(((x1 - x0) if alongx else (y1 - y0)) / 0.33))
     for i_ in range(n_ + 1):
@@ -77,7 +78,7 @@ def guard(x0, x1, y0, y1, z, h=3.0):
 
 
 def _ladder_options():
-    global RAIL_SPAN
+    global RAIL_SPAN, LADDER_CLIMBS
     W = ly1 - ly0
     WALLX = WALL
     LAD_INFO = dict(
@@ -168,6 +169,16 @@ def _ladder_options():
             hexa("Black Metal", [(XL + 0.2, yb_, FL - 0.62), (XL + 0.45, yb_, FL - 0.5), (EDGE_X, yb_, FL - 2.2), (EDGE_X, yb_, FL - 2.5),
                                  (XL + 0.2, yb_ + 0.12, FL - 0.62), (XL + 0.45, yb_ + 0.12, FL - 0.5), (EDGE_X, yb_ + 0.12, FL - 2.2), (EDGE_X, yb_ + 0.12, FL - 2.5)])
         RAIL_SPAN = [(LY0 + 0.1, yt0 - 0.05), (yt1 + 0.06, LY1 - 0.1)]
+        LADDER_CLIMBS = [dict(id="loft.ladder", rect=[rnd(XL - ul), rnd(ly1 - wn), rnd(XL), rnd(ly1)], axis="x", z0=0.0, z1=rnd(zp)),
+                         dict(id="loft.ladder", rect=[rnd(XL), rnd(yt1), rnd(XL + wn), rnd(yl0)], axis="y", rev=True, z0=rnd(zp), z1=FL, pad=0.7)]
+        r_lad["info"]["specs"] = [["Risers", f"{NR} at {ftin(RI)}: {n_lo} east along the south wall, {n_up} north along the bath 1 wall"],
+                                  ["Treads", f"{ftin(td_u)} deep, {ftin(go_u)} nosing to nosing"], ["Angle", f"{math.degrees(math.atan(RI / go_u)):.0f}\u00b0"],
+                                  ["Clear width", ftin(wn - 2 * SW) + " between the stringers and rails (20 in min)"], ["Overall width", ftin(wn)],
+                                  ["Corner landing", f"{ftin(zp)} up"], ["Top landing", f"{ftin(wn + 0.1)} balcony at loft level, {ftin(LY1 - yt1)} from the south wall"],
+                                  ["Foot", f"{ftin(XL - ul - DOOR_X)} east of the living room opening's jamb"], ["Handrails", f"both sides, {ftin(HR)} above the nosings"]]
+        r_lad["info"]["notes"] = ["Maxwell's pick 11/21/2026: the straight to code ladder stood 13 in past the living room opening.",
+                                  "Code limits (IRC R311.7.12, Residential Code of Ohio): riser 9 1/2 in max, going 5 in min, going + nosing 8 1/2 in min, 20 in clear at and below the handrails, handrails both sides 30 to 34 in. A ships ladder may serve a loft of 200 sq ft or less (this one is 134).",
+                                  "The code section says nothing about landings; both are sized to the ladder width. The balcony needs brackets off the bath 1 wall: builder to confirm."]
         print("corner ladder: foot x", round(XL - ul, 3), "landing", round(zp * 12, 1), "in up; top landing y", round(yt0, 2), round(yt1, 2), "XL", round(XL, 2))
     elif DESIGN == "winder":
         wn = 2.0
