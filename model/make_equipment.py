@@ -838,16 +838,44 @@ ret("return_plenum", "Return plenum box", [14, 24], [[RP_E - 7 / 12, RP_S, PZ], 
 # the wall the two rooms share, in neighbouring stud bays, and both stacks rise into the trusses over bedroom 3, where they join.
 # Bedroom 3 has a second grille and stack one bay west (duct balance check, 11/18/2026): one 14 x 2-1/2 in stack chokes 127 CFM.
 # Maxwell measured the studs in this wall (11/20/2026, [framing] stud_lines): each stack sits in a measured stud bay and its
-# flex leaves the top plate into the truss bay above, which sits about 2 in east of the stud bay.
+# stack ends in a stack head in the truss bay above, which sits about 2 in east of the stud bay.
 def stud_bay(x, line=0, min_in=14.2):
     sl = CFG["framing"]["stud_lines"][line]
     ed = ([sl["x0"] + e / 12 for e in sl["right_edges_in"]] if "right_edges_in" in sl
           else sorted(sl["x0"] - e / 12 + 1.5 / 12 for e in sl["west_edges_in"]))   # east edges either way
     bays = [((a + b - 1.5 / 12) / 2, b - 1.5 / 12 - a) for a, b in zip(ed, ed[1:]) if b - 1.5 / 12 - a > min_in / 12]
     return round(min(bays, key=lambda c: abs(c[0] - x))[0], 3)
+
+# Stack heads (Maxwell, 11/21/2026): the round flex used to leave the top of each stack in a bend that swung north past the
+# wall and showed through the drywall of the vaulted room on the other side (bedroom 2 and the study, above 9 ft). An 11 7/8 in
+# truss space has no room for a real elbow, so each stack ends in a stack head instead: a sheet metal box that sits on the top
+# plate in the truss bay above the stud bay, takes the 14 x 2-1/2 in stack in its bottom and has a round collar on its south
+# face. The round runs straight south off that collar, level in the truss bay, so nothing turns inside or beside the wall.
+# The stud bay and the truss bay above it are about 2 in apart, so the head is as wide as the part they share (about 12 in).
+WALL_N = 10.658                                    # north drywall face of the hall 2 north wall, which carries on up as bedroom 2's and the study's vaulted wall
+HEAD_D = 4.0                                       # stack head depth (in), north to south: from 1/2 in behind that face to just past the wall's south face
+STACK_HEAD_NOTE = ("Each stack ends in a stack head on the top plate (Maxwell, 11/21/2026): a sheet metal box in the truss bay over the stud bay, "
+                   "with the stack in its bottom and a round collar on its south face. The round runs straight south off it, so there is no elbow "
+                   "beside the wall to stick through the drywall of the vaulted room on the other side. The head is about 12 x 4 in, as wide as the "
+                   "part of the stud bay that sits under the truss bay (they are about 2 in apart).")
+def stack_head(id, sx, xr, info_of, parent, dia, line=0):
+    """Stack head over the stud bay stack at sx, under truss bay xr: returns the [x, y, z] where its round collar starts."""
+    sl = CFG["framing"]["stud_lines"][line]
+    ed = sorted(sl["x0"] + e / 12 for e in sl["right_edges_in"])
+    a = max(e for e in ed if e < sx); b = min(e for e in ed if e > sx) - 1.5 / 12   # the stud bay's clear span
+    cw = CFG["floor_trusses"].get("chord_w_in", 3.5) / 12
+    lo, hi = max(a, xr - TSP / 2 + cw / 2) + 0.25 / 12, min(b, xr + TSP / 2 - cw / 2) - 0.25 / 12   # shared span, 1/4 in clear each side
+    y0 = WALL_N + 0.5 / 12; y1 = y0 + HEAD_D / 12
+    top = min(ZT + dia / 24 + 0.5 / 12, CEIL + TRUSS_IN / 12 - 0.25 / 12)
+    w = round((hi - lo) * 12, 2)
+    ret(id, None, [w, HEAD_D], [[round((lo + hi) / 2, 3), round((y0 + y1) / 2, 3), CEIL + 0.01], [round((lo + hi) / 2, 3), round((y0 + y1) / 2, 3), round(top, 3)]],
+        info_of=info_of, parent=parent, el=0)
+    ducts[-1]["stack_head"] = True
+    return [xr, round(y1 - 0.02, 3), ZT]
+
 SR3, SR2, SR3B = stud_bay(8.0), stud_bay(9.3), stud_bay(6.6)
 XR3, XR2, XR3B = bay(SR3), bay(SR2), bay(SR3B)       # the truss bays over those stud bays
-r = ret("return_bed23", "Bedrooms 2 and 3 return", 10, bend([[SR3, 10.85, CEIL + 0.04], [XR3, 10.85, ZT], [XR3, RY - 0.7, ZT], [XR3, RY - 0.7, DECK + 0.2]]), flex=True, el=25,
+r = ret("return_bed23", "Bedrooms 2 and 3 return", 10, bend([stack_head("return_bed3_head", SR3, XR3, "return_bed23", "return_bed23", 10), [XR3, RY - 0.7, ZT], [XR3, RY - 0.7, DECK + 0.2]]), flex=True, el=25,
         grilles=[dict(at=[SR3, 10.97, LOW], size=[14, 8], wall=S), dict(at=[SR3B, 10.97, LOW], size=[14, 8], wall=S)])
 r["info"]["specs"] = [["Serves", "Bedroom 3 (two low grilles on its north wall) and bedroom 2 (low grille on its south wall)"],
                       ["Duct", "14 x 2-1/2 in wall stacks, 6 in flex from bedroom 2 and from bedroom 3's second stack through one truss each, 10 in flex south in one truss bay to the plenum"],
@@ -856,13 +884,13 @@ r["info"]["notes"] = ["Bedroom 3's grille moved from its south wall, next to the
                       "so the stacks rise side by side into the trusses over bedroom 3 and join there: bedroom 2's 6 in flex crosses one truss into bedroom 3's bay and "
                       "tees into a 10 in flex that runs south in that bay, parallel to the trusses, to the return plenum box at the heat pump.",
                       "Bedroom 3 has two grilles and two stacks (duct balance check, 11/18/2026): a 14 x 2-1/2 in stack is all a 2x4 wall holds, and one of them alone "
-                      "passed only about three quarters of the room's 127 CFM.", RFLEX]
-stack("return_bed3_stack", SR3, 10.8, "return_bed23", "return_bed23", "Bedroom 3", top=CEIL + 0.04)
-stack("return_bed3_stack2", SR3B, 10.8, "return_bed23", "return_bed3b", "Bedroom 3", top=CEIL + 0.04)
-ret("return_bed3b", None, 6, bend([[SR3B, 10.85, CEIL + 0.04], [XR3B, 10.85, ZT], [XR3B, 12.6, ZT], [XR3 - 0.3, 13.4, ZT], [XR3, 13.9, ZT]], 0.4), flex=True, info_of="return_bed23", parent="return_bed23", el=30)
-ret("return_bed2", None, 6, bend([[SR2, 10.85, CEIL + 0.04], [XR2, 10.85, ZT], [XR2, 11.9, ZT], [XR3 + 0.3, 12.7, ZT], [XR3, 13.2, ZT]], 0.4), flex=True, parent="return_bed23", el=30,
+                      "passed only about three quarters of the room's 127 CFM.", STACK_HEAD_NOTE, RFLEX]
+stack("return_bed3_stack", SR3, 10.8, "return_bed23", "return_bed23", "Bedroom 3", top=CEIL + 0.03)
+stack("return_bed3_stack2", SR3B, 10.8, "return_bed23", "return_bed3b", "Bedroom 3", top=CEIL + 0.03)
+ret("return_bed3b", None, 6, bend([stack_head("return_bed3b_head", SR3B, XR3B, "return_bed23", "return_bed3b", 6), [XR3B, 12.6, ZT], [XR3 - 0.3, 13.4, ZT], [XR3, 13.9, ZT]], 0.4), flex=True, info_of="return_bed23", parent="return_bed23", el=30)
+ret("return_bed2", None, 6, bend([stack_head("return_bed2_head", SR2, XR2, "return_bed23", "return_bed2", 6), [XR2, 11.9, ZT], [XR3 + 0.3, 12.7, ZT], [XR3, 13.2, ZT]], 0.4), flex=True, parent="return_bed23", el=30,
     grilles=[dict(at=[SR2, 10.64, LOW], size=[14, 8], wall=N)], info_of="return_bed23")
-stack("return_bed2_stack", SR2, 10.8, "return_bed23", "return_bed2", "Bedroom 2", top=CEIL + 0.04)
+stack("return_bed2_stack", SR2, 10.8, "return_bed23", "return_bed2", "Bedroom 2", top=CEIL + 0.03)
 
 # Study: two 6 in flex home runs from its one stack (duct balance check, 11/18/2026: one 6 in returned about 60% of the room's air).
 # They come down in one hall 2 bay, cross the laundry and linen trusses west a little apart, and drop south in their own bays.
@@ -876,7 +904,7 @@ XB1R = stud_bay(38.6, 2)                           # measured stud bays (Maxwell
 XSR = bay(25.4)                                   # both runs go south side by side in this bay: the living 1 and laundry supplies fill the next two east
 YSW, YBW = 19.6, 20.3
 r = ret("return_study", "Study return", 6,
-        bend([[SSB, 10.85, CEIL + 0.04], [XSB, 10.85, ZT], [XSB, 11.85, ZT], [XSR - 0.26, 11.85, ZT], [XSR - 0.26, YSW, ZT], [XR2, YSW, ZT], [XR2, RY + 0.5, ZT], [RPX, RY + 0.5, ZT], [RPX, RY + 0.5, DECK + 0.2]]), flex=True,
+        bend([stack_head("return_study_head", SSB, XSB, "return_study", "return_study", 6, line=1), [XSB, 11.85, ZT], [XSR - 0.26, 11.85, ZT], [XSR - 0.26, YSW, ZT], [XR2, YSW, ZT], [XR2, RY + 0.5, ZT], [RPX, RY + 0.5, ZT], [RPX, RY + 0.5, DECK + 0.2]]), flex=True,
         el=25, grilles=[dict(at=[SSB, 10.64, LOW], size=[14, 8], wall=N), dict(at=[SSB2, 10.64, LOW], size=[14, 8], wall=N)])
 r["info"]["model"] = "Two low grilles, each with its own stack and 6 in round flex run"
 r["info"]["specs"] = [["Serves", "Study (low grille on its south wall, east of the door; a separate high grille over the door carries most of the air)"],
@@ -885,10 +913,10 @@ r["info"]["specs"] = [["Serves", "Study (low grille on its south wall, east of t
 r["info"]["notes"] = ["The study has a low grille (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Two 6 in runs because one big duct "
                       "would not fit through the truss webs and a single 6 in returned only about 60% of the room's 104 CFM (duct balance check, 11/18/2026). "
                       "If the builder confirms 7 in fits the webs, one 7 in run does nearly the same job.",
-                      "Second grille and stack (Maxwell, 11/19/2026): the builder can move bedroom 1's door wall east, so it moved 2 ft 1 1/2 in, just far enough that the study's south wall has two stud bays for stacks, each under its own floor truss bay. Maxwell measured the trusses at 16 in on centre from the west wall (11/20/2026), so the stacks sit at x 28.0 and 29.4, centred under two neighbouring truss bays. The studs are 16 in on centre too, but where they fall against the trusses over this wall is not measured yet: a stack whose stud bay sits half a bay off the trusses would land on a truss. Confirm on site.", RFLEX]
-stack("return_study_stack", SSB, 10.8, "return_study", "return_study", "Bedroom 4 / study", top=CEIL + 0.04)
-stack("return_study_stack2", SSB2, 10.8, "return_study", "return_study2", "Bedroom 4 / study", top=CEIL + 0.04)
-ret("return_study2", None, 6, bend([[SSB2, 10.85, CEIL + 0.04], [XSB2, 10.85, ZT], [XSB2, 12.6, ZT], [XSR + 0.26, 12.6, ZT], [XSR + 0.26, YBW, ZT], [bay(10.7), YBW, ZT],
+                      STACK_HEAD_NOTE, "Second grille and stack (Maxwell, 11/19/2026): the builder can move bedroom 1's door wall east, so it moved 2 ft 1 1/2 in, just far enough that the study's south wall has two stud bays for stacks, each under its own floor truss bay. Maxwell measured the trusses at 16 in on centre from the west wall (11/20/2026), so the stacks sit at x 28.0 and 29.4, centred under two neighbouring truss bays. The studs are 16 in on centre too, but where they fall against the trusses over this wall is not measured yet: a stack whose stud bay sits half a bay off the trusses would land on a truss. Confirm on site.", RFLEX]
+stack("return_study_stack", SSB, 10.8, "return_study", "return_study", "Bedroom 4 / study", top=CEIL + 0.03)
+stack("return_study_stack2", SSB2, 10.8, "return_study", "return_study2", "Bedroom 4 / study", top=CEIL + 0.03)
+ret("return_study2", None, 6, bend([stack_head("return_study2_head", SSB2, XSB2, "return_study", "return_study2", 6, line=1), [XSB2, 12.6, ZT], [XSR + 0.26, 12.6, ZT], [XSR + 0.26, YBW, ZT], [bay(10.7), YBW, ZT],
                                     [bay(10.7), RY - 1.3, ZT]]), flex=True, info_of="return_study", el=25)
 
 # Bedroom 1 (duct balance check, 11/18/2026): its 138 CFM is too much for anything that fits through the truss webs, so its return
