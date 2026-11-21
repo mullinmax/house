@@ -1016,13 +1016,13 @@
   },
   {
    "kind": "outlet",
-   "x": 37.9,
+   "x": 37.05,
    "y": 22.832,
    "z_in": 16,
    "facing": 180,
    "level": "upper",
    "src": "U-12 #5",
-   "note": "Moved west out of the attic access, which now opens 1 ft off the east wall (U-12 has it at x 39.0): Maxwell, 11/19/2026."
+   "note": "Moved west out of the attic access twice: it opened 1 ft off the east wall (U-12 has it at x 39.0, Maxwell 11/19/2026), then the opening moved west again and left it floating in the doorway (11/21/2026). Now on the wall just west of the attic door casing, past the end of the loveseat (Maxwell 11/21/2026)."
   },
   {
    "kind": "outlet",
@@ -1080,12 +1080,13 @@
   },
   {
    "kind": "switch",
-   "x": 38.298,
+   "x": 37.25,
    "y": 22.363,
    "z_in": 44,
    "facing": 0,
    "level": "upper",
-   "src": "U-12 #12"
+   "src": "U-12 #12",
+   "note": "Attic light switch, on the attic side of the loft north wall. It floated in the attic opening after the opening moved west (11/21/2026); now on the wall just west of the opening, the latch side of the attic door (Maxwell 11/21/2026)."
   },
   {
    "kind": "smoke",

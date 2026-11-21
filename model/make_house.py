@@ -821,12 +821,58 @@ if ATTIC_ACCESS:
         info=dict(model=f"{ftin(x1 - x0)} wide walk through opening, loft floor level, onto the attic deck",
                   specs=[["Where", f"North wall of the loft, east edge {ftin(HW - T - x1)} off the inside face of the east wall"],
                          ["Opening", f"x {ftin(x0)} to {ftin(x1)} from the west wall"],
-                         ["Clear height", f"{ftin(roof_under(y0) - FL_)} on the attic side, up to the roof"],
+                         ["Clear height", f"{ftin(_aa['door']['top_in'] / 12 + 0.0725)} to the head of the short attic door" if _aa.get("door") else f"{ftin(roof_under(y0) - FL_)} on the attic side, up to the roof"],
                          ["Sill", "Flush: the loft floor and the attic deck are both at " + ftin(FL_)]],
                   notes=["Moved from the A-11 gap at x 34' 4 1/2\" to 37' 4\" (Maxwell, 11/19/2026). Width kept from that gap.",
-                         "The plans ask for a gasketed attic access panel (general notes). A door or a panel in this opening is not modelled yet."]))
+                         "The plans ask for a gasketed attic access panel (general notes)." + (" A short door hangs in it (see its card)." if _aa.get("door") else "")]))
     box("Drywall", x0, x1, y0, y1, 0, 9, ztop=lambda x, y: FL_ - LOFT_FIN)
     box("White Oak", x0, x1, y0, y1, FL_ - LOFT_FIN, FL_)               # threshold, flush with the loft floor and the deck
+    _ad = _aa.get("door")
+    if _ad:
+        # Short door into the attic (Maxwell 11/21/2026): it cannot swing out into the loft (the loveseat and the bookcase sit
+        # either side) and a full height leaf swinging into the attic would hit the roof, which drops toward the north. So the
+        # leaf is short enough to swing a full 90 degrees north under the roof. Hinged on the east jamb, so it parks along the
+        # east side and leaves the walkway to the west clear. Leaf in the attic side of the jambs, casing on the loft side.
+        J, G_, LT = 0.0625, 0.01, 1.375 / 12                      # 3/4 in jambs, 1/8 in gaps, 1 3/8 in leaf
+        top = _ad["top_in"] / 12                                  # top of the leaf above the loft floor
+        head = top + G_ + J                                       # underside of the head jamb is top + gap
+        lx0, lx1 = x0 + J + G_, x1 - J - G_
+        lw = lx1 - lx0
+        hx, hy = x1 - J, y0 + 0.01                                 # hinge on the east jamb, attic face
+        reach = hy - lw                                           # where the free edge ends up, open 90 degrees
+        clear = roof_under(reach) - FL_ - top
+        if clear < 1.0 / 12:
+            raise SystemExit(f"attic door: a {_ad['top_in']} in leaf hits the roof when open ({clear * 12:.1f} in clear)")
+        door_max = (roof_under(reach) - FL_) * 12
+        box("Drywall", x0, x1, y0, y1, FL_ + head, 9, ztop=wall_top(x0, x1, y0, y1, True))    # wall over the short door
+        r_ = rec("door.attic", "door", "Attic door from the loft", "interior", room="Loft",
+                 info=dict(model=f"Short white oak slab door, {ftin(lw)} x {ftin(top)}, swings into the attic",
+                           specs=[["Leaf", f"{ftin(lw)} wide, {ftin(top)} high, 1 3/8 in solid core"], ["Opening", f"{ftin(x1 - x0)} wide, {ftin(head)} to the head jamb"],
+                                  ["Swing", "Into the attic, hinged on the east jamb, stops at 90 degrees"],
+                                  ["Roof clearance", f"{clear * 12:.1f} in over the leaf when it is open all the way (its free edge is {ftin(hy - reach)} into the attic, where the roof is {ftin(roof_under(reach) - FL_)} above the deck)"],
+                                  ["Tallest that swings", f"About {door_max:.0f} in, with nothing to spare"],
+                                  ["Seal", "Weatherstrip on the stops and a door sweep (the plans ask for a gasketed attic access)"]],
+                           notes=["Maxwell 11/21/2026: it cannot swing out into the loft furniture, and a full height door swinging into the attic would hit the roof, so it is short.",
+                                  "Hinged on the east so the open leaf parks against the east side and the walkway west to the heat pump stays clear. A wall stop or a hinge stop keeps it from going past 90 degrees.",
+                                  f"Duck through: the head is {ftin(head)} above the loft floor. The attic just inside is about {ftin(roof_under(y0) - FL_)} high at this wall and drops to the north.",
+                                  "Size and hardware ASSUMED."]))
+        oak = "White Oak"
+        box(oak, x0, x0 + J, y0, y1, FL_, FL_ + head); box(oak, x1 - J, x1, y0, y1, FL_, FL_ + head)
+        box(oak, x0, x1, y0, y1, FL_ + head - J, FL_ + head)
+        box(oak, x0 + J, x0 + J + 0.04, y0 + 0.01 + LT + 0.005, y1, FL_, FL_ + head - J)      # stops on the loft side of the leaf
+        box(oak, x1 - J - 0.04, x1 - J, y0 + 0.01 + LT + 0.005, y1, FL_, FL_ + head - J)
+        box(oak, x0 + J, x1 - J, y0 + 0.01 + LT + 0.005, y1, FL_ + head - J - 0.04, FL_ + head - J)
+        cw = FU.get("casing_width_in", 3.5) / 12
+        for (cx0, cx1) in ((x0 - cw, x0 + 0.02), (x1 - 0.02, x1 + cw)):
+            box(oak, cx0, cx1, y1, y1 + 0.06, FL_, FL_ + head)
+        box(oak, x0 - cw, x1 + cw, y1, y1 + 0.06, FL_ + head, FL_ + head + cw)
+        lf = op(r_, "door.attic.leaf", "Attic door from the loft", "swing", (hx, hy, 0), angle=-90)
+        with into(lf["parts"]):
+            box(oak, lx0, lx1, y0 + 0.01, y0 + 0.01 + LT, FL_ + 0.04, FL_ + top)
+            lx = lx0 + 0.25                                       # lever on the free (west) edge, 36 in up
+            for (b0, b1, b2) in ((y0 + 0.01, y0 - 0.05, y0 - 0.1), (y0 + 0.01 + LT, y0 + 0.07 + LT, y0 + 0.12 + LT)):
+                box("Brushed Nickel", lx - 0.06, lx + 0.06, min(b0, b1), max(b0, b1), FL_ + 2.95, FL_ + 3.12)
+                box("Brushed Nickel", lx, lx + 0.32, min(b1, b2), max(b1, b2), FL_ + 3.0, FL_ + 3.06)
 
 # ------------------------------------------------------------------ as-built framing (Framing layer, Maxwell 11/20/2026)
 # What the build photos show standing: interior walls framed to the top plates (studs, plates, kings, jacks, headers),
@@ -2974,6 +3020,38 @@ def web_nightstand(it):
     lbox("Black Metal", fr, -0.25, 0.25, d / 2, d / 2 + 0.05, h - 0.4, h - 0.33)            # drawer pull
 
 
+def web_tv_console(it):
+    """Low white oak media console under the living room TV (Maxwell 11/21/2026): slatted doors at both ends, an open
+    middle bay for the network box and a game console, a soundbar on top, short black metal legs. Back against the wall."""
+    w, d, h, leg = it.get("w", 5.5), it.get("d", 17 / 12), it.get("h", 22 / 12), it.get("leg", 4 / 12)
+    fr = frame_at(it["x"], it["y"], it["facing"])
+    b0, b1, t = -d / 2, d / 2, 0.06
+    lbox("White Oak", fr, -w / 2, w / 2, b0, b1, h - 0.08, h)                         # top
+    lbox("White Oak", fr, -w / 2, w / 2, b0, b1, leg, leg + t)                       # bottom
+    lbox("White Oak", fr, -w / 2, w / 2, b0, b0 + 0.05, leg + t, h - 0.08)           # back (cord holes ASSUMED)
+    bay = w / 3
+    for a in (-w / 2, -w / 2 + bay - t / 2, w / 2 - bay - t / 2, w / 2 - t):         # sides and the two dividers
+        lbox("White Oak", fr, a, a + t, b0, b1 - 0.07, leg + t, h - 0.08)
+    lbox("White Oak", fr, -bay / 2, bay / 2, b0 + 0.05, b1 - 0.1, (leg + h) / 2 - 0.03, (leg + h) / 2)     # middle shelf
+    for sgn in (-1, 1):                                                              # slatted doors on the end bays
+        a0, a1 = (-w / 2 + 0.01, -w / 2 + bay - 0.04) if sgn < 0 else (w / 2 - bay + 0.04, w / 2 - 0.01)
+        lbox("White Oak", fr, a0, a1, b1 - 0.07, b1 - 0.02, leg + 0.02, h - 0.1)
+        k, a = 0, a0 + 0.08
+        while a < a1 - 0.1:
+            lbox("Walnut Laminate", fr, a, a + 0.02, b1 - 0.02, b1 - 0.015, leg + 0.06, h - 0.14)     # grooves between slats
+            a += 0.12
+        pa = a1 - 0.12 if sgn < 0 else a0 + 0.08
+        lbox("Black Metal", fr, pa, pa + 0.04, b1 - 0.015, b1 + 0.03, h - 0.75, h - 0.3)          # pull at the meeting side
+    for a in (-w / 2 + 0.1, w / 2 - 0.18):                                           # legs
+        for b in (b0 + 0.08, b1 - 0.16):
+            lbox("Black Metal", fr, a, a + 0.08, b, b + 0.08, 0.0, leg)
+    lbox("Plastic Grey", fr, -0.55, 0.45, b0 + 0.25, b1 - 0.35, leg + t, leg + t + 0.25)                # router / network box
+    lbox("Black Metal", fr, -0.45, 0.35, b0 + 0.2, b1 - 0.3, (leg + h) / 2, (leg + h) / 2 + 0.2)        # game console
+    sb = it.get("soundbar", 3.0)
+    if sb:
+        lbox("Black Metal", fr, -sb / 2, sb / 2, b0 + 0.35, b0 + 0.72, h, h + 0.22)                    # soundbar
+
+
 def web_table_lamp(it):
     z = top_of(it)
     cyl("Black Metal", it["x"], it["y"], z, z + 0.08, 0.28)
@@ -3167,7 +3245,8 @@ def web_towel_warmer(it):
 WEB_META["cull"].append(dict(box=[33.0, 28.8, 3.9, 35.6, 29.25, 4.1], materials=["Brushed Nickel"]))
 
 WEB_BUILD = {"bed": web_bed, "nightstand": web_nightstand, "table_lamp": web_table_lamp, "desk_lamp": web_desk_lamp,
-             "l_desk": web_l_desk, "office_chair": web_office_chair, "towel_warmer": web_towel_warmer, "bench": web_bench}
+             "l_desk": web_l_desk, "office_chair": web_office_chair, "towel_warmer": web_towel_warmer, "bench": web_bench,
+             "tv_console": web_tv_console}
 WEB_INFO = {
     "bed": lambda it: dict(model="Queen bed, 60 x 80 in mattress on a white oak platform (ASSUMED)", notes=["Queen, and placed so the side tables clear both doors (Maxwell, 11/16/2026)."]),
     "nightstand": lambda it: dict(model=f"Nightstand, {ftin(it.get('w', 1.4))} wide (ASSUMED)"),
@@ -3179,6 +3258,13 @@ WEB_INFO = {
                               notes=["Maxwell's own desk, from his UPLIFT order. Turned 90 degrees counterclockwise so you sit facing north toward the window (Maxwell, 11/17/2026).",
                                      "The main top stands 6 in off the north wall so it clears the window stool when raised to standing height."]),
     "office_chair": lambda it: dict(model="Office chair (stand in, ASSUMED)"),
+    "tv_console": lambda it: dict(model=f"Low white oak media console, {ftin(it.get('w', 5.5))} long (style and size ASSUMED)",
+                                  specs=[["Size", f"{ftin(it.get('w', 5.5))} long, {round(it.get('d', 17 / 12) * 12)} in deep, {round(it.get('h', 22 / 12) * 12)} in high on {round(it.get('leg', 4 / 12) * 12)} in legs"],
+                                         ["Inside", "Slatted doors at both ends, an open middle bay for the network box and a game console"],
+                                         ["On top", f"A {ftin(it.get('soundbar', 3.0))} soundbar" if it.get("soundbar", 3.0) else "Nothing"]],
+                                  notes=["Under the 70 in TV, centred on it (Maxwell 11/21/2026). A console a little wider than the TV (about 62 in) reads best.",
+                                         "The TV's centre is at 72 in as U-11 draws it, so there is about 2 ft 8 in of wall between the console and the TV. Lowering the TV to 42 to 48 in to its centre would close that up; the mount blocking has to be set before drywall.",
+                                         "The 16 in outlet behind it (U-11 #64) is hidden by the console; run cords through holes in its back. The plant that stood here moved to the south wall."]),
     "bench": lambda it: dict(model="Built-in mudroom unit, painted light sage (A-11 bench and cubbies; style from Maxwell's reference photo, details ASSUMED)",
                              specs=[["Size", f"{ftin(it.get('w', 8.0))} wide, up to {ftin(it.get('top', 7.95))}"],
                                     ["Bench", f"{ftin(it.get('w', 8.0) - it.get('cab_w', 2.0))} long, seat {ftin(it.get('h', 1.5))} high, {int(it.get('bays', 3))} open bays, each with a black rubber boot tray split by a divider"],
@@ -3190,7 +3276,7 @@ WEB_INFO = {
 # Bolted down pieces show with the cabinets and trim, not with Belongings (Maxwell, 11/20/2026: anything bolted down is
 # not a belonging).
 BUILT_IN = {"bench", "towel_warmer"}
-WEB_NAMES = {"bench": "Mudroom bench and cabinets", "bed": "Queen bed", "nightstand": "Nightstand", "table_lamp": "Table lamp", "desk_lamp": "Desk lamp", "l_desk": "L-shaped standing desk", "office_chair": "Office chair", "towel_warmer": "Towel warmer"}
+WEB_NAMES = {"bench": "Mudroom bench and cabinets", "bed": "Queen bed", "nightstand": "Nightstand", "table_lamp": "Table lamp", "desk_lamp": "Desk lamp", "l_desk": "L-shaped standing desk", "office_chair": "Office chair", "towel_warmer": "Towel warmer", "tv_console": "TV console"}
 for it in FURN:
     if it.get("moved_from"):
         ox, oy, of = it["moved_from"]

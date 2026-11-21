@@ -80,7 +80,7 @@ ladder_risers = 13
 ladder_going_in = 5.0             # nosing to nosing
 ladder_tread_in = 8.5             # each tread overlaps the next by 3.5 in; the loft edge gets a 3.5 in oak nosing over the top tread
 ladder_handrail_in = 32.0         # top of rail above the nosing line, 30 to 34 in allowed
-attic_access = { east_gap = 2.05, width = 2.96 }   # walk through opening in the loft north wall onto the attic deck: east edge 1 ft off the inside face of the east wall (Maxwell, 11/19/2026). Width kept from the A-11 gap (x 34.37-37.33) that used to be the way in, now walled above the loft floor. Moved 12 5/8 in west 11/21/2026 (Maxwell) so the 23 in deep bookcase in the loft's north east corner has solid wall behind it; was east_gap = 1.0
+attic_access = { east_gap = 2.05, width = 2.96, door = { top_in = 60 } }   # walk through opening in the loft north wall onto the attic deck: east edge 1 ft off the inside face of the east wall (Maxwell, 11/19/2026). Width kept from the A-11 gap (x 34.37-37.33) that used to be the way in, now walled above the loft floor. Moved 12 5/8 in west 11/21/2026 (Maxwell) so the 23 in deep bookcase in the loft's north east corner has solid wall behind it; was east_gap = 1.0. door: a short leaf (top_in above the loft floor) swinging into the attic, low enough to clear the roof when open 90 degrees (Maxwell 11/21/2026)
 
 # ---------------------------------------------------------------- OPENINGS
 # wall = N, S, E, W (exterior) or C (clerestory wall). start/end measured along the wall
@@ -588,7 +588,8 @@ items = [
   { id = "living_lamp", type = "table_lamp", x = 30.3, y = 23.65, on = "side_table_n" },
   { id = "pillows", type = "model", model = "throw_pillows_01", x = 29.9, y = 27.8, z = 1.45, facing = 270, len = 4.5 },
   { id = "floor_lamp", type = "floor_lamp", x = 17.6, y = 33.8 },
-  { id = "plant_living", type = "model", model = "potted_plant_01", x = 17.5, y = 31.6, facing = 90, len = 2.0 },
+  { id = "plant_living", type = "model", model = "potted_plant_01", x = 19.3, y = 33.9, facing = 90, len = 2.0, moved_from = [17.5, 31.6, 90] },   # out from under the TV for the console (11/21/2026)
+  { id = "tv_console", type = "tv_console", web = true, x = 17.45, y = 30.65, facing = 90, w = 5.5 },   # under the 70 in TV, centred on it (Maxwell 11/21/2026). Size and style ASSUMED
   { id = "art_living", type = "model", model = "hanging_picture_frame_01", x = 26.4, y = 23.0, z = 4.6, facing = 180, len = 3.0, wall = true },
   # ---- dining: centred between the D120 bi-parting doors (south wall) and the barn doors (Maxwell 11/13)
   { id = "dining_table", type = "model", model = "gallinera_table", x = 23.9, y = 43.3, facing = 0, len = 6.5 },
