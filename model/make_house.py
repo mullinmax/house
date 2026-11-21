@@ -1983,7 +1983,7 @@ elif HSTYLE == "shelf_wrap":
     LF = 0.12 + 11.4375 / 12 + 0.02                # front of the cutout round the power pack, which sits against the wall
     ks = sorted(set([round(k, 4) for k in ks] + [round(lu0, 4), round(lu1, 4)]))
     SS0, SS1 = cy0 - 0.5, cy1 + 0.5                # stainless underside over the cooktop and 6 in past it
-    def seg(mat, ua, ub, d0, z0, z1):
+    def seg(mat, ua, ub, d0, z0, z1, dep=dep):
         hexa(mat, [_P(ua, d0, z0), _P(ua, dep(ua), z0), _P(ua, dep(ua), z1), _P(ua, d0, z1),
                    _P(ub, d0, z0), _P(ub, dep(ub), z0), _P(ub, dep(ub), z1), _P(ub, d0, z1)])
     for ua, ub in zip(ks, ks[1:]):
@@ -1993,20 +1993,37 @@ elif HSTYLE == "shelf_wrap":
             seg("Stainless", ua, ub, cut, SB - 0.008, SB - 0.002)
     # drywall box round the power pack and its duct
     q = 1 / 12                                     # 1/2 in drywall on light framing
-    BD = LF + q + 0.02
-    B0, B1 = lu0 - 0.03 - q, lu1 + 0.03 + q
+    WG = 1.5 / 12                                  # wiggle room inside the box round the power pack (Maxwell 11/21/2026: room for error)
+    BD = 0.12 + 11.4375 / 12 + WG + q
+    B0, B1 = _cc - PW / 2 - WG - q, _cc + PW / 2 + WG + q
     PT = SB - 0.015 + 10.5625 / 12                 # top of the power pack
     if WV == "1":
         BT = PT + 0.25 + (0.12 + 11.4375 / 24) * 0.85 + 0.45     # just over the 8 in round elbow
     elif WV == "2":
-        BT = PT + 0.25 + 3.25 / 24 + 0.1           # just over the 3-1/4 x 10 in duct
+        BT = PT + 9 / 12                           # 3-1/4 x 10 adapter and damper on top (about 2 in), a flat elbow, the duct's top 7-5/8 in over
+                                                   # the unit, and about 1-1/2 in to spare under the upper shelf
     else:
         BT = None
+    UP = None
     if BT:
         wr.box("Drywall", B0, B0 + q, 0, BD, SB + ST, BT)
         wr.box("Drywall", B1 - q, B1, 0, BD, SB + ST, BT)
         wr.box("Drywall", B0 + q, B1 - q, BD - q, BD, SB + ST, BT)
-        wr.box("Drywall", B0, B1, 0, BD, BT, BT + q)
+        if WV == "2":
+            # Maxwell, 11/21/2026: the upper shelf comes down onto the box and runs right over it, so the box hides between the two
+            # shelves. Over the box the upper shelf gets 1 in deeper than the box, with the same S curves as the lower shelf.
+            UP = BT
+            hb, DU = (B1 - B0) / 2 + 1 / 12, BD + 1 / 12
+            def dep2(u):
+                x = abs(u - _cc)
+                if x <= hb: return DU
+                t = min(1.0, (x - hb) / 0.75); return D0 + (DU - D0) * (1 + _m.cos(_m.pi * t)) / 2
+            k2 = sorted(set([HU0, _cc - hb - 0.75, _cc - hb, _cc + hb, _cc + hb + 0.75, UC]
+                            + [_cc - hb - 0.75 * k / 8 for k in range(1, 8)] + [_cc + hb + 0.75 * k / 8 for k in range(1, 8)]))
+            for ua, ub in zip(k2, k2[1:]):
+                seg(K_WOOD, ua, ub, 0, UP, UP + ST, dep=dep2)
+        else:
+            wr.box("Drywall", B0, B1, 0, BD, BT, BT + q)
     else:
         to_ceiling("Drywall", B0, B0 + q, 0, BD, SB + ST)
         to_ceiling("Drywall", B1 - q, B1, 0, BD, SB + ST)
@@ -2014,15 +2031,15 @@ elif HSTYLE == "shelf_wrap":
     LT = SB + 11.5 / 12                            # stainless liner round the power pack inside the box
     wr.box("Stainless", lu0, lu0 + 0.02, 0.06, LF, SB, LT); wr.box("Stainless", lu1 - 0.02, lu1, 0.06, LF, SB, LT)
     wr.box("Stainless", lu0, lu1, LF - 0.02, LF, SB, LT); wr.box("Stainless", lu0, lu1, 0.06, LF, LT, LT + 0.02)
-    WRAP = dict(lo=SB, box=(B0, B1), uc=UC)
+    WRAP = dict(lo=SB, box=(B0, B1), uc=UC, up=UP)
     vtxt = {"1": "deep from the oven tower to 6 in past the cooktop, one S curve back to shelf depth on the south; 8 in round duct, box just over the elbow",
-            "2": "deep part centred on the cooktop with S curves both sides; 3-1/4 x 10 in duct, so the box is a low bump",
+            "2": "deep part centred on the cooktop with S curves both sides; 3-1/4 x 10 in duct, so the box is a low bump with the upper shelf running right over it",
             "3": "deep part centred on the cooktop with straight tapers both sides; the box is a slim chase to the ceiling"}[WV]
     BYID["kitchen.hood"]["info"] = dict(
         model=f"Wraparound shelf hood {WV}: the lower white oak shelf runs to the oven tower and gets deeper over the cooktop, a drywall box hugs a Broan PM600SSV power pack (suggested)",
         specs=[["Shelf", f"{round(ST * 12, 1)} in thick like the other shelves, {round(D0 * 12, 1)} in deep, {round(DD * 12)} in over the cooktop"],
                ["Underside", f"30 in over the cooktop glass, {ftin(SB)} above the floor, stainless sheet over the cooktop (Broan: 24 to 30 in)"],
-               ["Box", f"Drywall painted like the walls, {round((B1 - B0) * 12)} W x {round(BD * 12)} D in" + (f", up to {ftin(BT + q)}" if BT else ", up to the ceiling")],
+               ["Box", f"Drywall painted like the walls, {round((B1 - B0) * 12)} W x {round(BD * 12)} D in" + (f", up to {ftin(BT + (0 if UP else q))}" + (", the upper shelf sits on it" if UP else "") if BT else ", up to the ceiling")],
                ["Version", vtxt]],
         links=[VIDEO],
         notes=["Maxwell, 11/21/2026: the shelves wrap round the kitchen to the ovens and line up with the hood, the hood is just a deeper part of the "
@@ -2256,6 +2273,7 @@ rec("kitchen.shelves", "fixture", "Open shelves", "interior", room="Kitchen", in
 SHZ = list(SH["heights"])
 if WRAP:                                           # the lower shelf is the hood's shelf (built with the hood); the upper one wraps to the oven tower too
     SHZ[0] = WRAP["lo"]
+    if WRAP["up"]: SHZ[1] = WRAP["up"]               # version 2: the upper shelf sits on the hood box (built with the hood on the cooktop wall)
 if FARM:                                           # the lower shelf lines up with the hood's beam
     SHZ[0] = FARM["lo"]
 for z in SHZ:
@@ -2266,7 +2284,7 @@ for z in SHZ:
         hn = fu0 if z < fzb else FARM["side"](z + 0.15, -1)
         box("White Oak", WX0, WX0 + SH["depth"], hs, HD - T - SH["depth"], z, z + 0.15)
         box("White Oak", WX0, WX0 + SH["depth"], HU0, hn, z, z + 0.15)   # short shelf from the oven tower to the hood's north side
-    if WRAP and z > WRAP["lo"] + 0.2:              # upper shelf: from the oven tower to the box, and from the box to the corner
+    if WRAP and z > WRAP["lo"] + 0.2 and not WRAP["up"]:              # upper shelf: from the oven tower to the box, and from the box to the corner
         wb0, wb1 = WRAP["box"]
         box("White Oak", WX0, WX0 + SH["depth"], HU0, wb0, z, z + 0.15)
         box("White Oak", WX0, WX0 + SH["depth"], wb1, WRAP["uc"], z, z + 0.15)

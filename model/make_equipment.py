@@ -1091,7 +1091,7 @@ if HSTYLE == "shelf_wrap":
     PP_D = 0.12
     HX = WALL_X + PP_D + PP[2] / 24
     HOOD_TOP = 3.0 + 0.035 + 30 / 12 - 0.015 + PP[1] / 12
-    HZ = round(HOOD_TOP + 0.25 + (HX - WALL_X) * 0.85, 2) if WRAP_V != "2" else round(HOOD_TOP + 0.25, 2)
+    HZ = round(HOOD_TOP + 0.25 + (HX - WALL_X) * 0.85, 2) if WRAP_V != "2" else round(HOOD_TOP + 0.5, 2)   # 2: about 2 in adapter and damper, then a flat elbow
 if HSTYLE == "doors_flush":
     # Doors level with the oven tower's; the power pack drops into the cabinet floor (HOOD_LIP in adds a lip below)
     _K = CFG["kitchen"]
@@ -1109,6 +1109,7 @@ if HSTYLE == "farmhouse":
     HOOD_TOP = 3.0 + 30 / 12 + 0.04 + PP[1] / 12
     HZ = round(HOOD_TOP + 0.25 + (HX - WALL_X) * 0.85, 2)   # about 3 in collar, then the elbow's turn
 CAP = [12, 12, 7]                                  # 8 in wall cap with a damper, W x H x D in (ASSUMED)
+if HSTYLE == "shelf_wrap" and WRAP_V == "2": CAP = [14, 7, 5]   # 3-1/4 x 10 in wall cap with a damper (ASSUMED)
 CAP_Z = HZ - CAP[1] / 24
 assert CAP_Z + CAP[1] / 12 < roof_under_s(HY + CAP[0] / 24) - 1 / 12, "wall cap hits the rake overhang"
 VIDEO = ["Video Maxwell picked: kitchen hood design", "https://www.youtube.com/watch?v=Qs4wis82NAE"]
@@ -1164,6 +1165,12 @@ items += [
                "(303.6 wants 1/4 to 1/2 in openings on exhaust outlets). A cap with a fine bug screen would clog with grease."],
         placement="West wall, high, under the rake overhang, straight out from the cooktop.")),
 ]
+if HSTYLE == "shelf_wrap" and WRAP_V == "2":
+    _cap = items[-1]["info"]
+    _cap["model"] = "3-1/4 x 10 in wall cap with a damper, black, for range hoods (ASSUMED)"
+    _cap["specs"] = [["Height", f"Centre {ftin_(HZ)} up"], ["Duct", "3-1/4 x 10 in, about 1 ft from the unit to the inside face of the wall, then 6-1/2 in of SIP and the siding"],
+                     ["Damper", "Built in, closes when the fan is off"]]
+
 
 # ERV ducts. The unit is drawn with two 6 in ports on each end (the Broan side port layout, ASSUMED): outdoor air and exhaust air on the wall end,
 # stale air in and fresh air out on the room end. The unit lies with its long side east-west so the wall end meets the west wall.
