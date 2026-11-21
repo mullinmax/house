@@ -1901,6 +1901,7 @@ elif HSTYLE == "doors_flush":
         wr.box("Stainless", b0, b1, e0, HD_ - (WT if LIP else 0), DB - 0.012, DB - 0.004)     # wants wood over it under 30 in protected
     if not _os.environ.get("HOOD_DOORS_OFF"):
         doors(wr, rdoor, HU0, UE, DB, CRN0, HD_, K_WOOD, 2)
+        rdoor["ops"][-2]["angle"] = 90 if rdoor["ops"][-2]["angle"] > 0 else -90   # the north door stops square, clear of the deeper oven tower
     wr.box(K_WOOD, HU0, HU1 + 0.05, 0, BASE_D + 0.22, CRN0, CRN1)                                        # crown, carried on from the oven tower
     LT = LB + 11.5 / 12                            # top of the liner box round the power pack
     wr.box("Stainless", lu0, lu0 + 0.02, 0.06, 1.12, LB + 0.01, LT)                                       # liner box: two sides, front, top
