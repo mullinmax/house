@@ -1047,6 +1047,11 @@ PP = [21.375, 10.5625, 11.4375]                    # Broan PM600SSV power pack, 
 HZ = 10.95                                         # centre of the duct through the wall: its top is about 6 in under the roof, clear of the SIP top plate
 PP_D = 0.12                                        # power pack's back, out from the wall face
 HSTYLE = __import__("os").environ.get("HOOD_STYLE") or KH.get("style", "doors")
+if HSTYLE == "doors_func":
+    # Working cabinet over a slim band (Maxwell, 11/20/2026): power pack at the back of the band, bottom 24 in over the cooktop,
+    # 8 in round straight up into a chase at the back of the cabinet, one elbow, out the wall.
+    HOOD_TOP = 3.0 + 24 / 12 + 0.04 + PP[1] / 12
+    HZ = round(HOOD_TOP + 0.25 + (HX - WALL_X) * 0.85, 2)
 if HSTYLE == "farmhouse":
     # Farmhouse hood with no chimney (Maxwell, 11/20/2026). The PM600SSV takes 8 in round duct vertical only (horizontal discharge
     # is 3-1/4 x 10 only, install guide p. 9), so: power pack centred front to back over the burners, its bottom 1/2 in above the

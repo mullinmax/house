@@ -1826,6 +1826,43 @@ elif HSTYLE == "cabinets":
     wr.box("Cabinet Wood", HU0 - 0.0, HU1 + 0.05, 0, CD + 0.15, CZ1, CZ1 + 0.25)                         # crown
     CUR[0] = BYID["kitchen.hood"]["parts"]
     to_ceiling("Cabinet Wood", _cc - 0.6, _cc + 0.6, 0, 1.2, CZ1 + 0.25)                                   # chase for the duct to the wall exit
+elif HSTYLE == "doors_func":
+    # Working cabinet over a slim hood (Maxwell, 11/20/2026: the door version again, but with cabinets you can use, the hood
+    # mostly in the band at the bottom and the duct straight out the wall). The power pack fills a 12 in oak band whose
+    # underside is 24 in over the cooktop (the PM600SSV minimum), lined with stainless. Above it is an ordinary upper with two
+    # doors that open: the 8 in duct rises off the back of the power pack at the back centre of the cabinet floor, turns once
+    # and goes straight through the wall, left bare so it is plain how much room is left. Everything else in the cabinet is storage.
+    rdoor = BYID["kitchen.hood"]
+    K_WOOD = "Cabinet Wood"
+    LB = CTR_Z + 24 / 12                           # underside of the band: 24 in over the cooktop
+    CB = LB + 1.0                                  # 12 in band, then the cabinet floor
+    CRN0, CRN1 = TALL - 0.25, TALL
+    UE = HU1 - WT                                  # inside of the south end panel
+    wr.box(K_WOOD, UE, HU1, 0, HD_ + FRONT_T, LB, CRN0)                                                  # south end panel, level with the band
+    wr.box(K_WOOD, HU0, UE, HD_ - WT, HD_ + FRONT_T, LB, CB)                                              # the band's front: one plain level panel, flush with the doors
+    hollow(wr, HU0, UE, HD_, CB, CRN0, K_WOOD, shelves=[])
+    if not _os.environ.get("HOOD_DOORS_OFF"):     # renders only: leave the doors off to show inside
+        doors(wr, rdoor, HU0, UE, CB, CRN0, HD_, K_WOOD, 2)
+    wr.box(K_WOOD, HU0, HU1 + 0.05, 0, BASE_D + 0.22, CRN0, CRN1)                                        # crown, carried on from the oven tower
+    # no chase: the bare duct and its elbow show when the doors are open, so the free space is plain (Maxwell, 11/20/2026)
+    wr.box("Stainless", HU0, UE, 0, HD_ - WT, CB - 0.025, CB - 0.008)                                    # stainless underside of the band
+    wr.box("Stainless", HU0, UE, HD_ - WT - 0.02, HD_ - WT, LB + 0.02, CB - 0.03)                         # lining behind the band front
+    wr.box("Lamp Glass", HU0 + 0.1, UE - 0.1, HD_ - 0.2, HD_ - 0.12, LB + 0.005, LB + 0.03)              # LED strip just inside the bottom edge
+    IW, ID_, IH = (UE - HU0 - 0.12), HD_ - 0.06, CRN0 - CB - 0.12
+    FREE = IW * ID_ * IH - 0.75 * 1.0 * 0.95
+    BYID["kitchen.hood"]["info"] = dict(
+        model="Cabinet hood: a working white oak upper over a slim band that holds a Broan PM600SSV power pack (suggested)",
+        specs=[["Width", f"{ftin(HU1 - HU0)}, from the oven tower to 6-1/2 in past the cooktop"], ["Depth", ftin(HD_)],
+               ["Band", f"12 in tall, underside {ftin(LB)} above the floor, 24 in over the cooktop"],
+               ["Cabinet", f"Two doors that open, inside about {round(IW * 12)} W x {round(ID_ * 12)} D x {round(IH * 12)} H in, about {FREE:.0f} cu ft free"],
+               ["Duct", "8 in round up off the power pack at the back centre, one elbow, straight out the west wall. Left bare inside the cabinet"]],
+        links=[VIDEO],
+        notes=["Maxwell, 11/20/2026: the cabinet door look, but the cabinets work. Only the 12 in band at the bottom is hood.",
+               "Storage: either side of the duct holds tall things (about 19 in), and in front of it about 13 in deep. Keep this cabinet for "
+               "things heat will not hurt: sheet pans, cutting boards, trays. No oils or spices.",
+               "Trade-off: there is no big box above the fan to hold smoke while it catches up, which the video recommends. Expect more to escape on "
+               "high heat searing than with a deep hood; the heat sensor still turns it on every time.",
+               "The duct could go away with the PM600SSV's rear 3-1/4 x 10 in outlet straight into the wall, at some cost in airflow."])
 elif HSTYLE == "farmhouse":
     # Farmhouse hood (Maxwell, 11/20/2026, from two photos he sent): a painted hood that tapers in on the front and both sides,
     # sitting on a white oak mantel beam (the cabinet and window oak) with a slim curved corbel under each end. The beam's
