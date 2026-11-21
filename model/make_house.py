@@ -1846,11 +1846,12 @@ elif HSTYLE == "farmhouse":
         "8": dict(paint="steel", top="ceiling", tw=20, td=12, chim=None),
         "9": dict(paint="plaster", top="ceiling", tw=40, td=23, chim=None),           # straight plaster box to the ceiling, no slopes
         "10": dict(paint="wall", top="cab", tw=30, td=14, chim=("flush", None, "wall")),   # 1 with a straight chimney flush with the oak band's outer edges
+        "11": dict(paint="oak", top="cab", tw=40, td=23, chim=None),               # 9 stopped at cabinet height, all white oak
     }
     V = FV[_os.environ.get("HOOD_FARM") or str(HOOD.get("farm_variant", 1))]
     MATERIALS.setdefault("Hood Sage", dict(color="#7B8770", rough=0.8))   # Sherwin-Williams Dried Thyme, the sink window's paint
     MATERIALS.setdefault("Hood Stainless", dict(color="#C4C6C7", rough=0.5, metal=0.55))
-    PAINT = {"wall": "Drywall", "sage": "Hood Sage", "steel": "Hood Stainless", "plaster": "Hood Plaster"}
+    PAINT = {"wall": "Drywall", "sage": "Hood Sage", "steel": "Hood Stainless", "plaster": "Hood Plaster", "oak": "White Oak"}
     PL, OAK = PAINT[V["paint"]], "White Oak"
     FW = HOOD.get("farm_width_in", 42) / 12        # 42 in (Maxwell 11/20/2026: slimmer corbels, so pull the hood in and give the north shelf more room)
     FU0, FU1 = _cc - FW / 2, _cc + FW / 2
@@ -1901,7 +1902,7 @@ elif HSTYLE == "farmhouse":
     FARM = dict(lo=FB, beam=(FU0, FU1, ZB), side=lambda z, s: (a1(z) if s > 0 else a0(z)))
     top_txt = {"cab": "level with the cabinet tops at 8 ft", "ceiling": "tapering all the way to the ceiling"}.get(V["top"], f"at {ftin(ZT)}")
     BYID["kitchen.hood"]["info"] = dict(
-        model=f"Farmhouse hood: {dict(sage='tapered, painted Dried Thyme sage', wall='tapered, painted to match the walls', steel='tapered brushed stainless', plaster='a straight plaster box to the ceiling')[V['paint']] if V['tw'] < 40 or V['paint'] != 'plaster' else 'a straight plaster box to the ceiling'}, white oak mantel beam, "
+        model=f"Farmhouse hood: {dict(sage='tapered, painted Dried Thyme sage', wall='tapered, painted to match the walls', steel='tapered brushed stainless', plaster='a straight plaster box to the ceiling', oak='a straight white oak box')[V['paint']] if V['tw'] < 40 or V['paint'] != 'plaster' else 'a straight plaster box to the ceiling'}, white oak mantel beam, "
               "curved corbels and oak band at the top, over a Broan PM600SSV power pack (suggested)",
         specs=[["Width", f"{ftin(FW)} at the beam, tapering to {ftin(TW)} (cooktop 30-11/16 in)"], ["Depth", f"{ftin(HD_)} at the beam, {ftin(TD)} at the top"],
                ["Underside", f"{ftin(FB)} above the floor, 30 in above the cooktop"],
