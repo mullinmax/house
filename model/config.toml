@@ -70,10 +70,14 @@ enabled = true
 rect = [31.12, 22.87, 42.5, 34.62]
 floor_height = 10.052           # 9' plate + 11-7/8" open web trusses + 3/4" subfloor (Maxwell 11/16/2026). Was 9.9 with the 2x10 floor on A-30
 pony_wall_height = 0.0          # Maxwell 11/13: wall stops level with the loft floor (A-12 showed a high pony wall), railing above
-railing = true                  # 36" guard along the open loft edge and handrails up the ships ladder. ASSUMED
+railing = true                  # 36" guard along the open loft edge. ASSUMED
 railing_height = 3.0
 railing_style = "steel_oak"     # black steel posts and balusters, white oak cap. ASSUMED
-ships_ladder = [27.7, 32.0, 31.12, 34.56]   # footprint from A-11, rises toward the east
+ships_ladder = [25.828, 31.92, 31.12, 34.48]   # [x0, y0, x1, y1]: x0 is the first riser, x1 the bath 1 west wall it lands on. Steepest ships ladder the RCO / IRC R311.7.12 allows (Maxwell 11/21/2026): 13 risers (9.5 in max), 5 in going (min), 8.5 in treads (tread + nosing min), so x1 - x0 = 12 x 5 in + 3.5 in landing nosing. Was [27.7, 32.0, 31.12, 34.56] on A-11 (11 treads, 10 in risers, 3.7 in going: not to code). Moved 1 in north so the wall side handrail clears the clerestory wall by 1.5 in
+ladder_risers = 13
+ladder_going_in = 5.0             # nosing to nosing
+ladder_tread_in = 8.5             # each tread overlaps the next by 3.5 in; the loft edge gets a 3.5 in oak nosing over the top tread
+ladder_handrail_in = 32.0         # top of rail above the nosing line, 30 to 34 in allowed
 attic_access = { east_gap = 1.0, width = 2.96 }   # walk through opening in the loft north wall onto the attic deck: east edge 1 ft off the inside face of the east wall (Maxwell, 11/19/2026). Width kept from the A-11 gap (x 34.37-37.33) that used to be the way in, now walled above the loft floor
 
 # ---------------------------------------------------------------- OPENINGS
