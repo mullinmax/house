@@ -40,9 +40,13 @@ const ROOM_LABELS = { Bed1: 'Bedroom 1', Bed2: 'Bedroom 2', Bed3: 'Bedroom 3', B
 // ---------------------------------------------------------------- renderer, scene
 // No logarithmic depth: it writes depth per pixel, which turns off the GPU's early depth test and made every
 // hidden surface cost full shading. The model's coplanar faces are nudged apart instead, and a 0.15 m near
-// plane keeps enough depth precision. MSAA only where the screen isn't already high density.
-const renderer = new THREE.WebGLRenderer({ antialias: window.devicePixelRatio < 1.5, powerPreference: 'high-performance' });
-const MAX_DPR = Math.min(window.devicePixelRatio, 1.5);
+// plane keeps enough depth precision. 4x MSAA everywhere: it softens jaggies and turns one pixel cracks
+// between pieces into faint lines instead of bright specks, and on phone GPUs it is resolved on chip for little cost.
+// ?dpr=1.5 pins the render scale (no adaptive drops), handy for screenshots or a fast machine.
+const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+const PIN_DPR = parseFloat((/[?&]dpr=([\d.]+)/.exec(location.search) || [])[1]) || 0;
+const MAX_DPR = PIN_DPR || Math.min(window.devicePixelRatio, 1.5);
+const MIN_DPR = Math.min(MAX_DPR, 0.75);       // was 0.6, which looked blocky; trials below decide whether dropping helps at all
 let dpr = MAX_DPR;
 renderer.setPixelRatio(dpr);
 renderer.localClippingEnabled = true;
@@ -1617,16 +1621,24 @@ addEventListener('resize', () => {
 const clock = new THREE.Clock();
 let promptFrame = 0;
 const snap = new THREE.Vector3(), lastSnap = new THREE.Vector3(1e9, 0, 0);
-// adaptive resolution: drop the render scale when frames run long, raise it back when there's headroom
-let frameAcc = 0, frameN = 0;
+// Adaptive resolution: drop the render scale when frames run long, raise it back when there's headroom. Fewer pixels
+// only help when the GPU is filling pixels; when the frame is bound by draw calls (the case on Intel laptop graphics,
+// 11/21/2026: about 25 ms at every scale) a lower scale just looks blocky. So each drop is a trial: if the next
+// second isn't at least 12% faster, the old scale comes back and no further drops are tried for 30 s.
+let frameAcc = 0, frameN = 0, trial = null, noDropUntil = 0;
+function setDpr(next) { dpr = next; renderer.setPixelRatio(dpr); renderer.setSize(innerWidth, innerHeight); }
 function adaptResolution(raw) {
   frameAcc += raw; frameN++;
   if (frameAcc < 1.0) return;
   const ms = (frameAcc / frameN) * 1000; frameAcc = 0; frameN = 0;
-  let next = dpr;
-  if (ms > 24) next = Math.max(0.6, dpr - 0.15);
-  else if (ms < 13) next = Math.min(MAX_DPR, dpr + 0.1);
-  if (Math.abs(next - dpr) > 0.01) { dpr = next; renderer.setPixelRatio(dpr); renderer.setSize(innerWidth, innerHeight); }
+  if (PIN_DPR) return;
+  const now = performance.now();
+  if (trial) {
+    const t = trial; trial = null;
+    if (ms > t.ms * 0.88) { setDpr(t.from); noDropUntil = now + 30000; return; }   // no real gain: undo the drop
+  }
+  if (ms > 24 && dpr > MIN_DPR + 0.01 && now > noDropUntil) { trial = { from: dpr, ms }; setDpr(Math.max(MIN_DPR, dpr - 0.15)); }
+  else if (ms < 13 && dpr < MAX_DPR - 0.01) setDpr(Math.min(MAX_DPR, dpr + 0.1));
 }
 renderer.setAnimationLoop(() => {
   const raw = clock.getDelta(), dt = Math.min(raw, 0.05);
