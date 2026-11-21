@@ -1045,6 +1045,16 @@ HOOD_TOP = 3.0 + KH.get("above_counter_in", 27) / 12 + KH.get("box_height_in", 2
 if __import__("os").environ.get("HOOD_INSERT_TOP"): HOOD_TOP = float(__import__("os").environ["HOOD_INSERT_TOP"])   # renders of the shorter stainless shells
 PP = [21.375, 10.5625, 11.4375]                    # Broan PM600SSV power pack, W x H x D in
 HZ = 10.95                                         # centre of the duct through the wall: its top is about 6 in under the roof, clear of the SIP top plate
+PP_D = 0.12                                        # power pack's back, out from the wall face
+HSTYLE = __import__("os").environ.get("HOOD_STYLE") or KH.get("style", "doors")
+if HSTYLE == "farmhouse":
+    # Farmhouse hood with no chimney (Maxwell, 11/20/2026). The PM600SSV takes 8 in round duct vertical only (horizontal discharge
+    # is 3-1/4 x 10 only, install guide p. 9), so: power pack centred front to back over the burners, its bottom 1/2 in above the
+    # beam's underside (30 in over the cooktop), 8 in round straight up off the damper, one elbow inside the plaster, out the wall.
+    PP_D = 0.52
+    HX = WALL_X + PP_D + PP[2] / 24
+    HOOD_TOP = 3.0 + 30 / 12 + 0.04 + PP[1] / 12
+    HZ = round(HOOD_TOP + 0.25 + (HX - WALL_X) * 0.85, 2)   # about 3 in collar, then the elbow's turn
 CAP = [12, 12, 7]                                  # 8 in wall cap with a damper, W x H x D in (ASSUMED)
 CAP_Z = HZ - CAP[1] / 24
 assert CAP_Z + CAP[1] / 12 < roof_under_s(HY + CAP[0] / 24) - 1 / 12, "wall cap hits the rake overhang"
@@ -1061,7 +1071,7 @@ ducts[-1]["info"]["specs"] = [["Duct", "8 in round, smooth galvanized, one elbow
 ducts[-1]["info"]["links"] = [VIDEO]
 items += [
  dict(id="hood_insert", name="Range hood power pack", category="Ventilation", system="hvac.exhaust", room="Kitchen", layer="appliances",
-      builder="power_pack", size=PP, at=[WALL_X + 0.12, HY, round(HOOD_TOP - PP[1] / 12, 3)], facing=90,
+      builder="power_pack", size=PP, at=[WALL_X + PP_D, HY, round(HOOD_TOP - PP[1] / 12, 3)], facing=90,
       info=dict(model="Broan Elite PM600SSV power pack insert with SmartSense (suggested, not bought)", price="$789 list (Broan, 11/20/2026)",
         specs=[["Airflow", "HVI certified, up to about 600 CFM on 8 in duct (650 max blower), 4 speeds"], ["Noise", "0.5 sone on normal speed"],
                ["Auto", "SmartSense: an infrared sensor watches the cooktop, turns the fan on, sets its speed and turns it off"],

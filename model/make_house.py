@@ -1727,6 +1727,7 @@ rec("kitchen.hood", "fixture", "Range hood", "interior", room="Kitchen",
 #   steel     blackened steel, sloped front, satin brass band along the bottom edge, slim steel chimney
 #   stainless number 4 in appliance stainless with a level lip all round the bottom
 #   doors     hidden: fake white oak shaker doors and the oven tower crown carried across, drywall chase above (Maxwell's pick)
+FARM = None
 import os as _os
 HSTYLE = _os.environ.get("HOOD_STYLE") or HOOD.get("style", "box")
 MATERIALS.setdefault("Hood Plaster", dict(color="#E9E2D4", rough=0.9, map="plaster.jpg", tile=1.2))
@@ -1825,6 +1826,67 @@ elif HSTYLE == "cabinets":
     wr.box("Cabinet Wood", HU0 - 0.0, HU1 + 0.05, 0, CD + 0.15, CZ1, CZ1 + 0.25)                         # crown
     CUR[0] = BYID["kitchen.hood"]["parts"]
     to_ceiling("Cabinet Wood", _cc - 0.6, _cc + 0.6, 0, 1.2, CZ1 + 0.25)                                   # chase for the duct to the wall exit
+elif HSTYLE == "farmhouse":
+    # Farmhouse hood (Maxwell, 11/20/2026, from two photos he sent): a painted plaster hood that tapers in on the front and
+    # both sides, sitting on a chunky white oak mantel beam with a curved corbel under each end. Its bottom edge is 30 in over
+    # the cooktop (his number, also the PM600SSV's recommended maximum). It stops at a crown at 8 ft, level with the oven
+    # tower's crown, with no chimney above: the duct turns once inside the hood and goes straight out the west wall.
+    # The open shelves wrap round from the sink wall along this wall into the hood's south side, and a short shelf joins
+    # its north side to the oven tower.
+    MATERIALS.setdefault("Hood Beam", dict(color="#C9A57C", rough=0.6, map="white_oak.jpg", normal="oak_normal.jpg", normal_scale=0.8, tile=0.8, grain="long"))
+    PL, BM = "Hood Plaster", "Hood Beam"
+    FW = HOOD.get("farm_width_in", 48) / 12
+    FU0, FU1 = _cc - FW / 2, _cc + FW / 2
+    FB = CTR_Z + 30 / 12                           # bottom of the beam, 30 in over the cooktop
+    BH, BF = 7 / 12, 5 / 12                        # beam height, depth of its front piece
+    ZB = FB + BH                                   # the plaster starts on top of the beam
+    ZT = TALL                                      # top of the taper, under a crown level with the oven tower's
+    IN = 1.5 / 12                                  # the plaster sits this far in from the beam's ends and front
+    TW, TD = 32 / 12, 14 / 12                      # plaster width and depth at the top
+    def a0(z): t = (z - ZB) / (ZT - ZB); return FU0 + IN + t * ((_cc - TW / 2) - (FU0 + IN))
+    def a1(z): return 2 * _cc - a0(z)
+    def df(z): t = (z - ZB) / (ZT - ZB); return HD_ - IN + t * (TD - (HD_ - IN))
+    # mantel beam: a front piece and two end pieces, open in the middle over the power pack
+    wr.box(BM, FU0, FU1, HD_ - BF, HD_, FB, ZB)
+    for u0, u1 in ((FU0, FU0 + 0.33), (FU1 - 0.33, FU1)):
+        wr.box(BM, u0, u1, 0, HD_ - BF, FB, ZB)
+    # thin plaster walls round the capture box, then solid plaster up to the crown
+    ZC = FB + 15 / 12
+    z0 = ZB - 0.01
+    def front(zl, zh, th):
+        hexa(PL, [_P(a0(zl), df(zl) - th, zl), _P(a0(zl), df(zl), zl), _P(a0(zh), df(zh), zh), _P(a0(zh), df(zh) - th, zh),
+                  _P(a1(zl), df(zl) - th, zl), _P(a1(zl), df(zl), zl), _P(a1(zh), df(zh), zh), _P(a1(zh), df(zh) - th, zh)])
+    front(z0, ZC, WT)
+    for s in (1, -1):
+        hexa(PL, [_P(a0(z0) if s > 0 else a1(z0) - WT, 0, z0), _P(a0(z0) if s > 0 else a1(z0) - WT, df(z0) - WT, z0),
+                  _P(a0(ZC) if s > 0 else a1(ZC) - WT, df(ZC) - WT, ZC), _P(a0(ZC) if s > 0 else a1(ZC) - WT, 0, ZC),
+                  _P(a0(z0) + WT if s > 0 else a1(z0), 0, z0), _P(a0(z0) + WT if s > 0 else a1(z0), df(z0) - WT, z0),
+                  _P(a0(ZC) + WT if s > 0 else a1(ZC), df(ZC) - WT, ZC), _P(a0(ZC) + WT if s > 0 else a1(ZC), 0, ZC)])
+    ZT_ = ZT - 0.1                                 # the solid stops inside the crown so their tops do not flicker
+    hexa(PL, [_P(a0(ZC), 0, ZC), _P(a0(ZC), df(ZC), ZC), _P(a0(ZT_), df(ZT_), ZT_), _P(a0(ZT_), 0, ZT_),
+              _P(a1(ZC), 0, ZC), _P(a1(ZC), df(ZC), ZC), _P(a1(ZT_), df(ZT_), ZT_), _P(a1(ZT_), 0, ZT_)])
+    wr.box(PL, a0(ZT) - 0.12, a1(ZT) + 0.12, 0, df(ZT) + 0.12, ZT - 0.25, ZT)        # crown
+    wr.box("Stainless", a0(ZC) + WT, a1(ZC) - WT, 0, df(ZC) - WT, ZC - 0.025, ZC - 0.008)   # stainless top of the capture box
+    # curved corbels under the beam ends, 3-1/2 in thick, 16 in tall, 14 in out from the wall
+    import math as _m
+    CH, CD, CMIN = 16 / 12, 14 / 12, 2.5 / 12
+    pts = [(CD - (CD - CMIN) * _m.cos(_m.pi / 2 * k / 8), FB - CH + CH * _m.sin(_m.pi / 2 * k / 8)) for k in range(9)]
+    for u0, u1 in ((FU0 + 0.02, FU0 + 0.31), (FU1 - 0.31, FU1 - 0.02)):
+        for (d0_, zz0), (d1_, zz1) in zip(pts, pts[1:]):
+            slab(BM, u0, u1, [(0, zz0), (d0_, zz0), (d1_, zz1 - (0.002 if zz1 >= FB - 1e-6 else 0)), (0, zz1 - (0.002 if zz1 >= FB - 1e-6 else 0))])
+    pucks(ZC - 0.03, d=HD_ - 0.6, n=2)
+    FARM = dict(lo=FB, beam=(FU0, FU1, ZB), side=lambda z, s: (a1(z) if s > 0 else a0(z)))
+    BYID["kitchen.hood"]["info"] = dict(
+        model="Farmhouse hood: tapered painted plaster on a white oak mantel beam with curved corbels, over a Broan PM600SSV power pack (suggested)",
+        specs=[["Width", f"{ftin(FW)} at the beam, tapering to {ftin(TW)} at the crown (cooktop 30-11/16 in)"], ["Depth", f"{ftin(HD_)} at the beam, {ftin(TD)} at the crown"],
+               ["Underside", f"{ftin(FB)} above the floor, 30 in above the cooktop"], ["Top", "Crown at 8 ft, level with the oven tower. No chimney above"],
+               ["Fan", "Power pack inside, about 0.5 sone on normal, turns itself on by sensing heat. 8 in duct up, one elbow, straight out the west wall"]],
+        links=[VIDEO],
+        notes=["Mocked up from two photos Maxwell sent (11/20/2026): plaster hood tapering on three sides, a chunky wood mantel beam and curved supports.",
+               "30 in over the cooktop is the PM600SSV's recommended maximum (24 to 30 in). The open shelves on either side meet the beam.",
+               "No chimney: the duct rises about 10 in off the power pack, turns once inside the plaster and goes straight through the wall. A shorter duct "
+               "with the same one elbow performs at least as well as the tall version.",
+               "The corbels sit about 5 in from the cooktop's sides: fine for induction, but keep pans and handles clear."])
 elif HSTYLE.startswith("ss_"):
     # Lower, cleaner stainless shells around the Broan PM600SSV (Maxwell, 11/20/2026: the slope was too steep and looked big;
     # flatter, maybe curved, closer to the kitchen designer's square hood with a right angle into the duct cover). All 60 in
@@ -1893,8 +1955,17 @@ box(ISLAND_MAT, ir["units"][0][0] - 0.06, ir["units"][0][0], ir["back"] - 0.06, 
 box(ISLAND_TOP, ix0, ix1, iy0, iy1, CTR_Z - CTR_T, CTR_Z)
 SH = K["shelves"]
 rec("kitchen.shelves", "fixture", "Open shelves", "interior", room="Kitchen", info=dict(model="White oak open shelves", specs=[["Length", ftin(SH["x"][1] - SH["x"][0])], ["Heights", ", ".join(ftin(z) for z in SH["heights"])]]))
-for z in SH["heights"]:
+SHZ = list(SH["heights"])
+if FARM:                                           # the lower shelf lines up with the hood's beam
+    SHZ[0] = FARM["lo"]
+for z in SHZ:
     box("White Oak", SH["x"][0], SH["x"][1], HD - T - SH["depth"], HD - T, z, z + 0.15)
+    if FARM:                                       # wrapped round the corner onto the cooktop wall, into the hood's south side
+        fu0, fu1, fzb = FARM["beam"]
+        hs = fu1 if z < fzb else FARM["side"](z + 0.15, 1)
+        hn = fu0 if z < fzb else FARM["side"](z + 0.15, -1)
+        box("White Oak", WX0, WX0 + SH["depth"], hs, HD - T - SH["depth"], z, z + 0.15)
+        box("White Oak", WX0, WX0 + SH["depth"], HU0, hn, z, z + 0.15)   # short shelf from the oven tower to the hood's north side
 
 # Pantry shelves (Maxwell 11/20/2026: "simple shelving"): 3/4 in white oak on 1x2 cleats, around a chest freezer on the back wall.
 # They are built in, so they live with the house; what is on them is in the Belongings layer (make_equipment.py pantry_goods).
