@@ -1083,7 +1083,9 @@ if HSTYLE == "doors_flush":
     # Doors level with the oven tower's; the power pack drops into the cabinet floor (HOOD_LIP in adds a lip below)
     _K = CFG["kitchen"]
     _DB = _K.get("oven_face_bottom", 1.22) + _K.get("oven_face_height_in", 50.75) / 12 + 0.02
-    HOOD_TOP = _DB - float(__import__("os").environ.get("HOOD_LIP", KH.get("lip_in", 0))) / 12 - 0.015 + PP[1] / 12   # its trim a hair below the cabinet floor
+    PP_D = KH.get("insert_setback_in", 1.44) / 12  # back of the power pack off the wall
+    HX = WALL_X + PP_D + PP[2] / 24
+    HOOD_TOP = _DB - 0.015 + PP[1] / 12            # faceplate flush with the stainless underside (Maxwell 11/20/2026), recessed inside any lip
     HZ = round(HOOD_TOP + 0.25 + (HX - WALL_X) * 0.85, 2)
 if HSTYLE == "farmhouse":
     # Farmhouse hood with no chimney (Maxwell, 11/20/2026). The PM600SSV takes 8 in round duct vertical only (horizontal discharge
