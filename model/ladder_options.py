@@ -213,15 +213,17 @@ def _ladder_options():
                 lbx("Black Metal", T, ub - 0.03, ub + 0.03, wall_v - RC, wall_v, zr(ub) - 0.1, zr(ub) - 0.04)
         wl = YC - (sy1 - wn)                                     # clerestory wall face in the lower flight's v
         orv = 0.03125 if tube else SW                            # open side rail's inner face, in from the open edge
-        flight(lad_T(XL - ul, sy1 - wn, (1, 0)), 0.0, n_lo, RI, GO, TD, wn, smat=smat, rail_v=(orv - RW / 2,) if under else None, carriage=car)
+        flight(lad_T(XL - ul, sy1 - wn, (1, 0)), 0.0, n_lo, RI, GO, TD, wn, smat=smat, rail_v=(orv - RW / 2,) if under else None, carriage=car, tuck=LOFT.get("ladder_tube_in", [2.0, 3.0])[1] / 12 + 0.12 if tube else 0.4)
         if under:
             wall_rail(lad_T(XL - ul, sy1 - wn, (1, 0)), 0.0, n_lo, wn, wl, ul)
         yl0 = sy1 - wn - 0.1
         yln = yl0 - (0.667 if tube else 0.0)                     # tube: the landing runs 8 in further north, under the upper flight's first tread, so the upper tubes' feet stand on it
+        tk = (0.12 + LOFT.get("ladder_tube_in", [2.0, 3.0])[1] / 12) if tube else None   # tube: both platforms are a 1 7/16 in oak deck on a 2 x 3 tube frame (11/22/2026 structure design)
+        lt, bt = (tk, tk) if tube else (0.4, 0.5)
         pxo = 0.5625 if tube else 0.0                            # tube: west posts 6 3/4 in in from the edge, behind the lower tubes' heads tucked under the landing
-        box("White Oak", XL, EDGE_X - 0.002, yln, min(sy1 + 0.12, YC - 0.002), zp - 0.4, zp)
-        box("White Oak", XL + pxo, XL + pxo + 0.29, yl0, yl0 + 0.29, 0.0, zp - 0.4)
-        box("White Oak", XL + pxo, XL + pxo + 0.29, sy1 - 0.2, min(sy1 + 0.09, YC - 0.002), 0.0, zp - 0.4)
+        box("White Oak", XL, EDGE_X - 0.002, yln, min(sy1 + 0.12, YC - 0.002), zp - lt, zp)
+        box("White Oak", XL + pxo, XL + pxo + 0.29, yl0, yl0 + 0.29, 0.0, zp - lt)
+        box("White Oak", XL + pxo, XL + pxo + 0.29, sy1 - 0.2, min(sy1 + 0.09, YC - 0.002), 0.0, zp - lt)
         n_up = NR - n_lo
         uu = (n_up - 1) * GO + (TD - GO)
         go_u, td_u = GO, TD
@@ -230,18 +232,19 @@ def _ladder_options():
             go_u = (uu - (TD - GO)) / (n_up - 1)
             td_u = go_u + 0.1
             print("stretched upper flight: going", round(go_u * 12, 2), "in, slope", round(math.degrees(math.atan(RI / go_u)), 1), "deg")
-        flight(lad_T(XL, yl0, (0, -1)), zp, n_up, RI, go_u, td_u, wn, smat=smat, rail_v=(orv - RW / 2,) if under else None, carriage=car, tuck=0.5)
+        flight(lad_T(XL, yl0, (0, -1)), zp, n_up, RI, go_u, td_u, wn, smat=smat, rail_v=(orv - RW / 2,) if under else None, carriage=car, tuck=bt)
         if under:
             wall_rail(lad_T(XL, yl0, (0, -1)), zp, n_up, wn, EDGE_X - XL, uu)
         yt1 = yl0 - uu
         yt0 = yt1 - wn - 0.1
-        box("White Oak", XL, EDGE_X - 0.002, yt0, yt1 + 0.005, FL - 0.5, FL)
+        box("White Oak", XL, EDGE_X - 0.002, yt0, yt1 + 0.005, FL - bt, FL)
         guard(XL + 0.02, XL + 0.1, yt0 + 0.05, yt1 - 0.1, FL)
         if yt0 > 23.2:
             guard(XL + 0.1, EDGE_X - 0.05, yt0 + 0.02, yt0 + 0.1, FL)
+        zb_ = FL - bt + 0.5
         for yb_ in (yt0 + 0.2, yt1 - 0.2):
-            hexa("Black Metal", [(XL + 0.2, yb_, FL - 0.62), (XL + 0.45, yb_, FL - 0.5), (EDGE_X, yb_, FL - 2.2), (EDGE_X, yb_, FL - 2.5),
-                                 (XL + 0.2, yb_ + 0.12, FL - 0.62), (XL + 0.45, yb_ + 0.12, FL - 0.5), (EDGE_X, yb_ + 0.12, FL - 2.2), (EDGE_X, yb_ + 0.12, FL - 2.5)])
+            hexa("Black Metal", [(XL + 0.2, yb_, zb_ - 0.62), (XL + 0.45, yb_, zb_ - 0.5), (EDGE_X, yb_, zb_ - 2.2), (EDGE_X, yb_, zb_ - 2.5),
+                                 (XL + 0.2, yb_ + 0.12, zb_ - 0.62), (XL + 0.45, yb_ + 0.12, zb_ - 0.5), (EDGE_X, yb_ + 0.12, zb_ - 2.2), (EDGE_X, yb_ + 0.12, zb_ - 2.5)])
         RAIL_SPAN = [(LY0 + 0.1, yt0 - 0.05), (yt1 + 0.06, LY1 - 0.1)]
         LADDER_CLIMBS = [dict(id="loft.ladder", rect=[rnd(XL - ul), rnd(sy1 - wn), rnd(XL), rnd(sy1)], axis="x", z0=0.0, z1=rnd(zp)),
                          dict(id="loft.ladder", rect=[rnd(XL), rnd(yt1), rnd(XL + wn), rnd(yl0)], axis="y", rev=True, z0=rnd(zp), z1=FL, pad=0.7)]
