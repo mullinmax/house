@@ -27,7 +27,7 @@ def rot_uz(uc, zc, deg):
 
 
 def flight(T, z0, nr, ri, go, td, w, treads=None, u_lo=-0.04, u_hi=None, leg=False, R=None, top_nosing=True, rail=None, posts=None,
-           alt=False, sdepth=1.0, stringers=True, rail_v=None, tread_v=None, top_td=None, smat="White Oak", carriage=False, foot="floor", hang=False):
+           alt=False, sdepth=1.0, stringers=True, rail_v=None, tread_v=None, top_td=None, smat="White Oak", carriage=False, tuck=0.4):
     """One straight flight. Nosing k is at u = (k - 1) * go, z0 + k * ri; nosing nr is the landing edge, td - go proud of u_end."""
     top_td = TD - GO if top_td is None else top_td
     u_end = (nr - 1) * go + top_td
@@ -48,14 +48,25 @@ def flight(T, z0, nr, ri, go, td, w, treads=None, u_lo=-0.04, u_hi=None, leg=Fal
         TW, TDp = LOFT.get("ladder_tube_in", [2.0, 3.0])
         TW, pl = TW / 12, TDp / 12 / math.cos(math.atan(sl))    # width, and depth measured plumb
         zl = lambda u: zn(u) - td * sl - 0.12                   # tube top
-        u0 = (z0 - (z0 + ri - td * sl - 0.12)) / sl if foot == "floor" else 0.0     # floor: level cut on the floor; plumb: plumb cut against the landing post
-        u1 = u0 + pl / sl if foot == "floor" else u0
+        # Both ends are level cuts: the foot stands on the floor (or on the corner landing), the head tucks under the platform above and
+        # bears on its underside, `tuck` below its top. Each end is held by bolt on angles.
+        foot = "floor"
+        u0 = (z0 - (z0 + ri - td * sl - 0.12)) / sl
+        u1 = u0 + pl / sl
+        zu = z0 + nr * ri - tuck - 0.003                        # underside of the platform at the head
+        u2 = (zu - (z0 + ri - td * sl - 0.12)) / sl             # tube's top edge meets the underside
+        u3 = u2 + pl / sl
         nx, nz = math.sin(math.atan(sl)), -math.cos(math.atan(sl))
+        fl = lambda u: max(z0 + 0.004, zl(u) - pl)
+        ft = lambda u: min(zu, max(zl(u), fl(u) + 0.002))
         for va in (0.0, w - TW):
-            for ua, uc in ((u0, u1), (u1, u_end)) if u1 > u0 else ((u0, u_end),):
-                fl = (lambda u: max(z0 + 0.004, zl(u) - pl)) if foot == "floor" else (lambda u: zl(u) - pl)
-                lhx("Black Metal", T, [(ua, va, fl(ua)), (uc, va, fl(uc)), (uc, va, zl(uc)), (ua, va, max(zl(ua), fl(ua) + 0.002)),
-                                       (ua, va + TW, fl(ua)), (uc, va + TW, fl(uc)), (uc, va + TW, zl(uc)), (ua, va + TW, max(zl(ua), fl(ua) + 0.002))], R)
+            for ua, uc in ((u0, u1), (u1, u2), (u2, u3)):
+                lhx("Black Metal", T, [(ua, va, fl(ua)), (uc, va, min(fl(uc), zu - 0.002)), (uc, va, ft(uc)), (ua, va, ft(ua)),
+                                       (ua, va + TW, fl(ua)), (uc, va + TW, min(fl(uc), zu - 0.002)), (uc, va + TW, ft(uc)), (ua, va + TW, ft(ua))], R)
+            vi = (TW, TW + 0.25) if va == 0.0 else (w - TW - 0.25, w - TW)          # end angles, 3 x 3 x 1/4 in, on the tube's inner face
+            for ua, uc, zf, sg in ((u0 + 0.05, u1 + 0.1, z0 + 0.004, 1), (u2 - 0.1, u3 - 0.05, zu, -1)):
+                lbx("Black Metal", T, ua, uc, vi[0], vi[1], min(zf, zf + sg * 0.021), max(zf, zf + sg * 0.021), R)
+                lbx("Black Metal", T, ua, uc, min(vi, key=lambda v_: abs(v_ - (TW if va == 0.0 else w - TW))), min(vi, key=lambda v_: abs(v_ - (TW if va == 0.0 else w - TW))) + (0.021 if va == 0.0 else -0.021), min(zf, zf + sg * 0.25), max(zf, zf + sg * 0.25), R)
             vw = (TW, TW + 0.021) if va == 0.0 else (w - TW - 0.021, w - TW)        # bracket web, 1/4 in
             vs = (TW, TW + 0.208) if va == 0.0 else (w - TW - 0.208, w - TW)        # seat, 2 1/2 in
             for k in range(1, nr):
@@ -64,13 +75,10 @@ def flight(T, z0, nr, ri, go, td, w, treads=None, u_lo=-0.04, u_hi=None, leg=Fal
                 C = (A[0], zl(A[0]))
                 lap = 0.1875                                                         # web laps 2 1/4 in down the tube's side
                 B2, C2 = (B[0] + nx * lap, B[1] + nz * lap), (C[0] + nx * lap, C[1] + nz * lap)
-                fz = (lambda z: max(z, z0 + 0.01)) if foot == "floor" else (lambda z: z)
+                fz = lambda z: max(z, z0 + 0.01)
                 lhx("Black Metal", T, [(C2[0], vw[0], fz(C2[1])), (B2[0], vw[0], B2[1]), (B[0], vw[0], B[1] - 0.021), (A[0], vw[0], A[1] - 0.021),
                                        (C2[0], vw[1], fz(C2[1])), (B2[0], vw[1], B2[1]), (B[0], vw[1], B[1] - 0.021), (A[0], vw[1], A[1] - 0.021)], R)
                 lbx("Black Metal", T, uk + 0.083, uk + td, vs[0], vs[1], zk - 0.021, zk - 0.0005, R)
-            if hang:                                                                 # hanger plate from the tube's head up to the balcony rim
-                lbx("Black Metal", T, u_end - 0.29, u_end - 0.02, vw[0], vw[1], zl(u_end) - pl * 0.6, z0 + nr * ri - 0.115, R)
-                lbx("Black Metal", T, u_end - 0.041, u_end - 0.02, vs[0], vs[1], z0 + nr * ri - 0.46, z0 + nr * ri - 0.115, R)
     for k in (treads if treads is not None else range(1, nr)):
         uk = (k - 1) * go
         v0_, v1_ = tv
@@ -102,7 +110,7 @@ def flight(T, z0, nr, ri, go, td, w, treads=None, u_lo=-0.04, u_hi=None, leg=Fal
                                    (r0, vc + RW / 2, zn(r0) + HR - 0.13), (r1, vc + RW / 2, zn(r1) + HR - 0.13), (r1, vc + RW / 2, zn(r1) + HR), (r0, vc + RW / 2, zn(r0) + HR)], R)
             for up in (posts if posts is not None else (r0 + 0.05, r1 - 0.05)):
                 zp_ = (zl(up) - pl * 0.8) if carriage == "tube" else zt(up) - 0.05     # tube: flat bar posts bolted to the tube's outer face
-                lbx("Black Metal", T, up - 0.05, up + 0.05, vc - 0.04, vc + 0.04, max(zp_, z0 + 0.01) if foot == "floor" else zp_, zn(up) + HR - 0.06, R)
+                lbx("Black Metal", T, up - 0.05, up + 0.05, vc - 0.04, vc + 0.04, max(zp_, z0 + 0.01), zn(up) + HR - 0.06, R)
     return dict(u_end=u_end, zn=zn, zt=zt)
 
 
@@ -209,9 +217,11 @@ def _ladder_options():
         if under:
             wall_rail(lad_T(XL - ul, sy1 - wn, (1, 0)), 0.0, n_lo, wn, wl, ul)
         yl0 = sy1 - wn - 0.1
-        box("White Oak", XL, EDGE_X - 0.002, yl0, min(sy1 + 0.12, YC - 0.002), zp - 0.4, zp)
-        box("White Oak", XL, XL + 0.29, yl0, yl0 + 0.29, 0.0, zp - 0.4)
-        box("White Oak", XL, XL + 0.29, sy1 - 0.2, min(sy1 + 0.09, YC - 0.002), 0.0, zp - 0.4)
+        yln = yl0 - (0.667 if tube else 0.0)                     # tube: the landing runs 8 in further north, under the upper flight's first tread, so the upper tubes' feet stand on it
+        pxo = 0.5625 if tube else 0.0                            # tube: west posts 6 3/4 in in from the edge, behind the lower tubes' heads tucked under the landing
+        box("White Oak", XL, EDGE_X - 0.002, yln, min(sy1 + 0.12, YC - 0.002), zp - 0.4, zp)
+        box("White Oak", XL + pxo, XL + pxo + 0.29, yl0, yl0 + 0.29, 0.0, zp - 0.4)
+        box("White Oak", XL + pxo, XL + pxo + 0.29, sy1 - 0.2, min(sy1 + 0.09, YC - 0.002), 0.0, zp - 0.4)
         n_up = NR - n_lo
         uu = (n_up - 1) * GO + (TD - GO)
         go_u, td_u = GO, TD
@@ -220,7 +230,7 @@ def _ladder_options():
             go_u = (uu - (TD - GO)) / (n_up - 1)
             td_u = go_u + 0.1
             print("stretched upper flight: going", round(go_u * 12, 2), "in, slope", round(math.degrees(math.atan(RI / go_u)), 1), "deg")
-        flight(lad_T(XL, yl0, (0, -1)), zp, n_up, RI, go_u, td_u, wn, smat=smat, rail_v=(orv - RW / 2,) if under else None, carriage=car, foot="plumb", hang=True)
+        flight(lad_T(XL, yl0, (0, -1)), zp, n_up, RI, go_u, td_u, wn, smat=smat, rail_v=(orv - RW / 2,) if under else None, carriage=car, tuck=0.5)
         if under:
             wall_rail(lad_T(XL, yl0, (0, -1)), zp, n_up, wn, EDGE_X - XL, uu)
         yt1 = yl0 - uu

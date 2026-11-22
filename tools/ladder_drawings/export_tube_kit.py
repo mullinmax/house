@@ -56,22 +56,8 @@ def tread_bracket(floor=None):
     return out, holes, [((WEB_U0, 0), (TD, 0))]
 
 
-def hanger():
-    """head hanger for the upper flight: origin at the balcony's south face (x = 0) and top (y = 0); web to the left, rim flange to the right"""
-
-    zl = lambda u: 3.5 * SL - TD * SL - TT + u * SL          # nosing line is 3.5 * SL above the balcony top at the rim face
-    lapv = LAP / math.cos(ANG)
-    q1, q2 = (0.0, zl(0) - lapv), (-3.2, zl(-3.2) - lapv)
-    q3 = (q2[0] - NX * LAP, q2[1] - NZ * LAP)
-    q4 = (-3.0, zl(-3.0))
-    out = [(-3.0, -0.75), q4, q3, q2, q1, (0, -5.8), (-0.25, -5.8), (-0.25, -5.5), (FL_FLAT, -5.5), (FL_FLAT, -0.75)]
-    holes = [(q3[0] + DX * s + NX * BOLT_N, q3[1] + DZ * s + NZ * BOLT_N, D38) for s in (1.25, 5.0)]
-    holes += [(FL_FLAT - 1.25, -1.75, D38), (FL_FLAT - 1.25, -4.25, D38)]
-    return out, holes, [((0, -5.5), (0, -0.75))]
-
-
 def end_angle():
-    """3 x 3 in angle, 4 in long: tube foot to the slab, tube head or foot to a landing post"""
+    """3 x 3 in angle, 4 in long, one at each end of each tube: feet to the slab or the corner landing, heads up into the landing or the balcony"""
     w = 6.0 - 0.25
     return [(0, 0), (4, 0), (4, w), (0, w)], [(1, 1.25, D38), (3, 1.25, D38), (1, w - 1.25, D38), (3, w - 1.25, D38)], [((0, w / 2), (4, w / 2))]
 
@@ -110,10 +96,9 @@ def dxf(path, part):
 
 
 n_tr = NR - 2                                   # treads (the landing and the balcony are risers N_LO and NR)
-PARTS = [("tread_bracket", norm(tread_bracket()), 2 * n_tr - 2, '1/4" steel', "one 90° bend: half bent up, half bent down (left and right hand)"),
-         ("tread_bracket_floor", norm(tread_bracket(floor=-(RI - TT))), 2, '1/4" steel', "first tread of the lower flight, trimmed at the floor: one bent each way"),
-         ("head_hanger", norm(hanger()), 2, '1/4" steel', "upper flight tubes to the balcony rim: one bent each way"),
-         ("end_angle", norm(end_angle()), 6, '1/4" steel', "one 90° bend: 2 at the slab, 3 at the landing posts, 1 spare"),
+PARTS = [("tread_bracket", norm(tread_bracket()), 2 * n_tr - 4, '1/4" steel', "one 90° bend: half bent up, half bent down (left and right hand)"),
+         ("tread_bracket_floor", norm(tread_bracket(floor=-(RI - TT))), 4, '1/4" steel', "first tread of each flight, trimmed at the floor or landing: two bent each way"),
+         ("end_angle", norm(end_angle()), 8, '1/4" steel', "one 90° bend: one at each end of each tube"),
          ("wall_tab", norm(wall_tab()), 5, '1/4" steel', "flat: lags the wall side tubes to blocking"),
          ("drill_jig", norm(drill_jig()), 1, '1/8" steel', "flat: clamps to the tube to mark the bolt holes")]
 for f_ in os.listdir(OUT):
@@ -126,19 +111,17 @@ for name, part, qty, mat, note in PARTS:
 
 
 # tube cut list: s along the tube's axis, from the four corners of each tube's side view
-def tube_len(nr, foot):
-    u_end = (nr - 1) * GO + (TD - GO)
+def tube_len(nr, tuck):
+    """level cut at the foot (floor or landing top) and at the head (underside of the platform, tuck below its top)"""
     zl = lambda u: RI + u * SL - TD * SL - TT
-    if foot == "floor":
-        u0 = -zl(0) / SL
-        pts = [(u0, 0), (u0 + PL / SL, 0), (u_end, zl(u_end)), (u_end, zl(u_end) - PL)]
-    else:
-        pts = [(0, zl(0)), (0, zl(0) - PL), (u_end, zl(u_end)), (u_end, zl(u_end) - PL)]
+    u0 = -zl(0) / SL
+    u2 = (nr * RI - tuck - zl(0)) / SL
+    pts = [(u0, 0), (u0 + PL / SL, 0), (u2, nr * RI - tuck), (u2 + PL / SL, nr * RI - tuck)]
     s = [u * DX + z * DZ for u, z in pts]
     return max(s) - min(s)
 
 
-LEN_LO, LEN_UP = tube_len(N_LO, "floor"), tube_len(NR - N_LO, "plumb")
+LEN_LO, LEN_UP = tube_len(N_LO, 4.8), tube_len(NR - N_LO, 6.0)
 print(f"tubes: lower {LEN_LO:.1f} in x2, upper {LEN_UP:.1f} in x2, angle {math.degrees(ANG):.1f}, pitch {PITCH:.3f}")
 
 # ---------------------------------------------------------------- assembly sheet
@@ -188,23 +171,23 @@ ax2.set_xlim(-1, x); ax2.set_ylim(-5, 22)
 ax2.set_title("LASER CUT PARTS, FLAT (red dashes = bend line; one DXF file each)", fontsize=10, fontweight="bold", loc="left")
 rows = ["CUT LIST AND HARDWARE",
         f"Tube: {TW:.0f} x {TDp:.0f} x 3/16 in rectangular steel tube (A500), about {LEN_LO + LEN_UP:.0f} in per side, 2 sides. Buy two 12 ft or one 24 ft length.",
-        f"   Lower flight, 2 pieces about {LEN_LO:.1f} in overall: level cut at the floor ({90 - math.degrees(ANG):.1f}° off square), plumb cut at the landing posts ({math.degrees(ANG):.1f}° off square).",
-        f"   Upper flight, 2 pieces about {LEN_UP:.1f} in overall: plumb cuts both ends ({math.degrees(ANG):.1f}° off square). Lengths are from the model: measure the real rise first.",
+        f"   Lower flight, 2 pieces about {LEN_LO:.1f} in overall. Upper flight, 2 pieces about {LEN_UP:.1f} in overall. Lengths are from the model: measure the real rise first.",
+        f"   All 8 cuts are the same level cut, {90 - math.degrees(ANG):.1f}° off square: feet stand on the slab or the corner landing, heads bear on the underside of the landing or balcony.",
         f"Treads: {n_tr} white oak, 1 7/16 x {TD} x {WN - 0.1:.2f} in (full width, over the tubes).",
-        f"Bolts: {2 * (2 * n_tr) + 4 + 12} of 3/8-16 x 3 in hex bolts with washers and lock nuts (2 per bracket, hanger and angle).",
+        f"Bolts: {2 * (2 * n_tr) + 16} of 3/8-16 x 3 in hex bolts with washers and lock nuts (2 per bracket and angle).",
         f"Tread screws: {4 * n_tr} of 1/4 x 1 1/4 in pan head screws up through the seats, 2 per bracket.",
-        "Wall: 3/8 x 3 1/2 in lag screws through the wall tabs into solid blocking, with 1/2 in spacers. Slab: 3/8 in wedge anchors at the 2 floor angles.",
+        "Wall: 3/8 x 3 1/2 in lags through the wall tabs into blocking, 1/2 in spacers. Slab: 3/8 in wedge anchors. Platforms: 3/8 in through bolts up into the framing.",
         "",
         "ASSEMBLY",
         "1. Add solid blocking in the bath 1 wall and the clerestory wall along both slopes, and at the wall rail brackets, before drywall.",
         f"2. Cut the tubes. Clamp the drill jig to a tube's inner side, top edges flush, and drill 13/32 in holes through both walls. Leapfrog the jig {PITCH:.2f} in up the tube.",
         "3. Bolt on the brackets, seats level and pointing inward. Wall side tubes: put the wall tabs under the bolt heads on the wall side.",
-        "4. Lower flight: stand the tubes up, anchor the floor angles, bolt the heads to the landing posts. Lag the wall tabs.",
-        "5. Upper flight: bolt the open side tube's foot to the landing's north west post, hang both heads from the balcony rim, lag the wall tabs.",
+        "4. Lower flight: feet on the slab, heads tucked under the corner landing's west edge, in front of its posts. Anchor the angles at both ends. Lag the wall tabs.",
+        "5. Upper flight: feet on the corner landing (it runs 8 in north under the first tread), heads tucked under the balcony. Bolt the angles. Lag the wall tabs.",
         "6. Screw the treads on from below. Rails: wall rails on brackets 1 1/2 in off the walls; open side rail posts bolt to the tube's outer face at brackets.",
         "",
         f"CHECKS (preliminary): 300 lb at mid flight puts about 2,100 psi in the tube. Treads {WN - 0.1:.1f} in wide, 21 7/8 in between rails (20 in min).",
-        "Engineer to confirm: tube and bracket sizes, bolts, wall lags and blocking, slab anchors, landing posts and rim, balcony rim and its cantilever."]
+        "Engineer to confirm: tube and bracket sizes, bolts, wall lags and blocking, slab anchors, the landing framing, and the balcony framing and cantilever that the heads bolt up into."]
 for i, r in enumerate(rows):
     fig.text(0.43, 0.43 - i * 0.0205, r, fontsize=8.3, fontweight="bold" if r.isupper() or r.startswith("CUT") else "normal")
 fig.savefig(os.path.join(OUT, "tube_ladder_assembly.png"), dpi=150)
