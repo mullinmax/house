@@ -146,7 +146,7 @@ else:
 # balcony frame, knee braces
 BS1, BN1 = G.BAL_S + 1, G.BAL_N - 1
 M("BE", (1, BS1, ZB), (1, BN1, ZB), "TUBE")
-M("BS", (1, BS1, ZB), (XW, BS1, ZB), "TUBE", "ij")
+M("BS", (1, BS1, ZB), (XW, BS1, ZB), "TUBE", "i" if G.MONO else "ij")
 M("BH", (1, G.B_BH, ZB), (XW, G.B_BH, ZB), "TUBE", "i")
 M("BN", (1, BN1, ZB), (XW, BN1, ZB), "TUBE", "i")
 M("BW", (XW, BS1, ZB), (XW, BN1, ZB), "TUBE")
@@ -198,28 +198,30 @@ M("rail_lower", tip, nw[3], "RAIL", "j")
 # balcony south west newel: lapped onto the upper open tube and the balcony's west beam
 bsw = BS1
 u_sw = bsw - G.B0
-gs = [(PC, bsw, UP.zc(u_sw)), (PC, bsw, ZB), (PC, bsw, zr_up(bsw)), (PC, bsw, G.G_TOP - 0.75), (PC, bsw, G.GSW_TOP)]
+gs = [(PC, bsw, ZB - 1.5 if G.MONO else UP.zc(u_sw)), (PC, bsw, ZB), (PC, bsw, zr_up(bsw)), (PC, bsw, G.G_TOP - 0.75), (PC, bsw, G.GSW_TOP)]
 for i in range(4):
     M(f"gsw{i}", gs[i], gs[i + 1], "POST")
-M("gsw_tube", gs[0], UP.p(u_sw, G.VC, UP.zc(u_sw)), "STRUT", "ij") if G.MONO else M("gsw_tube", gs[0], (XW, bsw, UP.zc(u_sw)), "RIGID")
-M("gsw_BW", gs[1], (XW, bsw, ZB), "RIGID", "J" if G.MONO else "")
-if G.MONO:                                         # kickers under the west beam hold the two free posts north to south
-    M("gsw_kick", (PC, bsw, ZB - G.KICK), (XW, bsw + G.KICK, ZB), "STRUT", "ij")
+if not G.MONO:
+    M("gsw_tube", gs[0], (XW, bsw, UP.zc(u_sw)), "RIGID")
+M("gsw_BW", gs[1], (XW, bsw, ZB), "RIGID")       # mono: an L plate bolted to the south beam and up the post carries the post's moment into the frame
 mid_up = (PC, (PC + bsw) / 2, zr_up((PC + bsw) / 2))
 N(*mid_up)
 M("rail_upper", nw[4], gs[2], "RAIL", "ij")
 # balcony guard
 zg = G.G_TOP - 0.75
-corner = (PC, G.GP_B, zg)
-M("gnw_BN", (XW, G.GP_B, ZB), (XW, BN1, ZB), "RIGID", "J" if G.MONO else "")
-M("gnw", (XW, G.GP_B, ZB), (XW, G.GP_B, zg), "POST")
-if G.MONO:
-    M("gnw0", (XW, G.GP_B, ZB - G.KICK), (XW, G.GP_B, ZB), "POST")
-    M("gnw_kick", (XW, G.GP_B, ZB - G.KICK), (XW, BN1 - G.KICK, ZB), "STRUT", "ij")
+if G.MONO:                                          # the north west post mirrors the south west one: outside the west beam, on its own L plate
+    corner = (PC, BN1, zg)
+    M("gnw_BN", (PC, BN1, ZB), (XW, BN1, ZB), "RIGID")
+    M("gnw", (PC, BN1, ZB), corner, "POST")
+else:
+    corner = (PC, G.GP_B, zg)
+    M("gnw_BN", (XW, G.GP_B, ZB), (XW, BN1, ZB), "RIGID")
+    M("gnw", (XW, G.GP_B, ZB), (XW, G.GP_B, zg), "POST")
 ne = [(1, G.GP_B, G.FL - 11), (1, G.GP_B, G.FL - 2), (1, G.GP_B, zg)]
 S(ne[0], what="north east guard post lag (lower)"); S(ne[1], what="north east guard post lag (upper)")
 M("gne0", ne[0], ne[1], "POST"); M("gne1", ne[1], ne[2], "POST")
-mid_gw, mid_gn = (PC, (bsw + G.GP_B) / 2, zg), (12.6, G.GP_B, zg)
+mid_gw = (PC, (bsw + corner[1]) / 2, zg)
+mid_gn = ((corner[0] + 1) / 2, (corner[1] + G.GP_B) / 2, zg) if G.MONO else (12.6, G.GP_B, zg)
 N(*mid_gw); N(*mid_gn)
 M("grail_w", gs[3], corner, "RAIL", "i")
 M("grail_n", corner, ne[2], "RAIL", "j")

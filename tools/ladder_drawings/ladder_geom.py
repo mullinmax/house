@@ -70,15 +70,16 @@ ZLF, ZBF = ZP - TT - FD / 2, FL - TT - FD / 2    # frame centre heights: landing
 A_LH = XL + UL - LOWER.uhc                        # landing header, over the lower tubes' heads
 B_BH = B0 + UPPER.uhc                             # balcony arm over the upper tubes' heads
 B_UF = B0 + UPPER.ufc                             # upper tubes' feet on the landing
-LAND_N = B0 + 8.0 if not MONO else B0 + UPPER.u1 + 0.6     # corner landing's north edge, under the upper flight's first tread
+LN_W = 4.0 if MONO else 2.0                       # landing north beam width (mono: a 4 x 3 tube laid flat, as wide as the stringer foot that stands on it)
+LAND_N = B0 + 8.0 if not MONO else B_UF + LN_W / 2          # corner landing frame's north edge (mono: flush with the north beam, nothing past it)
 LAND_DECK_N = B0 + TD - GO if MONO else LAND_N    # mono: the landing's oak ends like a tread, at the front of the riser lip under the upper flight's first tread (Maxwell 11/22/2026)
 B_LN = B_UF if MONO else LAND_N - 1               # landing north beam: under the centre stringer's foot, or at the edge
 VC = WN / 2
 PC = XL + POST / 2                                # posts stand outside the open edge, lapped onto the tubes and frames
 FOOT_U = 4.0 if MONO else 12.0                   # lower flight foot post (mono: beside the first tread on a 4 anchor moment base plate)
 A_FOOT = XL + UL - FOOT_U
-BRACE = 16.0                                      # knee brace rise and run
-A_BR = 17.0
+A_BR = XL - 2.0 if MONO else 17.0                 # knee brace: where it meets the balcony frame (mono: one 45 degree brace from the north west corner to the wall, Maxwell 11/22/2026)
+BRACE = A_BR - 1.0 if MONO else 16.0              # its rise
 KICK = 9.0                                        # mono: kicker rise and run under the balcony's west beam
 
 # frame members, centrelines (a, b) to (a, b): 2 x 3 tube on edge
