@@ -139,6 +139,25 @@ def mono_ladder(WX, WY):
     XL, ZP, FL_, TT, TK, VC, BT = G.XL, G.ZP, G.FL, G.TT, G.TK, G.VC, 0.375
     nx, nz = math.sin(G.ANG), -math.cos(G.ANG)
     RD2 = G.RAIL / math.cos(G.ANG)
+    ZN = "Stainless"                                     # bolt heads, nuts and anchors: every joint is bolted, nothing welded (Maxwell 11/22/2026)
+
+    def bolt(a, b, z, axis, sign=1, d=0.7, h=0.3):
+        r = d / 2
+        lo, hi = (0, h) if sign > 0 else (-h, 0)
+        if axis == "a":
+            gb(ZN, a + lo, a + hi, b - r, b + r, z - r, z + r)
+        elif axis == "b":
+            gb(ZN, a - r, a + r, b + lo, b + hi, z - r, z + r)
+        else:
+            gb(ZN, a - r, a + r, b - r, b + r, z + lo, z + hi)
+
+    def fbolt(f, u, v, z, axis, sign=1, **kw):
+        a, b, _ = f.p(u, v, z)
+        if axis == "z":
+            return bolt(a, b, z, "z", sign, **kw)
+        a2, b2, _ = f.p(u, v + sign, z)
+        bolt(a, b, z, "a" if abs(a2 - a) > 0.5 else "b", (1 if a2 > a else -1) if abs(a2 - a) > 0.5 else (1 if b2 > b else -1), **kw)
+
     for f in G.FLIGHTS:
         gh(ST, f, [(f.u0, f.zf + e), (f.u1, f.zf + e), (f.u3, f.zu - e), (f.u2, f.zu - e)], VC - G.TW / 2, VC + G.TW / 2)
         for k in range(1, f.nr):
@@ -149,8 +168,15 @@ def mono_ladder(WX, WY):
                 C2, B2 = (A[0] + nx * G.LAP, max(f.zl(A[0]) + nz * G.LAP, f.zf + BT)), (B[0] + nx * G.LAP, max(zk + nz * G.LAP, f.zf + BT))
                 gh(ST, f, [C2, B2, B, A], v0, v0 + sg * BT)
                 gh(ST, f, [(uk + 1, zk - BT), (uk + G.TD + G.RT - e, zk - BT), (uk + G.TD + G.RT - e, zk - e), (uk + 1, zk - e)], v0, v0 + sg * G.SEAT_W)
-                if k == 1:                                   # foot flange on the slab or the landing
-                    gh(ST, f, [(C2[0], f.zf + e), (B2[0], f.zf + e), (B2[0], f.zf + BT), (C2[0], f.zf + BT)], v0, v0 + sg * G.SEAT_W)
+                for s_ in (4.25, 8.25):                      # two through bolts per bracket pair
+                    ub_, zb_ = A[0] + s_ * math.cos(G.ANG) + nx * G.BOLT_N, f.zl(A[0]) + s_ * math.sin(G.ANG) + nz * G.BOLT_N
+                    if zb_ > f.zf + BT + 0.5:
+                        fbolt(f, ub_, v0 + sg * BT, zb_, "v", sg)
+                if k == 1:                                   # foot flange on the slab, or on the landing's north beam and no wider than it
+                    fu = (C2[0], B2[0]) if f is G.LOWER else (max(C2[0], G.B_LN - G.LN_W / 2 - G.B0 + e), min(B2[0], G.B_LN + G.LN_W / 2 - G.B0 - e))
+                    gh(ST, f, [(fu[0], f.zf + e), (fu[1], f.zf + e), (fu[1], f.zf + BT), (fu[0], f.zf + BT)], v0, v0 + sg * G.SEAT_W)
+                    for ub_ in (fu[0] + 0.8, fu[1] - 0.8):
+                        fbolt(f, ub_, v0 + sg * (G.SEAT_W / 2 + 0.6), f.zf + BT, "z")
             gh(OAK, f, [(uk, zk), (uk + G.TD, zk), (uk + G.TD, zk + TT), (uk, zk + TT)], 0.05, G.WN - 0.05)
             ur = uk + G.TD                                   # riser lip behind every tread: under 4 in open above it
             gh(OAK, f, [(ur + e, zk), (ur + G.RT, zk), (ur + G.RT, zk + TT + G.RH), (ur + e, zk + TT + G.RH)], 0.05 + e, G.WN - 0.05 - e)
@@ -159,48 +185,58 @@ def mono_ladder(WX, WY):
         gh(ST, f, [(ua, ztop(ua) - RD2), (ub, ztop(ub) - RD2), (ub, ztop(ub)), (ua, ztop(ua))], -1.75, -0.25)
     ur = G.TD - G.GO
     gh(OAK, G.UPPER, [(ur + e, ZP - TT), (ur + G.RT, ZP - TT), (ur + G.RT, ZP + G.RH), (ur + e, ZP + G.RH)], 0.05 + e, G.WN - 0.05 - e)
-    # lower flight foot post on its base plate, corner newel
+    # lower flight foot post and the corner newel, each on a base plate with four slab anchors
     fa = G.A_FOOT
     gb(ST, fa - 1, fa + 1, XL + e, XL + G.POST, 0.375, G.LOWER.zn(G.FOOT_U) + G.HR - RD2 + 0.5)
     gb(ST, fa - 3, fa + 3, XL - 2, XL + G.POST + 2, 0.02, 0.375)
-    gb(ST, XL + e, XL + G.POST, XL + e, XL + G.POST, 0.02, G.NEWEL_TOP)
-    # corner landing: oak deck on a tube frame
+    gb(ST, XL + e, XL + G.POST, XL + e, XL + G.POST, 0.375, G.NEWEL_TOP)
+    gb(ST, XL - 2, XL + G.POST + 2, XL - 2, XL + G.POST + 2, 0.02, 0.375)
+    for ca, cb in ((fa, XL + 1), (XL + 1, XL + 1)):
+        for da in (-2.3, 2.3):
+            for db in (-2.3, 2.3):
+                bolt(ca + da, cb + db, 0.375, "z")
+    for z_ in (ZP - TK + 0.8, ZP - TT - 0.8):                # corner newel lapped onto the landing's west beam
+        bolt(XL + G.POST, XL + 1, z_, "a")
+    # corner landing: oak deck on a tube frame; the north beam is a 4 x 3 tube laid flat under the stringer's foot
     z0, z1 = ZP - TK, ZP - TT - e
     gb(OAK, 0.03, XL, 0.03, G.LAND_DECK_N, ZP - TT, ZP)
-    for a0, a1, b0, b1 in ((0.05, 2, 0.05, G.LAND_N - e), (2 + e, XL - e, 0.05, 2), (XL - 2, XL - e, 2 + e, G.LAND_N - e), (2 + e, XL - 2 - e, G.B_LN - 1, G.B_LN + 1), (G.A_LH - 1, G.A_LH + 1, 2 + e, G.B_LN - 1 - e)):
+    h = G.LN_W / 2
+    for a0, a1, b0, b1 in ((0.05, 2, 0.05, G.LAND_N - e), (2 + e, XL - e, 0.05, 2), (XL - 2, XL - e, 2 + e, G.LAND_N - e), (2 + e, XL - 2 - e, G.B_LN - h, G.B_LN + h - 2 * e), (G.A_LH - 1, G.A_LH + 1, 2 + e, G.B_LN - h - e)):
         gb(ST, a0, a1, b0, b1, z0, z1)
-    # balcony: deck, frame, north knee brace
+    # balcony: deck, frame, one 45 degree brace from under the north west corner down to the wall
     z0, z1 = FL_ - TK, FL_ - TT - e
     gb(OAK, 0.03, XL, G.BAL_S, G.BAL_N, FL_ - TT, FL_ - 0.05)
     for a0, a1, b0, b1 in ((0.05, 2, G.BAL_S + e, G.BAL_N - e), (2 + e, XL - 2 - e, G.BAL_S + e, G.BAL_S + 2), (2 + e, XL - 2 - e, G.B_BH - 1, G.B_BH + 1), (2 + e, XL - e, G.BAL_N - 2, G.BAL_N - e), (XL - 2, XL - e, G.BAL_S + e, G.BAL_N - 2 - e)):
         gb(ST, a0, a1, b0, b1, z0, z1)
-    r2, b = G.POST / math.sqrt(2), G.BAL_N - 1
-    hexa(ST, [P(a, bb, z) for bb in (b - 1 + e, b + 1 - e) for a, z in ((G.A_BR + 1 + r2, z0 - e), (G.A_BR + 1 - r2, z0 - e), (0.05, z0 - G.A_BR - 1 + r2), (0.05, z0 - G.A_BR - 1 - r2))])
-    # balcony south west newel with its tie under the stringer and kicker; north guard posts; guard rails and pickets
-    us = G.BAL_S + 1 - G.B0
-    zt = G.UPPER.zl(us - 0.75) - G.PL
-    gz0 = min(zt - 2.5, z0 - G.KICK - 3)
-    gb(ST, XL + e, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, gz0, G.GSW_TOP)
-    gb(ST, XL - VC - G.TW / 2, XL, G.BAL_S + 0.25, G.BAL_S + 1.75, zt - 1.5 - e, zt - e)
-    kd = 1.5 * math.sqrt(2)
-    for bs, sg in ((G.BAL_S + G.POST + e, 1), (G.BAL_N - e, -1)):
-        hexa(ST, [P(a, bb, z) for a in (XL - 1.75, XL - 0.25) for bb, z in ((bs, z0 - G.KICK), (bs, z0 - G.KICK - kd), (bs + sg * (G.KICK + kd), z0 - e), (bs + sg * G.KICK, z0 - e))])
-    gb(ST, XL - G.POST, XL - e, G.BAL_N + e, G.BAL_N + G.POST, z0 - G.KICK - 3, G.G_TOP - G.RAIL - e)
+    r2, b, c_ = G.POST / math.sqrt(2), G.BAL_N - 1, XL - 1.5
+    hexa(ST, [P(a, bb, z) for bb in (b - 1 + e, b + 1 - 2 * e) for a, z in ((c_ + r2, z0 - e), (c_ - r2, z0 - e), (0.05, z0 - c_ + r2), (0.05, z0 - c_ - r2))])
+    bolt(c_ - 2.2, b + 1 - 2 * e, z0 - 2.2, "b"); bolt(1.6, b + 1 - 2 * e, z0 - c_ + 1.6, "b")
+    # the two free posts stand outside the west beam and stop at the frame's underside; an L shaped plate bolts each to the end beam and 3 1/2 in up the post
+    gb(ST, XL + e, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, z0, G.GSW_TOP)
+    gb(ST, XL + e, XL + G.POST, G.BAL_N - G.POST, G.BAL_N, z0, G.G_TOP)
+    for b0, b1, sg in ((G.BAL_S - 0.375, G.BAL_S - e, -1), (G.BAL_N + e, G.BAL_N + 0.375, 1)):
+        gb(ST, XL - 8, XL + G.POST - e, b0, b1, z0 + e, FL_ - TT)
+        gb(ST, XL + 2 * e, XL + G.POST - e, b0, b1, FL_ - TT + e, FL_ + 3.5)
+        for a_, z_ in ((XL - 7, z0 + 1.5), (XL - 2.5, z0 + 1.5), (XL + 1, z0 + 1.2), (XL + 1, FL_ + 2.6)):
+            bolt(a_, b1 if sg > 0 else b0, z_, "b", sg)
     gb(ST, 0.05, G.POST, G.BAL_N + e, G.BAL_N + G.POST, FL_ - 13, G.G_TOP - G.RAIL - e)
-    ra, rb = (XL + 0.25, XL + 0.25 + G.RAIL), (G.GP_B - G.RAIL / 2, G.GP_B + G.RAIL / 2)
-    for zr in (G.G_TOP - G.RAIL, FL_ + 2.5):
+    for z_ in (FL_ - 11, FL_ - 2):
+        bolt(G.POST, G.BAL_N + 1, z_, "a")
+    ra, rb = (XL + 0.25, XL + 0.25 + G.RAIL), (G.BAL_N + 0.4, G.BAL_N + 0.4 + G.RAIL)
+    for zr in (G.G_TOP - G.RAIL, FL_ + 3.6):
         top = zr > FL_ + 10
-        gb(ST, ra[0], ra[1], G.BAL_S + G.POST + e, rb[1], zr, zr + G.RAIL)
-        gb(ST, G.POST + e if not top else 0.05, XL - G.POST - e if not top else ra[0] - e, rb[0], rb[1], zr, zr + G.RAIL)
-    pz = (FL_ + 2.5 + G.RAIL + e, G.G_TOP - G.RAIL - e)
-    n_w = math.ceil((rb[0] - (G.BAL_S + G.POST)) / 4.4)
+        gb(ST, ra[0], ra[1], G.BAL_S + G.POST + e, G.BAL_N - G.POST - e, zr, zr + G.RAIL - e)
+        gb(ST, G.POST + e if not top else 0.05, XL + G.POST - 2 * e, rb[0], rb[1], zr, zr + G.RAIL - e)
+    pz = (FL_ + 3.6 + G.RAIL, G.G_TOP - G.RAIL - e)
+    span = (G.BAL_S + G.POST, G.BAL_N - G.POST)
+    n_w = math.ceil((span[1] - span[0]) / 4.4)
     for i in range(1, n_w):
-        b = G.BAL_S + G.POST + i * (rb[0] - (G.BAL_S + G.POST)) / n_w
+        b = span[0] + i * (span[1] - span[0]) / n_w
         gb(ST, XL + 0.75, XL + 1.25, b - 0.25, b + 0.25, *pz)
-    n_n = math.ceil((XL - 2 * G.POST) / 4.4)
+    n_n = math.ceil((XL - G.POST) / 4.4)
     for i in range(1, n_n):
-        a = G.POST + i * (XL - 2 * G.POST) / n_n
-        gb(ST, a - 0.25, a + 0.25, G.GP_B - 0.25, G.GP_B + 0.25, *pz)
+        a = G.POST + i * (XL - G.POST) / n_n
+        gb(ST, a - 0.25, a + 0.25, (rb[0] + rb[1]) / 2 - 0.25, (rb[0] + rb[1]) / 2 + 0.25, *pz)
 
 
 def _ladder_options():
