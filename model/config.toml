@@ -292,6 +292,7 @@ enabled = true
 rect = [63.0833, 15.0, 95.0833, 43.0]
 south_wall_height = 9.0         # A-31 section 2: 9'-0" south, 13'-8" north at 2:12 (was 10.0 ASSUMED from the A-20 scale)
 pitch = 2.0                     # 2:12 down to the south (A-13)
+roof_thick_in = 16              # Maxwell 11/22/2026: 16 in like the breezeway roof, one continuous roof with it
 overhead_doors = [[5.5, 9.0], [17.5, 9.0]]   # [start from garage west, width], 8' tall (D90-80)
 north_windows = [5.5, 11.5, 17.5, 23.5]      # W30-30 awnings, start from garage west
 north_window_sill = 9.13        # A-21 north elevation (head 12'-1 1/2")
@@ -309,13 +310,13 @@ post_in = 5.5
 post_spacing_ft = 8.0           # along every wall, plus one at each side of every door
 girt_spacing_in = 24            # 2x4 girts laid flat outside the posts, siding on them
 siding_in = 0.75
-truss_spacing_ft = 4.0          # mono slope trusses north-south, on doubled 2x12 girders
-purlin_spacing_in = 24          # 2x4 purlins on edge, east-west, roof metal on them
+# mono slope trusses north-south on doubled 2x12 girders, placed between the north windows (make_house.py)
+purlin_spacing_in = 24          # 2x6 purlins on edge, east-west, roof on them
 
 [porch]                         # covered porch (the breezeway), delegated design
 enabled = true
 rect = [43.0833, 26.7, 63.0833, 42.6]
-high_height = 11.0              # underside of the roof at the north edge. ASSUMED
+high_height = 11.0              # underside of the roof at the north edge. ASSUMED; ignored while the garage is on (the roof follows the garage roof plane)
 pitch = 2.0
 posts_x = [49.75, 56.3]
 roof_thick_in = 16              # Maxwell's builder, 11/22/2026: the breezeway roof is 16 in thick (the ceiling stays put, it grows upward)
