@@ -43,10 +43,18 @@ const ROOM_LABELS = { Bed1: 'Bedroom 1', Bed2: 'Bedroom 2', Bed3: 'Bedroom 3', B
 // plane keeps enough depth precision. 4x MSAA everywhere: it softens jaggies and turns one pixel cracks
 // between pieces into faint lines instead of bright specks, and on phone GPUs it is resolved on chip for little cost.
 // ?dpr=1.5 pins the render scale (no adaptive drops), handy for screenshots or a fast machine.
-const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: 'high-performance' });
+// Quality (menu, remembered on this device; Maxwell 11/22/2026). High: full screen resolution up to 1.5x, sharp shadows.
+// Medium: at most 1x resolution, softer shadow map. Low: 0.75x, no antialiasing, no shadows, no far woods (what ?lite was).
+// Antialiasing can only be set when the page starts, so going to or from Low reloads the page (the address keeps the view).
+const QUALITY = { high: { maxDpr: 1.5, aa: true, shadows: true, shadowMap: 2048 },
+  medium: { maxDpr: 1.0, aa: true, shadows: true, shadowMap: 1024 },
+  low: { maxDpr: 0.75, aa: false, shadows: false, shadowMap: 1024 } };
+let quality = /[?&]lite\b/.test(location.search) ? 'low' : 'high';
+try { const q = localStorage.getItem('quality'); if (QUALITY[q] && !/[?&]lite\b/.test(location.search)) quality = q; } catch (err) { /* private window: default */ }
+const renderer = new THREE.WebGLRenderer({ antialias: QUALITY[quality].aa, powerPreference: 'high-performance' });
 const PIN_DPR = parseFloat((/[?&]dpr=([\d.]+)/.exec(location.search) || [])[1]) || 0;
-const MAX_DPR = PIN_DPR || Math.min(window.devicePixelRatio, 1.5);
-const MIN_DPR = Math.min(MAX_DPR, 0.75);       // was 0.6, which looked blocky; trials below decide whether dropping helps at all
+let MAX_DPR = PIN_DPR || Math.min(window.devicePixelRatio, QUALITY[quality].maxDpr);
+let MIN_DPR = Math.min(MAX_DPR, 0.75);       // was 0.6, which looked blocky; trials below decide whether dropping helps at all
 let dpr = MAX_DPR;
 renderer.setPixelRatio(dpr);
 renderer.localClippingEnabled = true;
@@ -68,7 +76,7 @@ const hemi = new THREE.HemisphereLight(0xdfe8f2, 0x6d6450, 1.1);
 scene.add(hemi);
 const sun = new THREE.DirectionalLight(0xfff1dc, 2.6);
 sun.castShadow = true;
-sun.shadow.mapSize.set(2048, 2048);
+sun.shadow.mapSize.set(QUALITY[quality].shadowMap, QUALITY[quality].shadowMap);
 Object.assign(sun.shadow.camera, { left: -40, right: 40, top: 40, bottom: -40, near: 1, far: 400 });
 sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
 scene.add(sun, sun.target);
@@ -219,7 +227,7 @@ const RE_UTIL = /geothermal|septic|utilit|marker/i;
 const RE_ROOF = /roof|seam|fascia|soffit|gutter|downspout|rafter|ceiling|loft floor|(?:^|[^a-z])ridge/i;
 const RE_NOCOLLIDE = /utilit|geothermal|septic|marker|leaf|leaves|crown|canopy|foliage|curtain|shade|rug|towel|light|lamp|glass pane|^Ground$/i;
 const roofNodes = [], utilNodes = [], treeMeshes = [];
-const LITE = /[?&]lite\b/.test(location.search);
+const isLow = () => quality === 'low';
 
 const upperPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1e6);   // the slice: everything above it is cut away. 1e6 = nothing clipped
 // Section faces. With the slice on you look down into cut walls, and inside a wall the layers' faces lie flush (SIP skins
@@ -849,8 +857,8 @@ function applyToggles() {
     const id = { drywall: 'Drywall', extwalls: 'Extwalls', openings: 'Openings', finish: 'Finish', framing: 'Framing', electrical: 'Electrical', appliances: 'Appliances' }[k];
     if (id) for (const o of list) show(o, layerOn(id));
   }
-  // One Trees layer for everything that grows (Maxwell, 11/17/2026: no separate Distant trees). ?lite still leaves the far woods out, for slow devices
-  for (const o of treeMeshes) show(o, layerOn('Trees') && !(LITE && o.userData.fullCount >= 80));
+  // One Trees layer for everything that grows (Maxwell, 11/17/2026: no separate Distant trees). Low quality (or ?lite) leaves the far woods out, for slow devices
+  for (const o of treeMeshes) show(o, layerOn('Trees') && !(isLow() && o.userData.fullCount >= 80));
   if (equip) {
     show(equip.layers.appliances, layerOn('Appliances'));
     show(equip.layers.vehicles, layerOn('Furniture'));     // Belongings: furniture, cars and storage are one layer (Maxwell, 11/20/2026)
@@ -987,7 +995,7 @@ function openModal(kind) {
     }${
       sect('Anywhere', [[K('H'), 'This page'], [K('M') + ' or Measure', 'Tape measure: click two points, each snaps to the nearest corner, and read the distance in feet and inches. ' + K('Esc') + ' clears, ' + K('M') + ' again turns it off'], ['Go to a room', 'Pick a room on the plan'], ['Find equipment', 'Pick a piece of equipment on the plan'], ['Height slice', 'Cut the house at any height'], ['Layers', 'Show or hide parts of the model']])
     }${
-touch || compact ? '' : phone}</div><p class="note">Slow? Add <kbd>?lite</kbd> to the address: no shadows and no far woods.</p>`;
+touch || compact ? '' : phone}</div><p class="note">Slow? Set Quality to Medium or Low in the menu. It is remembered on this device.</p>`;
   }
   $('modal').hidden = false;
   $('modalClose').focus();
@@ -1181,7 +1189,23 @@ function goTo(it) {       // bring the thing into view
   }
 }
 
-if (LITE) renderer.shadowMap.enabled = false;
+if (!QUALITY[quality].shadows) renderer.shadowMap.enabled = false;
+function setQuality(q) {
+  if (!QUALITY[q] || q === quality) return;
+  try { localStorage.setItem('quality', q); } catch (err) { /* private window: this visit only */ }
+  const was = QUALITY[quality], Q = QUALITY[q];
+  if (Q.aa !== was.aa || /[?&]lite\b/.test(location.search)) {        // antialiasing is fixed when the page starts
+    const u = new URL(shareURL()); u.searchParams.delete('lite');
+    location.replace(u.toString().replace(/=(?=&|$)/g, '') + location.hash); return;
+  }
+  quality = q;
+  for (const b of document.querySelectorAll('[data-quality]')) b.setAttribute('aria-pressed', b.dataset.quality === q);
+  if (!PIN_DPR) { MAX_DPR = Math.min(window.devicePixelRatio, Q.maxDpr); MIN_DPR = Math.min(MAX_DPR, 0.75); setDpr(MAX_DPR); }
+  if (Q.shadowMap !== sun.shadow.mapSize.x) { sun.shadow.mapSize.set(Q.shadowMap, Q.shadowMap); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; } }
+  if (renderer.shadowMap.enabled !== Q.shadows) { renderer.shadowMap.enabled = Q.shadows; scene.traverse((o) => { for (const m of [].concat(o.material || [])) m.needsUpdate = true; }); }
+  shadowDirty = true; applyToggles();
+}
+for (const b of document.querySelectorAll('[data-quality]')) { b.setAttribute('aria-pressed', b.dataset.quality === quality); b.onclick = () => setQuality(b.dataset.quality); }
 // ---------------------------------------------------------------- day / night
 // Night: the outside wall lights and the porch stay lit all the time. Inside, the nearest room lights are lit from a
 // fixed pool (a fixed count avoids shader rebuilds). A pool light that is no longer among the nearest fades out before
@@ -1677,4 +1701,4 @@ renderer.setAnimationLoop(() => {
 
 loadAll().catch((e) => { console.error(e); $('loadmsg').textContent = 'The model could not be loaded.'; });
 window.__B = THREE.Box3; window.__T = THREE; window.__walk = { orbit, resetView, setSlice, applyToggles, goRoom, closeModal,
-  simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, openSheet, act, inspectAt, showInfo, goTo, panOrbit, keys, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip, measure };
+  simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, openSheet, act, inspectAt, showInfo, goTo, panOrbit, keys, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setQuality, get quality() { return quality; }, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip, measure };

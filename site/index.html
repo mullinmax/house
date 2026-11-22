@@ -35,6 +35,7 @@ canvas { display: block; width: 100vw; height: 100vh; height: 100dvh; }
 #panel h1 { font: 600 1.05rem var(--display); margin: 0; }
 #panel .eyebrow { font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
 .row { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.qlbl { font-size: 12px; opacity: .75; margin-right: 2px; }
 button, select { font: 500 .85rem var(--body); color: var(--fg); background: transparent; border: 1px solid var(--line);
   border-radius: 6px; padding: 6px 10px; cursor: pointer; }
 button[aria-pressed="true"] { background: var(--accent); color: var(--accent-fg); border-color: var(--accent); }
@@ -258,6 +259,12 @@ body.compact .keys td:first-child { white-space: normal; }
     <div class="row" role="group" aria-label="Time of day">
       <button id="tDay" aria-pressed="true">Day</button>
       <button id="tNight" aria-pressed="false" title="Turn the sun off and the room lights on">Night</button>
+    </div>
+    <div class="row" role="group" aria-label="Quality">
+      <span class="qlbl" title="Remembered on this device">Quality</span>
+      <button data-quality="high" aria-pressed="true" title="Full screen resolution, antialiasing and sharp shadows">High</button>
+      <button data-quality="medium" aria-pressed="false" title="Lower resolution and softer shadows, still antialiased">Medium</button>
+      <button data-quality="low" aria-pressed="false" title="For slow devices: low resolution, no antialiasing, no shadows, no far woods (reloads the page)">Low</button>
     </div>
     <div class="row">
       <button data-act="measure" aria-pressed="false" title="Tape measure (M): click two points, each snaps to the nearest corner, to read the distance in feet and inches"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" style="vertical-align:-4px;margin-right:4px;color:inherit"><path d="M1.5 10.5 10.5 1.5l4 4-9 9z"/><path d="M4.5 7.5l1.5 1.5M6.5 5.5l1 1M8.5 3.5l1.5 1.5"/></svg>Measure</button>
