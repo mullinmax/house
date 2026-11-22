@@ -41,7 +41,7 @@ Listed from the parts in the model. The range hood rows follow whichever hood de
 |---|---|---|---|---|---|
 | Broan AI Series 210 ERV, side ports (B210E75RS) | 65 to 210 CFM | 1 | ea |  | About $1,580 to $1,790 |
 | Broan VBATHW 20/40/60 minute boost control | One per bathroom: bath 1, bath 2, powder | 3 | ea |  | About $34 each |
-| 8 in wall hood with screen, for the ERV exhaust | West wall; the fresh air hood is the shared 12 in one listed below | 1 | ea |  | Match the maker's hood or an insulated hood. |
+| 8 in wall hood with screen, for the ERV exhaust | West wall over bedroom 3, the north of the two ERV holes; the fresh air hood is the shared 12 in one listed below | 1 | ea |  | Match the maker's hood or an insulated hood. |
 | 6 to 8 in increaser | At the ERV's four 6 in ports (ducts are 8 in) | 4 | ea |  | Port size ASSUMED from the side port model; check Broan's drawing. |
 | 8 in backdraft damper | In the fresh air duct to the supply plenum | 1 | ea |  |  |
 | Hanging chains or straps with vibration isolators (set) | The ERV hangs level from the roof framing | 1 | ea |  |  |
@@ -59,7 +59,7 @@ Listed from the parts in the model. The range hood rows follow whichever hood de
 | 10 in spring loaded backdraft damper, low leakage | Makeup air duct, just before the kitchen supply duct | 1 | ea |  | About $20 to $50 Stops supply air going backward out the makeup air duct. |
 | 10 in round top takeoff on a rectangular duct | Makeup air into the top of the 14 x 8 kitchen supply duct | 1 | ea |  |  |
 | Duct wrap insulation, R-6 with vapor jacket | Kitchen supply duct and its three stubs, against summer sweating from humid makeup air | 1 | ea |  | roll |
-| 12 in intake wall hood with 1/4 in screen, louvred, black | West wall: the ERV's fresh air hood, shared with the makeup air | 1 | ea |  | About $60 to $150 Replaces one of the ERV's two 8 in hoods. No damper in the hood. |
+| 12 in intake wall hood with 1/4 in screen, louvred, black | West wall by the pantry, the south of the two ERV holes: the ERV's fresh air hood, shared with the makeup air | 1 | ea |  | About $60 to $150 Replaces one of the ERV's two 8 in hoods. No damper in the hood. |
 | 12 x 10 x 8 in wye | Just inside the shared intake: 8 in to the ERV, 10 in to the makeup air | 1 | ea |  |  |
 | 16 x 25 x 4 in media filter cabinet with 10 in round collars | Right after the makeup air damper | 1 | ea |  | About $80 to $180 Broan requires a filter downstream; MERV 13 so nothing comes in unfiltered (Maxwell, 11/21/2026). |
 | 16 x 25 x 4 in MERV 13 filters | Makeup air filter cabinet | 2 | ea |  | About $30 to $45 each One in it, one spare. |
@@ -79,7 +79,7 @@ Counted from the model with 10 percent extra. Anything that crosses the floor tr
 | 8 in round pipe, 30 ga snap lock | ERV outdoor side, insulated | 5 | x 5 ft | 19 ft in the model | Insulate with R-8 wrap or use insulated duct, vapor jacket outside |
 | 8 in round pipe, 30 ga snap lock | Exhaust | 9 | x 5 ft | 37 ft in the model |  |
 | 8 in round pipe, 30 ga snap lock | Supply | 13 | x 5 ft | 55 ft in the model |  |
-| 10 in round pipe, 30 ga snap lock | Range hood makeup air outdoor side, insulated | 6 | x 5 ft | 23 ft in the model | Insulate with R-8 wrap or use insulated duct, vapor jacket outside |
+| 10 in round pipe, 30 ga snap lock | Range hood makeup air outdoor side, insulated | 4 | x 5 ft | 15 ft in the model | Insulate with R-8 wrap or use insulated duct, vapor jacket outside |
 | 10 in round pipe, 30 ga snap lock | Return | 12 | x 5 ft | 51 ft in the model |  |
 | 12 in round pipe, 30 ga snap lock | Range hood makeup air outdoor side, insulated | 1 | x 5 ft | 1 ft in the model | Insulate with R-8 wrap or use insulated duct, vapor jacket outside |
 | 6 in flex duct, R-6 insulated | Return runs through the trusses | 4 | x 25 ft box | 70 ft in the model | Pull it tight, no sags; support every 4 ft |
@@ -87,7 +87,7 @@ Counted from the model with 10 percent extra. Anything that crosses the floor tr
 | 4 in adjustable 90 elbow |  | 5 | ea | Counted from the bends in the model |  |
 | 6 in adjustable 90 elbow |  | 13 | ea | Counted from the bends in the model |  |
 | 7 in adjustable 90 elbow |  | 5 | ea | Counted from the bends in the model |  |
-| 8 in adjustable 90 elbow |  | 14 | ea | Counted from the bends in the model |  |
+| 8 in adjustable 90 elbow |  | 15 | ea | Counted from the bends in the model |  |
 | 10 in adjustable 90 elbow |  | 10 | ea | Counted from the bends in the model |  |
 | 10 in adjustable 45 elbow |  | 2 | ea | Counted from the bends in the model |  |
 | 6 in round takeoff (starting collar) | Off a rectangular trunk, main or plenum | 2 | ea |  |  |
@@ -174,9 +174,9 @@ Estimated from the joint and length counts above.
 | Foil tape, UL 181A-P / 181B-FX |  | 10 | roll |  |  |
 | #8 x 1/2 in self drilling sheet metal screws | 3 per joint | 700 | ea |  |  |
 | Flex duct clamps or nylon duct ties | 2 per flex connection | 28 | ea |  |  |
-| Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap | Rigid every 5 ft, flex every 4 ft, rect every 4 ft | 110 | hangers | About 3 ft of strap each |  |
+| Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap | Rigid every 5 ft, flex every 4 ft, rect every 4 ft | 108 | hangers | About 3 ft of strap each |  |
 | Acoustic duct liner, 1 in | Main return box and trunk | 1 | roll |  | Often supplied by the sheet metal shop |
-| Duct insulation wrap, R-8 with vapor jacket | ERV outdoor ducts | 48 | ft |  | Supply and return ducts sit inside the SIP envelope, so they do not need insulation by code |
+| Duct insulation wrap, R-8 with vapor jacket | ERV outdoor ducts | 38 | ft |  | Supply and return ducts sit inside the SIP envelope, so they do not need insulation by code |
 
 ## Every run in the model
 
@@ -188,7 +188,7 @@ Estimated from the joint and length counts above.
 | Bath exhaust main | Exhaust | None | 6 in round | 62.3 |  |  |  |  |
 | Powder exhaust | Exhaust | Powder | 4 in round | 9.6 |  |  |  |  |
 | Range hood duct | Range hood | Kitchen | 10 x 3-1/4 in | 1.7 |  |  |  |  |
-| Range hood makeup air duct | Range hood makeup air | Kitchen | 10 in round | 24.0 | 600 |  |  |  |
+| Range hood makeup air duct | Range hood makeup air | Kitchen | 10 in round | 15.4 | 600 |  |  |  |
 | Bedroom 1 return | Return |  | 10 in round | 52.1 |  |  |  | 2 |
 | Bedrooms 2 and 3 return | Return |  | 10 in round | 22.3 |  | yes | 2 | 3 |
 | Main return (M-10) | Return |  | 34 x 20 in | 8.3 |  |  |  |  |

@@ -292,6 +292,7 @@ enabled = true
 rect = [63.0833, 15.0, 95.0833, 43.0]
 south_wall_height = 9.0         # A-31 section 2: 9'-0" south, 13'-8" north at 2:12 (was 10.0 ASSUMED from the A-20 scale)
 pitch = 2.0                     # 2:12 down to the south (A-13)
+roof_thick_in = 16              # Maxwell 11/22/2026: 16 in like the breezeway roof, one continuous roof with it
 overhead_doors = [[5.5, 9.0], [17.5, 9.0]]   # [start from garage west, width], 8' tall (D90-80)
 north_windows = [5.5, 11.5, 17.5, 23.5]      # W30-30 awnings, start from garage west
 north_window_sill = 9.13        # A-21 north elevation (head 12'-1 1/2")
@@ -303,12 +304,39 @@ drive_follow_trees = true       # Maxwell 11/13: gravel drive runs parallel to t
 drive_offset_ft = 10.0          # drive edge this far west of the canopy drip line. ASSUMED
 drive_width_ft = 14.0           # ASSUMED
 
-[porch]                         # covered porch, delegated design
+[garage.pole_barn]              # Maxwell 11/22/2026: the garage is a pole barn (post frame). Typical sizes, ASSUMED until the barn builder's drawings
+post_name = "6x6 treated posts"
+post_in = 5.5
+post_spacing_ft = 8.0           # along every wall, plus one at each side of every door
+girt_spacing_in = 24            # 2x4 girts laid flat outside the posts, siding on them
+siding_in = 0.75
+# mono slope trusses north-south on doubled 2x12 girders, placed between the north windows (make_house.py)
+purlin_spacing_in = 24          # 2x6 purlins on edge, east-west, roof on them
+
+[porch]                         # covered porch (the breezeway), delegated design
 enabled = true
 rect = [43.0833, 26.7, 63.0833, 42.6]
-high_height = 11.0              # ASSUMED
+high_height = 11.0              # underside of the roof at the north edge. ASSUMED; ignored while the garage is on (the roof follows the garage roof plane)
 pitch = 2.0
 posts_x = [49.75, 56.3]
+roof_thick_in = 16              # Maxwell's builder, 11/22/2026: the breezeway roof is 16 in thick (the ceiling stays put, it grows upward)
+floor = "brick"                 # Maxwell 11/22/2026: brick patio floor between the house and the garage
+brick_in = [8, 4, 2.25]         # clay brick paver, length x width x thickness. ASSUMED
+brick_pattern = "herringbone"   # ASSUMED (Maxwell OK 11/22/2026)
+brick_color = "#8E4A35"         # red clay. ASSUMED
+
+[grade]                         # floor levels and finished grade, inches below the house slab top (Maxwell 11/22/2026)
+# The sealed set gives no real elevations: S-10 note 7 leaves the slab height to the site and the owner, detail 2/S-10
+# wants grade 8 in under the house slab, note 5 wants 6 in of fall in the first 10 ft.
+patio_drop_in = 4               # one small step down from the house entry door onto the brick
+garage_drop_in = 8              # and another 4 in step down from the brick into the garage
+house_grade_in = 8              # finished grade at the house walls (S-10 detail 2)
+garage_grade_in = 4             # finished grade 4 in under the garage slab all round
+patio_grade_in = 2              # grade 2 in under the brick at the breezeway's open sides
+buffer_ft = 3.0                 # flat pad this far out from each slab
+blend_ft = 25.0                 # then a smooth blend back to the natural (lidar) ground
+fade_ft = [36.0, 56.0]          # beyond this distance from the buildings the web terrain is left as it was (the web ground grid ends 60 ft west of the house)
+garage_min_above_natural_in = 4 # the check: the garage slab must clear the lidar ground within buffer_ft by this much
 
 [greenhouse]                    # delegated design / deferred submittal
 enabled = false                 # removed for now (Maxwell 11/13); set true to bring it back
@@ -496,7 +524,7 @@ center_plan_xy = [21.54, 26.0]  # center of the modeled square
 area_ft = 1000.0                # modeled square, feet on a side
 grid_ft = 2.0                   # terrain mesh spacing
 ortho_px = 2000                 # orthophoto resolution across the square
-slab_top_elev_ft = 1034.93      # slab top, feet NAVD88: median natural grade at the slab edge (1034.26) + 8" reveal. ASSUMED, no survey
+slab_top_elev_ft = 1035.51      # slab top, feet NAVD88. Was 1034.93 (lidar ground at the slab edge + 8 in); raised 7 in on 11/22/2026 so the garage slab, 8 in below the house floor, stays 4 in above the lidar ground (Maxwell OK). See [grade]. No survey
 slab_reveal_ft = 0.67           # slab top above finished grade (8")
 grade_buffer_ft = 3.0           # flat graded pad around slab / garage / porch / greenhouse
 grade_blend_ft = 25.0           # blend from the graded pad back to natural ground

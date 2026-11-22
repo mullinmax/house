@@ -3005,82 +3005,237 @@ if FU.get("enabled"):
             wbox("Brushed Nickel", w_, u_ - 0.1, u_ + 0.1, -BAT_T - 0.28, -BAT_T - 0.24, z_ + 0.05, z_ + 0.15)
 
 # ------------------------------------------------------------------ garage, porch, greenhouse
+# Floor levels (Maxwell 11/22/2026): one small step down from the house entry onto the brick breezeway, another down
+# into the garage. [grade] in config.toml; model/grade.py regrades the ground to suit.
+GR = C["grade"]
+PZ = -GR["patio_drop_in"] / 12          # top of the breezeway brick
+GF = -GR["garage_drop_in"] / 12         # top of the garage slab; every garage height in [garage] is above this
 GA = C["garage"]
+PB = GA.get("pole_barn", {})
+MATERIALS.update({"Treated Lumber": dict(color="#9C9A6E", rough=0.85), "Barn Post": dict(color="#B8955E", rough=0.85),
+                  "Roof Liner": dict(color="#E4E4DE", rough=0.7)})
 if GA["enabled"]:
     gx0, gy0, gx1, gy1 = GA["rect"]
     gs = GA["pitch"] / 12
-    gtop = lambda y: GA["south_wall_height"] + (gy1 - y) * gs
+    gtop = lambda y: GF + GA["south_wall_height"] + (gy1 - y) * gs
     GWH = GA.get("north_window_height", 3.0)
     my0, my1 = GA["man_door_y"]
+    SID = PB.get("siding_in", 0.75) / 12              # LP board and batten panel on the girts
+    GIRT = 1.5 / 12                                   # 2x4 girts laid flat on the outside of the posts
+    POST = PB.get("post_in", 5.5) / 12
+    PV0, PV1 = SID + GIRT, SID + GIRT + POST          # posts, measured in from the outside face
     rec("garage.walls", "wall", "Garage walls", "shell",
-        info=dict(model=f"{ftin(gx1 - gx0)} x {ftin(gy1 - gy0)} detached garage, delegated design (A-11, A-22)",
+        info=dict(model=f"{ftin(gx1 - gx0)} x {ftin(gy1 - gy0)} pole barn garage (post frame), delegated design (A-11, A-22)",
                   specs=[["South wall", f"{ftin(GA['south_wall_height'])} (A-31 section 2)"], ["Roof", f"{GA['pitch']:g}:12 down to the south"],
-                         ["Siding", "Board and batten to match the house"]]))
+                         ["Frame", f"{PB.get('post_name', '6x6 treated posts')} about {ftin(PB.get('post_spacing_ft', 8.0))} apart, 2x4 girts {PB.get('girt_spacing_in', 24):g} in on centre, treated 2x8 splash board"],
+                         ["Siding", "Board and batten on the girts, to match the house"]],
+                  notes=["Maxwell 11/22/2026: the garage is a pole barn. Post sizes, spacing, girts, trusses and purlins are typical post frame practice, ASSUMED until the barn builder's drawings come in.",
+                         "Inside is left unfinished: you see the posts, girts, trusses and purlins."]))
     fN, fS, fW, fE = (gx0, gy0, 1, 0, 0, 1), (gx0, gy1, 1, 0, 0, -1), (gx0, gy0, 0, 1, 1, 0), (gx1, gy0, 0, 1, -1, 0)
-    holesN = [(s0, s0 + 3, GA["north_window_sill"], GA["north_window_sill"] + GWH) for s0 in GA["north_windows"]]
-    holesS = [(s0, s0 + w, 0, 8) for (s0, w) in GA["overhead_doors"]]
-    holesW = [(my0 - gy0, my1 - gy0, 0, 6.67)]
+    WS, WN = GF + GA["north_window_sill"], GF + GA["north_window_sill"] + GWH
+    holesN = [(s0, s0 + 3, WS, WN) for s0 in GA["north_windows"]]
+    holesS = [(s0, s0 + w, GF, GF + 8) for (s0, w) in GA["overhead_doors"]]
+    holesW = [(my0 - gy0, my1 - gy0, PZ, PZ + 6.67)]
     W_ = gx1 - gx0; D_ = gy1 - gy0
-    panel("Siding", fN, 0, 0.5, 0, [[0, gtop(gy0), W_, gtop(gy0)]], holesN)
-    panel("Siding", fS, 0, 0.5, 0, [[0, gtop(gy1), W_, gtop(gy1)]], holesS)
-    panel("Siding", fW, 0, 0.5, 0, [[0, gtop(gy0), D_, gtop(gy1)]], holesW)
-    panel("Siding", fE, 0, 0.5, 0, [[0, gtop(gy0), D_, gtop(gy1)]], [])
-    battens("Siding", lambda u, v: (gx0 + u, gy0 + v), 0, W_, 0, lambda u: gtop(gy0),
-            [(s0 - TRIM_W, s0 + 3 + TRIM_W, GA["north_window_sill"] - 0.4, GA["north_window_sill"] + GWH + 0.4) for s0 in GA["north_windows"]])
-    battens("Siding", lambda u, v: (gx0 + u, gy1 - v), 0, W_, 0, lambda u: gtop(gy1), [(s0 - 0.1, s0 + w + 0.1, -1, 8.1) for (s0, w) in GA["overhead_doors"]])
-    battens("Siding", lambda u, v: (gx0 + v, u), gy0, gy1, 0, gtop, [(my0 - 0.1, my1 + 0.1, -1, 6.8)])
-    battens("Siding", lambda u, v: (gx1 - v, u), gy0, gy1, 0, gtop, [])
-    rec("garage.slab", "slab", "Garage slab", "shell", info=dict(model="Concrete slab"))
-    box("Concrete", gx0, gx1, gy0, gy1, -0.4, -0.05)
+    panel("Siding", fN, 0, SID, GF, [[0, gtop(gy0), W_, gtop(gy0)]], holesN)
+    panel("Siding", fS, 0, SID, GF, [[0, gtop(gy1), W_, gtop(gy1)]], holesS)
+    panel("Siding", fW, 0, SID, GF, [[0, gtop(gy0), D_, gtop(gy1)]], holesW)
+    panel("Siding", fE, 0, SID, GF, [[0, gtop(gy0), D_, gtop(gy1)]], [])
+    battens("Siding", lambda u, v: (gx0 + u, gy0 + v), 0, W_, GF, lambda u: gtop(gy0),
+            [(s0 - TRIM_W, s0 + 3 + TRIM_W, WS - 0.4, WN + 0.4) for s0 in GA["north_windows"]])
+    battens("Siding", lambda u, v: (gx0 + u, gy1 - v), 0, W_, GF, lambda u: gtop(gy1), [(s0 - TRIM_W - 0.05, s0 + w + TRIM_W + 0.05, GF - 1, GF + 8.0 + TRIM_W + 0.05) for (s0, w) in GA["overhead_doors"]])
+    battens("Siding", lambda u, v: (gx0 + v, u), gy0, gy1, PZ, gtop, [(my0 - TRIM_W - 0.05, my1 + TRIM_W + 0.05, PZ - 1, PZ + 6.67 + TRIM_W + 0.05)])
+    battens("Siding", lambda u, v: (gx1 - v, u), gy0, gy1, GF, gtop, [])
+    rec("garage.slab", "slab", "Garage slab", "shell", info=dict(model="Concrete slab poured inside the posts",
+        specs=[["Floor", f"{GR['garage_drop_in']:g} in below the house floor, {GR['garage_drop_in'] - GR['patio_drop_in']:g} in below the breezeway brick"],
+               ["Grade", f"Ground {GR['garage_grade_in']:g} in below the slab all round"]],
+        notes=["Levels set 11/22/2026 (Maxwell): a small step down from the house onto the brick, another into the garage.",
+               "The sealed set gives no elevations (S-10 note 7 leaves them to the site and owner). With these steps the house slab had to sit about 7 in higher on the lidar ground than first guessed so the garage slab stays above the existing ground."]))
+    box("Concrete", gx0, gx1, gy0, gy1, GF - 0.4, GF)
+    box("Concrete", gx0 + SID, gx0 + PV1, my0, my1, GF, PZ - 0.04)       # the step at the man door: a curb up to the threshold
     for k, (s0, w) in enumerate(GA["overhead_doors"]):
         r = rec(f"garage.door.{k + 1}", "door", f"Garage overhead door {k + 1}", "shell", info=dict(model=f"D90-80 overhead door, {ftin(w)} x 8' 0\"", specs=[["Colour", "Black, with a row of lites"]]))
         r["info"]["specs"].append(["Opens", "Sectional, rolls up and back on horizontal tracks under the ceiling"])
         for xt in (gx0 + s0 - 0.12, gx0 + s0 + w + 0.04):         # steel tracks: up the jambs, then back into the garage
-            box("Black Metal", xt, xt + 0.08, gy1 - 0.45, gy1 - 0.25, 0, 8.1)
-            box("Black Metal", xt, xt + 0.08, gy1 - 8.6, gy1 - 0.25, 8.1, 8.25)
-        lf = op(r, f"garage.door.{k + 1}.panel", r["name"], "overhead", (gx0 + s0 + w / 2, gy1 - 0.35, 0))
+            box("Black Metal", xt, xt + 0.08, gy1 - 0.45, gy1 - 0.25, GF, GF + 8.1)
+            box("Black Metal", xt, xt + 0.08, gy1 - 8.6, gy1 - 0.25, GF + 8.1, GF + 8.25)
+        lf = op(r, f"garage.door.{k + 1}.panel", r["name"], "overhead", (gx0 + s0 + w / 2, gy1 - 0.35, GF))
         lf["height"] = 8.0
         lf["inward"] = [0, -1]                                  # rolls back to the north, into the garage
         with into(lf["parts"]):
-            box("Garage Door", gx0 + s0, gx0 + s0 + w, gy1 - 0.4, gy1 - 0.3, 0, 8)
+            box("Garage Door", gx0 + s0, gx0 + s0 + w, gy1 - 0.4, gy1 - 0.3, GF, GF + 8)
             for j in range(1, 4):
-                box("Trim", gx0 + s0 + 0.1, gx0 + s0 + w - 0.1, gy1 - 0.31, gy1 - 0.27, j * 2 - 0.03, j * 2 + 0.03)
+                box("Trim", gx0 + s0 + 0.1, gx0 + s0 + w - 0.1, gy1 - 0.31, gy1 - 0.27, GF + j * 2 - 0.03, GF + j * 2 + 0.03)
             for j in range(4):
                 wx = gx0 + s0 + 0.6 + j * (w - 1.2) / 4
-                box("Glass", wx + 0.1, wx + (w - 1.2) / 4 - 0.1, gy1 - 0.27, gy1 - 0.25, 6.5, 7.5)
+                box("Glass", wx + 0.1, wx + (w - 1.2) / 4 - 0.1, gy1 - 0.27, gy1 - 0.25, GF + 6.5, GF + 7.5)
+    for (s0, w) in GA["overhead_doors"]:                         # black jamb and head liners in front of the doors hide the post edges
+        box("Trim", gx0 + s0, gx0 + s0 + 0.06, gy1 - 0.28, gy1, GF, GF + 8.06)
+        box("Trim", gx0 + s0 + w - 0.06, gx0 + s0 + w, gy1 - 0.28, gy1, GF, GF + 8.06)
+        box("Trim", gx0 + s0, gx0 + s0 + w, gy1 - 0.28, gy1, GF + 8.0, GF + 8.06)
+        # exterior casing on the siding, black like the house trim (Maxwell 11/22/2026), and a vinyl threshold seal on the slab
+        for (a0, a1, b0, b1) in ((s0 - TRIM_W, s0, GF, GF + 8.0 + TRIM_W), (s0 + w, s0 + w + TRIM_W, GF, GF + 8.0 + TRIM_W), (s0 - TRIM_W, s0 + w + TRIM_W, GF + 8.0, GF + 8.0 + TRIM_W)):
+            box("Trim", gx0 + a0, gx0 + a1, gy1, gy1 + BAT_T + 0.02, b0, b1)
+        box("Plastic Grey", gx0 + s0 + 0.06, gx0 + s0 + w - 0.06, gy1 - 0.28, gy1 - 0.02, GF, GF + 0.03)
     for k, s0 in enumerate(GA["north_windows"]):
-        rec(f"garage.window.{k + 1}", "window", f"Garage north window {k + 1}", "shell", info=dict(model="W30-30 awning", specs=[["Sill", ftin(GA["north_window_sill"])]], notes=["A-21 north elevation."]))
-        ws, wx0, wx1 = GA["north_window_sill"], gx0 + s0, gx0 + s0 + 3
-        box("Glass", wx0, wx1, gy0 + 0.2, gy0 + 0.25, ws, ws + GWH)
-        for (a0, a1, b0, b1) in ((wx0 - 0.33, wx0, ws, ws + GWH), (wx1, wx1 + 0.33, ws, ws + GWH), (wx0 - 0.33, wx1 + 0.33, ws + GWH, ws + GWH + 0.33), (wx0 - 0.33, wx1 + 0.33, ws - 0.33, ws)):
+        rec(f"garage.window.{k + 1}", "window", f"Garage north window {k + 1}", "shell", info=dict(model="W30-30 awning", specs=[["Sill", ftin(GA["north_window_sill"]) + " above the garage floor"]], notes=["A-21 north elevation."]))
+        wx0, wx1 = gx0 + s0, gx0 + s0 + 3
+        box("Glass", wx0, wx1, gy0 + SID * 0.4, gy0 + SID * 0.6, WS, WN)
+        for (a0, a1, b0, b1) in ((wx0 - 0.33, wx0, WS, WN), (wx1, wx1 + 0.33, WS, WN), (wx0 - 0.33, wx1 + 0.33, WN, WN + 0.33), (wx0 - 0.33, wx1 + 0.33, WS - 0.33, WS)):
             box("Trim", a0, a1, gy0 - BAT_T - 0.02, gy0, b0, b1)
-    r = rec("garage.man_door", "door", "Garage door to the porch", "shell", info=dict(model="D30-68 man door", specs=[["Opening", f"{ftin(my1 - my0)} x 6' 8\""]]))
-    lf = op(r, "garage.man_door.leaf", r["name"], "swing", (gx0 + 0.25, my0, 0), angle=90)
+    r = rec("garage.man_door", "door", "Garage door to the breezeway", "shell", info=dict(model="D30-68 man door", specs=[["Opening", f"{ftin(my1 - my0)} x 6' 8\""],
+        ["Step", f"Threshold level with the brick, {GR['garage_drop_in'] - GR['patio_drop_in']:g} in step down onto the garage floor"]]))
+    r["info"]["specs"].append(["Frame", "Jambs and head lining the wall, black casing outside, pine casing inside, aluminium threshold (Maxwell 11/22/2026)"])
+    DH, JW = PZ + 6.67, 0.07                                     # rough opening head; jamb thickness
+    for (a0, a1) in ((my0, my0 + JW), (my1 - JW, my1)):          # jambs through the full wall
+        box("Trim", gx0 + SID, gx0 + PV1, a0, a1, PZ + 0.06, DH - JW)
+    box("Trim", gx0 + SID, gx0 + PV1, my0, my1, DH - JW, DH)                                     # head jamb (painted black like the door)
+    for (a0, a1) in ((my0 + JW, my0 + JW + 0.04), (my1 - JW - 0.04, my1 - JW)):                  # door stops
+        box("Trim", gx0 + 0.18, gx0 + 0.21, a0, a1, PZ + 0.06, DH - JW)
+    for (a0, a1, b0, b1) in ((my0 - TRIM_W, my0, PZ, DH + TRIM_W), (my1, my1 + TRIM_W, PZ, DH + TRIM_W), (my0 - TRIM_W, my1 + TRIM_W, DH, DH + TRIM_W)):
+        box("Trim", gx0 - BAT_T - 0.02, gx0, a0, a1, b0, b1)                                    # exterior casing
+        box("Lumber", gx0 + PV1, gx0 + PV1 + 0.06, a0, a1, b0 if b0 > PZ else GF, b1)            # interior casing, down to the garage floor
+    box("Aluminum", gx0 - 0.12, gx0 + PV1, my0, my1, PZ - 0.04, PZ + 0.06)                      # threshold on the curb
+    lf = op(r, "garage.man_door.leaf", r["name"], "swing", (gx0 + 0.21, my0 + JW, PZ + 0.06), angle=90)
     with into(lf["parts"]):
-        box("Trim", gx0 + 0.2, gx0 + 0.3, my0, my1, 0, 6.67)
-    rec("garage.roof", "roof", "Garage roof", "roof", info=dict(model=f"{GA['pitch']:g}:12 standing seam roof"))
+        box("Garage Door", gx0 + 0.21, gx0 + 0.36, my0 + JW + 0.01, my1 - JW - 0.01, PZ + 0.07, DH - JW - 0.01)
+        box("Brushed Nickel", gx0 + 0.36, gx0 + 0.44, my1 - JW - 0.3, my1 - JW - 0.22, PZ + 3.0, PZ + 3.08)   # lever, garage side
+        box("Brushed Nickel", gx0 + 0.13, gx0 + 0.21, my1 - JW - 0.3, my1 - JW - 0.22, PZ + 3.0, PZ + 3.08)   # and breezeway side
+
+    # ---- the post frame (Framing layer look, but part of the garage shell: it is what you see inside)
+    rec("garage.frame", "structure", "Garage post frame", "shell", info=dict(model="Pole barn frame: posts, girts, splash board, girders, trusses and purlins",
+        specs=[["Posts", f"{PB.get('post_name', '6x6 treated')}, about {ftin(PB.get('post_spacing_ft', 8.0))} on centre, set in the ground"],
+               ["Girts", f"2x4 flat, {PB.get('girt_spacing_in', 24):g} in on centre"], ["Splash board", "Treated 2x8 at the bottom"],
+               ["Trusses", f"Mono slope {GA['pitch']:g}:12, set between the north windows so none crosses one, about 4 to 6 ft apart"], ["Purlins", f"2x6 on edge, {PB.get('purlin_spacing_in', 24):g} in on centre"]],
+        notes=["Typical post frame sizes, ASSUMED until the barn builder's drawings come in (Maxwell 11/22/2026: the garage is a pole barn)."]))
+    SP_ = PB.get("post_spacing_ft", 8.0)
+    def stations(lo, hi, must):
+        n = max(1, math.ceil((hi - lo) / SP_ - 1e-6)); pts = [lo + (hi - lo) * k / n for k in range(n + 1)]
+        for m in must:
+            pts = [p for p in pts if abs(p - m) > 1.2] + [m]
+        return sorted(pts)
+    # posts along each wall, u along the wall; jambs of every opening get one
+    jS = [s0 - POST / 2 for s0, _ in GA["overhead_doors"]] + [s0 + w + POST / 2 for s0, w in GA["overhead_doors"]]
+    walls = [("N", lambda u, v: (gx0 + u, gy0 + v), W_, []), ("S", lambda u, v: (gx0 + u, gy1 - v), W_, jS),
+             ("W", lambda u, v: (gx0 + v, gy0 + u), D_, [my0 - gy0 - POST / 2, my1 - gy0 + POST / 2]), ("E", lambda u, v: (gx1 - v, gy0 + u), D_, [])]
+    girt_holes = {"N": [(s0 - 0.05, s0 + 3.05, WS - 0.15, WN + 0.15) for s0 in GA["north_windows"]],
+                  "S": [(s0, s0 + w, GF - 1, GF + 8.6) for s0, w in GA["overhead_doors"]], "W": [(my0 - gy0, my1 - gy0, GF - 1, PZ + 7.1)], "E": []}
+    GS = PB.get("girt_spacing_in", 24) / 12
+    for wn, f, L, must in walls:
+        topz = (lambda u, f=f: gtop(f(u, 0)[1]))
+        opens = [(h0, h1) for (h0, h1, hz0, hz1) in girt_holes[wn] if hz0 < GF + 1]      # door openings: no post in them
+        us = stations(PV0 + POST / 2, L - PV0 - POST / 2, must)          # corner posts sit inside both siding planes
+        if wn in ("N", "S"):
+            us = us[1:-1]                                                # the E and W walls carry the corner posts
+        us = [u for u in us if not any(h0 - POST / 2 + 0.01 < u < h1 + POST / 2 - 0.01 for h0, h1 in opens)]
+        for u in us:
+            (ax, ay), (bx, by) = f(u - POST / 2, PV0), f(u + POST / 2, PV1)
+            box("Barn Post", ax, bx, ay, by, GF, topz(u) - 0.05)
+        # splash board then girts every GS up the wall, skipping openings
+        rows = [(GF, GF + 7.25 / 12, "Treated Lumber")]
+        z = GF + 2.0
+        while z + 3.5 / 12 < min(topz(0), topz(L)) - 0.9:
+            rows.append((z, z + 3.5 / 12, "Lumber")); z += GS
+        uL0, uL1 = (PV0, L - PV0) if wn in ("N", "S") else (SID, L - SID)  # corners: N and S girts stop inside the E and W ones, those inside the siding
+        for (z0, z1, m) in rows:
+            segs = [(uL0, uL1)]
+            for (h0, h1, hz0, hz1) in girt_holes[wn]:
+                if hz0 < z1 and hz1 > z0:
+                    segs = [s for a_, b_ in segs for s in ((a_, min(b_, h0)), (max(a_, h1), b_)) if s[1] - s[0] > 0.2]
+            for a_, b_ in segs:
+                (ax, ay), (bx, by) = f(a_, SID), f(b_, PV0)
+                box(m, ax, bx, ay, by, z0, z1)
+        for (h0, h1, hz0, hz1) in girt_holes[wn]:        # headers over the openings
+            if hz1 < min(topz(h0), topz(h1)) - 0.5:
+                (ax, ay), (bx, by) = f(h0 - 0.1, SID), f(h1 + 0.1, PV0)
+                box("Header", ax, bx, ay, by, hz1, hz1 + 11.25 / 12)
+    # plywood backer between the two posts of the pier between the overhead doors, for the EV charger
+    (s0a, wa), (s0b, _) = GA["overhead_doors"][0], GA["overhead_doors"][1]
+    box("OSB", gx0 + s0a + wa + POST, gx0 + s0b - POST, gy1 - PV1, gy1 - PV0, GF + 1.0, GF + 6.0)
+    # girders (doubled 2x12) on the inside of the north and south posts, trusses bear on them
+    GD = 11.25 / 12
+    for y_in, sgn in ((gy0 + PV1, 1), (gy1 - PV1, -1)):
+        zt = gtop(y_in) - 0.05
+        box("LVL", gx0 + PV0, gx1 - PV0, y_in, y_in + sgn * 3 / 12, zt - GD, zt)
+    # mono trusses north-south every truss_spacing_ft: flat bottom chord, sloped top chord, verticals and diagonals
+    TS = PB.get("truss_spacing_ft", 4.0); CH = 3.5 / 12; TW = 1.5 / 12
+    ys_, yn_ = gy1 - PV1 - 3 / 12, gy0 + PV1 + 3 / 12
+    zb = gtop(gy1 - PV1) - 0.05 - GD                      # bottom chord underside: on the south girder's bottom line
+    zb += GD - CH                                         # sits at the girder top, flush
+    PUR = 5.5 / 12                                         # 2x6 purlins on edge for the up to 6 ft truss bays
+    ttop = lambda y: gtop(y) - PUR                         # top chord top: purlins sit on it, roof deck on them
+    # trusses clear of the north windows (Maxwell 11/22/2026): one in each gap between windows, plus one at each end wall
+    # and one beside the end windows, so none crosses a window and none is more than about 6 ft from the next
+    lo, hi = PV0 + TW, W_ - PV0 - TW
+    spans = sorted((s0 - TRIM_W - 0.1, s0 + 3 + TRIM_W + 0.1) for s0 in GA["north_windows"])
+    us_t = [lo, spans[0][0] - TW, spans[-1][1] + TW, hi] + [(spans[k][1] + spans[k + 1][0]) / 2 for k in range(len(spans) - 1)]
+    us_t = sorted(set(round(u, 3) for u in us_t if lo - 1e-6 <= u <= hi + 1e-6))
+    xs_t = [gx0 + u for u in us_t]
+    for xt in xs_t:
+        a0, a1 = xt - TW / 2, xt + TW / 2
+        box("Lumber", a0, a1, yn_, ys_, zb, zb + CH)                                       # bottom chord
+        hexa("Lumber", [(a0, ys_, ttop(ys_) - CH * 1.1), (a1, ys_, ttop(ys_) - CH * 1.1), (a1, yn_, ttop(yn_) - CH * 1.1), (a0, yn_, ttop(yn_) - CH * 1.1),
+                        (a0, ys_, ttop(ys_)), (a1, ys_, ttop(ys_)), (a1, yn_, ttop(yn_)), (a0, yn_, ttop(yn_))])          # top chord
+        nb = 6; yk = [ys_ + (yn_ - ys_) * k / nb for k in range(nb + 1)]
+        for k, yv in enumerate(yk):                                                       # verticals
+            if ttop(yv) - CH * 1.1 - (zb + CH) > 0.2:
+                y0v, y1v = sorted((yv - TW / 2, yv + TW / 2))
+                y0v, y1v = max(min(y0v, ys_), yn_), min(max(y1v, yn_), ys_)
+                box("Lumber", a0, a1, y0v, y1v, zb + CH, ttop(yv) - CH * 1.1)
+        for k in range(nb):                                                               # diagonals
+            ya, yb = yk[k], yk[k + 1]
+            za, zb2 = zb + CH, ttop(yb) - CH * 1.1
+            d = 0.06
+            hexa("Lumber", [(a0, ya - d, za), (a1, ya - d, za), (a1, ya + d, za), (a0, ya + d, za),
+                            (a0, yb - d, zb2), (a1, yb - d, zb2), (a1, yb + d, zb2), (a0, yb + d, zb2)])
+    yp = gy1 - 0.5
+    while yp > gy0 + 0.5:                                                                  # purlins east-west on the top chords
+        box("Lumber", gx0 + SID + 0.01, gx1 - SID - 0.01, yp - TW / 2, yp + TW / 2, ttop(yp) + 0.004, gtop(yp) - 0.004)
+        yp -= PB.get("purlin_spacing_in", 24) / 12
+
+    RT = GA.get("roof_thick_in", 3) / 12                            # 16 in like the breezeway (Maxwell 11/22/2026)
+    rec("garage.roof", "roof", "Garage roof", "roof", info=dict(model=f"{GA['pitch']:g}:12 standing seam roof, {RT * 12:g} in thick",
+        notes=["Maxwell 11/22/2026: 16 in thick like the breezeway roof, and one continuous roof with it: same plane, same thickness, seams lined up."]))
     v0_ = (gx0 - 1, gx1 + 1); yy0, yy1 = gy0 - 1, gy1 + 1
     hexa("Trim", [(v0_[0], yy0, gtop(yy0)), (v0_[1], yy0, gtop(yy0)), (v0_[1], yy1, gtop(yy1)), (v0_[0], yy1, gtop(yy1)),
-                  (v0_[0], yy0, gtop(yy0) + 0.8), (v0_[1], yy0, gtop(yy0) + 0.8), (v0_[1], yy1, gtop(yy1) + 0.8), (v0_[0], yy1, gtop(yy1) + 0.8)],
-         ["Drywall", "Standing Seam", "Trim", "Trim", "Trim", "Trim"])
-    seam_ribs(v0_[0], v0_[1], yy0, yy1, lambda y: gtop(y) + 0.8)
+                  (v0_[0], yy0, gtop(yy0) + RT), (v0_[1], yy0, gtop(yy0) + RT), (v0_[1], yy1, gtop(yy1) + RT), (v0_[0], yy1, gtop(yy1) + RT)],
+         ["Roof Liner", "Standing Seam", "Trim", "Trim", "Trim", "Trim"])
+    _px0 = C["porch"]["rect"][0] if C["porch"]["enabled"] else v0_[0]      # seams on the breezeway's spacing, so they run on across
+    _n = math.ceil((v0_[0] - _px0 - SEAM / 2) / SEAM - 1e-9)
+    seam_ribs(_px0 + _n * SEAM, v0_[1], yy0, yy1, lambda y: gtop(y) + RT)
 
 PO = C["porch"]
 if PO["enabled"]:
     px0, py0, px1, py1 = PO["rect"]
     ptop = lambda y: PO["high_height"] - (y - py0) * PO["pitch"] / 12
-    rec("porch.slab", "slab", "Covered porch", "shell", info=dict(model=f"{ftin(px1 - px0)} x {ftin(py1 - py0)} covered porch, delegated design",
-                                                                   specs=[["Roof", f"{PO['pitch']:g}:12, high side {ftin(PO['high_height'])} (ASSUMED)"], ["Posts", f"{len(PO['posts_x'])} per beam"]]))
-    box("Concrete", px0, px1, py0, py1, -0.35, -0.05)
+    if GA["enabled"] and abs(GA["pitch"] - PO["pitch"]) < 1e-9:
+        ptop = gtop                                            # one continuous roof with the garage: the same plane (Maxwell 11/22/2026)
+    PT = PO.get("roof_thick_in", 8.4) / 12
+    BL, BW, BT = [v / 12 for v in PO.get("brick_in", [8, 4, 2.25])]
+    MATERIALS["Brick Paver"] = dict(color=PO.get("brick_color", "#8E4A35"), rough=0.85, canvas="brick", brick=[BL, BW], pattern=PO.get("brick_pattern", "herringbone"))
+    rec("porch.slab", "slab", "Breezeway brick patio", "shell", info=dict(model=f"{ftin(px1 - px0)} x {ftin(py1 - py0)} brick patio under the breezeway roof",
+        specs=[["Brick", f"Clay pavers {PO.get('brick_in', [8, 4, 2.25])[0]:g} x {PO.get('brick_in', [8, 4, 2.25])[1]:g} in, {PO.get('brick_pattern', 'herringbone')} (ASSUMED)"],
+               ["Level", f"{GR['patio_drop_in']:g} in step down from the house entry, then {GR['garage_drop_in'] - GR['patio_drop_in']:g} in down into the garage"],
+               ["Roof", f"{PO['pitch']:g}:12, {PO.get('roof_thick_in', 8.4):g} in thick (Maxwell's builder), continuous with the garage roof, underside {ftin(ptop(py0))} at the house end"],
+               ["Posts", f"{len(PO['posts_x'])} per beam"]],
+        notes=["Maxwell 11/22/2026: brick floor in the breezeway between the house and the garage, a small step down from the house and another into the garage.",
+               "The S-10 foundation detail already shows a slab support ledge on the house wall here for an exterior slab a few inches below the floor."]))
+    e = 0.004
+    box("Concrete", px0 + e, px1 - e, py0, py1, PZ - BT - 0.33, PZ - BT)
+    box("Brick Paver", px0 + e, px1 - e, py0, py1, PZ - BT, PZ)
     for yb in (py0 + 0.2, py1 - 0.6):
-        box("Trim", px0, px1, yb, yb + 0.4, ptop(yb) - 1.0, ptop(yb))
+        box("Trim", px0, px1 - 1.0 - 0.01, yb, yb + 0.4, ptop(yb) - 1.0, ptop(yb))
         for xp in PO["posts_x"]:
-            box("Trim", xp - 0.25, xp + 0.25, yb - 0.05, yb + 0.45, 0, ptop(yb) - 1.0)
-    rec("porch.roof", "roof", "Porch roof", "roof", info=dict(model=f"{PO['pitch']:g}:12 standing seam roof"))
-    hexa("Trim", [(px0, py0 - 0.5, ptop(py0 - 0.5)), (px1, py0 - 0.5, ptop(py0 - 0.5)), (px1, py1 + 1, ptop(py1 + 1)), (px0, py1 + 1, ptop(py1 + 1)),
-                  (px0, py0 - 0.5, ptop(py0 - 0.5) + 0.7), (px1, py0 - 0.5, ptop(py0 - 0.5) + 0.7), (px1, py1 + 1, ptop(py1 + 1) + 0.7), (px0, py1 + 1, ptop(py1 + 1) + 0.7)],
-         ["Drywall", "Standing Seam", "Trim", "Trim", "Trim", "Trim"])
-    seam_ribs(px0, px1, py0 - 0.5, py1 + 1, lambda y: ptop(y) + 0.7)
+            box("Trim", xp - 0.25, xp + 0.25, yb - 0.05, yb + 0.45, PZ, ptop(yb) - 1.0)
+    rec("porch.roof", "roof", "Breezeway roof", "roof", info=dict(model=f"{PO['pitch']:g}:12 standing seam roof, {PO.get('roof_thick_in', 8.4):g} in thick",
+        notes=["Maxwell 11/22/2026: his builder says the breezeway roof is 16 in thick. The ceiling stays where it was and the roof grows upward.",
+               "It runs on into the garage roof as one roof: the same 2:12 plane and the same 16 in thickness, so the tops meet flush."]))
+    rx1 = (GA["rect"][0] - 1.0) if GA["enabled"] else px1
+    ry1 = (GA["rect"][3] + 1.0) if GA["enabled"] else py1 + 1
+    hexa("Trim", [(px0, py0 - 0.5, ptop(py0 - 0.5)), (rx1, py0 - 0.5, ptop(py0 - 0.5)), (rx1, ry1, ptop(ry1)), (px0, ry1, ptop(ry1)),
+                  (px0, py0 - 0.5, ptop(py0 - 0.5) + PT), (rx1, py0 - 0.5, ptop(py0 - 0.5) + PT), (rx1, ry1, ptop(ry1) + PT), (px0, ry1, ptop(ry1) + PT)],
+         ["Drywall", "Standing Seam", "Trim", "Trim", "Trim", "Trim"])     # closed (the audit counts on closed solids); its end face sits against the garage roof edge
+    seam_ribs(px0, rx1, py0 - 0.5, ry1, lambda y: ptop(y) + PT)
 
 GH = C["greenhouse"]
 if GH["enabled"]:
@@ -4154,17 +4309,23 @@ print("off the new drywall (in):", ", ".join(f"{i} {dx:+g},{dy:+g}" for i, dx, d
 NUDGED = nudge()
 
 # ------------------------------------------------------------------ write
+# the regraded ground near the buildings (model/grade.py): site/app.js adds dz to the baked Terrain mesh
+sys.path.insert(0, HERE)
+import grade as _grade
+GRADE_GRID = dict(note="regraded ground, feet above the slab top, drawn in place of the baked Terrain here (model/grade.py)", **_grade.grid())
+
 out = dict(
     meta=dict(generated_by="model/make_house.py", units="plan feet (x east, y south from the outside NW slab corner, z up from the slab top)",
               source="config.toml and data/traced_geometry.json; port of the v21 Blender model (archive/blender)",
               eye_ft=EYE, floors=dict(main=0.0, loft=LOFT["floor_height"], attic=FH + FLOOR_T),
               rooms=[dict(name=n, rect=[x0, y0, x1, y1]) for (n, x0, y0, x1, y1) in ROOMS]
                     + [dict(name="Loft", rect=list(LOFT["rect"]), floor=LOFT["floor_height"], upper=True)]
-                    + ([dict(name="Garage", rect=list(GA["rect"]))] if GA.get("enabled") else [])
-                    + ([dict(name="Porch", rect=list(C["porch"]["rect"]), outside=True)] if C.get("porch", {}).get("enabled", True) and C.get("porch", {}).get("rect") else []),
+                    + ([dict(name="Garage", rect=list(GA["rect"]), floor=rnd(GF))] if GA.get("enabled") else [])
+                    + ([dict(name="Porch", rect=list(C["porch"]["rect"]), floor=rnd(PZ), outside=True)] if C.get("porch", {}).get("enabled", True) and C.get("porch", {}).get("rect") else []),
               outline=dict(house=[0, 0, HW, HD], garage=GA["rect"] if GA.get("enabled") else None, porch=C.get("porch", {}).get("rect")),
               climbs=(LADDER_CLIMBS if LADDER_CLIMBS is not None else [dict(id="loft.ladder", rect=list(LOFT["ships_ladder"]), axis="x", z0=0.0, z1=LOFT["floor_height"])]) if LOFT.get("enabled") else [],
               framing=FRAMING_META,
+              grade=GRADE_GRID,
               partitions=[dict(a11=[rnd(v) for v in a], built=[rnd(v) for v in b]) for a, b in zip(INT_RECTS_A11, INT_RECTS) if a != b],
               **WEB_META),
     materials=MATERIALS,
