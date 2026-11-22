@@ -77,6 +77,16 @@ ships_ladder = [25.828, 31.92, 31.12, 34.48]   # [x0, y0, x1, y1]: x0 is the fir
 ladder_design = "corner"          # Maxwell 11/21/2026: narrow ships ladder (24 in overall, 20 3/8 in clear) east along the south wall from just inside the living room opening's jamb, a landing in the south east corner, then north along the bath 1 wall to a balcony at loft level. "code" = the straight ladder above (its foot stood 13 in past the jamb). Other mockups in model/ladder_options.py: pullout, flip, lturn, side, winder, alt
 furniture = "chest"               # loft furniture, placement ASSUMED (Maxwell 11/21/2026): loveseat on the north wall, compact wood console piano on the south wall, swivel armchair, a full size cabinet bed (Arason Creden-ZzZ, 58 x 23 x 39 in, opens to 76 in) in the south east corner, and bookshelves along the east wall framing the window with a sit on top under it. No 6 ft table (it filled the room). "sleeper" is the alternative mockup: one IKEA FRIHETEN sleeper sofa under the east window instead of the loveseat and the cabinet bed. "none" leaves the loft empty; bed_open = true draws the bed down
 ladder_risers = 13
+ladder_lower_risers = 5           # corner design: risers up to the corner landing. 4 (three treads before the landing, Maxwell's 11/21/2026 mockup) lowers the landing to 3'-1 1/8" and frees 5 in, which widens the ladder
+ladder_width_in = 24.45           # corner design: overall width. Was 24 with housed oak stringers (20 3/8 in clear). 24.45 with the 3/4 in wall gap keeps the foot where it was; with tube stringers under them the treads run the full width and the rails are 21 7/8 in apart
+ladder_stringer = "mono"          # corner design: "mono" = ONE 4 x 4 x 1/4 in square tube under the middle of the treads, bracket pairs each side, a 4 in oak riser lip behind every tread (Maxwell 11/22/2026). "tube" = two 2 x 3 tubes under the tread ends
+ladder_mono_in = [4.0, 4.0]       # mono stringer width and depth
+ladder_landing_nosing_in = 0.0    # corner design: oak nosing past the landing and balcony edges. 0 = each platform's own edge is the top nosing, so the foot sits 3 1/2 in further from the living room opening and the balcony 3 1/2 in further south (Maxwell 11/22/2026). Remove for the 3 1/2 in lips
+#ladder_stringer = "tube"          # corner design: "tube" = stock 2 x 3 x 3/16 in rectangular steel tube stringers under the treads with laser cut tread brackets (Maxwell 11/21/2026: the plate stringers were too long for SendCutSend). Remove for the plate or oak stringers below
+ladder_tube_in = [2.0, 3.0]       # tube width and depth
+ladder_stringer_in = 0.375        # corner design: stringer thickness. Under 1 = black steel plates (3/8 in, Maxwell's pick 11/21/2026); 1.8 = white oak
+ladder_wall_gap_in = 0.75         # corner design: ladder edge to the bath 1 wall and the clerestory wall. 3/4 in leaves room for the bolt heads and wall tabs on the wall side tubes
+ladder_wall_stringer_under = false # corner design: wall side stringers under the treads. Tried 11/21/2026 and dropped: the overlapping treads leave no seat. With steel plates both stringers sit beside the treads, treads on bolt on angle clips, wall side rails on brackets, wall plates lagged to blocking
 ladder_going_in = 5.0             # nosing to nosing
 ladder_tread_in = 8.5             # each tread overlaps the next by 3.5 in; the loft edge gets a 3.5 in oak nosing over the top tread
 ladder_handrail_in = 32.0         # top of rail above the nosing line, 30 to 34 in allowed
@@ -591,6 +601,9 @@ items = [
   # the bath 1 wall, its south end under the ladder's upper flight. It replaces the 7 ft sofa; the rug and coffee table move west and
   # south into the L, the side table and lamp move to the couch's west arm, and the north lounge chair (where the long leg now is) goes.
   { id = "l_couch", type = "l_couch", web = true, corner = [31.06, 22.95], nl = 9.5, el = 7.5, d = 3.1 },
+  # 6 ft person on the couch's south end, back against the back cushion and shoulder at the arm: as close to the ladder as
+  # anyone can sit (Maxwell 11/21/2026, head clearance check). web = false hides it.
+  { id = "sit_test", type = "seated_person", web = true, x = 30.29, y = 29.12, facing = 270, seat = 1.45 },
   { id = "living_rug", type = "rug", x = 24.0, y = 28.5, w = 7.5, l = 9.0, facing = 270, color = "#B9AE9A", moved_from = [26.4, 27.8, 270] },
   { id = "sofa", type = "model", model = "sofa_03", x = 29.7, y = 27.8, facing = 270, len = 7.0, removed = true },
   { id = "coffee_table", type = "model", model = "modern_coffee_table_01", x = 25.0, y = 28.4, facing = 270, len = 4.0, moved_from = [26.4, 27.8, 270] },

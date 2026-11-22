@@ -1311,7 +1311,7 @@ if LOFT["enabled"]:
     assert RI <= 9.5 / 12 + 1e-6 and GO >= 5 / 12 - 1e-6 and TD >= 8.5 / 12 - 1e-6, "ships ladder outside R311.7.12"
     SL = RI / GO                                              # slope of the nosing line
     zn = lambda x: RI + (x - lx0) * SL                       # nosing line
-    SW, RW = 0.15, 0.125                                      # stringer and handrail widths
+    SW, RW = LOFT.get("ladder_stringer_in", 1.8) / 12, 0.125   # stringer and handrail widths (corner design: ladder_stringer_in, 3/8 in for steel plate stringers)
     HR = LOFT.get("ladder_handrail_in", 32.0) / 12
     assert 2.5 <= HR <= 34 / 12 and (ly1 - ly0 - 2 * SW) * 12 >= 20, "ships ladder handrail height or width"
     DESIGN = os.environ.get("LADDER_DESIGN") or LOFT.get("ladder_design", "code")              # code | pullout | flip | lturn | side | alt: options drawn 11/21/2026 to keep the foot clear of the living room opening
@@ -3634,6 +3634,34 @@ def web_l_couch(it):
         box(paint(c), px, px + 0.7, py, py + 0.35, SEAT + 0.02, SEAT + 0.72)
 
 
+def web_seated_person(it):
+    """A 6'-0" adult sitting upright, to check head clearance (Maxwell 11/21/2026: someone on the couch as close to the
+    ladder as they can sit). x, y = the middle of the back where it meets the seat back; facing = compass direction
+    they face; seat = seat cushion top (ft), they sink 3/4 in. Proportions are typical for a 6 ft man: sitting height
+    (seat to crown) 37 1/2 in, shoulders 24 1/2 in over the seat, buttock to knee 24 1/2 in, knee 22 1/2 in up."""
+    fr = frame_at(it["x"], it["y"], it.get("facing", 270))
+    s = it.get("seat", 1.45) - 0.06
+    sit = it.get("sitting_in", 37.5) / 12
+    skin, shirt, jeans, shoe = paint("#C99A78"), paint("#5A7896"), paint("#3B4A63"), paint("#2A2A2A")
+    lbox(jeans, fr, -0.6, 0.6, 0.04, 0.85, s, s + 0.55)                          # hips
+    for sg in (-1, 1):
+        a0, a1 = sorted((sg * 0.05, sg * 0.56))
+        lbox(jeans, fr, a0, a1, 0.6, 2.04, s + 0.04, s + 0.5)                    # thighs, out to the knee
+        b0, b1 = sorted((sg * 0.1, sg * 0.5))
+        lbox(jeans, fr, b0, b1, 1.62, 2.0, 0.28, s + 0.46)                       # shins
+        lbox(shoe, fr, b0 - 0.02, b1 + 0.02, 1.55, 2.5, 0.0, 0.3)                 # shoes
+        c0, c1 = sorted((sg * 0.6, sg * 0.8))
+        lbox(shirt, fr, c0, c1, 0.14, 0.6, s + 1.05, s + 2.0)                    # upper arms
+        d0, d1 = sorted((sg * 0.45, sg * 0.68))
+        lbox(shirt, fr, d0, d1, 0.35, 1.25, s + 0.5, s + 1.08)                   # forearms, hands on the thighs
+        lbox(skin, fr, d0, d1, 1.25, 1.65, s + 0.52, s + 0.62)
+    lbox(shirt, fr, -0.6, 0.6, 0.04, 0.85, s + 0.55, s + 2.04)                   # torso to the shoulders
+    lbox(skin, fr, -0.2, 0.2, 0.25, 0.62, s + 2.04, s + 2.34)                    # neck
+    hx, hy = fr(0.0, 0.46)
+    cyl(skin, hx, hy, s + 2.3, sit + s - 0.2, 0.31)                              # head
+    cyl(paint("#4A3626"), hx, hy, sit + s - 0.2, sit + s, 0.32, 0.16)            # hair, to the crown
+
+
 MATERIALS.update({
     "Honey Maple": dict(color="#E6B47C", rough=0.4, map="white_oak.jpg", normal="oak_normal.jpg", normal_scale=0.35, tile=0.8, grain="long"),
     "Jute Rug": dict(color="#8C7C66", rough=0.95),
@@ -3812,7 +3840,7 @@ WEB_BUILD = {"bed": web_bed, "nightstand": web_nightstand, "table_lamp": web_tab
              "l_desk": web_l_desk, "office_chair": web_office_chair, "towel_warmer": web_towel_warmer, "bench": web_bench,
              "tv_console": web_tv_console, "l_couch": web_l_couch, "dining_table": web_dining_table, "dining_chair": web_dining_chair,
              "fruit_bowl": web_fruit_bowl, "jute_rug": web_jute_rug,
-             "bar_stool": web_bar_stool}
+             "bar_stool": web_bar_stool, "seated_person": web_seated_person}
 WEB_INFO = {
     "dining_table": lambda it: dict(model=f"Shaker style solid maple dining table, honey finish, {round(it.get('l', 7.0) * 12)} x {round(it.get('w', 40 / 12) * 12)} in, {round(it.get('h', 2.5) * 12)} in high (style from Maxwell's reference photo; maker and size ASSUMED)",
                                     specs=[["Seats", "8: three on each side and one at each end"], ["Legs", "square, tapered on the inside faces"], ["Clearance", "about 3 ft or more behind every chair pulled out"]],
@@ -3825,6 +3853,10 @@ WEB_INFO = {
                                  specs=[["Seat height", f"{it.get('seat_in', 26.0):g} in, for the 36 in island counter"], ["Footrest", f"{it.get('foot_in', 9.0):g} in off the floor"],
                                         ["Size", "about 18 in wide, 18 in deep, back about 37 in high"]],
                                  notes=["Replaces the round wood bar stools (Maxwell, 11/21/2026). Counter height because the island is a standard 36 in counter; bar height stools (30 in seat) would sit too high."]),
+    "seated_person": lambda it: dict(model="A 6'-0\" adult sitting upright, for checking head clearance (mockup)",
+                                     specs=[["Crown of the head", f"{ftin(it.get('seat', 1.45) - 0.06 + it.get('sitting_in', 37.5) / 12)} above the floor"],
+                                            ["Sitting height", f"{it.get('sitting_in', 37.5):g} in, seat to crown"]],
+                                     notes=["Sat as close to the ladder as the couch allows (Maxwell 11/21/2026)."]),
     "l_couch": lambda it: dict(model=f"L sectional, {ftin(it.get('nl', 9.5))} along the north wall by {ftin(it.get('el', 7.5))} along the bath 1 wall, {ftin(it.get('d', 3.1))} deep, seat 17 in, back 33 in (size from the ladder mockup, model ASSUMED)",
                                notes=["The L couch from the corner landing ladder mockup (option E) that Maxwell picked 11/21/2026. Its short leg runs under the ladder's upper flight; the flight's underside is well above the couch back there."]),
     "bed": lambda it: dict(model="Queen bed, 60 x 80 in mattress on a white oak platform (ASSUMED)", notes=["Queen, and placed so the side tables clear both doors (Maxwell, 11/16/2026)."]),
@@ -3856,7 +3888,7 @@ WEB_INFO = {
 # not a belonging).
 BUILT_IN = {"bench", "towel_warmer"}
 WEB_NAMES = {"bench": "Mudroom bench and cabinets", "bed": "Queen bed", "nightstand": "Nightstand", "table_lamp": "Table lamp", "desk_lamp": "Desk lamp", "l_desk": "L-shaped standing desk", "office_chair": "Office chair", "towel_warmer": "Towel warmer", "tv_console": "TV console", "l_couch": "L sectional couch",
-             "dining_table": "Dining table", "dining_chair": "Dining chair", "fruit_bowl": "Fruit bowl", "jute_rug": "Dining rug", "bar_stool": "Counter stool"}
+             "dining_table": "Dining table", "dining_chair": "Dining chair", "fruit_bowl": "Fruit bowl", "jute_rug": "Dining rug", "bar_stool": "Counter stool", "seated_person": "Seated person, 6 ft (mockup)"}
 for it in FURN:
     if it.get("moved_from"):
         ox, oy, of = it["moved_from"]
