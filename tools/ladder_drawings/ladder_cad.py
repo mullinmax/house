@@ -12,7 +12,7 @@ import ladder_geom as G
 OUT = sys.argv[1] if len(sys.argv) > 1 else "."
 os.makedirs(OUT, exist_ok=True)
 T = G.WT
-BT = 0.375 if G.MONO else 0.25                     # tread bracket plate
+BT = G.BRKT_T                                      # tread bracket plate
 PARTS = []                                         # (group, name, solid, colour, material)
 STEEL, OAK = (0.13, 0.14, 0.15), (0.78, 0.62, 0.40)
 RISER_PANELS, PANEL_BACK = not G.MONO, 0.75              # slide in 1/4 in wood riser panels behind each tread, held in slots in the tread brackets (Maxwell 11/22/2026: 4 in sphere rule)
@@ -39,6 +39,12 @@ def prism(f, uz, v0, v1):
     w = cq.Wire.makePolygon([W(*f.p(u, v0, z)) for u, z in uz], close=True)
     d = W(*f.p(0, v1, 0)) - W(*f.p(0, v0, 0))
     return cq.Solid.extrudeLinear(cq.Face.makeFromWires(w), d)
+
+
+def vprism(f, vz, u0, u1):
+    """polygon across a flight (v, z), from u0 to u1 along it"""
+    w = cq.Wire.makePolygon([W(*f.p(u0, v, z)) for v, z in vz], close=True)
+    return cq.Solid.extrudeLinear(cq.Face.makeFromWires(w), W(*f.p(u1, 0, 0)) - W(*f.p(u0, 0, 0)))
 
 
 def aprism(az, b0, b1):
@@ -78,14 +84,14 @@ def fbolt(f, u, v, z, axis, sign=1, **kw):
     a, b, _ = f.p(u, v, z)
     if axis == "z":
         return bolt(a, b, z, "z", sign, **kw)
-    a2, b2, _ = f.p(u, v + sign, z)
+    a2, b2, _ = f.p(u, v + sign, z) if axis == "v" else f.p(u + sign, v, z)
     bolt(a, b, z, "a" if abs(a2 - a) > 0.5 else "b", (1 if a2 > a else -1) if abs(a2 - a) > 0.5 else (1 if b2 > b else -1), **kw)
 
 
 VC = G.VC
 if G.MONO:      # one centre tube; a bracket on each side of it with the seat pointing outward: (name, tube v0 or None, web v range, seat v range)
-    SIDES = (("open", VC - G.TW / 2, (VC - G.TW / 2 - BT, VC - G.TW / 2), (VC - G.TW / 2 - G.SEAT_W, VC - G.TW / 2)),
-             ("wall", None, (VC + G.TW / 2, VC + G.TW / 2 + BT), (VC + G.TW / 2, VC + G.TW / 2 + G.SEAT_W)))
+    SIDES = (("open", VC - G.TW / 2, (VC - G.TW / 2 - BT, VC - G.TW / 2), (VC - G.TW / 2 - G.SEAT_TAB, VC - G.TW / 2)),
+             ("wall", None, (VC + G.TW / 2, VC + G.TW / 2 + BT), (VC + G.TW / 2, VC + G.TW / 2 + G.SEAT_TAB)))
 else:
     SIDES = (("open", 0.0, (G.TW, G.TW + BT), (G.TW, G.TW + G.SEAT_W)), ("wall", G.WN - G.TW, (G.WN - G.TW - BT, G.WN - G.TW), (G.WN - G.TW - G.SEAT_W, G.WN - G.TW)))
 for f in G.FLIGHTS:
@@ -110,22 +116,37 @@ for f in G.FLIGHTS:
                         t_ = (zc_ - p[1]) / (q[1] - p[1])
                         cl.append((p[0] + t_ * (q[0] - p[0]), zc_))
                 web = cl
-            br = prism(f, web, *vw).fuse(prism(f, [(uk + 1, zk - BT), (uk + G.TD + G.RT, zk - BT), (uk + G.TD + G.RT, zk), (uk + 1, zk)], *vs))
+            sg_ = 1 if vs[0] == vw[0] else -1                                  # outward from the tube
+            ft_ = tuple(sorted((vs[0] if sg_ > 0 else vs[1], (vs[0] if sg_ > 0 else vs[1]) + sg_ * G.FOOT_W))) if G.MONO else vs
+            us0 = uk + G.WEB0 + 0.6 if G.MONO else uk + 1
+            br = prism(f, web, *vw).fuse(prism(f, [(us0, zk - BT), (uk + G.TD + G.RT, zk - BT), (uk + G.TD + G.RT, zk), (us0, zk)], *vs))
+            if G.MONO:                                                         # flange folded off the web's vertical front edge, bolted to the cross arm
+                fo_ = vw[1] if sg_ > 0 else vw[0]
+                br = br.fuse(prism(f, [(A[0], zk - G.ARM_D0), (A[0] + BT, zk - G.ARM_D0), (A[0] + BT, zk), (A[0], zk)], *sorted((fo_ - sg_ * BT, fo_ + sg_ * G.ARM_FL))))
+                for z_ in (zk - 0.9, zk - 2.7):
+                    fbolt(f, A[0] + BT, fo_ + sg_ * 0.95, z_, "u")
+                if side == "open":                                             # the arm: one flat plate on edge under the tread, across both brackets
+                    v0_, v1_, c0_, c1_ = G.ARM_END, G.WN - G.ARM_END, VC - G.ARM_FLAT, VC + G.ARM_FLAT
+                    arm = vprism(f, [(v0_, zk), (v1_, zk), (v1_, zk - G.ARM_D1), (c1_, zk - G.ARM_D0), (c0_, zk - G.ARM_D0), (v0_, zk - G.ARM_D1)], A[0] - BT, A[0])
+                    for vt_ in (VC - 9.2, VC - 6.2, VC + 6.2, VC + 9.2):       # screw tabs folded off its top edge
+                        arm = arm.fuse(prism(f, [(A[0] - BT - 1.25, zk - BT), (A[0] - BT, zk - BT), (A[0] - BT, zk), (A[0] - BT - 1.25, zk)], vt_ - 0.9, vt_ + 0.9))
+                        fbolt(f, A[0] - BT - 0.7, vt_, zk - BT, "z", -1, d=0.5, h=0.15)
+                    add(g, f"{f.name}_arm_{k}", arm)
             if foot:
                 us = [u for u, z in web if abs(z - zc_) < 1e-6]
                 if G.MONO and f is G.UPPER:                                    # the flange stops at the edges of the landing's north beam
                     us = [max(min(us), G.B_LN - G.LN_W / 2 - G.B0), min(max(us), G.B_LN + G.LN_W / 2 - G.B0)]
                 for ub_ in (min(us) + 0.8, max(us) - 0.8):                     # two anchors (slab) or bolts (landing beam) through each foot flange
-                    fbolt(f, ub_, (vs[0] + vs[1]) / 2 + (0.6 if vs[0] == vw[0] else -0.6), zc_, "z")
-                br = br.fuse(prism(f, [(min(us), f.zf), (max(us), f.zf), (max(us), zc_), (min(us), zc_)], *vs))
+                    fbolt(f, ub_, (ft_[0] + ft_[1]) / 2 + (0.6 if vs[0] == vw[0] else -0.6), zc_, "z")
+                br = br.fuse(prism(f, [(min(us), f.zf), (max(us), f.zf), (max(us), zc_), (min(us), zc_)], *ft_))
             add(g, f"{f.name}_bracket_{k}_{side}", br)
             for s_ in (4.25, 8.25):                                            # two through bolts per bracket pair, head one side and nut the other
                 ub_ = A[0] + s_ * math.cos(G.ANG) + nx * G.BOLT_N
                 zb_ = f.zl(A[0]) + s_ * math.sin(G.ANG) + nz * G.BOLT_N
                 if zb_ > zc_ + 0.5 or not foot:
                     fbolt(f, ub_, vw[1] if vs[0] == vw[0] else vw[0], zb_, "v", 1 if vs[0] == vw[0] else -1)
-            for ub_ in (uk + 2.5, uk + 7.0):                                   # two screws up through each seat into the tread
-                fbolt(f, ub_, (vs[0] + vs[1]) / 2 + (0.8 if vs[0] == vw[0] else -0.8), zk - BT, "z", -1, d=0.5, h=0.15)
+            for ub_ in ((uk + 6.3, uk + 8.3) if G.MONO else (uk + 2.5, uk + 7.0)):   # two screws up through each seat into the tread
+                fbolt(f, ub_, (vs[0] + vs[1]) / 2 + (0.3 if vs[0] == vw[0] else -0.3), zk - BT, "z", -1, d=0.5, h=0.15)
         sgn = 1 if vs[0] == vw[0] else -1                                      # head angles, 3 x 3 x 1/4, 4 in long (the feet are held by the first tread brackets)
         e0 = vw[0] if sgn > 0 else vw[1]
         vi, vl = tuple(sorted((e0, e0 + sgn * 3.0))), tuple(sorted((e0, e0 + sgn * 0.25)))

@@ -136,7 +136,8 @@ def mono_ladder(WX, WY):
     P = lambda a, b, z: (WX - a / 12, WY - b / 12, z / 12)
     gb = lambda mat, a0, a1, b0, b1, z0, z1: box(mat, WX - a1 / 12, WX - a0 / 12, WY - b1 / 12, WY - b0 / 12, z0 / 12, z1 / 12)
     gh = lambda mat, f, uz, v0, v1: hexa(mat, [P(*f.p(u, v0, z)) for u, z in uz] + [P(*f.p(u, v1, z)) for u, z in uz])
-    XL, ZP, FL_, TT, TK, VC, BT = G.XL, G.ZP, G.FL, G.TT, G.TK, G.VC, 0.375
+    XL, ZP, FL_, TT, TK, VC, BT = G.XL, G.ZP, G.FL, G.TT, G.TK, G.VC, G.BRKT_T
+    gv = lambda mat, f, vz, u0, u1: hexa(mat, [P(*f.p(u0, v, z)) for v, z in vz] + [P(*f.p(u1, v, z)) for v, z in vz])
     nx, nz = math.sin(G.ANG), -math.cos(G.ANG)
     RD2 = G.RAIL / math.cos(G.ANG)
     ZN = "Stainless"                                     # bolt heads, nuts and anchors: every joint is bolted, nothing welded (Maxwell 11/22/2026)
@@ -155,7 +156,7 @@ def mono_ladder(WX, WY):
         a, b, _ = f.p(u, v, z)
         if axis == "z":
             return bolt(a, b, z, "z", sign, **kw)
-        a2, b2, _ = f.p(u, v + sign, z)
+        a2, b2, _ = f.p(u, v + sign, z) if axis == "v" else f.p(u + sign, v, z)
         bolt(a, b, z, "a" if abs(a2 - a) > 0.5 else "b", (1 if a2 > a else -1) if abs(a2 - a) > 0.5 else (1 if b2 > b else -1), **kw)
 
     for f in G.FLIGHTS:
@@ -167,16 +168,24 @@ def mono_ladder(WX, WY):
                 A, B = (uk + G.WEB0, zk - BT), (uk + G.TD + G.RT, zk - BT)
                 C2, B2 = (A[0] + nx * G.LAP, max(f.zl(A[0]) + nz * G.LAP, f.zf + BT)), (B[0] + nx * G.LAP, max(zk + nz * G.LAP, f.zf + BT))
                 gh(ST, f, [C2, B2, B, A], v0, v0 + sg * BT)
-                gh(ST, f, [(uk + 1, zk - BT), (uk + G.TD + G.RT - e, zk - BT), (uk + G.TD + G.RT - e, zk - e), (uk + 1, zk - e)], v0, v0 + sg * G.SEAT_W)
+                gh(ST, f, [(A[0] + 0.6, zk - BT), (uk + G.TD + G.RT - e, zk - BT), (uk + G.TD + G.RT - e, zk - e), (A[0] + 0.6, zk - e)], v0 + sg * BT, v0 + sg * G.SEAT_TAB)
+                # flange folded off the web's front edge, bolted to the arm that crosses under the tread on edge
+                gh(ST, f, [(A[0] + e, zk - G.ARM_D0), (A[0] + BT, zk - G.ARM_D0), (A[0] + BT, zk - BT - e), (A[0] + e, zk - BT - e)], v0 + sg * BT, v0 + sg * (BT + G.ARM_FL))
+                for z_ in (zk - 0.9, zk - 2.7):
+                    fbolt(f, A[0] + BT, v0 + sg * (BT + 0.95), z_, "u")
                 for s_ in (4.25, 8.25):                      # two through bolts per bracket pair
                     ub_, zb_ = A[0] + s_ * math.cos(G.ANG) + nx * G.BOLT_N, f.zl(A[0]) + s_ * math.sin(G.ANG) + nz * G.BOLT_N
                     if zb_ > f.zf + BT + 0.5:
                         fbolt(f, ub_, v0 + sg * BT, zb_, "v", sg)
                 if k == 1:                                   # foot flange on the slab, or on the landing's north beam and no wider than it
                     fu = (C2[0], B2[0]) if f is G.LOWER else (max(C2[0], G.B_LN - G.LN_W / 2 - G.B0 + e), min(B2[0], G.B_LN + G.LN_W / 2 - G.B0 - e))
-                    gh(ST, f, [(fu[0], f.zf + e), (fu[1], f.zf + e), (fu[1], f.zf + BT), (fu[0], f.zf + BT)], v0, v0 + sg * G.SEAT_W)
+                    gh(ST, f, [(fu[0], f.zf + e), (fu[1], f.zf + e), (fu[1], f.zf + BT), (fu[0], f.zf + BT)], v0 + sg * BT, v0 + sg * G.FOOT_W)
                     for ub_ in (fu[0] + 0.8, fu[1] - 0.8):
-                        fbolt(f, ub_, v0 + sg * (G.SEAT_W / 2 + 0.6), f.zf + BT, "z")
+                        fbolt(f, ub_, v0 + sg * (G.FOOT_W / 2 + 0.6), f.zf + BT, "z")
+            ua_, v0_, v1_, c0_, c1_ = uk + G.WEB0, G.ARM_END, G.WN - G.ARM_END, VC - G.ARM_FLAT, VC + G.ARM_FLAT
+            for vz in ([(v0_, zk - G.ARM_D1), (c0_, zk - G.ARM_D0), (c0_, zk - e), (v0_, zk - e)], [(c0_, zk - G.ARM_D0), (c1_, zk - G.ARM_D0), (c1_, zk - e), (c0_, zk - e)],
+                       [(c1_, zk - G.ARM_D0), (v1_, zk - G.ARM_D1), (v1_, zk - e), (c1_, zk - e)]):
+                gv(ST, f, vz, ua_ - BT, ua_ - e)
             gh(OAK, f, [(uk, zk), (uk + G.TD, zk), (uk + G.TD, zk + TT), (uk, zk + TT)], 0.05, G.WN - 0.05)
             ur = uk + G.TD                                   # riser lip behind every tread: under 4 in open above it
             gh(OAK, f, [(ur + e, zk), (ur + G.RT, zk), (ur + G.RT, zk + TT + G.RH), (ur + e, zk + TT + G.RH)], 0.05 + e, G.WN - 0.05 - e)
