@@ -387,11 +387,11 @@ function ceilingFan(s, it) {
 
 const BUILD = {
   ceiling_fan: ceilingFan,
-  inline_fan(s) {                  // EC mixed flow inline duct fan: black round body along the duct (local z, air out the front), 8 in collars, mounting feet
-    const [D, L] = s, g = new THREE.Group(), R = D / 2, blk = mat('booster black', 0x202224, 0.5, 0.2);
+  inline_fan(s) {                  // EC mixed flow inline duct fan: black round body along the duct (local z, air out the front), collars (8 in unless given), mounting feet
+    const [D, L, C = 8] = s, g = new THREE.Group(), R = D / 2, blk = mat('booster black', 0x202224, 0.5, 0.2);   // C: collar size, in
     cyl(g, R, L - 4.6, blk, 0, R, L / 2, 'z', 32);
     for (const z of [1.6, L - 1.6]) cyl(g, R - 0.7, 1.4, blk, 0, R, z + (z < L / 2 ? 0.7 : -0.7), 'z', 32, R - 1.6);
-    for (const z of [0.5, L - 0.5]) cyl(g, 4.1, 1.0, galv(), 0, R, z, 'z', 24);
+    for (const z of [0.5, L - 0.5]) cyl(g, C / 2 + 0.1, 1.0, galv(), 0, R, z, 'z', 24);
     ring(g, R + 0.1, 0.25, greyPlastic(), 0, R, L * 0.62, 'z', 36);
     box(g, 3.0, 1.4, 4.0, greyPlastic(), 0, D + 0.5, L * 0.45);              // terminal box on top
     box(g, 2.6, 2.0, 1.2, darkPlastic(), -R - 0.2, R, L * 0.7);              // speed control head on the room side

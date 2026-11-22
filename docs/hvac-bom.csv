@@ -25,9 +25,14 @@ Buy separately: ERV and ventilation equipment,Separately,"4 in constant airflow 
 Buy separately: ERV and ventilation equipment,Separately,Range hood power pack insert,,1,ea,,,,
 Buy separately: ERV and ventilation equipment,Separately,8 in range hood wall cap with damper,West wall,1,ea,,,,
 Buy separately: ERV and ventilation equipment,Separately,8 in insulated backdraft damper for the hood duct,At the hood,1,ea,,,,Worth it in a house this tight.
-Buy separately: ERV and ventilation equipment,Separately,Broan MD10TU 10 in makeup air damper with pressure sensor kit,"Range hood makeup air, attic over the pantry. Includes the 24 V transformer, pressure switch, probe and tubing",1,ea,,About $284 to $355,,Opens whenever the hood runs on medium or high.
+Buy separately: ERV and ventilation equipment,Separately,Broan MD10TU 10 in makeup air damper with pressure sensor kit,"Range hood makeup air, attic over the pantry. Includes the 24 V transformer, pressure switch, probe and tubing",1,ea,,About $284 to $355,,"Opens whenever the hood runs on medium or high, and starts the fan and blower."
 Buy separately: ERV and ventilation equipment,Separately,120 V junction box and circuit for the damper transformer,"Attic over the pantry, beside the damper",1,ea,,,,Electrician. Can share a general attic circuit.
 Buy separately: ERV and ventilation equipment,Separately,18/2 thermostat wire,"Pressure switch in the hood box up to the damper, about 25 ft",1,ea,,,,
+Buy separately: ERV and ventilation equipment,Separately,"10 in mixed flow inline duct fan, about 600 CFM at 0.4 in (Fantech FKD 10 XL, S&P TD-250 or similar)","Makeup air duct, west wall run in the attic",1,ea,,About $300 to $500,,Speed control to trim it to the hood on high.
+Buy separately: ERV and ventilation equipment,Separately,"24 V relay, for example Functional Devices RIB2401B",Wired across the makeup air damper: starts the fan and calls the heat pump blower,1,ea,,About $25 to $40,,HVAC installer wires the blower call.
+Buy separately: ERV and ventilation equipment,Separately,Rubber isolation hangers for the fan,,1,ea,,set,,
+Buy separately: ERV and ventilation equipment,Separately,10 in round top takeoff on a rectangular duct,Makeup air into the top of the 14 x 8 kitchen supply duct,1,ea,,,,
+Buy separately: ERV and ventilation equipment,Separately,"Duct wrap insulation, R-6 with vapor jacket","Kitchen supply duct and its three stubs, against summer sweating from humid makeup air",1,ea,,roll,,
 Buy separately: ERV and ventilation equipment,Separately,"10 in intake wall hood with 1/4 in screen, black","West wall over bedroom 3's attic, beside the ERV fresh air hood",1,ea,,About $40 to $120,,No damper needed in the hood; the MD10TU closes the duct.
 Buy separately: ERV and ventilation equipment,Separately,10 in inline duct filter box with side access door,Right after the makeup air damper,1,ea,,About $60 to $120,,Broan requires a filter downstream of the damper.
 Buy separately: ERV and ventilation equipment,Separately,1 in MERV 8 filters for the makeup air filter box,,2,ea,,About $10 each,,"One in it, one spare."
@@ -40,7 +45,7 @@ Buy separately: ERV and ventilation equipment,Separately,Rheem water heater duct
 "Buy separately: round duct, flex and fittings",Separately,"8 in round pipe, 30 ga snap lock","ERV outdoor side, insulated",5,x 5 ft,19 ft in the model,,,"Insulate with R-8 wrap or use insulated duct, vapor jacket outside"
 "Buy separately: round duct, flex and fittings",Separately,"8 in round pipe, 30 ga snap lock",Exhaust,9,x 5 ft,37 ft in the model,,,
 "Buy separately: round duct, flex and fittings",Separately,"8 in round pipe, 30 ga snap lock",Supply,13,x 5 ft,55 ft in the model,,,
-"Buy separately: round duct, flex and fittings",Separately,"10 in round pipe, 30 ga snap lock","Range hood makeup air outdoor side, insulated",6,x 5 ft,23 ft in the model,,,"Insulate with R-8 wrap or use insulated duct, vapor jacket outside"
+"Buy separately: round duct, flex and fittings",Separately,"10 in round pipe, 30 ga snap lock","Range hood makeup air outdoor side, insulated",6,x 5 ft,24 ft in the model,,,"Insulate with R-8 wrap or use insulated duct, vapor jacket outside"
 "Buy separately: round duct, flex and fittings",Separately,"10 in round pipe, 30 ga snap lock",Return,12,x 5 ft,51 ft in the model,,,
 "Buy separately: round duct, flex and fittings",Separately,"6 in flex duct, R-6 insulated",Return runs through the trusses,4,x 25 ft box,70 ft in the model,,,"Pull it tight, no sags; support every 4 ft"
 "Buy separately: round duct, flex and fittings",Separately,"10 in flex duct, R-6 insulated",Return runs through the trusses,1,x 25 ft box,14 ft in the model,,,"Pull it tight, no sags; support every 4 ft"
@@ -48,7 +53,7 @@ Buy separately: ERV and ventilation equipment,Separately,Rheem water heater duct
 "Buy separately: round duct, flex and fittings",Separately,6 in adjustable 90 elbow,,13,ea,Counted from the bends in the model,,,
 "Buy separately: round duct, flex and fittings",Separately,7 in adjustable 90 elbow,,5,ea,Counted from the bends in the model,,,
 "Buy separately: round duct, flex and fittings",Separately,8 in adjustable 90 elbow,,13,ea,Counted from the bends in the model,,,
-"Buy separately: round duct, flex and fittings",Separately,10 in adjustable 90 elbow,,10,ea,Counted from the bends in the model,,,
+"Buy separately: round duct, flex and fittings",Separately,10 in adjustable 90 elbow,,9,ea,Counted from the bends in the model,,,
 "Buy separately: round duct, flex and fittings",Separately,10 in adjustable 45 elbow,,2,ea,Counted from the bends in the model,,,
 "Buy separately: round duct, flex and fittings",Separately,6 in round takeoff (starting collar),"Off a rectangular trunk, main or plenum",2,ea,,,,
 "Buy separately: round duct, flex and fittings",Separately,6 in round takeoff (starting collar) with volume damper,"Off a rectangular trunk, main or plenum",11,ea,,,,Supply branches get a manual damper to set at air balancing (M-10)
@@ -88,7 +93,6 @@ Buy separately: ERV and ventilation equipment,Separately,Rheem water heater duct
 "Buy separately: boots, registers and grilles",Separately,14 x 6 in sidewall boot x 8 in round,,7,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,14 x 8 in ceiling boot x 8 in round,,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,14 x 8 in sidewall boot x 8 in round,,1,ea,,,,
-"Buy separately: boots, registers and grilles",Separately,20 x 10 in sidewall boot x 10 in round,,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,6 x 6 in ceiling boot x 4 in round,,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,8 x 6 in ceiling boot x 6 in round,,4,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,8 x 8 in ceiling boot x 4 in round,,1,ea,,,,
@@ -98,7 +102,6 @@ Buy separately: ERV and ventilation equipment,Separately,Rheem water heater duct
 "Buy separately: boots, registers and grilles",Separately,10 x 6 in sidewall exhaust grille,Exhaust,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,6 x 6 in ceiling exhaust grille,Exhaust,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,8 x 8 in ceiling exhaust grille,Exhaust,1,ea,,,,
-"Buy separately: boots, registers and grilles",Separately,20 x 10 in sidewall grille,Range hood makeup air,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,12 x 12 in ceiling transfer grille,Return,2,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,14 x 8 in sidewall return grille,Return,7,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,22 x 4-1/2 in sidewall return grille,Return,1,ea,,,,
@@ -111,10 +114,10 @@ Buy separately: ERV and ventilation equipment,Separately,Rheem water heater duct
 "Buy separately: boots, registers and grilles",Separately,14 x 8 in ceiling supply register,Supply,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,14 x 8 in sidewall supply register,Supply,1,ea,,,,
 "Buy separately: boots, registers and grilles",Separately,8 x 6 in ceiling supply register,Supply,4,ea,,,,
-"Buy separately: sealing, hanging and insulation",Separately,"Duct mastic, water based, UL 181",,6,gal,About 223 joints,,,
+"Buy separately: sealing, hanging and insulation",Separately,"Duct mastic, water based, UL 181",,6,gal,About 221 joints,,,
 "Buy separately: sealing, hanging and insulation",Separately,"Foil tape, UL 181A-P / 181B-FX",,9,roll,,,,
 "Buy separately: sealing, hanging and insulation",Separately,#8 x 1/2 in self drilling sheet metal screws,3 per joint,700,ea,,,,
 "Buy separately: sealing, hanging and insulation",Separately,Flex duct clamps or nylon duct ties,2 per flex connection,28,ea,,,,
 "Buy separately: sealing, hanging and insulation",Separately,"Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap","Rigid every 5 ft, flex every 4 ft, rect every 4 ft",110,hangers,About 3 ft of strap each,,,
 "Buy separately: sealing, hanging and insulation",Separately,"Acoustic duct liner, 1 in",Main return box and trunk,1,roll,,,,Often supplied by the sheet metal shop
-"Buy separately: sealing, hanging and insulation",Separately,"Duct insulation wrap, R-8 with vapor jacket",ERV outdoor ducts,47,ft,,,,"Supply and return ducts sit inside the SIP envelope, so they do not need insulation by code"
+"Buy separately: sealing, hanging and insulation",Separately,"Duct insulation wrap, R-8 with vapor jacket",ERV outdoor ducts,48,ft,,,,"Supply and return ducts sit inside the SIP envelope, so they do not need insulation by code"

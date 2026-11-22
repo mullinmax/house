@@ -301,7 +301,7 @@
      "qty": 1,
      "unit": "ea",
      "where": "",
-     "note": "Opens whenever the hood runs on medium or high.",
+     "note": "Opens whenever the hood runs on medium or high, and starts the fan and blower.",
      "price": "About $284 to $355",
      "status": ""
     },
@@ -323,6 +323,56 @@
      "where": "",
      "note": "",
      "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 in mixed flow inline duct fan, about 600 CFM at 0.4 in (Fantech FKD 10 XL, S&P TD-250 or similar)",
+     "spec": "Makeup air duct, west wall run in the attic",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "Speed control to trim it to the hood on high.",
+     "price": "About $300 to $500",
+     "status": ""
+    },
+    {
+     "item": "24 V relay, for example Functional Devices RIB2401B",
+     "spec": "Wired across the makeup air damper: starts the fan and calls the heat pump blower",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "HVAC installer wires the blower call.",
+     "price": "About $25 to $40",
+     "status": ""
+    },
+    {
+     "item": "Rubber isolation hangers for the fan",
+     "spec": "",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "set",
+     "status": ""
+    },
+    {
+     "item": "10 in round top takeoff on a rectangular duct",
+     "spec": "Makeup air into the top of the 14 x 8 kitchen supply duct",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "Duct wrap insulation, R-6 with vapor jacket",
+     "spec": "Kitchen supply duct and its three stubs, against summer sweating from humid makeup air",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "roll",
      "status": ""
     },
     {
@@ -458,7 +508,7 @@
      "spec": "Range hood makeup air outdoor side, insulated",
      "qty": 6,
      "unit": "x 5 ft",
-     "where": "23 ft in the model",
+     "where": "24 ft in the model",
      "note": "Insulate with R-8 wrap or use insulated duct, vapor jacket outside",
      "price": "",
      "status": ""
@@ -536,7 +586,7 @@
     {
      "item": "10 in adjustable 90 elbow",
      "spec": "",
-     "qty": 10,
+     "qty": 9,
      "unit": "ea",
      "where": "Counted from the bends in the model",
      "note": "",
@@ -950,16 +1000,6 @@
      "status": ""
     },
     {
-     "item": "20 x 10 in sidewall boot x 10 in round",
-     "spec": "",
-     "qty": 1,
-     "unit": "ea",
-     "where": "",
-     "note": "",
-     "price": "",
-     "status": ""
-    },
-    {
      "item": "6 x 6 in ceiling boot x 4 in round",
      "spec": "",
      "qty": 1,
@@ -1042,16 +1082,6 @@
     {
      "item": "8 x 8 in ceiling exhaust grille",
      "spec": "Exhaust",
-     "qty": 1,
-     "unit": "ea",
-     "where": "",
-     "note": "",
-     "price": "",
-     "status": ""
-    },
-    {
-     "item": "20 x 10 in sidewall grille",
-     "spec": "Range hood makeup air",
      "qty": 1,
      "unit": "ea",
      "where": "",
@@ -1192,7 +1222,7 @@
      "spec": "",
      "qty": 6,
      "unit": "gal",
-     "where": "About 223 joints",
+     "where": "About 221 joints",
      "note": "",
      "price": "",
      "status": ""
@@ -1250,7 +1280,7 @@
     {
      "item": "Duct insulation wrap, R-8 with vapor jacket",
      "spec": "ERV outdoor ducts",
-     "qty": 47,
+     "qty": 48,
      "unit": "ft",
      "where": "",
      "note": "Supply and return ducts sit inside the SIP envelope, so they do not need insulation by code",
@@ -1339,8 +1369,8 @@
    "system": "Range hood makeup air",
    "room": "Kitchen",
    "size": "10 in round",
-   "ft": 23.237699999999997,
-   "cfm": null,
+   "ft": 24.28391666666666,
+   "cfm": 600,
    "flex": false,
    "crosses": 0,
    "stacks": 0

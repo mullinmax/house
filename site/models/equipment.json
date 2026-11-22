@@ -2301,7 +2301,7 @@
     "notes": [
      "Picked to the video's advice (Maxwell, 11/20/2026): the SmartSense unit the video shows, so the hood runs every single time someone cooks; HVI certified airflow and noise, not 'equivalent CFM'; very quiet on normal. The video's catch: high speed is loud because 600 CFM squeezes through a small screened grille. The big hood box around it is the fix: it holds the smoke so normal speed has time to catch it.",
      "The fan sits inside the hood, so the duct ends at a plain wall cap outside. A remote exterior blower would be quieter on high, but it loses the heat sensor that makes the hood run on its own.",
-     "Makeup air (Maxwell, 11/21/2026): a 10 in outdoor air duct with a Broan MD10TU motorized damper opens whenever this hood pulls hard, and lets the air back in high on the kitchen wall. Ohio only requires it over 400 CFM when a fuel burning appliance is inside (1503.6), and this house is all electric, so it is there because the house is so tight, not for code. See the Makeup air damper card.",
+     "Makeup air (Maxwell, 11/21/2026): a 10 in outdoor air duct with a Broan MD10TU motorized damper and an inline fan starts whenever this hood pulls hard, and feeds the air into the kitchen supply duct so it comes out of the kitchen registers, mixed with supply air. Ohio only requires it over 400 CFM when a fuel burning appliance is inside (1503.6), and this house is all electric, so it is there because the house is so tight, not for code. See the Makeup air damper card.",
      "Other HVI listed choices: Broan PM400SSV (450 CFM, 0.5 to 1 sone, 10 minute delay off, 6 in duct only, $564) or Broan PMA400SS (400 CFM, 1 sone, Energy Star)."
     ],
     "placement": "At the top of the hood box, centred over the cooktop, its outlet straight under the chimney."
@@ -2394,6 +2394,53 @@
    }
   },
   {
+   "id": "mua_fan",
+   "name": "Makeup air fan",
+   "category": "Ventilation",
+   "system": "hvac.makeup_air",
+   "room": "Attic",
+   "layer": "ducts",
+   "builder": "inline_fan",
+   "size": [
+    13.5,
+    20,
+    10
+   ],
+   "at": [
+    1.1417,
+    24.366666666666667,
+    13.637
+   ],
+   "facing": 180,
+   "info": {
+    "model": "10 in mixed flow inline duct fan, about 600 CFM at 0.4 in of pressure (ASSUMED class: Fantech FKD 10 XL, S&P TD-250 or similar)",
+    "price": "About $300 to $500",
+    "specs": [
+     [
+      "Airflow",
+      "About 600 CFM against the duct, filter and kitchen supply duct pressure, so it matches the hood on high"
+     ],
+     [
+      "Runs",
+      "Only while the hood runs on medium or high, started through a 24 V relay off the damper's transformer"
+     ],
+     [
+      "Power",
+      "120 V from a junction box in the attic, the same one as the damper's transformer"
+     ],
+     [
+      "Where",
+      "West wall run, beside the heat pump, before the damper; hung on rubber isolators"
+     ]
+    ],
+    "notes": [
+     "Needed because the makeup air goes into the kitchen supply duct (Maxwell, 11/21/2026): that duct is under pressure whenever the blower runs, so passive air could not get in.",
+     "A speed control lets the installer trim it to match the hood on high during the blower door test, so the house ends up close to neutral."
+    ],
+    "placement": "Attic, on the makeup air duct along the west wall, beside the heat pump."
+   }
+  },
+  {
    "id": "mua_damper",
    "name": "Makeup air damper",
    "category": "Ventilation",
@@ -2418,6 +2465,10 @@
      [
       "Opens",
       "On its own when the hood runs: a pressure switch on the hood's duct senses the hood pushing air (0.05 in or more) and opens the damper; it closes when the hood stops"
+     ],
+     [
+      "Also starts",
+      "The makeup air fan and the heat pump blower, through a 24 V relay wired across the damper (ASSUMED: Functional Devices RIB2401B or similar; the HVAC installer wires the blower call)"
      ],
      [
       "In the box",
@@ -2447,8 +2498,8 @@
      ]
     ],
     "notes": [
-     "Picked because it works with any hood: no wire into the PM600SSV. The catch, from Broan's guide: the switch may not trip on the lowest speeds. That is fine here (low speed is well under 400 CFM), but if the damper should open on every speed, the alternative is a current sensing relay on the hood's power (for example Functional Devices RIBXGTA) driving any 10 in 24 V power open, spring close damper.",
-     "Its set screw limits how far it opens; Broan says to set it with the hood on high. Test: hood on high, damper opens; hood off, damper closes.",
+     "Picked because it works with any hood: no wire into the PM600SSV. Broan's guide says the switch may not trip on the lowest speeds. That is fine here: low speed is well under 400 CFM and the house's small leaks cover it, and it keeps the fan and blower from running every time SmartSense idles the hood. If it should start on every speed, use a current sensing relay on the hood's power instead (for example Functional Devices RIBXGTA).",
+     "Its set screw limits how far it opens; Broan says to set it with the hood on high. Test: hood on high, damper opens, fan and blower start; hood off, all stop.",
      "Reach: from the attic deck over the pantry, about 3-1/2 ft up, east of the ERV."
     ],
     "placement": "Attic over the pantry, on the makeup air duct just east of the ERV."
@@ -2483,7 +2534,7 @@
      ],
      [
       "Why",
-      "Broan requires a filter downstream of the damper. Keeps bugs, pollen and dust out of the kitchen"
+      "Broan requires a filter downstream of the damper. Keeps bugs, pollen and dust out of the kitchen supply duct"
      ],
      [
       "Change",
@@ -22747,56 +22798,42 @@
     ],
     [
      8.66,
-     33.712666666666664,
+     34.01266666666666,
      14.2
     ],
     [
      8.66,
-     33.712666666666664,
-     12.9
-    ],
-    [
-     8.66,
-     35.1277,
-     12.9
+     34.01266666666666,
+     10.738750000000001
     ]
    ],
-   "grilles": [
-    {
-     "at": [
-      8.66,
-      35.179,
-      12.9
-     ],
-     "size": [
-      20,
-      10
-     ],
-     "wall": "S"
-    }
-   ],
+   "cfm": 600,
    "info": {
-    "model": "10 in round outdoor air duct, insulated, about 23 ft, opened by a motorized damper whenever the hood runs",
+    "model": "10 in round outdoor air duct, insulated, about 24 ft, into the kitchen supply duct; damper, fan and blower all start with the hood",
     "specs": [
      [
       "Airflow",
-      "Up to about 600 CFM, matching the hood on high (Ohio code 1503.6: about equal to the exhaust)"
+      "About 600 CFM with the hood on high, pushed by an inline fan so it matches the hood"
      ],
      [
       "Duct",
-      "10 in smooth galvanized, R-8 insulation with a vapor jacket all the way (the air in it is outdoor cold), about 23 ft, 5 elbows"
+      "10 in smooth galvanized, R-8 insulation with a vapor jacket all the way (the air in it is outdoor cold), about 24 ft, 4 elbows"
      ],
      [
       "Outside",
       "10 in intake hood with a 1/4 in screen, west wall, 14 ft 2 in up, just north of the ERV's fresh air hood"
      ],
      [
-      "In the kitchen",
-      "20 x 10 in grille high on the clerestory wall, between the two east supply registers, about 13 ft from the hood"
+      "Into",
+      "The top of the 14 x 8 kitchen supply duct on the attic deck, between the stubs to kitchen registers 2 and 3. It comes out of the three kitchen supply registers"
      ],
      [
       "Damper",
-      "Broan MD10TU, in the attic over the pantry, opens on a pressure switch on the hood duct"
+      "Broan MD10TU, in the attic over the pantry; its pressure switch on the hood duct starts everything"
+     ],
+     [
+      "Fan",
+      "10 in inline mixed flow fan on the west wall run"
      ],
      [
       "Filter",
@@ -22804,13 +22841,14 @@
      ]
     ],
     "notes": [
-     "Outdoor air for the range hood (Maxwell, 11/21/2026). The ERV cannot do this job: it is balanced, pushing out as much as it brings in, so it gives nothing back for the 600 CFM the hood can blow out. Without it, in a house this tight the hood would mostly just pull the house under suction, move far less than its rating, and could pull air backward through the ERV and the plumbing vents.",
-     "Route: in through the west wall over bedroom 3's attic, south along the wall riding on top of the ERV's intake duct and over the geothermal pipes, so the aisle west of the heat pump stays open; east over the pantry and powder room where the deck is open; down and straight through the clerestory wall into the kitchen. It stays above the attic deck the whole way, so it never passes through a floor truss (they only take about 7 in). It runs more than 2 ft from the heat pump's supply plenum, as Broan asks.",
-     "Where the air comes in: the code (1503.6.1) wants makeup air let into the same room as the hood. High on the kitchen wall, about 13 ft from the cooktop, it falls and spreads across the kitchen on its way to the hood instead of blowing on the cook. Letting it into the heat pump's return instead would warm it, but on a cold day 600 CFM of outdoor air would chill the air going into a ground source unit below what it is made for, and the blower would have to run every time someone cooks.",
-     "It is passive: nothing pushes the air, the hood pulls it in. Expect it to carry most but not all of the hood's 600 CFM on high; the house's own small leaks make up the rest. Check it at the blower door test: run the hood on high with the damper open and see how far the house goes under suction. If it is more than about 5 Pa, an inline fan can go in the straight east run later, wired to the same switch.",
-     "Cold air: on a 10 F day with the hood on high, this brings cold air into the kitchen until the hood is turned down. SmartSense runs the hood on low most of the time, and Broan's switch only opens the damper once the hood pushes 0.05 in of pressure (medium and high speeds), so on low it stays shut and the house leaks make up the little air needed. No heater is drawn. ASSUMED route and sizes."
+     "Outdoor air for the range hood (Maxwell, 11/21/2026). The ERV cannot do this job: it is balanced, pushing out as much as it brings in, so it gives nothing back for the 600 CFM the hood can blow out. Without it, in a house this tight the hood would mostly just pull the house under suction, move far less than its rating, and could pull air backward through the ERV and the plumbing vents. Ohio only requires makeup air with a fuel burning appliance inside (1503.6), and this house is all electric, so this is for performance, not code.",
+     "Same vents as the kitchen supply (Maxwell, 11/21/2026). When the hood runs on medium or high, the pressure switch opens the damper, starts the fan and turns on the heat pump's blower. The outdoor air mixes with the supply air in the kitchen duct before it reaches the registers: on a 10 F day with the heat on it comes out somewhere around 60 to 70 F, and closer to 50 F if the heat pump is only circulating. No heater needed.",
+     "Why a fan: whenever the blower runs, the supply duct is under pressure, so a passive duct would blow warm supply air out to the yard instead of letting outdoor air in. The fan pushes harder than the duct pressure. The damper is shut whenever the hood is off, so nothing leaks then. If the fan ever fails, the damper should not be left open: wire the fan's run signal or a flow switch to the damper if the installer can.",
+     "Registers: with the hood on high each kitchen register carries about 330 CFM instead of 127, so they get louder while the hood runs hard (the hood is louder still). With the blower off some of the air also drifts back through the supply main and out other registers; it all stays in the house.",
+     "Summer: humid outdoor air through supply ducts chilled by the air conditioning can sweat inside them. Wrap the kitchen supply duct and its three stubs in insulation.",
+     "Route: in through the west wall over bedroom 3's attic, south along the wall riding on top of the ERV's intake duct and over the geothermal pipes, so the aisle west of the heat pump stays open; east over the pantry and powder room where the deck is open; down into the top of the kitchen duct. It stays above the attic deck the whole way, so it never passes through a floor truss. It runs more than 2 ft from the heat pump's supply plenum, as Broan asks. ASSUMED route and sizes."
     ],
-    "placement": "Attic: west wall over bedroom 3, south along the wall, east over the pantry, through the clerestory wall into the kitchen."
+    "placement": "Attic: west wall over bedroom 3, south along the wall, east over the pantry, down into the kitchen supply duct."
    }
   },
   {

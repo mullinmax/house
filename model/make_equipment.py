@@ -1189,8 +1189,8 @@ items += [
                "a small screened grille. The big hood box around it is the fix: it holds the smoke so normal speed has time to catch it.",
                "The fan sits inside the hood, so the duct ends at a plain wall cap outside. A remote exterior blower would be quieter on high, but it loses the "
                "heat sensor that makes the hood run on its own.",
-               "Makeup air (Maxwell, 11/21/2026): a 10 in outdoor air duct with a Broan MD10TU motorized damper opens whenever this hood pulls hard, and lets the "
-               "air back in high on the kitchen wall. Ohio only requires it over 400 CFM when a fuel burning appliance is inside (1503.6), and this house is all "
+               "Makeup air (Maxwell, 11/21/2026): a 10 in outdoor air duct with a Broan MD10TU motorized damper and an inline fan starts whenever this hood pulls hard, "
+               "and feeds the air into the kitchen supply duct so it comes out of the kitchen registers, mixed with supply air. Ohio only requires it over 400 CFM when a fuel burning appliance is inside (1503.6), and this house is all "
                "electric, so it is there because the house is so tight, not for code. See the Makeup air damper card.",
                "Other HVI listed choices: Broan PM400SSV (450 CFM, 0.5 to 1 sone, 10 minute delay off, 6 in duct only, $564) or Broan PMA400SS (400 CFM, 1 sone, Energy Star)."],
         placement="At the top of the hood box, centred over the cooktop, its outlet straight under the chimney.")),
@@ -1217,57 +1217,58 @@ if HSTYLE == "shelf_wrap" and WRAP_V == "2":
 
 # ------------------------------------------------------------------ makeup air for the range hood (Maxwell, 11/21/2026: "add a makeup air with a damper to the plan")
 # The ERV is balanced, so it gives nothing back for what the hood blows out. In a house this tight a 600 CFM hood would pull the whole
-# house under suction instead. A 10 in outdoor air duct, closed by a motorized damper that opens on its own when the hood runs:
+# house under suction instead. A 10 in outdoor air duct, closed by a motorized damper, with an inline fan, all started by the hood:
 #   intake hood high on the west wall over bedroom 3's attic, just north of the ERV's fresh air hood (11.8 ft from the ERV exhaust hood,
-#   25 ft from the range hood cap: both over the 10 ft 1504.3 / Broan asks for), straight in, then south along the west wall on top of
-#   the ERV intake duct, east over the pantry where the deck is open (damper and filter here, easy to reach), and through the
-#   clerestory wall to a high grille in the kitchen between the second and third supply registers. Code 1503.6.1 wants the air let
-#   into the same room as the hood. Everything is above the attic deck, so no truss is crossed.
-MUA_D = 10                                         # in. 600 CFM is about 1,100 ft per minute in 10 in round; 8 in would be 1,720 and too restrictive for passive air
+#   25 ft from the range hood cap: both over the 10 ft 1504.3 / Broan asks for), straight in, south along the west wall on top of
+#   the ERV intake duct (fan here), east over the pantry where the deck is open (damper and filter here, easy to reach), then down
+#   into the top of the 14 x 8 kitchen supply duct, so it comes out of the three kitchen supply registers (Maxwell, 11/21/2026: same
+#   vents as the kitchen supply). The fan is needed because the supply duct is under pressure whenever the blower runs; the hood
+#   also calls the blower so the outdoor air mixes with supply air and comes out warm. Everything is above the attic deck, so no truss is crossed.
+MUA_D = 10                                         # in. 600 CFM is about 1,100 ft per minute in 10 in round
 def roof_under_n(y): return CFG["roof"]["north_wall_height"] + y * CFG["roof"]["north_pitch"] / 12 - 0.9
 MUA_Y0 = 21.9                                      # intake: over bedroom 3's attic, 1 ft north of the ERV fresh air hood
 MUA_X = WALL_X + 0.6                               # along the west wall, insulated duct about 1 in off the wall
 MUA_Z = 14.2                                       # high: over the ERV intake duct (top 13.1) and the geothermal risers (12.1), so the aisle west of the heat pump stays open
 MUA_YE = 32.6                                      # east run: south of the ERV and its exhaust elbow, north of the kitchen supply duct
-MUA_XK = 8.66                                      # through the clerestory wall midway between kitchen registers 2 (x 6.66) and 3 (x 10.66)
-MUA_ZK = 12.9                                      # through the wall: grille top about 5 in under the kitchen's sloped ceiling (13.8 ft there)
-MUA_G = [20, 10]                                   # kitchen grille, about 430 ft per minute at 600 CFM
+MUA_XK = 8.66                                      # tee into the top of the kitchen supply duct midway between the stubs to registers 2 (x 6.66) and 3 (x 10.66)
+MUA_CFM = 600
 assert roof_under_n(MUA_Y0) - MUA_Z > (MUA_D / 2 + 2) / 12, "makeup air duct hits the north roof at the intake"
-assert roof_under_s(YC2) - (MUA_ZK + (MUA_G[1] / 2 + 1) / 12) > 3 / 12, "kitchen makeup air grille too close to the ceiling"
 assert MUA_Y0 < 33.68 - 10 and HY - MUA_Y0 > 10, "makeup air intake within 10 ft of an exhaust outlet"
 MUA_PTS = [[-0.05, MUA_Y0, MUA_Z], [MUA_X, MUA_Y0, MUA_Z], [MUA_X, MUA_YE, MUA_Z], [MUA_XK, MUA_YE, MUA_Z],
-           [MUA_XK, KY - 0.3, MUA_Z], [MUA_XK, KY - 0.3, MUA_ZK], [MUA_XK, YC2 - 0.03, MUA_ZK]]
+           [MUA_XK, KY, MUA_Z], [MUA_XK, KY, KZ + 4 / 12]]
 _mua_ft = sum(math.dist(a, b) for a, b in zip(MUA_PTS, MUA_PTS[1:]))
 MUA_NOTE = ("Outdoor air for the range hood (Maxwell, 11/21/2026). The ERV cannot do this job: it is balanced, pushing out as much as it brings in, so it gives nothing back "
             "for the 600 CFM the hood can blow out. Without it, in a house this tight the hood would mostly just pull the house under suction, move far less than its rating, "
-            "and could pull air backward through the ERV and the plumbing vents.")
+            "and could pull air backward through the ERV and the plumbing vents. Ohio only requires makeup air with a fuel burning appliance inside (1503.6), and this house "
+            "is all electric, so this is for performance, not code.")
 ducts.append(dict(id="mua", name="Range hood makeup air duct", category="Ventilation", system="hvac.makeup_air", type="erv", shape="round", size=MUA_D, room="Kitchen",
-    points=MUA_PTS, grilles=[dict(at=[MUA_XK, YREG_S, MUA_ZK], size=MUA_G, wall=S)],
-    info=dict(model=f"{MUA_D} in round outdoor air duct, insulated, about {round(_mua_ft)} ft, opened by a motorized damper whenever the hood runs",
-        specs=[["Airflow", "Up to about 600 CFM, matching the hood on high (Ohio code 1503.6: about equal to the exhaust)"],
-               ["Duct", f"{MUA_D} in smooth galvanized, R-8 insulation with a vapor jacket all the way (the air in it is outdoor cold), about {round(_mua_ft)} ft, 5 elbows"],
+    points=MUA_PTS, cfm=MUA_CFM,
+    info=dict(model=f"{MUA_D} in round outdoor air duct, insulated, about {round(_mua_ft)} ft, into the kitchen supply duct; damper, fan and blower all start with the hood",
+        specs=[["Airflow", f"About {MUA_CFM} CFM with the hood on high, pushed by an inline fan so it matches the hood"],
+               ["Duct", f"{MUA_D} in smooth galvanized, R-8 insulation with a vapor jacket all the way (the air in it is outdoor cold), about {round(_mua_ft)} ft, 4 elbows"],
                ["Outside", f"{MUA_D} in intake hood with a 1/4 in screen, west wall, {ftin_(MUA_Z)} up, just north of the ERV's fresh air hood"],
-               ["In the kitchen", f"{MUA_G[0]} x {MUA_G[1]} in grille high on the clerestory wall, between the two east supply registers, about 13 ft from the hood"],
-               ["Damper", "Broan MD10TU, in the attic over the pantry, opens on a pressure switch on the hood duct"],
+               ["Into", "The top of the 14 x 8 kitchen supply duct on the attic deck, between the stubs to kitchen registers 2 and 3. It comes out of the three kitchen supply registers"],
+               ["Damper", "Broan MD10TU, in the attic over the pantry; its pressure switch on the hood duct starts everything"],
+               ["Fan", "10 in inline mixed flow fan on the west wall run"],
                ["Filter", "Inline filter box right after the damper, MERV 8 (Broan requires a filter downstream)"]],
         notes=[MUA_NOTE,
-               "Route: in through the west wall over bedroom 3's attic, south along the wall riding on top of the ERV's intake duct and over the geothermal pipes, so the aisle west of "
-               "the heat pump stays open; east over the pantry and powder room where the deck is open; down and straight through the clerestory wall into the kitchen. "
-               "It stays above the attic deck the whole way, so it never passes through a floor truss (they only take about 7 in). It runs more than 2 ft from the heat pump's "
-               "supply plenum, as Broan asks.",
-               "Where the air comes in: the code (1503.6.1) wants makeup air let into the same room as the hood. High on the kitchen wall, about 13 ft from the cooktop, it falls "
-               "and spreads across the kitchen on its way to the hood instead of blowing on the cook. Letting it into the heat pump's return instead would warm it, but on a "
-               "cold day 600 CFM of outdoor air would chill the air going into a ground source unit below what it is made for, and the blower would have to run every time "
-               "someone cooks.",
-               "It is passive: nothing pushes the air, the hood pulls it in. Expect it to carry most but not all of the hood's 600 CFM on high; the house's own small leaks make up "
-               "the rest. Check it at the blower door test: run the hood on high with the damper open and see how far the house goes under suction. If it is more than about "
-               "5 Pa, an inline fan can go in the straight east run later, wired to the same switch.",
-               "Cold air: on a 10 F day with the hood on high, this brings cold air into the kitchen until the hood is turned down. SmartSense runs the hood on low most of the "
-               "time, and Broan's switch only opens the damper once the hood pushes 0.05 in of pressure (medium and high speeds), so on low it stays shut and the house leaks "
-               "make up the little air needed. No heater is drawn. ASSUMED route and sizes."],
-        placement="Attic: west wall over bedroom 3, south along the wall, east over the pantry, through the clerestory wall into the kitchen.")))
+               "Same vents as the kitchen supply (Maxwell, 11/21/2026). When the hood runs on medium or high, the pressure switch opens the damper, starts the fan and turns on "
+               "the heat pump's blower. The outdoor air mixes with the supply air in the kitchen duct before it reaches the registers: on a 10 F day with the heat on it comes "
+               "out somewhere around 60 to 70 F, and closer to 50 F if the heat pump is only circulating. No heater needed.",
+               "Why a fan: whenever the blower runs, the supply duct is under pressure, so a passive duct would blow warm supply air out to the yard instead of letting outdoor "
+               "air in. The fan pushes harder than the duct pressure. The damper is shut whenever the hood is off, so nothing leaks then. If the fan ever fails, the damper "
+               "should not be left open: wire the fan's run signal or a flow switch to the damper if the installer can.",
+               "Registers: with the hood on high each kitchen register carries about 330 CFM instead of 127, so they get louder while the hood runs hard (the hood is louder still). "
+               "With the blower off some of the air also drifts back through the supply main and out other registers; it all stays in the house.",
+               "Summer: humid outdoor air through supply ducts chilled by the air conditioning can sweat inside them. Wrap the kitchen supply duct and its three stubs in insulation.",
+               "Route: in through the west wall over bedroom 3's attic, south along the wall riding on top of the ERV's intake duct and over the geothermal pipes, so the aisle "
+               "west of the heat pump stays open; east over the pantry and powder room where the deck is open; down into the top of the kitchen duct. It stays above the attic "
+               "deck the whole way, so it never passes through a floor truss. It runs more than 2 ft from the heat pump's supply plenum, as Broan asks. ASSUMED route and sizes."],
+        placement="Attic: west wall over bedroom 3, south along the wall, east over the pantry, down into the kitchen supply duct.")))
 MUA_DX = 4.9                                       # damper on the east run, just east of the ERV exhaust elbow (x 3.8), over open deck
 MUA_FX = 6.3                                       # filter box after it
+MUA_FAN = [13.5, 20, MUA_D]                        # 10 in mixed flow inline fan, about 13-1/2 in body, 20 in long
+MUA_FANY = 25.2                                    # on the west wall run, beside the heat pump, before the damper
 items += [
  dict(id="mua_intake", name="Makeup air intake hood", category="Ventilation", system="hvac.makeup_air", room="Exterior", layer="mechanical",
       builder="wall_cap", size=[15, 15, 8], at=[-0.07, MUA_Y0, round(MUA_Z - 15 / 24, 3)], facing=270,
@@ -1278,25 +1279,36 @@ items += [
         notes=["No damper in the hood: the motorized damper inside the attic does the closing. Keep plantings and snow drifts away from it like the ERV hood beside it.",
                "The laundry is a ventless combo, so there is no dryer vent to keep away from. Check the plumbing vents through the roof are 10 ft away, or 3 ft above it."],
         placement="West wall, high, over bedroom 3's attic, just north of the ERV's fresh air hood.")),
+ dict(id="mua_fan", name="Makeup air fan", category="Ventilation", system="hvac.makeup_air", room="Attic", layer="ducts",
+      builder="inline_fan", size=MUA_FAN, at=[MUA_X, MUA_FANY - MUA_FAN[1] / 24, round(MUA_Z - MUA_FAN[0] / 24, 3)], facing=180,
+      info=dict(model="10 in mixed flow inline duct fan, about 600 CFM at 0.4 in of pressure (ASSUMED class: Fantech FKD 10 XL, S&P TD-250 or similar)", price="About $300 to $500",
+        specs=[["Airflow", "About 600 CFM against the duct, filter and kitchen supply duct pressure, so it matches the hood on high"],
+               ["Runs", "Only while the hood runs on medium or high, started through a 24 V relay off the damper's transformer"],
+               ["Power", "120 V from a junction box in the attic, the same one as the damper's transformer"],
+               ["Where", "West wall run, beside the heat pump, before the damper; hung on rubber isolators"]],
+        notes=["Needed because the makeup air goes into the kitchen supply duct (Maxwell, 11/21/2026): that duct is under pressure whenever the blower runs, so passive air could not get in.",
+               "A speed control lets the installer trim it to match the hood on high during the blower door test, so the house ends up close to neutral."],
+        placement="Attic, on the makeup air duct along the west wall, beside the heat pump.")),
  dict(id="mua_damper", name="Makeup air damper", category="Ventilation", system="hvac.makeup_air", room="Attic", layer="ducts",
       builder="zone_damper", size=[MUA_D, 12], at=[MUA_DX, MUA_YE, round(MUA_Z - (MUA_D / 2 + 0.15) / 12, 3)], facing=90,
       info=dict(model="Broan MD10TU 10 in universal automatic makeup air damper with pressure sensor kit", price="About $284 to $355 (Broan list $394, AJ Madison $355, 11/21/2026)",
         specs=[["Opens", "On its own when the hood runs: a pressure switch on the hood's duct senses the hood pushing air (0.05 in or more) and opens the damper; it closes when the hood stops"],
+               ["Also starts", "The makeup air fan and the heat pump blower, through a 24 V relay wired across the damper (ASSUMED: Functional Devices RIB2401B or similar; the HVAC installer wires the blower call)"],
                ["In the box", "Motorized damper, 24 V transformer, pressure switch, probe, 12 in of 1/4 in tubing, gasket, screws. No wall hood"],
                ["Wiring", "120 V to the transformer at the damper (a junction box in the attic), and a 2 wire low voltage cable from the pressure switch at the hood up to it"],
                ["Probe", "In the hood duct between the hood's own damper and the wall cap, as close to the hood as it goes; the switch within 6 ft of it, inside the hood box where it can be reached"],
                ["Install", "Flap vertical when closed, airflow arrow toward the kitchen, insulated with the duct, reachable for service"]],
         links=[["Broan MD10TU", "https://broan-nutone.com/en-us/accessory/md10tu"], ["AJ Madison listing", "https://www.ajmadison.com/cgi-bin/ajmadison/MD10TU.html"]],
-        notes=["Picked because it works with any hood: no wire into the PM600SSV. The catch, from Broan's guide: the switch may not trip on the lowest speeds. That is fine here "
-               "(low speed is well under 400 CFM), but if the damper should open on every speed, the alternative is a current sensing relay on the hood's power "
-               "(for example Functional Devices RIBXGTA) driving any 10 in 24 V power open, spring close damper.",
-               "Its set screw limits how far it opens; Broan says to set it with the hood on high. Test: hood on high, damper opens; hood off, damper closes.",
+        notes=["Picked because it works with any hood: no wire into the PM600SSV. Broan's guide says the switch may not trip on the lowest speeds. That is fine here: low speed is well "
+               "under 400 CFM and the house's small leaks cover it, and it keeps the fan and blower from running every time SmartSense idles the hood. If it should start on every "
+               "speed, use a current sensing relay on the hood's power instead (for example Functional Devices RIBXGTA).",
+               "Its set screw limits how far it opens; Broan says to set it with the hood on high. Test: hood on high, damper opens, fan and blower start; hood off, all stop.",
                "Reach: from the attic deck over the pantry, about 3-1/2 ft up, east of the ERV."],
         placement="Attic over the pantry, on the makeup air duct just east of the ERV.")),
  dict(id="mua_filter", name="Makeup air filter box", category="Ventilation", system="hvac.makeup_air", room="Attic", layer="ducts",
       builder="filter_box", size=[MUA_D, 16, 20], at=[MUA_FX, MUA_YE, round(MUA_Z - 8 / 12, 3)], facing=90,
       info=dict(model=f"{MUA_D} in inline duct filter box with a side access door, 1 in MERV 8 filter (ASSUMED: Fantech FB or similar)", price="About $60 to $120, filters about $10",
-        specs=[["Filter", "1 in pleated MERV 8, slides out the side"], ["Why", "Broan requires a filter downstream of the damper. Keeps bugs, pollen and dust out of the kitchen"],
+        specs=[["Filter", "1 in pleated MERV 8, slides out the side"], ["Why", "Broan requires a filter downstream of the damper. Keeps bugs, pollen and dust out of the kitchen supply duct"],
                ["Change", "Check it each spring and fall; it only sees air when the hood runs"]],
         notes=["Sits right after the damper so both are serviced from one spot on the deck."],
         placement="Attic over the pantry, just east of the makeup air damper.")),

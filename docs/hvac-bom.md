@@ -50,9 +50,14 @@ Listed from the parts in the model. The range hood rows follow whichever hood de
 | Range hood power pack insert |  | 1 | ea |  |  |
 | 8 in range hood wall cap with damper | West wall | 1 | ea |  |  |
 | 8 in insulated backdraft damper for the hood duct | At the hood | 1 | ea |  | Worth it in a house this tight. |
-| Broan MD10TU 10 in makeup air damper with pressure sensor kit | Range hood makeup air, attic over the pantry. Includes the 24 V transformer, pressure switch, probe and tubing | 1 | ea |  | About $284 to $355 Opens whenever the hood runs on medium or high. |
+| Broan MD10TU 10 in makeup air damper with pressure sensor kit | Range hood makeup air, attic over the pantry. Includes the 24 V transformer, pressure switch, probe and tubing | 1 | ea |  | About $284 to $355 Opens whenever the hood runs on medium or high, and starts the fan and blower. |
 | 120 V junction box and circuit for the damper transformer | Attic over the pantry, beside the damper | 1 | ea |  | Electrician. Can share a general attic circuit. |
 | 18/2 thermostat wire | Pressure switch in the hood box up to the damper, about 25 ft | 1 | ea |  |  |
+| 10 in mixed flow inline duct fan, about 600 CFM at 0.4 in (Fantech FKD 10 XL, S&P TD-250 or similar) | Makeup air duct, west wall run in the attic | 1 | ea |  | About $300 to $500 Speed control to trim it to the hood on high. |
+| 24 V relay, for example Functional Devices RIB2401B | Wired across the makeup air damper: starts the fan and calls the heat pump blower | 1 | ea |  | About $25 to $40 HVAC installer wires the blower call. |
+| Rubber isolation hangers for the fan |  | 1 | ea |  | set |
+| 10 in round top takeoff on a rectangular duct | Makeup air into the top of the 14 x 8 kitchen supply duct | 1 | ea |  |  |
+| Duct wrap insulation, R-6 with vapor jacket | Kitchen supply duct and its three stubs, against summer sweating from humid makeup air | 1 | ea |  | roll |
 | 10 in intake wall hood with 1/4 in screen, black | West wall over bedroom 3's attic, beside the ERV fresh air hood | 1 | ea |  | About $40 to $120 No damper needed in the hood; the MD10TU closes the duct. |
 | 10 in inline duct filter box with side access door | Right after the makeup air damper | 1 | ea |  | About $60 to $120 Broan requires a filter downstream of the damper. |
 | 1 in MERV 8 filters for the makeup air filter box |  | 2 | ea |  | About $10 each One in it, one spare. |
@@ -72,7 +77,7 @@ Counted from the model with 10 percent extra. Anything that crosses the floor tr
 | 8 in round pipe, 30 ga snap lock | ERV outdoor side, insulated | 5 | x 5 ft | 19 ft in the model | Insulate with R-8 wrap or use insulated duct, vapor jacket outside |
 | 8 in round pipe, 30 ga snap lock | Exhaust | 9 | x 5 ft | 37 ft in the model |  |
 | 8 in round pipe, 30 ga snap lock | Supply | 13 | x 5 ft | 55 ft in the model |  |
-| 10 in round pipe, 30 ga snap lock | Range hood makeup air outdoor side, insulated | 6 | x 5 ft | 23 ft in the model | Insulate with R-8 wrap or use insulated duct, vapor jacket outside |
+| 10 in round pipe, 30 ga snap lock | Range hood makeup air outdoor side, insulated | 6 | x 5 ft | 24 ft in the model | Insulate with R-8 wrap or use insulated duct, vapor jacket outside |
 | 10 in round pipe, 30 ga snap lock | Return | 12 | x 5 ft | 51 ft in the model |  |
 | 6 in flex duct, R-6 insulated | Return runs through the trusses | 4 | x 25 ft box | 70 ft in the model | Pull it tight, no sags; support every 4 ft |
 | 10 in flex duct, R-6 insulated | Return runs through the trusses | 1 | x 25 ft box | 14 ft in the model | Pull it tight, no sags; support every 4 ft |
@@ -80,7 +85,7 @@ Counted from the model with 10 percent extra. Anything that crosses the floor tr
 | 6 in adjustable 90 elbow |  | 13 | ea | Counted from the bends in the model |  |
 | 7 in adjustable 90 elbow |  | 5 | ea | Counted from the bends in the model |  |
 | 8 in adjustable 90 elbow |  | 13 | ea | Counted from the bends in the model |  |
-| 10 in adjustable 90 elbow |  | 10 | ea | Counted from the bends in the model |  |
+| 10 in adjustable 90 elbow |  | 9 | ea | Counted from the bends in the model |  |
 | 10 in adjustable 45 elbow |  | 2 | ea | Counted from the bends in the model |  |
 | 6 in round takeoff (starting collar) | Off a rectangular trunk, main or plenum | 2 | ea |  |  |
 | 6 in round takeoff (starting collar) with volume damper | Off a rectangular trunk, main or plenum | 11 | ea |  | Supply branches get a manual damper to set at air balancing (M-10) |
@@ -134,7 +139,6 @@ Sidewall supply registers in the door walls should be long throw types aimed acr
 | 14 x 6 in sidewall boot x 8 in round |  | 7 | ea |  |  |
 | 14 x 8 in ceiling boot x 8 in round |  | 1 | ea |  |  |
 | 14 x 8 in sidewall boot x 8 in round |  | 1 | ea |  |  |
-| 20 x 10 in sidewall boot x 10 in round |  | 1 | ea |  |  |
 | 6 x 6 in ceiling boot x 4 in round |  | 1 | ea |  |  |
 | 8 x 6 in ceiling boot x 6 in round |  | 4 | ea |  |  |
 | 8 x 8 in ceiling boot x 4 in round |  | 1 | ea |  |  |
@@ -144,7 +148,6 @@ Sidewall supply registers in the door walls should be long throw types aimed acr
 | 10 x 6 in sidewall exhaust grille | Exhaust | 1 | ea |  |  |
 | 6 x 6 in ceiling exhaust grille | Exhaust | 1 | ea |  |  |
 | 8 x 8 in ceiling exhaust grille | Exhaust | 1 | ea |  |  |
-| 20 x 10 in sidewall grille | Range hood makeup air | 1 | ea |  |  |
 | 12 x 12 in ceiling transfer grille | Return | 2 | ea |  |  |
 | 14 x 8 in sidewall return grille | Return | 7 | ea |  |  |
 | 22 x 4-1/2 in sidewall return grille | Return | 1 | ea |  |  |
@@ -164,13 +167,13 @@ Estimated from the joint and length counts above.
 
 | Item | Spec | Qty | Unit | Where | Notes |
 |---|---|---|---|---|---|
-| Duct mastic, water based, UL 181 |  | 6 | gal | About 223 joints |  |
+| Duct mastic, water based, UL 181 |  | 6 | gal | About 221 joints |  |
 | Foil tape, UL 181A-P / 181B-FX |  | 9 | roll |  |  |
 | #8 x 1/2 in self drilling sheet metal screws | 3 per joint | 700 | ea |  |  |
 | Flex duct clamps or nylon duct ties | 2 per flex connection | 28 | ea |  |  |
 | Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap | Rigid every 5 ft, flex every 4 ft, rect every 4 ft | 110 | hangers | About 3 ft of strap each |  |
 | Acoustic duct liner, 1 in | Main return box and trunk | 1 | roll |  | Often supplied by the sheet metal shop |
-| Duct insulation wrap, R-8 with vapor jacket | ERV outdoor ducts | 47 | ft |  | Supply and return ducts sit inside the SIP envelope, so they do not need insulation by code |
+| Duct insulation wrap, R-8 with vapor jacket | ERV outdoor ducts | 48 | ft |  | Supply and return ducts sit inside the SIP envelope, so they do not need insulation by code |
 
 ## Every run in the model
 
@@ -182,7 +185,7 @@ Estimated from the joint and length counts above.
 | Bath exhaust main | Exhaust | None | 6 in round | 62.3 |  |  |  |  |
 | Powder exhaust | Exhaust | Powder | 4 in round | 9.6 |  |  |  |  |
 | Range hood duct | Range hood | Kitchen | 10 x 3-1/4 in | 1.7 |  |  |  |  |
-| Range hood makeup air duct | Range hood makeup air | Kitchen | 10 in round | 23.2 |  |  |  |  |
+| Range hood makeup air duct | Range hood makeup air | Kitchen | 10 in round | 24.3 | 600 |  |  |  |
 | Bedroom 1 return | Return |  | 10 in round | 52.1 |  |  |  | 2 |
 | Bedrooms 2 and 3 return | Return |  | 10 in round | 22.3 |  | yes | 2 | 3 |
 | Main return (M-10) | Return |  | 34 x 20 in | 8.3 |  |  |  |  |
