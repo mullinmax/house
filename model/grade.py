@@ -8,9 +8,8 @@ as a patch of heights. site/app.js cuts the baked Terrain triangles under the pa
 
 Run it on its own for the check:  python model/grade.py
 """
-import json, math, os
+import array, ast, json, math, os, statistics, struct
 
-import numpy as np
 import tomllib
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -27,10 +26,34 @@ GARAGE = C["garage"]["rect"]
 PORCH = C["porch"]["rect"]
 
 
+class _Grid:
+    """a 2D float32 .npy read without numpy (CI has none): g[r, c]"""
+    def __init__(self, data, ncols):
+        self.a, self.n = data, ncols
+
+    def __getitem__(self, rc):
+        return self.a[rc[0] * self.n + rc[1]]
+
+
+def _npy(path):
+    with open(path, "rb") as f:
+        assert f.read(6) == b"\x93NUMPY"
+        major = f.read(2)[0]
+        hl = struct.unpack("<H" if major == 1 else "<I", f.read(2 if major == 1 else 4))[0]
+        hdr = ast.literal_eval(f.read(hl).decode("latin1"))
+        assert hdr["descr"] == "<f4" and not hdr["fortran_order"]
+        a = array.array("f"); a.frombytes(f.read())
+    return _Grid(a, hdr["shape"][1])
+
+
+def linspace(a, b, n):
+    return [a + (b - a) * k / (n - 1) for k in range(n)]
+
+
 def _load():
     d = os.path.join(HERE, "data", "terrain")
     meta = json.load(open(os.path.join(d, "meta.json")))
-    dem = np.load(os.path.join(d, "dem.npy"))
+    dem = _npy(os.path.join(d, "dem.npy"))
     web = json.load(open(os.path.join(d, "web_ground.json")))
     return meta, dem, web
 
@@ -120,19 +143,19 @@ def ground(x, y):
 def check():
     """the garage slab against the lidar ground just outside it, and what slab elevation that asks for"""
     gx0, gy0, gx1, gy1 = GARAGE; b = G["buffer_ft"]
-    pts = [(gx0 - b + (gx1 - gx0 + 2 * b) * t, y) for t in np.linspace(0, 1, 41) for y in (gy0 - b, gy1 + b)] + \
-          [(x, gy0 - b + (gy1 - gy0 + 2 * b) * t) for t in np.linspace(0, 1, 41) for x in (gx0 - b, gx1 + b)]
+    pts = [(gx0 - b + (gx1 - gx0 + 2 * b) * t, y) for t in linspace(0, 1, 41) for y in (gy0 - b, gy1 + b)] + \
+          [(x, gy0 - b + (gy1 - gy0 + 2 * b) * t) for t in linspace(0, 1, 41) for x in (gx0 - b, gx1 + b)]
     nat_old = [natural(x, y, OLD_ELEV) for x, y in pts]
     need = max(nat_old) + G["garage_min_above_natural_in"] / 12 - GARAGE_Z      # house slab rise over the old guess, ft
-    house_pts = [(t * HW, -b) for t in np.linspace(0, 1, 21)] + [(t * HW, HD + b) for t in np.linspace(0, 1, 21)] + \
-                [(-b, t * HD) for t in np.linspace(0, 1, 21)] + [(HW + b, t * HD) for t in np.linspace(0, 1, 21)]
+    house_pts = [(t * HW, -b) for t in linspace(0, 1, 21)] + [(t * HW, HD + b) for t in linspace(0, 1, 21)] + \
+                [(-b, t * HD) for t in linspace(0, 1, 21)] + [(HW + b, t * HD) for t in linspace(0, 1, 21)]
     return dict(garage_natural_old_ft=[round(min(nat_old), 2), round(max(nat_old), 2)], rise_needed_ft=round(need, 2),
                 slab_elev_needed=round(OLD_ELEV + need, 2), slab_elev_now=TC["slab_top_elev_ft"],
                 garage_clear_in=round((GARAGE_Z - max(natural(x, y) for x, y in pts)) * 12, 1),
-                house_reveal_over_natural_in=round(-float(np.median([natural(x, y) for x, y in house_pts])) * 12, 1))
+                house_reveal_over_natural_in=round(-float(statistics.median([natural(x, y) for x, y in house_pts])) * 12, 1))
 
 
 if __name__ == "__main__":
     print(json.dumps(check(), indent=1))
-    g = grid(); a = np.array(g["z"])
-    print("patch", g["nx"], "x", g["ny"], "from", g["x0"], g["y0"], "min %.2f max %.2f" % (a.min(), a.max()))
+    g = grid(); a = [v for row in g["z"] for v in row]
+    print("patch", g["nx"], "x", g["ny"], "from", g["x0"], g["y0"], "min %.2f max %.2f" % (min(a), max(a)))
