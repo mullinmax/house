@@ -49,6 +49,38 @@ function slabCanvas(m) {
   return t;
 }
 
+// brick pavers: a 90 degree herringbone (the default) or running bond, drawn in metres so the face UVs (metres) tile it.
+// One canvas holds 4 x 4 pattern repeats with every brick a slightly different clay colour.
+function brickCanvas(m) {
+  const [L, W] = m.brick, per = 2 * L, reps = 4, S = per * reps;          // herringbone repeats every 2 brick lengths (L = 2W)
+  const px = 1024, k = px / S, joint = Math.max(1, 0.012 * k);
+  const cv = document.createElement('canvas'); cv.width = cv.height = px;
+  const g = cv.getContext('2d');
+  g.fillStyle = '#6b6156'; g.fillRect(0, 0, px, px);                     // sand in the joints
+  let seed = 11; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  const base = new THREE.Color(m.color);
+  const brick = (x, y, w, h) => {
+    const c = base.clone().offsetHSL((rnd() - 0.5) * 0.02, (rnd() - 0.5) * 0.12, (rnd() - 0.5) * 0.12);
+    g.fillStyle = `#${c.getHexString()}`;
+    for (const ox of [-px, 0, px]) for (const oy of [-px, 0, px])         // wrap round the edges so the canvas tiles
+      g.fillRect(x * k + ox + joint / 2, y * k + oy + joint / 2, w * k - joint, h * k - joint);
+  };
+  const n = Math.round(S / W);
+  if (m.pattern === 'herringbone') {
+    // cells of W: H_k covers x [k, k+2], y [k, k+1]; V_k covers x [k, k+1], y [k+1, k+3]; the strip repeats every 4 cells down
+    for (let s = -n; s < 2 * n; s += 4) for (let c = -n; c < 2 * n; c++) {
+      const x = c * W, y = (c + s) * W;
+      if (x > S + L || y > S + L || x < -L - W || y < -L - W) continue;
+      brick(x, y, L, W); brick(x, y + W, W, L);
+    }
+  } else {
+    for (let r = 0; r < n; r++) for (let c = -1; c < S / L + 1; c++) brick(c * L + (r % 2) * L / 2, r * W, L, W);
+  }
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 8;
+  t.repeat.set(1 / (S * F), 1 / (S * F));                                 // UVs are metres
+  return t;
+}
+
 const texCache = {};
 function tex(file, srgb, tile) {
   const key = `${file}|${tile}`;
@@ -66,6 +98,7 @@ function makeMaterials(defs) {
     const p = { color: new THREE.Color(d.color), roughness: d.rough ?? 0.5, metalness: d.metal ?? 0, side: THREE.DoubleSide };
     if (d.opacity !== undefined && d.opacity < 1) Object.assign(p, { transparent: true, opacity: d.opacity, depthWrite: false });
     if (d.canvas === 'slab') { p.map = slabCanvas(d); p.color = new THREE.Color(0xffffff); }   // the canvas already holds the stain colour
+    else if (d.canvas === 'brick') { p.map = brickCanvas(d); p.color = new THREE.Color(0xffffff); }
     else if (d.map) p.map = tex(d.map, true, d.tile || 1);
     if (d.normal) { p.normalMap = tex(d.normal, false, d.tile || 1); p.normalScale = new THREE.Vector2(d.normal_scale ?? 1, d.normal_scale ?? 1); }
     const m = new THREE.MeshStandardMaterial(p);

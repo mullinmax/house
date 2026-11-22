@@ -199,8 +199,8 @@ items += [
 # ends up beside the Wall Connector on the pier between the doors. Rear bumpers sit 3 ft inside the doors. ASSUMED.
 GA = CFG["garage"]
 GX0, GY0, GX1, GY1 = GA["rect"]
-G_IN = GY1 - 0.5                                   # inside face of the garage's south wall
-G_FLOOR = -0.05                                    # garage slab top, an inch below the house slab
+G_IN = GY1 - (0.75 + 1.5 + 5.5) / 12 - 0.01         # inside face of the pole barn posts on the south wall (siding, girt, post)
+G_FLOOR = -CFG["grade"]["garage_drop_in"] / 12      # garage slab top, 8 in below the house slab (Maxwell 11/22/2026, [grade])
 bay = [GX0 + s0 + w / 2 for s0, w in GA["overhead_doors"]]
 pier = (GX0 + GA["overhead_doors"][0][0] + GA["overhead_doors"][0][1] + GX0 + GA["overhead_doors"][1][0]) / 2
 REAR_Y = G_IN - 3.0
@@ -223,7 +223,7 @@ items += [
                "The body curves between those numbers are drawn from photos, so they are close but not surveyed."],
         placement="West garage bay, centred on the door, rear bumper 3 ft inside the door. ASSUMED.")),
  dict(id="wall_connector", name="Tesla Universal Wall Connector", category="EV charger", system="electrical.ev", room="Garage", layer="appliances",
-      builder="wall_connector", size=[6.1, 13.6, 5.9], at=[round(pier, 3), G_IN, 1.5], facing=0,
+      builder="wall_connector", size=[6.1, 13.6, 5.9], at=[round(pier, 3), G_IN, round(G_FLOOR + 1.5, 3)], facing=0,
       info=dict(model="Tesla Universal Wall Connector, NACS handle with a built in J1772 adapter", price="$720 at the Tesla shop (out of stock on 11/17/2026)",
         specs=[["Size", "13.6 H x 6.1 W x 5.9 D in, about 13 lb"], ["Output", "12 to 48 A at 208 to 240 V, up to 11.5 kW"],
                ["Circuit", "48 A needs a 60 A breaker"], ["Cable", "24 ft"], ["Enclosure", "Type 3R, IP54, indoor or outdoor"], ["Network", "Wi-Fi 2.4 GHz"]],
@@ -232,7 +232,7 @@ items += [
         notes=["Size, output and cable from Tesla's install manual. The 60 A breaker follows the usual 125 percent rule for a 48 A continuous load; confirm with the electrician.",
                "Tesla's shop notes that a Model Y draws at most 32 A (7.7 kW) from this unit.",
                "Unit face about 3'-7\" to 4'-7\" above the floor. The wall holster and cable hook are ASSUMED accessories."],
-        placement="Inside face of the garage south wall, on the 3 ft pier between the two overhead doors.")),
+        placement="On the post between the two overhead doors, inside the garage south wall.")),
 ]
 
 # ------------------------------------------------------------------ utility room: geothermal and hot water
@@ -1538,6 +1538,9 @@ for _L in json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__))
         continue
     _x, _y = round(_L["pos"][0] / 0.3048, 3), round(-_L["pos"][1] / 0.3048, 3)
     _z, _sl = _CL[_nm]
+    if _L["room"] == "Garage":       # pole barn (Maxwell 11/22/2026): no ceiling, the lights hang flat under the truss bottom chords
+        _PB = CFG["garage"].get("pole_barn", {}); _PV1 = (_PB.get("siding_in", 0.75) + 1.5 + _PB.get("post_in", 5.5)) / 12
+        _z, _sl = round(G_FLOOR + CFG["garage"]["south_wall_height"] + _PV1 * CFG["garage"]["pitch"] / 12 - 0.05 - 3.5 / 12, 3), 0.0
     _big = _L.get("intensity_lm", 800) >= 1200                  # the old flush mounts: an 8 in wafer, the cans 6 in
     _n_cl += 1
     _rm = _CL_ROOM.get(_L["room"], _L["room"])
@@ -1707,13 +1710,9 @@ for _sw_src, _room_n, _side, _bath in (("U-11 #24", "Bath 2", 1, "bath 2"), ("U-
 # from model/data/terrain/web_ground.json, sampled off site.glb by tools/ground_grid.mjs.
 SP = CFG.get("site_plantings")
 if SP:
-    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "terrain", "web_ground.json")) as _f:
-        GG = json.load(_f)
-    def ground(x, y):
-        fx = (x - GG["x0"]) / GG["step"]; fy = (y - GG["y0"]) / GG["step"]
-        i = max(0, min(GG["nx"] - 2, int(fx))); j = max(0, min(GG["ny"] - 2, int(fy)))
-        tx, ty = min(1, max(0, fx - i)), min(1, max(0, fy - j)); z = GG["z"]
-        return (z[j][i] * (1 - tx) + z[j][i + 1] * tx) * (1 - ty) + (z[j + 1][i] * (1 - tx) + z[j + 1][i + 1] * tx) * ty
+    import sys as _sys
+    _sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from grade import ground                     # web_ground.json plus the 11/22/2026 regrade near the buildings (model/grade.py)
     PHOTO = "Traced from Maxwell's drone photo of 10/29/2026 (DJI_0218), lined up on the four slab corners, so the spot is good to about a foot."
     def tree(id, name, kind, xy, h_ft, model, notes, seed):
         x, y = xy
