@@ -18,6 +18,12 @@ WT = 0.25 if MONO else 0.1875                     # nominal stringer wall
 FW, FD = 2.0, 3.0                                 # landing and balcony frame tube, on edge
 RT, RH = (0.75, 4.0) if MONO else (0.0, 0.0)      # mono: an oak riser lip behind every tread, tall enough to leave under 4 in open above it
 WEB0, BOLT_N, LAP, SEAT_W = (4.5, 1.5, 3.0, 3.5) if MONO else (3.75, 1.25, 2.25, 2.5)   # tread bracket: web start behind the nosing, bolt line below the tube top, lap, seat width
+# Mono tread support (Maxwell 11/22/2026 PM): a flat plate ARM on edge crosses over the stringer under each tread and reaches near both tread ends.
+# Each bracket web has a flange folded off its vertical front edge that bolts to the arm, so the load goes into the webs in their own plane.
+# The earlier seat only bracket (SEAT_W wide bent seat) bent like a diving board: tools/ladder_drawings/bracket_solid_fea.py has that study.
+BRKT_T = 0.25                                     # web and arm plate
+ARM_D0, ARM_D1, ARM_FLAT, ARM_END = 3.5, 1.5, 4.0, 1.2   # arm depth over the stringer and at its tips; half width of the full depth part; tips stop this far inside the tread ends
+ARM_FL, SEAT_TAB, FOOT_W = 1.75, 1.5, 3.5         # web's bolting flange, the small seat tab behind it, first bracket's foot flange
 WN, GAP = L["ladder_width_in"], L["ladder_wall_gap_in"]
 HR = L.get("ladder_handrail_in", 32.0)
 SL = RI / GO

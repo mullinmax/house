@@ -27,6 +27,7 @@ SEC = dict(TUBE=("steel", 1.54, 0.932, 1.77, 1.90, 0.932, 1.18),          # HSS 
            DECKB=("oak", 6.3 * 1.44, 1.44 * 6.3 ** 3 / 12, 6.3 * 1.44 ** 3 / 12, 5.3, 1.44 * 6.3 ** 2 / 6, 6.3 * 1.44 ** 2 / 6),
            STR=("steel", 3.37, 7.80, 7.80, 12.8, 3.90, 3.90) if G.MONO else ("steel", 1.54, 0.932, 1.77, 1.90, 0.932, 1.18),   # stringer: HSS 4 x 4 x 1/4, or the 3 x 2
            BRKT2=("steel", 2.38, 10.7, 4.46, 1.0, 4.5, 1.88),              # mono: a pair of 1/4 x 4 3/4 webs, one each side of the tube
+           ARM=("steel", 0.25 * 3.5, 3.5 * 0.25 ** 3 / 12, 0.25 * 3.5 ** 3 / 12, 3.5 * 0.25 ** 3 / 3, 3.5 * 0.25 ** 2 / 6, 0.25 * 3.5 ** 2 / 6),   # mono: 1/4 in plate arm on edge under each tread, at its full 3 1/2 in depth
            STRUT=("steel", 0.84, 0.235, 0.235, 0.41, 0.313, 0.313),        # mono: 1 1/2 in square tube ties from the foot post and balcony newel to the stringer
            RIGID=("link", 20.0, 20.0, 20.0, 20.0, 1e9, 1e9))
 for k_, s_ in SEC.items():
@@ -64,7 +65,7 @@ def S(p, dx=True, dy=True, dz=True, what=""):
 TREADS, RAILS = {}, {}
 LO, UP = G.LOWER, G.UPPER
 if G.MONO:
-    VC, SE = G.VC, G.TW / 2 + G.SEAT_W                       # centre, and the seats' outer edges each side of it
+    VC, SE = G.VC, G.VC - G.ARM_END                          # centre, and how far the arm reaches each side of it
     for f in G.FLIGHTS:
         fn = f.name[0].upper()
         foot, head = f.p(f.ufc, VC, f.zf), f.p(f.uhc, VC, f.zu)
@@ -79,8 +80,8 @@ if G.MONO:
             pb, pt = f.p(ub, VC, f.zc(ub)), f.p(f.uk(k) + 4.25, VC, f.z0 + k * G.RI - G.TT / 2)
             M(f"{fn}brkt{k}c", pb, pt, "BRKT2")
             e = {s_: f.p(f.uk(k) + 4.25, v_, pt[2]) for s_, v_ in (("o", 0.0), ("so", VC - SE), ("sw", VC + SE), ("w", G.WN))}
-            M(f"{fn}tread{k}o", e["o"], e["so"], "TREAD")
-            M(f"{fn}seat{k}", e["so"], e["sw"], "RIGID")
+            M(f"{fn}tread{k}o", e["o"], e["so"], "TREAD")     # the tread only spans the last 1.2 in past each arm tip; the arm is checked as if the oak gave it no help
+            M(f"{fn}seat{k}", e["so"], e["sw"], "ARM")
             M(f"{fn}tread{k}w", e["sw"], e["w"], "TREAD")
             TREADS[(fn, k)] = dict(o=e["o"], w=e["w"], mid=pt, members=(f"{fn}tread{k}o", f"{fn}seat{k}", f"{fn}tread{k}w"))
     for i in (0, 1):
@@ -294,7 +295,7 @@ def stress(name, combo):
     return dict(sig=ax / A + my / Sy + mz / Sz, P=ax, My=my, Mz=mz, T=tq)
 
 
-GROUP = lambda n: ("stringer tubes" if "tube_" in n and n[0] in "LU" and n[1:5] == "tube" else "tread brackets" if "brkt" in n else "oak treads" if "tread" in n else
+GROUP = lambda n: ("stringer tubes" if "tube_" in n and n[0] in "LU" and n[1:5] == "tube" else "tread brackets" if "brkt" in n else "tread arms" if "seat" in n and G.MONO else "oak treads" if "tread" in n else
                    "oak deck" if "deck" in n else "landing frame" if n in ("LE", "LS", "LW", "LN", "LH") else "balcony frame" if n in ("BE", "BS", "BH", "BN", "BW") else
                    "knee braces" if n.startswith("BR") else "corner newel" if n.startswith("newel") and n[5:].isdigit() else "foot post" if n.startswith("footpost") else
                    "balcony south west newel" if n.startswith("gsw") and n[3:].isdigit() else "guard posts" if n in ("gnw", "gnw0", "gne0", "gne1") else "ties and kickers" if MEM[n][0] == "STRUT" else
