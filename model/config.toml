@@ -604,15 +604,22 @@ items = [
   { id = "tv_console", type = "tv_console", web = true, x = 17.45, y = 30.65, facing = 90, w = 5.5 },   # under the 70 in TV, centred on it (Maxwell 11/21/2026). Size and style ASSUMED
   { id = "art_living", type = "model", model = "hanging_picture_frame_01", x = 26.4, y = 23.0, z = 4.6, facing = 180, len = 3.0, wall = true },
   # ---- dining: centred between the D120 bi-parting doors (south wall) and the barn doors (Maxwell 11/13)
-  { id = "dining_table", type = "model", model = "gallinera_table", x = 23.9, y = 43.3, facing = 0, len = 6.5 },
-  { id = "dchair_n1", type = "model", model = "gallinera_chair", x = 22.1, y = 41.1, facing = 180, len = 1.6 },
-  { id = "dchair_n2", type = "model", model = "gallinera_chair", x = 23.9, y = 41.1, facing = 180, len = 1.6 },
-  { id = "dchair_n3", type = "model", model = "gallinera_chair", x = 25.7, y = 41.1, facing = 180, len = 1.6 },
-  { id = "dchair_s1", type = "model", model = "gallinera_chair", x = 22.1, y = 45.5, facing = 0, len = 1.6 },
-  { id = "dchair_s2", type = "model", model = "gallinera_chair", x = 23.9, y = 45.5, facing = 0, len = 1.6 },
-  { id = "dchair_s3", type = "model", model = "gallinera_chair", x = 25.7, y = 45.5, facing = 0, len = 1.6 },
+  # Shaker style set from Maxwell's reference photo (11/21/2026), replacing the Gallinera table and six chairs: honey maple
+  # table 84 x 40 in, eight chairs (three a side, one at each end). Pulled out 2 ft, the west end chair still leaves about
+  # 3 ft to the island and every other chair 4 ft or more to the walls. 9 x 12 jute rug under it. Sizes ASSUMED
+  { id = "dining_rug", type = "jute_rug", web = true, x = 23.9, y = 43.3, l = 12.0, w = 9.0, facing = 0 },
+  { id = "dining_table", type = "dining_table", web = true, x = 23.9, y = 43.3, facing = 0, l = 7.0 },
+  { id = "dchair_n1", type = "dining_chair", web = true, x = 21.57, y = 41.13, facing = 180 },
+  { id = "dchair_n2", type = "dining_chair", web = true, x = 23.9, y = 41.13, facing = 180 },
+  { id = "dchair_n3", type = "dining_chair", web = true, x = 26.23, y = 41.13, facing = 180 },
+  { id = "dchair_s1", type = "dining_chair", web = true, x = 21.57, y = 45.47, facing = 0 },
+  { id = "dchair_s2", type = "dining_chair", web = true, x = 23.9, y = 45.47, facing = 0 },
+  { id = "dchair_s3", type = "dining_chair", web = true, x = 26.23, y = 45.47, facing = 0 },
+  { id = "dchair_w", type = "dining_chair", web = true, x = 19.9, y = 43.3, facing = 90 },
+  { id = "dchair_e", type = "dining_chair", web = true, x = 27.9, y = 43.3, facing = 270 },
+  { id = "fruit_bowl", type = "fruit_bowl", web = true, x = 23.9, y = 43.3, z = 2.5 },
   { id = "dining_pendant", type = "pendant", model = "modern_ceiling_lamp_01", x = 23.9, y = 43.3, z = 6.6, len = 1.5 },
-  { id = "vase_dining", type = "model", model = "ceramic_vase_02", x = 23.9, y = 43.3, on = "dining_table", facing = 0, len = 0.6 },
+  { id = "vase_dining", type = "model", model = "ceramic_vase_02", x = 23.9, y = 43.3, on = "dining_table", facing = 0, len = 0.6, removed = true },   # a bowl of apples instead, as in the photo
   # built-in entry bench filling the north-wall alcove by the entry (x 31.58-39.16 since 11/17/2026, was to 39.66; back wall y 33.12). Maxwell 11/13, ASSUMED 15" deep, 18" seat.
   # Mudroom unit after Maxwell's reference photo (11/17/2026), adapted to the 8'-1" x 1'-6" alcove under its 8'-0" head:
   # 2 ft base cabinet + stone counter + tall cabinet on the west (left seen from the entry), 6 ft bench open below in 3 bays
