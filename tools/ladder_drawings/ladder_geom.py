@@ -37,15 +37,16 @@ PICKET = 0.5
 
 
 class Flight:
-    def __init__(self, name, z0, nr, ab):
+    def __init__(self, name, z0, nr, ab, zf=None):
         self.name, self.z0, self.nr, self.ab = name, z0, nr, ab          # ab(u, v) -> (a, b)
+        self.zf = zf = z0 if zf is None else zf                          # level the tube foot stands on (the upper mono stringer stands on the landing frame, past the end of the oak)
         self.zn = lambda u: z0 + RI + u * SL                             # nosing line
         self.zl = lambda u: z0 + RI + (u - TD - RT) * SL - TT            # tube top
         self.zc = lambda u: self.zl(u) - PL / 2                          # tube centreline
         self.zu = z0 + nr * RI - TK                                      # underside of the platform at the head
-        self.u0 = TD + RT - (RI - TT) / SL                                    # tube top meets the foot level
+        self.u0 = TD + RT + (zf - z0 - RI + TT) / SL                     # tube top meets the foot level
         self.u1 = self.u0 + PL / SL
-        self.u2 = self.u0 + (nr * RI - TK) / SL                          # tube top meets the platform underside
+        self.u2 = TD + RT + (self.zu - z0 - RI + TT) / SL                          # tube top meets the platform underside
         self.u3 = self.u2 + PL / SL
         self.ufc, self.uhc = self.u0 + PL / 2 / SL, self.u2 + PL / 2 / SL    # centreline at the foot and head cuts
         self.vt = (WN / 2,) if MONO else (TW / 2, WN - TW / 2)           # tube centrelines: open side, wall side
@@ -62,7 +63,7 @@ class Flight:
 
 
 LOWER = Flight("lower", 0.0, N_LO, lambda u, v: (XL + UL - u, XL - v))    # climbs east, open side north
-UPPER = Flight("upper", ZP, N_UP, lambda u, v: (XL - v, B0 + u))          # climbs north, open side west
+UPPER = Flight("upper", ZP, N_UP, lambda u, v: (XL - v, B0 + u), ZP - TT if MONO else None)          # climbs north, open side west
 FLIGHTS = (LOWER, UPPER)
 
 ZLF, ZBF = ZP - TT - FD / 2, FL - TT - FD / 2    # frame centre heights: landing, balcony
@@ -70,6 +71,7 @@ A_LH = XL + UL - LOWER.uhc                        # landing header, over the low
 B_BH = B0 + UPPER.uhc                             # balcony arm over the upper tubes' heads
 B_UF = B0 + UPPER.ufc                             # upper tubes' feet on the landing
 LAND_N = B0 + 8.0 if not MONO else B0 + UPPER.u1 + 0.6     # corner landing's north edge, under the upper flight's first tread
+LAND_DECK_N = B0 + TD - GO if MONO else LAND_N    # mono: the landing's oak ends like a tread, at the front of the riser lip under the upper flight's first tread (Maxwell 11/22/2026)
 B_LN = B_UF if MONO else LAND_N - 1               # landing north beam: under the centre stringer's foot, or at the edge
 VC = WN / 2
 PC = XL + POST / 2                                # posts stand outside the open edge, lapped onto the tubes and frames
@@ -86,7 +88,7 @@ BAL_FRAME = dict(BE=((1, BAL_S), (1, BAL_N)), BS=((1, BAL_S + 1), (XL - 1, BAL_S
                  BN=((1, BAL_N - 1), (XL, BAL_N - 1)), BW=((XL - 1, BAL_S), (XL - 1, BAL_N - 1)))
 LAND_LAGS = dict(LE=(4.0, 20.0, 32.0), LS=(8.0, 22.0))          # along each ledger, assumed stud or blocking positions
 BAL_LAGS = (BAL_S + 3, (BAL_S + BAL_N) / 2, BAL_N - 3)
-LAND_STRIPS = (4.0, 9.5, 15.0, 20.5, 26.0, 30.5)                # deck boards run east to west on the landing: analysis strips at these b
+LAND_STRIPS = (4.0, 9.5, 15.0, 20.5, 26.0) if MONO else (4.0, 9.5, 15.0, 20.5, 26.0, 30.5)                # deck boards run east to west on the landing: analysis strips at these b
 BAL_STRIPS = (4.0, 9.0, 14.0, 19.0)                             # and north to south on the balcony: strips at these a
 
 NEWEL_TOP = UPPER.zn(XL + POST - B0) + HR + 1.5                 # corner newel, a little above the upper rail

@@ -67,7 +67,7 @@ if G.MONO:
     VC, SE = G.VC, G.TW / 2 + G.SEAT_W                       # centre, and the seats' outer edges each side of it
     for f in G.FLIGHTS:
         fn = f.name[0].upper()
-        foot, head = f.p(f.ufc, VC, f.z0), f.p(f.uhc, VC, f.zu)
+        foot, head = f.p(f.ufc, VC, f.zf), f.p(f.uhc, VC, f.zu)
         M(f"{fn}tube_c", foot, head, "STR")
         f.ends = dict(c=(foot, head))
         for nm, pc, half in (("foot", foot, 4.0), ("head", head, G.TW / 2 + 0.125)):      # anchors each side of the tube resist its twist

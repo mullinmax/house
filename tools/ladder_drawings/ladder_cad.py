@@ -74,14 +74,14 @@ for f in G.FLIGHTS:
     g = f"{f.name}_flight"
     for side, v0, vw, vs in SIDES:
         if v0 is not None:
-            add(g, f"{f.name}_stringer" if G.MONO else f"{f.name}_tube_{side}", slope_tube(f, f.u0, f.u2, f.zl, G.PL, v0, v0 + G.TW, T, f.z0, f.zu))
+            add(g, f"{f.name}_stringer" if G.MONO else f"{f.name}_tube_{side}", slope_tube(f, f.u0, f.u2, f.zl, G.PL, v0, v0 + G.TW, T, f.zf, f.zu))
         nx, nz = math.sin(G.ANG), -math.cos(G.ANG)
         for k in range(1, f.nr):
             uk, zk = f.uk(k), f.z0 + k * G.RI - G.TT
             A, B = (uk + G.WEB0, zk), (uk + G.TD + G.RT, zk)
             C = (A[0], f.zl(A[0]))
             web = [A, C, (C[0] + nx * G.LAP, C[1] + nz * G.LAP), (B[0] + nx * G.LAP, B[1] + nz * G.LAP), B]
-            zc_ = f.z0 + BT
+            zc_ = f.zf + BT
             foot = min(z for _, z in web) < zc_
             if foot:                                                           # first tread: the web runs down to a foot flange anchored to the slab or landing
                 cl = []
@@ -95,7 +95,7 @@ for f in G.FLIGHTS:
             br = prism(f, web, *vw).fuse(prism(f, [(uk + 1, zk - BT), (uk + G.TD + G.RT, zk - BT), (uk + G.TD + G.RT, zk), (uk + 1, zk)], *vs))
             if foot:
                 us = [u for u, z in web if abs(z - zc_) < 1e-6]
-                br = br.fuse(prism(f, [(min(us), f.z0), (max(us), f.z0), (max(us), zc_), (min(us), zc_)], *vs))
+                br = br.fuse(prism(f, [(min(us), f.zf), (max(us), f.zf), (max(us), zc_), (min(us), zc_)], *vs))
             add(g, f"{f.name}_bracket_{k}_{side}", br)
         sgn = 1 if vs[0] == vw[0] else -1                                      # head angles, 3 x 3 x 1/4, 4 in long (the feet are held by the first tread brackets)
         e0 = vw[0] if sgn > 0 else vw[1]
@@ -113,7 +113,7 @@ for f in G.FLIGHTS:
             add(g, f"{f.name}_riser_{k}", prism(f, [(ur, zk - G.TT), (ur + G.RT, zk - G.TT), (ur + G.RT, zk + G.RH), (ur, zk + G.RH)], 0.05, G.WN - 0.05), OAK, "oak")
     if G.RT and f is G.UPPER:                                                  # and one stands on the landing under the upper flight's first tread
         ur = G.TD - G.GO
-        add(g, "landing_riser", prism(f, [(ur, f.z0), (ur + G.RT, f.z0), (ur + G.RT, f.z0 + G.RH), (ur, f.z0 + G.RH)], 0.05, G.WN - 0.05), OAK, "oak")
+        add(g, "landing_riser", prism(f, [(ur, f.z0 - G.TT), (ur + G.RT, f.z0 - G.TT), (ur + G.RT, f.z0 + G.RH), (ur, f.z0 + G.RH)], 0.05, G.WN - 0.05), OAK, "oak")
     if RISER_PANELS:
         for k in range(0 if f is G.UPPER else 1, f.nr):
             zk = f.z0 + k * G.RI
@@ -147,7 +147,7 @@ add("landing", "landing_south_ledger", tube(2, XL, 0, 2, *lz, "a"))
 add("landing", "landing_west_beam", tube(XL - 2, XL, 2, G.LAND_N, *lz, "b"))
 add("landing", "landing_north_beam", tube(2, XL - 2, G.B_LN - 1, G.B_LN + 1, *lz, "a"))
 add("landing", "landing_header", tube(G.A_LH - 1, G.A_LH + 1, 2, G.B_LN - 1, *lz, "b"))
-deck = box(0, XL, 0, G.LAND_N, ZP - TT, ZP)
+deck = box(0, XL, 0, G.LAND_DECK_N, ZP - TT, ZP)
 add("landing", "landing_deck", deck.fuse(box(XL, XL + G.NOSE, G.GAP, XL, ZP - TT, ZP)) if G.NOSE else deck, OAK, "oak")
 add("posts", "corner_newel", tube(XL, XL + G.POST, XL, XL + G.POST, 0, G.NEWEL_TOP, "z"))
 # balcony

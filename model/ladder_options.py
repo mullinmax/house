@@ -140,17 +140,17 @@ def mono_ladder(WX, WY):
     nx, nz = math.sin(G.ANG), -math.cos(G.ANG)
     RD2 = G.RAIL / math.cos(G.ANG)
     for f in G.FLIGHTS:
-        gh(ST, f, [(f.u0, f.z0 + e), (f.u1, f.z0 + e), (f.u3, f.zu - e), (f.u2, f.zu - e)], VC - G.TW / 2, VC + G.TW / 2)
+        gh(ST, f, [(f.u0, f.zf + e), (f.u1, f.zf + e), (f.u3, f.zu - e), (f.u2, f.zu - e)], VC - G.TW / 2, VC + G.TW / 2)
         for k in range(1, f.nr):
             uk, zk = f.uk(k), f.z0 + k * G.RI - TT
             for sg in (-1, 1):
                 v0 = VC + sg * (G.TW / 2 + e)
                 A, B = (uk + G.WEB0, zk - BT), (uk + G.TD + G.RT, zk - BT)
-                C2, B2 = (A[0] + nx * G.LAP, max(f.zl(A[0]) + nz * G.LAP, f.z0 + BT)), (B[0] + nx * G.LAP, max(zk + nz * G.LAP, f.z0 + BT))
+                C2, B2 = (A[0] + nx * G.LAP, max(f.zl(A[0]) + nz * G.LAP, f.zf + BT)), (B[0] + nx * G.LAP, max(zk + nz * G.LAP, f.zf + BT))
                 gh(ST, f, [C2, B2, B, A], v0, v0 + sg * BT)
                 gh(ST, f, [(uk + 1, zk - BT), (uk + G.TD + G.RT - e, zk - BT), (uk + G.TD + G.RT - e, zk - e), (uk + 1, zk - e)], v0, v0 + sg * G.SEAT_W)
                 if k == 1:                                   # foot flange on the slab or the landing
-                    gh(ST, f, [(C2[0], f.z0 + e), (B2[0], f.z0 + e), (B2[0], f.z0 + BT), (C2[0], f.z0 + BT)], v0, v0 + sg * G.SEAT_W)
+                    gh(ST, f, [(C2[0], f.zf + e), (B2[0], f.zf + e), (B2[0], f.zf + BT), (C2[0], f.zf + BT)], v0, v0 + sg * G.SEAT_W)
             gh(OAK, f, [(uk, zk), (uk + G.TD, zk), (uk + G.TD, zk + TT), (uk, zk + TT)], 0.05, G.WN - 0.05)
             ur = uk + G.TD                                   # riser lip behind every tread: under 4 in open above it
             gh(OAK, f, [(ur + e, zk), (ur + G.RT, zk), (ur + G.RT, zk + TT + G.RH), (ur + e, zk + TT + G.RH)], 0.05 + e, G.WN - 0.05 - e)
@@ -158,7 +158,7 @@ def mono_ladder(WX, WY):
         ua, ub = (0.0, G.UL - G.POST - e) if f is G.LOWER else (G.POST + XL - G.B0 + e, G.BAL_S - G.B0 - e)
         gh(ST, f, [(ua, ztop(ua) - RD2), (ub, ztop(ub) - RD2), (ub, ztop(ub)), (ua, ztop(ua))], -1.75, -0.25)
     ur = G.TD - G.GO
-    gh(OAK, G.UPPER, [(ur, ZP + e), (ur + G.RT, ZP + e), (ur + G.RT, ZP + G.RH), (ur, ZP + G.RH)], 0.05 + e, G.WN - 0.05 - e)
+    gh(OAK, G.UPPER, [(ur + e, ZP - TT), (ur + G.RT, ZP - TT), (ur + G.RT, ZP + G.RH), (ur + e, ZP + G.RH)], 0.05 + e, G.WN - 0.05 - e)
     # lower flight foot post on its base plate, corner newel
     fa = G.A_FOOT
     gb(ST, fa - 1, fa + 1, XL + e, XL + G.POST, 0.375, G.LOWER.zn(G.FOOT_U) + G.HR - RD2 + 0.5)
@@ -166,7 +166,7 @@ def mono_ladder(WX, WY):
     gb(ST, XL + e, XL + G.POST, XL + e, XL + G.POST, 0.02, G.NEWEL_TOP)
     # corner landing: oak deck on a tube frame
     z0, z1 = ZP - TK, ZP - TT - e
-    gb(OAK, 0.03, XL, 0.03, G.LAND_N, ZP - TT, ZP)
+    gb(OAK, 0.03, XL, 0.03, G.LAND_DECK_N, ZP - TT, ZP)
     for a0, a1, b0, b1 in ((0.05, 2, 0.05, G.LAND_N - e), (2 + e, XL - e, 0.05, 2), (XL - 2, XL - e, 2 + e, G.LAND_N - e), (2 + e, XL - 2 - e, G.B_LN - 1, G.B_LN + 1), (G.A_LH - 1, G.A_LH + 1, 2 + e, G.B_LN - 1 - e)):
         gb(ST, a0, a1, b0, b1, z0, z1)
     # balcony: deck, frame, north knee brace
