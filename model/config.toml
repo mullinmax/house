@@ -634,9 +634,10 @@ items = [
   { id = "nook_plant", type = "model", model = "potted_plant_04", x = 41.8, y = 47.3, on = "nook_table", facing = 0, len = 0.6 },
   { id = "plant_entry", type = "model", model = "potted_plant_02", x = 41.6, y = 36.3, facing = 270, len = 2.2, removed = true },   # taken out (Maxwell 11/17/2026)
   # ---- kitchen
-  { id = "stool_1", type = "model", model = "bar_chair_round_01", x = 7.4, y = 41.7, facing = 180, len = 1.4 },
-  { id = "stool_2", type = "model", model = "bar_chair_round_01", x = 9.7, y = 41.7, facing = 180, len = 1.4 },
-  { id = "stool_3", type = "model", model = "bar_chair_round_01", x = 12.0, y = 41.7, facing = 180, len = 1.4 },
+  # counter stools after Maxwell's photo (11/21/2026): cognac leather, channel stitched low back, black tapered legs, footrest. 26 in seat for the 36 in counter
+  { id = "stool_1", type = "bar_stool", web = true, x = 7.4, y = 41.75, facing = 180, seat_in = 26.0, foot_in = 9.0 },
+  { id = "stool_2", type = "bar_stool", web = true, x = 9.7, y = 41.75, facing = 180, seat_in = 26.0, foot_in = 9.0 },
+  { id = "stool_3", type = "bar_stool", web = true, x = 12.0, y = 41.75, facing = 180, seat_in = 26.0, foot_in = 9.0 },
   { id = "island_pendant_w", type = "pendant", model = "modern_ceiling_lamp_01", x = 8.0, y = 44.4, z = 7.3, len = 1.05 },
   { id = "island_pendant_e", type = "pendant", model = "modern_ceiling_lamp_01", x = 12.0, y = 44.4, z = 7.3, len = 1.05 },
   { id = "plant_counter", type = "model", model = "potted_plant_04", x = 13.3, y = 50.6, z = 3.0, facing = 0, len = 0.7 },

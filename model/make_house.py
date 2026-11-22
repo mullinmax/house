@@ -3729,10 +3729,90 @@ def web_jute_rug(it):
     lbox("Jute Rug", fr, -it["l"] / 2, it["l"] / 2, -it["w"] / 2, it["w"] / 2, 0.003, 0.033)
 
 
+MATERIALS.update({
+    "Cognac Leather": dict(color="#8A4B2E", rough=0.42),
+    "Leather Stitch": dict(color="#5C2F1C", rough=0.6),
+})
+
+
+def web_bar_stool(it):
+    """Counter stool after Maxwell's reference photo (11/21/2026): cognac leather seat with a curved low back that wraps
+    round the sides, vertical channel stitching on the back, four thin black tapered legs splayed a little, and a square
+    footrest ring. Seat height to suit the 36 in island counter (counter height, not bar height). a runs to the sitter's
+    right, b toward the front (facing), z up."""
+    H = it.get("seat_in", 26.0) / 12
+    fr = frame_at(it["x"], it["y"], it.get("facing", 180))
+    P = lambda a, b, z: (*fr(a, b), z)
+    RS, CB, ST = 0.66, -0.08, 0.17                       # seat radius at the back, centre line of the rounded back, seat thickness
+    FB, FW = 0.62, 0.64                                   # seat front edge, half width at the front
+    # seat: a rectangle in front of the centre line and a half round behind it, cut in strips across
+    hexa("Cognac Leather", [P(-RS, CB, H - ST), P(RS, CB, H - ST), P(FW, FB, H - ST), P(-FW, FB, H - ST),
+                            P(-RS, CB, H), P(RS, CB, H), P(FW, FB, H - 0.02), P(-FW, FB, H - 0.02)])
+    hexa("Cognac Leather", [P(-FW + 0.02, FB, H - ST + 0.02), P(FW - 0.02, FB, H - ST + 0.02), P(FW - 0.04, FB + 0.06, H - ST + 0.05), P(-FW + 0.04, FB + 0.06, H - ST + 0.05),
+                            P(-FW + 0.02, FB, H - 0.02), P(FW - 0.02, FB, H - 0.02), P(FW - 0.04, FB + 0.06, H - 0.06), P(-FW + 0.04, FB + 0.06, H - 0.06)])   # rolled front edge
+    n = 8
+    for i in range(n):
+        a0, a1 = -RS * 0.98 + 1.96 * RS * i / n, -RS * 0.98 + 1.96 * RS * (i + 1) / n
+        b0, b1 = CB - math.sqrt(max(RS * RS - a0 * a0, 0)), CB - math.sqrt(max(RS * RS - a1 * a1, 0))
+        hexa("Cognac Leather", [P(a0, b0, H - ST), P(a1, b1, H - ST), P(a1, CB, H - ST), P(a0, CB, H - ST),
+                                P(a0, b0, H), P(a1, b1, H), P(a1, CB, H), P(a0, CB, H)])
+    for a in (-0.22, 0.0, 0.22):                         # channel seams on the seat, front to back
+        hexa("Leather Stitch", [P(a - 0.008, CB - math.sqrt(RS * RS - a * a) + 0.08, H - 0.01), P(a + 0.008, CB - math.sqrt(RS * RS - a * a) + 0.08, H - 0.01),
+                                P(a + 0.008, FB - 0.05, H - 0.025), P(a - 0.008, FB - 0.05, H - 0.025),
+                                P(a - 0.008, CB - math.sqrt(RS * RS - a * a) + 0.08, H + 0.006), P(a + 0.008, CB - math.sqrt(RS * RS - a * a) + 0.08, H + 0.006),
+                                P(a + 0.008, FB - 0.05, H - 0.009), P(a - 0.008, FB - 0.05, H - 0.009)])
+    # back: an arc of panels round the seat's back, leaning back, highest at the middle and sloping down toward the front
+    R, T, LEAN, ZB = RS + 0.04, 0.08, 0.12, H - ST + 0.02
+    TH = lambda th: H + 0.9 - 0.62 * (abs(th) / 60) ** 1.5
+    ang = [-60 + 12 * k for k in range(11)]
+
+    def ring(th, z, r):
+        lean = LEAN * (z - ZB) / (H + 0.88 - ZB)
+        t = math.radians(th)
+        return P((r + lean) * math.sin(t), CB - (r + lean) * math.cos(t), z)
+    for t0, t1 in zip(ang, ang[1:]):
+        z0t, z1t = TH(t0), TH(t1)
+        hexa("Cognac Leather", [ring(t0, ZB, R - T), ring(t0, ZB, R), ring(t1, ZB, R), ring(t1, ZB, R - T),
+                                ring(t0, z0t, R - T), ring(t0, z0t, R), ring(t1, z1t, R), ring(t1, z1t, R - T)])
+    for th in (-36, -12, 12, 36):                        # vertical channel stitching on the inside of the back
+        z0, z1 = H + 0.26, TH(th) - 0.07
+        d = math.degrees(0.008 / R)
+        hexa("Leather Stitch", [ring(th - d, z0, R - T - 0.006), ring(th - d, z0, R - T + 0.01), ring(th + d, z0, R - T + 0.01), ring(th + d, z0, R - T - 0.006),
+                                ring(th - d, z1, R - T - 0.006), ring(th - d, z1, R - T + 0.01), ring(th + d, z1, R - T + 0.01), ring(th + d, z1, R - T - 0.006)])
+    for t0, t1 in zip(ang[1:-2], ang[2:-1]):             # the cross seam under the channels
+        z0, z1 = H + 0.24, H + 0.26
+        hexa("Leather Stitch", [ring(t0, z0, R - T - 0.006), ring(t0, z0, R - T + 0.01), ring(t1, z0, R - T + 0.01), ring(t1, z0, R - T - 0.006),
+                                ring(t0, z1, R - T - 0.006), ring(t0, z1, R - T + 0.01), ring(t1, z1, R - T + 0.01), ring(t1, z1, R - T - 0.006)])
+    # black metal: a plate under the seat, four tapered legs splayed out a little, and the footrest ring
+    lbox("Black Metal", fr, -0.42, 0.42, -0.42, 0.42, H - ST - 0.04, H - ST)
+    TOPA, TOPB, BOTA, BOTB = 0.4, 0.4, 0.55, 0.52
+    legs = []
+    for sa in (-1, 1):
+        for sb in (-1, 1):
+            top, bot = (sa * TOPA, sb * TOPB, H - ST - 0.02), (sa * BOTA, sb * BOTB, 0.0)
+            legs.append((top, bot))
+            w0, w1 = 0.035, 0.014                        # 7/8 in at the top, about 3/8 in at the foot
+            pts = []
+            for (a, b, z), w in ((bot, w1), (top, w0)):
+                pts += [P(a - w, b - w, z), P(a + w, b - w, z), P(a + w, b + w, z), P(a - w, b + w, z)]
+            hexa("Black Metal", pts)
+    FZ = it.get("foot_in", 9.0) / 12
+    f = FZ / (H - ST - 0.02)
+    fa, fb = BOTA + (TOPA - BOTA) * f, BOTB + (TOPB - BOTB) * f
+    r_ = 0.018
+    lbox("Black Metal", fr, -fa, fa, fb - r_, fb + r_, FZ - r_, FZ + r_)          # front bar, the one you rest your feet on
+    lbox("Black Metal", fr, -fa, fa, -fb - r_, -fb + r_, FZ - r_ + 0.002, FZ + r_ + 0.002)
+    for sa in (-1, 1):
+        lbox("Black Metal", fr, sa * fa - r_ - 0.001, sa * fa + r_ - 0.001, -fb + r_, fb - r_, FZ - r_ + 0.001, FZ + r_ + 0.001)
+    for top, bot in legs:                                # glides under the feet
+        lbox("Plastic Grey", fr, bot[0] - 0.02, bot[0] + 0.02, bot[1] - 0.02, bot[1] + 0.02, 0.003, 0.012)
+
+
 WEB_BUILD = {"bed": web_bed, "nightstand": web_nightstand, "table_lamp": web_table_lamp, "desk_lamp": web_desk_lamp,
              "l_desk": web_l_desk, "office_chair": web_office_chair, "towel_warmer": web_towel_warmer, "bench": web_bench,
              "tv_console": web_tv_console, "l_couch": web_l_couch, "dining_table": web_dining_table, "dining_chair": web_dining_chair,
-             "fruit_bowl": web_fruit_bowl, "jute_rug": web_jute_rug}
+             "fruit_bowl": web_fruit_bowl, "jute_rug": web_jute_rug,
+             "bar_stool": web_bar_stool}
 WEB_INFO = {
     "dining_table": lambda it: dict(model=f"Shaker style solid maple dining table, honey finish, {round(it.get('l', 7.0) * 12)} x {round(it.get('w', 40 / 12) * 12)} in, {round(it.get('h', 2.5) * 12)} in high (style from Maxwell's reference photo; maker and size ASSUMED)",
                                     specs=[["Seats", "8: three on each side and one at each end"], ["Legs", "square, tapered on the inside faces"], ["Clearance", "about 3 ft or more behind every chair pulled out"]],
@@ -3741,6 +3821,10 @@ WEB_INFO = {
                                     specs=[["Size", f"{round(it.get('w', 18.5 / 12) * 12, 1)} in wide, {round(it.get('d', 19.5 / 12) * 12, 1)} in deep, seat {round(it.get('seat', 1.5) * 12)} in, back {round(it.get('back', 34 / 12) * 12)} in"]]),
     "fruit_bowl": lambda it: dict(model="Wooden bowl of green apples"),
     "jute_rug": lambda it: dict(model=f"Natural jute rug, {ftin(it['w'])} x {ftin(it['l'])} (ASSUMED)", notes=["Big enough that the chairs stay on it when pulled out."]),
+    "bar_stool": lambda it: dict(model="Counter stool, cognac leather with a channel stitched low back and black metal legs (style from Maxwell's photo, exact model ASSUMED)",
+                                 specs=[["Seat height", f"{it.get('seat_in', 26.0):g} in, for the 36 in island counter"], ["Footrest", f"{it.get('foot_in', 9.0):g} in off the floor"],
+                                        ["Size", "about 18 in wide, 18 in deep, back about 37 in high"]],
+                                 notes=["Replaces the round wood bar stools (Maxwell, 11/21/2026). Counter height because the island is a standard 36 in counter; bar height stools (30 in seat) would sit too high."]),
     "l_couch": lambda it: dict(model=f"L sectional, {ftin(it.get('nl', 9.5))} along the north wall by {ftin(it.get('el', 7.5))} along the bath 1 wall, {ftin(it.get('d', 3.1))} deep, seat 17 in, back 33 in (size from the ladder mockup, model ASSUMED)",
                                notes=["The L couch from the corner landing ladder mockup (option E) that Maxwell picked 11/21/2026. Its short leg runs under the ladder's upper flight; the flight's underside is well above the couch back there."]),
     "bed": lambda it: dict(model="Queen bed, 60 x 80 in mattress on a white oak platform (ASSUMED)", notes=["Queen, and placed so the side tables clear both doors (Maxwell, 11/16/2026)."]),
@@ -3772,7 +3856,7 @@ WEB_INFO = {
 # not a belonging).
 BUILT_IN = {"bench", "towel_warmer"}
 WEB_NAMES = {"bench": "Mudroom bench and cabinets", "bed": "Queen bed", "nightstand": "Nightstand", "table_lamp": "Table lamp", "desk_lamp": "Desk lamp", "l_desk": "L-shaped standing desk", "office_chair": "Office chair", "towel_warmer": "Towel warmer", "tv_console": "TV console", "l_couch": "L sectional couch",
-             "dining_table": "Dining table", "dining_chair": "Dining chair", "fruit_bowl": "Fruit bowl", "jute_rug": "Dining rug"}
+             "dining_table": "Dining table", "dining_chair": "Dining chair", "fruit_bowl": "Fruit bowl", "jute_rug": "Dining rug", "bar_stool": "Counter stool"}
 for it in FURN:
     if it.get("moved_from"):
         ox, oy, of = it["moved_from"]
