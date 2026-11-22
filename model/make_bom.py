@@ -87,6 +87,12 @@ OTHER_VENT = [
     ("hood_blower", "Range hood roof blower, about 400 CFM", "Roof, over the cooktop", 1, "", ""),
     ("hood_silencer", "8 in round duct silencer (Fantech LD 8 or similar)", "In the hood chimney", 1, "", ""),
     ("ex_hood", "8 in insulated backdraft damper for the hood duct", "At the hood", 1, "", "Worth it in a house this tight."),
+    ("mua_damper", "Broan MD10TU 10 in makeup air damper with pressure sensor kit", "Range hood makeup air, attic over the pantry. Includes the 24 V transformer, pressure switch, probe and tubing", 1, "About $284 to $355", "Opens whenever the hood runs on medium or high."),
+    ("mua_damper", "120 V junction box and circuit for the damper transformer", "Attic over the pantry, beside the damper", 1, "", "Electrician. Can share a general attic circuit."),
+    ("mua_damper", "18/2 thermostat wire", "Pressure switch in the hood box up to the damper, about 25 ft", 1, "", ""),
+    ("mua_intake", "10 in intake wall hood with 1/4 in screen, black", "West wall over bedroom 3's attic, beside the ERV fresh air hood", 1, "About $40 to $120", "No damper needed in the hood; the MD10TU closes the duct."),
+    ("mua_filter", "10 in inline duct filter box with side access door", "Right after the makeup air damper", 1, "About $60 to $120", "Broan requires a filter downstream of the damper."),
+    ("mua_filter", "1 in MERV 8 filters for the makeup air filter box", "", 2, "About $10 each", "One in it, one spare."),
 ]
 
 
@@ -173,6 +179,8 @@ def system_of(dc):
         return "Water heater air"
     if fam["id"] == "ex_hood":
         return "Range hood"
+    if s == "hvac.makeup_air":
+        return "Range hood makeup air"
     return SYS_NAME.get(dc.get("type"), dc.get("type", "Other"))
 
 
@@ -193,7 +201,7 @@ for dc in DUCTS:
         fam_has_stack[family(dc)] = True
 
 INSULATED_FAMS = {"hpwh_intake"}                 # the Rheem kit is insulated flex
-ERV_OUTDOOR = {"erv_wall_0", "erv_wall_1"}       # outdoor side of the ERV: insulated with a vapor jacket
+ERV_OUTDOOR = {"erv_wall_0", "erv_wall_1", "mua"}  # outdoor air ducts (ERV outdoor side, range hood makeup air): insulated with a vapor jacket
 
 HEADS = [dc for dc in DUCTS if dc.get("stack_head")]
 for dc in DUCTS:

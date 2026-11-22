@@ -296,6 +296,66 @@
      "status": ""
     },
     {
+     "item": "Broan MD10TU 10 in makeup air damper with pressure sensor kit",
+     "spec": "Range hood makeup air, attic over the pantry. Includes the 24 V transformer, pressure switch, probe and tubing",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "Opens whenever the hood runs on medium or high.",
+     "price": "About $284 to $355",
+     "status": ""
+    },
+    {
+     "item": "120 V junction box and circuit for the damper transformer",
+     "spec": "Attic over the pantry, beside the damper",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "Electrician. Can share a general attic circuit.",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "18/2 thermostat wire",
+     "spec": "Pressure switch in the hood box up to the damper, about 25 ft",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 in intake wall hood with 1/4 in screen, black",
+     "spec": "West wall over bedroom 3's attic, beside the ERV fresh air hood",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "No damper needed in the hood; the MD10TU closes the duct.",
+     "price": "About $40 to $120",
+     "status": ""
+    },
+    {
+     "item": "10 in inline duct filter box with side access door",
+     "spec": "Right after the makeup air damper",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "Broan requires a filter downstream of the damper.",
+     "price": "About $60 to $120",
+     "status": ""
+    },
+    {
+     "item": "1 in MERV 8 filters for the makeup air filter box",
+     "spec": "",
+     "qty": 2,
+     "unit": "ea",
+     "where": "",
+     "note": "One in it, one spare.",
+     "price": "About $10 each",
+     "status": ""
+    },
+    {
      "item": "Rheem water heater duct kit",
      "spec": "8 in insulated flex SP20889, elbows SP20890, outlet adaptor SP17829",
      "qty": 1,
@@ -395,6 +455,16 @@
     },
     {
      "item": "10 in round pipe, 30 ga snap lock",
+     "spec": "Range hood makeup air outdoor side, insulated",
+     "qty": 6,
+     "unit": "x 5 ft",
+     "where": "23 ft in the model",
+     "note": "Insulate with R-8 wrap or use insulated duct, vapor jacket outside",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "10 in round pipe, 30 ga snap lock",
      "spec": "Return",
      "qty": 12,
      "unit": "x 5 ft",
@@ -466,7 +536,7 @@
     {
      "item": "10 in adjustable 90 elbow",
      "spec": "",
-     "qty": 5,
+     "qty": 10,
      "unit": "ea",
      "where": "Counted from the bends in the model",
      "note": "",
@@ -880,6 +950,16 @@
      "status": ""
     },
     {
+     "item": "20 x 10 in sidewall boot x 10 in round",
+     "spec": "",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
      "item": "6 x 6 in ceiling boot x 4 in round",
      "spec": "",
      "qty": 1,
@@ -962,6 +1042,16 @@
     {
      "item": "8 x 8 in ceiling exhaust grille",
      "spec": "Exhaust",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "20 x 10 in sidewall grille",
+     "spec": "Range hood makeup air",
      "qty": 1,
      "unit": "ea",
      "where": "",
@@ -1102,7 +1192,7 @@
      "spec": "",
      "qty": 6,
      "unit": "gal",
-     "where": "About 208 joints",
+     "where": "About 223 joints",
      "note": "",
      "price": "",
      "status": ""
@@ -1140,7 +1230,7 @@
     {
      "item": "Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap",
      "spec": "Rigid every 5 ft, flex every 4 ft, rect every 4 ft",
-     "qty": 105,
+     "qty": 110,
      "unit": "hangers",
      "where": "About 3 ft of strap each",
      "note": "",
@@ -1160,7 +1250,7 @@
     {
      "item": "Duct insulation wrap, R-8 with vapor jacket",
      "spec": "ERV outdoor ducts",
-     "qty": 21,
+     "qty": 47,
      "unit": "ft",
      "where": "",
      "note": "Supply and return ducts sit inside the SIP envelope, so they do not need insulation by code",
@@ -1238,6 +1328,18 @@
    "room": "Kitchen",
    "size": "10 x 3-1/4 in",
    "ft": 1.6980541666666669,
+   "cfm": null,
+   "flex": false,
+   "crosses": 0,
+   "stacks": 0
+  },
+  {
+   "id": "mua",
+   "name": "Range hood makeup air duct",
+   "system": "Range hood makeup air",
+   "room": "Kitchen",
+   "size": "10 in round",
+   "ft": 23.237699999999997,
    "cfm": null,
    "flex": false,
    "crosses": 0,

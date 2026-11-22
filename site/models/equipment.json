@@ -2301,7 +2301,7 @@
     "notes": [
      "Picked to the video's advice (Maxwell, 11/20/2026): the SmartSense unit the video shows, so the hood runs every single time someone cooks; HVI certified airflow and noise, not 'equivalent CFM'; very quiet on normal. The video's catch: high speed is loud because 600 CFM squeezes through a small screened grille. The big hood box around it is the fix: it holds the smoke so normal speed has time to catch it.",
      "The fan sits inside the hood, so the duct ends at a plain wall cap outside. A remote exterior blower would be quieter on high, but it loses the heat sensor that makes the hood run on its own.",
-     "Ohio only requires makeup air over 400 CFM when a fuel burning appliance is inside, and this house is all electric. Still, this house is very tight, so on high crack the kitchen window, or add a makeup air damper later.",
+     "Makeup air (Maxwell, 11/21/2026): a 10 in outdoor air duct with a Broan MD10TU motorized damper opens whenever this hood pulls hard, and lets the air back in high on the kitchen wall. Ohio only requires it over 400 CFM when a fuel burning appliance is inside (1503.6), and this house is all electric, so it is there because the house is so tight, not for code. See the Makeup air damper card.",
      "Other HVI listed choices: Broan PM400SSV (450 CFM, 0.5 to 1 sone, 10 minute delay off, 6 in duct only, $564) or Broan PMA400SS (400 CFM, 1 sone, Energy Star)."
     ],
     "placement": "At the top of the hood box, centred over the cooktop, its outlet straight under the chimney."
@@ -2348,6 +2348,152 @@
      "Expect some grease film on the siding and the underside of the overhang over the years; the black trim hides it. Pick one whose louvre can be cleaned (303.6 wants 1/4 to 1/2 in openings on exhaust outlets). A cap with a fine bug screen would clog with grease."
     ],
     "placement": "West wall, high, under the rake overhang, straight out from the cooktop."
+   }
+  },
+  {
+   "id": "mua_intake",
+   "name": "Makeup air intake hood",
+   "category": "Ventilation",
+   "system": "hvac.makeup_air",
+   "room": "Exterior",
+   "layer": "mechanical",
+   "builder": "wall_cap",
+   "size": [
+    15,
+    15,
+    8
+   ],
+   "at": [
+    -0.07,
+    21.9,
+    13.575
+   ],
+   "facing": 270,
+   "info": {
+    "model": "10 in intake wall hood with a 1/4 in screen, black (ASSUMED: Broan or a Seiho/Continental style hood to match the ERV hoods)",
+    "price": "About $40 to $120",
+    "specs": [
+     [
+      "Height",
+      "Centre 14 ft 2 in up, under the rake"
+     ],
+     [
+      "Screen",
+      "1/4 to 1/2 in openings (Broan's instructions and code 303.6), no fine bug screen"
+     ],
+     [
+      "Distances",
+      "About 12 ft from the ERV exhaust hood and 25 ft from the range hood cap (10 ft required), 1 ft north of the ERV fresh air hood"
+     ]
+    ],
+    "notes": [
+     "No damper in the hood: the motorized damper inside the attic does the closing. Keep plantings and snow drifts away from it like the ERV hood beside it.",
+     "The laundry is a ventless combo, so there is no dryer vent to keep away from. Check the plumbing vents through the roof are 10 ft away, or 3 ft above it."
+    ],
+    "placement": "West wall, high, over bedroom 3's attic, just north of the ERV's fresh air hood."
+   }
+  },
+  {
+   "id": "mua_damper",
+   "name": "Makeup air damper",
+   "category": "Ventilation",
+   "system": "hvac.makeup_air",
+   "room": "Attic",
+   "layer": "ducts",
+   "builder": "zone_damper",
+   "size": [
+    10,
+    12
+   ],
+   "at": [
+    4.9,
+    32.6,
+    13.771
+   ],
+   "facing": 90,
+   "info": {
+    "model": "Broan MD10TU 10 in universal automatic makeup air damper with pressure sensor kit",
+    "price": "About $284 to $355 (Broan list $394, AJ Madison $355, 11/21/2026)",
+    "specs": [
+     [
+      "Opens",
+      "On its own when the hood runs: a pressure switch on the hood's duct senses the hood pushing air (0.05 in or more) and opens the damper; it closes when the hood stops"
+     ],
+     [
+      "In the box",
+      "Motorized damper, 24 V transformer, pressure switch, probe, 12 in of 1/4 in tubing, gasket, screws. No wall hood"
+     ],
+     [
+      "Wiring",
+      "120 V to the transformer at the damper (a junction box in the attic), and a 2 wire low voltage cable from the pressure switch at the hood up to it"
+     ],
+     [
+      "Probe",
+      "In the hood duct between the hood's own damper and the wall cap, as close to the hood as it goes; the switch within 6 ft of it, inside the hood box where it can be reached"
+     ],
+     [
+      "Install",
+      "Flap vertical when closed, airflow arrow toward the kitchen, insulated with the duct, reachable for service"
+     ]
+    ],
+    "links": [
+     [
+      "Broan MD10TU",
+      "https://broan-nutone.com/en-us/accessory/md10tu"
+     ],
+     [
+      "AJ Madison listing",
+      "https://www.ajmadison.com/cgi-bin/ajmadison/MD10TU.html"
+     ]
+    ],
+    "notes": [
+     "Picked because it works with any hood: no wire into the PM600SSV. The catch, from Broan's guide: the switch may not trip on the lowest speeds. That is fine here (low speed is well under 400 CFM), but if the damper should open on every speed, the alternative is a current sensing relay on the hood's power (for example Functional Devices RIBXGTA) driving any 10 in 24 V power open, spring close damper.",
+     "Its set screw limits how far it opens; Broan says to set it with the hood on high. Test: hood on high, damper opens; hood off, damper closes.",
+     "Reach: from the attic deck over the pantry, about 3-1/2 ft up, east of the ERV."
+    ],
+    "placement": "Attic over the pantry, on the makeup air duct just east of the ERV."
+   }
+  },
+  {
+   "id": "mua_filter",
+   "name": "Makeup air filter box",
+   "category": "Ventilation",
+   "system": "hvac.makeup_air",
+   "room": "Attic",
+   "layer": "ducts",
+   "builder": "filter_box",
+   "size": [
+    10,
+    16,
+    20
+   ],
+   "at": [
+    6.3,
+    32.6,
+    13.533
+   ],
+   "facing": 90,
+   "info": {
+    "model": "10 in inline duct filter box with a side access door, 1 in MERV 8 filter (ASSUMED: Fantech FB or similar)",
+    "price": "About $60 to $120, filters about $10",
+    "specs": [
+     [
+      "Filter",
+      "1 in pleated MERV 8, slides out the side"
+     ],
+     [
+      "Why",
+      "Broan requires a filter downstream of the damper. Keeps bugs, pollen and dust out of the kitchen"
+     ],
+     [
+      "Change",
+      "Check it each spring and fall; it only sees air when the hood runs"
+     ]
+    ],
+    "notes": [
+     "Sits right after the damper so both are serviced from one spot on the deck."
+    ],
+    "placement": "Attic over the pantry, just east of the makeup air damper."
    }
   },
   {
@@ -22567,6 +22713,104 @@
       "https://www.youtube.com/watch?v=Qs4wis82NAE"
      ]
     ]
+   }
+  },
+  {
+   "id": "mua",
+   "name": "Range hood makeup air duct",
+   "category": "Ventilation",
+   "system": "hvac.makeup_air",
+   "type": "erv",
+   "shape": "round",
+   "size": 10,
+   "room": "Kitchen",
+   "points": [
+    [
+     -0.05,
+     21.9,
+     14.2
+    ],
+    [
+     1.1417,
+     21.9,
+     14.2
+    ],
+    [
+     1.1417,
+     32.6,
+     14.2
+    ],
+    [
+     8.66,
+     32.6,
+     14.2
+    ],
+    [
+     8.66,
+     33.712666666666664,
+     14.2
+    ],
+    [
+     8.66,
+     33.712666666666664,
+     12.9
+    ],
+    [
+     8.66,
+     35.1277,
+     12.9
+    ]
+   ],
+   "grilles": [
+    {
+     "at": [
+      8.66,
+      35.179,
+      12.9
+     ],
+     "size": [
+      20,
+      10
+     ],
+     "wall": "S"
+    }
+   ],
+   "info": {
+    "model": "10 in round outdoor air duct, insulated, about 23 ft, opened by a motorized damper whenever the hood runs",
+    "specs": [
+     [
+      "Airflow",
+      "Up to about 600 CFM, matching the hood on high (Ohio code 1503.6: about equal to the exhaust)"
+     ],
+     [
+      "Duct",
+      "10 in smooth galvanized, R-8 insulation with a vapor jacket all the way (the air in it is outdoor cold), about 23 ft, 5 elbows"
+     ],
+     [
+      "Outside",
+      "10 in intake hood with a 1/4 in screen, west wall, 14 ft 2 in up, just north of the ERV's fresh air hood"
+     ],
+     [
+      "In the kitchen",
+      "20 x 10 in grille high on the clerestory wall, between the two east supply registers, about 13 ft from the hood"
+     ],
+     [
+      "Damper",
+      "Broan MD10TU, in the attic over the pantry, opens on a pressure switch on the hood duct"
+     ],
+     [
+      "Filter",
+      "Inline filter box right after the damper, MERV 8 (Broan requires a filter downstream)"
+     ]
+    ],
+    "notes": [
+     "Outdoor air for the range hood (Maxwell, 11/21/2026). The ERV cannot do this job: it is balanced, pushing out as much as it brings in, so it gives nothing back for the 600 CFM the hood can blow out. Without it, in a house this tight the hood would mostly just pull the house under suction, move far less than its rating, and could pull air backward through the ERV and the plumbing vents.",
+     "Route: in through the west wall over bedroom 3's attic, south along the wall riding on top of the ERV's intake duct and over the geothermal pipes, so the aisle west of the heat pump stays open; east over the pantry and powder room where the deck is open; down and straight through the clerestory wall into the kitchen. It stays above the attic deck the whole way, so it never passes through a floor truss (they only take about 7 in). It runs more than 2 ft from the heat pump's supply plenum, as Broan asks.",
+     "Where the air comes in: the code (1503.6.1) wants makeup air let into the same room as the hood. High on the kitchen wall, about 13 ft from the cooktop, it falls and spreads across the kitchen on its way to the hood instead of blowing on the cook. Letting it into the heat pump's return instead would warm it, but on a cold day 600 CFM of outdoor air would chill the air going into a ground source unit below what it is made for, and the blower would have to run every time someone cooks.",
+     "It is passive: nothing pushes the air, the hood pulls it in. Expect it to carry most but not all of the hood's 600 CFM on high; the house's own small leaks make up the rest. Check it at the blower door test: run the hood on high with the damper open and see how far the house goes under suction. If it is more than about 5 Pa, an inline fan can go in the straight east run later, wired to the same switch.",
+     "Cold air: on a 10 F day with the hood on high, this brings cold air into the kitchen until the hood is turned down. SmartSense runs the hood on low most of the time, and Broan's switch only opens the damper once the hood pushes 0.05 in of pressure (medium and high speeds), so on low it stays shut and the house leaks make up the little air needed. No heater is drawn. ASSUMED route and sizes."
+    ],
+    "placement": "Attic: west wall over bedroom 3, south along the wall, east over the pantry, through the clerestory wall into the kitchen."
    }
   },
   {
