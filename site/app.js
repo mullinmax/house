@@ -283,9 +283,61 @@ function applyHouseEdits(roots) {
     });
     for (const o of drop) o.removeFromParent();
     r.updateMatrixWorld(true);
+    if (/^site/i.test(r.name)) regrade(r);
     const culls = (houseMeta.cull || []).filter((c) => new RegExp('^' + (c.parts || 'furniture'), 'i').test(r.name));
     if (culls.length) cullBaked([r], [{ cull: culls }]);
   }
+}
+
+// house.json meta.grade: the ground near the buildings after the 11/22/2026 regrade (model/grade.py), as a 2 ft grid of
+// heights. The baked Terrain is too coarse round the slabs for that (long flat triangles span the garage pad), so its
+// triangles inside the grid come out and a patch on the grid goes in, with the photo UVs fitted off the baked mesh.
+function regrade(root) {
+  const G = houseMeta.grade; if (!G || !G.z) return;
+  const t = root.getObjectByName('Terrain'); if (!t || !t.isMesh || t.userData._graded) return;
+  t.userData._graded = true;
+  t.updateMatrixWorld(true);
+  const geo = t.geometry, P = geo.attributes.position, U = geo.attributes.uv, mw = t.matrixWorld, v = new THREE.Vector3();
+  const { x0, y0, step, nx, ny, z } = G, x1 = x0 + (nx - 1) * step, y1 = y0 + (ny - 1) * step;
+  // UVs: u, v = a x + b y + c, least squares over the baked vertices (plan feet)
+  const A = [[0, 0, 0], [0, 0, 0], [0, 0, 0]], bu = [0, 0, 0], bv = [0, 0, 0], inside = new Uint8Array(P.count);
+  for (let k = 0; k < P.count; k++) {
+    v.fromBufferAttribute(P, k).applyMatrix4(mw);
+    const x = v.x / F, y = v.z / F, r = [x, y, 1];
+    inside[k] = x > x0 && x < x1 && y > y0 && y < y1 ? 1 : 0;
+    if (U) for (let i = 0; i < 3; i++) { for (let j = 0; j < 3; j++) A[i][j] += r[i] * r[j]; bu[i] += r[i] * U.getX(k); bv[i] += r[i] * U.getY(k); }
+  }
+  const solve = (M, b) => {                        // 3x3 Cramer
+    const d = (m) => m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+    const D = d(M); return [0, 1, 2].map((c) => d(M.map((row, i) => row.map((e, j) => (j === c ? b[i] : e)))) / D);
+  };
+  const cu = U ? solve(A, bu) : [0, 0, 0], cv = U ? solve(A, bv) : [0, 0, 0];
+  // drop the baked triangles that lie wholly inside the patch
+  const I = geo.index, keep = [];
+  for (let k = 0; k < I.count; k += 3) {
+    const a = I.getX(k), b = I.getX(k + 1), c = I.getX(k + 2);
+    if (!(inside[a] && inside[b] && inside[c])) keep.push(a, b, c);
+  }
+  geo.setIndex(keep); geo.computeBoundingBox(); geo.computeBoundingSphere();
+  // the patch, in the Terrain mesh's own space
+  const inv = mw.clone().invert(), pos = [], uv = [], idx = [];
+  for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+    const x = x0 + i * step, y = y0 + j * step;
+    v.set(x * F, z[j][i] * F, y * F).applyMatrix4(inv); pos.push(v.x, v.y, v.z);
+    uv.push(cu[0] * x + cu[1] * y + cu[2], cv[0] * x + cv[1] * y + cv[2]);
+  }
+  for (let j = 0; j < ny - 1; j++) for (let i = 0; i < nx - 1; i++) {
+    const a = j * nx + i, b = a + 1, c = a + nx, d = c + 1;
+    idx.push(a, c, b, b, c, d);
+  }
+  const pg = new THREE.BufferGeometry();
+  pg.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  pg.setAttribute('uv', new THREE.Float32BufferAttribute(uv, 2));
+  pg.setIndex(idx); pg.computeVertexNormals();
+  if (pg.attributes.normal.getY(0) < 0) { for (let i = 0; i < idx.length; i += 3) { const q = idx[i + 1]; idx[i + 1] = idx[i + 2]; idx[i + 2] = q; } pg.setIndex(idx); pg.computeVertexNormals(); }
+  const patch = new THREE.Mesh(pg, t.material);
+  patch.name = 'Terrain_graded';
+  t.add(patch);
 }
 
 // equipment.json can take baked pieces out too: a ceiling fan's light kit replaces the room's ceiling light, whose night
