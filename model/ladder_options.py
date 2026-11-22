@@ -27,7 +27,7 @@ def rot_uz(uc, zc, deg):
 
 
 def flight(T, z0, nr, ri, go, td, w, treads=None, u_lo=-0.04, u_hi=None, leg=False, R=None, top_nosing=True, rail=None, posts=None,
-           alt=False, sdepth=1.0, stringers=True, rail_v=None, tread_v=None, top_td=None):
+           alt=False, sdepth=1.0, stringers=True, rail_v=None, tread_v=None, top_td=None, smat="White Oak", carriage=False):
     """One straight flight. Nosing k is at u = (k - 1) * go, z0 + k * ri; nosing nr is the landing edge, td - go proud of u_end."""
     top_td = TD - GO if top_td is None else top_td
     u_end = (nr - 1) * go + top_td
@@ -36,7 +36,12 @@ def flight(T, z0, nr, ri, go, td, w, treads=None, u_lo=-0.04, u_hi=None, leg=Fal
     zn = lambda u: z0 + ri + u * sl
     zt = lambda u: min(zn(u) + 0.1, z0 + nr * ri - 0.01)
     zb = lambda u: max(z0, zn(u) + 0.1 - sdepth)
-    tv = tread_v or (SW + 0.005, w - SW - 0.005)
+    # carriage (Maxwell 11/21/2026): the wall side stringer (v = w - SW) runs under the treads, its top touching each tread's back, so the
+    # treads reach the wall; the open side stringer (v = 0) rides high beside the treads, only deep enough to catch their backs, to keep headroom below
+    zt_w = lambda u: max(z0 + 0.35, min(zn(u) - td * sl - 0.12, z0 + nr * ri - 0.13))    # never thinner than a 4 in shoe at the foot
+    zb_w = lambda u: max(z0 + 0.004, zn(u) - td * sl - 0.12 - (1.2 if SW < 0.08 else 1.6))   # plumb depth: 2x10 class board (about 9 1/4 in square to the slope) or a 7 in plate
+    zb_o = lambda u: max(z0 + 0.004, zn(u) - td * sl - 0.12 - 0.1)
+    tv = tread_v or ((SW + 0.005, w - 0.005) if carriage else (SW + 0.005, w - SW - 0.005))
     for k in (treads if treads is not None else range(1, nr)):
         uk = (k - 1) * go
         v0_, v1_ = tv
@@ -49,11 +54,13 @@ def flight(T, z0, nr, ri, go, td, w, treads=None, u_lo=-0.04, u_hi=None, leg=Fal
     if stringers:
         cuts = sorted({u_lo, u_hi} | {u_ for u_ in ((z0 + sdepth - 0.1 - z0 - ri) / sl, (nr * ri - 0.01 - 0.1 - ri) / sl, u_lo + 0.3 if leg else u_lo) if u_lo < u_ < u_hi})
         for va in (0.0, w - SW):
-            for ua, uc in zip(cuts, cuts[1:]):
+            zt_, zb_ = (zt, zb) if not carriage else (zt, zb_o) if va == 0.0 else (zt_w, zb_w)
+            cuts_ = cuts if not carriage else sorted({u_lo, u_hi} | {u_ for u_ in (go * i_ for i_ in range(nr + 2)) if u_lo < u_ < u_hi})
+            for ua, uc in zip(cuts_, cuts_[1:]):
                 inleg = leg and uc <= u_lo + 0.3 + 1e-9
-                ba, bc = (z0, z0) if inleg else (zb(ua), zb(uc))
-                lhx("White Oak", T, [(ua, va, ba), (uc, va, bc), (uc, va, zt(uc)), (ua, va, zt(ua)),
-                                     (ua, va + SW, ba), (uc, va + SW, bc), (uc, va + SW, zt(uc)), (ua, va + SW, zt(ua))], R)
+                ba, bc = (z0, z0) if inleg else (zb_(ua), zb_(uc))
+                lhx(smat, T, [(ua, va, ba), (uc, va, bc), (uc, va, zt_(uc)), (ua, va, zt_(ua)),
+                                     (ua, va + SW, ba), (uc, va + SW, bc), (uc, va + SW, zt_(uc)), (ua, va + SW, zt_(ua))], R)
     if rail is not False:
         r0, r1 = rail or (0.0, u_end - top_td)
         for vc in (rail_v or (SW / 2, w - SW / 2)):
@@ -142,14 +149,30 @@ def _ladder_options():
         n_lo = int(LOFT.get("ladder_lower_risers", 5))           # risers up to the corner landing (Maxwell 11/21/2026 mockup: 4, three treads before the landing)
         wn = LOFT.get("ladder_width_in", 24.0) / 12              # 24 in overall = 20 3/8 in clear between 1 13/16 in stringers (20 in min, R311.7.12). With 4 lower risers the foot stays put and the 5 in saved widens the ladder to 29 in
         zp = n_lo * RI
-        XL = WALLX - wn - 0.1                                    # west edge of both landings and of the upper flight
+        gap = LOFT.get("ladder_wall_gap_in", 1.2) / 12           # upper flight's stringer to the bath 1 wall
+        under = LOFT.get("ladder_wall_stringer_under", False)    # Maxwell 11/21/2026: wall side stringer under the treads so they run to the wall, wall side rails on brackets 1 1/2 in off the walls
+        steel = LOFT.get("ladder_stringer_in", 1.8) < 1.0        # plate stringers (black) instead of white oak
+        sy1 = YC - gap if under else ly1                         # the lower flight also tucks against the clerestory wall
+        XL = WALLX - wn - gap                                    # west edge of both landings and of the upper flight
         ul = (n_lo - 1) * GO + (TD - GO)
         assert XL - ul >= DOOR_X, "corner ladder still crosses the door"
-        flight(lad_T(XL - ul, ly1 - wn, (1, 0)), 0.0, n_lo, RI, GO, TD, wn)
-        yl0 = ly1 - wn - 0.1
-        box("White Oak", XL, EDGE_X - 0.002, yl0, ly1 + 0.12, zp - 0.4, zp)
+        smat = "Black Metal" if steel else "White Oak"
+        RC = (1.5 + RW * 12 / 2) / 12                            # wall to rail centre for a bracket rail (R311.7.8.4: 1 1/2 in clear)
+
+        def wall_rail(T, z0, nr, w, wall_v, u_end):
+            """handrail on wall brackets for the wall side of a flight; wall_v = the wall face in the flight's v"""
+            flight(T, z0, nr, RI, GO, TD, w, treads=(), stringers=False, top_nosing=False, rail_v=(wall_v - RC,), posts=())
+            zr = lambda u: z0 + RI + u * RI / GO + HR - 0.13
+            for ub in (0.3, (u_end - (TD - GO)) / 2, u_end - (TD - GO) - 0.3):
+                lbx("Black Metal", T, ub - 0.03, ub + 0.03, wall_v - RC, wall_v, zr(ub) - 0.1, zr(ub) - 0.04)
+        wl = YC - (sy1 - wn)                                     # clerestory wall face in the lower flight's v
+        flight(lad_T(XL - ul, sy1 - wn, (1, 0)), 0.0, n_lo, RI, GO, TD, wn, smat=smat, rail_v=(SW - RW / 2,) if under else None, carriage=under)
+        if under:
+            wall_rail(lad_T(XL - ul, sy1 - wn, (1, 0)), 0.0, n_lo, wn, wl, ul)
+        yl0 = sy1 - wn - 0.1
+        box("White Oak", XL, EDGE_X - 0.002, yl0, min(sy1 + 0.12, YC - 0.002), zp - 0.4, zp)
         box("White Oak", XL, XL + 0.29, yl0, yl0 + 0.29, 0.0, zp - 0.4)
-        box("White Oak", XL, XL + 0.29, ly1 - 0.2, ly1 + 0.09, 0.0, zp - 0.4)
+        box("White Oak", XL, XL + 0.29, sy1 - 0.2, min(sy1 + 0.09, YC - 0.002), 0.0, zp - 0.4)
         n_up = NR - n_lo
         uu = (n_up - 1) * GO + (TD - GO)
         go_u, td_u = GO, TD
@@ -158,7 +181,9 @@ def _ladder_options():
             go_u = (uu - (TD - GO)) / (n_up - 1)
             td_u = go_u + 0.1
             print("stretched upper flight: going", round(go_u * 12, 2), "in, slope", round(math.degrees(math.atan(RI / go_u)), 1), "deg")
-        flight(lad_T(XL, yl0, (0, -1)), zp, n_up, RI, go_u, td_u, wn)
+        flight(lad_T(XL, yl0, (0, -1)), zp, n_up, RI, go_u, td_u, wn, smat=smat, rail_v=(SW - RW / 2,) if under else None, carriage=under)
+        if under:
+            wall_rail(lad_T(XL, yl0, (0, -1)), zp, n_up, wn, EDGE_X - XL, uu)
         yt1 = yl0 - uu
         yt0 = yt1 - wn - 0.1
         box("White Oak", XL, EDGE_X - 0.002, yt0, yt1 + 0.005, FL - 0.5, FL)
@@ -169,11 +194,11 @@ def _ladder_options():
             hexa("Black Metal", [(XL + 0.2, yb_, FL - 0.62), (XL + 0.45, yb_, FL - 0.5), (EDGE_X, yb_, FL - 2.2), (EDGE_X, yb_, FL - 2.5),
                                  (XL + 0.2, yb_ + 0.12, FL - 0.62), (XL + 0.45, yb_ + 0.12, FL - 0.5), (EDGE_X, yb_ + 0.12, FL - 2.2), (EDGE_X, yb_ + 0.12, FL - 2.5)])
         RAIL_SPAN = [(LY0 + 0.1, yt0 - 0.05), (yt1 + 0.06, LY1 - 0.1)]
-        LADDER_CLIMBS = [dict(id="loft.ladder", rect=[rnd(XL - ul), rnd(ly1 - wn), rnd(XL), rnd(ly1)], axis="x", z0=0.0, z1=rnd(zp)),
+        LADDER_CLIMBS = [dict(id="loft.ladder", rect=[rnd(XL - ul), rnd(sy1 - wn), rnd(XL), rnd(sy1)], axis="x", z0=0.0, z1=rnd(zp)),
                          dict(id="loft.ladder", rect=[rnd(XL), rnd(yt1), rnd(XL + wn), rnd(yl0)], axis="y", rev=True, z0=rnd(zp), z1=FL, pad=0.7)]
         r_lad["info"]["specs"] = [["Risers", f"{NR} at {ftin(RI)}: {n_lo} east along the south wall, {n_up} north along the bath 1 wall"],
                                   ["Treads", f"{ftin(td_u)} deep, {ftin(go_u)} nosing to nosing"], ["Angle", f"{math.degrees(math.atan(RI / go_u)):.0f}\u00b0"],
-                                  ["Clear width", ftin(wn - 2 * SW) + " between the stringers and rails (20 in min)"], ["Overall width", ftin(wn)],
+                                  ["Clear width", (f"{ftin(wn + gap - RC - RW / 2 - SW)} between the rails, {ftin(wn - SW)} treads (20 in min at and below the rails)" if under else ftin(wn - 2 * SW) + " between the stringers and rails (20 in min)")], ["Overall width", ftin(wn)],
                                   ["Corner landing", f"{ftin(zp)} up"], ["Top landing", f"{ftin(wn + 0.1)} balcony at loft level, {ftin(LY1 - yt1)} from the south wall"],
                                   ["Foot", f"{ftin(XL - ul - DOOR_X)} east of the living room opening's jamb"], ["Handrails", f"both sides, {ftin(HR)} above the nosings"]]
         r_lad["info"]["notes"] = ["Maxwell's pick 11/21/2026: the straight to code ladder stood 13 in past the living room opening.",

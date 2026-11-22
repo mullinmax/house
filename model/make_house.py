@@ -1311,7 +1311,7 @@ if LOFT["enabled"]:
     assert RI <= 9.5 / 12 + 1e-6 and GO >= 5 / 12 - 1e-6 and TD >= 8.5 / 12 - 1e-6, "ships ladder outside R311.7.12"
     SL = RI / GO                                              # slope of the nosing line
     zn = lambda x: RI + (x - lx0) * SL                       # nosing line
-    SW, RW = 0.15, 0.125                                      # stringer and handrail widths
+    SW, RW = LOFT.get("ladder_stringer_in", 1.8) / 12, 0.125   # stringer and handrail widths (corner design: ladder_stringer_in, 3/8 in for steel plate stringers)
     HR = LOFT.get("ladder_handrail_in", 32.0) / 12
     assert 2.5 <= HR <= 34 / 12 and (ly1 - ly0 - 2 * SW) * 12 >= 20, "ships ladder handrail height or width"
     DESIGN = os.environ.get("LADDER_DESIGN") or LOFT.get("ladder_design", "code")              # code | pullout | flip | lturn | side | alt: options drawn 11/21/2026 to keep the foot clear of the living room opening

@@ -78,7 +78,10 @@ ladder_design = "corner"          # Maxwell 11/21/2026: narrow ships ladder (24 
 furniture = "chest"               # loft furniture, placement ASSUMED (Maxwell 11/21/2026): loveseat on the north wall, compact wood console piano on the south wall, swivel armchair, a full size cabinet bed (Arason Creden-ZzZ, 58 x 23 x 39 in, opens to 76 in) in the south east corner, and bookshelves along the east wall framing the window with a sit on top under it. No 6 ft table (it filled the room). "sleeper" is the alternative mockup: one IKEA FRIHETEN sleeper sofa under the east window instead of the loveseat and the cabinet bed. "none" leaves the loft empty; bed_open = true draws the bed down
 ladder_risers = 13
 ladder_lower_risers = 5           # corner design: risers up to the corner landing. 4 (three treads before the landing, Maxwell's 11/21/2026 mockup) lowers the landing to 3'-1 1/8" and frees 5 in, which widens the ladder
-ladder_width_in = 24.0            # corner design: overall width, stringers included (1 13/16 in each). 24 = 20 3/8 in clear. With ladder_lower_risers = 4 the foot stays put at 29 (25 3/8 in clear)
+ladder_width_in = 24.95           # corner design: overall width, stringers included. Was 24 (20 3/8 in clear between housed stringers). 24.95 with the 1/4 in wall gap keeps the foot where it was; with ladder_wall_stringer_under and 3/8 in steel plates the treads are 24 5/8 in and the rails 21 7/8 in apart
+ladder_stringer_in = 0.375        # corner design: stringer thickness. Under 1 = black steel plates (3/8 in, Maxwell's pick 11/21/2026); 1.8 = white oak
+ladder_wall_gap_in = 0.25         # corner design: ladder edge to the bath 1 wall (and, with ladder_wall_stringer_under, to the clerestory wall)
+ladder_wall_stringer_under = true # corner design: wall side stringers under the treads (treads run to the walls), open side stringer high beside the treads for headroom, wall side rails on brackets 1 1/2 in off the walls (Maxwell 11/21/2026)
 ladder_going_in = 5.0             # nosing to nosing
 ladder_tread_in = 8.5             # each tread overlaps the next by 3.5 in; the loft edge gets a 3.5 in oak nosing over the top tread
 ladder_handrail_in = 32.0         # top of rail above the nosing line, 30 to 34 in allowed
