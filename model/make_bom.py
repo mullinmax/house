@@ -73,6 +73,10 @@ ERV_PARTS = [
     ("erv", "Broan AI Series 210 ERV, side ports (B210E75RS)", "65 to 210 CFM", 1, "About $1,580 to $1,790", ""),
     ("erv", "Broan VBATHW 20/40/60 minute boost control", "One per bathroom: bath 1, bath 2, powder", 3, "About $34 each", ""),
     ("erv", "8 in wall hood with screen, for ERV intake and exhaust", "Two hoods on the west wall, more than 10 ft apart", 2, "", "Match the maker's hood or an insulated hood."),
+]
+if "mua_intake" in ITEMS:                         # the fresh air hood is shared with the range hood makeup air and listed with it (Maxwell, 11/21/2026)
+    ERV_PARTS[2] = ("erv", "8 in wall hood with screen, for the ERV exhaust", "West wall; the fresh air hood is the shared 12 in one listed below", 1, "", "Match the maker's hood or an insulated hood.")
+ERV_PARTS += [
     ("erv", "6 to 8 in increaser", "At the ERV's four 6 in ports (ducts are 8 in)", 4, "", "Port size ASSUMED from the side port model; check Broan's drawing."),
     ("erv", "8 in backdraft damper", "In the fresh air duct to the supply plenum", 1, "", ""),
     ("erv", "Hanging chains or straps with vibration isolators (set)", "The ERV hangs level from the roof framing", 1, "", ""),
@@ -87,6 +91,19 @@ OTHER_VENT = [
     ("hood_blower", "Range hood roof blower, about 400 CFM", "Roof, over the cooktop", 1, "", ""),
     ("hood_silencer", "8 in round duct silencer (Fantech LD 8 or similar)", "In the hood chimney", 1, "", ""),
     ("ex_hood", "8 in insulated backdraft damper for the hood duct", "At the hood", 1, "", "Worth it in a house this tight."),
+    ("mua_damper", "Broan MD10TU 10 in makeup air damper with pressure sensor kit", "Range hood makeup air, attic over the pantry. Includes the 24 V transformer, pressure switch, probe and tubing", 1, "About $284 to $355", "Opens whenever the hood runs on medium or high, and starts the fan."),
+    ("mua_damper", "120 V junction box and circuit for the damper transformer", "Attic over the pantry, beside the damper", 1, "", "Electrician. Can share a general attic circuit."),
+    ("mua_damper", "18/2 thermostat wire", "Pressure switch in the hood box up to the damper, about 25 ft", 1, "", ""),
+    ("mua_fan", "10 in mixed flow inline duct fan, about 600 CFM at 0.4 in (Fantech FKD 10 XL, S&P TD-250 or similar)", "Makeup air duct, west wall run in the attic", 1, "About $300 to $500", "Speed control to trim it to the hood on high."),
+    ("mua_fan", "24 V relay, for example Functional Devices RIB2401B", "Wired across the makeup air damper: starts the fan. Not wired to the blower (Maxwell, 11/21/2026)", 1, "About $25 to $40", ""),
+    ("mua_fan", "Rubber isolation hangers for the fan", "", 1, "set", ""),
+    ("mua_backdraft", "10 in spring loaded backdraft damper, low leakage", "Makeup air duct, just before the kitchen supply duct", 1, "About $20 to $50", "Stops supply air going backward out the makeup air duct."),
+    ("mua", "10 in round top takeoff on a rectangular duct", "Makeup air into the top of the 14 x 8 kitchen supply duct", 1, "", ""),
+    ("mua", "Duct wrap insulation, R-6 with vapor jacket", "Kitchen supply duct and its three stubs, against summer sweating from humid makeup air", 1, "roll", ""),
+    ("mua_intake", "12 in intake wall hood with 1/4 in screen, louvred, black", "West wall: the ERV's fresh air hood, shared with the makeup air", 1, "About $60 to $150", "Replaces one of the ERV's two 8 in hoods. No damper in the hood."),
+    ("mua_intake", "12 x 10 x 8 in wye", "Just inside the shared intake: 8 in to the ERV, 10 in to the makeup air", 1, "", ""),
+    ("mua_filter", "16 x 25 x 4 in media filter cabinet with 10 in round collars", "Right after the makeup air damper", 1, "About $80 to $180", "Broan requires a filter downstream; MERV 13 so nothing comes in unfiltered (Maxwell, 11/21/2026)."),
+    ("mua_filter", "16 x 25 x 4 in MERV 13 filters", "Makeup air filter cabinet", 2, "About $30 to $45 each", "One in it, one spare."),
 ]
 
 
@@ -173,6 +190,8 @@ def system_of(dc):
         return "Water heater air"
     if fam["id"] == "ex_hood":
         return "Range hood"
+    if s == "hvac.makeup_air":
+        return "Range hood makeup air"
     return SYS_NAME.get(dc.get("type"), dc.get("type", "Other"))
 
 
@@ -193,7 +212,7 @@ for dc in DUCTS:
         fam_has_stack[family(dc)] = True
 
 INSULATED_FAMS = {"hpwh_intake"}                 # the Rheem kit is insulated flex
-ERV_OUTDOOR = {"erv_wall_0", "erv_wall_1"}       # outdoor side of the ERV: insulated with a vapor jacket
+ERV_OUTDOOR = {"erv_wall_0", "erv_wall_1", "mua", "fresh_air_shared"}  # outdoor air ducts (ERV outdoor side, range hood makeup air): insulated with a vapor jacket
 
 HEADS = [dc for dc in DUCTS if dc.get("stack_head")]
 for dc in DUCTS:

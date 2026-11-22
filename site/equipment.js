@@ -387,11 +387,11 @@ function ceilingFan(s, it) {
 
 const BUILD = {
   ceiling_fan: ceilingFan,
-  inline_fan(s) {                  // EC mixed flow inline duct fan: black round body along the duct (local z, air out the front), 8 in collars, mounting feet
-    const [D, L] = s, g = new THREE.Group(), R = D / 2, blk = mat('booster black', 0x202224, 0.5, 0.2);
+  inline_fan(s) {                  // EC mixed flow inline duct fan: black round body along the duct (local z, air out the front), collars (8 in unless given), mounting feet
+    const [D, L, C = 8] = s, g = new THREE.Group(), R = D / 2, blk = mat('booster black', 0x202224, 0.5, 0.2);   // C: collar size, in
     cyl(g, R, L - 4.6, blk, 0, R, L / 2, 'z', 32);
     for (const z of [1.6, L - 1.6]) cyl(g, R - 0.7, 1.4, blk, 0, R, z + (z < L / 2 ? 0.7 : -0.7), 'z', 32, R - 1.6);
-    for (const z of [0.5, L - 0.5]) cyl(g, 4.1, 1.0, galv(), 0, R, z, 'z', 24);
+    for (const z of [0.5, L - 0.5]) cyl(g, C / 2 + 0.1, 1.0, galv(), 0, R, z, 'z', 24);
     ring(g, R + 0.1, 0.25, greyPlastic(), 0, R, L * 0.62, 'z', 36);
     box(g, 3.0, 1.4, 4.0, greyPlastic(), 0, D + 0.5, L * 0.45);              // terminal box on top
     box(g, 2.6, 2.0, 1.2, darkPlastic(), -R - 0.2, R, L * 0.7);              // speed control head on the room side
@@ -403,6 +403,14 @@ const BUILD = {
     for (const z of [1.2, L - 1.2]) ring(g, r, 0.18, galv(), 0, r, z, 'z', 28);
     box(g, 2.4, 4.6, 3.6, mat('actuator grey', 0x5f6366, 0.5, 0.1), -r - 1.2, r, L / 2);
     box(g, 0.6, 1.2, 1.2, darkPlastic(), -r - 2.7, r + 1.0, L / 2);
+    return g;
+  },
+  filter_box(s) {                  // inline duct filter box or media cabinet: galvanized box along local z with round collars each end, filter door on the side (local +x)
+    const [dia, h, L, W] = s, g = new THREE.Group(), r = dia / 2 + 0.15, w = W || dia + 4, c = 2;
+    box(g, w, h, L - 2 * c, galv(), 0, h / 2, L / 2);
+    for (const z of [c / 2, L - c / 2]) cyl(g, r, c, galv(), 0, h / 2, z, 'z', 28);
+    box(g, 0.3, h - 2, 2.2, mat('filter door', 0x4a4f52, 0.6, 0.3), w / 2 + 0.15, h / 2, L / 2);      // access door with the filter behind it
+    box(g, 0.5, 0.8, 1.2, darkPlastic(), w / 2 + 0.45, h / 2, L / 2);                                 // latch
     return g;
   },
   hand_damper(s) {                 // round manual balancing damper: galvanized sleeve along local z, bead rings, quadrant and locking handle on top
