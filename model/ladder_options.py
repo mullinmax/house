@@ -139,8 +139,8 @@ def _ladder_options():
                                  (ox + 0.2, yb_ + 0.12, FL - 0.62), (ox + 0.45, yb_ + 0.12, FL - 0.5), (EDGE_X, yb_ + 0.12, FL - 2.6), (EDGE_X, yb_ + 0.12, FL - 2.9)])
         RAIL_SPAN = (yp1 + 0.06, LY1 - 0.1)
     elif DESIGN == "corner":
-        wn = 2.0                                                 # 20 3/8 in clear between 1 3/4 in stringers and rails (20 in min, R311.7.12)
-        n_lo = 5
+        n_lo = int(LOFT.get("ladder_lower_risers", 5))           # risers up to the corner landing (Maxwell 11/21/2026 mockup: 4, three treads before the landing)
+        wn = LOFT.get("ladder_width_in", 24.0) / 12              # 24 in overall = 20 3/8 in clear between 1 13/16 in stringers (20 in min, R311.7.12). With 4 lower risers the foot stays put and the 5 in saved widens the ladder to 29 in
         zp = n_lo * RI
         XL = WALLX - wn - 0.1                                    # west edge of both landings and of the upper flight
         ul = (n_lo - 1) * GO + (TD - GO)

@@ -77,6 +77,8 @@ ships_ladder = [25.828, 31.92, 31.12, 34.48]   # [x0, y0, x1, y1]: x0 is the fir
 ladder_design = "corner"          # Maxwell 11/21/2026: narrow ships ladder (24 in overall, 20 3/8 in clear) east along the south wall from just inside the living room opening's jamb, a landing in the south east corner, then north along the bath 1 wall to a balcony at loft level. "code" = the straight ladder above (its foot stood 13 in past the jamb). Other mockups in model/ladder_options.py: pullout, flip, lturn, side, winder, alt
 furniture = "chest"               # loft furniture, placement ASSUMED (Maxwell 11/21/2026): loveseat on the north wall, compact wood console piano on the south wall, swivel armchair, a full size cabinet bed (Arason Creden-ZzZ, 58 x 23 x 39 in, opens to 76 in) in the south east corner, and bookshelves along the east wall framing the window with a sit on top under it. No 6 ft table (it filled the room). "sleeper" is the alternative mockup: one IKEA FRIHETEN sleeper sofa under the east window instead of the loveseat and the cabinet bed. "none" leaves the loft empty; bed_open = true draws the bed down
 ladder_risers = 13
+ladder_lower_risers = 5           # corner design: risers up to the corner landing. 4 (three treads before the landing, Maxwell's 11/21/2026 mockup) lowers the landing to 3'-1 1/8" and frees 5 in, which widens the ladder
+ladder_width_in = 24.0            # corner design: overall width, stringers included (1 13/16 in each). 24 = 20 3/8 in clear. With ladder_lower_risers = 4 the foot stays put at 29 (25 3/8 in clear)
 ladder_going_in = 5.0             # nosing to nosing
 ladder_tread_in = 8.5             # each tread overlaps the next by 3.5 in; the loft edge gets a 3.5 in oak nosing over the top tread
 ladder_handrail_in = 32.0         # top of rail above the nosing line, 30 to 34 in allowed
@@ -591,6 +593,9 @@ items = [
   # the bath 1 wall, its south end under the ladder's upper flight. It replaces the 7 ft sofa; the rug and coffee table move west and
   # south into the L, the side table and lamp move to the couch's west arm, and the north lounge chair (where the long leg now is) goes.
   { id = "l_couch", type = "l_couch", web = true, corner = [31.06, 22.95], nl = 9.5, el = 7.5, d = 3.1 },
+  # 6 ft person on the couch's south end, back against the back cushion and shoulder at the arm: as close to the ladder as
+  # anyone can sit (Maxwell 11/21/2026, head clearance check). web = false hides it.
+  { id = "sit_test", type = "seated_person", web = true, x = 30.29, y = 29.12, facing = 270, seat = 1.45 },
   { id = "living_rug", type = "rug", x = 24.0, y = 28.5, w = 7.5, l = 9.0, facing = 270, color = "#B9AE9A", moved_from = [26.4, 27.8, 270] },
   { id = "sofa", type = "model", model = "sofa_03", x = 29.7, y = 27.8, facing = 270, len = 7.0, removed = true },
   { id = "coffee_table", type = "model", model = "modern_coffee_table_01", x = 25.0, y = 28.4, facing = 270, len = 4.0, moved_from = [26.4, 27.8, 270] },
