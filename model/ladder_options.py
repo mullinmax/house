@@ -127,6 +127,82 @@ def guard(x0, x1, y0, y1, z, h=3.0):
         box("Black Metal", cx_ - r_, cx_ + r_, cy_ - r_, cy_ + r_, z, z + h - 0.12)
 
 
+def mono_ladder(WX, WY):
+    """Centre stringer ships ladder with its landing, balcony, posts, rails and guard (11/22/2026 structure design), drawn from the same
+    geometry the CAD model and the frame analysis use. Local inches: a west of the bath 1 wall, b north of the clerestory wall, z up."""
+    sys.path.insert(0, os.path.join(HERE, "..", "tools", "ladder_drawings"))
+    import ladder_geom as G
+    ST, OAK, e = "Black Metal", "White Oak", 0.03
+    P = lambda a, b, z: (WX - a / 12, WY - b / 12, z / 12)
+    gb = lambda mat, a0, a1, b0, b1, z0, z1: box(mat, WX - a1 / 12, WX - a0 / 12, WY - b1 / 12, WY - b0 / 12, z0 / 12, z1 / 12)
+    gh = lambda mat, f, uz, v0, v1: hexa(mat, [P(*f.p(u, v0, z)) for u, z in uz] + [P(*f.p(u, v1, z)) for u, z in uz])
+    XL, ZP, FL_, TT, TK, VC, BT = G.XL, G.ZP, G.FL, G.TT, G.TK, G.VC, 0.375
+    nx, nz = math.sin(G.ANG), -math.cos(G.ANG)
+    RD2 = G.RAIL / math.cos(G.ANG)
+    for f in G.FLIGHTS:
+        gh(ST, f, [(f.u0, f.z0 + e), (f.u1, f.z0 + e), (f.u3, f.zu - e), (f.u2, f.zu - e)], VC - G.TW / 2, VC + G.TW / 2)
+        for k in range(1, f.nr):
+            uk, zk = f.uk(k), f.z0 + k * G.RI - TT
+            for sg in (-1, 1):
+                v0 = VC + sg * (G.TW / 2 + e)
+                A, B = (uk + G.WEB0, zk - BT), (uk + G.TD + G.RT, zk - BT)
+                C2, B2 = (A[0] + nx * G.LAP, max(f.zl(A[0]) + nz * G.LAP, f.z0 + BT)), (B[0] + nx * G.LAP, max(zk + nz * G.LAP, f.z0 + BT))
+                gh(ST, f, [C2, B2, B, A], v0, v0 + sg * BT)
+                gh(ST, f, [(uk + 1, zk - BT), (uk + G.TD + G.RT - e, zk - BT), (uk + G.TD + G.RT - e, zk - e), (uk + 1, zk - e)], v0, v0 + sg * G.SEAT_W)
+                if k == 1:                                   # foot flange on the slab or the landing
+                    gh(ST, f, [(C2[0], f.z0 + e), (B2[0], f.z0 + e), (B2[0], f.z0 + BT), (C2[0], f.z0 + BT)], v0, v0 + sg * G.SEAT_W)
+            gh(OAK, f, [(uk, zk), (uk + G.TD, zk), (uk + G.TD, zk + TT), (uk, zk + TT)], 0.05, G.WN - 0.05)
+            ur = uk + G.TD                                   # riser lip behind every tread: under 4 in open above it
+            gh(OAK, f, [(ur + e, zk), (ur + G.RT, zk), (ur + G.RT, zk + TT + G.RH), (ur + e, zk + TT + G.RH)], 0.05 + e, G.WN - 0.05 - e)
+        ztop = lambda u, f=f: f.zn(u) + G.HR
+        ua, ub = (0.0, G.UL - G.POST - e) if f is G.LOWER else (G.POST + XL - G.B0 + e, G.BAL_S - G.B0 - e)
+        gh(ST, f, [(ua, ztop(ua) - RD2), (ub, ztop(ub) - RD2), (ub, ztop(ub)), (ua, ztop(ua))], -1.75, -0.25)
+    ur = G.TD - G.GO
+    gh(OAK, G.UPPER, [(ur, ZP + e), (ur + G.RT, ZP + e), (ur + G.RT, ZP + G.RH), (ur, ZP + G.RH)], 0.05 + e, G.WN - 0.05 - e)
+    # lower flight foot post on its base plate, corner newel
+    fa = G.A_FOOT
+    gb(ST, fa - 1, fa + 1, XL + e, XL + G.POST, 0.375, G.LOWER.zn(G.FOOT_U) + G.HR - RD2 + 0.5)
+    gb(ST, fa - 3, fa + 3, XL - 2, XL + G.POST + 2, 0.02, 0.375)
+    gb(ST, XL + e, XL + G.POST, XL + e, XL + G.POST, 0.02, G.NEWEL_TOP)
+    # corner landing: oak deck on a tube frame
+    z0, z1 = ZP - TK, ZP - TT - e
+    gb(OAK, 0.03, XL, 0.03, G.LAND_N, ZP - TT, ZP)
+    for a0, a1, b0, b1 in ((0.05, 2, 0.05, G.LAND_N - e), (2 + e, XL - e, 0.05, 2), (XL - 2, XL - e, 2 + e, G.LAND_N - e), (2 + e, XL - 2 - e, G.B_LN - 1, G.B_LN + 1), (G.A_LH - 1, G.A_LH + 1, 2 + e, G.B_LN - 1 - e)):
+        gb(ST, a0, a1, b0, b1, z0, z1)
+    # balcony: deck, frame, north knee brace
+    z0, z1 = FL_ - TK, FL_ - TT - e
+    gb(OAK, 0.03, XL, G.BAL_S, G.BAL_N, FL_ - TT, FL_ - 0.05)
+    for a0, a1, b0, b1 in ((0.05, 2, G.BAL_S + e, G.BAL_N - e), (2 + e, XL - 2 - e, G.BAL_S + e, G.BAL_S + 2), (2 + e, XL - 2 - e, G.B_BH - 1, G.B_BH + 1), (2 + e, XL - e, G.BAL_N - 2, G.BAL_N - e), (XL - 2, XL - e, G.BAL_S + e, G.BAL_N - 2 - e)):
+        gb(ST, a0, a1, b0, b1, z0, z1)
+    r2, b = G.POST / math.sqrt(2), G.BAL_N - 1
+    hexa(ST, [P(a, bb, z) for bb in (b - 1 + e, b + 1 - e) for a, z in ((G.A_BR + 1 + r2, z0 - e), (G.A_BR + 1 - r2, z0 - e), (0.05, z0 - G.A_BR - 1 + r2), (0.05, z0 - G.A_BR - 1 - r2))])
+    # balcony south west newel with its tie under the stringer and kicker; north guard posts; guard rails and pickets
+    us = G.BAL_S + 1 - G.B0
+    zt = G.UPPER.zl(us - 0.75) - G.PL
+    gz0 = min(zt - 2.5, z0 - G.KICK - 3)
+    gb(ST, XL + e, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, gz0, G.GSW_TOP)
+    gb(ST, XL - VC - G.TW / 2, XL, G.BAL_S + 0.25, G.BAL_S + 1.75, zt - 1.5 - e, zt - e)
+    kd = 1.5 * math.sqrt(2)
+    for bs, sg in ((G.BAL_S + G.POST + e, 1), (G.BAL_N - e, -1)):
+        hexa(ST, [P(a, bb, z) for a in (XL - 1.75, XL - 0.25) for bb, z in ((bs, z0 - G.KICK), (bs, z0 - G.KICK - kd), (bs + sg * (G.KICK + kd), z0 - e), (bs + sg * G.KICK, z0 - e))])
+    gb(ST, XL - G.POST, XL - e, G.BAL_N + e, G.BAL_N + G.POST, z0 - G.KICK - 3, G.G_TOP - G.RAIL - e)
+    gb(ST, 0.05, G.POST, G.BAL_N + e, G.BAL_N + G.POST, FL_ - 13, G.G_TOP - G.RAIL - e)
+    ra, rb = (XL + 0.25, XL + 0.25 + G.RAIL), (G.GP_B - G.RAIL / 2, G.GP_B + G.RAIL / 2)
+    for zr in (G.G_TOP - G.RAIL, FL_ + 2.5):
+        top = zr > FL_ + 10
+        gb(ST, ra[0], ra[1], G.BAL_S + G.POST + e, rb[1], zr, zr + G.RAIL)
+        gb(ST, G.POST + e if not top else 0.05, XL - G.POST - e if not top else ra[0] - e, rb[0], rb[1], zr, zr + G.RAIL)
+    pz = (FL_ + 2.5 + G.RAIL + e, G.G_TOP - G.RAIL - e)
+    n_w = math.ceil((rb[0] - (G.BAL_S + G.POST)) / 4.4)
+    for i in range(1, n_w):
+        b = G.BAL_S + G.POST + i * (rb[0] - (G.BAL_S + G.POST)) / n_w
+        gb(ST, XL + 0.75, XL + 1.25, b - 0.25, b + 0.25, *pz)
+    n_n = math.ceil((XL - 2 * G.POST) / 4.4)
+    for i in range(1, n_n):
+        a = G.POST + i * (XL - 2 * G.POST) / n_n
+        gb(ST, a - 0.25, a + 0.25, G.GP_B - 0.25, G.GP_B + 0.25, *pz)
+
+
 def _ladder_options():
     global RAIL_SPAN, LADDER_CLIMBS
     W = ly1 - ly0
@@ -193,14 +269,16 @@ def _ladder_options():
         wn = LOFT.get("ladder_width_in", 24.0) / 12              # 24 in overall = 20 3/8 in clear between 1 13/16 in stringers (20 in min, R311.7.12). With 4 lower risers the foot stays put and the 5 in saved widens the ladder to 29 in
         zp = n_lo * RI
         gap = LOFT.get("ladder_wall_gap_in", 1.2) / 12           # upper flight's stringer to the bath 1 wall
-        tube = LOFT.get("ladder_stringer", "") == "tube"         # stock rectangular tube stringers under the treads, laser cut brackets (Maxwell 11/21/2026)
+        mono = LOFT.get("ladder_stringer", "") == "mono"         # one centre tube stringer, 4 in riser lips, no landing nosings (Maxwell 11/22/2026): drawn by mono_ladder() from tools/ladder_drawings/ladder_geom.py
+        nose = LOFT.get("ladder_landing_nosing_in", (TD - GO) * 12) / 12     # oak nosing past each platform's edge; 0 = the platform edge is the top nosing
+        tube = mono or LOFT.get("ladder_stringer", "") == "tube"  # stock rectangular tube stringers under the treads, laser cut brackets (Maxwell 11/21/2026)
         steel = tube or LOFT.get("ladder_stringer_in", 1.8) < 1.0    # steel stringers (black) instead of white oak
         wall_under = LOFT.get("ladder_wall_stringer_under", False)   # wall side stringer under the treads (tried 11/21/2026: no seat for the overlapping treads, dropped)
         under = wall_under or steel                              # tight to both walls, wall side rails on brackets 1 1/2 in off the walls
         car = "tube" if tube else "under" if wall_under else "side" if steel else False   # steel default: both plates beside the treads, treads on bolt on angle clips
         sy1 = YC - gap if under else ly1                         # the lower flight also tucks against the clerestory wall
         XL = WALLX - wn - gap                                    # west edge of both landings and of the upper flight
-        ul = (n_lo - 1) * GO + (TD - GO)
+        ul = (n_lo - 1) * GO + nose
         assert XL - ul >= DOOR_X, "corner ladder still crosses the door"
         smat = "Black Metal" if steel else "White Oak"
         RC = (1.5 + RW * 12 / 2) / 12                            # wall to rail centre for a bracket rail (R311.7.8.4: 1 1/2 in clear)
@@ -212,37 +290,43 @@ def _ladder_options():
             for ub in (0.3, (u_end - (TD - GO)) / 2, u_end - (TD - GO) - 0.3):
                 lbx("Black Metal", T, ub - 0.03, ub + 0.03, wall_v - RC, wall_v, zr(ub) - 0.1, zr(ub) - 0.04)
         wl = YC - (sy1 - wn)                                     # clerestory wall face in the lower flight's v
-        orv = 0.03125 if tube else SW                            # open side rail's inner face, in from the open edge
-        flight(lad_T(XL - ul, sy1 - wn, (1, 0)), 0.0, n_lo, RI, GO, TD, wn, smat=smat, rail_v=(orv - RW / 2,) if under else None, carriage=car, tuck=LOFT.get("ladder_tube_in", [2.0, 3.0])[1] / 12 + 0.12 if tube else 0.4)
+        orv = -0.25 / 12 if mono else 0.03125 if tube else SW    # open side rail's inner face, in from the open edge (mono: on posts outside it)
+        if not mono:
+          flight(lad_T(XL - ul, sy1 - wn, (1, 0)), 0.0, n_lo, RI, GO, TD, wn, smat=smat, rail_v=(orv - RW / 2,) if under else None, carriage=car, tuck=LOFT.get("ladder_tube_in", [2.0, 3.0])[1] / 12 + 0.12 if tube else 0.4)
         if under:
-            wall_rail(lad_T(XL - ul, sy1 - wn, (1, 0)), 0.0, n_lo, wn, wl, ul)
+            wall_rail(lad_T(XL - ul, sy1 - wn, (1, 0)), 0.0, n_lo, wn, wl, (n_lo - 1) * GO + TD - GO)
         yl0 = sy1 - wn - 0.1
         yln = yl0 - (0.667 if tube else 0.0)                     # tube: the landing runs 8 in further north, under the upper flight's first tread, so the upper tubes' feet stand on it
         tk = (0.12 + LOFT.get("ladder_tube_in", [2.0, 3.0])[1] / 12) if tube else None   # tube: both platforms are a 1 7/16 in oak deck on a 2 x 3 tube frame (11/22/2026 structure design)
         lt, bt = (tk, tk) if tube else (0.4, 0.5)
         pxo = 0.5625 if tube else 0.0                            # tube: west posts 6 3/4 in in from the edge, behind the lower tubes' heads tucked under the landing
-        box("White Oak", XL, EDGE_X - 0.002, yln, min(sy1 + 0.12, YC - 0.002), zp - lt, zp)
-        box("White Oak", XL + pxo, XL + pxo + 0.29, yl0, yl0 + 0.29, 0.0, zp - lt)
-        box("White Oak", XL + pxo, XL + pxo + 0.29, sy1 - 0.2, min(sy1 + 0.09, YC - 0.002), 0.0, zp - lt)
+        if not mono:
+            box("White Oak", XL, EDGE_X - 0.002, yln, min(sy1 + 0.12, YC - 0.002), zp - lt, zp)
+            box("White Oak", XL + pxo, XL + pxo + 0.29, yl0, yl0 + 0.29, 0.0, zp - lt)
+            box("White Oak", XL + pxo, XL + pxo + 0.29, sy1 - 0.2, min(sy1 + 0.09, YC - 0.002), 0.0, zp - lt)
         n_up = NR - n_lo
-        uu = (n_up - 1) * GO + (TD - GO)
+        uu = (n_up - 1) * GO + nose
         go_u, td_u = GO, TD
         if os.environ.get("LADDER_STRETCH") or LOFT.get("ladder_stretch"):   # upper flight runs to a balcony at the north end of the loft
             uu = yl0 - (22.93 + wn + 0.1)
             go_u = (uu - (TD - GO)) / (n_up - 1)
             td_u = go_u + 0.1
             print("stretched upper flight: going", round(go_u * 12, 2), "in, slope", round(math.degrees(math.atan(RI / go_u)), 1), "deg")
-        flight(lad_T(XL, yl0, (0, -1)), zp, n_up, RI, go_u, td_u, wn, smat=smat, rail_v=(orv - RW / 2,) if under else None, carriage=car, tuck=bt)
+        if not mono:
+            flight(lad_T(XL, yl0, (0, -1)), zp, n_up, RI, go_u, td_u, wn, smat=smat, rail_v=(orv - RW / 2,) if under else None, carriage=car, tuck=bt)
         if under:
-            wall_rail(lad_T(XL, yl0, (0, -1)), zp, n_up, wn, EDGE_X - XL, uu)
+            wall_rail(lad_T(XL, yl0, (0, -1)), zp, n_up, wn, EDGE_X - XL, (n_up - 1) * GO + TD - GO)
         yt1 = yl0 - uu
         yt0 = yt1 - wn - 0.1
-        box("White Oak", XL, EDGE_X - 0.002, yt0, yt1 + 0.005, FL - bt, FL)
-        guard(XL + 0.02, XL + 0.1, yt0 + 0.05, yt1 - 0.1, FL)
-        if yt0 > 23.2:
-            guard(XL + 0.1, EDGE_X - 0.05, yt0 + 0.02, yt0 + 0.1, FL)
+        if mono:
+            mono_ladder(WALLX, YC)
+        else:
+            box("White Oak", XL, EDGE_X - 0.002, yt0, yt1 + 0.005, FL - bt, FL)
+            guard(XL + 0.02, XL + 0.1, yt0 + 0.05, yt1 - 0.1, FL)
+            if yt0 > 23.2:
+                guard(XL + 0.1, EDGE_X - 0.05, yt0 + 0.02, yt0 + 0.1, FL)
         zb_ = FL - bt + 0.5
-        for yb_ in (yt0 + 0.2, yt1 - 0.2):
+        for yb_ in (() if mono else (yt0 + 0.2, yt1 - 0.2)):
             hexa("Black Metal", [(XL + 0.2, yb_, zb_ - 0.62), (XL + 0.45, yb_, zb_ - 0.5), (EDGE_X, yb_, zb_ - 2.2), (EDGE_X, yb_, zb_ - 2.5),
                                  (XL + 0.2, yb_ + 0.12, zb_ - 0.62), (XL + 0.45, yb_ + 0.12, zb_ - 0.5), (EDGE_X, yb_ + 0.12, zb_ - 2.2), (EDGE_X, yb_ + 0.12, zb_ - 2.5)])
         RAIL_SPAN = [(LY0 + 0.1, yt0 - 0.05), (yt1 + 0.06, LY1 - 0.1)]

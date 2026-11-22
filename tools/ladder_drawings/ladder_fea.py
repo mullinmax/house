@@ -25,6 +25,9 @@ SEC = dict(TUBE=("steel", 1.54, 0.932, 1.77, 1.90, 0.932, 1.18),          # HSS 
            TREAD=("oak", 8.5 * 1.44, 1.44 * 8.5 ** 3 / 12, 8.5 * 1.44 ** 3 / 12, 7.5, 1.44 * 8.5 ** 2 / 6, 8.5 * 1.44 ** 2 / 6),
            DECKL=("oak", 5.73 * 1.44, 1.44 * 5.73 ** 3 / 12, 5.73 * 1.44 ** 3 / 12, 4.8, 1.44 * 5.73 ** 2 / 6, 5.73 * 1.44 ** 2 / 6),
            DECKB=("oak", 6.3 * 1.44, 1.44 * 6.3 ** 3 / 12, 6.3 * 1.44 ** 3 / 12, 5.3, 1.44 * 6.3 ** 2 / 6, 6.3 * 1.44 ** 2 / 6),
+           STR=("steel", 3.37, 7.80, 7.80, 12.8, 3.90, 3.90) if G.MONO else ("steel", 1.54, 0.932, 1.77, 1.90, 0.932, 1.18),   # stringer: HSS 4 x 4 x 1/4, or the 3 x 2
+           BRKT2=("steel", 2.38, 10.7, 4.46, 1.0, 4.5, 1.88),              # mono: a pair of 1/4 x 4 3/4 webs, one each side of the tube
+           STRUT=("steel", 0.84, 0.235, 0.235, 0.41, 0.313, 0.313),        # mono: 1 1/2 in square tube ties from the foot post and balcony newel to the stringer
            RIGID=("link", 20.0, 20.0, 20.0, 20.0, 1e9, 1e9))
 for k_, s_ in SEC.items():
     m.add_section(k_, *s_[1:5])
@@ -59,13 +62,37 @@ def S(p, dx=True, dy=True, dz=True, what=""):
 
 
 TREADS, RAILS = {}, {}
-for f in G.FLIGHTS:
+LO, UP = G.LOWER, G.UPPER
+if G.MONO:
+    VC, SE = G.VC, G.TW / 2 + G.SEAT_W                       # centre, and the seats' outer edges each side of it
+    for f in G.FLIGHTS:
+        fn = f.name[0].upper()
+        foot, head = f.p(f.ufc, VC, f.z0), f.p(f.uhc, VC, f.zu)
+        M(f"{fn}tube_c", foot, head, "STR")
+        f.ends = dict(c=(foot, head))
+        for nm, pc, half in (("foot", foot, 4.0), ("head", head, G.TW / 2 + 0.125)):      # anchors each side of the tube resist its twist
+            u_ = f.ufc if nm == "foot" else f.uhc
+            M(f"{fn}{nm}bar", f.p(u_, VC - half, pc[2]), f.p(u_, VC + half, pc[2]), "RIGID")
+            f.ends[nm] = (f.p(u_, VC - half, pc[2]), f.p(u_, VC + half, pc[2]))
+        for k in range(1, f.nr):
+            ub = f.bolt_u(k)
+            pb, pt = f.p(ub, VC, f.zc(ub)), f.p(f.uk(k) + 4.25, VC, f.z0 + k * G.RI - G.TT / 2)
+            M(f"{fn}brkt{k}c", pb, pt, "BRKT2")
+            e = {s_: f.p(f.uk(k) + 4.25, v_, pt[2]) for s_, v_ in (("o", 0.0), ("so", VC - SE), ("sw", VC + SE), ("w", G.WN))}
+            M(f"{fn}tread{k}o", e["o"], e["so"], "TREAD")
+            M(f"{fn}seat{k}", e["so"], e["sw"], "RIGID")
+            M(f"{fn}tread{k}w", e["sw"], e["w"], "TREAD")
+            TREADS[(fn, k)] = dict(o=e["o"], w=e["w"], mid=pt, members=(f"{fn}tread{k}o", f"{fn}seat{k}", f"{fn}tread{k}w"))
+    for i in (0, 1):
+        S(LO.ends["foot"][i], what="lower stringer foot anchor (first bracket's foot flange)")
+else:
+  for f in G.FLIGHTS:
     fn = f.name[0].upper()
     ends = {}
     for side, v in (("o", f.vt[0]), ("w", f.vt[1])):
         vs = G.TW + 0.125 if side == "o" else G.WN - G.TW - 0.125          # bracket web plane
         foot, head = f.p(f.ufc, v, f.z0), f.p(f.uhc, v, f.zu)
-        M(f"{fn}tube_{side}", foot, head, "TUBE")
+        M(f"{fn}tube_{side}", foot, head, "STR")
         ends[side] = (foot, head)
         for k in range(1, f.nr):
             ub = f.bolt_u(k)
@@ -80,23 +107,23 @@ for f in G.FLIGHTS:
             N(*mid)
             M(f"{fn}tread{k}", e["o"], e["w"], "TREAD")
             TREADS[(fn_, k)]["mid"] = mid
+            TREADS[(fn_, k)]["members"] = (f"{fn}tread{k}",)
     f.ends = ends
-LO, UP = G.LOWER, G.UPPER
-# wall tabs: lag the wall side tubes to blocking (restraint normal to the wall only, so the platforms carry the weight in this model)
-for k in (2, 4):
+  # wall tabs: lag the wall side tubes to blocking (restraint normal to the wall only, so the platforms carry the weight in this model)
+  for k in (2, 4):
     S(LO.p(LO.bolt_u(k), LO.vt[1], LO.zc(LO.bolt_u(k))), True, False, False, "lower flight wall tab")
-for k in (2, 4, 6):
+  for k in (2, 4, 6):
     S(UP.p(UP.bolt_u(k), UP.vt[1], UP.zc(UP.bolt_u(k))), False, False, True, "upper flight wall tab")
-for side in "ow":
+  for side in "ow":
     S(LO.ends[side][0], what=f"lower flight foot on the slab ({'open' if side == 'o' else 'wall'} side)")
 
 # corner landing frame
 ZL, ZB, XW = G.ZLF, G.ZBF, G.XL - 1
-M("LE", (1, 1, ZL), (1, G.LAND_N - 1, ZL), "TUBE")
+M("LE", (1, 1, ZL), (1, G.B_LN, ZL), "TUBE")
 M("LS", (1, 1, ZL), (XW, 1, ZL), "TUBE")
-M("LW", (XW, 1, ZL), (XW, G.LAND_N - 1, ZL), "TUBE")
-M("LN", (1, G.LAND_N - 1, ZL), (XW, G.LAND_N - 1, ZL), "TUBE")
-M("LH", (G.A_LH, 1, ZL), (G.A_LH, G.LAND_N - 1, ZL), "TUBE", "ij")
+M("LW", (XW, 1, ZL), (XW, G.B_LN, ZL), "TUBE")
+M("LN", (1, G.B_LN, ZL), (XW, G.B_LN, ZL), "TUBE")
+M("LH", (G.A_LH, 1, ZL), (G.A_LH, G.B_LN, ZL), "TUBE", "ij")
 for b in G.LAND_LAGS["LE"]:
     S((1, b, ZL), what="landing east ledger lag")
 for a in G.LAND_LAGS["LS"]:
@@ -105,10 +132,16 @@ for i, b in enumerate(G.LAND_STRIPS):
     N(G.A_LH, b, ZL); N(10.5, b, ZL)
     M(f"Ldeck{i}", (1, b, ZL), (XW, b, ZL), "DECKL", "ij")
 # flights onto the landing
-M("Lhead_o", (G.A_LH, XW, ZL), LO.ends["o"][1], "RIGID", "J")
-M("Lhead_w", (G.A_LH, 1, ZL), LO.ends["w"][1], "RIGID", "J")
-M("Ufoot_o", (XW, G.B_UF, ZL), UP.ends["o"][0], "RIGID", "J")
-M("Ufoot_w", (1, G.B_UF, ZL), UP.ends["w"][0], "RIGID", "J")
+if G.MONO:
+    for i, nm in enumerate("ab"):
+        ph, pf = LO.ends["head"][i], UP.ends["foot"][i]
+        M(f"Lhead_{nm}", (ph[0], ph[1], ZL), ph, "RIGID", "J")
+        M(f"Ufoot_{nm}", (pf[0], pf[1], ZL), pf, "RIGID", "J")
+else:
+    M("Lhead_o", (G.A_LH, XW, ZL), LO.ends["o"][1], "RIGID", "J")
+    M("Lhead_w", (G.A_LH, 1, ZL), LO.ends["w"][1], "RIGID", "J")
+    M("Ufoot_o", (XW, G.B_UF, ZL), UP.ends["o"][0], "RIGID", "J")
+    M("Ufoot_w", (1, G.B_UF, ZL), UP.ends["w"][0], "RIGID", "J")
 
 # balcony frame, knee braces
 BS1, BN1 = G.BAL_S + 1, G.BAL_N - 1
@@ -119,14 +152,19 @@ M("BN", (1, BN1, ZB), (XW, BN1, ZB), "TUBE", "i")
 M("BW", (XW, BS1, ZB), (XW, BN1, ZB), "TUBE")
 for b in G.BAL_LAGS:
     S((1, b, ZB), what="balcony ledger bolt to the loft rim")
-for nm, b in (("BRh", G.B_BH), ("BRn", BN1)):
+for nm, b in ((("BRn", BN1),) if G.MONO else (("BRh", G.B_BH), ("BRn", BN1))):      # mono: the centre stringer's head stands where the south brace was
     M(nm, (G.A_BR, b, ZB), (1, b, ZB - G.BRACE), "POST", "i")
     S((1, b, ZB - G.BRACE), what=f"knee brace wall bracket ({'south' if nm == 'BRh' else 'north'})")
 for i, a in enumerate(G.BAL_STRIPS):
     N(a, G.B_BH, ZB); N(a, (G.B_BH + BN1) / 2, ZB)
     M(f"Bdeck{i}", (a, BS1, ZB), (a, BN1, ZB), "DECKB", "ij")
-M("Uhead_o", (XW, G.B_BH, ZB), UP.ends["o"][1], "RIGID", "J")
-M("Uhead_w", (1, G.B_BH, ZB), UP.ends["w"][1], "RIGID", "J")
+if G.MONO:
+    for i, nm in enumerate("ab"):
+        ph = UP.ends["head"][i]
+        M(f"Uhead_{nm}", (ph[0], ph[1], ZB), ph, "RIGID", "J")
+else:
+    M("Uhead_o", (XW, G.B_BH, ZB), UP.ends["o"][1], "RIGID", "J")
+    M("Uhead_w", (1, G.B_BH, ZB), UP.ends["w"][1], "RIGID", "J")
 
 # posts and rails
 PC, RD = G.PC, G.RAIL / 2 / math.cos(G.ANG)
@@ -138,14 +176,21 @@ nw = [(PC, PC, 0.0), (PC, PC, LO.zc(u_nw)), (PC, PC, ZL), (PC, PC, zr_lo(PC)), (
 S(nw[0], what="corner newel base on the slab")
 for i in range(5):
     M(f"newel{i}", nw[i], nw[i + 1], "POST")
-M("newel_tube", nw[1], (PC, XW, LO.zc(u_nw)), "RIGID")
-M("newel_LW", nw[2], (XW, PC, ZL), "RIGID")
+if not G.MONO:
+    M("newel_tube", nw[1], (PC, XW, LO.zc(u_nw)), "RIGID")
+M("newel_LW", nw[2], (XW, PC, ZL), "RIGID", "J" if G.MONO else "")       # mono: every post lap is one bolt group, taken as a pin
 # lower flight foot post and rail
 af = G.A_FOOT
-fp = [(af, PC, 0.0), (af, PC, LO.zc(G.FOOT_U)), (af, PC, zr_lo(af))]
-S(fp[0], what="foot post base on the slab")
-M("footpost0", fp[0], fp[1], "POST"); M("footpost1", fp[1], fp[2], "POST")
-M("foot_tube", fp[1], (af, XW, LO.zc(G.FOOT_U)), "RIGID")
+if G.MONO:                                          # mono: the post stands beside the first tread on a 4 anchor base plate that carries moment
+    fp = [(af, PC, 0.0), (af, PC, zr_lo(af) / 2), (af, PC, zr_lo(af))]
+    m.def_support(N(*fp[0]), True, True, True, True, True, True)
+    SUP[N(*fp[0])] = "foot post base plate on the slab (moment base)"
+    M("footpost0", fp[0], fp[1], "POST"); M("footpost1", fp[1], fp[2], "POST")
+else:
+    fp = [(af, PC, 0.0), (af, PC, LO.zc(G.FOOT_U)), (af, PC, zr_lo(af))]
+    S(fp[0], what="foot post base on the slab")
+    M("footpost0", fp[0], fp[1], "POST"); M("footpost1", fp[1], fp[2], "POST")
+    M("foot_tube", fp[1], (af, XW, LO.zc(G.FOOT_U)), "RIGID")
 tip = (G.XL + G.UL, PC, zr_lo(G.XL + G.UL))
 mid_lo = ((af + PC) / 2, PC, zr_lo((af + PC) / 2))
 N(*mid_lo)
@@ -156,16 +201,21 @@ u_sw = bsw - G.B0
 gs = [(PC, bsw, UP.zc(u_sw)), (PC, bsw, ZB), (PC, bsw, zr_up(bsw)), (PC, bsw, G.G_TOP - 0.75), (PC, bsw, G.GSW_TOP)]
 for i in range(4):
     M(f"gsw{i}", gs[i], gs[i + 1], "POST")
-M("gsw_tube", gs[0], (XW, bsw, UP.zc(u_sw)), "RIGID")
-M("gsw_BW", gs[1], (XW, bsw, ZB), "RIGID")
+M("gsw_tube", gs[0], UP.p(u_sw, G.VC, UP.zc(u_sw)), "STRUT", "ij") if G.MONO else M("gsw_tube", gs[0], (XW, bsw, UP.zc(u_sw)), "RIGID")
+M("gsw_BW", gs[1], (XW, bsw, ZB), "RIGID", "J" if G.MONO else "")
+if G.MONO:                                         # kickers under the west beam hold the two free posts north to south
+    M("gsw_kick", (PC, bsw, ZB - G.KICK), (XW, bsw + G.KICK, ZB), "STRUT", "ij")
 mid_up = (PC, (PC + bsw) / 2, zr_up((PC + bsw) / 2))
 N(*mid_up)
 M("rail_upper", nw[4], gs[2], "RAIL", "ij")
 # balcony guard
 zg = G.G_TOP - 0.75
 corner = (PC, G.GP_B, zg)
-M("gnw_BN", (XW, G.GP_B, ZB), (XW, BN1, ZB), "RIGID")
+M("gnw_BN", (XW, G.GP_B, ZB), (XW, BN1, ZB), "RIGID", "J" if G.MONO else "")
 M("gnw", (XW, G.GP_B, ZB), (XW, G.GP_B, zg), "POST")
+if G.MONO:
+    M("gnw0", (XW, G.GP_B, ZB - G.KICK), (XW, G.GP_B, ZB), "POST")
+    M("gnw_kick", (XW, G.GP_B, ZB - G.KICK), (XW, BN1 - G.KICK, ZB), "STRUT", "ij")
 ne = [(1, G.GP_B, G.FL - 11), (1, G.GP_B, G.FL - 2), (1, G.GP_B, zg)]
 S(ne[0], what="north east guard post lag (lower)"); S(ne[1], what="north east guard post lag (upper)")
 M("gne0", ne[0], ne[1], "POST"); M("gne1", ne[1], ne[2], "POST")
@@ -190,8 +240,8 @@ def node_load(case, p, a=0.0, b=0.0, z=0.0, desc=None):
 
 w_tread = 40.0 * G.GO * G.WN / 144                  # 40 psf on each tread's plan area
 for (fn, k), e in TREADS.items():
-    Ln = m.members[f"{fn}tread{k}"].L()
-    m.add_member_dist_load(f"{fn}tread{k}", "FY", -w_tread / Ln, -w_tread / Ln, case="L40")
+    for mn in e["members"]:
+        m.add_member_dist_load(mn, "FY", -w_tread / G.WN, -w_tread / G.WN, case="L40")
 for i in range(len(G.LAND_STRIPS)):
     m.add_member_dist_load(f"Ldeck{i}", "FY", -40 / 144 * 5.73 * 28.7 / 23.2, -40 / 144 * 5.73 * 28.7 / 23.2, case="L40")
 for i in range(len(G.BAL_STRIPS)):
@@ -199,11 +249,15 @@ for i in range(len(G.BAL_STRIPS)):
 CASES["L40"] = dict(desc="40 psf on every tread, the landing and the balcony at once", kind="floor", node=None)
 P = 300.0
 node_load("T_up4", TREADS[("U", 4)]["mid"], z=-P, desc="300 lb on the middle of the upper flight's 4th tread (mid flight)")
+if G.MONO:
+    node_load("T_up4w", TREADS[("U", 4)]["w"], z=-P, desc="300 lb at the wall end of the upper flight's 4th tread")
+    node_load("T_lo2e", TREADS[("L", 2)]["o"], z=-P, desc="300 lb at the open end of the lower flight's 2nd tread")
+    node_load("T_up7e", TREADS[("U", 7)]["o"], z=-P, desc="300 lb at the open end of the upper flight's top tread")
 node_load("T_up4e", TREADS[("U", 4)]["o"], z=-P, desc="300 lb at the open end of the upper flight's 4th tread")
 node_load("T_up7", TREADS[("U", 7)]["mid"], z=-P, desc="300 lb on the upper flight's top tread")
 node_load("T_lo2", TREADS[("L", 2)]["mid"], z=-P, desc="300 lb on the middle of the lower flight's 2nd tread")
 node_load("P_land", (10.5, 15.0, ZL), z=-P, desc="300 lb on the middle of the corner landing")
-node_load("P_landnw", (XW, G.LAND_N - 1, ZL), z=-P, desc="300 lb on the landing's north west corner")
+node_load("P_landnw", (XW, G.B_LN, ZL), z=-P, desc="300 lb on the landing's north west corner")
 node_load("P_bal", (14.0, (G.B_BH + BN1) / 2, ZB), z=-P, desc="300 lb on the middle of the balcony")
 node_load("P_balsw", (XW, BS1, ZB), z=-P, desc="300 lb on the balcony's south west corner (top of the ladder)")
 node_load("P_balnw", (XW, BN1, ZB), z=-P, desc="300 lb on the balcony's north west corner")
@@ -241,7 +295,7 @@ def stress(name, combo):
 GROUP = lambda n: ("stringer tubes" if "tube_" in n and n[0] in "LU" and n[1:5] == "tube" else "tread brackets" if "brkt" in n else "oak treads" if "tread" in n else
                    "oak deck" if "deck" in n else "landing frame" if n in ("LE", "LS", "LW", "LN", "LH") else "balcony frame" if n in ("BE", "BS", "BH", "BN", "BW") else
                    "knee braces" if n.startswith("BR") else "corner newel" if n.startswith("newel") and n[5:].isdigit() else "foot post" if n.startswith("footpost") else
-                   "balcony south west newel" if n.startswith("gsw") and n[3:].isdigit() else "guard posts" if n in ("gnw", "gne0", "gne1") else
+                   "balcony south west newel" if n.startswith("gsw") and n[3:].isdigit() else "guard posts" if n in ("gnw", "gnw0", "gne0", "gne1") else "ties and kickers" if MEM[n][0] == "STRUT" else
                    "handrails" if n.startswith("rail") else "guard rails" if n.startswith("grail") else None)
 res = {"cases": {}, "groups": {}, "reactions": {}, "deflection": {}}
 dead = {n: stress(n, "D")["sig"] for n in MEM if GROUP(n)}
@@ -286,16 +340,23 @@ for n in MEM:
             s = stress(n, "D+" + c)
             mem = m.members[n]
             v = max(abs(mem.max_shear("Fy", "D+" + c)), abs(mem.min_shear("Fy", "D+" + c)), s["P"])
-            bb["shear"] = max(bb["shear"], v / 2 + s["Mz"] / 4.5)          # two bolts 4.5 in apart
-            bb["tension"] = max(bb["tension"], s["My"] / 1.25 / 2)         # prying about the tube's top edge, 1.25 in lever, two bolts
+            if G.MONO:                                                     # two through bolts, a web each side: twist of the tread goes in as up and down forces in the two webs
+                bb["shear"] = max(bb["shear"], v / 2 + s["Mz"] / 4.5 + s["My"] / (G.TW + 0.25) / 2)
+                bb["seat"] = max(bb.get("seat", 0.0), s["My"])
+            else:
+                bb["shear"] = max(bb["shear"], v / 2 + s["Mz"] / 4.5)          # two bolts 4.5 in apart
+                bb["tension"] = max(bb["tension"], s["My"] / 1.25 / 2)         # prying about the tube's top edge, 1.25 in lever, two bolts
 res["bracket_bolt"] = {k: round(v) for k, v in bb.items()}
 # post laps: forces through the bolted connections of each post to the tubes and frames, and at the tube ends
-LINKS = dict(newel_tube="corner newel to lower stringer", newel_LW="corner newel to landing west beam", foot_tube="foot post to lower stringer", gsw_tube="balcony newel to upper stringer",
-             gsw_BW="balcony newel to balcony west beam", gnw_BN="north west guard post to balcony north arm", Lhead_o="lower stringer head (open side)", Lhead_w="lower stringer head (wall side)",
-             Ufoot_o="upper stringer foot (open side)", Ufoot_w="upper stringer foot (wall side)", Uhead_o="upper stringer head (open side)", Uhead_w="upper stringer head (wall side)")
+LINKS = dict(newel_LW="corner newel to landing west beam", foot_tube="foot post to lower stringer", gsw_tube="balcony newel to upper stringer",
+             gsw_BW="balcony newel to balcony west beam", gnw_BN="north west guard post to balcony north arm", **({f"{e}_{i}": f"{d} ({'north' if i == 'a' else 'south'} angle)" if e[0] == "L" else f"{d} ({'east' if i == 'b' else 'west'} side)" for e, d in (("Lhead", "lower stringer head"), ("Ufoot", "upper stringer foot"), ("Uhead", "upper stringer head")) for i in "ab"} if G.MONO else
+                dict(newel_tube="corner newel to lower stringer", Lhead_o="lower stringer head (open side)", Lhead_w="lower stringer head (wall side)",
+                     Ufoot_o="upper stringer foot (open side)", Ufoot_w="upper stringer foot (wall side)", Uhead_o="upper stringer head (open side)", Uhead_w="upper stringer head (wall side)")))
 res["links"] = {}
 for n, what in LINKS.items():
     best = dict(force=0.0, moment=0.0)
+    if n not in m.members:
+        continue
     mem = m.members[n]
     for c in CASES:
         cb = "D+" + c
@@ -329,7 +390,7 @@ for k_, v_ in res["links"].items():
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-PLOTS = [("T_up4", 40), ("P_balsw", 60), ("H_upmid", 12), ("H_gsw_w", 12), ("H_foot", 12), ("L40", 60)]
+PLOTS = [("T_up4e", 40), ("P_balsw", 60), ("H_upmid", 12), ("H_gsw_w", 12), ("H_foot", 12), ("L40", 60)]
 fig = plt.figure(figsize=(17, 11))
 fig.text(0.03, 0.96, "LOFT SHIPS LADDER: FRAME ANALYSIS, DEFLECTED SHAPES", fontsize=16, fontweight="bold")
 fig.text(0.03, 0.94, "Grey = unloaded, colour = loaded (deflection exaggerated by the factor shown). Preliminary, for an engineer's review.", fontsize=9, color="#b3261e")

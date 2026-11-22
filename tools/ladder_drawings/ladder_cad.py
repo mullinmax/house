@@ -12,9 +12,10 @@ import ladder_geom as G
 OUT = sys.argv[1] if len(sys.argv) > 1 else "."
 os.makedirs(OUT, exist_ok=True)
 T = G.WT
+BT = 0.375 if G.MONO else 0.25                     # tread bracket plate
 PARTS = []                                         # (group, name, solid, colour, material)
 STEEL, OAK = (0.13, 0.14, 0.15), (0.78, 0.62, 0.40)
-RISER_PANELS, PANEL_BACK = True, 0.75              # slide in 1/4 in wood riser panels behind each tread, held in slots in the tread brackets (Maxwell 11/22/2026: 4 in sphere rule)
+RISER_PANELS, PANEL_BACK = not G.MONO, 0.75              # slide in 1/4 in wood riser panels behind each tread, held in slots in the tread brackets (Maxwell 11/22/2026: 4 in sphere rule)
 
 
 def W(a, b, z):
@@ -63,19 +64,24 @@ def add(group, name, solid, colour=STEEL, mat="steel"):
     PARTS.append((group, name, solid, colour, mat))
 
 
+VC = G.VC
+if G.MONO:      # one centre tube; a bracket on each side of it with the seat pointing outward: (name, tube v0 or None, web v range, seat v range)
+    SIDES = (("open", VC - G.TW / 2, (VC - G.TW / 2 - BT, VC - G.TW / 2), (VC - G.TW / 2 - G.SEAT_W, VC - G.TW / 2)),
+             ("wall", None, (VC + G.TW / 2, VC + G.TW / 2 + BT), (VC + G.TW / 2, VC + G.TW / 2 + G.SEAT_W)))
+else:
+    SIDES = (("open", 0.0, (G.TW, G.TW + BT), (G.TW, G.TW + G.SEAT_W)), ("wall", G.WN - G.TW, (G.WN - G.TW - BT, G.WN - G.TW), (G.WN - G.TW - G.SEAT_W, G.WN - G.TW)))
 for f in G.FLIGHTS:
     g = f"{f.name}_flight"
-    for side, v0 in (("open", 0.0), ("wall", G.WN - G.TW)):
-        add(g, f"{f.name}_tube_{side}", slope_tube(f, f.u0, f.u2, f.zl, G.PL, v0, v0 + G.TW, T, f.z0, f.zu))
-        vw = (G.TW, G.TW + 0.25) if side == "open" else (G.WN - G.TW - 0.25, G.WN - G.TW)
-        vs = (G.TW, G.TW + 2.5) if side == "open" else (G.WN - G.TW - 2.5, G.WN - G.TW)
+    for side, v0, vw, vs in SIDES:
+        if v0 is not None:
+            add(g, f"{f.name}_stringer" if G.MONO else f"{f.name}_tube_{side}", slope_tube(f, f.u0, f.u2, f.zl, G.PL, v0, v0 + G.TW, T, f.z0, f.zu))
         nx, nz = math.sin(G.ANG), -math.cos(G.ANG)
         for k in range(1, f.nr):
             uk, zk = f.uk(k), f.z0 + k * G.RI - G.TT
-            A, B = (uk + 3.75, zk), (uk + G.TD, zk)
+            A, B = (uk + G.WEB0, zk), (uk + G.TD + G.RT, zk)
             C = (A[0], f.zl(A[0]))
-            web = [A, C, (C[0] + nx * 2.25, C[1] + nz * 2.25), (B[0] + nx * 2.25, B[1] + nz * 2.25), B]
-            zc_ = f.z0 + 0.25
+            web = [A, C, (C[0] + nx * G.LAP, C[1] + nz * G.LAP), (B[0] + nx * G.LAP, B[1] + nz * G.LAP), B]
+            zc_ = f.z0 + BT
             foot = min(z for _, z in web) < zc_
             if foot:                                                           # first tread: the web runs down to a foot flange anchored to the slab or landing
                 cl = []
@@ -86,13 +92,14 @@ for f in G.FLIGHTS:
                         t_ = (zc_ - p[1]) / (q[1] - p[1])
                         cl.append((p[0] + t_ * (q[0] - p[0]), zc_))
                 web = cl
-            br = prism(f, web, *vw).fuse(prism(f, [(uk + 1, zk - 0.25), (uk + G.TD, zk - 0.25), (uk + G.TD, zk), (uk + 1, zk)], *vs))
+            br = prism(f, web, *vw).fuse(prism(f, [(uk + 1, zk - BT), (uk + G.TD + G.RT, zk - BT), (uk + G.TD + G.RT, zk), (uk + 1, zk)], *vs))
             if foot:
                 us = [u for u, z in web if abs(z - zc_) < 1e-6]
                 br = br.fuse(prism(f, [(min(us), f.z0), (max(us), f.z0), (max(us), zc_), (min(us), zc_)], *vs))
             add(g, f"{f.name}_bracket_{k}_{side}", br)
-        vi = (G.TW, G.TW + 3.0) if side == "open" else (G.WN - G.TW - 3.0, G.WN - G.TW)      # head angles, 3 x 3 x 1/4, 4 in long (the feet are held by the first tread brackets)
-        vl = (G.TW, G.TW + 0.25) if side == "open" else (G.WN - G.TW - 0.25, G.WN - G.TW)
+        sgn = 1 if vs[0] == vw[0] else -1                                      # head angles, 3 x 3 x 1/4, 4 in long (the feet are held by the first tread brackets)
+        e0 = vw[0] if sgn > 0 else vw[1]
+        vi, vl = tuple(sorted((e0, e0 + sgn * 3.0))), tuple(sorted((e0, e0 + sgn * 0.25)))
         for nm, uc, zf, sg in (("head", (f.u2 + f.u3) / 2 - 1.0, f.zu, -1),):
             z0_, z1_ = sorted((zf, zf + sg * 0.25))
             z2_, z3_ = sorted((zf, zf + sg * 3.0))
@@ -101,6 +108,12 @@ for f in G.FLIGHTS:
     for k in range(1, f.nr):
         uk, zk = f.uk(k), f.z0 + k * G.RI
         add(g, f"{f.name}_tread_{k}", prism(f, [(uk, zk - G.TT), (uk + G.TD, zk - G.TT), (uk + G.TD, zk), (uk, zk)], 0.05, G.WN - 0.05), OAK, "oak")
+        if G.RT:                                                               # mono: an oak riser lip behind every tread leaves under 4 in open above it
+            ur = uk + G.TD
+            add(g, f"{f.name}_riser_{k}", prism(f, [(ur, zk - G.TT), (ur + G.RT, zk - G.TT), (ur + G.RT, zk + G.RH), (ur, zk + G.RH)], 0.05, G.WN - 0.05), OAK, "oak")
+    if G.RT and f is G.UPPER:                                                  # and one stands on the landing under the upper flight's first tread
+        ur = G.TD - G.GO
+        add(g, "landing_riser", prism(f, [(ur, f.z0), (ur + G.RT, f.z0), (ur + G.RT, f.z0 + G.RH), (ur, f.z0 + G.RH)], 0.05, G.WN - 0.05), OAK, "oak")
     if RISER_PANELS:
         for k in range(0 if f is G.UPPER else 1, f.nr):
             zk = f.z0 + k * G.RI
@@ -120,6 +133,8 @@ for f in G.FLIGHTS:
         post = prism(f, [(u_a, 0), (u_b, 0), (u_b, und(u_b)), (u_a, und(u_a))], -G.POST, 0.0)
         post = post.cut(prism(f, [(u_a + T, -1), (u_b - T, -1), (u_b - T, 200), (u_a + T, 200)], -G.POST + T, -T))
         add("posts", "foot_post", post)
+        if G.MONO:
+            add("posts", "foot_post_base_plate", prism(f, [(G.FOOT_U - 3, 0), (G.FOOT_U + 3, 0), (G.FOOT_U + 3, 0.375), (G.FOOT_U - 3, 0.375)], -G.POST - 2, 2).cut(prism(f, [(u_a, -1), (u_b, -1), (u_b, 1), (u_a, 1)], -G.POST, 0.0)))
     else:
         add("rails", "upper_rail_open", slope_tube(f, G.POST + G.XL - G.B0, G.BAL_S - G.B0, ztop, RD2, -1.75, -0.25, G.RAIL_T))
         add("rails", "upper_rail_wall", slope_tube(f, 0.0, G.UU - G.NOSE, ztop, RD2, G.WN + G.GAP - 3.0, G.WN + G.GAP - 1.5, G.RAIL_T))
@@ -130,9 +145,10 @@ lz = (ZP - TK, ZP - TT)
 add("landing", "landing_east_ledger", tube(0, 2, 0, G.LAND_N, *lz, "b"))
 add("landing", "landing_south_ledger", tube(2, XL, 0, 2, *lz, "a"))
 add("landing", "landing_west_beam", tube(XL - 2, XL, 2, G.LAND_N, *lz, "b"))
-add("landing", "landing_north_beam", tube(2, XL - 2, G.LAND_N - 2, G.LAND_N, *lz, "a"))
-add("landing", "landing_header", tube(G.A_LH - 1, G.A_LH + 1, 2, G.LAND_N - 2, *lz, "b"))
-add("landing", "landing_deck", box(0, XL, 0, G.LAND_N, ZP - TT, ZP).fuse(box(XL, XL + G.NOSE, G.GAP, XL, ZP - TT, ZP)), OAK, "oak")
+add("landing", "landing_north_beam", tube(2, XL - 2, G.B_LN - 1, G.B_LN + 1, *lz, "a"))
+add("landing", "landing_header", tube(G.A_LH - 1, G.A_LH + 1, 2, G.B_LN - 1, *lz, "b"))
+deck = box(0, XL, 0, G.LAND_N, ZP - TT, ZP)
+add("landing", "landing_deck", deck.fuse(box(XL, XL + G.NOSE, G.GAP, XL, ZP - TT, ZP)) if G.NOSE else deck, OAK, "oak")
 add("posts", "corner_newel", tube(XL, XL + G.POST, XL, XL + G.POST, 0, G.NEWEL_TOP, "z"))
 # balcony
 bz = (FL - TK, FL - TT)
@@ -141,15 +157,27 @@ add("balcony", "balcony_south_beam", tube(2, XL - 2, G.BAL_S, G.BAL_S + 2, *bz, 
 add("balcony", "balcony_head_arm", tube(2, XL - 2, G.B_BH - 1, G.B_BH + 1, *bz, "a"))
 add("balcony", "balcony_north_arm", tube(2, XL, G.BAL_N - 2, G.BAL_N, *bz, "a"))
 add("balcony", "balcony_west_beam", tube(XL - 2, XL, G.BAL_S, G.BAL_N - 2, *bz, "b"))
-add("balcony", "balcony_deck", box(0, XL, G.BAL_S, G.BAL_N, FL - TT, FL).fuse(box(G.GAP, XL, G.BAL_S - G.NOSE, G.BAL_S, FL - TT, FL)), OAK, "oak")
+deck = box(0, XL, G.BAL_S, G.BAL_N, FL - TT, FL)
+add("balcony", "balcony_deck", deck.fuse(box(G.GAP, XL, G.BAL_S - G.NOSE, G.BAL_S, FL - TT, FL)) if G.NOSE else deck, OAK, "oak")
 zu, r2 = FL - TK, G.POST / math.sqrt(2) * 1.0
-for nm, b in (("south", G.B_BH), ("north", G.BAL_N - 1)):
+for nm, b in ((("north", G.BAL_N - 1),) if G.MONO else (("south", G.B_BH), ("north", G.BAL_N - 1))):
     br = aprism([(G.A_BR + 1 + r2, zu), (G.A_BR + 1 - r2, zu), (0, zu - G.A_BR - 1 + r2), (0, zu - G.A_BR - 1 - r2)], b - 1, b + 1)
     add("balcony", f"knee_brace_{nm}", br)
 # balcony newel, guard posts, rails, pickets
 gsw_z0 = G.UPPER.zc(G.BAL_S + 1 - G.B0) - 4.0
+if G.MONO:      # the free posts are tied back: a tie under the stringer to the south west newel, and a kicker under the west beam for each post
+    def bprism(bz, a0, a1):
+        w = cq.Wire.makePolygon([W(a0, b, z) for b, z in bz], close=True)
+        return cq.Solid.extrudeLinear(cq.Face.makeFromWires(w), W(a1, 0, 0) - W(a0, 0, 0))
+    us_ = G.BAL_S + 1 - G.B0
+    zt_ = G.UPPER.zl(us_ - 0.75) - G.PL
+    gsw_z0 = min(zt_ - 2.5, FL - TK - G.KICK - 3)
+    add("ties", "newel_tie_to_stringer", tube(XL - VC - G.TW / 2, XL, G.BAL_S + 0.25, G.BAL_S + 1.75, zt_ - 1.5, zt_, "a", 0.125))
+    kz, kd = FL - TK, 1.5 * math.sqrt(2)
+    add("ties", "newel_kicker", bprism([(G.BAL_S + G.POST, kz - G.KICK), (G.BAL_S + G.POST, kz - G.KICK - kd), (G.BAL_S + G.POST + G.KICK + kd, kz), (G.BAL_S + G.POST + G.KICK, kz)], XL - 1.75, XL - 0.25))
+    add("ties", "guard_post_kicker", bprism([(G.BAL_N, kz - G.KICK), (G.BAL_N, kz - G.KICK - kd), (G.BAL_N - G.KICK - kd, kz), (G.BAL_N - G.KICK, kz)], XL - 1.75, XL - 0.25))
 add("posts", "balcony_sw_newel", tube(XL, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, gsw_z0, G.GSW_TOP, "z"))
-add("posts", "guard_post_nw", tube(XL - G.POST, XL, G.BAL_N, G.BAL_N + G.POST, FL - TK, G.G_TOP - G.RAIL, "z"))
+add("posts", "guard_post_nw", tube(XL - G.POST, XL, G.BAL_N, G.BAL_N + G.POST, FL - TK - (G.KICK + 3 if G.MONO else 0), G.G_TOP - G.RAIL, "z"))
 add("posts", "guard_post_ne", tube(0, G.POST, G.BAL_N, G.BAL_N + G.POST, FL - 13, G.G_TOP - G.RAIL, "z"))
 ra, rb = (XL + 0.25, XL + 0.25 + G.RAIL), (G.GP_B - G.RAIL / 2, G.GP_B + G.RAIL / 2)
 for nm, z0_ in (("top", G.G_TOP - G.RAIL), ("bottom", FL + 2.5)):
