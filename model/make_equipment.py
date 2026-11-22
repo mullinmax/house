@@ -578,7 +578,7 @@ items += [
       builder="erv", size=[21.0, 20.8, 24.8], at=[HP_CX, ERV_N, ERV_Z - 10.4 / 12], facing=180, hang=round((CFG["roof"]["north_wall_height"] + (ERV_N + 1.1) * CFG["roof"]["north_pitch"] / 12 - 0.9 - (ERV_Z + 10.4 / 12)) * 12, 1),
       info=dict(model="Broan AI Series 210 ERV, side ports (B210E75RS). Replaces the Panasonic Intelli-Balance 100 that is ERV-01 on M-10", price="About $1,580 to $1,790 (11/19/2026)",
         specs=[["Airflow", "65 to 210 CFM, self balancing. Low all the time, boost from a bathroom timer"], ["Size", "About 24.8 x 21 x 20.8 in, 47 lb, four 6 in ports"],
-               ["Ducts", "Exhaust through the west wall beside the unit, intake through the west wall 10 ft further north, both 8 in"],
+               ["Ducts", "Intake through the west wall by the pantry (shared 12 in hood with the range hood makeup air), exhaust through the west wall about 11 ft further north, both 8 in"],
                ["Stale air from", "Bath 1, bath 2 and powder exhaust grilles: 20 CFM each all the time, about 80 CFM from each shower room and 30 from the powder room on boost. Plus 20 CFM from the litter box in the utility room"],
                ["Fresh air to", "The supply plenum at the heat pump, so it reaches every room through the supply registers"], ["Mounting", "Hung level from the roof framing, its underside about 22 in above the deck"],
                ["Controls", "Runs continuously on low; a 20/40/60 minute wall control (Broan VBATHW, about $34) in each bathroom boosts it; blower interlock wire to the heat pump"]],
@@ -1202,7 +1202,7 @@ items += [
         notes=["Out the side of the house instead of through the roof (Maxwell, 11/20/2026), high on the west wall and tucked under the 12 in rake overhang, straight out from the hood.",
                "Code check (Ohio residential code 4101:8-15-01): the roof is an unvented SIP roof with no soffit vents, so nothing can draw the exhaust back in at the eave, "
                "and 1501.1 only bars discharging INTO an attic, soffit or ridge vent; a wall opening under an overhang is fine. It is about 6 ft from the kitchen door "
-               "(3 ft required from operable doors and windows), about 8-1/2 ft from the kitchen window round the corner, and about 24 ft from the ERV's outdoor air "
+               "(3 ft required from operable doors and windows), about 8-1/2 ft from the kitchen window round the corner, and about 13 ft from the ERV's outdoor air "
                "intake on the same wall (10 ft required). It blows down, away from the path to the kitchen door (303.5.2: not onto walkways).",
                "Expect some grease film on the siding and the underside of the overhang over the years; the black trim hides it. Pick one whose louvre can be cleaned "
                "(303.6 wants 1/4 to 1/2 in openings on exhaust outlets). A cap with a fine bug screen would clog with grease."],
@@ -1219,26 +1219,30 @@ if HSTYLE == "shelf_wrap" and WRAP_V == "2":
 # The ERV is balanced, so it gives nothing back for what the hood blows out. In a house this tight a 600 CFM hood would pull the whole
 # house under suction instead. A 10 in outdoor air duct, closed by a motorized damper, with an inline fan, all started by the hood:
 #   the ERV's fresh air hood on the west wall, made 12 in and shared through a wye just inside (Maxwell, 11/21/2026: no second hole;
-#   10.8 ft from the ERV exhaust hood, 24 ft from the range hood cap: both over the 10 ft 1504.3 / Broan asks for), south along the west wall on top of
-#   the ERV intake duct (fan here), east over the pantry where the deck is open (damper and filter here, easy to reach), then down
+#   10.8 ft from the ERV exhaust hood, 13.3 ft from the range hood cap: both over the 10 ft 1504.3 / Broan asks for). The fresh air hood is the south one
+#   of the two ERV holes, at the pantry (Maxwell, 11/22/2026: swap intake and exhaust so the shared intake duct is shorter), so the makeup air
+#   only steps north 1 ft and runs east over the pantry where the deck is open (fan, damper and filter here, easy to reach), then down
 #   into the top of the 14 x 8 kitchen supply duct, so it comes out of the three kitchen supply registers (Maxwell, 11/21/2026: same
 #   vents as the kitchen supply). The fan is needed because the supply duct is under pressure whenever the blower runs, and a backdraft
 #   damper at the tee keeps supply air from going out. The hood does NOT start the blower (Maxwell, 11/21/2026). Everything is above the attic deck, so no truss is crossed.
 MUA_D = 10                                         # in. 600 CFM is about 1,100 ft per minute in 10 in round
 def roof_under_n(y): return CFG["roof"]["north_wall_height"] + y * CFG["roof"]["north_pitch"] / 12 - 0.9
-MUA_Y0 = ERV_S + 2.6 - 10.8                        # shares the ERV's fresh air opening (Maxwell, 11/21/2026: no second hole in the wall); same y as OA_Y below
+MUA_Y0 = ERV_S + 2.6                               # shares the ERV's fresh air opening (Maxwell, 11/21/2026: no second hole in the wall); same y as OA_Y below.
+                                                   # The south hole, by the pantry (Maxwell, 11/22/2026: swapped with the exhaust so this duct is shorter)
+ERV_EX_Y = MUA_Y0 - 10.8                           # the ERV exhaust hood, 10.8 ft north, over bedroom 3's attic (where the fresh air hood was until 11/22/2026)
 SH_D = 12                                          # shared intake: 12 in hood and stub, about 870 ft per minute with the ERV (80) and the makeup air (600) both running
 SH_Z = 13.45                                       # centre of the shared stub through the wall, between the ERV duct (12.76) and the makeup air run (14.2)
 SH_X = WALL_X + 0.1                                # the wye, just inside the wall
 MUA_X = WALL_X + 0.6                               # along the west wall, insulated duct about 1 in off the wall
-MUA_Z = 14.2                                       # high: over the ERV intake duct (top 13.1) and the geothermal risers (12.1), so the aisle west of the heat pump stays open
-MUA_YE = 32.6                                      # east run: south of the ERV and its exhaust elbow, north of the kitchen supply duct
+MUA_Z = 14.2                                       # high: over the ERV intake duct (top 13.1), so the deck under it stays open
+MUA_YE = 32.6                                      # east run: south of the ERV, north of the kitchen supply duct, 1 ft north of the hood so the filter door faces open deck
 MUA_XK = 8.66                                      # tee into the top of the kitchen supply duct midway between the stubs to registers 2 (x 6.66) and 3 (x 10.66)
 MUA_CFM = 600
 assert roof_under_n(MUA_Y0) - MUA_Z > (MUA_D / 2 + 2) / 12, "makeup air duct hits the north roof at the intake"
-assert MUA_Y0 < 33.68 - 10 and HY - MUA_Y0 > 10, "makeup air intake within 10 ft of an exhaust outlet"
+assert MUA_Y0 - ERV_EX_Y >= 10 and HY - MUA_Y0 > 10, "fresh air intake within 10 ft of an exhaust outlet"
+assert MUA_Y0 + 17 / 24 < CFG["roof"]["clerestory_wall_y"], "shared intake hood runs past the clerestory corner"
 ducts.append(dict(id="fresh_air_shared", info_of="mua", type="erv", shape="round", size=SH_D, points=[[-0.05, MUA_Y0, SH_Z], [SH_X, MUA_Y0, SH_Z]]))
-MUA_PTS = [[SH_X, MUA_Y0, SH_Z], [MUA_X, MUA_Y0, SH_Z], [MUA_X, MUA_Y0, MUA_Z], [MUA_X, MUA_YE, MUA_Z], [MUA_XK, MUA_YE, MUA_Z],
+MUA_PTS = [[SH_X, MUA_Y0, SH_Z], [MUA_X, MUA_Y0, SH_Z], [MUA_X, MUA_Y0, MUA_Z], [MUA_X, MUA_YE, MUA_Z], [MUA_XK, MUA_YE, MUA_Z],   # 1 ft north at the wall, then east
            [MUA_XK, KY, MUA_Z], [MUA_XK, KY, KZ + 4 / 12]]
 _mua_ft = sum(math.dist(a, b) for a, b in zip(MUA_PTS, MUA_PTS[1:]))
 MUA_NOTE = ("Outdoor air for the range hood (Maxwell, 11/21/2026). The ERV cannot do this job: it is balanced, pushing out as much as it brings in, so it gives nothing back "
@@ -1253,7 +1257,7 @@ ducts.append(dict(id="mua", name="Range hood makeup air duct", category="Ventila
                ["Outside", f"Shares the ERV's fresh air opening: one {SH_D} in hood on the west wall, {ftin_(SH_Z)} up, then a wye just inside, 8 in to the ERV and {MUA_D} in to this duct"],
                ["Into", "The top of the 14 x 8 kitchen supply duct on the attic deck, between the stubs to kitchen registers 2 and 3. It comes out of the three kitchen supply registers"],
                ["Damper", "Broan MD10TU, in the attic over the pantry; its pressure switch on the hood duct starts everything"],
-               ["Fan", "10 in inline mixed flow fan on the west wall run"],
+               ["Fan", "10 in inline mixed flow fan on the east run, just off the wall"],
                ["Filter", "MERV 13, 4 in deep, in a media filter cabinet right after the damper (Maxwell, 11/21/2026: filter everything that comes in)"]],
         notes=[MUA_NOTE,
                "Same vents as the kitchen supply (Maxwell, 11/21/2026). When the hood runs on medium or high, the pressure switch opens the damper and starts the fan. "
@@ -1265,14 +1269,16 @@ ducts.append(dict(id="mua", name="Range hood makeup air duct", category="Ventila
                "Registers: with the hood on high each kitchen register carries about 330 CFM instead of 127, so they get louder while the hood runs hard (the hood is louder still). "
                "With the blower off some of the air also drifts back through the supply main and out other registers; it all stays in the house.",
                "Summer: humid outdoor air through supply ducts chilled by the air conditioning can sweat inside them. Wrap the kitchen supply duct and its three stubs in insulation.",
-               "Route: off the ERV's fresh air hood through a wye just inside the west wall (Maxwell, 11/21/2026: no second hole), south along the wall riding on top of the ERV's intake duct and over the geothermal pipes, so the aisle "
-               "west of the heat pump stays open; east over the pantry and powder room where the deck is open; down into the top of the kitchen duct. It stays above the attic "
-               "deck the whole way, so it never passes through a floor truss. It runs more than 2 ft from the heat pump's supply plenum, as Broan asks. ASSUMED route and sizes."],
-        placement="Attic: from the shared fresh air hood on the west wall, south along the wall, east over the pantry, down into the kitchen supply duct.")))
-MUA_DX = 4.9                                       # damper on the east run, just east of the ERV exhaust elbow (x 3.8), over open deck
+               "Route: off the ERV's fresh air hood through a wye just inside the west wall (Maxwell, 11/21/2026: no second hole), up over the ERV's intake duct, 1 ft north, "
+               "then east over the pantry and powder room where the deck is open; down into the top of the kitchen duct. It stays above the attic "
+               "deck the whole way, so it never passes through a floor truss. It runs more than 2 ft from the heat pump's supply plenum, as Broan asks. ASSUMED route and sizes.",
+               "Shorter since 11/22/2026 (Maxwell): the ERV's two wall holes were swapped so the shared fresh air hood is the south one, by the pantry. "
+               "This duct used to start at the north hole and run about 10 ft back south along the west wall; it is now about 8-1/2 ft shorter (about 15 ft instead of 23). The ERV exhaust takes over the long run along the wall; slope it slightly down toward its hood so any condensate drains out."],
+        placement="Attic: from the shared fresh air hood on the west wall by the pantry, east over the pantry, down into the kitchen supply duct.")))
+MUA_DX = 4.9                                       # damper on the east run, just east of the ERV intake elbow (x 3.8), over open deck
 MUA_FX = 6.6                                       # MERV 13 media cabinet after it
 MUA_FAN = [13.5, 20, MUA_D]                        # 10 in mixed flow inline fan, about 13-1/2 in body, 20 in long
-MUA_FANY = 25.2                                    # on the west wall run, beside the heat pump, before the damper
+MUA_FANX = 1.75                                    # on the east run just off the wall, before the damper (was on the west wall run until 11/22/2026)
 items += [
  dict(id="mua_intake", name="Fresh air intake hood (ERV and makeup air)", category="Ventilation", system="hvac.makeup_air", room="Exterior", layer="mechanical",
       builder="wall_cap", size=[17, 17, 9], at=[-0.07, MUA_Y0, round(SH_Z - 17 / 24, 3)], facing=270,
@@ -1281,23 +1287,26 @@ items += [
         specs=[["Serves", f"Both the ERV's fresh air (8 in) and the range hood makeup air ({MUA_D} in), split by a {SH_D} x {MUA_D} x 8 in wye just inside the wall"],
                ["Height", f"Centre {ftin_(SH_Z)} up"], ["Screen", "1/4 to 1/2 in openings (Broan's instructions and code 303.6), no fine bug screen"],
                ["Airflow", f"About 80 CFM normally (ERV), about 680 CFM with the hood on high: about 870 ft per minute through the {SH_D} in collar"],
-               ["Distances", f"About {33.68 - MUA_Y0:.0f} ft from the ERV exhaust hood and {HY - MUA_Y0:.0f} ft from the range hood cap (10 ft required)"]],
+               ["Distances", f"About {MUA_Y0 - ERV_EX_Y:.1f} ft from the ERV exhaust hood and {HY - MUA_Y0:.1f} ft from the range hood cap (10 ft required)"]],
         notes=["One hole in the wall for both (Maxwell, 11/21/2026). It replaces the ERV's own 8 in fresh air hood, so the wall still has just the two ERV hoods plus the range hood cap.",
                "Sized up to 12 in so the makeup air fan does not starve the ERV: with both running, the hood and screen cost about 0.06 in of extra suction at the wye, "
                "which may trim the ERV's fresh air a few CFM while the range hood runs hard. An 8 in shared hood would be far too small for 680 CFM (about 1,950 ft per minute, loud, and it would pull rain in).",
                "A louvred face with a generous drip edge keeps rain and snow out at the higher flow. No damper in the hood: the ERV runs all the time, and the makeup air duct has its own motorized damper.",
-               "The laundry is a ventless combo, so there is no dryer vent to keep away from. Check the plumbing vents through the roof are 10 ft away, or 3 ft above it."],
-        placement="West wall, high, over the utility room's attic: the ERV's fresh air hood, now shared with the makeup air.")),
+               "The laundry is a ventless combo, so there is no dryer vent to keep away from. Plumbing vents through the roof: the north roof is about 5 ft or more above this hood "
+               "anywhere within 10 ft of it, so a vent there is well over the 2 ft above an intake the code asks for; still keep them off the west end of the roof if the plumber can.",
+               "Swapped with the ERV exhaust hole on 11/22/2026 (Maxwell) so the shared intake duct is shorter. It is now the south of the two ERV holes, by the pantry, "
+               "about 4 ft north of the kitchen door and 5 ft above its head (intakes have no door clearance rule; exhausts need 3 ft)."],
+        placement="West wall, high, over the pantry's attic: the ERV's fresh air hood, shared with the makeup air.")),
  dict(id="mua_fan", name="Makeup air fan", category="Ventilation", system="hvac.makeup_air", room="Attic", layer="ducts",
-      builder="inline_fan", size=MUA_FAN, at=[MUA_X, MUA_FANY - MUA_FAN[1] / 24, round(MUA_Z - MUA_FAN[0] / 24, 3)], facing=180,
+      builder="inline_fan", size=MUA_FAN, at=[MUA_FANX, MUA_YE, round(MUA_Z - MUA_FAN[0] / 24, 3)], facing=90,
       info=dict(model="10 in mixed flow inline duct fan, about 600 CFM at 0.4 in of pressure (ASSUMED class: Fantech FKD 10 XL, S&P TD-250 or similar)", price="About $300 to $500",
         specs=[["Airflow", "About 600 CFM against the duct, filter and kitchen supply duct pressure, so it matches the hood on high"],
                ["Runs", "Only while the hood runs on medium or high, started through a 24 V relay off the damper's transformer. Never the blower"],
                ["Power", "120 V from a junction box in the attic, the same one as the damper's transformer"],
-               ["Where", "West wall run, beside the heat pump, before the damper; hung on rubber isolators"]],
+               ["Where", "East run over the pantry, just off the west wall, before the damper; hung on rubber isolators"]],
         notes=["Needed because the makeup air goes into the kitchen supply duct (Maxwell, 11/21/2026): that duct is under pressure whenever the blower runs, so passive air could not get in.",
                "A speed control lets the installer trim it to match the hood on high during the blower door test, so the house ends up close to neutral."],
-        placement="Attic, on the makeup air duct along the west wall, beside the heat pump.")),
+        placement="Attic over the pantry, on the makeup air duct just off the west wall.")),
  dict(id="mua_damper", name="Makeup air damper", category="Ventilation", system="hvac.makeup_air", room="Attic", layer="ducts",
       builder="zone_damper", size=[MUA_D, 12], at=[MUA_DX, MUA_YE, round(MUA_Z - (MUA_D / 2 + 0.15) / 12, 3)], facing=90,
       info=dict(model="Broan MD10TU 10 in universal automatic makeup air damper with pressure sensor kit", price="About $284 to $355 (Broan list $394, AJ Madison $355, 11/21/2026)",
@@ -1340,17 +1349,20 @@ items += [
 # ERV ducts. The unit is drawn with two 6 in ports on each end (the Broan side port layout, ASSUMED): outdoor air and exhaust air on the wall end,
 # stale air in and fresh air out on the room end. The unit lies with its long side east-west so the wall end meets the west wall.
 # Outdoor side (Panasonic: 2 to 3 ft straight off each adapter, insulated ducts, separate hoods at least 10 ft apart).
-# The exhaust runs 2.6 ft straight south, then turns west and out through the wall. The intake turns west as soon as it
-# leaves the unit, meets the wall and runs level north along it, at the ERV's own height, to a hood 10 ft 10 in north of the
-# exhaust hood (Maxwell, 11/18/2026: no more climbing to the roof and following it back down). It passes just over the
-# geothermal risers and sits against the wall above the heat pump cabinet's height, so the floor of the service aisle stays open.
-OA_Y = ERV_S + 2.6 - 10.8
+# Swapped 11/22/2026 (Maxwell: the shared intake was going to the far hole). The intake now leaves the east adapter, runs
+# 2.6 ft straight south, then turns west to the shared fresh air hood by the pantry. The exhaust leaves the west adapter, turns
+# west as soon as it leaves the unit, meets the wall and runs level north along it, at the ERV's own height, to a hood 10 ft
+# 10 in north of the intake (Maxwell, 11/18/2026: no climbing to the roof). It passes just over the geothermal risers and sits
+# against the wall above the heat pump cabinet's height, so the floor of the service aisle stays open. Outdoor air in on the east
+# adapter and fresh air out on the west one is the diagonal path a cross flow core gives; ASSUMED, check Broan's port drawing.
+# If Broan's outdoor port is on the west side instead, the two 8 in ducts cross once just south of the unit (there is room).
+OA_Y = MUA_Y0                                     # the shared fresh air hood
 OA_X = 0.85                                       # centre of the run along the west wall
 assert HY - OA_Y >= 10, "ERV intake within 10 ft of the range hood outlet (4101:8-15-01 1504.3)"
 ducts.append(dict(id="erv_wall_0", info_of="erv", type="erv", shape="round", size=8,
-                  points=[[ERV_XF, ERV_S, ERV_Z], [ERV_XF, ERV_S + 0.6, ERV_Z], [OA_X, ERV_S + 0.6, ERV_Z], [OA_X, OA_Y, ERV_Z], [OA_X, OA_Y, SH_Z], [SH_X, OA_Y, SH_Z]]))   # up into the wye of the shared hood (makeup air)
+                  points=[[ERV_XS, ERV_S, ERV_Z], [ERV_XS, OA_Y, ERV_Z], [OA_X, OA_Y, ERV_Z], [OA_X, OA_Y, SH_Z], [SH_X, OA_Y, SH_Z]]))   # up into the wye of the shared hood (makeup air)
 ducts.append(dict(id="erv_wall_1", info_of="erv", type="erv", shape="round", size=8,
-                  points=[[ERV_XS, ERV_S, ERV_Z], [ERV_XS, ERV_S + 2.6, ERV_Z], [-0.05, ERV_S + 2.6, ERV_Z]]))
+                  points=[[ERV_XF, ERV_S, ERV_Z], [ERV_XF, ERV_S + 0.6, ERV_Z], [OA_X, ERV_S + 0.6, ERV_Z], [OA_X, ERV_EX_Y, ERV_Z], [-0.05, ERV_EX_Y, ERV_Z]]))
 # Fresh air leaves the room end, runs over the top of the heat pump beside the exhaust main, and drops into the supply plenum
 # through a backdraft damper.
 ducts.append(dict(id="erv_to_supply", info_of="erv", type="erv", shape="round", size=8,
