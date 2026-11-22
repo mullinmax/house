@@ -31,7 +31,11 @@ GO = L["ladder_going_in"]
 TD = L["ladder_tread_in"]
 NOS = TD - GO                      # tread overlap / loft edge nosing
 HR = L["ladder_handrail_in"]
-SW, RW = 0.15 * 12, 0.125 * 12     # stringer and handrail widths in the model
+SW, RW = L.get("ladder_stringer_in", 1.8), 0.125 * 12   # stringer and handrail widths in the model
+UNDER = L.get("ladder_wall_stringer_under", False)     # wall side stringer under full width treads, open side stringer high, wall rails on brackets
+STEEL_S = SW < 1.0                                      # steel plate stringers
+GAP = L.get("ladder_wall_gap_in", 1.2)                  # ladder edge to the walls
+RC = 1.5 + RW / 2                                       # wall face to a bracket rail centre (1 1/2" clear)
 RH_T = 0.13 * 12                   # handrail depth in the model
 TT = 0.12 * 12                     # tread thickness in the model
 STR_D = 12.0                       # stringer depth measured plumb
@@ -39,10 +43,10 @@ WN = L.get("ladder_width_in", 24.0)  # overall ladder width ("corner": wn)
 N_LO = int(L.get("ladder_lower_risers", 5))
 wnf = WN / 12
 N_UP = NR - N_LO
-ly1 = L["ships_ladder"][3]
+ly1 = (YC - GAP / 12) if UNDER else L["ships_ladder"][3]   # south edge of the lower flight (ladder_options sy1)
 DOOR_X = [p for p in C["clerestory"]["passages"] if p[0] < 26 < p[1] + 1][0]
 WALL = EDGE_X - 0.01
-XLf = WALL - wnf - 0.1
+XLf = WALL - wnf - GAP / 12
 X = lambda xf: (xf - EDGE_X) * 12
 Y = lambda yf: (YC - yf) * 12
 X_XL = X(XLf)                                        # west edge of the upper flight and both landings
@@ -51,13 +55,18 @@ X_FOOT = X_XL - UL                                   # first nosing of the lower
 X_JAMB = X(DOOR_X[1])                                # living room opening, east jamb
 X_JAMB_W = X(DOOR_X[0])
 Y_LO0, Y_LO1 = Y(ly1), Y(ly1 - wnf)                  # lower flight band (south, north edge)
-Y_LD0, Y_LD1 = Y(ly1 + 0.12), Y(ly1 - wnf - 0.1)           # corner landing
+Y_LD0, Y_LD1 = Y(min(ly1 + 0.12, YC - 0.002)), Y(ly1 - wnf - 0.1)           # corner landing
 Z_LD = N_LO * RI
 UU = (N_UP - 1) * GO + NOS
 Y_BAL0 = Y_LD1 + UU                                  # balcony south edge (top riser line)
 Y_BAL1 = Y_BAL0 + WN + 1.2                               # yt0 = yt1 - wn - 0.1
 X_UP0, X_UP1 = X_XL, X_XL + WN
 yt1f, yt0f = YC - Y_BAL0 / 12, YC - Y_BAL1 / 12
+OPEN_RV = SW - RW / 2 if UNDER else SW / 2              # open side rail centre, in from the open edge
+LO_RAILS = (Y_LO1 - OPEN_RV, RC if UNDER else Y_LO0 + SW / 2)
+UP_RAILS = (X_UP0 + OPEN_RV, -RC if UNDER else X_UP1 - SW / 2)
+CLEAR = (WN + GAP - RC - RW / 2 - SW) if UNDER else WN - 2 * SW     # between rails (and stringers)
+TREAD_W = WN - SW if UNDER else WN - 2 * SW
 yl0f = ly1 - wnf - 0.1
 RAIL_GAP = (Y(yt1f + 0.06), Y(yt0f - 0.05))
 PERSON = next((f for f in C["furnishings"]["items"] if f.get("type") == "seated_person" and f.get("web")), None) if isinstance(C.get("furnishings"), dict) and "items" in C["furnishings"] else None
@@ -81,7 +90,7 @@ def overhead(hx, hy, r, crown):
                 continue
             Xi, Yi = X(x), Y(y)
             zs = []
-            if X_UP0 + SW <= Xi <= X_UP1 - SW:
+            if X_UP0 + SW <= Xi <= X_UP1 - (0 if UNDER else SW):
                 for k in range(1, N_UP):
                     y0 = Y_LD1 + (k - 1) * GO
                     if y0 <= Yi <= min(y0 + TD, Y_BAL0):
@@ -137,9 +146,20 @@ plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 7})
 W_, H_ = 17.0, 11.0
 SHEETS = []
 COS = math.cos(math.radians(ANG))
-SD_P = 11.25                              # stringer board drawn (2x12 class), see field note
-STR_PLUMB = SD_P / COS                    # its depth measured plumb
 STR_TOP = 1.2                             # stringer top above the nosing line, plumb (model)
+DROP = TD * RI / GO                       # nosing line above a tread's back, plumb
+if UNDER:                                 # as ladder_options.flight(carriage=True) builds them
+    STR_PLUMB = STR_TOP + DROP + TT + 1.2                 # open side plate: down to just under the tread backs
+    SD_P = STR_PLUMB * COS                                # its depth square to the slope
+    W_TOP = -(DROP + TT)                                  # wall side plate: top touches each tread's back
+    W_PLUMB = (1.2 if STEEL_S else 1.6) * 12
+    W_SHOE = 0.35 * 12                                    # level shoe at the foot
+    WD_P = W_PLUMB * COS
+else:
+    SD_P = 11.25                          # stringer board drawn (2x12 class), see field note
+    STR_PLUMB = SD_P / COS                # its depth measured plumb
+S_MAT = "3/8\" black steel plate" if STEEL_S else f"{fin(SW)} white oak"
+S_FC = "#3a3a3a" if STEEL_S else OAK
 
 
 def scaled_axes(fig, left, bottom, xr, yr, den):
@@ -291,15 +311,20 @@ def nosing_z(z0, u):
     return z0 + RI + u * RI / GO
 
 
-def stringer_poly(mapu, u0, u1, z0, ztop):
-    zt = lambda u: min(nosing_z(z0, u) + STR_TOP, ztop)
-    zb = lambda u: max(z0, nosing_z(z0, u) + STR_TOP - STR_PLUMB)
+def stringer_poly(mapu, u0, u1, z0, ztop, top=STR_TOP, plumb=None, shoe=0.0):
+    plumb = STR_PLUMB if plumb is None else plumb
+    zt = lambda u: max(z0 + shoe, min(nosing_z(z0, u) + top, ztop))
+    zb = lambda u: max(z0, nosing_z(z0, u) + top - plumb)
     us = [u0 + (u1 - u0) * i / 300 for i in range(301)]
     return [(mapu(u), zt(u)) for u in us] + [(mapu(u), zb(u)) for u in reversed(us)]
 
 
 def flight_profile(ax, mapu, z0, nr, ztop, u_end, rail=True, landing_nosing=True):
-    poly(ax, stringer_poly(mapu, -0.5, u_end, z0, ztop), fc=OAK, ec=INK, lw=0.7, z=2)
+    if UNDER:   # beyond the cut: the wall side plate under the treads; the open side plate (cut away) dashed
+        poly(ax, stringer_poly(mapu, -12, u_end, z0, ztop - 1.56, W_TOP, W_PLUMB, W_SHOE), fc=S_FC, ec=INK, lw=0.7, z=2)
+        poly(ax, stringer_poly(mapu, -0.5, u_end, z0, ztop), fc="none", ec=INK, lw=0.6, ls=(0, (4, 2)), z=7)
+    else:
+        poly(ax, stringer_poly(mapu, -0.5, u_end, z0, ztop), fc=OAK, ec=INK, lw=0.7, z=2)
     for k in range(1, nr):
         uk = (k - 1) * GO
         zk = z0 + k * RI
@@ -313,6 +338,11 @@ def flight_profile(ax, mapu, z0, nr, ztop, u_end, rail=True, landing_nosing=True
         r0, r1 = 0.0, u_end - NOS
         zr = lambda u: nosing_z(z0, u) + HR
         poly(ax, [(mapu(r0), zr(r0)), (mapu(r1), zr(r1)), (mapu(r1), zr(r1) - RH_T), (mapu(r0), zr(r0) - RH_T)], fc=STEEL, ec=INK, lw=0.4, z=6)
+        if UNDER:   # wall rail on brackets
+            for ub in (3.6, (r1 - r0) / 2, r1 - 3.6):
+                h0, h1 = mapu(ub - 0.36), mapu(ub + 0.36)
+                rect(ax, min(h0, h1), zr(ub) - RH_T - 1.2, max(h0, h1), zr(ub) - RH_T, fc=STEEL, ec=INK, lw=0.3, z=6)
+            return
         for up in (r0 + 0.6, r1 - 0.6):
             zb_ = min(nosing_z(z0, up) + STR_TOP, ztop)
             h0, h1 = mapu(up - 0.6), mapu(up + 0.6)
@@ -327,7 +357,7 @@ WALLSTYLE = dict(fc="#d4d4d4", ec=INK, lw=1.0, hatch="////", z=1)
 CUTSTYLE = dict(fc="#ead6a8", ec=INK, lw=0.9, hatch="xxx", z=3)
 HEAD_BAL = roof_under(Y_BAL1) - FL
 HEAD_TOP = roof_under(Y_BAL0 - NOS) - FL
-RAIL_CLR_UP = -(X_UP1 - SW / 2 + RW / 2)            # upper flight east rail to the bath 1 wall
+RAIL_CLR_UP = 1.5 if UNDER else -(X_UP1 - SW / 2 + RW / 2)            # upper flight east rail to the bath 1 wall
 RAIL_CLR_LO = Y_LO0 + SW / 2 - RW / 2               # lower flight south rail to the clerestory wall
 
 # ================================================================ L-1 PLAN
@@ -353,31 +383,46 @@ if PERSON:
     rect(ax, X(PERSON["x"] - 2.0), Y(PERSON["y"] + 0.8), X(PERSON["x"]), Y(PERSON["y"] - 0.8), fc="none", ec="#3B5A80", lw=0.7, ls=(0, (2, 1.5)), z=9)
     ax.add_patch(plt.Circle((X(P_HX), Y(P_HY)), 0.31 * 12, fc="none", ec="#3B5A80", lw=0.8, ls=(0, (2, 1.5)), zorder=9))
 # lower flight
-for y0_, y1_ in ((Y_LO0, Y_LO0 + SW), (Y_LO1 - SW, Y_LO1)):
-    rect(ax, X_FOOT - 0.48, y0_, X_XL, y1_, fc=OAK, ec=INK, lw=0.6, z=3)
+LO_T = (Y_LO0 - 0.06, Y_LO1 - SW) if UNDER else (Y_LO0 + SW, Y_LO1 - SW)      # tread band
+if UNDER:
+    rect(ax, X_FOOT - 0.48, Y_LO1 - SW, X_XL, Y_LO1, fc=S_FC, ec=INK, lw=0.6, z=3)
+    rect(ax, X_FOOT + 1.2, Y_LO0 - SW, X_XL, Y_LO0, fc="none", ec=INK, lw=0.5, ls=(0, (3, 2)), z=6)   # wall plate below the treads
+else:
+    for y0_, y1_ in ((Y_LO0, Y_LO0 + SW), (Y_LO1 - SW, Y_LO1)):
+        rect(ax, X_FOOT - 0.48, y0_, X_XL, y1_, fc=OAK, ec=INK, lw=0.6, z=3)
 for k in range(1, N_LO):
     x0 = X_FOOT + (k - 1) * GO
-    rect(ax, x0, Y_LO0 + SW, min(x0 + TD, X_XL), Y_LO1 - SW, fc=TREAD if k % 2 else "#e8d2a4", ec=INK, lw=0.5, z=2 + k * 0.01)
+    rect(ax, x0, LO_T[0], min(x0 + TD, X_XL), LO_T[1], fc=TREAD if k % 2 else "#e8d2a4", ec=INK, lw=0.5, z=2 + k * 0.01)
     txt(ax, x0 + 2.5, Y_LO1 - 5, str(k), size=5.2, z=5)
-rect(ax, X_XL - NOS, Y_LO0 + SW, X_XL, Y_LO1 - SW, fc="#e8d2a4", ec=INK, lw=0.5, z=3)
+rect(ax, X_XL - NOS, LO_T[0], X_XL, LO_T[1], fc="#e8d2a4", ec=INK, lw=0.5, z=3)
 # corner landing
 rect(ax, X_XL, Y_LD0, 0, Y_LD1, fc="#f3e8cf", ec=INK, lw=0.9, z=3)
 for (py0, py1) in ((Y(ly1 + 0.09), Y(ly1 - 0.2)), (Y(yl0f + 0.29), Y(yl0f))):
     rect(ax, X_XL, py0, X_XL + 3.48, py1, fc="none", ec=INK, lw=0.5, ls=(0, (2, 1.5)), z=4)
 txt(ax, X_XL / 2, 15, f"CORNER\nLANDING\nTOP {frac(Z_LD)}", size=5.6, w="bold")
 # upper flight
-for x0_, x1_ in ((X_UP0, X_UP0 + SW), (X_UP1 - SW, X_UP1)):
-    rect(ax, x0_, Y_LD1, x1_, Y_BAL0, fc=OAK, ec=INK, lw=0.6, z=3)
+UP_T = (X_UP0 + SW, X_UP1) if UNDER else (X_UP0 + SW, X_UP1 - SW)
+if UNDER:
+    rect(ax, X_UP0, Y_LD1, X_UP0 + SW, Y_BAL0, fc=S_FC, ec=INK, lw=0.6, z=3)
+    rect(ax, X_UP1 - SW, Y_LD1, X_UP1, Y_BAL0, fc="none", ec=INK, lw=0.5, ls=(0, (3, 2)), z=6)
+else:
+    for x0_, x1_ in ((X_UP0, X_UP0 + SW), (X_UP1 - SW, X_UP1)):
+        rect(ax, x0_, Y_LD1, x1_, Y_BAL0, fc=OAK, ec=INK, lw=0.6, z=3)
 for k in range(1, N_UP):
     y0 = Y_LD1 + (k - 1) * GO
-    rect(ax, X_UP0 + SW, y0, X_UP1 - SW, min(y0 + TD, Y_BAL0), fc=TREAD if k % 2 else "#e8d2a4", ec=INK, lw=0.5, z=2 + k * 0.01)
+    rect(ax, UP_T[0], y0, UP_T[1], min(y0 + TD, Y_BAL0), fc=TREAD if k % 2 else "#e8d2a4", ec=INK, lw=0.5, z=2 + k * 0.01)
     txt(ax, X_UP0 + 4.5, y0 + 2.5, str(N_LO + k), size=5.2, z=5)
-rect(ax, X_UP0 + SW, Y_BAL0 - NOS, X_UP1 - SW, Y_BAL0, fc="#e8d2a4", ec=INK, lw=0.5, z=3)
-# handrails
-for yc in (Y_LO0 + SW / 2, Y_LO1 - SW / 2):
-    rect(ax, X_FOOT, yc - RW / 2, X_XL - NOS, yc + RW / 2, fc=STEEL, ec=STEEL, lw=0.3, z=5)
-for xc in (X_UP0 + SW / 2, X_UP1 - SW / 2):
-    rect(ax, xc - RW / 2, Y_LD1, xc + RW / 2, Y_BAL0 - NOS, fc=STEEL, ec=STEEL, lw=0.3, z=5)
+rect(ax, UP_T[0], Y_BAL0 - NOS, UP_T[1], Y_BAL0, fc="#e8d2a4", ec=INK, lw=0.5, z=3)
+# handrails (wall side ones on brackets when UNDER)
+for yc in LO_RAILS:
+    rect(ax, X_FOOT, yc - RW / 2, X_XL - NOS, yc + RW / 2, fc=STEEL, ec=STEEL, lw=0.3, z=8)
+for xc in UP_RAILS:
+    rect(ax, xc - RW / 2, Y_LD1, xc + RW / 2, Y_BAL0 - NOS, fc=STEEL, ec=STEEL, lw=0.3, z=8)
+if UNDER:
+    for xb in (X_FOOT + 3.6, (X_FOOT + X_XL - NOS) / 2, X_XL - NOS - 3.6):
+        rect(ax, xb - 0.36, 0, xb + 0.36, RC - RW / 2, fc=STEEL, ec=STEEL, lw=0.2, z=8)
+    for yb in (Y_LD1 + 3.6, (Y_LD1 + Y_BAL0 - NOS) / 2, Y_BAL0 - NOS - 3.6):
+        rect(ax, -RC + RW / 2, yb - 0.36, 0, yb + 0.36, fc=STEEL, ec=STEEL, lw=0.2, z=8)
 # up arrows
 ax.annotate("", xy=(X_XL - 5, Y_LO0 + 8), xytext=(X_FOOT + 1.5, Y_LO0 + 8), arrowprops=dict(arrowstyle="-|>", lw=0.7, color=INK), zorder=8)
 txt(ax, X_FOOT + 9, Y_LO0 + 11.5, f"UP {N_LO}R", size=5.6, w="bold", bg=True)
@@ -414,7 +459,10 @@ dim(ax, (X_JAMB, yb), (0, yb), -21, frac(-X_JAMB) + " OPENING JAMB TO BATH 1 WAL
 xw = X_FOOT - 0.48
 dim(ax, (xw, 0), (xw, Y_LO0), 6, fin(Y_LO0))
 dim(ax, (xw, Y_LO0), (xw, Y_LO1), 6, frac(WN))
-dim(ax, (xw, Y_LO0 + SW), (xw, Y_LO1 - SW), 13, fin(WN - 2 * SW) + " CLEAR")
+if UNDER:
+    dim(ax, (xw, LO_RAILS[1] + RW / 2), (xw, LO_RAILS[0] - RW / 2), 13, fin(CLEAR) + " BETWEEN RAILS")
+else:
+    dim(ax, (xw, Y_LO0 + SW), (xw, Y_LO1 - SW), 13, fin(WN - 2 * SW) + " CLEAR")
 # north south string west of the upper flight
 xs = X_XL
 dim(ax, (xs, 0), (xs, Y_LD1), 50, frac(Y_LD1))
@@ -441,24 +489,25 @@ if PERSON:
     keyline(ax, (X(PERSON["x"] - 2.0), Y(PERSON["y"])), (-56, 74), 12)
 
 kn = [(1, f"Living room opening, east jamb. The first nosing is {fin(X_FOOT - X_JAMB)} east of it. Barn doors are assumed hung on the dining (south) side."),
-      (2, f"Lower flight: {N_LO} risers up east along the clerestory wall, treads 1 to {N_LO - 1}. Stringers {fin(Y_LO0)} off the wall."),
+      (2, f"Lower flight: {N_LO} risers up east along the clerestory wall, treads 1 to {N_LO - 1}. " + (f"Treads run to {fin(GAP)} off the wall over a {S_MAT} stringer under them (dashed); the open side stringer rides high beside the treads." if UNDER else f"Stringers {fin(Y_LO0)} off the wall.")),
       (3, f"Corner landing (riser {N_LO}), top {frac(Z_LD)} above slab, {frac(-X_XL)} E-W x {frac(Y_LD1 - Y_LD0)} N-S. Two 3 1/2\" x 3 1/2\" oak posts at its west corners (dashed); east and south edges on the walls."),
       (4, f"Upper flight: {N_UP} risers up north along the bath 1 wall, treads {N_LO + 1} to 12."),
       (5, f"Balcony at loft floor level (riser 13), {frac(-X_XL)} E-W x {frac(Y_BAL1 - Y_BAL0)} N-S, 6\" deep, carried on two steel knee braces off the bath 1 wall. Opens east into the loft."),
       (6, f"{fin(RAIL_H)} guards on the balcony's west and north sides, black steel with a white oak cap."),
       (7, f"Loft guard above, {fin(RAIL_H)}, along the loft edge over the bath 1 wall (dashed). Open {frac(RAIL_GAP[1] - RAIL_GAP[0])} where the balcony meets the loft."),
-      (8, f"Handrails both sides of both flights, on top of the stringers, {fin(HR)} above the nosing line, first nosing to landing nosing."),
+      (8, (f"Handrails both sides of both flights, {fin(HR)} above the nosing line, first nosing to landing nosing. Open side rails on top of the open stringers; wall side rails on brackets, 1 1/2\" clear of the wall. {fin(CLEAR)} between the rails." if UNDER else f"Handrails both sides of both flights, on top of the stringers, {fin(HR)} above the nosing line, first nosing to landing nosing.")),
       (9, "Existing 4 gang switch plate (U-11 #8 to 11) at 44\" on the bath 1 wall sits under the upper flight. Relocate."),
       (10, "L couch, owner furniture, dashed for clearance only. Its short leg runs under the balcony and upper flight."),
       (12, f"Seated 6'-0\" person (dashed, under the upper flight) at the couch's south end. Head clearance {fin(P_CLR)}, see section B." if PERSON else ""),
-      (11, f"Upper flight stringer stands {fin(-X_UP1)} off the bath 1 wall; its handrail is {fin(RAIL_CLR_UP, 32)} off the wall (1 1/2\" required, see F4).")]
+      (11, (f"Upper flight treads run to {fin(-X_UP1)} off the bath 1 wall over a {S_MAT} stringer under them (dashed). Wall rail on brackets." if UNDER else f"Upper flight stringer stands {fin(-X_UP1)} off the bath 1 wall; its handrail is {fin(RAIL_CLR_UP, 32)} off the wall (1 1/2\" required, see F4)."))]
 kn = sorted([k for k in kn if k[1]]); yy = keynotes(fig, 9.25, 10.5, "KEYNOTES", kn, width=4.6)
 ftxt(fig, 9.25, yy - 0.15, "LADDER DATA (from the model)", fontsize=8.5, fontweight="bold")
 rows = [("Total rise", f"{frac(FL)} slab to finished loft floor"),
         ("Risers", f"{NR} equal at {fin(RI, 32)} ({N_LO} lower, {N_UP} upper)"),
         ("Going / tread", f"{fin(GO)} nosing to nosing / {fin(TD)} deep"),
         ("Angle", f"{ANG:.1f} degrees"),
-        ("Width", f"{frac(WN)} overall, {fin(WN - 2 * SW)} clear"),
+        ("Width", f"{frac(WN)} overall, {fin(TREAD_W)} treads, {fin(CLEAR)} between rails" if UNDER else f"{frac(WN)} overall, {fin(WN - 2 * SW)} clear"),
+        ("Stringers", f"{S_MAT}" + (", wall side under the treads" if UNDER else "")),
         ("Handrails", f"both sides, {fin(HR)} above nosing line"),
         ("Plan footprint", f"{frac(-X_FOOT)} E-W x {frac(Y_BAL1)} N-S")]
 for i, (a, b) in enumerate(rows):
@@ -581,9 +630,9 @@ if PERSON:
     line(ax, [(hc, P_CROWN), (hc + 13, P_CROWN)], c=RED, lw=0.5, z=6)
     dim(ax, (hc - 12, 0), (hc - 12, P_CROWN), 0, frac(P_CROWN), size=5.4, ext=False)
     keyline(ax, (hc - 5, P_CROWN - 8), (-104, 60), 10)
-kn2 = [(1, f"Handrails both sides, {fin(HR)} above the nosing line, from over the first nosing to over the landing nosing of each flight. Black steel, posts at the ends only."),
+kn2 = [(1, (f"Wall side handrail (beyond) on three brackets, {fin(HR)} above the nosing line, from over the first nosing to over the landing nosing. The open side rail (cut away) sits on the open stringer, posts at the ends only." if UNDER else f"Handrails both sides, {fin(HR)} above the nosing line, from over the first nosing to over the landing nosing of each flight. Black steel, posts at the ends only.")),
        (2, f"Nosing line (dashed red), {ANG:.1f}°. Risers {fin(RI, 32)}, going {fin(GO)}, treads {fin(TD)}, open risers."),
-       (3, f"Stringers: white oak in the model, {fin(SW, 16)} thick. Drawn here as {fin(SD_P)} boards (2x12 class); the model's 12\" plumb depth is too shallow to house the {fin(TD)} treads. Size by designer."),
+       (3, (f"Stringers, {S_MAT}. Beyond: the wall side stringer, under the treads, top touching each tread's back, about {fin(WD_P)} deep square to the slope with a {fin(W_SHOE)} level shoe at the foot. Dashed: the open side stringer (cut away), {fin(STR_TOP)} above the nosing line down to just under the tread backs, about {fin(SD_P)} deep. Size by engineer." if UNDER else f"Stringers: white oak in the model, {fin(SW, 16)} thick. Drawn here as {fin(SD_P)} boards (2x12 class); the model's 12\" plumb depth is too shallow to house the {fin(TD)} treads. Size by designer.")),
        (4, "3 1/2\" x 3 1/2\" oak posts under the corner landing's west corners."),
        (5, f"Corner landing (A) and balcony (B), cut. Landing 4 3/4\" deep in the model, balcony 6\". Framing by engineer."),
        (6, "Two steel knee braces from the balcony down to the bath 1 wall, about 2'-6\" below the loft floor. Size and anchorage by engineer."),
@@ -602,8 +651,12 @@ xr1, zr1 = (-12, 30), (-28, 56)
 ax = scaled_axes(fig, 0.6, 1.4, xr1, zr1, den)
 view_title(fig, 0.6, 1.0, "1", "TREAD AND RISER DETAIL, TYPICAL", "1\" = 1'-0\"")
 mapD = lambda u: u
-zb0 = -2 * RI                                       # nosing of tread n sits at (0, 0); treads n-1 .. n+2 drawn
-poly(ax, [(u, max(z, -25.5)) for u, z in stringer_poly(mapD, -10 + 0.01, 27, zb0, 99)], fc=OAK, ec=GREY, lw=0.5, z=1)
+zb0 = -RI                                           # nosing_z(zb0, u) = u * RI / GO: nosing of tread n sits at (0, 0); treads n-1 .. n+2 drawn
+if UNDER:
+    poly(ax, [(u, max(z, -25.5)) for u, z in stringer_poly(mapD, -10 + 0.01, 27, zb0, 99, W_TOP, W_PLUMB)], fc=S_FC, ec=INK, lw=0.5, z=1)
+    poly(ax, [(u, max(z, -25.5)) for u, z in stringer_poly(mapD, -10 + 0.01, 27, zb0, 99)], fc="none", ec=GREY, lw=0.6, ls=(0, (4, 2)), z=7)
+else:
+    poly(ax, [(u, max(z, -25.5)) for u, z in stringer_poly(mapD, -10 + 0.01, 27, zb0, 99)], fc=OAK, ec=GREY, lw=0.5, z=1)
 for j in range(-1, 4):
     rect(ax, j * GO, j * RI - TT, j * GO + TD, j * RI, fc=TREAD, ec=INK, lw=0.9, z=4)
 line(ax, [(-10, -10 * RI / GO), (14.5, 14.5 * RI / GO)], c=RED, lw=0.6, ls=(0, (6, 3)), z=5)
@@ -628,26 +681,54 @@ keyline(ax, (3 * GO - 3, 3 * RI + HR - 0.8), (4, 44), 5)
 den = 12
 xr2, zr2 = (-12, 44), (-26, 44)
 ax = scaled_axes(fig, 5.0, 1.4, xr2, zr2, den)
-view_title(fig, 5.0, 1.0, "2", "SECTION ACROSS A FLIGHT AT A NOSING", "1\" = 1'-0\"")
-rect(ax, -12, -28, -1.32, 46, **WALLSTYLE)
-for v0 in (0, WN - SW):
-    rect(ax, v0, STR_TOP - STR_PLUMB, v0 + SW, STR_TOP, fc=OAK, ec=INK, lw=0.8, z=2)
-rect(ax, SW, -TT, WN - SW, 0, fc=TREAD, ec=INK, lw=0.8, z=3)
-for vc in (SW / 2, WN - SW / 2):
-    rect(ax, vc - RW / 2, HR - RH_T, vc + RW / 2, HR, fc=STEEL, ec=INK, lw=0.6, z=4)
-    rect(ax, vc - 0.6, STR_TOP, vc + 0.6, HR - RH_T, fc="none", ec=GREY, lw=0.5, ls=(0, (3, 2)), z=2)
-dim(ax, (0, STR_TOP - STR_PLUMB), (WN, STR_TOP - STR_PLUMB), -3, frac(WN) + " OVERALL")
-dim(ax, (SW, 0), (WN - SW, 0), 5, fin(WN - 2 * SW) + " CLEAR, 20\" MIN")
-dim(ax, (WN - SW, -10), (WN, -10), -2.5 if False else 3, fin(SW), size=5.6)
-dim(ax, (-1.32, 38), (0, 38), 3, fin(1.32), size=5.6)
-dim(ax, (-1.32, HR + 3.5), (SW / 2 - RW / 2, HR + 3.5), 2.0, fin(RAIL_CLR_UP, 32), size=5.6)
-dim(ax, (WN + 2, 0), (WN + 2, HR), 0, fin(HR) + " (30\" TO 34\")", size=5.8, ext=False)
-line(ax, [(WN - SW, 0), (WN + 3.2, 0)], c=GREY, lw=0.3)
-line(ax, [(WN, HR), (WN + 3.2, HR)], c=GREY, lw=0.3)
-keyline(ax, (WN - SW / 2, HR - 0.8), (WN + 6, HR + 8), 5)
-keyline(ax, (WN - SW / 2, -14), (WN + 6, -16), 4)
-keyline(ax, (-6, 10), (-6, 10), 6) if False else keyline(ax, (-1.4, 10), (-6, 16), 6)
-keyline(ax, (8, -TT / 2), (10, -10), 1)
+view_title(fig, 5.0, 1.0, "2", "SECTION ACROSS A FLIGHT AT A TREAD BACK" if UNDER else "SECTION ACROSS A FLIGHT AT A NOSING", "1\" = 1'-0\"")
+if UNDER:   # s = distance from the wall's face; the cut is at a tread's back, so the nosing line is DROP above the tread top
+    zt2 = (-24, 66)
+    ax.set_ylim(*zt2)
+    rect(ax, -12, zt2[0], -GAP, zt2[1], **WALLSTYLE)
+    rect(ax, 0, -TT - W_PLUMB, SW, -TT, fc=S_FC, ec=INK, lw=0.8, z=2)                          # wall side plate under the tread
+    rect(ax, WN - SW, -TT - 1.2, WN, DROP + STR_TOP, fc=S_FC, ec=INK, lw=0.8, z=2)            # open side plate beside it
+    rect(ax, 0.06, -TT, WN - SW, 0, fc=TREAD, ec=INK, lw=0.8, z=3)
+    rect(ax, WN - SW - 1.5, -TT - 1.5, WN - SW, -TT, fc=STEEL, ec=INK, lw=0.5, z=3)               # clip angle
+    zr_ = DROP + HR
+    for vc in (WN - OPEN_RV, -GAP + RC):
+        rect(ax, vc - RW / 2, zr_ - RH_T, vc + RW / 2, zr_, fc=STEEL, ec=INK, lw=0.6, z=4)
+    rect(ax, -GAP, zr_ - RH_T - 1.2, -GAP + RC, zr_ - RH_T - 0.4, fc=STEEL, ec=INK, lw=0.5, z=4)   # bracket
+    rect(ax, WN - OPEN_RV - 0.6, DROP + STR_TOP, WN - OPEN_RV + 0.6, zr_ - RH_T, fc="none", ec=GREY, lw=0.5, ls=(0, (3, 2)), z=2)
+    line(ax, [(-GAP, DROP), (WN + 3.2, DROP)], c=RED, lw=0.5, ls=(0, (6, 3)), z=5)
+    txt(ax, 10, DROP + 1.8, "NOSING LINE AT THIS CUT", size=5.0, c=RED)
+    dim(ax, (0, -TT - W_PLUMB), (WN, -TT - W_PLUMB), -3, frac(WN) + " OVERALL")
+    dim(ax, (0.06, 0), (WN - SW, 0), 5, fin(TREAD_W) + " TREAD")
+    dim(ax, (-GAP + RC + RW / 2, zr_ + 3), (WN - OPEN_RV - RW / 2, zr_ + 3), 3, fin(CLEAR) + " BETWEEN RAILS, 20\" MIN")
+    dim(ax, (-GAP, zr_ - 8), (-GAP + RC - RW / 2, zr_ - 8), 2.0, "1 1/2\"", size=5.6)
+    dim(ax, (-GAP, -8), (0, -8), 2.5, fin(GAP), size=5.6)
+    dim(ax, (WN + 2, DROP), (WN + 2, zr_), 0, fin(HR) + " (30\" TO 34\")", size=5.8, ext=False)
+    line(ax, [(WN, zr_), (WN + 3.2, zr_)], c=GREY, lw=0.3)
+    keyline(ax, (WN - SW / 2, zr_ - 0.8), (WN + 6, zr_ + 8), 5)
+    keyline(ax, (WN - SW / 2, 4), (WN + 6, 10), 4)
+    keyline(ax, (SW / 2, -TT - 8), (10, -16), 7)
+    keyline(ax, (-1.4, 10), (-6, 16), 6)
+    keyline(ax, (8, -TT / 2), (10, -10), 1)
+else:
+    rect(ax, -12, -28, -1.32, 46, **WALLSTYLE)
+    for v0 in (0, WN - SW):
+        rect(ax, v0, STR_TOP - STR_PLUMB, v0 + SW, STR_TOP, fc=OAK, ec=INK, lw=0.8, z=2)
+    rect(ax, SW, -TT, WN - SW, 0, fc=TREAD, ec=INK, lw=0.8, z=3)
+    for vc in (SW / 2, WN - SW / 2):
+        rect(ax, vc - RW / 2, HR - RH_T, vc + RW / 2, HR, fc=STEEL, ec=INK, lw=0.6, z=4)
+        rect(ax, vc - 0.6, STR_TOP, vc + 0.6, HR - RH_T, fc="none", ec=GREY, lw=0.5, ls=(0, (3, 2)), z=2)
+    dim(ax, (0, STR_TOP - STR_PLUMB), (WN, STR_TOP - STR_PLUMB), -3, frac(WN) + " OVERALL")
+    dim(ax, (SW, 0), (WN - SW, 0), 5, fin(WN - 2 * SW) + " CLEAR, 20\" MIN")
+    dim(ax, (WN - SW, -10), (WN, -10), -2.5 if False else 3, fin(SW), size=5.6)
+    dim(ax, (-1.32, 38), (0, 38), 3, fin(1.32), size=5.6)
+    dim(ax, (-1.32, HR + 3.5), (SW / 2 - RW / 2, HR + 3.5), 2.0, fin(RAIL_CLR_UP, 32), size=5.6)
+    dim(ax, (WN + 2, 0), (WN + 2, HR), 0, fin(HR) + " (30\" TO 34\")", size=5.8, ext=False)
+    line(ax, [(WN - SW, 0), (WN + 3.2, 0)], c=GREY, lw=0.3)
+    line(ax, [(WN, HR), (WN + 3.2, HR)], c=GREY, lw=0.3)
+    keyline(ax, (WN - SW / 2, HR - 0.8), (WN + 6, HR + 8), 5)
+    keyline(ax, (WN - SW / 2, -14), (WN + 6, -16), 4)
+    keyline(ax, (-6, 10), (-6, 10), 6) if False else keyline(ax, (-1.4, 10), (-6, 16), 6)
+    keyline(ax, (8, -TT / 2), (10, -10), 1)
 
 # Detail 3: balcony west guard, 3/4" = 1'-0"
 den = 16
@@ -672,14 +753,16 @@ dim(ax, (0, -6), (L3, -6), -9 if False else 0, None, ext=False) if False else No
 dim(ax, (-2, -6), (L3 + 2, -6), 0, None, ext=False) if False else dim(ax, (0, -30), (L3, -30), -3, frac(L3))
 txt(ax, L3 / 2, 21, "BALUSTERS:\n4\" SPHERE\nMUST NOT PASS", size=5.2, bg=True)
 ftxt(fig, 10.9, 7.3, "The model draws 5 balusters in this guard, about\n4 1/4\" clear. Space them so a 4\" sphere cannot\npass (R312.1.3). 7 bays shown, about 3 3/16\" clear.", fontsize=6.2, color=RED)
-kn3 = [(1, f"White oak tread, {fin(TT)} thick in the model (species and thickness by designer), housed in the stringers, open riser."),
+kn3 = [(1, (f"White oak tread, {fin(TT)} thick in the model (species and thickness by designer), open riser. Sits on the wall side stringer and on a clip angle welded to the open side stringer." if UNDER else f"White oak tread, {fin(TT)} thick in the model (species and thickness by designer), housed in the stringers, open riser.")),
        (2, f"Open riser: {fin(RI - TT)} clear between treads. See code check C6."),
        (3, f"Nosing line, {ANG:.1f}°. The 3 1/2\" overlap is the tread nosing over the tread below."),
-       (4, f"Stringer {fin(SW)} thick (model), drawn as an {fin(SD_P)} board. The model's 12\" plumb depth (about {fin(12 * COS)} board) cannot house the treads. Size by designer."),
-       (5, f"Handrail, black steel {fin(RW)} x {fin(RH_T)} bar in the model, on top of the stringer. Specify a graspable section per R311.7.8.5."),
-       (6, "Wall: bath 1 west wall at the upper flight, clerestory wall at the lower flight (stringer gap 1 5/8\" there).")]
-keynotes(fig, 0.6, 10.5, "KEYNOTES", kn3[:3], width=5.0)
-keynotes(fig, 6.0, 10.5, " ", kn3[3:], width=5.0)
+       (4, (f"Open side stringer, {S_MAT}, about {fin(SD_P)} deep square to the slope ({fin(STR_TOP)} above the nosing line to just under the tread backs). Dashed in detail 1. Size by engineer." if UNDER else f"Stringer {fin(SW)} thick (model), drawn as an {fin(SD_P)} board. The model's 12\" plumb depth (about {fin(12 * COS)} board) cannot house the treads. Size by designer.")),
+       (5, (f"Handrails, black steel {fin(RW)} x {fin(RH_T)} bar in the model: open side on top of its stringer, wall side on brackets 1 1/2\" clear of the wall. Specify a graspable section per R311.7.8.5." if UNDER else f"Handrail, black steel {fin(RW)} x {fin(RH_T)} bar in the model, on top of the stringer. Specify a graspable section per R311.7.8.5.")),
+       (6, (f"Wall: bath 1 west wall at the upper flight, clerestory wall at the lower flight. Treads stop {fin(GAP)} short of both." if UNDER else "Wall: bath 1 west wall at the upper flight, clerestory wall at the lower flight (stringer gap 1 5/8\" there).")),
+       (7, f"Wall side stringer, {S_MAT}, under the treads, its top touching each tread's back, about {fin(WD_P) if UNDER else ''} deep square to the slope, {fin(W_SHOE) if UNDER else ''} level shoe at the foot. Size by engineer." if UNDER else "")]
+kn3 = [k for k in kn3 if k[1]]
+keynotes(fig, 0.6, 10.5, "KEYNOTES", kn3[:4], width=5.0)
+keynotes(fig, 6.0, 10.5, " ", kn3[4:], width=5.0)
 
 # ================================================================ L-4 SCHEDULE, CODE, FIELD VERIFY
 fig = sheet("L-4", "Schedule and code")
@@ -705,10 +788,10 @@ f(6.6, 10.5, "FIELD VERIFY AND OPEN ITEMS", fontsize=9, fontweight="bold")
 fv = [("F1", f"Total rise. Model: 9'-0\" top plate (tape measured) + 11 7/8\" open web floor trusses + 3/4\" subfloor = {frac(FL)}. Measure slab to finished loft floor, including any finish flooring, and divide by 13. Thirteen risers work up to 10'-3 1/2\" (9 1/2\" each)."),
       ("F2", "Wall faces. Plan dimensions use the model's finished faces: bath 1 west wall face at plan x 31.122 ft and clerestory wall north face at plan y 34.616 ft (model origin: outside NW corner of the slab, x east, y south). Living room opening east jamb at plan x 26.914 ft."),
       ("F3", f"The first nosing sits only {fin(X_FOOT - X_JAMB)} east of the living room opening's east jamb ({fin(X_FOOT - 0.48 - X_JAMB)} at the stringer toe). Check against the jamb casing."),
-      ("F4", f"The upper flight's east handrail is {fin(RAIL_CLR_UP, 32)} off the bath 1 wall. Move the flight or the rail at least 1/32\" west to get the 1 1/2\" minimum."),
+      ("F4", "Wall rail brackets: confirm blocking in the bath 1 wall and the clerestory wall at the bracket points (SIP or framed wall)." if UNDER else f"The upper flight's east handrail is {fin(RAIL_CLR_UP, 32)} off the bath 1 wall. Move the flight or the rail at least 1/32\" west to get the 1 1/2\" minimum."),
       ("F5", "The 4 gang switch plate on the bath 1 west wall (44\" up) sits under the upper flight. Needs a new location."),
       ("F6", "Structure: corner landing on two posts plus ledgers on two walls; balcony cantilevered off the interior bath 1 wall on two steel knee braces. Engineer to size, and to confirm the loft floor framing can take the balcony."),
-      ("F7", f"Stringers: the model's 12\" plumb depth is only about {fin(12 * COS)} of board at {ANG:.0f}°. These sheets draw {fin(SD_P)} boards so the treads can be housed."),
+      ("F7", (f"Stringers: {S_MAT} as modeled (open side about {fin(SD_P)} deep, wall side about {fin(WD_P)}). Plate size, tread clips, landing and floor connections by the fabricator's engineer." if UNDER else f"Stringers: the model's 12\" plumb depth is only about {fin(12 * COS)} of board at {ANG:.0f}°. These sheets draw {fin(SD_P)} boards so the treads can be housed.")),
       ("F8", f"Both landings are about {round(WN + 1)}\" (the ladder width), not the 36\" a stairway landing needs. Inspector to accept for a ships ladder."),
       ("F9", "Barn doors are assumed hung on the dining side. Hung on the living room side, the east leaf would hit the ladder."),
       ("F10", "Headroom is checked to the north roof underside only; no beams, fans or lights are modeled over the ladder.")]
@@ -721,7 +804,7 @@ for n, s in fv:
     yy -= 0.145 * len(lines) + 0.08
 
 f(0.6, 5.85, "CODE CHECK: Residential Code of Ohio (OAC 4101:8, 2019 RCO, based on the 2018 IRC; section numbers assumed to match the IRC)", fontsize=9, fontweight="bold")
-code = [("C1", "R311.7.12", "Ships ladder clear width at and below handrails, 20\" min", f"{fin(WN - 2 * SW)}", "OK"),
+code = [("C1", "R311.7.12", "Ships ladder clear width at and below handrails, 20\" min", f"{fin(CLEAR)}" + (" between rails" if UNDER else ""), "OK"),
         ("C2", "R311.7.12.1", "Treads: 5\" min tread depth, 8 1/2\" min tread depth plus nosing", f"{fin(GO)} going, {fin(TD)} tread", "OK"),
         ("C3", "R311.7.12.1", "Riser height 9 1/2\" max", f"{fin(RI, 32)}", "OK"),
         ("C4", "R311.7.12.2", "Handrails on both sides, 30\" to 34\" above the nosings", f"both sides, {fin(HR)}", "OK"),
@@ -730,7 +813,7 @@ code = [("C1", "R311.7.12", "Ships ladder clear width at and below handrails, 20
         ("C7", "R311.7.5.1, .2", "Riser heights and tread depths uniform within 3/8\" in a flight", "all equal", "BUILD TO"),
         ("C8", "R311.7.2", "Headroom 6'-8\" min", f"{frac(HEAD_BAL)} min, at balcony guard", "OK"),
         ("C9", "R311.7.6", "Stair landings 36\" min in the direction of travel; R311.7.12 is silent on ladder landings", f"about {round(WN + 1)}\" each", "CONFIRM"),
-        ("C10", "R311.7.8.3, .4", "Handrails continuous for each flight; 1 1/2\" min clear to the wall", f"{fin(RAIL_CLR_UP, 32)} upper east rail", "ADJUST"),
+        ("C10", "R311.7.8.3, .4", "Handrails continuous for each flight; 1 1/2\" min clear to the wall", "1 1/2\" wall rails on brackets" if UNDER else f"{fin(RAIL_CLR_UP, 32)} upper east rail", "OK" if UNDER else "ADJUST"),
         ("C11", "R311.7.8.5", "Handrail graspability (Type I 1 1/4\" to 2\" round, or equivalent)", "1 1/2\" x 1 9/16\" bar", "SPECIFY"),
         ("C12", "R312.1.1, .2", "Guards 36\" min where the walking surface is over 30\" above the floor below", f"{fin(RAIL_H)} balcony and loft", "OK"),
         ("C13", "R312.1.3", "Guard openings must not pass a 4\" sphere", "model about 4 1/4\"", "ADJUST"),
