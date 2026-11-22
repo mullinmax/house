@@ -207,7 +207,7 @@
     },
     {
      "item": "8 in wall hood with screen, for the ERV exhaust",
-     "spec": "West wall; the fresh air hood is the shared 12 in one listed below",
+     "spec": "West wall over bedroom 3, the north of the two ERV holes; the fresh air hood is the shared 12 in one listed below",
      "qty": 1,
      "unit": "ea",
      "where": "",
@@ -387,7 +387,7 @@
     },
     {
      "item": "12 in intake wall hood with 1/4 in screen, louvred, black",
-     "spec": "West wall: the ERV's fresh air hood, shared with the makeup air",
+     "spec": "West wall by the pantry, the south of the two ERV holes: the ERV's fresh air hood, shared with the makeup air",
      "qty": 1,
      "unit": "ea",
      "where": "",
@@ -526,9 +526,9 @@
     {
      "item": "10 in round pipe, 30 ga snap lock",
      "spec": "Range hood makeup air outdoor side, insulated",
-     "qty": 6,
+     "qty": 4,
      "unit": "x 5 ft",
-     "where": "23 ft in the model",
+     "where": "15 ft in the model",
      "note": "Insulate with R-8 wrap or use insulated duct, vapor jacket outside",
      "price": "",
      "status": ""
@@ -606,7 +606,7 @@
     {
      "item": "8 in adjustable 90 elbow",
      "spec": "",
-     "qty": 14,
+     "qty": 15,
      "unit": "ea",
      "where": "Counted from the bends in the model",
      "note": "",
@@ -1290,7 +1290,7 @@
     {
      "item": "Hanger strap, 1 in galvanized or 1-1/2 in flex saddle strap",
      "spec": "Rigid every 5 ft, flex every 4 ft, rect every 4 ft",
-     "qty": 110,
+     "qty": 108,
      "unit": "hangers",
      "where": "About 3 ft of strap each",
      "note": "",
@@ -1310,7 +1310,7 @@
     {
      "item": "Duct insulation wrap, R-8 with vapor jacket",
      "spec": "ERV outdoor ducts",
-     "qty": 48,
+     "qty": 38,
      "unit": "ft",
      "where": "",
      "note": "Supply and return ducts sit inside the SIP envelope, so they do not need insulation by code",
@@ -1399,7 +1399,7 @@
    "system": "Range hood makeup air",
    "room": "Kitchen",
    "size": "10 in round",
-   "ft": 24.048916666666667,
+   "ft": 15.41891666666665,
    "cfm": 600,
    "flex": false,
    "crosses": 0,

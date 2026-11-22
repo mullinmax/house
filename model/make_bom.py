@@ -75,7 +75,7 @@ ERV_PARTS = [
     ("erv", "8 in wall hood with screen, for ERV intake and exhaust", "Two hoods on the west wall, more than 10 ft apart", 2, "", "Match the maker's hood or an insulated hood."),
 ]
 if "mua_intake" in ITEMS:                         # the fresh air hood is shared with the range hood makeup air and listed with it (Maxwell, 11/21/2026)
-    ERV_PARTS[2] = ("erv", "8 in wall hood with screen, for the ERV exhaust", "West wall; the fresh air hood is the shared 12 in one listed below", 1, "", "Match the maker's hood or an insulated hood.")
+    ERV_PARTS[2] = ("erv", "8 in wall hood with screen, for the ERV exhaust", "West wall over bedroom 3, the north of the two ERV holes; the fresh air hood is the shared 12 in one listed below", 1, "", "Match the maker's hood or an insulated hood.")
 ERV_PARTS += [
     ("erv", "6 to 8 in increaser", "At the ERV's four 6 in ports (ducts are 8 in)", 4, "", "Port size ASSUMED from the side port model; check Broan's drawing."),
     ("erv", "8 in backdraft damper", "In the fresh air duct to the supply plenum", 1, "", ""),
@@ -100,7 +100,7 @@ OTHER_VENT = [
     ("mua_backdraft", "10 in spring loaded backdraft damper, low leakage", "Makeup air duct, just before the kitchen supply duct", 1, "About $20 to $50", "Stops supply air going backward out the makeup air duct."),
     ("mua", "10 in round top takeoff on a rectangular duct", "Makeup air into the top of the 14 x 8 kitchen supply duct", 1, "", ""),
     ("mua", "Duct wrap insulation, R-6 with vapor jacket", "Kitchen supply duct and its three stubs, against summer sweating from humid makeup air", 1, "roll", ""),
-    ("mua_intake", "12 in intake wall hood with 1/4 in screen, louvred, black", "West wall: the ERV's fresh air hood, shared with the makeup air", 1, "About $60 to $150", "Replaces one of the ERV's two 8 in hoods. No damper in the hood."),
+    ("mua_intake", "12 in intake wall hood with 1/4 in screen, louvred, black", "West wall by the pantry, the south of the two ERV holes: the ERV's fresh air hood, shared with the makeup air", 1, "About $60 to $150", "Replaces one of the ERV's two 8 in hoods. No damper in the hood."),
     ("mua_intake", "12 x 10 x 8 in wye", "Just inside the shared intake: 8 in to the ERV, 10 in to the makeup air", 1, "", ""),
     ("mua_filter", "16 x 25 x 4 in media filter cabinet with 10 in round collars", "Right after the makeup air damper", 1, "About $80 to $180", "Broan requires a filter downstream; MERV 13 so nothing comes in unfiltered (Maxwell, 11/21/2026)."),
     ("mua_filter", "16 x 25 x 4 in MERV 13 filters", "Makeup air filter cabinet", 2, "About $30 to $45 each", "One in it, one spare."),
