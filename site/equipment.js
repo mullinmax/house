@@ -405,8 +405,8 @@ const BUILD = {
     box(g, 0.6, 1.2, 1.2, darkPlastic(), -r - 2.7, r + 1.0, L / 2);
     return g;
   },
-  filter_box(s) {                  // inline duct filter box: galvanized box along local z with round collars each end, filter door on the side (local +x)
-    const [dia, h, L] = s, g = new THREE.Group(), r = dia / 2 + 0.15, w = dia + 4, c = 2;
+  filter_box(s) {                  // inline duct filter box or media cabinet: galvanized box along local z with round collars each end, filter door on the side (local +x)
+    const [dia, h, L, W] = s, g = new THREE.Group(), r = dia / 2 + 0.15, w = W || dia + 4, c = 2;
     box(g, w, h, L - 2 * c, galv(), 0, h / 2, L / 2);
     for (const z of [c / 2, L - c / 2]) cyl(g, r, c, galv(), 0, h / 2, z, 'z', 28);
     box(g, 0.3, h - 2, 2.2, mat('filter door', 0x4a4f52, 0.6, 0.3), w / 2 + 0.15, h / 2, L / 2);      // access door with the filter behind it

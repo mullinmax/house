@@ -206,9 +206,9 @@
      "status": ""
     },
     {
-     "item": "8 in wall hood with screen, for ERV intake and exhaust",
-     "spec": "Two hoods on the west wall, more than 10 ft apart",
-     "qty": 2,
+     "item": "8 in wall hood with screen, for the ERV exhaust",
+     "spec": "West wall; the fresh air hood is the shared 12 in one listed below",
+     "qty": 1,
      "unit": "ea",
      "where": "",
      "note": "Match the maker's hood or an insulated hood.",
@@ -301,7 +301,7 @@
      "qty": 1,
      "unit": "ea",
      "where": "",
-     "note": "Opens whenever the hood runs on medium or high, and starts the fan and blower.",
+     "note": "Opens whenever the hood runs on medium or high, and starts the fan.",
      "price": "About $284 to $355",
      "status": ""
     },
@@ -337,11 +337,11 @@
     },
     {
      "item": "24 V relay, for example Functional Devices RIB2401B",
-     "spec": "Wired across the makeup air damper: starts the fan and calls the heat pump blower",
+     "spec": "Wired across the makeup air damper: starts the fan. Not wired to the blower (Maxwell, 11/21/2026)",
      "qty": 1,
      "unit": "ea",
      "where": "",
-     "note": "HVAC installer wires the blower call.",
+     "note": "",
      "price": "About $25 to $40",
      "status": ""
     },
@@ -353,6 +353,16 @@
      "where": "",
      "note": "",
      "price": "set",
+     "status": ""
+    },
+    {
+     "item": "10 in spring loaded backdraft damper, low leakage",
+     "spec": "Makeup air duct, just before the kitchen supply duct",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "Stops supply air going backward out the makeup air duct.",
+     "price": "About $20 to $50",
      "status": ""
     },
     {
@@ -376,33 +386,43 @@
      "status": ""
     },
     {
-     "item": "10 in intake wall hood with 1/4 in screen, black",
-     "spec": "West wall over bedroom 3's attic, beside the ERV fresh air hood",
+     "item": "12 in intake wall hood with 1/4 in screen, louvred, black",
+     "spec": "West wall: the ERV's fresh air hood, shared with the makeup air",
      "qty": 1,
      "unit": "ea",
      "where": "",
-     "note": "No damper needed in the hood; the MD10TU closes the duct.",
-     "price": "About $40 to $120",
+     "note": "Replaces one of the ERV's two 8 in hoods. No damper in the hood.",
+     "price": "About $60 to $150",
      "status": ""
     },
     {
-     "item": "10 in inline duct filter box with side access door",
+     "item": "12 x 10 x 8 in wye",
+     "spec": "Just inside the shared intake: 8 in to the ERV, 10 in to the makeup air",
+     "qty": 1,
+     "unit": "ea",
+     "where": "",
+     "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "16 x 25 x 4 in media filter cabinet with 10 in round collars",
      "spec": "Right after the makeup air damper",
      "qty": 1,
      "unit": "ea",
      "where": "",
-     "note": "Broan requires a filter downstream of the damper.",
-     "price": "About $60 to $120",
+     "note": "Broan requires a filter downstream; MERV 13 so nothing comes in unfiltered (Maxwell, 11/21/2026).",
+     "price": "About $80 to $180",
      "status": ""
     },
     {
-     "item": "1 in MERV 8 filters for the makeup air filter box",
-     "spec": "",
+     "item": "16 x 25 x 4 in MERV 13 filters",
+     "spec": "Makeup air filter cabinet",
      "qty": 2,
      "unit": "ea",
      "where": "",
      "note": "One in it, one spare.",
-     "price": "About $10 each",
+     "price": "About $30 to $45 each",
      "status": ""
     },
     {
@@ -508,7 +528,7 @@
      "spec": "Range hood makeup air outdoor side, insulated",
      "qty": 6,
      "unit": "x 5 ft",
-     "where": "24 ft in the model",
+     "where": "23 ft in the model",
      "note": "Insulate with R-8 wrap or use insulated duct, vapor jacket outside",
      "price": "",
      "status": ""
@@ -520,6 +540,16 @@
      "unit": "x 5 ft",
      "where": "51 ft in the model",
      "note": "",
+     "price": "",
+     "status": ""
+    },
+    {
+     "item": "12 in round pipe, 30 ga snap lock",
+     "spec": "Range hood makeup air outdoor side, insulated",
+     "qty": 1,
+     "unit": "x 5 ft",
+     "where": "1 ft in the model",
+     "note": "Insulate with R-8 wrap or use insulated duct, vapor jacket outside",
      "price": "",
      "status": ""
     },
@@ -576,7 +606,7 @@
     {
      "item": "8 in adjustable 90 elbow",
      "spec": "",
-     "qty": 13,
+     "qty": 14,
      "unit": "ea",
      "where": "Counted from the bends in the model",
      "note": "",
@@ -586,7 +616,7 @@
     {
      "item": "10 in adjustable 90 elbow",
      "spec": "",
-     "qty": 9,
+     "qty": 10,
      "unit": "ea",
      "where": "Counted from the bends in the model",
      "note": "",
@@ -1222,7 +1252,7 @@
      "spec": "",
      "qty": 6,
      "unit": "gal",
-     "where": "About 221 joints",
+     "where": "About 226 joints",
      "note": "",
      "price": "",
      "status": ""
@@ -1230,7 +1260,7 @@
     {
      "item": "Foil tape, UL 181A-P / 181B-FX",
      "spec": "",
-     "qty": 9,
+     "qty": 10,
      "unit": "roll",
      "where": "",
      "note": "",
@@ -1369,7 +1399,7 @@
    "system": "Range hood makeup air",
    "room": "Kitchen",
    "size": "10 in round",
-   "ft": 24.28391666666666,
+   "ft": 24.048916666666667,
    "cfm": 600,
    "flex": false,
    "crosses": 0,
