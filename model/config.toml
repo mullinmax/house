@@ -249,7 +249,12 @@ wall_shift = [ { at = [39.81, 34.0], dx = -0.5, note = "cubby / entry closet par
                # bedroom 1 door wall, 2 ft 1 1/2 in east (Maxwell 11/19/2026, the builder can move it): the study's south wall then has room for two
                # return stacks between its door and that wall, each in its own floor truss bay (27.7 and 29.7 on the ASSUMED 24 in truss grid)
                { at = [28.25, 11.2], dx = 2.13, note = "bedroom 1 door wall, north end" },
-               { at = [28.25, 14.8], dx = 2.13, note = "bedroom 1 door wall, south end" } ]
+               { at = [28.25, 14.8], dx = 2.13, note = "bedroom 1 door wall, south end" },
+               # closet 1 stub walls, 4 1/4 in east of A-11's 5'-5 1/2" so the door casings fit (Maxwell 11/21/2026). A-11 puts the north stub's
+               # face less than 1/2 in from the measured bedroom 1 pocket door jack (x 36.96), so its casing was cut off; the closet 1 to bath 1
+               # door (east edge 37.04) needs the same room on the south stub. The east bay is about 4'-9 5/8" inside, was 5'-2"
+               { at = [37.2, 17.0], dx = 0.3542, note = "closet 1 north stub wall" },
+               { at = [37.2, 21.9], dx = 0.3542, note = "closet 1 south stub wall (its traced rect runs on through the bath 1 wall; wall_ends trims it back and closes that wall behind it)" } ]
 # door edges in the hall 2 north wall as framed (Maxwell's stud readings 11/20/2026, [framing] stud_lines): the bedroom 2, bath 2
 # and study doors are 1 1/2 to 2 in east of A-11 and 32 to 32 1/2 in rough openings
 wall_ends = [ { at = [8.0, 10.8], x1 = 12.938, note = "bedroom 2 door west edge (148.75 in)" },
@@ -257,7 +262,10 @@ wall_ends = [ { at = [8.0, 10.8], x1 = 12.938, note = "bedroom 2 door west edge 
               { at = [21.0, 10.8], x0 = 19.333, x1 = 23.521, note = "bath 2 door east edge (225.5 in) and study door west edge (275.75 in)" },
               { at = [28.0, 10.8], x0 = 26.188, note = "study door east edge (32 in rough opening)" },
               { at = [33.0, 15.26], x1 = 34.291, note = "closet 1 pocket door: a 32 in door against the east jacks, x 34.29 to 36.96 (Maxwell's stud readings 11/20/2026)" },
-              { at = [38.0, 15.26], x0 = 36.958, note = "closet 1 pocket door east edge" } ]
+              { at = [38.0, 15.26], x0 = 36.958, note = "closet 1 pocket door east edge" },
+              { at = [37.5, 21.9], y1 = 22.408, note = "closet 1 south stub, moved 4 1/4 in east: it stops at the closet face of the bath 1 wall" },
+              { at = [40.0, 22.6], x0 = 37.039, note = "the bath 1 / closet 1 wall runs on west to the closet 1 to bath 1 door's east edge, where the stub's corner was" } ]
+no_gap = [ [35.7, 22.64] ]          # the closet 1 to bath 1 door (door_add) now lines up wall to wall since the closet stub moved; it is hung once, by door_add
 wall_remove = [ { at = [39.31, 34.0], note = "that partition is gone: a 3/4 in panel of the coat cabinet divides it from the cubby ([entry_closet] divider, Maxwell 11/19/2026)" } ]
 
 [barn_door]                     # living room "large French barn door" (Maxwell 11/12/2026), D60-80 on A-11
@@ -672,7 +680,7 @@ items = [
   { id = "washer", type = "washer", x = 26.15, y = 21.25, facing = 0 },
   { id = "dryer", type = "dryer", x = 28.75, y = 21.25, facing = 0 },
   # ---- bath 2 (x 16.3-22.6, y 0.6-10.7): alcove tub on the north wall
-  { id = "tub2", type = "tub", x0 = 16.25, x1 = 21.83, y0 = 0.54, y1 = 3.0 },
+  { id = "tub2", type = "tub", x0 = 16.25, x1 = 21.83, y0 = 0.54, y1 = 3.0, curtain = { x = [16.32, 21.77], y = 2.88, rod_z = 6.6, bottom_z = 1.95, drawn = 0.7, color = "#DCD6C8", replaces = "tub_glass_panel" } },   # fabric shower curtain on a straight rod instead of the glass panel (Maxwell 11/21/2026); colour ASSUMED
   { id = "vanity2", type = "vanity", x = 21.72, y = 8.75, w = 3.5, d = 1.75, sinks = 1, facing = 270 },
   { id = "mirror2", type = "mirror", x = 22.56, y = 8.75, z = 3.9, w = 3.0, h = 3.0, facing = 270 },
   { id = "toilet2", type = "toilet", x = 21.4, y = 5.6, facing = 270 },
@@ -681,7 +689,7 @@ items = [
   { id = "vanity1", type = "vanity", x = 32.46, y = 26.0, w = 5.4, d = 1.75, sinks = 2, facing = 90 },
   { id = "mirror1", type = "mirror", x = 31.62, y = 26.0, z = 3.9, w = 4.8, h = 3.0, facing = 90 },
   { id = "toilet1", type = "toilet", x = 32.75, y = 31.1, facing = 90 },   # toilet room south of the D28-68 door (A-11 position)
-  { id = "wetroom1", type = "wetroom", x0 = 38.41, x1 = 42.5, y0 = 22.87, y1 = 32.82, drain_y = 27.1, wet_from = 22.87, head_x = 40.45, bench = "north", bench_h = 1.5, bench_d = 1.25, ceiling = 9.0, entry_tile = false, walk_in = [23.95, 26.95], walk_in_head = 9.0 },   # Maxwell 11/13: open doorway (A-11 D28-68 gap x 34.37-37.04 at y 29.4), linear drain E-W at its south edge, tiled wet zone south of it with shower on the south wall + tiled bench. ASSUMED
+  { id = "wetroom1", type = "wetroom", x0 = 38.41, x1 = 42.5, y0 = 22.87, y1 = 32.82, drain_y = 27.1, wet_from = 22.87, head_x = 40.45, bench = "north", bench_h = 1.5, bench_d = 1.083, head_y = 29.82, valves_y = [28.1, 28.6, 29.1], slide_y = [29.75, 30.95], ceiling = 9.0, entry_tile = false, walk_in = [23.95, 26.95], walk_in_head = 9.0 },   # Maxwell 11/13: open doorway (A-11 D28-68 gap x 34.37-37.04 at y 29.4), linear drain E-W at its south edge, tiled wet zone south of it with shower on the south wall + tiled bench. ASSUMED
   { id = "towel1", type = "towel", x = 42.45, y = 25.2, z = 4.0, w = 2.0, facing = 270, color = "#E9E4DA", moved_from = [34.3, 28.9, 180], move_node = "towel001" },   # was floating in the WC pocket door opening; now on the A-11 towel warmer, bath 1 east wall (Maxwell, 11/17/2026)
   { id = "warmer1", type = "towel_warmer", web = true, x = 42.5, y0 = 24.15, y1 = 26.25, z0 = 2.0, z1 = 4.9, facing = 270 },   # A-11 towel warmer on the bath 1 east wall (ASSUMED model); its old bar in the WC doorway is culled
   # ---- powder room
@@ -759,7 +767,7 @@ all_built = "Framed by 11/20/2026 (Maxwell's site photos show nearly every inter
 stud_lines = [ { axis = "x", at = 10.8, x0 = 0.5417, right_edges_in = [1.5, 14, 15.5, 46.75, 48.25, 64.25, 80.5, 96.5, 113, 129, 145.75, 147.25, 148.75, 182.5, 184, 192, 193.5, 227, 228.5, 240.75, 256.5, 272.25, 274.25, 275.75], note = "MEASURED by Maxwell 11/20/2026: the hall 2 / bedroom 3 north wall (the bedroom 2, bath 2 and study wall), the east edge of every stud in inches east of the inside of the west wall, from the west wall to the study door. 184 / 192 are the bedroom 2 door's east and the bath 2 door's west framing; 275.75 is the study door's west edge" },
                { axis = "x", at = 10.8, x0 = 26.188, right_edges_in = [1.5, 3, 12.25, 28.75, 44.5, 59.75, 62.5], note = "MEASURED by Maxwell 11/20/2026: the study's hall wall east of its door, hooked on the west face of the door's east jack, east edges of the studs in inches. That face is x 26.19: the door's west edge at 275.75 in on the long wall reading (x 23.52) plus its 32 in rough opening (the model's door sits about 2 in further west, 23.37 to 26.00)" },
                { axis = "x", at = 15.26, x0 = 42.5417, west_edges_in = [1.5, 9.25, 25, 40.75, 57.5, 64, 65.5, 67, 133.5, 135.125, 136.5], note = "MEASURED by Maxwell 11/20/2026: bedroom 1's south wall, hooked on the east wall (SIP face, no drywall) and read west, the WEST edge of each stud in inches. 64 / 65.5 / 67 and 133.5 / 135.125 / 136.5 are the closet 1 pocket door's king and two jacks each side" } ]
-door_heads = [ [14.16, 22.64, 6.67] ]   # hall 1 pocket door: the as-built header sits at 6'-11" (83 in), so the door is 6'-8" (Maxwell 11/20/2026), not the 8 ft A-11 shows
+door_heads = [ [14.16, 22.64, 6.67], [37.54, 19.99, 6.67] ]   # hall 1 pocket door: the as-built header sits at 6'-11" (83 in), so the door is 6'-8" (Maxwell 11/20/2026), not the 8 ft A-11 shows. Closet 1 east bay opening: kept at 6'-8" after its stub walls moved east (11/21/2026)
 clerestory_wall = { built = true, stud_d_in = 5.5, plate_in = 108.5, note = "Wall A: a stick framed wall stands on the clerestory line, top of its top plate 9 ft 0 1/2 in (Maxwell 11/20/2026). The model's SIP clerestory wall is drawn around it until we know what goes on top. Stud size ASSUMED 2x6." }
 
 [[framing.headers]]             # A1, pantry door
@@ -870,3 +878,13 @@ kings = 1
 confidence = "medium"
 measured = "11/20/2026 by Maxwell: 83 in to the bottom of the header, one 2x4 under each end. Width still to confirm (he said 75 in; the photo shows a door width opening)"
 source = "Maxwell's photo 11/20/2026 from hall 2: door at the west end of the study wall, then a short bay and 16 in bays east"
+
+[closet1]                        # master closet shelving (Maxwell 11/21/2026: fill it with shelves and clothes). Layout follows A-11's
+# CLOTHES SHELVING: the west room's west wall, and a U in the east bay. rect = [x0, y0, x1, y1] plan ft, back = wall it stands on,
+# kind = double (rods at 3'-6" and 7'-0"), long (rod at 5'-8"), shelves. Finish and heights ASSUMED
+enabled = true
+color = "#F1EFEA"
+units = [ { id = "west", name = "Closet shelving, west wall", rect = [31.581, 18.5, 33.581, 22.408], back = "W", kind = "double" },
+          { id = "north", name = "Closet shelving, east bay north", rect = [37.737, 15.491, 42.542, 17.491], back = "N", kind = "double" },
+          { id = "east", name = "Closet shelving, east bay east", rect = [40.542, 17.491, 42.542, 22.408], back = "E", kind = "long" },
+          { id = "south", name = "Shelf tower, east bay south", rect = [37.737, 20.908, 40.542, 22.408], back = "S", kind = "shelves" } ]

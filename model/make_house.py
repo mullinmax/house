@@ -804,6 +804,9 @@ def attic_gap(x0, x1, y0, y1, crossed, alongx):
         FIXES.append(("sliver", x0, x1, y0, y1, top, FH + FLOOR_T - DECK_T))
 
 
+NO_GAP = C.get("plan_edits", {}).get("no_gap", [])    # wall gaps not to read as doors: [x, y] near the gap centre
+
+
 def make_headers():
     rects = INT_RECTS
     for i, a in enumerate(rects):
@@ -826,6 +829,8 @@ def make_headers():
                     if any(r is not a and r is not b and r[0] < gap1 - 0.01 and r[1] > gap0 + 0.01 and r[2] < a[3] and r[3] > a[2] for r in rects):
                         continue
                     cx, cy = (gap0 + gap1) / 2, (a[2] + a[3]) / 2
+                    if any(math.hypot(cx - p_[0], cy - p_[1]) < 1.5 for p_ in NO_GAP):
+                        continue                    # a door that [furnishings] door_add already hangs (it brings its own header)
                     h = door_head_near(cx, cy)
                     top = wall_top(gap0, gap1, a[2], a[3])
                     DOOR_GAPS.append(("x", gap0, gap1, a[2], a[3], h))
@@ -846,6 +851,8 @@ def make_headers():
                     if any(r is not a and r is not b and r[2] < gap1 - 0.01 and r[3] > gap0 + 0.01 and r[0] < a[1] and r[1] > a[0] for r in rects):
                         continue
                     cx, cy = (a[0] + a[1]) / 2, (gap0 + gap1) / 2
+                    if any(math.hypot(cx - p_[0], cy - p_[1]) < 1.5 for p_ in NO_GAP):
+                        continue
                     h = door_head_near(cx, cy)
                     top = wall_top(a[0], a[1], gap0, gap1)
                     DOOR_GAPS.append(("y", gap0, gap1, a[0], a[1], h))
@@ -2592,9 +2599,16 @@ if FU.get("enabled"):
     pas = [(p_[0], p_[1]) for p_ in CL["passages"]]
     segs += [("x", YC, T, HW - T, -1, pas), ("x", YC2, T, HW - T, 1, pas)]
     rec("trim.baseboard", "trim", "Baseboards", "interior", info=dict(model=f"{FU.get('baseboard_height_in', 4.5):g}\" white oak baseboard (ASSUMED)", notes=["Runs along every wall face, stopping at door openings."]))
+    # no baseboard inside the shower: the wet room is tiled floor to ceiling (Maxwell, 11/21/2026: trim showed in it)
+    WET_RECTS = [(it_["x0"], it_["x1"], it_["y0"], it_["y1"]) for it_ in FU.get("items", []) if it_.get("type") == "wetroom"] if FU.get("enabled") else []
     for s_ in segs:
         ax, c0, a0, a1, sgn = s_[:5]
-        holes = s_[5] if len(s_) > 5 else []
+        holes = list(s_[5]) if len(s_) > 5 else []
+        for (wx0, wx1, wy0, wy1) in WET_RECTS:
+            if ax == "x" and wy0 - 0.1 <= c0 <= wy1 + 0.1 and sgn == (1 if c0 < (wy0 + wy1) / 2 else -1):
+                holes.append((wx0 - 0.1, wx1 + 0.1))
+            if ax == "y" and wx0 - 0.1 <= c0 <= wx1 + 0.1 and sgn == (1 if c0 < (wx0 + wx1) / 2 else -1):
+                holes.append((wy0 - 0.1, wy1 + 0.1))
         for (r0, r1) in cut_runs(a0, a1, holes):
             d0, d1 = sorted((c0, c0 + sgn * 0.045))
             if ax == "x":
@@ -3268,20 +3282,208 @@ rec("site.slider_pad", "slab", "Concrete pad at the bi-parting door", "shell", r
               notes=["Centred on the door (Maxwell, 11/21/2026); the Blender pad sat 10 in to the west."]))
 box("Concrete", _pc - _pw / 2, _pc + _pw / 2, HD + 0.0, HD + _pd, -0.6, -0.05)
 
-# The baked bath 1 wet room tiled its whole west wall, straight across the A-11 walk in opening (x 38.12-38.41,
-# y 23.59-26.95; Maxwell, 11/17/2026). Drop that slab and tile the wall here with the opening left open.
+# ------------------------------------------------------------------ bath 1 wet room, built here (Maxwell, 11/21/2026)
+# The baked wet room had its tile behind the drywall on the west and south walls (the partitions grew 5/8 in of drywall
+# each side, 11/21/2026), a bench 11 in short of the west wall, a bare vertical bar on the north wall, a rain head on a
+# wall arm, a flat disc through the south wall and a black square (an unlit niche) half in the east wall. All of it but
+# the floor tile and the trench drain is dropped and rebuilt here to A-11: bench seat across the north end, trench drain,
+# rain head in the ceiling over the south half, three valve trims and a handheld on a slide bar on the west wall.
+def _wet_faces(it):
+    """inner faces of the wet room's walls as built (after the drywall growth): x0, x1, y0, y1"""
+    x0w, x1w, y0w, y1w = it["x0"], it["x1"], it["y0"], it["y1"]
+    xm, ym = (x0w + x1w) / 2, (y0w + y1w) / 2
+    fx0 = max([r_[1] for r_ in INT_RECTS if r_[0] < x0w + 0.2 and r_[1] > x0w - 0.6 and r_[2] < ym + 2 and r_[3] > ym] or [x0w])
+    fy0 = max([r_[3] for r_ in INT_RECTS if r_[2] < y0w + 0.2 and r_[3] > y0w - 0.6 and r_[0] < xm and r_[1] > xm] or [y0w])
+    fy1 = min([r_[2] for r_ in INT_RECTS if r_[2] < y1w + 0.6 and r_[3] > y1w - 0.2 and r_[0] < xm and r_[1] > xm] or [y1w])
+    return fx0, min(x1w, HW - T), fy0, fy1
+
+
+WET = []
+MATERIALS.update({"Shower Chrome": dict(color="#D6D8DA", rough=0.12, metal=1.0), "Hose": dict(color="#C9CBCD", rough=0.25, metal=0.9)})
 for it in FURN:
-    if it.get("type") != "wetroom" or not it.get("walk_in"):
+    if it.get("type") != "wetroom":
         continue
-    x0w, y0w, y1w = it["x0"], it["y0"], it["y1"]
-    o0, o1 = it["walk_in"]
-    WEB_META["cull"].append(dict(box=[x0w - 0.02, y0w - 0.05, -0.1, x0w + 0.04, y1w + 0.05, 9.2], materials=["Tile Wall"]))
-    rec(f"furniture.{it['id']}.west_tile", "furniture", "Shower wall tile", "furniture", tog="finish", room=room_at(x0w + 1, (o0 + o1) / 2),
-        info=dict(model="Wall tile, wet room west wall (ASSUMED finish)", notes=["Open between the jambs per A-11 so you can walk into the shower."]))
-    for a, b_ in ((y0w, o0), (o1, y1w)):
-        box("Tile Wall", x0w, x0w + 0.02, a, b_, 0.02, it.get("ceiling", 9.0))
-    for yj, d_ in ((o0, 1), (o1, -1)):                       # tile wraps the jambs, back to the drywall face
-        box("Tile Wall", x0w - 0.31, x0w + 0.02, yj, yj + d_ * 0.02, 0.02, it.get("walk_in_head", 8.0))
+    x0w, x1w, y0w, y1w = it["x0"], it["x1"], it["y0"], it["y1"]
+    fx0, fx1, fy0, fy1 = _wet_faces(it)
+    WET.append((fx0, fx1, fy0, fy1))
+    ztop = it.get("ceiling", 9.0) - 0.005                   # just under the ceiling face, so the two never flicker
+    tt = 0.03                                                  # tile and setting bed, 3/8 in
+    WEB_META["cull"] += [dict(box=[x0w - 0.4, y0w - 0.1, -0.1, x1w + 0.2, y1w + 0.3, ztop + 0.2], materials=["Tile Wall", "Counter"]),
+                         dict(box=[x0w - 0.2, y0w - 0.1, 0.3, x1w + 0.2, y1w + 0.3, ztop], materials=["Brushed Nickel"]),
+                         dict(box=[x0w, y1w - 0.3, 3.0, x1w + 0.3, y1w + 0.3, 6.0], materials=["Appliance Interior"])]
+    room = room_at((fx0 + fx1) / 2, (fy0 + fy1) / 2)
+    rec(f"furniture.{it['id']}.tile", "furniture", "Shower wall tile", "furniture", tog="finish", room=room,
+        info=dict(model="Wall tile, floor to ceiling on all four wet room walls (finish ASSUMED)",
+                  notes=["Stops at the shower side of the walk in opening; the jambs and the bath side stay painted drywall (Maxwell, 11/21/2026: the tile came out of the shower)."]))
+    o0, o1 = it.get("walk_in", [0, 0])
+    box("Tile Wall", fx0, fx0 + tt, fy0, o0, 0.01, ztop)          # west wall, either side of the walk in opening
+    box("Tile Wall", fx0, fx0 + tt, o1, fy1, 0.01, ztop)
+    box("Tile Wall", fx1 - tt, fx1, fy0 + tt, fy1 - tt, 0.01, ztop)   # east
+    box("Tile Wall", fx0 + tt, fx1 - tt, fy0, fy0 + tt, 0.01, ztop)   # north
+    box("Tile Wall", fx0 + tt, fx1 - tt, fy1 - tt, fy1, 0.01, ztop)   # south
+    # bench seat across the full width of the north end, tiled, quartz top (A-11 BENCH SEAT)
+    bd, bh = it.get("bench_d", 13 / 12), it.get("bench_h", 1.5)
+    rec(f"furniture.{it['id']}.bench", "furniture", "Shower bench", "furniture", tog="finish", room=room,
+        info=dict(model=f"Built in tiled bench, wall to wall across the north end, {ftin(bd)} deep, seat {ftin(bh)} high, quartz top (A-11 BENCH SEAT; finish ASSUMED)",
+                  notes=["Runs the full width of the shower (Maxwell, 11/21/2026: it stopped short of the west wall). It ends at the walk in opening's north jamb, as A-11 draws it."]))
+    box("Tile Wall", fx0 + tt, fx1 - tt, fy0 + tt, fy0 + bd - 0.02, 0.01, bh - 0.07)
+    box("Counter", fx0 + tt, fx1 - tt, fy0 + tt, fy0 + bd, bh - 0.07, bh)
+    # rain head flush with the ceiling over the south half (A-11 RAIN HEAD), on a short ceiling arm
+    hx, hy = it.get("head_x", (fx0 + fx1) / 2), it.get("head_y", 29.82)
+    rec(f"furniture.{it['id']}.rain", "furniture", "Rain shower head", "furniture", tog="finish", room=room,
+        info=dict(model="12 in round ceiling mount rain head, polished chrome (A-11 RAIN HEAD; model ASSUMED)",
+                  notes=["Where A-11 draws it, over the south half of the shower. It replaces the wall arm head on the south wall."]))
+    cyl("Shower Chrome", hx, hy, ztop - 0.6, ztop, 0.035)
+    cyl("Shower Chrome", hx, hy, ztop - 0.62, ztop - 0.58, 0.5, 0.48)
+    cyl("Shower Chrome", hx, hy, ztop - 0.02, ztop, 0.12)
+    # three valve trims and the handheld on a slide bar, west wall south of the drain (A-11)
+    xv = fx0 + tt
+    rec(f"furniture.{it['id']}.valves", "furniture", "Shower valves and handheld", "furniture", tog="finish", room=room,
+        info=dict(model="Thermostatic valve with two volume controls (rain head, handheld), and a handheld on a 30 in slide bar (A-11; models ASSUMED)",
+                  notes=["Valves and handheld on the west wall as A-11 draws them. The bar on the north wall is gone (Maxwell, 11/21/2026: he could not tell what it was)."]))
+    for yv in it.get("valves_y", [28.1, 28.6, 29.1]):
+        box("Shower Chrome", xv, xv + 0.03, yv - 0.17, yv + 0.17, 3.73, 4.07)       # square trim plate
+        box("Shower Chrome", xv + 0.03, xv + 0.2, yv - 0.04, yv + 0.04, 3.86, 3.94)  # lever
+    ys0, ys1 = it.get("slide_y", [29.75, 30.95])
+    yb = (ys0 + ys1) / 2 + 0.25
+    box("Shower Chrome", xv, xv + 0.12, ys0 - 0.06, ys0 + 0.06, 3.2, 3.35)          # supply elbow
+    box("Shower Chrome", xv + 0.05, xv + 0.12, yb - 0.025, yb + 0.025, 3.7, 6.2)   # slide bar
+    for zb in (3.7, 6.2):
+        box("Shower Chrome", xv, xv + 0.12, yb - 0.04, yb + 0.04, zb - 0.05, zb + 0.05)
+    box("Shower Chrome", xv + 0.1, xv + 0.2, yb - 0.04, yb + 0.04, 5.35, 5.5)       # holder on the bar
+    box("Shower Chrome", xv + 0.17, xv + 0.24, yb - 0.035, yb + 0.035, 4.75, 5.55)  # handle
+    cyl("Shower Chrome", xv + 0.27, yb, 5.55, 5.62, 0.16, 0.14)                     # spray face
+    for k in range(6):                                                              # hose looping down from the elbow
+        a, b = k / 6, (k + 1) / 6
+        za, zb = 3.27 - 0.9 * math.sin(math.pi * a), 3.27 - 0.9 * math.sin(math.pi * b)
+        ya, yb2 = ys0 + (yb - ys0) * a, ys0 + (yb - ys0) * b
+        if k == 5:
+            zb = 4.75
+        box("Hose", xv + 0.1, xv + 0.15, min(ya, yb2) - 0.02, max(ya, yb2) + 0.02, min(za, zb), max(za, zb))
+
+
+# ------------------------------------------------------------------ bath 2 tub: fabric shower curtain (Maxwell, 11/21/2026)
+def thin_panel(mat, p, q, z0, z1, t=0.01):
+    """a thin vertical panel between plan points p and q"""
+    dx, dy = q[0] - p[0], q[1] - p[1]
+    L = math.hypot(dx, dy) or 1
+    nx, ny = -dy / L * t / 2, dx / L * t / 2
+    c = [(p[0] - nx, p[1] - ny), (q[0] - nx, q[1] - ny), (q[0] + nx, q[1] + ny), (p[0] + nx, p[1] + ny)]
+    hexa(mat, [(x, y, z0) for x, y in c] + [(x, y, z1) for x, y in c])
+
+
+for it in FURN:
+    if it.get("type") != "tub" or not it.get("curtain"):
+        continue
+    cu = it["curtain"]
+    WEB_META["replace_nodes"].append(cu.get("replaces", "tub_glass_panel"))
+    x0c, x1c = cu.get("x", [it["x0"], it["x1"]])
+    yr, zr = cu.get("y", it["y1"] - 0.12), cu.get("rod_z", 6.6)
+    fab = paint(cu.get("color", "#DCD6C8"))
+    MATERIALS[fab].update(rough=0.92)
+    rec(f"furniture.{it['id']}.curtain", "furniture", "Shower curtain", "furniture", tog="finish", room=room_at((x0c + x1c) / 2, yr),
+        info=dict(model="Fabric shower curtain (cotton or linen look, 72 x 72 in class, colour ASSUMED) on a straight brushed nickel rod, wall to wall",
+                  notes=["Fabric curtain instead of the fixed glass panel (Maxwell, 11/21/2026). Shown drawn most of the way, open at the faucet end."]))
+    box("Brushed Nickel", x0c, x1c, yr - 0.035, yr + 0.035, zr - 0.035, zr + 0.035)
+    for xe in (x0c, x1c):                                                           # wall flanges
+        cx_ = xe + (0.02 if xe == x0c else -0.02)
+        box("Brushed Nickel", min(xe, cx_), max(xe, cx_), yr - 0.1, yr + 0.1, zr - 0.1, zr + 0.1)
+    span = cu.get("drawn", 0.7) * (x1c - x0c)                                       # the curtain bunches toward the west end
+    n = max(4, int(span / 0.3))
+    amp = 0.11
+    xs = [x0c + 0.03 + k * (span - 0.03) / n for k in range(n + 1)]
+    pts = [(xx, yr + (amp if k % 2 else -amp) * (0.6 + 0.4 * (k % 3 == 1))) for k, xx in enumerate(xs)]
+    zb = cu.get("bottom_z", 1.95)
+    for k in range(n):
+        thin_panel(fab, pts[k], pts[k + 1], zb, zr - 0.12)
+    for k in range(0, n + 1, 1):                                                    # rings on the rod
+        box("Brushed Nickel", xs[k] - 0.02, xs[k] + 0.02, yr - 0.05, yr + 0.05, zr - 0.13, zr + 0.06)
+
+
+# ------------------------------------------------------------------ closet 1: shelves, rods and clothes (Maxwell, 11/21/2026)
+# A-11 shows clothes shelving along the west room's west wall and around the east bay. Shelf and rod units are fixtures
+# (Cabinets, fixtures and trim); the clothes, folded stacks and shoes are Belongings.
+CL1 = C.get("closet1", {})
+GARMENTS = ["#2F3A4A", "#8C9AA6", "#E9E4DA", "#6B7F5E", "#B5533C", "#3D3D3D", "#C9B89A", "#4E6E8E", "#F2F0EA", "#7A4E3A", "#A7B59A", "#1F2A36", "#D7C3B0", "#5B5F7A"]
+if CL1.get("enabled"):
+    import random as _rnd
+    _rg = _rnd.Random(7)
+    sh = paint(CL1.get("color", "#F1EFEA"))
+    for u in CL1.get("units", []):
+        x0u, y0u, x1u, y1u = u["rect"]
+        along_x = (x1u - x0u) >= (y1u - y0u)
+        back = u["back"]                                       # N, S, E or W: the wall the unit stands against
+        L0, L1 = (x0u, x1u) if along_x else (y0u, y1u)
+        dep = (y1u - y0u) if along_x else (x1u - x0u)
+
+        def U(mat, a0, a1, d0, d1, z0, z1):                    # a along the unit, d out from the back wall
+            if along_x:
+                yy = (y0u + d0, y0u + d1) if back == "N" else (y1u - d1, y1u - d0)
+                box(mat, a0, a1, yy[0], yy[1], z0, z1)
+            else:
+                xx = (x0u + d0, x0u + d1) if back == "W" else (x1u - d1, x1u - d0)
+                box(mat, xx[0], xx[1], a0, a1, z0, z1)
+
+        rec(f"closet1.{u['id']}", "furniture", u.get("name", "Closet shelving"), "furniture", tog="finish", room=room_at((x0u + x1u) / 2, (y0u + y1u) / 2),
+            info=dict(model=f"Closet system, painted shelves and brushed nickel rods, {ftin(L1 - L0)} long, {ftin(dep)} deep (layout from A-11 CLOTHES SHELVING; details ASSUMED)",
+                      specs=[["Hanging", {"double": "double hang, rods at 3'-6\" and 7'-0\"", "long": "long hang, rod at 5'-8\"", "shelves": "no rod"}[u["kind"]]],
+                             ["Shelves", "top shelf at 7'-4\" and one over the long hang" if u["kind"] != "shelves" else "seven shelves, 12 in apart"]],
+                      notes=["Fills the master closet (Maxwell, 11/21/2026)."]))
+        t_ = 0.06
+        for a in (L0, L1 - t_):                                 # end panels
+            U(sh, a, a + t_, 0, dep, 0, 7.5)
+        if u["kind"] == "shelves":
+            for k in range(8):
+                U(sh, L0 + t_, L1 - t_, 0, dep, 0.3 + k * 1.0, 0.36 + k * 1.0)
+        else:
+            U(sh, L0 + t_, L1 - t_, 0, dep, 7.3, 7.36)          # top shelf
+            rods = [3.5, 7.0] if u["kind"] == "double" else [5.67]
+            if u["kind"] == "long":
+                U(sh, L0 + t_, L1 - t_, 0, dep, 6.2, 6.26)
+            for zr_ in rods:
+                U("Brushed Nickel", L0 + t_, L1 - t_, dep / 2 - 0.03, dep / 2 + 0.03, zr_ - 0.03, zr_ + 0.03)
+    # belongings: clothes on the rods, folded stacks on the shelves, shoes on the floor of the shelf towers
+    rec("closet1.clothes", "furniture", "Clothes", "furniture", room="Closet 1",
+        info=dict(model="Hanging clothes, folded stacks and shoes (stand ins)", notes=["Belongings, so they go with that layer."]))
+    for u in CL1.get("units", []):
+        x0u, y0u, x1u, y1u = u["rect"]
+        along_x = (x1u - x0u) >= (y1u - y0u)
+        back = u["back"]
+        L0, L1 = (x0u, x1u) if along_x else (y0u, y1u)
+        dep = (y1u - y0u) if along_x else (x1u - x0u)
+
+        def U(mat, a0, a1, d0, d1, z0, z1):
+            if along_x:
+                yy = (y0u + d0, y0u + d1) if back == "N" else (y1u - d1, y1u - d0)
+                box(mat, a0, a1, yy[0], yy[1], z0, z1)
+            else:
+                xx = (x0u + d0, x0u + d1) if back == "W" else (x1u - d1, x1u - d0)
+                box(mat, xx[0], xx[1], a0, a1, z0, z1)
+
+        if u["kind"] == "shelves":
+            for k in range(1, 7):
+                z0s = 0.36 + k * 1.0
+                a = L0 + 0.12
+                while a < L1 - 0.5:
+                    w_ = _rg.uniform(0.7, 1.0); h_ = _rg.uniform(0.25, 0.55)
+                    U(paint(_rg.choice(GARMENTS)), a, min(a + w_, L1 - 0.1), 0.15, dep - 0.2, z0s, z0s + h_)
+                    a += w_ + 0.12
+            for k in range(int((L1 - L0 - 0.2) / 0.5)):          # shoes on the bottom shelf
+                a = L0 + 0.12 + k * 0.5
+                U(paint(_rg.choice(["#2B2420", "#6E4B32", "#E8E6E1", "#1E1E1E"])), a, a + 0.32, 0.3, dep - 0.2, 0.36, 0.7)
+            continue
+        rods = [3.5, 7.0] if u["kind"] == "double" else [5.67]
+        for zr_ in rods:
+            a = L0 + 0.15
+            while a < L1 - 0.15:
+                c_ = paint(_rg.choice(GARMENTS))
+                ln = (2.3 if zr_ > 4 and u["kind"] == "double" else 2.4) if u["kind"] == "double" else _rg.choice([2.6, 3.0, 3.6, 4.2])
+                ln *= _rg.uniform(0.9, 1.05)
+                U("Brushed Nickel", a + 0.03, a + 0.05, dep / 2 - 0.02, dep / 2 + 0.02, zr_ - 0.12, zr_ + 0.04)   # hanger hook
+                U(c_, a, a + 0.07, dep / 2 - 0.8, dep / 2 + 0.8, zr_ - 0.12 - ln, zr_ - 0.12)
+                a += _rg.uniform(0.13, 0.2)
+        for a in [L0 + 0.15 + k * 1.0 for k in range(int((L1 - L0 - 0.3) / 1.0))]:  # folded stacks on the top shelf
+            U(paint(_rg.choice(GARMENTS)), a, a + 0.8, 0.2, dep - 0.3, 7.36, 7.36 + _rg.uniform(0.3, 0.6))
 
 MATERIALS.update({
     "Rubber": dict(color="#1F2121", rough=0.95),
