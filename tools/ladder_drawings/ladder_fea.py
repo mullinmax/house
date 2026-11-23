@@ -83,11 +83,14 @@ if G.MONO:
     VC, SE = G.VC, G.VC - G.ARM_END                          # centre, and how far the arm reaches each side of it
     for f in G.FLIGHTS:
         fn = f.name[0].upper()
-        foot, head = f.p(f.ufc, VC, f.zf), (f.p(f.u2, VC, f.zc(f.u2)) if f is UP else f.p(f.uhc, VC, f.zu))   # upper: plumb cut head against the hanger
+        if f is UP:                                      # round 4: plumb foot on a post against the landing beam, notched head leaning on the balcony beam
+            foot, head = f.p(G.U_FOOT, VC, f.zc(G.U_FOOT)), f.p(G.U_BEAR, VC, f.zc(G.U_BEAR))
+        else:
+            foot, head = f.p(f.ufc, VC, f.zf), f.p(f.uhc, VC, f.zu)
         M(f"{fn}tube_c", foot, head, "STR")
         f.ends = dict(c=(foot, head))
-        for nm, pc, half in (("foot", foot, 4.0), ("head", head, G.TW / 2 + 0.125)):      # anchors each side of the tube resist its twist
-            u_ = f.ufc if nm == "foot" else (f.u2 if f is UP else f.uhc)
+        for nm, pc, half in (("foot", foot, 4.0 if f is LO else G.TW / 2 + 0.125), ("head", head, G.TW / 2 + 0.125)):      # anchors or clips each side of the tube resist its twist
+            u_ = (G.U_FOOT if nm == "foot" else G.U_BEAR) if f is UP else (f.ufc if nm == "foot" else f.uhc)
             M(f"{fn}{nm}bar", f.p(u_, VC - half, pc[2]), f.p(u_, VC + half, pc[2]), "RIGID")
             f.ends[nm] = (f.p(u_, VC - half, pc[2]), f.p(u_, VC + half, pc[2]))
         for k in range(1, f.nr):
@@ -160,7 +163,18 @@ if G.MONO:
     for i, nm in enumerate("ab"):
         ph, pf = LO.ends["head"][i], UP.ends["foot"][i]
         M(f"Lhead_{nm}", (ph[0], ph[1], ZL), ph, "RIGID", "J")
-        M(f"Ufoot_{nm}", (pf[0], pf[1], ZL), pf, "RIGID", "J")
+        M(f"Ufoot_{nm}", (pf[0], G.B_LN, ZL), pf, "RIGID", "J")         # angle clip each side to the landing's north beam
+    # round 4: one 3 x 3 x 3/16 post on a 4 anchor plate under the upper stringer's foot; its saddle ties it to the tube
+    SEC["POST3"] = ("steel",) + rect_hss(3.0, 3.0, 0.1875)
+    m.add_section("POST3", *SEC["POST3"][1:5])
+    a0p, a1p, b0p, b1p = G.UP_POST
+    upc = (b0p + b1p) / 2 - G.B0
+    pc_ = UP.p(upc, VC, UP.zc(upc))
+    ptop = (pc_[0], pc_[1], UP.zl(upc) - G.PL - G.BRKT_T)
+    m.def_support(N(pc_[0], pc_[1], 0.0), True, True, True, True, True, True)
+    SUP[N(pc_[0], pc_[1], 0.0)] = "upper stringer post base plate on the slab"
+    M("Upost", (pc_[0], pc_[1], 0.0), ptop, "POST3")
+    M("Upost_saddle", ptop, pc_, "RIGID")
 else:
     M("Lhead_o", (G.A_LH, XW, ZL), LO.ends["o"][1], "RIGID", "J")
     M("Lhead_w", (G.A_LH, 1, ZL), LO.ends["w"][1], "RIGID", "J")
@@ -185,7 +199,12 @@ for i, a in enumerate(G.BAL_STRIPS):
 if G.MONO:
     for i, nm in enumerate("ab"):
         ph = UP.ends["head"][i]
-        M(f"Uhead_{nm}", (ph[0], G.B_BH, ZB), ph, "RIGID", "J")        # hanger: stringer end to the head beam just north of it
+        # the notched head only leans on the head beam: a link along b (bearing face) at each side, released so it carries no weight
+        M(f"Uhead_{nm}", ph, (ph[0], G.B_BH, ph[2]), "RIGID", "ij")
+        M(f"Uhead_{nm}_drop", (ph[0], G.B_BH, ph[2]), (ph[0], G.B_BH, ZB), "RIGID")
+    ph = UP.ends["head"][0]                              # and the clips hold it sideways
+    M("Uhead_side", ph, (ph[0] + 2.0, ph[1], ph[2]), "RIGID", "ij")
+    M("Uhead_side_drop", (ph[0] + 2.0, ph[1], ph[2]), (ph[0] + 2.0, G.B_BH, ZB), "RIGID")
 else:
     M("Uhead_o", (XW, G.B_BH, ZB), UP.ends["o"][1], "RIGID", "J")
     M("Uhead_w", (1, G.B_BH, ZB), UP.ends["w"][1], "RIGID", "J")
@@ -369,7 +388,7 @@ def stress(name, combo):
 
 GROUP = lambda n: ("stringer tubes" if "tube_" in n and n[0] in "LU" and n[1:5] == "tube" else "tread brackets" if "brkt" in n else "tread arms" if "seat" in n and G.MONO else "oak treads" if "tread" in n else
                    "oak deck" if "deck" in n else "landing frame" if n in ("LE", "LS", "LW", "LN", "LH") else "balcony frame" if n in ("BE", "BS", "BH", "BN", "BW") else
-                   "knee braces" if n.startswith("BR") else "corner newel" if n.startswith("newel") and n[5:].isdigit() else "foot post" if n.startswith("footpost") else
+                   "knee braces" if n.startswith("BR") else "corner newel" if n.startswith("newel") and n[5:].isdigit() else "foot post" if n.startswith("footpost") else "upper stringer post" if n == "Upost" else
                    "balcony south west newel" if n.startswith("gsw") and n[3:].isdigit() else "guard posts" if n in ("gnw", "gnw0", "gne0", "gne1") else "ties and kickers" if MEM[n][0] == "STRUT" else
                    "handrails" if n.startswith("rail") and not n.startswith("rail_") or n in ("rail_lower", "rail_upper") else "guard rails" if n.startswith("grail") else None)
 res = {"cases": {}, "groups": {}, "reactions": {}, "deflection": {}}
@@ -427,6 +446,11 @@ LINKS = dict(newel_LW="corner newel to landing west beam", foot_tube="foot post 
              gsw_BW="balcony newel to balcony west beam", gnw_BN="north west guard post to balcony north arm", **({f"{e}_{i}": f"{d} ({'north' if i == 'a' else 'south'} angle)" if e[0] == "L" else f"{d} ({'east' if i == 'b' else 'west'} side)" for e, d in (("Lhead", "lower stringer head"), ("Ufoot", "upper stringer foot"), ("Uhead", "upper stringer head")) for i in "ab"} if G.MONO else
                 dict(newel_tube="corner newel to lower stringer", Lhead_o="lower stringer head (open side)", Lhead_w="lower stringer head (wall side)",
                      Ufoot_o="upper stringer foot (open side)", Ufoot_w="upper stringer foot (wall side)", Uhead_o="upper stringer head (open side)", Uhead_w="upper stringer head (wall side)")))
+if G.MONO:
+    LINKS.update({"Uhead_a": "upper stringer top bearing on the head beam (west side)", "Uhead_b": "upper stringer top bearing on the head beam (east side)",
+                  "Uhead_side": "upper stringer top clips, sideways", "Upost_saddle": "upper stringer post saddle"})
+    for k_ in ("Ufoot_a", "Ufoot_b"):
+        LINKS[k_] = "upper stringer foot clip to the landing beam (" + ("west" if k_[-1] == "a" else "east") + " side)"
 res["links"] = {}
 for n, what in LINKS.items():
     best = dict(force=0.0, moment=0.0)

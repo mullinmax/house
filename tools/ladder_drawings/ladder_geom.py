@@ -30,7 +30,7 @@ ARM_D, ARM_END = 2.0, 1.2                         # strip depth; its ends stop t
 ARM_FL, SEAT_TAB, FOOT_W = 1.75, 1.5, 3.5         # web's bolting flange, the small seat tab behind it, first bracket's foot flange
 SEAT_S = WEB0 + 1.0                               # seat tab starts 1 in behind the flange fold, so the two bends are not on top of each other
 FLANGE_BOLT = 1.0                                 # the one flange bolt, this far below the tread
-STRIP_TAB = 1.4                                   # screw tabs at the strip ends: this far in from each end, to the screw
+STRIP_TAB = 1.4                                   # screw tabs at the strip ends: this far in from each end, to the screw; they fold toward the back of the tread (Maxwell 11/23/2026)
 WN, GAP = L["ladder_width_in"], L["ladder_wall_gap_in"]
 HR = L.get("ladder_handrail_in", 32.0)
 SL = RI / GO
@@ -81,12 +81,18 @@ FLIGHTS = (LOWER, UPPER)
 
 ZLF, ZBF = ZP - TT - FD / 2, FL - TT - FD / 2    # frame centre heights: landing, balcony
 A_LH = XL + UL - LOWER.uhc                        # landing header, over the lower tubes' heads
-B_BH = B0 + UPPER.u2 + BRKT_T + FW / 2 if MONO else B0 + UPPER.uhc   # balcony head beam (mono: just north of the stringer's plumb cut head, which rests against it through a hanger plate)
+# Round 4 (Maxwell 11/23/2026): the upper stringer leans like a ladder. Its top runs past the plumb cut line and is notched: the part above the
+# balcony frame's underside stops against the head beam's south face (U_BEAR), the rest passes under the beam to its north face (U_END).
+# Its foot is cut plumb against the landing's north beam and stands on one 3 x 3 post. Angle clips lock both ends.
+U_BEAR = UPPER.u2 + 1.0 if MONO else None
+U_END = U_BEAR + FW if MONO else None
+U_FOOT = UPPER.u0 if MONO else None                # plumb cut foot, against the landing's north beam
+B_BH = B0 + U_BEAR + FW / 2 if MONO else B0 + UPPER.uhc   # balcony head beam
 B_UF = B0 + UPPER.ufc                             # upper tubes' feet on the landing
-LN_W = 4.0 if MONO else 2.0                       # landing north beam width (mono: a 4 x 3 tube laid flat, as wide as the stringer foot that stands on it)
-LAND_N = B0 + 8.0 if not MONO else B_UF + LN_W / 2          # corner landing frame's north edge (mono: flush with the north beam, nothing past it)
+LN_W = 2.0                                        # landing north beam width
+LAND_N = B0 + 8.0 if not MONO else B0 + U_FOOT    # corner landing frame's north edge (mono round 4: at the back of the landing's riser lip, so no steel shows past the oak)
 LAND_DECK_N = B0 + TD - GO if MONO else LAND_N    # mono: the landing's oak ends like a tread, at the front of the riser lip under the upper flight's first tread (Maxwell 11/22/2026)
-B_LN = B_UF if MONO else LAND_N - 1               # landing north beam: under the centre stringer's foot, or at the edge
+B_LN = LAND_N - 1                                 # landing north beam, at the edge
 VC = WN / 2
 PC = XL + POST / 2                                # posts stand outside the open edge, lapped onto the tubes and frames
 FOOT_U = 4.0 if MONO else 12.0                   # lower flight foot post (mono: beside the first tread on a 4 anchor moment base plate)
@@ -99,7 +105,7 @@ LAND_FRAME = dict(LE=((1, 0), (1, LAND_N)), LS=((1, 1), (XL, 1)), LW=((XL - 1, 1
                   LN=((1, B_LN), (XL - 1, B_LN)), LH=((A_LH, 1), (A_LH, LAND_N - 1)))
 BAL_FRAME = dict(BE=((1, BAL_S), (1, BAL_N)), BS=((1, BAL_S + 1), (XL - 1, BAL_S + 1)), BH=((1, B_BH), (XL - 1, B_BH)),
                  BN=((1, BAL_N - 1), (XL, BAL_N - 1)), BW=((XL - 1, BAL_S), (XL - 1, BAL_N - 1)))
-LAND_LAGS = dict(LE=(4.0, 20.0, 32.0), LS=(8.0, 22.0))          # along each ledger, assumed stud or blocking positions
+LAND_LAGS = dict(LE=(4.0, 16.0, 27.0) if MONO else (4.0, 20.0, 32.0), LS=(8.0, 22.0))          # along each ledger, assumed stud or blocking positions
 BAL_LAGS = (BAL_S + 3, (BAL_S + BAL_N) / 2, BAL_N - 3)
 LAND_STRIPS = (4.0, 9.5, 15.0, 20.5, 26.0) if MONO else (4.0, 9.5, 15.0, 20.5, 26.0, 30.5)                # deck boards run east to west on the landing: analysis strips at these b
 BAL_STRIPS = (4.0, 9.0, 14.0, 19.0)                             # and north to south on the balcony: strips at these a
@@ -109,7 +115,9 @@ GSW_TOP_OLD = max(UPPER.zn(BAL_S - B0) + HR + 1.5, FL + GUARD_H)                
 G_TOP = FL + GUARD_H                                            # top of the balcony guard rail
 GP_B = BAL_N + 0.375 + POST / 2 if MONO else BAL_N + POST / 2  # north guard posts stand outside the north face (mono: outside the north west post's L plate)
 # corner landing posts (Maxwell 11/22/2026 round 3): 2 x 2 posts from the slab to the two ends of the north beam, which carries the upper stringer's foot
-LAND_POSTS = dict(ne=(0.0, POST, LAND_N - POST, LAND_N), nw=(XL - POST, XL, LAND_N - POST, LAND_N)) if MONO else {}
+LAND_POSTS = {}                                   # round 3's corner posts, dropped in round 4 for the one stringer post
+UP_POST_W = 3.0                                   # round 4: 3 x 3 x 3/16 post under the upper stringer's foot, on a 4 anchor plate
+UP_POST = (XL - VC - UP_POST_W / 2, XL - VC + UP_POST_W / 2, LAND_N + 0.5, LAND_N + 0.5 + UP_POST_W) if MONO else None
 
 
 # ------------------------------------------------------------------ one continuous open side rail (mono, round 3)
