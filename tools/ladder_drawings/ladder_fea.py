@@ -17,6 +17,16 @@ m = FEModel3D()
 m.add_material("steel", 29e6, 11.2e6, 0.3, 0.2836)
 m.add_material("oak", 1.6e6, 0.1e6, 0.35, 0.027)
 m.add_material("link", 29e6, 11.2e6, 0.3, 0.0)
+def rect_hss(B, H, t):
+    """rectangular tube B wide by H tall, nominal wall t (design wall 0.93 t): (A, Iy weak about vertical, Iz about horizontal, J, Sy, Sz)"""
+    t = 0.93 * t
+    A = B * H - (B - 2 * t) * (H - 2 * t)
+    Iz = (B * H ** 3 - (B - 2 * t) * (H - 2 * t) ** 3) / 12
+    Iy = (H * B ** 3 - (H - 2 * t) * (B - 2 * t) ** 3) / 12
+    J = 2 * t * (B - t) ** 2 * (H - t) ** 2 / (B + H - 2 * t)
+    return (A, Iy, Iz, J, Iy / (B / 2), Iz / (H / 2))
+
+
 # name: (material, A, Iy, Iz, J, Sy, Sz)    local z is horizontal for sloped and level members
 SEC = dict(TUBE=("steel", 1.54, 0.932, 1.77, 1.90, 0.932, 1.18),          # HSS 3 x 2 x 3/16 on edge (design wall 0.174)
            POST=("steel", 1.19, 0.641, 0.641, 1.09, 0.641, 0.641),        # HSS 2 x 2 x 3/16
@@ -27,9 +37,14 @@ SEC = dict(TUBE=("steel", 1.54, 0.932, 1.77, 1.90, 0.932, 1.18),          # HSS 
            DECKB=("oak", 6.3 * 1.44, 1.44 * 6.3 ** 3 / 12, 6.3 * 1.44 ** 3 / 12, 5.3, 1.44 * 6.3 ** 2 / 6, 6.3 * 1.44 ** 2 / 6),
            STR=("steel", 3.37, 7.80, 7.80, 12.8, 3.90, 3.90) if G.MONO else ("steel", 1.54, 0.932, 1.77, 1.90, 0.932, 1.18),   # stringer: HSS 4 x 4 x 1/4, or the 3 x 2
            BRKT2=("steel", 2.38, 10.7, 4.46, 1.0, 4.5, 1.88),              # mono: a pair of 1/4 x 4 3/4 webs, one each side of the tube
-           ARM=("steel", 0.25 * 3.5, 3.5 * 0.25 ** 3 / 12, 0.25 * 3.5 ** 3 / 12, 3.5 * 0.25 ** 3 / 3, 3.5 * 0.25 ** 2 / 6, 0.25 * 3.5 ** 2 / 6),   # mono: 1/4 in plate arm on edge under each tread, at its full 3 1/2 in depth
+           ARM=("steel", 0.25 * G.ARM_D, G.ARM_D * 0.25 ** 3 / 12, 0.25 * G.ARM_D ** 3 / 12, G.ARM_D * 0.25 ** 3 / 3, G.ARM_D * 0.25 ** 2 / 6, 0.25 * G.ARM_D ** 2 / 6),   # mono: 1/4 x 2 in plate strip on edge under each tread
            STRUT=("steel", 0.84, 0.235, 0.235, 0.41, 0.313, 0.313),        # mono: 1 1/2 in square tube ties from the foot post and balcony newel to the stringer
            RIGID=("link", 20.0, 20.0, 20.0, 20.0, 1e9, 1e9))
+if G.MONO:                                          # round 3: the corner landing's frame is 1/8 wall; its north beam is a 4 x 3 laid flat
+    SEC["TUBEL"] = ("steel",) + rect_hss(2.0, 3.0, G.FT_L)
+    SEC["LN43"] = ("steel",) + rect_hss(4.0, 3.0, G.FT_L)
+else:
+    SEC["TUBEL"] = SEC["LN43"] = SEC["TUBE"]
 for k_, s_ in SEC.items():
     m.add_section(k_, *s_[1:5])
 
@@ -68,22 +83,26 @@ if G.MONO:
     VC, SE = G.VC, G.VC - G.ARM_END                          # centre, and how far the arm reaches each side of it
     for f in G.FLIGHTS:
         fn = f.name[0].upper()
-        foot, head = f.p(f.ufc, VC, f.zf), f.p(f.uhc, VC, f.zu)
+        foot, head = f.p(f.ufc, VC, f.zf), (f.p(f.u2, VC, f.zc(f.u2)) if f is UP else f.p(f.uhc, VC, f.zu))   # upper: plumb cut head against the hanger
         M(f"{fn}tube_c", foot, head, "STR")
         f.ends = dict(c=(foot, head))
         for nm, pc, half in (("foot", foot, 4.0), ("head", head, G.TW / 2 + 0.125)):      # anchors each side of the tube resist its twist
-            u_ = f.ufc if nm == "foot" else f.uhc
+            u_ = f.ufc if nm == "foot" else (f.u2 if f is UP else f.uhc)
             M(f"{fn}{nm}bar", f.p(u_, VC - half, pc[2]), f.p(u_, VC + half, pc[2]), "RIGID")
             f.ends[nm] = (f.p(u_, VC - half, pc[2]), f.p(u_, VC + half, pc[2]))
         for k in range(1, f.nr):
             ub = f.bolt_u(k)
             pb, pt = f.p(ub, VC, f.zc(ub)), f.p(f.uk(k) + 4.25, VC, f.z0 + k * G.RI - G.TT / 2)
             M(f"{fn}brkt{k}c", pb, pt, "BRKT2")
-            e = {s_: f.p(f.uk(k) + 4.25, v_, pt[2]) for s_, v_ in (("o", 0.0), ("so", VC - SE), ("sw", VC + SE), ("w", G.WN))}
-            M(f"{fn}tread{k}o", e["o"], e["so"], "TREAD")     # the tread only spans the last 1.2 in past each arm tip; the arm is checked as if the oak gave it no help
-            M(f"{fn}seat{k}", e["so"], e["sw"], "ARM")
+            VB = G.TW / 2 + G.BRKT_T + 0.95                    # the one flange bolt each side of the stringer
+            e = {s_: f.p(f.uk(k) + 4.25, v_, pt[2]) for s_, v_ in (("o", 0.0), ("so", VC - SE), ("bo", VC - VB), ("bw", VC + VB), ("sw", VC + SE), ("w", G.WN))}
+            M(f"{fn}tread{k}o", e["o"], e["so"], "TREAD")     # the tread only spans the last 1.2 in past each strip end; the strip is checked as if the oak gave it no help
+            M(f"{fn}seat{k}", e["so"], e["bo"], "ARM")
+            M(f"{fn}flange{k}o", e["bo"], pt, "RIGID")         # strip bolts to the two bracket flanges
+            M(f"{fn}flange{k}w", pt, e["bw"], "RIGID")
+            M(f"{fn}seat{k}w", e["bw"], e["sw"], "ARM")
             M(f"{fn}tread{k}w", e["sw"], e["w"], "TREAD")
-            TREADS[(fn, k)] = dict(o=e["o"], w=e["w"], mid=pt, members=(f"{fn}tread{k}o", f"{fn}seat{k}", f"{fn}tread{k}w"))
+            TREADS[(fn, k)] = dict(o=e["o"], w=e["w"], mid=pt, members=(f"{fn}tread{k}o", f"{fn}seat{k}", f"{fn}flange{k}o", f"{fn}flange{k}w", f"{fn}seat{k}w", f"{fn}tread{k}w"))
     for i in (0, 1):
         S(LO.ends["foot"][i], what="lower stringer foot anchor (first bracket's foot flange)")
 else:
@@ -120,11 +139,15 @@ else:
 
 # corner landing frame
 ZL, ZB, XW = G.ZLF, G.ZBF, G.XL - 1
-M("LE", (1, 1, ZL), (1, G.B_LN, ZL), "TUBE")
-M("LS", (1, 1, ZL), (XW, 1, ZL), "TUBE")
-M("LW", (XW, 1, ZL), (XW, G.B_LN, ZL), "TUBE")
-M("LN", (1, G.B_LN, ZL), (XW, G.B_LN, ZL), "TUBE")
-M("LH", (G.A_LH, 1, ZL), (G.A_LH, G.B_LN, ZL), "TUBE", "ij")
+M("LE", (1, 1, ZL), (1, G.B_LN, ZL), "TUBEL")
+M("LS", (1, 1, ZL), (XW, 1, ZL), "TUBEL")
+M("LW", (XW, 1, ZL), (XW, G.B_LN, ZL), "TUBEL")
+M("LN", (1, G.B_LN, ZL), (XW, G.B_LN, ZL), "LN43")
+M("LH", (G.A_LH, 1, ZL), (G.A_LH, G.B_LN, ZL), "TUBEL", "ij")
+for nm, (a0_, a1_, b0_, b1_) in G.LAND_POSTS.items():          # round 3: posts from the slab to both ends of the north beam
+    pa_ = 1 if nm == "ne" else XW
+    M(f"Lpost_{nm}", (pa_, G.B_LN, 0.0), (pa_, G.B_LN, ZL), "POST", "j")
+    S((pa_, G.B_LN, 0.0), what=f"landing post base on the slab ({nm})")
 for b in G.LAND_LAGS["LE"]:
     S((1, b, ZL), what="landing east ledger lag")
 for a in G.LAND_LAGS["LS"]:
@@ -162,70 +185,119 @@ for i, a in enumerate(G.BAL_STRIPS):
 if G.MONO:
     for i, nm in enumerate("ab"):
         ph = UP.ends["head"][i]
-        M(f"Uhead_{nm}", (ph[0], ph[1], ZB), ph, "RIGID", "J")
+        M(f"Uhead_{nm}", (ph[0], G.B_BH, ZB), ph, "RIGID", "J")        # hanger: stringer end to the head beam just north of it
 else:
     M("Uhead_o", (XW, G.B_BH, ZB), UP.ends["o"][1], "RIGID", "J")
     M("Uhead_w", (1, G.B_BH, ZB), UP.ends["w"][1], "RIGID", "J")
 
 # posts and rails
-PC, RD = G.PC, G.RAIL / 2 / math.cos(G.ANG)
-zr_lo = lambda a: LO.zn(G.XL + G.UL - a) + G.HR - RD            # lower rail centreline
-zr_up = lambda b: UP.zn(b - G.B0) + G.HR - RD
-u_nw = G.XL + G.UL - PC
-# corner newel: slab to above the upper rail, lapped onto the lower open tube and the landing's west beam
-nw = [(PC, PC, 0.0), (PC, PC, LO.zc(u_nw)), (PC, PC, ZL), (PC, PC, zr_lo(PC)), (PC, PC, zr_up(PC)), (PC, PC, G.NEWEL_TOP)]
-S(nw[0], what="corner newel base on the slab")
-for i in range(5):
-    M(f"newel{i}", nw[i], nw[i + 1], "POST")
-if not G.MONO:
-    M("newel_tube", nw[1], (PC, XW, LO.zc(u_nw)), "RIGID")
-M("newel_LW", nw[2], (XW, PC, ZL), "RIGID", "J" if G.MONO else "")       # mono: every post lap is one bolt group, taken as a pin
-# lower flight foot post and rail
-af = G.A_FOOT
-if G.MONO:                                          # mono: the post stands beside the first tread on a 4 anchor base plate that carries moment
-    fp = [(af, PC, 0.0), (af, PC, zr_lo(af) / 2), (af, PC, zr_lo(af))]
+PC = G.PC
+if G.MONO:
+    # Round 3: ONE continuous rail from the lower flight's foot to the bath 1 wall, a chain of nodes along its centreline; every post's top
+    # is tied to it (the post stops just under the rail, a bolted saddle joins them)
+    PS = G.POST_S
+    mids = dict(lo=(PS["foot"] + PS["newel"]) / 2, up=(PS["newel"] + PS["gsw"]) / 2, gw=(PS["gsw"] + PS["nw"]) / 2, gn=(PS["nw"] + PS["ne"]) / 2)
+    st = []
+    for s_ in G.rail_samples(extra=list(PS.values()) + list(mids.values())):
+        if not st or s_ - st[-1] > 0.05:
+            st.append(s_)
+    RP = {}
+    for s_ in st:
+        a_, b_ = G.rail_plan(s_)
+        RP[s_] = (a_, b_, G.rail_z(s_) - G.rail_depth(s_) / 2)
+    for i, (s0, s1) in enumerate(zip(st, st[1:])):
+        M(f"rail{i}", RP[s0], RP[s1], "RAIL")
+    R_ = lambda s_: RP[min(RP, key=lambda x: abs(x - s_))]
+    tip, mid_lo, mid_up, mid_gw, mid_gn = R_(0.0), R_(mids["lo"]), R_(mids["up"]), R_(mids["gw"]), R_(mids["gn"])
+    # lower flight foot post on a 4 anchor moment base plate, its top under the rail
+    af = G.A_FOOT
+    fp = [(af, PC, 0.0), (af, PC, R_(PS["foot"])[2] / 2), R_(PS["foot"])]
     m.def_support(N(*fp[0]), True, True, True, True, True, True)
     SUP[N(*fp[0])] = "foot post base plate on the slab (moment base)"
     M("footpost0", fp[0], fp[1], "POST"); M("footpost1", fp[1], fp[2], "POST")
+    # corner newel: slab to under the rail, lapped onto the landing's west beam
+    rn = R_(PS["newel"])
+    nwt = (PC, PC, G.NEWEL_TOP2)
+    nw = [(PC, PC, 0.0), (PC, PC, ZL), nwt, rn, rn]
+    S(nw[0], what="corner newel base on the slab")
+    M("newel0", nw[0], nw[1], "POST"); M("newel1", nw[1], nwt, "POST")
+    M("newel_rail", nwt, rn, "RIGID")
+    M("newel_LW", nw[1], (XW, PC, ZL), "RIGID", "J")
+    # balcony south west newel and north west post: outside the west beam on L plates, tops under the rail
+    bsw = BS1
+    rg = R_(PS["gsw"])
+    gs = [(PC, bsw, ZB - 1.5), (PC, bsw, ZB), (PC, bsw, G.GSW_TOP), rg]
+    M("gsw0", gs[0], gs[1], "POST"); M("gsw1", gs[1], gs[2], "POST"); M("gsw_rail", gs[2], rg, "RIGID")
+    M("gsw_BW", gs[1], (XW, bsw, ZB), "RIGID")
+    corner = R_(PS["nw"])
+    gnt = (PC, G.GP_B, G.rail_under(PC, G.GP_B))
+    M("gnw_BN", (PC, G.GP_B, ZB), (XW, BN1, ZB), "RIGID")
+    M("gnw", (PC, G.GP_B, ZB), gnt, "POST"); M("gnw_rail", gnt, corner, "RIGID")
+    rne = R_(PS["ne"])
+    ne = [(1, G.GP_B, G.FL - 11), (1, G.GP_B, G.FL - 2), rne]
+    S(ne[0], what="north east guard post lag (lower)"); S(ne[1], what="north east guard post lag (upper)")
+    M("gne0", ne[0], ne[1], "POST"); M("gne1", ne[1], ne[2], "POST")
+    gs = gs[:3] + [rg]
 else:
-    fp = [(af, PC, 0.0), (af, PC, LO.zc(G.FOOT_U)), (af, PC, zr_lo(af))]
-    S(fp[0], what="foot post base on the slab")
-    M("footpost0", fp[0], fp[1], "POST"); M("footpost1", fp[1], fp[2], "POST")
-    M("foot_tube", fp[1], (af, XW, LO.zc(G.FOOT_U)), "RIGID")
-tip = (G.XL + G.UL, PC, zr_lo(G.XL + G.UL))
-mid_lo = ((af + PC) / 2, PC, zr_lo((af + PC) / 2))
-N(*mid_lo)
-M("rail_lower", tip, nw[3], "RAIL", "j")
-# balcony south west newel: lapped onto the upper open tube and the balcony's west beam
-bsw = BS1
-u_sw = bsw - G.B0
-gs = [(PC, bsw, ZB - 1.5 if G.MONO else UP.zc(u_sw)), (PC, bsw, ZB), (PC, bsw, zr_up(bsw)), (PC, bsw, G.G_TOP - 0.75), (PC, bsw, G.GSW_TOP)]
-for i in range(4):
-    M(f"gsw{i}", gs[i], gs[i + 1], "POST")
-if not G.MONO:
-    M("gsw_tube", gs[0], (XW, bsw, UP.zc(u_sw)), "RIGID")
-M("gsw_BW", gs[1], (XW, bsw, ZB), "RIGID")       # mono: an L plate bolted to the south beam and up the post carries the post's moment into the frame
-mid_up = (PC, (PC + bsw) / 2, zr_up((PC + bsw) / 2))
-N(*mid_up)
-M("rail_upper", nw[4], gs[2], "RAIL", "ij")
-# balcony guard
-zg = G.G_TOP - 0.75
-if G.MONO:                                          # the north west post mirrors the south west one: outside the west beam, on its own L plate
-    corner = (PC, BN1, zg)
-    M("gnw_BN", (PC, BN1, ZB), (XW, BN1, ZB), "RIGID")
-    M("gnw", (PC, BN1, ZB), corner, "POST")
-else:
-    corner = (PC, G.GP_B, zg)
-    M("gnw_BN", (XW, G.GP_B, ZB), (XW, BN1, ZB), "RIGID")
-    M("gnw", (XW, G.GP_B, ZB), (XW, G.GP_B, zg), "POST")
-ne = [(1, G.GP_B, G.FL - 11), (1, G.GP_B, G.FL - 2), (1, G.GP_B, zg)]
-S(ne[0], what="north east guard post lag (lower)"); S(ne[1], what="north east guard post lag (upper)")
-M("gne0", ne[0], ne[1], "POST"); M("gne1", ne[1], ne[2], "POST")
-mid_gw = (PC, (bsw + corner[1]) / 2, zg)
-mid_gn = ((corner[0] + 1) / 2, (corner[1] + G.GP_B) / 2, zg) if G.MONO else (12.6, G.GP_B, zg)
-N(*mid_gw); N(*mid_gn)
-M("grail_w", gs[3], corner, "RAIL", "i")
-M("grail_n", corner, ne[2], "RAIL", "j")
+    PC, RD = G.PC, G.RAIL / 2 / math.cos(G.ANG)
+    zr_lo = lambda a: LO.zn(G.XL + G.UL - a) + G.HR - RD            # lower rail centreline
+    zr_up = lambda b: UP.zn(b - G.B0) + G.HR - RD
+    u_nw = G.XL + G.UL - PC
+    # corner newel: slab to above the upper rail, lapped onto the lower open tube and the landing's west beam
+    nw = [(PC, PC, 0.0), (PC, PC, LO.zc(u_nw)), (PC, PC, ZL), (PC, PC, zr_lo(PC)), (PC, PC, zr_up(PC)), (PC, PC, G.NEWEL_TOP)]
+    S(nw[0], what="corner newel base on the slab")
+    for i in range(5):
+        M(f"newel{i}", nw[i], nw[i + 1], "POST")
+    if not G.MONO:
+        M("newel_tube", nw[1], (PC, XW, LO.zc(u_nw)), "RIGID")
+    M("newel_LW", nw[2], (XW, PC, ZL), "RIGID", "J" if G.MONO else "")       # mono: every post lap is one bolt group, taken as a pin
+    # lower flight foot post and rail
+    af = G.A_FOOT
+    if G.MONO:                                          # mono: the post stands beside the first tread on a 4 anchor base plate that carries moment
+        fp = [(af, PC, 0.0), (af, PC, zr_lo(af) / 2), (af, PC, zr_lo(af))]
+        m.def_support(N(*fp[0]), True, True, True, True, True, True)
+        SUP[N(*fp[0])] = "foot post base plate on the slab (moment base)"
+        M("footpost0", fp[0], fp[1], "POST"); M("footpost1", fp[1], fp[2], "POST")
+    else:
+        fp = [(af, PC, 0.0), (af, PC, LO.zc(G.FOOT_U)), (af, PC, zr_lo(af))]
+        S(fp[0], what="foot post base on the slab")
+        M("footpost0", fp[0], fp[1], "POST"); M("footpost1", fp[1], fp[2], "POST")
+        M("foot_tube", fp[1], (af, XW, LO.zc(G.FOOT_U)), "RIGID")
+    tip = (G.XL + G.UL, PC, zr_lo(G.XL + G.UL))
+    mid_lo = ((af + PC) / 2, PC, zr_lo((af + PC) / 2))
+    N(*mid_lo)
+    M("rail_lower", tip, nw[3], "RAIL", "j")
+    # balcony south west newel: lapped onto the upper open tube and the balcony's west beam
+    bsw = BS1
+    u_sw = bsw - G.B0
+    gs = [(PC, bsw, ZB - 1.5 if G.MONO else UP.zc(u_sw)), (PC, bsw, ZB), (PC, bsw, zr_up(bsw)), (PC, bsw, G.G_TOP - 0.75), (PC, bsw, G.GSW_TOP)]
+    for i in range(4):
+        M(f"gsw{i}", gs[i], gs[i + 1], "POST")
+    if not G.MONO:
+        M("gsw_tube", gs[0], (XW, bsw, UP.zc(u_sw)), "RIGID")
+    M("gsw_BW", gs[1], (XW, bsw, ZB), "RIGID")       # mono: an L plate bolted to the south beam and up the post carries the post's moment into the frame
+    mid_up = (PC, (PC + bsw) / 2, zr_up((PC + bsw) / 2))
+    N(*mid_up)
+    M("rail_upper", nw[4], gs[2], "RAIL", "ij")
+    # balcony guard
+    zg = G.G_TOP - 0.75
+    if G.MONO:                                          # the north west post mirrors the south west one: outside the west beam, on its own L plate
+        corner = (PC, BN1, zg)
+        M("gnw_BN", (PC, BN1, ZB), (XW, BN1, ZB), "RIGID")
+        M("gnw", (PC, BN1, ZB), corner, "POST")
+    else:
+        corner = (PC, G.GP_B, zg)
+        M("gnw_BN", (XW, G.GP_B, ZB), (XW, BN1, ZB), "RIGID")
+        M("gnw", (XW, G.GP_B, ZB), (XW, G.GP_B, zg), "POST")
+    ne = [(1, G.GP_B, G.FL - 11), (1, G.GP_B, G.FL - 2), (1, G.GP_B, zg)]
+    S(ne[0], what="north east guard post lag (lower)"); S(ne[1], what="north east guard post lag (upper)")
+    M("gne0", ne[0], ne[1], "POST"); M("gne1", ne[1], ne[2], "POST")
+    mid_gw = (PC, (bsw + corner[1]) / 2, zg)
+    mid_gn = ((corner[0] + 1) / 2, (corner[1] + G.GP_B) / 2, zg) if G.MONO else (12.6, G.GP_B, zg)
+    N(*mid_gw); N(*mid_gn)
+    M("grail_w", gs[3], corner, "RAIL", "i")
+    M("grail_n", corner, ne[2], "RAIL", "j")
+
 
 # ------------------------------------------------------------------ loads
 m.add_member_self_weight("FY", -1.0, "D")
@@ -299,7 +371,7 @@ GROUP = lambda n: ("stringer tubes" if "tube_" in n and n[0] in "LU" and n[1:5] 
                    "oak deck" if "deck" in n else "landing frame" if n in ("LE", "LS", "LW", "LN", "LH") else "balcony frame" if n in ("BE", "BS", "BH", "BN", "BW") else
                    "knee braces" if n.startswith("BR") else "corner newel" if n.startswith("newel") and n[5:].isdigit() else "foot post" if n.startswith("footpost") else
                    "balcony south west newel" if n.startswith("gsw") and n[3:].isdigit() else "guard posts" if n in ("gnw", "gnw0", "gne0", "gne1") else "ties and kickers" if MEM[n][0] == "STRUT" else
-                   "handrails" if n.startswith("rail") else "guard rails" if n.startswith("grail") else None)
+                   "handrails" if n.startswith("rail") and not n.startswith("rail_") or n in ("rail_lower", "rail_upper") else "guard rails" if n.startswith("grail") else None)
 res = {"cases": {}, "groups": {}, "reactions": {}, "deflection": {}}
 dead = {n: stress(n, "D")["sig"] for n in MEM if GROUP(n)}
 for c, info in CASES.items():

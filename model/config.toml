@@ -79,9 +79,10 @@ furniture = "chest"               # loft furniture, placement ASSUMED (Maxwell 1
 ladder_risers = 13
 ladder_lower_risers = 5           # corner design: risers up to the corner landing. 4 (three treads before the landing, Maxwell's 11/21/2026 mockup) lowers the landing to 3'-1 1/8" and frees 5 in, which widens the ladder
 ladder_width_in = 24.45           # corner design: overall width. Was 24 with housed oak stringers (20 3/8 in clear). 24.45 with the 3/4 in wall gap keeps the foot where it was; with tube stringers under them the treads run the full width and the rails are 21 7/8 in apart
-ladder_stringer = "mono"          # corner design: "mono" = ONE 4 x 4 x 1/4 in square tube under the middle of the treads, bracket pairs each side, a 4 in oak riser lip behind every tread (Maxwell 11/22/2026). "tube" = two 2 x 3 tubes under the tread ends
+ladder_stringer = "mono"          # corner design: "mono" = ONE 4 x 4 x 1/4 in square tube under the middle of the treads, bracket pairs each side, a 2 in oak riser lip behind every tread under a 2 in steel strip (Maxwell 11/22/2026). "tube" = two 2 x 3 tubes under the tread ends
 ladder_mono_in = [4.0, 4.0]       # mono stringer width and depth
 ladder_landing_nosing_in = 0.0    # corner design: oak nosing past the landing and balcony edges. 0 = each platform's own edge is the top nosing, so the foot sits 3 1/2 in further from the living room opening and the balcony 3 1/2 in further south (Maxwell 11/22/2026). Remove for the 3 1/2 in lips
+ladder_wall_rail = false          # wall side handrails hidden (Maxwell 11/22/2026 round 3). A ships ladder needs a rail on both sides to pass inspection (R311.7.12), so set true for the inspection drawings
 #ladder_stringer = "tube"          # corner design: "tube" = stock 2 x 3 x 3/16 in rectangular steel tube stringers under the treads with laser cut tread brackets (Maxwell 11/21/2026: the plate stringers were too long for SendCutSend). Remove for the plate or oak stringers below
 ladder_tube_in = [2.0, 3.0]       # tube width and depth
 ladder_stringer_in = 0.375        # corner design: stringer thickness. Under 1 = black steel plates (3/8 in, Maxwell's pick 11/21/2026); 1.8 = white oak
