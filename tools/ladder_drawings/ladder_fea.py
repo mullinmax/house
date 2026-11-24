@@ -10,6 +10,8 @@ from Pynite import FEModel3D
 import ladder_geom as G
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "."
+POST_BASE = os.environ.get("LADDER_POST_BASE", "fixed")       # upper stringer post base: fixed (default) or pinned
+HEAD_VERT = os.environ.get("LADDER_HEAD_VERT", "0") == "1"    # upper stringer head clips carry weight too (round holes), default no (vertical slots)
 os.makedirs(OUT, exist_ok=True)
 FY_STEEL, FB_OAK = 46000.0, 1150.0            # A500 Gr B yield; white oak allowable bending (No. 1 class, before adjustment factors)
 ALLOW = 0.6 * FY_STEEL
@@ -170,8 +172,9 @@ if G.MONO:
     a0p, a1p, b0p, b1p = G.UP_POST
     upc = (b0p + b1p) / 2 - G.B0
     pc_ = UP.p(upc, VC, UP.zc(upc))
-    ptop = (pc_[0], pc_[1], UP.zl(upc) - G.PL - G.BRKT_T)
-    m.def_support(N(pc_[0], pc_[1], 0.0), True, True, True, True, True, True)
+    ptop = (pc_[0], pc_[1], G.Z_SEAT - G.BRKT_T)        # round 5: the post's level top under the saddle seat
+    fixed_ = POST_BASE == "fixed"                       # LADDER_POST_BASE=pinned: the 4 anchor plate taken as a pin, the bound on base flexibility
+    m.def_support(N(pc_[0], pc_[1], 0.0), True, True, True, fixed_, fixed_, fixed_)
     SUP[N(pc_[0], pc_[1], 0.0)] = "upper stringer post base plate on the slab"
     M("Upost", (pc_[0], pc_[1], 0.0), ptop, "POST3")
     M("Upost_saddle", ptop, pc_, "RIGID")
@@ -190,7 +193,8 @@ M("BN", (1, BN1, ZB), (XW, BN1, ZB), "TUBE", "i")
 M("BW", (XW, BS1, ZB), (XW, BN1, ZB), "TUBE")
 for b in G.BAL_LAGS:
     S((1, b, ZB), what="balcony ledger bolt to the loft rim")
-for nm, b in ((("BRn", BN1),) if G.MONO else (("BRh", G.B_BH), ("BRn", BN1))):      # mono: the centre stringer's head stands where the south brace was
+    m.def_support(N(1, b, ZB), True, True, True, True, False, False)   # the joists are pinned to the ledger: stop it rolling about its own length (a free mode some solvers reject)
+for nm, b in (("BRh", G.B_BH), ("BRn", BN1)):      # mono round 5: a brace under the head beam too (Maxwell 11/23/2026)
     M(nm, (G.A_BR, b, ZB), (1, b, ZB - G.BRACE), "POST", "i")
     S((1, b, ZB - G.BRACE), what=f"knee brace wall bracket ({'south' if nm == 'BRh' else 'north'})")
 for i, a in enumerate(G.BAL_STRIPS):
@@ -200,10 +204,13 @@ if G.MONO:
     for i, nm in enumerate("ab"):
         ph = UP.ends["head"][i]
         # the notched head only leans on the head beam: a link along b (bearing face) at each side, released so it carries no weight
-        M(f"Uhead_{nm}", ph, (ph[0], G.B_BH, ph[2]), "RIGID", "ij")
+        # slotted clips (default): the bolts can only push along the flight and sideways, so these links are pins with their twist released
+        # too (a link that kept its twist would act as a pair of up and down bolt forces, which a vertical slot cannot give).
+        # LADDER_HEAD_VERT=1: round holes, the clips also carry weight and the joint is fixed.
+        M(f"Uhead_{nm}", ph, (ph[0], G.B_BH, ph[2]), "RIGID", "" if HEAD_VERT else "Ij")
         M(f"Uhead_{nm}_drop", (ph[0], G.B_BH, ph[2]), (ph[0], G.B_BH, ZB), "RIGID")
     ph = UP.ends["head"][0]                              # and the clips hold it sideways
-    M("Uhead_side", ph, (ph[0] + 2.0, ph[1], ph[2]), "RIGID", "ij")
+    M("Uhead_side", ph, (ph[0] + 2.0, ph[1], ph[2]), "RIGID", "" if HEAD_VERT else "Ij")
     M("Uhead_side_drop", (ph[0] + 2.0, ph[1], ph[2]), (ph[0] + 2.0, G.B_BH, ZB), "RIGID")
 else:
     M("Uhead_o", (XW, G.B_BH, ZB), UP.ends["o"][1], "RIGID", "J")
@@ -318,6 +325,15 @@ else:
     M("grail_n", corner, ne[2], "RAIL", "j")
 
 
+# ------------------------------------------------------------------ cut stations for the solid joint models (joint_solid_fea.py)
+# Two nodes on the upper stringer's centreline, mid way between tread bracket bolt groups: the pieces below the foot cut and above the
+# head cut are modelled as solids, loaded by the frame's forces across the cut and from the brackets on them.
+CUTS = {}
+if G.MONO:
+    CUTS = dict(foot=dict(u=(UP.bolt_u(2) + UP.bolt_u(3)) / 2, brackets=(1, 2)), head=dict(u=(UP.bolt_u(6) + UP.bolt_u(7)) / 2, brackets=(7,)))
+    for c_ in CUTS.values():
+        c_["node"] = N(*UP.p(c_["u"], VC, UP.zc(c_["u"])))
+
 # ------------------------------------------------------------------ loads
 m.add_member_self_weight("FY", -1.0, "D")
 CASES = {}                                         # name: description
@@ -369,6 +385,15 @@ node_load("H_gwmid", mid_gw, a=H, desc="200 lb outward on the balcony's west gua
 node_load("H_corner_w", corner, a=H, desc="200 lb west on the guard's north west corner")
 node_load("H_corner_n", corner, b=H, desc="200 lb north on the guard's north west corner")
 node_load("H_gnmid", mid_gn, b=H, desc="200 lb outward on the balcony's north guard rail, mid span")
+# sway: a climber's sideways push (50 lb, about a quarter of a 200 lb person's weight), to see how much the flights wobble
+SW = 50.0
+if G.MONO:
+    node_load("S_up4", TREADS[("U", 4)]["mid"], a=SW, desc="50 lb sideways (west) on the upper flight's 4th tread")
+    node_load("S_up7", TREADS[("U", 7)]["mid"], a=SW, desc="50 lb sideways (west) on the upper flight's top tread")
+    node_load("S_up4n", TREADS[("U", 4)]["mid"], b=SW, desc="50 lb along the upper flight (north) on its 4th tread")
+    node_load("S_lo2", TREADS[("L", 2)]["mid"], b=SW, desc="50 lb sideways (north) on the lower flight's 2nd tread")
+    for c_ in ("S_up4", "S_up7", "S_up4n", "S_lo2"):
+        CASES[c_]["kind"] = "sway"
 m.add_load_combo("D", {"D": 1.0})
 for c in CASES:
     m.add_load_combo("D+" + c, {"D": 1.0, c: 1.0})
@@ -467,7 +492,40 @@ for n, what in LINKS.items():
         if math.hypot(mo, tq) > best["moment"]:
             best.update(moment=round(math.hypot(mo, tq)), moment_case=c)
     res["links"][what] = best
-json.dump(res, open(os.path.join(OUT, "ladder_fea_results.json"), "w"), indent=1, default=lambda o: round(o, 4) if isinstance(o, float) else str(o))
+# sway stiffness and the first few natural modes (self weight plus one 170 lb person standing mid way up the upper flight)
+res["sway"] = {c: dict(desc=CASES[c]["desc"], defl_in=round(res["cases"][c]["defl_at_load"], 4), stiffness_lb_per_in=round(SW / max(res["cases"][c]["defl_at_load"], 1e-9)))
+               for c in CASES if CASES[c]["kind"] == "sway"}
+res["variant"] = dict(post_base=POST_BASE, head_carries_weight=HEAD_VERT)
+if CUTS:
+    # forces (lb) and moments (in lb) on each solid piece, in PyNite global axes (X north, Y up, Z east), about the node they act at
+    def sub_at(phys, node, end):
+        for sm in m.members[phys].sub_members.values():
+            if (sm.i_node.name if end == "i" else sm.j_node.name) == node:
+                return sm
+        raise KeyError((phys, node, end))
+    cutres = {}
+    for nm, c_ in CUTS.items():
+        nd = m.nodes[c_["node"]]
+        ent = dict(u=c_["u"], cut_xyz=(nd.X, nd.Y, nd.Z), brackets={}, cases={})
+        sm = sub_at("Utube_c", c_["node"], "i" if nm == "foot" else "j")
+        for k in c_["brackets"]:
+            pn = N(*UP.p(UP.bolt_u(k), VC, UP.zc(UP.bolt_u(k))))
+            ent["brackets"][k] = dict(u=UP.bolt_u(k), xyz=(m.nodes[pn].X, m.nodes[pn].Y, m.nodes[pn].Z), node=pn)
+        for cb in ["D"] + ["D+" + c for c in CASES]:
+            Fv = sm.F(cb).ravel()
+            cut = -(Fv[0:6] if nm == "foot" else Fv[6:12])
+            br = {}
+            for k, e in ent["brackets"].items():
+                bs = sub_at(f"Ubrkt{k}c", e["node"], "i")
+                br[k] = [float(x) for x in -bs.F(cb).ravel()[0:6]]
+            ent["cases"][cb] = dict(cut=[float(x) for x in cut], brackets=br)
+        for e in ent["brackets"].values():
+            e.pop("node")
+        cutres[nm] = ent
+    json.dump(cutres, open(os.path.join(OUT, "ladder_cut_loads.json"), "w"), indent=1)
+json_path = os.path.join(OUT, "ladder_fea_results.json")
+json.dump(res, open(json_path, "w"), indent=1, default=lambda o: round(o, 4) if isinstance(o, float) else str(o))
+print("sway:", res["sway"])
 
 print(f"nodes {len(NODES)}, members {len(MEM)}, dead weight {res['dead_weight']} lb, first mode estimate {res['freq_hz']} Hz")
 print("\nCASE".ljust(13), "defl at load", " worst member / stress / use of allowable / load factor to allowable")
@@ -513,3 +571,29 @@ for i, (c, sc) in enumerate(PLOTS):
 fig.subplots_adjust(left=0.01, right=0.99, top=0.9, bottom=0.02, wspace=0.02, hspace=0.12)
 fig.savefig(os.path.join(OUT, "ladder_fea_deflected.png"), dpi=140)
 fig.savefig(os.path.join(OUT, "ladder_fea_deflected.pdf"))
+
+# ------------------------------------------------------------------ natural modes (last: the modal solve replaces the static results in the model)
+if G.MONO and os.environ.get("LADDER_MODAL", "1") == "1":
+    m.add_node_load(N(*TREADS[("U", 4)]["mid"]), "FY", -170.0, "PERSON")
+    m.add_load_combo("MASS", {"D": 1.0, "PERSON": 1.0})
+    m.analyze_modal(num_modes=10, mass_combo_name="MASS", mass_direction="Y", gravity=386.1, check_stability=False)
+    freqs = [float(x) for x in m.frequencies]
+    modes = []
+    for i_, fq in enumerate(freqs):
+        if fq < 1.0:                                     # loose analysis-only nodes (no stiffness) show up as 0 Hz modes: skip them
+            continue
+        cmb = f"Mode {i_ + 1}"
+        try:
+            sh = {k: (m.nodes[n].DX[cmb], m.nodes[n].DY[cmb], m.nodes[n].DZ[cmb]) for k, n in NODES.items()}
+        except KeyError:
+            sh = {}
+        if sh:
+            kx = max(sh, key=lambda k: math.hypot(*sh[k]))
+            dx_, dy_, dz_ = sh[kx]
+            mag = math.hypot(dx_, dy_, dz_)
+            modes.append(dict(hz=round(fq, 1), peak_at=kx, north=round(float(dx_ / mag), 2), up=round(float(dy_ / mag), 2), west=round(float(-dz_ / mag), 2)))
+        else:
+            modes.append(dict(hz=round(fq, 1)))
+    res["modes"] = modes[:5]
+    json.dump(res, open(json_path, "w"), indent=1, default=lambda o: round(o, 4) if isinstance(o, float) else str(o))
+    print("modes:", res["modes"])

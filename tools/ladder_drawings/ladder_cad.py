@@ -127,13 +127,13 @@ def post_box(a0, a1, b0, b1, z0, t=T, gap=0.12):
 
 
 def upper_stringer(f, v0, v1):
-    """round 4 upper stringer: plumb foot at U_FOOT against the landing's north beam; at the top the part above the balcony frame's underside
-    stops against the head beam's south face (U_BEAR) and the rest runs under the beam to its north face (U_END)"""
+    """round 5 upper stringer: foot cut level on the saddle (Z_SEAT) with a short plumb face at U_FOOT against the landing's north beam;
+    head cut plumb at U_BEAR against the head beam's south face, its top trimmed level at Z_TRIM"""
     zt, zbm = f.zl, lambda u: f.zl(u) - G.PL
-    uf, ub, ue = G.U_FOOT, G.U_BEAR, G.U_END
-    outer = prism(f, [(uf, zbm(uf)), (ue, zbm(ue)), (ue, f.zu), (ub, f.zu), (ub, zt(ub)), (uf, zt(uf))], v0, v1)
+    uf, ub, us_ = G.U_FOOT, G.U_BEAR, G.U_FOOT + G.L_SEAT
+    outer = prism(f, [(uf, G.Z_SEAT), (us_, zbm(us_)), (ub, zbm(ub)), (ub, G.Z_TRIM), (G.U_TRIM, G.Z_TRIM), (uf, zt(uf))], v0, v1)
     tp = T / math.cos(G.ANG)
-    e0, e1 = uf - 4, ue + 4
+    e0, e1 = uf - 4, ub + 4
     inner = prism(f, [(e0, zbm(e0) + tp), (e1, zbm(e1) + tp), (e1, zt(e1) - tp), (e0, zt(e0) - tp)], v0 + T, v1 - T)
     return outer.cut(inner)
 
@@ -236,7 +236,7 @@ for f in G.FLIGHTS:
             ang = prism(f, [(uc - 2, z0_), (uc + 2, z0_), (uc + 2, z1_), (uc - 2, z1_)], *vi).fuse(prism(f, [(uc - 2, z2_), (uc + 2, z2_), (uc + 2, z3_), (uc - 2, z3_)], *vl))
             add(g, f"{f.name}_end_angle_{nm}_{side}", ang)
             for ub_ in (uc - 1.2, uc + 1.2):
-                fbolt(f, ub_, e0 + sgn * 0.25, zf - 1.6, "v", sgn)
+                (fbolt if sgn < 0 else fnut)(f, ub_, e0 + sgn * 0.25, zf - 1.6, "v", sgn)   # through the tube, crush sleeve inside
                 fbolt(f, ub_, e0 + sgn * 1.9, zf - 0.25, "z", -1)
     for k in range(1, f.nr):
         uk, zk = f.uk(k), f.z0 + k * G.RI
@@ -244,46 +244,41 @@ for f in G.FLIGHTS:
         if G.RT:                                                               # mono: an oak riser lip behind every tread leaves under 4 in open above it
             ur = uk + G.TD
             add(g, f"{f.name}_riser_{k}", prism(f, [(ur, zk - G.TT), (ur + G.RT, zk - G.TT), (ur + G.RT, zk + G.RH), (ur, zk + G.RH)], 0.05, G.WN - 0.05), OAK, "oak")
-    if G.MONO and f is G.UPPER:                                                # round 4: angle clips lock both ends; one 3 x 3 post carries the foot
+    if G.MONO and f is G.UPPER:                                                # round 5: angle clips lock both ends; the foot sits level on a saddle on one 3 x 3 post
+        uf, ub = G.U_FOOT, G.U_BEAR
+        zs = G.Z_SEAT
+        a0p, a1p, b0p, b1p = G.UP_POST
+        u0p, u1p = b0p - G.B0 - BT, b1p - G.B0 + BT                          # saddle seat, along the flight
         for sg in (-1, 1):
             vt = VC + sg * G.TW / 2
-            vs_ = tuple(sorted((vt, vt + sg * BT)))
-            vo_ = tuple(sorted((vt, vt + sg * 2.25)))
-            # top: one leg on the tube side, the other against the head beam's south face beside the tube
-            ub, ua = G.U_BEAR, G.U_BEAR - 1.75
-            us_ = f.u2 - 0.15 / G.SL
-            add(g, f"upper_head_clip_{'w' if sg < 0 else 'e'}", prism(f, [(ua, f.zu - 3.5), (ub - BT, f.zu - 3.5), (ub - BT, f.zu - 0.25), (us_, f.zu - 0.25), (ua, f.zl(ua) - 0.1)], *vs_)
-                .fuse(prism(f, [(ub - BT, f.zu - 3.5), (ub, f.zu - 3.5), (ub, G.FL - G.TT - 0.25), (ub - BT, G.FL - G.TT - 0.25)], *vo_)))
-            fbolt(f, ub - 0.9, vt + sg * BT, f.zu - 2.0, "v", sg)
+            # top: one leg on the tube side, the other against the head beam's south face beside the tube; vertical slots in the tube leg
+            ua, xq = ub - 2.25, G.U_TRIM - 0.15 / G.SL
+            add(g, f"upper_head_clip_{'w' if sg < 0 else 'e'}", prism(f, [(ua, f.zu - 3.0), (ub - BT, f.zu - 3.0), (ub - BT, G.Z_TRIM - 0.25), (xq, G.Z_TRIM - 0.25), (ua, f.zl(ua) - 0.1)], *sorted((vt, vt + sg * BT)))
+                .fuse(prism(f, [(ub - BT, f.zu - 3.0), (ub, f.zu - 3.0), (ub, G.Z_TRIM - 0.25), (ub - BT, G.Z_TRIM - 0.25)], *sorted((vt, vt + sg * 2.25)))))
+            (fbolt if sg < 0 else fnut)(f, ub - 1.25, vt + sg * BT, f.zu - 1.5, "v", sg)   # one through bolt across the tube, crush sleeve inside
             fbolt(f, ub - BT, vt + sg * 1.3, G.ZBF, "u", -1); fnut(f, ub + G.FW, vt + sg * 1.3, G.ZBF, "u", 1)
-            # foot: one leg on the tube side, the other against the landing's north beam beside the tube
-            uf = G.U_FOOT
-            add(g, f"upper_foot_clip_{'w' if sg < 0 else 'e'}", prism(f, [(uf, 42.0), (uf + 1.5, 42.0), (uf + 1.5, 44.2), (uf, 44.2)], *vs_)
-                .fuse(prism(f, [(uf, 41.0), (uf + BT, 41.0), (uf + BT, G.ZP - G.TT - 0.25), (uf, G.ZP - G.TT - 0.25)], *vo_)))
-            fbolt(f, uf + 1.0, vt + sg * BT, 43.1, "v", sg)
-            fbolt(f, uf + BT, vt + sg * 1.3, G.ZLF, "u", 1); fnut(f, uf - G.FW, vt + sg * 1.3, G.ZLF, "u", -1)
-        # the post, its top cut to the tube's underside less a bent saddle plate with cheeks up the tube sides and legs down the post
-        a0p, a1p, b0p, b1p = G.UP_POST
-        tp_ = BT / math.cos(G.ANG)
-        zb_ = lambda u: f.zl(u) - G.PL
-        zcap = lambda b: zb_(b - G.B0) - tp_
-        post = tube(a0p, a1p, b0p, b1p, 0.375, zcap(b1p) + 1, "z", 0.1875)
-        cut = cq.Solid.makeLoft([cq.Wire.makePolygon([W(a, b, zcap(b)) for a, b in ((a0p - 1, b0p - 1), (a1p + 1, b0p - 1), (a1p + 1, b1p + 1), (a0p - 1, b1p + 1))], close=True),
-                                 cq.Wire.makePolygon([W(a, b, zcap(b1p) + 20) for a, b in ((a0p - 1, b0p - 1), (a1p + 1, b0p - 1), (a1p + 1, b1p + 1), (a0p - 1, b1p + 1))], close=True)], True)
-        add("posts", "upper_stringer_post", post.cut(cut))
+            # foot: one leg on the first tread bracket's web (bolted through web and tube), the other against the landing's north beam
+            vc_ = vt + sg * BT
+            add(g, f"upper_foot_clip_{'w' if sg < 0 else 'e'}", prism(f, G.FOOT_CLIP, *sorted((vc_, vc_ + sg * BT)))
+                .fuse(prism(f, [(uf, 42.0), (uf + BT, 42.0), (uf + BT, G.ZP - G.TT - 0.25), (uf, G.ZP - G.TT - 0.25)], *sorted((vc_, vc_ + sg * 2.25)))))
+            fbolt(f, uf + BT, vc_ + sg * 1.3, G.ZLF, "u", 1); fnut(f, uf - G.FW, vc_ + sg * 1.3, G.ZLF, "u", -1)
+        fbolt(f, G.FOOT_BOLT[0], VC - G.TW / 2 - 2 * BT, G.FOOT_BOLT[1], "v", -1); fnut(f, G.FOOT_BOLT[0], VC + G.TW / 2 + 2 * BT, G.FOOT_BOLT[1], "v", 1)
+        # the post, cut level under the saddle seat
+        zpt = zs - BT
+        add("posts", "upper_stringer_post", tube(a0p, a1p, b0p, b1p, 0.375, zpt, "z", 0.1875))
         add("posts", "upper_stringer_post_base_plate", box(a0p - 2, a1p + 2, b0p - 2, b1p + 2, 0, 0.375))
         for a_ in (a0p - 1.2, a1p + 1.2):
             for b_ in (b0p - 1.2, b1p + 1.2):
                 nut(a_, b_, 0.375, "z")
-        u0p, u1p = b0p - G.B0 - BT, b1p - G.B0 + BT
-        sad = prism(f, [(u0p, zb_(u0p) - tp_), (u1p, zb_(u1p) - tp_), (u1p, zb_(u1p)), (u0p, zb_(u0p))], VC - G.TW / 2 - BT, VC + G.TW / 2 + BT)
+        # bent saddle: level seat with low upturned edges either side of the tube (they stay under the first bracket's webs), legs down
+        # the post's south and north faces with one through bolt
+        sad = prism(f, [(u0p, zpt), (u1p, zpt), (u1p, zs), (u0p, zs)], VC - G.TW / 2 - BT, VC + G.TW / 2 + BT)
         for sg in (-1, 1):
             vt = VC + sg * G.TW / 2
-            sad = sad.fuse(prism(f, [(u0p, zb_(u0p)), (u1p, zb_(u1p)), (u1p, zb_(u1p) + 1.75), (u0p, zb_(u0p) + 1.75)], *sorted((vt, vt + sg * BT))))
-            fbolt(f, (u0p + u1p) / 2, vt + sg * BT, zb_((u0p + u1p) / 2) + 0.9, "v", sg)
-        for u0_, sg in ((u0p, -1), (u1p - BT, 1)):                              # legs down the post's south and north faces, one bolt through
-            sad = sad.fuse(prism(f, [(u0_, zb_(u0_ + BT) - 3.5), (u0_ + BT, zb_(u0_ + BT) - 3.5), (u0_ + BT, zb_(u0_ + BT) - tp_ + 0.01), (u0_, zb_(u0_) - tp_ + 0.01)], VC - 1.5, VC + 1.5))
-        zlb = zb_(u0p + BT) - 2.0
+            sad = sad.fuse(prism(f, [(u0p, zs), (u1p, zs), (u1p, zs + G.SEAT_LIP), (u0p, zs + G.SEAT_LIP)], *sorted((vt, vt + sg * BT))))
+        for u0_ in (u0p, u1p - BT):
+            sad = sad.fuse(prism(f, [(u0_, zpt - 3.5), (u0_ + BT, zpt - 3.5), (u0_ + BT, zpt + 0.01), (u0_, zpt + 0.01)], VC - 1.5, VC + 1.5))
+        zlb = zpt - 2.0
         fbolt(f, u0p, VC, zlb, "u", -1); fnut(f, u1p, VC, zlb, "u", 1)
         add(g, "upper_stringer_post_saddle", sad)
     if G.RT and f is G.UPPER:                                                  # and one stands on the landing under the upper flight's first tread
@@ -377,8 +372,8 @@ add("balcony", "balcony_west_beam", tube(XL - 2, XL, G.BAL_S, G.BAL_N - 2, *bz, 
 deck = box(0, XL, G.BAL_S, G.BAL_N, FL - TT, FL)
 add("balcony", "balcony_deck", deck.fuse(box(G.GAP, XL, G.BAL_S - G.NOSE, G.BAL_S, FL - TT, FL)) if G.NOSE else deck, OAK, "oak")
 zu, r2 = FL - TK, G.POST / math.sqrt(2) * 1.0
-for nm, b in ((("north", G.BAL_N - 1),) if G.MONO else (("south", G.B_BH), ("north", G.BAL_N - 1))):
-    c_ = XL - 1.5 if G.MONO else G.A_BR + 1         # mono: one brace, 45 degrees from under the north west corner down to the wall
+for nm, b in (("south", G.B_BH), ("north", G.BAL_N - 1)):     # mono round 5: a second brace under the head beam (Maxwell 11/23/2026), clear of the treads
+    c_ = XL - 1.5 if G.MONO else G.A_BR + 1         # mono: 45 degrees from under the west end down to the wall
     br = aprism([(c_ + r2, zu), (c_ - r2, zu), (0, zu - c_ + r2), (0, zu - c_ - r2)], b - 1, b + 1)
     add("balcony", f"knee_brace_{nm}", br)
     bolt(c_ - 2.2, b + 1, zu - 2.2, "b"); nut(1.6, b + 1, zu - c_ + 1.6, "b")
