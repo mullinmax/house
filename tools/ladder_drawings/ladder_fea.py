@@ -40,7 +40,7 @@ SEC = dict(TUBE=("steel", 1.54, 0.932, 1.77, 1.90, 0.932, 1.18),          # HSS 
            DECKL=("oak", 5.73 * 1.44, 1.44 * 5.73 ** 3 / 12, 5.73 * 1.44 ** 3 / 12, 4.8, 1.44 * 5.73 ** 2 / 6, 5.73 * 1.44 ** 2 / 6),
            DECKB=("oak", 6.3 * 1.44, 1.44 * 6.3 ** 3 / 12, 6.3 * 1.44 ** 3 / 12, 5.3, 1.44 * 6.3 ** 2 / 6, 6.3 * 1.44 ** 2 / 6),
            STR=("steel", 3.37, 7.80, 7.80, 12.8, 3.90, 3.90) if G.MONO else ("steel", 1.54, 0.932, 1.77, 1.90, 0.932, 1.18),   # stringer: HSS 4 x 4 x 1/4, or the 3 x 2
-           BRKT2=("steel", 2.38, 10.7, 4.46, 1.0, 4.5, 1.88),              # mono: a pair of 1/4 x 4 3/4 webs, one each side of the tube
+           BRKT2=("steel",) + tuple(x * G.WEB_T / 0.25 for x in (2.38, 10.7, 4.46, 1.0, 4.5, 1.88)),   # mono: a pair of 4 3/4 in deep webs (G.WEB_T plate), one each side of the tube
            ARM=("steel", 0.25 * G.ARM_D, G.ARM_D * 0.25 ** 3 / 12, 0.25 * G.ARM_D ** 3 / 12, G.ARM_D * 0.25 ** 3 / 3, G.ARM_D * 0.25 ** 2 / 6, 0.25 * G.ARM_D ** 2 / 6),   # mono: 1/4 x 2 in plate strip on edge under each tread
            STRUT=("steel", 0.84, 0.235, 0.235, 0.41, 0.313, 0.313),        # mono: 1 1/2 in square tube ties from the foot post and balcony newel to the stringer
            RIGID=("link", 20.0, 20.0, 20.0, 20.0, 1e9, 1e9))

@@ -24,6 +24,7 @@ os.makedirs(OUT, exist_ok=True)
 assert G.MONO, "kit is for the mono stringer"
 T = G.BRKT_T
 BD = 0.39                     # 90 degree bend deduction, 1/4 in mild steel
+BD_WEB = 0.39 if G.WEB_T >= 0.25 else 0.30   # 3/16 in brackets (cost pass 11/24/2026): about 0.30 in, confirm in the SendCutSend preview
 H38, HANC, CSK38 = 0.4375, 0.5, 0.40625
 CA, SA = math.cos(G.ANG), math.sin(G.ANG)
 nx, nz = SA, -CA              # unit normal pointing down and back from the tube top line, in a flight's (u, z)
@@ -100,7 +101,7 @@ def bracket():
     for f2, k2 in ((G.LOWER, 1), (G.UPPER, 1), (G.LOWER, 3)):
         w2 = Polygon([(u - f2.uk(k2), z - (f2.z0 + k2 * G.RI - G.TT)) for u, z in G.bracket_web(f2, k2)])
         assert w2.symmetric_difference(web).area < 1e-3, "bracket webs differ"
-    seat = rect(G.SEAT_S, B[0], 0, G.SEAT_TAB - BD / 2)
+    seat = rect(G.SEAT_S, B[0], 0, G.SEAT_TAB - BD_WEB / 2)
     parts_ = [web, seat]
     cuts = [rect(B[0], B[0] + 0.25, -0.40, 0)]                  # bend reliefs at the bend ends
     bends = [((G.SEAT_S, 0), (B[0], 0))]
@@ -114,7 +115,7 @@ def bracket():
         holes.append(slot(G.WEB0 - (d_ - BD / 2), -G.FLANGE_BOLT, H38, 0.70, vertical=False))
     else:                                                       # no strip option: lag holes through the seat (5/16 lags, 11/32 clearance)
         for u_ in G.seat_lags(0.0):
-            holes.append(Point(u_, (G.SEAT_TAB / 2 + G.SEAT_LAG_V) - BD / 2).buffer(0.34375 / 2, 64))
+            holes.append(Point(u_, (G.SEAT_TAB / 2 + G.SEAT_LAG_V) - BD_WEB / 2).buffer(0.34375 / 2, 64))
     shp = unary_union(parts_)
     for s_ in (4.25, 8.25):                                     # two through bolts into the stringer
         ub, zb = G.WEB0 + s_ * CA + nx * G.BOLT_N, C[1] + s_ * SA + nz * G.BOLT_N
@@ -131,9 +132,9 @@ bt = ("2 bends, both 90 deg toward the outside face: flange off the front edge, 
 where = f"every tread ({G.N_LO - 1} lower + {G.N_UP - 1} upper)"
 holes_txt = ("2 x 7/16 bolt holes into the stringer, flange bolt slotted. Drill the seat tab screw holes at assembly." if G.STRIPS
              else "2 x 7/16 bolt holes into the stringer, 3 x 11/32 holes in the seat for 5/16 x 1 1/2 lags up into the tread.")
-part(f"bracket_open_qty{n}.dxf", "Tread bracket, open side", n, 0.25, shp, holes, bends, bt,
+part(f"bracket_open_qty{n}.dxf", "Tread bracket, open side", n, G.WEB_T, shp, holes, bends, bt,
      f"{where}; west side of the upper flight, north side of the lower flight. {holes_txt}", rnd=0.3)
-part(f"bracket_wall_qty{n}.dxf", "Tread bracket, wall side (mirror)", n, 0.25, shp, holes, bends, bt,
+part(f"bracket_wall_qty{n}.dxf", "Tread bracket, wall side (mirror)", n, G.WEB_T, shp, holes, bends, bt,
      f"mirror image of the open side part. {where}.", mirror=True, rnd=0.3)
 
 # ---------------------------------------------------------------- tread strips (2 in strip on edge under each tread, across both brackets)

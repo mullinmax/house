@@ -206,7 +206,7 @@ def mono_ladder(WX, WY):
             uk, zk = f.uk(k), f.z0 + k * G.RI - G.TT
             for sg in (-1, 1):
                 v0 = VC + sg * (G.TW / 2 + e)
-                A = (uk + G.WEB0, zk - BT)
+                A = (uk + G.WEB0, zk - G.WEB_T)
                 web = [(u_, min(z_, zk - e)) for u_, z_ in G.bracket_web(f, k)]    # round 6: corners rounded, top just under the tread
                 zc_ = f.zf + BT
                 foot_ = f is G.LOWER and min(z_ for _, z_ in web) < zc_     # the lower flight's first web stops at its foot flange
@@ -219,19 +219,19 @@ def mono_ladder(WX, WY):
                             t_ = (zc_ - p_[1]) / (q_[1] - p_[1])
                             cl.append((p_[0] + t_ * (q_[0] - p_[0]), zc_))
                     web = cl
-                gpoly(ST, f, web, v0, v0 + sg * BT)
-                gh(ST, f, [(uk + G.SEAT_S, zk - BT), (uk + G.TD + G.RT - e, zk - BT), (uk + G.TD + G.RT - e, zk - e), (uk + G.SEAT_S, zk - e)], v0 + sg * BT, v0 + sg * G.SEAT_TAB)
+                gpoly(ST, f, web, v0, v0 + sg * G.WEB_T)
+                gh(ST, f, [(uk + G.SEAT_S, zk - G.WEB_T), (uk + G.TD + G.RT - e, zk - G.WEB_T), (uk + G.TD + G.RT - e, zk - e), (uk + G.SEAT_S, zk - e)], v0 + sg * G.WEB_T, v0 + sg * G.SEAT_TAB)
                 if G.STRIPS:                                 # flange folded off the web's front edge, one bolt into the strip that crosses under the tread
-                    gh(ST, f, [(A[0] + e, zk - G.ARM_D), (A[0] + BT, zk - G.ARM_D), (A[0] + BT, zk - BT - e), (A[0] + e, zk - BT - e)], v0, v0 + sg * (BT + G.ARM_FL))
-                    fbolt(f, A[0] + BT, v0 + sg * (BT + 0.95), zk - G.FLANGE_BOLT, "u")
-                    fnut(f, A[0] - BT, v0 + sg * (BT + 0.95), zk - G.FLANGE_BOLT, "u", -1)
+                    gh(ST, f, [(A[0] + e, zk - G.ARM_D), (A[0] + G.WEB_T, zk - G.ARM_D), (A[0] + G.WEB_T, zk - G.WEB_T - e), (A[0] + e, zk - G.WEB_T - e)], v0, v0 + sg * (G.WEB_T + G.ARM_FL))
+                    fbolt(f, A[0] + G.WEB_T, v0 + sg * (G.WEB_T + 0.95), zk - G.FLANGE_BOLT, "u")
+                    fnut(f, A[0] - G.WEB_T, v0 + sg * (G.WEB_T + 0.95), zk - G.FLANGE_BOLT, "u", -1)
                 for s_ in (4.25, 8.25):                      # two through bolts per bracket pair: socket head on the open side, nut on the wall side
                     ub_, zb2 = A[0] + s_ * math.cos(G.ANG) + nx * G.BOLT_N, f.zl(A[0]) + s_ * math.sin(G.ANG) + nz * G.BOLT_N
                     if zb2 > f.zf + BT + 0.5:
                         sh_ = BT if (f is G.LOWER and k == 1 and s_ == 4.25) else 0.0     # round 8: through the floor shoe's cheeks too
-                        (fbolt if sg < 0 else fnut)(f, ub_, v0 + sg * (BT + sh_), zb2, "v", sg)
+                        (fbolt if sg < 0 else fnut)(f, ub_, v0 + sg * (G.WEB_T + sh_), zb2, "v", sg)
                 for ub_ in G.seat_lags(uk):                   # screws (no strip option: 5/16 lags) up through each seat into the tread
-                    fbolt(f, ub_, v0 + sg * (BT + G.SEAT_TAB / 2 + G.SEAT_LAG_V - 0.25), zk - BT, "z", -1, d=0.5 if G.STRIPS else 0.56, h=0.15 if G.STRIPS else 0.22)
+                    fbolt(f, ub_, v0 + sg * (G.WEB_T + G.SEAT_TAB / 2 + G.SEAT_LAG_V - 0.25), zk - G.WEB_T, "z", -1, d=0.5 if G.STRIPS else 0.56, h=0.15 if G.STRIPS else 0.22)
                 if foot_:                                    # foot flange on the slab, two anchors
                     us_f = [u_ for u_, z_ in web if abs(z_ - zc_) < 1e-6]
                     fu = (min(us_f), max(us_f))
@@ -265,7 +265,7 @@ def mono_ladder(WX, WY):
             u0_, u1_ = f.u0 - G.SHOE_TAB, f.u1 + G.SHOE_TAB
             gh(ST, f, [(u0_, 0.02), (u1_, 0.02), (u1_, BT), (u0_, BT)], VC - G.SHOE_HW, VC + G.SHOE_HW)
             for sg in (-1, 1):
-                gpoly(ST, f, G.shoe_cheek(), VC + sg * (G.TW / 2 + BT + e), VC + sg * G.SHOE_HW)
+                gpoly(ST, f, G.shoe_cheek(), VC + sg * (G.TW / 2 + G.WEB_T + e), VC + sg * G.SHOE_HW)
             for ua_, va_ in G.shoe_anchors():
                 fnut(f, ua_, va_, BT, "z")
         if f is G.UPPER:                                     # round 6: level foot on a saddle on one 3 x 3 post; cheeks bolt through the stringer, tabs to the landing's north beam

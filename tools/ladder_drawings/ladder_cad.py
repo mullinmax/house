@@ -165,8 +165,8 @@ def rail_sweep():
 
 VC = G.VC
 if G.MONO:      # one centre tube; a bracket on each side of it with the seat pointing outward: (name, tube v0 or None, web v range, seat v range)
-    SIDES = (("open", VC - G.TW / 2, (VC - G.TW / 2 - BT, VC - G.TW / 2), (VC - G.TW / 2 - G.SEAT_TAB, VC - G.TW / 2)),
-             ("wall", None, (VC + G.TW / 2, VC + G.TW / 2 + BT), (VC + G.TW / 2, VC + G.TW / 2 + G.SEAT_TAB)))
+    SIDES = (("open", VC - G.TW / 2, (VC - G.TW / 2 - G.WEB_T, VC - G.TW / 2), (VC - G.TW / 2 - G.SEAT_TAB, VC - G.TW / 2)),
+             ("wall", None, (VC + G.TW / 2, VC + G.TW / 2 + G.WEB_T), (VC + G.TW / 2, VC + G.TW / 2 + G.SEAT_TAB)))
 else:
     SIDES = (("open", 0.0, (G.TW, G.TW + BT), (G.TW, G.TW + G.SEAT_W)), ("wall", G.WN - G.TW, (G.WN - G.TW - BT, G.WN - G.TW), (G.WN - G.TW - G.SEAT_W, G.WN - G.TW)))
 for f in G.FLIGHTS:
@@ -196,7 +196,7 @@ for f in G.FLIGHTS:
             sg_ = 1 if vs[0] == vw[0] else -1                                  # outward from the tube
             ft_ = tuple(sorted((vs[0] if sg_ > 0 else vs[1], (vs[0] if sg_ > 0 else vs[1]) + sg_ * G.FOOT_W))) if G.MONO else vs
             us0 = uk + G.SEAT_S if G.MONO else uk + 1
-            br = prism(f, web, *vw).fuse(prism(f, [(us0, zk - BT), (uk + G.TD + G.RT, zk - BT), (uk + G.TD + G.RT, zk), (us0, zk)], *vs))
+            br = prism(f, web, *vw).fuse(prism(f, [(us0, zk - G.WEB_T), (uk + G.TD + G.RT, zk - G.WEB_T), (uk + G.TD + G.RT, zk), (us0, zk)], *vs))
             if G.MONO and G.STRIPS:                                            # flange folded off the web's vertical front edge, one bolt into the strip
                 fo_ = vw[1] if sg_ > 0 else vw[0]
                 br = br.fuse(prism(f, [(A[0], zk - G.ARM_D), (A[0] + BT, zk - G.ARM_D), (A[0] + BT, zk), (A[0], zk)], *sorted((fo_ - sg_ * BT, fo_ + sg_ * G.ARM_FL))))
@@ -234,7 +234,7 @@ for f in G.FLIGHTS:
                     sgv = 1 if vs[0] == vw[0] else -1
                     (fbolt if side == "open" else fnut)(f, ub_, (vw[1] if sgv > 0 else vw[0]) + sgv * sh_, zb_, "v", sgv)
             for ub_ in G.seat_lags(uk):                                         # screws (no strip option: bigger lags) up through each seat into the tread
-                fbolt(f, ub_, (vs[0] + vs[1]) / 2 + (G.SEAT_LAG_V if vs[0] == vw[0] else -G.SEAT_LAG_V), zk - BT, "z", -1, d=0.5 if G.STRIPS else 0.56, h=0.15 if G.STRIPS else 0.22)
+                fbolt(f, ub_, (vs[0] + vs[1]) / 2 + (G.SEAT_LAG_V if vs[0] == vw[0] else -G.SEAT_LAG_V), zk - G.WEB_T, "z", -1, d=0.5 if G.STRIPS else 0.56, h=0.15 if G.STRIPS else 0.22)
         sgn = 1 if vs[0] == vw[0] else -1                                      # head angles, 3 x 3 x 1/4, 4 in long (the feet are held by the first tread brackets)
         e0 = vw[0] if sgn > 0 else vw[1]
         vi, vl = tuple(sorted((e0, e0 + sgn * 3.0))), tuple(sorted((e0, e0 + sgn * 0.25)))
@@ -265,7 +265,7 @@ for f in G.FLIGHTS:
         u0_, u1_ = f.u0 - G.SHOE_TAB, f.u1 + G.SHOE_TAB
         shoe = prism(f, [(u0_, 0.0), (u1_, 0.0), (u1_, BT), (u0_, BT)], VC - G.SHOE_HW, VC + G.SHOE_HW)
         for sg in (-1, 1):
-            shoe = shoe.fuse(prism(f, G.shoe_cheek(), *sorted((VC + sg * G.TW / 2 + sg * BT, VC + sg * G.SHOE_HW))))
+            shoe = shoe.fuse(prism(f, G.shoe_cheek(), *sorted((VC + sg * (G.TW / 2 + G.WEB_T), VC + sg * G.SHOE_HW))))
         add(g, "lower_floor_shoe", shoe)
         for ua_, va_ in G.shoe_anchors():
             fnut(f, ua_, va_, BT, "z")

@@ -36,7 +36,8 @@ WEB0, BOLT_N, LAP, SEAT_W = (4.5, 1.5, 3.0, 3.5) if MONO else (3.75, 1.25, 2.25,
 # The earlier seat only bracket (SEAT_W wide bent seat) bent like a diving board: tools/ladder_drawings/bracket_solid_fea.py has that study.
 # Round 3 (Maxwell 11/22/2026 night): the arm is now a narrow STRIP of constant depth, one bolt through each bracket flange, a screw tab at each
 # end into the tread. It hangs just behind the riser lip of the tread below, so it is also the top of the riser and the lip can be shorter.
-BRKT_T = 0.25                                     # web and strip plate
+BRKT_T = 0.25                                     # strip, shoe, saddle and clip plate
+WEB_T = float(L.get("ladder_bracket_plate_in", 0.1875)) if (MONO and not STRIPS) else BRKT_T   # tread bracket plate (cost pass, Maxwell 11/24/2026: 3/16, solid FEA 10 to 12 ksi away from corners)
 ARM_D, ARM_END = 2.0, 1.2                         # strip depth; its ends stop this far inside the tread ends
 ARM_FL, SEAT_TAB, FOOT_W = 1.75, (1.5 if STRIPS else float(L.get("ladder_seat_tab_in", 2.5))), 3.5         # web's bolting flange, the small seat tab behind it, first bracket's foot flange
 SEAT_S = WEB0 + (1.0 if STRIPS else 0.0)
@@ -274,7 +275,7 @@ BRACE = A_BR - 1.0 if MONO else 16.0              # its rise, to the wall post's
 # tube, web, cheek). A tab runs past each end of the foot with one 3/8 slab anchor on the centreline. This frees the first tread for a
 # standard bracket.
 SHOE_TAB = 2.25                                    # tab past each end of the tube's foot
-SHOE_HW = TW / 2 + 2 * BRKT_T                       # half width over the cheeks (outside the bracket webs)
+SHOE_HW = TW / 2 + WEB_T + BRKT_T                  # half width over the cheeks (outside the bracket webs)
 SHOE_EDGE = 1.0                                    # cheek edge round its bolt, like the webs
 
 
