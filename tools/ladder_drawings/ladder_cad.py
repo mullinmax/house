@@ -108,8 +108,9 @@ def fnut(f, u, v, z, axis, sign=1, **kw):
     fbolt(f, u, v, z, axis, sign, kind="hex", **kw)
 
 
-def post_box(a0, a1, b0, b1, z0, t=T, gap=0.12):
+def post_box(a0, a1, b0, b1, z0, t=None, gap=0.12):
     """mono round 3: a square tube post standing from z0, its top cut to the plane of the rail's underside so the rail runs over it unbroken"""
+    t = G.POST_T if t is None else t
     s_ = G.rail_s((a0 + a1) / 2, (b0 + b1) / 2)
     pa, pb = G.rail_plan(s_)
     qa, qb = G.rail_plan(min(s_ + 0.05, G.S_END))
@@ -363,7 +364,7 @@ for nm, (a0_, a1_, b0_, b1_) in G.LAND_POSTS.items():
             nut(a1_, (b0_ + b1_) / 2, z_, "a")
 deck = box(0, XL, 0, G.LAND_DECK_N, ZP - TT, ZP)
 add("landing", "landing_deck", deck.fuse(box(XL, XL + G.NOSE, G.GAP, XL, ZP - TT, ZP)) if G.NOSE else deck, OAK, "oak")
-add("posts", "corner_newel", post_box(XL, XL + G.POST, XL, XL + G.POST, 0.375) if G.CONT_RAIL else tube(XL, XL + G.POST, XL, XL + G.POST, 0.375 if G.MONO else 0, G.NEWEL_TOP, "z"))
+add("posts", "corner_newel", post_box(XL, XL + G.POST, XL, XL + G.POST, 0.375) if G.CONT_RAIL else tube(XL, XL + G.POST, XL, XL + G.POST, 0.375 if G.MONO else 0, G.NEWEL_TOP, "z", G.POST_T))
 if G.MONO:                                         # bolted floor flange under the corner newel: four anchors into the slab
     add("posts", "corner_newel_base_plate", box(XL - 2, XL + G.POST + 2, XL - 2, XL + G.POST + 2, 0, 0.375))
     for a_ in (XL - 1.3, XL + G.POST + 1.3):
@@ -390,7 +391,7 @@ for nm, b, sd in (G.knee_frames() if G.MONO else ()):         # round 7: each br
     c_, zb_ = G.A_BR, G.KB_BOT
     add("balcony", f"knee_brace_{nm}", aprism([(c_ + r2, zu), (c_ - r2, zu), (2.0, zb_ + r2), (2.0, zb_ - r2)], b - 1, b + 1))
     pa0, pa1, pz0, pz1 = G.KB_POST
-    add("balcony", f"knee_post_{nm}", tube(pa0, pa1, b - 1, b + 1, pz0, pz1, "z", 0.1875))
+    add("balcony", f"knee_post_{nm}", tube(pa0, pa1, b - 1, b + 1, pz0, pz1, "z", G.POST_T))
     gb0, gb1 = (b + 1, b + 1 + BT) if sd > 0 else (b - 1 - BT, b - 1)
     fo_, fi_ = (gb1, b - 1) if sd > 0 else (gb0, b + 1)                   # gusset's open face, the tube's far face
     for j_ in ("top", "foot", "corner"):
@@ -409,8 +410,8 @@ if G.MONO:
         add("posts", "balcony_sw_newel", post_box(XL, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, FL - TK))
         add("posts", "guard_post_nw", post_box(XL, XL + G.POST, *PN, FL - TK))
     else:                                          # straight rails (Maxwell 11/24/2026): flat topped posts, level guard top rails over them
-        add("posts", "balcony_sw_newel", tube(XL, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, FL - TK, G.GSW_TOP, "z"))
-        add("posts", "guard_post_nw", tube(XL, XL + G.POST, *PN, FL - TK, G.G_TOP - G.RAIL, "z"))
+        add("posts", "balcony_sw_newel", tube(XL, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, FL - TK, G.GSW_TOP, "z", G.POST_T))
+        add("posts", "guard_post_nw", tube(XL, XL + G.POST, *PN, FL - TK, G.G_TOP - G.RAIL, "z", G.POST_T))
     for nm, b0_, b1_, sg in (("sw", G.BAL_S - 0.375, G.BAL_S, -1), ("nw", G.BAL_N, G.BAL_N + 0.375, 1)):
         add("posts", f"post_plate_{nm}", box(XL - 8, XL + G.POST, b0_, b1_, FL - TK, FL - TT).fuse(box(XL, XL + G.POST, b0_, b1_, FL - TT, FL + 3.5)))
         fo_, fi_ = (b1_, b0_ - 2.0) if sg > 0 else (b0_, b1_ + 2.0)        # plate's outer face, far face of the end beam
@@ -423,7 +424,7 @@ if G.MONO:
                 bolt(XL + 1, b0_, z_, "b", -1); nut(XL + 1, po_, z_, "b", 1)
             else:
                 bolt(XL + 1, b0_, z_, "b", -1); nut(XL + 1, po_, z_, "b", 1)
-    add("posts", "guard_post_ne", post_box(0, G.POST, *PN, FL - 13) if G.CONT_RAIL else tube(0, G.POST, *PN, FL - 13, G.G_TOP - G.RAIL, "z"))
+    add("posts", "guard_post_ne", post_box(0, G.POST, *PN, FL - 13) if G.CONT_RAIL else tube(0, G.POST, *PN, FL - 13, G.G_TOP - G.RAIL, "z", G.POST_T))
     for z_ in (FL - 11, FL - 2):
         nut(G.POST, PN[0] + 1, z_, "a")
     if G.CONT_RAIL:
@@ -445,9 +446,9 @@ if G.MONO:
         add("guard", f"picket_north_{i}", cq.Solid.makeCylinder(G.PICKET / 2, pz[1] - pz[0], W(G.POST + i * (XL - G.POST) / n_n, G.GP_B, pz[0])))
 else:
     gsw_z0 = G.UPPER.zc(G.BAL_S + 1 - G.B0) - 4.0
-    add("posts", "balcony_sw_newel", tube(XL, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, gsw_z0, G.GSW_TOP, "z"))
-    add("posts", "guard_post_nw", tube(XL - G.POST, XL, G.BAL_N, G.BAL_N + G.POST, FL - TK, G.G_TOP - G.RAIL, "z"))
-    add("posts", "guard_post_ne", tube(0, G.POST, G.BAL_N, G.BAL_N + G.POST, FL - 13, G.G_TOP - G.RAIL, "z"))
+    add("posts", "balcony_sw_newel", tube(XL, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, gsw_z0, G.GSW_TOP, "z", G.POST_T))
+    add("posts", "guard_post_nw", tube(XL - G.POST, XL, G.BAL_N, G.BAL_N + G.POST, FL - TK, G.G_TOP - G.RAIL, "z", G.POST_T))
+    add("posts", "guard_post_ne", tube(0, G.POST, G.BAL_N, G.BAL_N + G.POST, FL - 13, G.G_TOP - G.RAIL, "z", G.POST_T))
     ra, rb = (XL + 0.25, XL + 0.25 + G.RAIL), (G.GP_B - G.RAIL / 2, G.GP_B + G.RAIL / 2)
     for nm, z0_ in (("top", G.G_TOP - G.RAIL), ("bottom", FL + 2.5)):
         add("guard", f"guard_west_{nm}_rail", tube(*ra, G.BAL_S + G.POST, rb[1], z0_, z0_ + G.RAIL, "b", G.RAIL_T))
@@ -481,7 +482,7 @@ full = cq.Assembly(name="view")
 full.add(assy); full.add(ctx)
 full.save(os.path.join(OUT, "loft_ships_ladder_view.glb"), tolerance=0.01, angularTolerance=0.2)
 
-DENS = dict(steel=0.2836, oak=0.027, rail=0.2836 * (1 - (1 - 2 * G.RAIL_T / G.RAIL) ** 2))   # the swept rail is drawn solid: weigh it as 3/16 wall tube
+DENS = dict(steel=0.2836, oak=0.027, rail=0.2836 * (1 - (1 - 2 * G.RAIL_T / G.RAIL) ** 2))   # the swept rail is drawn solid: weigh it as a tube of its wall
 tot, rows = {}, []
 for group, name, solid, colour, mat in PARTS:
     wgt = solid.Volume() * DENS[mat]
