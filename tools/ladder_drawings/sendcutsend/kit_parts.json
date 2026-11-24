@@ -10,8 +10,8 @@
    "bends": "2 bends, both 90 deg toward the outside face: flange off the front edge, seat tab off the top edge",
    "notes": "every other tread (3 lower + 7 upper); west side of the upper flight, north side of the lower flight. 2 x 7/16 bolt holes into the stringer, flange bolt slotted. Drill the seat tab screw holes at assembly.",
    "size": [
-    9.2,
-    11.54
+    8.84,
+    10.72
    ]
   },
   {
@@ -23,8 +23,8 @@
    "bends": "2 bends, both 90 deg toward the outside face: flange off the front edge, seat tab off the top edge",
    "notes": "mirror image of the open side part. every other tread (3 lower + 7 upper).",
    "size": [
-    9.2,
-    11.54
+    8.84,
+    10.72
    ]
   },
   {
@@ -36,7 +36,7 @@
    "bends": "3 bends, all 90 deg toward the outside face: flange off the front edge, seat tab off the top edge, foot off the bottom edge",
    "notes": "lower flight first tread; west side of the upper flight, north side of the lower flight. 2 x 7/16 bolt holes into the stringer, flange bolt slotted. Drill the seat tab screw holes at assembly.",
    "size": [
-    9.2,
+    8.84,
     12.45
    ]
   },
@@ -49,7 +49,7 @@
    "bends": "3 bends, all 90 deg toward the outside face: flange off the front edge, seat tab off the top edge, foot off the bottom edge",
    "notes": "mirror image of the open side part. lower flight first tread.",
    "size": [
-    9.2,
+    8.84,
     12.45
    ]
   },
@@ -67,80 +67,41 @@
    ]
   },
   {
-   "file": "lower_head_angle_qty2.dxf",
-   "name": "Lower stringer head angle, 3 x 3 x 4 in",
+   "file": "head_clip_west_qty2.dxf",
+   "name": "Stringer top clip, west side (both flights)",
    "qty": 2,
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "1 bend, 90 deg",
-   "notes": "one each side of the lower stringer's top end; the vertical leg's two holes take through bolts across the stringer, the other leg bolts up through the landing header (through bolt, crush sleeve).",
-   "size": [
-    4.0,
-    5.61
-   ]
-  },
-  {
-   "file": "upper_head_clip_west_qty1.dxf",
-   "name": "Upper stringer top clip, west side",
-   "qty": 1,
-   "thick": 0.25,
-   "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "1 bend, 90 deg (west and east are mirror images)",
-   "notes": "tube leg hole is a 1 in VERTICAL SLOT: one through bolt across the stringer (crush sleeve inside). Other leg bolts through the balcony head beam.",
+   "notes": "one pair at each stringer top (upper on the balcony head beam, lower on the landing header). Tube leg hole is a 1 in VERTICAL SLOT: one through bolt across the stringer (crush sleeve inside). Other leg bolts through the beam.",
    "size": [
     4.11,
     5.75
    ]
   },
   {
-   "file": "upper_head_clip_east_qty1.dxf",
-   "name": "Upper stringer top clip, east side",
-   "qty": 1,
+   "file": "head_clip_east_qty2.dxf",
+   "name": "Stringer top clip, east side (both flights)",
+   "qty": 2,
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "1 bend, 90 deg (west and east are mirror images)",
-   "notes": "tube leg hole is a 1 in VERTICAL SLOT: one through bolt across the stringer (crush sleeve inside). Other leg bolts through the balcony head beam.",
+   "notes": "one pair at each stringer top (upper on the balcony head beam, lower on the landing header). Tube leg hole is a 1 in VERTICAL SLOT: one through bolt across the stringer (crush sleeve inside). Other leg bolts through the beam.",
    "size": [
     4.11,
     5.75
-   ]
-  },
-  {
-   "file": "upper_foot_clip_west_qty1.dxf",
-   "name": "Upper stringer foot clip, west side",
-   "qty": 1,
-   "thick": 0.25,
-   "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "1 bend, 90 deg (west and east are mirror images)",
-   "notes": "tube leg sits outside the first upper tread bracket's web; one through bolt clip, web, stringer, web, clip. Other leg through the landing's north beam. CHECK: along the bend the tube leg is only 3/4 in outside (SendCutSend wants 1.36 in); widen that neck if it clears.",
-   "size": [
-    4.61,
-    6.0
-   ]
-  },
-  {
-   "file": "upper_foot_clip_east_qty1.dxf",
-   "name": "Upper stringer foot clip, east side",
-   "qty": 1,
-   "thick": 0.25,
-   "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "1 bend, 90 deg (west and east are mirror images)",
-   "notes": "tube leg sits outside the first upper tread bracket's web; one through bolt clip, web, stringer, web, clip. Other leg through the landing's north beam. CHECK: along the bend the tube leg is only 3/4 in outside (SendCutSend wants 1.36 in); widen that neck if it clears.",
-   "size": [
-    4.61,
-    6.0
    ]
   },
   {
    "file": "upper_post_saddle_qty1.dxf",
-   "name": "Upper stringer post saddle (level seat, legs down the post)",
+   "name": "Upper stringer post saddle (seat, legs down the post, cheeks up the stringer, tabs to the landing beam)",
    "qty": 1,
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "2 bends, 90 deg, both legs down the same way (a U over the post top)",
-   "notes": "seat 4.50 x 3.50 in outside, legs 3 in wide, 3.75 in outside. One 3/8 through bolt across the post through both legs. The CAD's 3/8 in upturned seat lips are LEFT OFF: too short to bend at SendCutSend (1.36 in minimum); the foot clips hold the tube sideways.",
+   "bends": "6 bends, all 90 deg: the 2 legs DOWN (a U over the post top), the 2 cheeks UP (a U round the stringer), and a tab off each cheek's south edge bent OUT, away from the stringer (bend the tabs before the cheeks)",
+   "notes": "seat 4.50 x 3.50 in outside; legs 3 in wide, 3.75 in outside, one 3/8 through bolt across the post; cheeks 2.25 in tall outside, one 3/8 through bolt across the stringer (crush sleeve inside); tabs 2.25 in out x 1.17 in tall, one 3/8 bolt each through the landing's north beam. Replaces round 5's foot clips.",
    "size": [
-    4.5,
+    8.22,
     10.22
    ]
   },
@@ -203,7 +164,7 @@
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "1 bend, 90 deg",
-   "notes": "PLACEHOLDER for an engineer: 16 at the landing and balcony frame corners, 6 at the three post bases (2 each, flat heads up through the base plates), 8 at the two knee braces' ends (the south brace's wall end needs a bracket rated about 920 lb: engineer).",
+   "notes": "PLACEHOLDER for an engineer: 16 at the landing and balcony frame corners, 6 at the three post bases (2 each, flat heads up through the base plates), 8 at the two knee braces' ends (the south brace's wall end needs a bracket rated about 750 lb: engineer).",
    "size": [
     2.0,
     3.11

@@ -87,12 +87,12 @@ if G.MONO:
         fn = f.name[0].upper()
         if f is UP:                                      # round 4: plumb foot on a post against the landing beam, notched head leaning on the balcony beam
             foot, head = f.p(G.U_FOOT, VC, f.zc(G.U_FOOT)), f.p(G.U_BEAR, VC, f.zc(G.U_BEAR))
-        else:
-            foot, head = f.p(f.ufc, VC, f.zf), f.p(f.uhc, VC, f.zu)
+        else:                                            # round 6: the lower head copies the upper one, plumb cut against the landing header
+            foot, head = f.p(f.ufc, VC, f.zf), f.p(G.U_BEAR_L, VC, f.zc(G.U_BEAR_L))
         M(f"{fn}tube_c", foot, head, "STR")
         f.ends = dict(c=(foot, head))
         for nm, pc, half in (("foot", foot, 4.0 if f is LO else G.TW / 2 + 0.125), ("head", head, G.TW / 2 + 0.125)):      # anchors or clips each side of the tube resist its twist
-            u_ = (G.U_FOOT if nm == "foot" else G.U_BEAR) if f is UP else (f.ufc if nm == "foot" else f.uhc)
+            u_ = (G.U_FOOT if nm == "foot" else G.U_BEAR) if f is UP else (f.ufc if nm == "foot" else G.U_BEAR_L)
             M(f"{fn}{nm}bar", f.p(u_, VC - half, pc[2]), f.p(u_, VC + half, pc[2]), "RIGID")
             f.ends[nm] = (f.p(u_, VC - half, pc[2]), f.p(u_, VC + half, pc[2]))
         for k in range(1, f.nr):
@@ -164,8 +164,13 @@ for i, b in enumerate(G.LAND_STRIPS):
 if G.MONO:
     for i, nm in enumerate("ab"):
         ph, pf = LO.ends["head"][i], UP.ends["foot"][i]
-        M(f"Lhead_{nm}", (ph[0], ph[1], ZL), ph, "RIGID", "J")
-        M(f"Ufoot_{nm}", (pf[0], G.B_LN, ZL), pf, "RIGID", "J")         # angle clip each side to the landing's north beam
+        # round 6: the lower head leans on the landing header like the upper head on the balcony's head beam (same slotted head clips)
+        M(f"Lhead_{nm}", ph, (G.A_LH, ph[1], ph[2]), "RIGID", "" if HEAD_VERT else "Ij")
+        M(f"Lhead_{nm}_drop", (G.A_LH, ph[1], ph[2]), (G.A_LH, ph[1], ZL), "RIGID")
+        M(f"Ufoot_{nm}", (pf[0], G.B_LN, ZL), pf, "RIGID", "J")         # saddle tab each side to the landing's north beam
+    ph = LO.ends["head"][0]                              # and the head clips hold it sideways
+    M("Lhead_side", ph, (ph[0], ph[1] + 2.0, ph[2]), "RIGID", "" if HEAD_VERT else "Ij")
+    M("Lhead_side_drop", (ph[0], ph[1] + 2.0, ph[2]), (G.A_LH, ph[1] + 2.0, ZL), "RIGID")
     # round 4: one 3 x 3 x 3/16 post on a 4 anchor plate under the upper stringer's foot; its saddle ties it to the tube
     SEC["POST3"] = ("steel",) + rect_hss(3.0, 3.0, 0.1875)
     m.add_section("POST3", *SEC["POST3"][1:5])
@@ -473,9 +478,11 @@ LINKS = dict(newel_LW="corner newel to landing west beam", foot_tube="foot post 
                      Ufoot_o="upper stringer foot (open side)", Ufoot_w="upper stringer foot (wall side)", Uhead_o="upper stringer head (open side)", Uhead_w="upper stringer head (wall side)")))
 if G.MONO:
     LINKS.update({"Uhead_a": "upper stringer top bearing on the head beam (west side)", "Uhead_b": "upper stringer top bearing on the head beam (east side)",
-                  "Uhead_side": "upper stringer top clips, sideways", "Upost_saddle": "upper stringer post saddle"})
+                  "Uhead_side": "upper stringer top clips, sideways", "Upost_saddle": "upper stringer post saddle",
+                  "Lhead_a": "lower stringer top bearing on the landing header (north side)", "Lhead_b": "lower stringer top bearing on the landing header (south side)",
+                  "Lhead_side": "lower stringer top clips, sideways"})
     for k_ in ("Ufoot_a", "Ufoot_b"):
-        LINKS[k_] = "upper stringer foot clip to the landing beam (" + ("west" if k_[-1] == "a" else "east") + " side)"
+        LINKS[k_] = "upper stringer saddle tab to the landing beam (" + ("west" if k_[-1] == "a" else "east") + " side)"
 res["links"] = {}
 for n, what in LINKS.items():
     best = dict(force=0.0, moment=0.0)

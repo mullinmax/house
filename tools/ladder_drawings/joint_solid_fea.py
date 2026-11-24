@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
-"""Solid element check of the upper stringer joints, round 5 (Maxwell 11/23/2026): the foot on its one post, and the plumb cut top.
+"""Solid element check of the upper stringer joints, round 6 (Maxwell 11/24/2026): the foot on its one post, and the plumb cut top.
 
 Pieces (ladder_geom.py / ladder_cad.py, mono), each cut out of the frame model (ladder_fea.py) at a station on the HSS 4 x 4 x 1/4
 stringer mid way between two tread bracket bolt groups, so the only loads are the frame's forces across the cut, the forces from the
 tread brackets on the piece, and the piece's own weight:
 
-  foot   stringer from its foot to the cut: the foot is cut level (Z_SEAT) and sits on a bent saddle (level seat with low upturned edges,
-         legs down the post's south and north faces with one bolt through the post); a short plumb face stays against the landing's
-         north beam; the 3 x 3 x 3/16 post down to its base plate (fixed there); one angle clip each side (a leg on the first tread
-         bracket's web, one through bolt across the tube, and a leg against the landing's north beam with one bolt through the beam,
-         taken as rigid; the web itself is not modelled, the rigid bolt bridges it)
+  foot   stringer from its foot to the cut: the foot is cut level (Z_SEAT) and sits on a bent saddle (level seat; legs down the post's
+         south and north faces with one bolt through the post; round 6: cheeks up both sides of the stringer with one through bolt,
+         and a tab bent out of each cheek's south edge onto the landing's north beam with one bolt through the beam, taken as rigid);
+         a short plumb face stays against the landing's north beam; the 3 x 3 x 3/16 post down to its base plate (fixed there).
+         The cheeks only touch the tube sides (not tied): the bolt carries what passes between them.
   head   stringer from the cut to its plumb cut top against the head beam's south face (U_BEAR), the top trimmed level at the frame's
          top (Z_TRIM); one angle clip each side (tube leg in vertical slots, through bolt across the tube; beam leg with one bolt
          through the head beam, rigid)
@@ -66,9 +66,9 @@ SOLVER = os.environ.get("FEA_SOLVER", "SPOOLES")
 def bolts(piece):
     """(name, point, axis, kind): kind 'rigid' joins every ply, 'fixed' is a bolt into a beam taken as rigid"""
     if piece == "foot":
-        yb_ = HW + BT + 1.3                                 # clip beam legs sit outside the first bracket's webs
-        return [("clip", (G.FOOT_BOLT[0], 0.0, G.FOOT_BOLT[1]), "y", "rigid"), ("leg", (U0P - 1, 0.0, ZLB), "x", "rigid"),
-                ("beam_w", (UF - 1, yb_, G.ZLF), "x", "fixed"), ("beam_e", (UF - 1, -yb_, G.ZLF), "x", "fixed")]
+        yb_ = HW + BT + 1.05                                # round 6: saddle tabs, outside the cheeks
+        return [("cheek", (G.SAD_BOLT[0], 0.0, G.SAD_BOLT[1]), "y", "rigid"), ("leg", (U0P - 1, 0.0, ZLB), "x", "rigid"),
+                ("tab_w", (U0P - 1, yb_, G.TAB_BOLT_Z), "x", "fixed"), ("tab_e", (U0P - 1, -yb_, G.TAB_BOLT_Z), "x", "fixed")]
     return [("clip", (UB - 1.25, 0.0, ZU - 1.5), "y", "rigid"),
             ("beam_w", (UB - 2, HW + 1.3, G.ZBF), "x", "fixed"), ("beam_e", (UB - 2, -HW - 1.3, G.ZBF), "x", "fixed")]
 
@@ -102,20 +102,9 @@ def build_parts(piece, xc, path):
     e0, e1 = x0 - 4, x1 + 4
     inner = prism([(e0, zb(e0) + tp), (e1, zb(e1) + tp), (e1, zt(e1) - tp), (e0, zt(e0) - tp)], -HW + T_TUBE, HW - T_TUBE)
     parts["TUBE"] = outer.cut(inner)
-    for s in (1, -1):
+    for s in ((1, -1) if piece == "head" else ()):       # round 6: the foot has no separate clips (the saddle's cheeks and tabs)
         nm = "CLIPW" if s > 0 else "CLIPE"
-        if piece == "foot":
-            y0_ = HW + BT                                   # outside the first bracket's web
-            c = prism(G.FOOT_CLIP, s * y0_, s * (y0_ + BT))
-            xr, zr = G.FOOT_CLIP[2]                         # the profile's inside cut corner: laser cut with a 1/4 in radius
-            ed = [e for e in c.Edges() if e.geomType() == "LINE" and all(abs(p.x - xr) < 1e-6 and abs(p.z - zr) < 1e-6 for p in (e.startPoint(), e.endPoint()))]
-            try:
-                c = c.fillet(0.25, ed)
-            except Exception as ex:
-                print(f"  {nm} profile corner radius failed, left sharp:", ex)
-            c = c.fuse(box(UF, UF + BT, s * y0_, s * (y0_ + 2.25), 42.0, G.ZP - G.TT - 0.25))
-            yi, xi = y0_ + BT, UF + BT
-        else:
+        if True:
             ua, xq = UB - 2.25, G.U_TRIM - 0.15 / G.SL
             c = prism([(ua, ZU - 3.0), (UB - BT, ZU - 3.0), (UB - BT, G.Z_TRIM - 0.25), (xq, G.Z_TRIM - 0.25), (ua, zt(ua) - 0.1)], s * HW, s * (HW + BT))
             c = c.fuse(box(UB - BT, UB, s * HW, s * (HW + 2.25), ZU - 3.0, G.Z_TRIM - 0.25))
@@ -130,7 +119,8 @@ def build_parts(piece, xc, path):
     if piece == "foot":
         sad = box(U0P, U1P, -HW - BT, HW + BT, ZPT, ZS5)                        # level seat
         for s in (1, -1):
-            sad = sad.fuse(box(U0P, U1P, s * HW, s * (HW + BT), ZS5, ZS5 + G.SEAT_LIP))     # low upturned edges
+            sad = sad.fuse(prism(G.CHEEK, s * HW, s * (HW + BT)))                          # cheek up the stringer side
+            sad = sad.fuse(box(U0P, U0P + BT, s * (HW + BT), s * (HW + BT + G.TAB_W), G.TAB_Z[0], G.TAB_Z[1]))   # tab onto the landing beam
         for u0_ in (U0P, U1P - BT):
             sad = sad.fuse(box(u0_, u0_ + BT, -1.5, 1.5, ZPT - 3.5, ZPT + 0.01))           # legs down the post
         parts["SADDLE"] = sad.clean()

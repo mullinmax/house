@@ -10,7 +10,7 @@ on each side of a bend. Holes on short flanges near a bend are slotted where the
 Hole sizes: 7/16 in for 3/8 in bolts, 1/2 in for 3/8 in slab anchors, 13/32 in countersunk for 3/8 flat heads in the base plates.
 No tapped threads, rivets or rivet nuts (round 5): every bolt into a tube is a through bolt with a steel crush sleeve.
 Screw holes into the oak (tread tabs) are NOT cut: drill them at assembly through the tab into the tread (9/32 in, then the insert).
-PRELIMINARY: dimensions follow ladder_geom.py (round 5 joints + straight rails); for an engineer's review before ordering.
+PRELIMINARY: dimensions follow ladder_geom.py (round 6: rounded brackets, shared head clips, saddle with cheeks and tabs; straight rails); for an engineer's review before ordering.
 """
 import json, math, os, sys
 import ezdxf
@@ -66,7 +66,9 @@ def bracket(foot):
     folded off its top edge (under the tread), and for the lower flight's first tread a foot flange folded off its bottom (slab)."""
     A, B = (G.WEB0, 0.0), (G.TD + G.RT, 0.0)
     C = (G.WEB0, (G.WEB0 - (G.TD + G.RT)) * G.SL)
-    web = Polygon([A, C, (C[0] + nx * G.LAP, C[1] + nz * G.LAP), (B[0] + nx * G.LAP, B[1] + nz * G.LAP), B])
+    f_, k_ = (G.LOWER, 1) if foot else (G.UPPER, 2)            # round 6: corners rounded (the same outline on every tread)
+    uk_, zk_ = f_.uk(k_), f_.z0 + k_ * G.RI - G.TT
+    web = Polygon([(u - uk_, z - zk_) for u, z in G.bracket_web(f_, k_)])
     zf = -(G.RI - G.TT)                                         # slab, from the first tread's underside
     if foot:
         web = web.intersection(rect(-5, 20, zf, 1))
@@ -127,53 +129,57 @@ part(f"tread_strip_qty{nstrip}.dxf", "Tread strip (2 in on edge, closes the rise
      "2 bends, 90 deg: a screw tab at each end folds toward the back of the tread",
      "one under every tread. 2 x 7/16 holes for the bracket flange bolts. Drill the tab screw holes at assembly. Tabs 1.6 in outside (CAD shows 1.5).")
 
-# ---------------------------------------------------------------- lower stringer head angles (under the corner landing's header)
-shp = rect(-2, 2, -(3.0 - BD / 2), 3.0 - BD / 2)
-holes = [Point(x, -(1.6 - BD / 2)).buffer(H38 / 2, 64) for x in (-1.2, 1.2)] + [Point(x, 1.9 - BD / 2).buffer(H38 / 2, 64) for x in (-1.2, 1.2)]
-part("lower_head_angle_qty2.dxf", "Lower stringer head angle, 3 x 3 x 4 in", 2, 0.25, shp, holes, [((-2, 0), (2, 0))], "1 bend, 90 deg",
-     "one each side of the lower stringer's top end; the vertical leg's two holes take through bolts across the stringer, the other leg bolts up through the landing header (through bolt, crush sleeve).")
-
-# ---------------------------------------------------------------- upper stringer clips and saddle (round 5, PR 113)
-UP = G.UPPER
-ub = G.U_BEAR
-ua, xq = ub - 2.25, G.U_TRIM - 0.15 / G.SL
-zb0, zt0 = UP.zu - 3.0, G.Z_TRIM - 0.25
-X = lambda u: (ub - u) - BD / 2                                  # tube leg, measured away from the bend at the head beam's face
-tube_leg = Polygon([(X(ua), zb0), (0, zb0), (0, zt0), (X(xq), zt0), (X(ua), UP.zl(ua) - 0.1)])
-beam_leg = rect(-(2.25 - BD / 2), 0, zb0, zt0)
-shp = unary_union([tube_leg, beam_leg])
-holes = [slot(X(ub - 1.25), UP.zu - 1.5, H38, 1.0, vertical=True), Point(-(1.3 - BD / 2), G.ZBF).buffer(H38 / 2, 64)]
+# ---------------------------------------------------------------- stringer head clips (round 6: the same part at both stringer tops)
+def clip_flat(f):
+    hc = G.head_clip(f)
+    ub, (zb0, zt0) = hc["ub"], hc["beam"]
+    X = lambda u: (ub - u) - BD / 2                              # tube leg, measured away from the bend at the beam's face
+    leg = Polygon([(X(u) if u < ub - T else 0.0, z - zt0) for u, z in hc["leg"]])
+    shp = unary_union([leg, rect(-(2.25 - BD / 2), 0, zb0 - zt0, 0)])
+    holes = [slot(X(hc["tube_bolt"][0]), hc["tube_bolt"][1] - zt0, H38, 1.0, vertical=True), Point(-(1.3 - BD / 2), hc["beam_bolt_z"] - zt0).buffer(H38 / 2, 64)]
+    return shp, holes, [((0, zb0 - zt0), (0, 0))]
+shp, holes, bl = clip_flat(G.UPPER)
+s2, h2, _ = clip_flat(G.LOWER)
+assert s2.symmetric_difference(shp).area < 1e-3, "head clips differ between flights"
 for side, mir in (("west", False), ("east", True)):
-    part(f"upper_head_clip_{side}_qty1.dxf", f"Upper stringer top clip, {side} side", 1, 0.25, shp, holes, [((0, zb0), (0, zt0))],
+    part(f"head_clip_{side}_qty2.dxf", f"Stringer top clip, {side} side (both flights)", 2, 0.25, shp, holes, bl,
          "1 bend, 90 deg (west and east are mirror images)",
-         "tube leg hole is a 1 in VERTICAL SLOT: one through bolt across the stringer (crush sleeve inside). Other leg bolts through the balcony head beam.",
-         mirror=mir)
-uf = G.U_FOOT
-ztop = G.ZP - G.TT - 0.25
-leg = Polygon([((u - uf) - BD / 2 if u > uf else 0.0, z) for u, z in G.FOOT_CLIP])
-shp = unary_union([leg, rect(-(2.25 - BD / 2), 0, 42.0, ztop)])
-holes = [Point((G.FOOT_BOLT[0] - uf) - BD / 2, G.FOOT_BOLT[1]).buffer(H38 / 2, 64), Point(-(1.3 - BD / 2), G.ZLF).buffer(H38 / 2, 64)]
-for side, mir in (("west", False), ("east", True)):
-    part(f"upper_foot_clip_{side}_qty1.dxf", f"Upper stringer foot clip, {side} side", 1, 0.25, shp, holes, [((0, 42.0), (0, ztop))],
-         "1 bend, 90 deg (west and east are mirror images)",
-         "tube leg sits outside the first upper tread bracket's web; one through bolt clip, web, stringer, web, clip. Other leg through the landing's north beam. "
-         "CHECK: along the bend the tube leg is only 3/4 in outside (SendCutSend wants 1.36 in); widen that neck if it clears.", mirror=mir)
-# saddle: level seat under the stringer's level foot cut, legs down the post's south and north faces, one through bolt.
-a0p, a1p, b0p, b1p = G.UP_POST
-seat_u = (b1p - b0p) + 2 * T                                     # outside, along the flight
-seat_v = G.TW + 2 * T                                            # across the flight
-leg_out = (G.Z_SEAT - (G.Z_SEAT - T - 3.5))                      # seat top to leg bottom, outside
-ys = seat_u / 2 - BD / 2                                         # bend lines at +-ys
-shp = unary_union([rect(-seat_v / 2, seat_v / 2, -ys, ys), rect(-1.5, 1.5, -ys - (leg_out - BD / 2), ys + (leg_out - BD / 2))])
-for sy in (-1, 1):                                               # bend reliefs where the wider seat meets the 3 in legs
+         "one pair at each stringer top (upper on the balcony head beam, lower on the landing header). Tube leg hole is a 1 in VERTICAL SLOT: "
+         "one through bolt across the stringer (crush sleeve inside). Other leg bolts through the beam.", mirror=mir)
+# saddle (round 6): level seat under the stringer's level foot cut; legs DOWN the post's south and north faces (one bolt through the post);
+# cheeks UP both sides of the stringer (one bolt through the stringer); a tab off each cheek's south edge onto the landing's north beam.
+# Flat: x across the flight (west +), y along the flight (north +), origin at the seat's centre.
+u0, u1 = G.SAD_U0, G.SAD_U1
+seat_u, seat_v = u1 - u0, G.TW + 2 * T                          # outside
+um, zpt = (u0 + u1) / 2, G.Z_SEAT - T
+leg_out = T + G.SAD_LEG                                          # seat top to leg bottom, outside
+ys = seat_u / 2 - BD / 2                                         # leg bend lines at y = +-ys
+xs = seat_v / 2 - BD / 2                                         # cheek bend lines at x = +-xs
+yb = (u0 - um) + BD / 2                                          # tab bend line on each cheek's south edge
+cx = lambda z: xs + max((z - zpt) - BD / 2, 0.0)                 # cheek: flat x of a point at height z (outside from the seat's underside)
+cy = lambda u: max(u - um, yb)
+cheek = Polygon([(cx(z), cy(u)) for u, z in G.CHEEK])
+tab = rect(cx(G.TAB_Z[0]), cx(G.TAB_Z[1]), yb, yb - ((G.TAB_W + T) - BD / 2))
+half = unary_union([cheek, tab])
+shp = unary_union([rect(-xs, xs, -ys, ys), rect(-1.5, 1.5, -ys - (leg_out - BD / 2), ys + (leg_out - BD / 2)),
+                   half, sscale(half, -1, 1, origin=(0, 0))])
+for sy in (-1, 1):                                               # bend reliefs where the seat meets the 3 in legs
     for sx in (-1, 1):
         shp = shp.difference(rect(sx * 1.5, sx * 1.75, sy * (ys - 0.001), sy * (ys + 0.40)))
 yh = ys + (T + 2.0) - BD / 2                                     # leg bolt, 2 in below the post top
 holes = [Point(0, sy * yh).buffer(H38 / 2, 64) for sy in (-1, 1)]
-part("upper_post_saddle_qty1.dxf", "Upper stringer post saddle (level seat, legs down the post)", 1, 0.25, shp, holes,
-     [((-1.5, -ys), (1.5, -ys)), ((-1.5, ys), (1.5, ys))], "2 bends, 90 deg, both legs down the same way (a U over the post top)",
-     f"seat {seat_v:.2f} x {seat_u:.2f} in outside, legs 3 in wide, {leg_out:.2f} in outside. One 3/8 through bolt across the post through both legs. "
-     "The CAD's 3/8 in upturned seat lips are LEFT OFF: too short to bend at SendCutSend (1.36 in minimum); the foot clips hold the tube sideways.")
+holes += [Point(sx * cx(G.SAD_BOLT[1]), cy(G.SAD_BOLT[0])).buffer(H38 / 2, 64) for sx in (-1, 1)]
+holes += [Point(sx * (cx(G.TAB_Z[0]) + cx(G.TAB_Z[1])) / 2, yb - ((1.05 + T) - BD / 2)).buffer(H38 / 2, 64) for sx in (-1, 1)]
+bends = [((-1.5, -ys), (1.5, -ys)), ((-1.5, ys), (1.5, ys))]
+bends += [((sx * xs, cy(G.CHEEK[0][0])), (sx * xs, cy(G.CHEEK[-1][0]))) for sx in (-1, 1)]
+bends += [((sx * cx(G.TAB_Z[0]), yb), (sx * cx(G.TAB_Z[1]), yb)) for sx in (-1, 1)]
+SAD_INFO = dict(seat=(seat_v, seat_u), cheek_h=G.Z_SEAT + 2.0 - zpt, tab=(G.TAB_W + T, G.TAB_Z[1] - G.TAB_Z[0]))
+part("upper_post_saddle_qty1.dxf", "Upper stringer post saddle (seat, legs down the post, cheeks up the stringer, tabs to the landing beam)", 1, 0.25, shp, holes,
+     bends, "6 bends, all 90 deg: the 2 legs DOWN (a U over the post top), the 2 cheeks UP (a U round the stringer), and a tab off each cheek's "
+     "south edge bent OUT, away from the stringer (bend the tabs before the cheeks)",
+     f"seat {seat_v:.2f} x {seat_u:.2f} in outside; legs 3 in wide, {leg_out:.2f} in outside, one 3/8 through bolt across the post; cheeks "
+     f"{SAD_INFO['cheek_h']:.2f} in tall outside, one 3/8 through bolt across the stringer (crush sleeve inside); tabs {SAD_INFO['tab'][0]:.2f} in out x "
+     f"{SAD_INFO['tab'][1]:.2f} in tall, one 3/8 bolt each through the landing's north beam. Replaces round 5's foot clips.")
 
 # ---------------------------------------------------------------- base plates, 3/8 in
 def base_plate(w, post, through, file, name, qty, notes):
@@ -206,7 +212,7 @@ def clip(w, leg, file, name, qty, notes):
 
 
 clip(2.0, 1.75, "clip_angle_2in_qty30.dxf", "Clip angle 2 in wide, 1 3/4 legs", 30,
-     "16 at the landing and balcony frame corners, 6 at the three post bases (2 each, flat heads up through the base plates), 8 at the two knee braces' ends (the south brace's wall end needs a bracket rated about 920 lb: engineer).")
+     "16 at the landing and balcony frame corners, 6 at the three post bases (2 each, flat heads up through the base plates), 8 at the two knee braces' ends (the south brace's wall end needs a bracket rated about 750 lb: engineer).")
 clip(1.25, 1.5, "rail_clip_1-25in_qty10.dxf", "Rail end clip 1 1/4 in wide, 1 1/2 legs", 10,
      "straight rail ends into post faces, the north guard rail into the west one, the north guard rail at the bath 1 wall, and the four guard bottom rail ends. 9/32 in holes for 1/4-20.")
 
