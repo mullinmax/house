@@ -474,18 +474,18 @@
     30.8
    ],
    "at": [
-    5.475,
-    35.2,
+    5.25,
+    35.241,
     0
    ],
    "facing": 180,
    "cull": [
     {
      "box": [
-      3.96,
+      3.76,
       35.1,
       0,
-      6.99,
+      6.74,
       37.75,
       5.99
      ],
@@ -507,7 +507,11 @@
      ],
      [
       "Depth",
-      "28.5 in without handles, 23.6 in without doors"
+      "28.5 in without handles, 23.6 in without doors, 43.5 in with a door open 90 degrees"
+     ],
+     [
+      "Clearances",
+      "3/8 in sides and top, 1 in behind (Frigidaire install guide)"
      ],
      [
       "Capacity",
@@ -533,7 +537,10 @@
     "notes": [
      "From Erin's list (11/17/2026), replacing the Whirlpool WRFC5036RZ. Size from the Lowe's listing.",
      "Erin's note prices the fridge at $1,699 as FRFC2323AS, which is the plain Frigidaire version of this fridge: same 36 x 70 x 30.8 in and 22.6 cu ft, also with a door dispenser, $1,899 at Lowe's on 11/17/2026. The link on the list points to the Gallery GRFC2353AF, so that is what is modelled. Either one fits the same bay.",
-     "The fridge bay is 37.8 in wide with 3/4 in panels inside it, which leaves about 36.3 in clear, so this 36 in fridge has under 3/16 in each side. Check the opening width in the Frigidaire install guide with Carter Lumber. It is 1 in shallower than the Whirlpool, so the pantry door beside it has no less room than before."
+     "Danielle Gross's 11/24/2026 plan: a 36 in opening between 1-1/2 in full height end panels (REP), panels and the over fridge cabinet 24 in deep, counter 25 in deep beside it. The 35.6 in case leaves about 3/16 in a side, under the 3/8 in Frigidaire asks for.",
+     "Set 1 in off the wall, the case front is about 24.6 in from the wall, just behind the 25 in counter edge, and the closed doors stand about 4.9 in proud of it (7.2 in with handles).",
+     "Door swing (estimated from the 43.5 in open depth; Frigidaire publishes no hinge drawing): the right door opens to 90 degrees about 1 in clear of the counter's front edge and is stopped by that edge at roughly 105 to 120 degrees. The fresh food doors start about 28 in up, below the 36 in counter, so the counter is in their way past 90 degrees.",
+     "Danielle draws a 21 in tall cabinet over the fridge with its top at 90 in, so its underside is about 69 in. The fridge is 70 in to the top of the hinges and wants 3/8 in more. The model keeps the cabinet's underside at 72 in until that is settled."
     ],
     "links": [
      [
@@ -545,7 +552,7 @@
       "https://www.lowes.com/pd/Frigidaire-22-6-cu-ft-Counter-depth-French-Door-Refrigerator-with-Ice-Maker-Stainless-Steel-ENERGY-STAR/5013990507"
      ]
     ],
-    "placement": "North kitchen wall, in the panelled fridge bay."
+    "placement": "North kitchen wall, in the panelled fridge bay (Danielle's 11/24/2026 plan: 38.5 to 74.5 in east of the west wall)."
    }
   },
   {
