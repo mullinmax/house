@@ -416,7 +416,7 @@ pantry_door_leaf = 2.5                   # 2'-6" x 6'-8" white oak slab. ASSUMED
 pantry_casing_east = 0.292               # 3-1/2" casing; its outer edge stops 2" (0.167 ft) short of the fridge side panel at x = 3.9
 pantry_casing_west = 0.20                # trimmed to 2-3/8" so it dies into the west wall face at x = 0.542
 fridge_panels = 0.125                    # Danielle 11/24/2026: REP 1-1/2 x 90 refrigerator end panels, 36 in clear between them. The GRFC2353AF case is 35.6 in wide (Frigidaire asks 3/8 in sides and top, 1 in rear), so about 3/16 in a side: tight against the 3/8 in ask. Was 3/4 in panels, 36.3 in clear
-fridge_panel_depth = 2.0                 # flush with the 24 in cabinet faces (Danielle's plan). Was 27.8 in deep, deeper than the fridge case, which stopped the doors short of 90 degrees
+fridge_panel_depth = 2.0                 # flush with the 24 in cabinet faces (Danielle's plan). Frigidaire's top view recommends 28 7/8 in deep side panels (doors nearly flush with them); 2.4 would show that. Was 27.8 in
 fridge_panel_height = 7.75               # full height, floor to the top of the over fridge cabinet (REP ... .90). Was 6 ft
 [kitchen.runs.island]                    # island working side faces south (elevation 4)
 axis = "x"
