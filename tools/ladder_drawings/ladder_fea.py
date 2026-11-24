@@ -59,6 +59,10 @@ if G.MONO and abs(G.WT - 0.25) > 1e-6:
 for env_, key_, dims_ in (("LADDER_POST_T", "POST", (2.0, 2.0)), ("LADDER_RAIL_T", "RAIL", (1.5, 1.5)), ("LADDER_FTB", "TUBE", (2.0, 3.0))):
     if os.environ.get(env_):
         SEC[key_] = ("steel",) + rect_hss(*dims_, float(os.environ[env_]))
+ISEC = dict(W4x13=(3.83, 3.86, 11.3, 0.151, 1.90, 5.46), S4x7_7=(2.26, 0.764, 6.08, 0.0438, 0.505, 3.04), W5x16=(4.71, 6.32, 21.4, 0.192, 3.11, 8.55),
+            W6x15=(4.43, 9.32, 29.1, 0.101, 3.11, 9.72))      # I-beam study (Maxwell 11/24/2026): A, Iy weak, Iz strong, J, Sy, Sz (AISC)
+if os.environ.get("LADDER_STR_SEC"):
+    SEC["STR"] = ("steel",) + ISEC[os.environ["LADDER_STR_SEC"]]
 for k_, s_ in SEC.items():
     m.add_section(k_, *s_[1:5])
 

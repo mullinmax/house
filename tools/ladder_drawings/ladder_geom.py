@@ -17,7 +17,15 @@ N_UP = NR - N_LO
 # thick and the riser lips grow so the riser opening stays under the 4 in sphere. Env LADDER_TREAD_STRIPS=0/1 and
 # LADDER_TREAD_THICK_IN override the config (the exploded view builds both).
 _env = os.environ.get
-STRIPS = (_env("LADDER_TREAD_STRIPS", "1" if L.get("ladder_tread_strips", True) else "0") == "1") if MONO else True
+_strip_cfg = L.get("ladder_tread_strips", True)
+_strip_opt = _env("LADDER_TREAD_STRIPS", "decor" if _strip_cfg == "decor" else ("1" if _strip_cfg else "0"))
+STRIPS = (_strip_opt == "1") if MONO else True
+# Round 10 (Maxwell 11/24/2026): a third option, LADDER_TREAD_STRIPS=decor (config ladder_tread_strips = "decor"): the no strip structure
+# (thick oak, long bracket seats) plus a strip under each tread for its look only. It is a piece of stock L 2 x 1 x 1/8 angle: the 2 in leg
+# hangs where the structural strip was (just in front of the bracket webs), the 1 in leg points to the nosing under the oak and takes three
+# wood screws up into the tread. It carries nothing and touches no steel.
+DECOR = MONO and _strip_opt == "decor"
+DECOR_ANG = (2.0, 1.0, 0.125)                     # hanging leg, screw leg, thickness
 TT = float(_env("LADDER_TREAD_THICK_IN", L.get("ladder_tread_thick_in", 1.44 if STRIPS else 1.75)))
 TTD = 1.44                                        # oak deck on the corner landing and the balcony (stays 1 7/16 in either way)
 RI, GO, TD = L["floor_height"] * 12 / NR, L["ladder_going_in"], L["ladder_tread_in"]
@@ -232,6 +240,16 @@ SEAT_E = (bracket_web(UPPER, 2)[-1][0] - UPPER.uk(2)) if MONO else TD + RT   # r
 
 
 STRIP_R = 1.5                                      # round 7: the tread strips' bottom end corners rounded this much (Maxwell 11/24/2026)
+
+
+def decor_strip(f, k):
+    """the decorative angle under tread k: (hanging leg (u0, u1, z0, z1), screw leg (u0, u1, z0, z1), v range, screw points [(u, v, z)])"""
+    uk, zk = f.uk(k), f.z0 + k * RI - TT
+    h, w, t = DECOR_ANG
+    a = uk + WEB0
+    v0, v1 = ARM_END, WN - ARM_END
+    return ((a - t, a, zk - h, zk), (a - w, a - t, zk - t, zk), (v0, v1),
+            [(a - w / 2 - t / 2, v, zk - t) for v in (v0 + 1.5, (v0 + v1) / 2, v1 - 1.5)])
 
 
 def strip_outline(zk):

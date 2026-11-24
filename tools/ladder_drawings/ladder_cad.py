@@ -281,6 +281,12 @@ for f in G.FLIGHTS:
                 (fbolt if sgn < 0 else fnut)(f, ub_, e0 + sgn * 0.25, zf - 1.6, "v", sgn)   # through the tube, crush sleeve inside
                 fbolt(f, ub_, e0 + sgn * 1.9, zf - 0.25, "z", -1)
     for k in range(1, f.nr):
+        if G.DECOR:                                                            # round 10: decorative strip, stock L 2 x 1 x 1/8, screwed to the oak only
+            hl_, sl_, vv_, scr_ = G.decor_strip(f, k)
+            add(g, f"{f.name}_decor_strip_{k}", prism(f, [(hl_[0], hl_[2]), (hl_[1], hl_[2]), (hl_[1], hl_[3]), (hl_[0], hl_[3])], *vv_)
+                .fuse(prism(f, [(sl_[0], sl_[2]), (sl_[1], sl_[2]), (sl_[1], sl_[3]), (sl_[0], sl_[3])], *vv_)))
+            for u_, v_, z_ in scr_:
+                fbolt(f, u_, v_, z_, "z", -1, d=0.4, h=0.1)
         uk, zk = f.uk(k), f.z0 + k * G.RI
         add(g, f"{f.name}_tread_{k}", prism(f, [(uk, zk - G.TT), (uk + G.TD, zk - G.TT), (uk + G.TD, zk), (uk, zk)], 0.05, G.WN - 0.05), OAK, "oak")
         if G.RT:                                                               # mono: an oak riser lip behind every tread leaves under 4 in open above it

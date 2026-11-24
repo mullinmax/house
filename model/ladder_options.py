@@ -249,6 +249,12 @@ def mono_ladder(WX, WY):
                     for ub_ in (fu[0] + 0.8, fu[1] - 0.8):
                         fnut(f, ub_, v0 + sg * (G.FOOT_W / 2 + 0.6), f.zf + BT, "z")
             if not G.STRIPS:                                 # round 8 no strip option: thicker oak on the two seats only
+                if G.DECOR:                                  # round 10: decorative strip, stock L 2 x 1 x 1/8 screwed to the oak only
+                    hl_, sl_, vv_, scr_ = G.decor_strip(f, k)
+                    gh(ST, f, [(hl_[0], hl_[2]), (hl_[1] - e, hl_[2]), (hl_[1] - e, hl_[3] - e), (hl_[0], hl_[3] - e)], *vv_)
+                    gh(ST, f, [(sl_[0], sl_[2]), (sl_[1], sl_[2]), (sl_[1], sl_[3] - e), (sl_[0], sl_[3] - e)], *vv_)
+                    for u_, v_, z_ in scr_:
+                        fbolt(f, u_, v_, z_, "z", -1, d=0.4, h=0.1)
                 gh(OAK, f, [(uk, zk), (uk + G.TD, zk), (uk + G.TD, zk + G.TT), (uk, zk + G.TT)], 0.05, G.WN - 0.05)
                 ur = uk + G.TD
                 gh(OAK, f, [(ur + e, zk), (ur + G.RT, zk), (ur + G.RT, zk + G.TT + G.RH), (ur + e, zk + G.TT + G.RH)], 0.05 + e, G.WN - 0.05 - e)
