@@ -12,14 +12,23 @@ MONO = L.get("ladder_stringer") == "mono"         # one centre stringer (Maxwell
 assert L.get("ladder_stringer") in ("tube", "mono")
 NR, N_LO = L["ladder_risers"], int(L.get("ladder_lower_risers", 5))
 N_UP = NR - N_LO
-RI, GO, TD, TT = L["floor_height"] * 12 / NR, L["ladder_going_in"], L["ladder_tread_in"], 1.44
+# Round 8 (Maxwell 11/24/2026): two tread options. ladder_tread_strips = true is the 2 in steel strip under each tread (round 3 on);
+# false drops the strips and their bracket flanges: the bracket seat runs the web's whole top edge, the oak is ladder_tread_thick_in
+# thick and the riser lips grow so the riser opening stays under the 4 in sphere. Env LADDER_TREAD_STRIPS=0/1 and
+# LADDER_TREAD_THICK_IN override the config (the exploded view builds both).
+_env = os.environ.get
+STRIPS = (_env("LADDER_TREAD_STRIPS", "1" if L.get("ladder_tread_strips", True) else "0") == "1") if MONO else True
+TT = float(_env("LADDER_TREAD_THICK_IN", L.get("ladder_tread_thick_in", 1.44 if STRIPS else 1.75)))
+TTD = 1.44                                        # oak deck on the corner landing and the balcony (stays 1 7/16 in either way)
+RI, GO, TD = L["floor_height"] * 12 / NR, L["ladder_going_in"], L["ladder_tread_in"]
 TW, TDp = L.get("ladder_mono_in", [4.0, 4.0]) if MONO else L.get("ladder_tube_in", [2.0, 3.0])
 WT = 0.25 if MONO else 0.1875                     # nominal stringer wall
 FW, FD = 2.0, 3.0                                 # landing and balcony frame tube, on edge
 FT_L, FT_B = (0.125, 0.1875) if MONO else (0.1875, 0.1875)   # frame tube walls: the corner landing now stands on posts, so its frame is 1/8 wall (Maxwell 11/22/2026: less metal)
 CONT_RAIL = MONO and bool(L.get("ladder_rail_continuous", False))   # round 3's one curved rail; Maxwell 11/24/2026: back to straight rails between posts
 WALL_RAIL = bool(L.get("ladder_wall_rail", True))   # wall side handrails; code wants rails on both sides of a ships ladder, Maxwell asked to hide them for now
-RT, RH = (0.75, 2.0) if MONO else (0.0, 0.0)      # mono: an oak riser lip behind every tread; the 2 in steel strip under the tread above closes the rest (Maxwell 11/22/2026 round 3)
+SPHERE_GAP = 3.875                               # no strip option: riser lip top to the next tread's underside, under the 4 in sphere
+RT, RH = ((0.75, 2.0) if STRIPS else (0.75, RI - TT - SPHERE_GAP)) if MONO else (0.0, 0.0)      # mono: an oak riser lip behind every tread; the 2 in steel strip under the tread above closes the rest (Maxwell 11/22/2026 round 3)
 WEB0, BOLT_N, LAP, SEAT_W = (4.5, 1.5, 3.0, 3.5) if MONO else (3.75, 1.25, 2.25, 2.5)   # tread bracket: web start behind the nosing, bolt line below the tube top, lap, seat width
 # Mono tread support (Maxwell 11/22/2026 PM): a flat plate ARM on edge crosses over the stringer under each tread and reaches near both tread ends.
 # Each bracket web has a flange folded off its vertical front edge that bolts to the arm, so the load goes into the webs in their own plane.
@@ -28,8 +37,18 @@ WEB0, BOLT_N, LAP, SEAT_W = (4.5, 1.5, 3.0, 3.5) if MONO else (3.75, 1.25, 2.25,
 # end into the tread. It hangs just behind the riser lip of the tread below, so it is also the top of the riser and the lip can be shorter.
 BRKT_T = 0.25                                     # web and strip plate
 ARM_D, ARM_END = 2.0, 1.2                         # strip depth; its ends stop this far inside the tread ends
-ARM_FL, SEAT_TAB, FOOT_W = 1.75, 1.5, 3.5         # web's bolting flange, the small seat tab behind it, first bracket's foot flange
-SEAT_S = WEB0 + 1.0                               # seat tab starts 1 in behind the flange fold, so the two bends are not on top of each other
+ARM_FL, SEAT_TAB, FOOT_W = 1.75, (1.5 if STRIPS else float(L.get("ladder_seat_tab_in", 2.5))), 3.5         # web's bolting flange, the small seat tab behind it, first bracket's foot flange
+SEAT_S = WEB0 + (1.0 if STRIPS else 0.0)
+SEAT_LAG_V = 0.3 if STRIPS else 0.25                 # lag line, out from the seat's centre (away from the bend)
+SEAT_LAG = (0.25, 2.5) if STRIPS else (0.3125, 1.5)   # lag (dia, length) up through each seat into the tread: round 8 no strip option uses 5/16 x 1 1/2
+
+
+def seat_lags(uk):
+    """u of the lags up through each bracket seat (two with the strips, three spread along the longer seat without)"""
+    if STRIPS:
+        return (uk + 6.5, uk + 8.0)
+    u0, u1 = uk + SEAT_S + 0.75, uk + TD + RT - 0.75
+    return (u0, (u0 + u1) / 2, u1)          # seat tab starts 1 in behind the flange fold, so the two bends are not on top of each other
 FLANGE_BOLT = 1.0                                 # the one flange bolt, this far below the tread
 STRIP_TAB = 1.4                                   # screw tabs at the strip ends: this far in from each end, to the screw; they fold toward the back of the tread (Maxwell 11/23/2026)
 WN, GAP = L["ladder_width_in"], L["ladder_wall_gap_in"]
@@ -38,7 +57,7 @@ SL = RI / GO
 ANG = math.atan(SL)
 PL = TDp / math.cos(ANG)                          # tube depth measured plumb
 ZP, FL = N_LO * RI, NR * RI                       # corner landing top, loft floor
-TK = L.get("ladder_platform_in", TT + FD)        # platform build up: oak deck on a tube frame
+TK = L.get("ladder_platform_in", TTD + FD)        # platform build up: oak deck on a tube frame
 XL = WN + GAP                                     # open (west) edge of the upper flight and of both platforms
 NOSE = L.get("ladder_landing_nosing_in", TD - GO)  # oak nosing past each platform's frame; 0 = the platform's own edge is the top nosing (Maxwell 11/22/2026)
 UL = (N_LO - 1) * GO + NOSE                       # lower flight, first nosing to the landing edge
@@ -76,11 +95,11 @@ class Flight:
         return self.uk(k) + WEB0 + 6.25 * math.cos(ANG) + BOLT_N * math.sin(ANG)
 
 
-LOWER = Flight("lower", 0.0, N_LO, lambda u, v: (XL + UL - u, XL - v))    # climbs east, open side north
-UPPER = Flight("upper", ZP, N_UP, lambda u, v: (XL - v, B0 + u), ZP - TT if MONO else None)          # climbs north, open side west
+LOWER = Flight("lower", 0.0, N_LO, lambda u, v: (XL + UL - u, XL - v), BRKT_T if MONO else None)   # round 8: the tube stands on the floor shoe's 1/4 base    # climbs east, open side north
+UPPER = Flight("upper", ZP, N_UP, lambda u, v: (XL - v, B0 + u), ZP - TTD if MONO else None)          # climbs north, open side west
 FLIGHTS = (LOWER, UPPER)
 
-ZLF, ZBF = ZP - TT - FD / 2, FL - TT - FD / 2    # frame centre heights: landing, balcony
+ZLF, ZBF = ZP - TTD - FD / 2, FL - TTD - FD / 2    # frame centre heights: landing, balcony
 A_LH = XL + UL - LOWER.uhc                        # landing header, over the lower tubes' heads (round 6 moves it, below)
 # Round 4 (Maxwell 11/23/2026): the upper stringer leans like a ladder. Its top runs past the plumb cut line and is notched: the part above the
 # balcony frame's underside stops against the head beam's south face (U_BEAR), the rest passes under the beam to its north face (U_END).
@@ -190,7 +209,7 @@ def bracket_web(f, k):
     raw = [A, C, D, E, B]
     if not MONO:
         return raw
-    if not (f is LOWER and k == 1):
+    if True:                                       # round 8: the lower foot bracket is gone (the floor shoe takes the foot), so tread 1 gets a standard web
         F = (A[0], zk - ARM_D - WEB_DROP)
         cl = [(bu + WEB_EDGE * math.cos(2 * math.pi * j / 48), bz + WEB_EDGE * math.sin(2 * math.pi * j / 48)) for bu, bz in bracket_bolts(f, k) for j in range(48)]
         h = _hull([A, B, F] + cl)                  # counter clockwise; start at A going down the front edge (A, F, ..., B)
@@ -247,6 +266,30 @@ A_BR = XL - 4.5 if MONO else 17.0                 # knee brace: where it meets t
                                                   # round 7: 2 1/2 in further east so its gusset clears the west beam)
 BRACE = A_BR - 1.0 if MONO else 16.0              # its rise, to the wall post's centreline
 
+
+# round 8 floor shoe (Maxwell 11/24/2026): the lower stringer's level foot stands on a 1/4 in base plate, a simple cover like the upper
+# saddle. Two cheeks fold up from its long edges outside the first tread's bracket webs and share that bracket's lower bolt (cheek, web,
+# tube, web, cheek). A tab runs past each end of the foot with one 3/8 slab anchor on the centreline. This frees the first tread for a
+# standard bracket.
+SHOE_TAB = 2.25                                    # tab past each end of the tube's foot
+SHOE_HW = TW / 2 + 2 * BRKT_T                       # half width over the cheeks (outside the bracket webs)
+SHOE_EDGE = 1.0                                    # cheek edge round its bolt, like the webs
+
+
+def shoe_cheek():
+    """the floor shoe cheek outline in the lower flight's (u, z): the hull of the base along the tube's foot and a circle round the first
+    bracket's lower bolt"""
+    f = LOWER
+    bu, bz = bracket_bolts(f, 1)[0]
+    cl = [(bu + SHOE_EDGE * math.cos(2 * math.pi * j / 48), bz + SHOE_EDGE * math.sin(2 * math.pi * j / 48)) for j in range(48)]
+    return _hull([(f.u0, f.zf), (f.u1, f.zf)] + cl)
+
+
+def shoe_anchors():
+    """the two slab anchors, (u, v) in the lower flight"""
+    f = LOWER
+    return [(f.u0 - SHOE_TAB / 2, VC), (f.u1 + SHOE_TAB / 2, VC)]
+
 # round 7 knee frames (Maxwell 11/24/2026): each 45 degree brace closes a full triangle with a 2 x 2 post down the bath 1 wall from the
 # balcony ledger, so the brace no longer leans on its bite into the wall. One 1/4 in gusset plate per joint (brace top to the beam,
 # brace foot to the post, post top to the beam end), on the face toward the middle of the balcony, through bolts with crush sleeves.
@@ -277,7 +320,10 @@ LAND_FRAME = dict(LE=((1, 0), (1, LAND_N)), LS=((1, 1), (XL, 1)), LW=((XL - 1, 1
 BAL_FRAME = dict(BE=((1, BAL_S), (1, BAL_N)), BS=((1, BAL_S + 1), (XL - 1, BAL_S + 1)), BH=((1, B_BH), (XL - 1, B_BH)),
                  BN=((1, BAL_N - 1), (XL, BAL_N - 1)), BW=((XL - 1, BAL_S), (XL - 1, BAL_N - 1)))
 LAND_LAGS = dict(LE=(4.0, 16.0, 27.0) if MONO else (4.0, 20.0, 32.0), LS=(8.0, 22.0))          # along each ledger, assumed stud or blocking positions
-BAL_LAGS = (BAL_S + 3, (BAL_S + BAL_N) / 2, BAL_N - 3)
+BAL_LAGS = (BAL_S + 3, B_BH - 3.5, (BAL_S + BAL_N) / 2, BAL_N - 3) if MONO else (BAL_S + 3, (BAL_S + BAL_N) / 2, BAL_N - 3)   # round 8: a 4th bolt beside the head beam, holes drilled tight
+# round 8 (Maxwell 11/24/2026): the upper stringer's head pushes the balcony north along the wall, carried by these bolts in shear. A flat
+# bar diagonal under the frame was tried in the frame model and changed nothing (the frame does not rack; what moves is the bolts' give),
+# so the fix is a 4th bolt by the head beam and tight holes.
 LAND_STRIPS = (4.0, 9.5, 15.0, 20.5, 26.0) if MONO else (4.0, 9.5, 15.0, 20.5, 26.0, 30.5)                # deck boards run east to west on the landing: analysis strips at these b
 BAL_STRIPS = (4.0, 9.0, 14.0, 19.0)                             # and north to south on the balcony: strips at these a
 
@@ -298,7 +344,7 @@ if MONO:
     assert min(z for z in _wb if z is not None) - SAD_GAP >= Z_SEAT + CHEEK_H, "first upper bracket web hits the saddle cheek"
     CHEEK = [(SAD_U0, Z_SEAT - BRKT_T), (SAD_U0, Z_SEAT + CHEEK_H), (CHEEK_U1, Z_SEAT + CHEEK_H), (CHEEK_U1, Z_SEAT - BRKT_T)]
     SAD_BOLT = (SAD_U1 - 0.15, Z_SEAT + 0.85)         # cheek bolt toward the back, where the cheek is taller
-    TAB_Z = (Z_SEAT + 0.2, ZP - TT - 0.1)             # foot tab against the landing north beam's north face, under the oak; starts above the
+    TAB_Z = (Z_SEAT + 0.2, ZP - TTD - 0.1)             # foot tab against the landing north beam's north face, under the oak; starts above the
                                                       # cheek's bend so it folds off flat cheek (flat pattern: 0.26 in clear of the bend line)
     TAB_W = 2.0                                       # tab reaches this far out from the cheek
     TAB_BOLT_Z = (TAB_Z[0] + TAB_Z[1]) / 2

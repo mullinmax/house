@@ -2,55 +2,29 @@
  "bend_deduction_in": 0.39,
  "parts": [
   {
-   "file": "bracket_open_qty10.dxf",
+   "file": "bracket_open_qty11.dxf",
    "name": "Tread bracket, open side",
-   "qty": 10,
+   "qty": 11,
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "2 bends, both 90 deg toward the outside face: flange off the front edge, seat tab off the top edge",
-   "notes": "every other tread (3 lower + 7 upper); west side of the upper flight, north side of the lower flight. 2 x 7/16 bolt holes into the stringer, flange bolt slotted. Drill the seat tab screw holes at assembly.",
+   "notes": "every tread (4 lower + 7 upper); west side of the upper flight, north side of the lower flight. 2 x 7/16 bolt holes into the stringer, flange bolt slotted. Drill the seat tab screw holes at assembly.",
    "size": [
     8.04,
     8.09
    ]
   },
   {
-   "file": "bracket_wall_qty10.dxf",
+   "file": "bracket_wall_qty11.dxf",
    "name": "Tread bracket, wall side (mirror)",
-   "qty": 10,
+   "qty": 11,
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "2 bends, both 90 deg toward the outside face: flange off the front edge, seat tab off the top edge",
-   "notes": "mirror image of the open side part. every other tread (3 lower + 7 upper).",
+   "notes": "mirror image of the open side part. every tread (4 lower + 7 upper).",
    "size": [
     8.04,
     8.09
-   ]
-  },
-  {
-   "file": "bracket_foot_open_qty1.dxf",
-   "name": "Tread bracket with slab foot, open side",
-   "qty": 1,
-   "thick": 0.25,
-   "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "3 bends, all 90 deg toward the outside face: flange off the front edge, seat tab off the top edge, foot off the bottom edge",
-   "notes": "lower flight first tread; west side of the upper flight, north side of the lower flight. 2 x 7/16 bolt holes into the stringer, flange bolt slotted. Drill the seat tab screw holes at assembly.",
-   "size": [
-    8.84,
-    12.45
-   ]
-  },
-  {
-   "file": "bracket_foot_wall_qty1.dxf",
-   "name": "Tread bracket with slab foot, wall side (mirror)",
-   "qty": 1,
-   "thick": 0.25,
-   "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "3 bends, all 90 deg toward the outside face: flange off the front edge, seat tab off the top edge, foot off the bottom edge",
-   "notes": "mirror image of the open side part. lower flight first tread.",
-   "size": [
-    8.84,
-    12.45
    ]
   },
   {
@@ -64,6 +38,19 @@
    "size": [
     22.05,
     3.41
+   ]
+  },
+  {
+   "file": "floor_shoe_qty1.dxf",
+   "name": "Floor shoe under the lower stringer",
+   "qty": 1,
+   "thick": 0.25,
+   "material": "Mild steel A36 (hot rolled P&O)",
+   "bends": "2 bends, both 90 deg the same way (cheeks up): a U channel with tabs past each end",
+   "notes": "the lower stringer's level foot stands on the base; the cheeks run up outside the first tread's bracket webs and share that bracket's lower bolt (6 in, cheek, web, tube, web, cheek, crush sleeve inside). One 3/8 slab anchor through each end tab (1/2 in holes).",
+   "size": [
+    9.04,
+    10.33
    ]
   },
   {

@@ -87,74 +87,95 @@ def part(file, name, qty, thick, outline, holes=(), bends=(), bend_text="none", 
 
 
 # ---------------------------------------------------------------- tread brackets (one each side of the stringer under every tread)
-def bracket(foot):
+def bracket():
     """flat bracket for the OPEN (west / north) side, seen from its outside face: x = u along the flight, y = z, origin at the tread's
-    underside over the web's front edge. Web on the stringer side, a bolting flange folded off its front edge (to the strip), a seat tab
-    folded off its top edge (under the tread), and for the lower flight's first tread a foot flange folded off its bottom (slab)."""
+    underside over the web's front edge. Web on the stringer side, a seat tab folded off its top edge (under the tread) and, with the
+    tread strips, a bolting flange folded off its front edge (to the strip). Round 8: the same part under every tread, the lower flight's
+    first one included (the floor shoe took over the slab foot)."""
     A, B = (G.WEB0, 0.0), (G.TD + G.RT, 0.0)
     C = (G.WEB0, (G.WEB0 - (G.TD + G.RT)) * G.SL)
-    f_, k_ = (G.LOWER, 1) if foot else (G.UPPER, 2)            # round 6: corners rounded (the same outline on every tread)
+    f_, k_ = G.UPPER, 2                                         # round 6: corners rounded (the same outline on every tread)
     uk_, zk_ = f_.uk(k_), f_.z0 + k_ * G.RI - G.TT
     web = Polygon([(u - uk_, z - zk_) for u, z in G.bracket_web(f_, k_)])
-    zf = -(G.RI - G.TT)                                         # slab, from the first tread's underside
-    if foot:
-        web = web.intersection(rect(-5, 20, zf, 1))
-    fl_out = T + G.ARM_FL                                       # flange: outside dimension from the stringer face
-    flange = rect(G.WEB0 - (fl_out - BD / 2), G.WEB0, -G.ARM_D, 0)
+    for f2, k2 in ((G.LOWER, 1), (G.UPPER, 1), (G.LOWER, 3)):
+        w2 = Polygon([(u - f2.uk(k2), z - (f2.z0 + k2 * G.RI - G.TT)) for u, z in G.bracket_web(f2, k2)])
+        assert w2.symmetric_difference(web).area < 1e-3, "bracket webs differ"
     seat = rect(G.SEAT_S, B[0], 0, G.SEAT_TAB - BD / 2)
-    shp = unary_union([web, flange, seat])
-    cuts = [rect(G.WEB0, G.WEB0 + 0.40, -G.ARM_D - 0.25, -G.ARM_D),      # bend reliefs at the bend ends
-            rect(G.SEAT_S - 0.25, G.SEAT_S, -0.40, 0), rect(B[0], B[0] + 0.25, -0.40, 0)]
-    bends = [((G.WEB0, -G.ARM_D), (G.WEB0, 0)), ((G.SEAT_S, 0), (B[0], 0))]
+    parts_ = [web, seat]
+    cuts = [rect(B[0], B[0] + 0.25, -0.40, 0)]                  # bend reliefs at the bend ends
+    bends = [((G.SEAT_S, 0), (B[0], 0))]
     holes = []
+    if G.STRIPS:
+        fl_out = T + G.ARM_FL                                   # flange: outside dimension from the stringer face
+        parts_.append(rect(G.WEB0 - (fl_out - BD / 2), G.WEB0, -G.ARM_D, 0))
+        cuts += [rect(G.WEB0, G.WEB0 + 0.40, -G.ARM_D - 0.25, -G.ARM_D), rect(G.SEAT_S - 0.25, G.SEAT_S, -0.40, 0)]
+        bends.append(((G.WEB0, -G.ARM_D), (G.WEB0, 0)))
+        d_ = T + 0.95                                           # flange bolt, slotted along the flange to take up bend tolerance
+        holes.append(slot(G.WEB0 - (d_ - BD / 2), -G.FLANGE_BOLT, H38, 0.70, vertical=False))
+    else:                                                       # no strip option: lag holes through the seat (5/16 lags, 11/32 clearance)
+        for u_ in G.seat_lags(0.0):
+            holes.append(Point(u_, (G.SEAT_TAB / 2 + G.SEAT_LAG_V) - BD / 2).buffer(0.34375 / 2, 64))
+    shp = unary_union(parts_)
     for s_ in (4.25, 8.25):                                     # two through bolts into the stringer
         ub, zb = G.WEB0 + s_ * CA + nx * G.BOLT_N, C[1] + s_ * SA + nz * G.BOLT_N
-        if not foot or zb > zf + T + 0.5:
-            holes.append(Point(ub, zb).buffer(H38 / 2, 64))
-    d_ = T + 0.95                                               # flange bolt, slotted along the flange to take up bend tolerance
-    holes.append(slot(G.WEB0 - (d_ - BD / 2), -G.FLANGE_BOLT, H38, 0.70, vertical=False))
-    if foot:
-        xs = [x for x, y in web.exterior.coords if abs(y - zf) < 1e-6]
-        x0, x1 = min(xs), max(xs)
-        ft = rect(x0, x1, zf - (G.FOOT_W - BD / 2), zf)
-        shp = unary_union([shp, ft])
-        cuts.append(rect(G.WEB0, G.WEB0 + 0.0, zf, zf))
-        bends.append(((x0, zf), (x1, zf)))
-        for xa in (x0 + 0.8, x1 - 0.8):
-            holes.append(Point(xa, zf - (2.35 - BD / 2)).buffer(HANC / 2, 64))
+        holes.append(Point(ub, zb).buffer(H38 / 2, 64))
     for c in cuts:
         shp = shp.difference(c)
     return shp, holes, bends
 
 
-for foot in (False, True):
-    shp, holes, bends = bracket(foot)
-    n = 1 if foot else (G.N_LO - 2) + (G.N_UP - 1)
-    nm = "bracket_foot" if foot else "bracket"
-    bt = ("3 bends, all 90 deg toward the outside face: flange off the front edge, seat tab off the top edge, foot off the bottom edge" if foot
-          else "2 bends, both 90 deg toward the outside face: flange off the front edge, seat tab off the top edge")
-    where = "lower flight first tread" if foot else f"every other tread ({G.N_LO - 2} lower + {G.N_UP - 1} upper)"
-    part(f"{nm}_open_qty{n}.dxf", f"Tread bracket{' with slab foot' if foot else ''}, open side", n, 0.25, shp, holes, bends, bt,
-         f"{where}; west side of the upper flight, north side of the lower flight. 2 x 7/16 bolt holes into the stringer, flange bolt slotted. Drill the seat tab screw holes at assembly.", rnd=0.3)
-    part(f"{nm}_wall_qty{n}.dxf", f"Tread bracket{' with slab foot' if foot else ''}, wall side (mirror)", n, 0.25, shp, holes, bends, bt,
-         f"mirror image of the open side part. {where}.", mirror=True, rnd=0.3)
+shp, holes, bends = bracket()
+n = (G.N_LO - 1) + (G.N_UP - 1)
+bt = ("2 bends, both 90 deg toward the outside face: flange off the front edge, seat tab off the top edge" if G.STRIPS
+      else "1 bend, 90 deg toward the outside face: seat tab off the top edge")
+where = f"every tread ({G.N_LO - 1} lower + {G.N_UP - 1} upper)"
+holes_txt = ("2 x 7/16 bolt holes into the stringer, flange bolt slotted. Drill the seat tab screw holes at assembly." if G.STRIPS
+             else "2 x 7/16 bolt holes into the stringer, 3 x 11/32 holes in the seat for 5/16 x 1 1/2 lags up into the tread.")
+part(f"bracket_open_qty{n}.dxf", "Tread bracket, open side", n, 0.25, shp, holes, bends, bt,
+     f"{where}; west side of the upper flight, north side of the lower flight. {holes_txt}", rnd=0.3)
+part(f"bracket_wall_qty{n}.dxf", "Tread bracket, wall side (mirror)", n, 0.25, shp, holes, bends, bt,
+     f"mirror image of the open side part. {where}.", mirror=True, rnd=0.3)
 
 # ---------------------------------------------------------------- tread strips (2 in strip on edge under each tread, across both brackets)
-L_ = G.WN - 2 * G.ARM_END
-TAB_OUT = 1.60                     # outside, from the strip's front face (CAD 1.50; lengthened so the flat tab clears SendCutSend's 1.15 in minimum)
-shp = Polygon([(v - G.ARM_END, z) for v, z in G.strip_outline(0.0)])     # round 7: bottom end corners rounded
-bends, cuts = [], []
-for vt in (G.STRIP_TAB, L_ - G.STRIP_TAB):
-    shp = unary_union([shp, rect(vt - 0.9, vt + 0.9, 0, TAB_OUT - BD / 2)])
-    cuts += [rect(vt - 0.9 - 0.25, vt - 0.9, -0.40, 0), rect(vt + 0.9, vt + 1.15, -0.40, 0)]
-    bends.append(((vt - 0.9, 0), (vt + 0.9, 0)))
-for c in cuts:
-    shp = shp.difference(c)
-holes = [Point(v - G.ARM_END, -G.FLANGE_BOLT).buffer(H38 / 2, 64) for v in (G.VC - G.TW / 2 - T - 0.95, G.VC + G.TW / 2 + T + 0.95)]
-nstrip = (G.N_LO - 1) + (G.N_UP - 1)
-part(f"tread_strip_qty{nstrip}.dxf", "Tread strip (2 in on edge, closes the riser)", nstrip, 0.25, shp, holes, bends,
-     "2 bends, 90 deg: a screw tab at each end folds toward the back of the tread",
-     "one under every tread. 2 x 7/16 holes for the bracket flange bolts. Drill the tab screw holes at assembly. Tabs 1.6 in outside (CAD shows 1.5).", rnd=0.3)
+if G.STRIPS:
+    L_ = G.WN - 2 * G.ARM_END
+    TAB_OUT = 1.60                     # outside, from the strip's front face (CAD 1.50; lengthened so the flat tab clears SendCutSend's 1.15 in minimum)
+    shp = Polygon([(v - G.ARM_END, z) for v, z in G.strip_outline(0.0)])     # round 7: bottom end corners rounded
+    bends, cuts = [], []
+    for vt in (G.STRIP_TAB, L_ - G.STRIP_TAB):
+        shp = unary_union([shp, rect(vt - 0.9, vt + 0.9, 0, TAB_OUT - BD / 2)])
+        cuts += [rect(vt - 0.9 - 0.25, vt - 0.9, -0.40, 0), rect(vt + 0.9, vt + 1.15, -0.40, 0)]
+        bends.append(((vt - 0.9, 0), (vt + 0.9, 0)))
+    for c in cuts:
+        shp = shp.difference(c)
+    holes = [Point(v - G.ARM_END, -G.FLANGE_BOLT).buffer(H38 / 2, 64) for v in (G.VC - G.TW / 2 - T - 0.95, G.VC + G.TW / 2 + T + 0.95)]
+    nstrip = (G.N_LO - 1) + (G.N_UP - 1)
+    part(f"tread_strip_qty{nstrip}.dxf", "Tread strip (2 in on edge, closes the riser)", nstrip, 0.25, shp, holes, bends,
+         "2 bends, 90 deg: a screw tab at each end folds toward the back of the tread",
+         "one under every tread. 2 x 7/16 holes for the bracket flange bolts. Drill the tab screw holes at assembly. Tabs 1.6 in outside (CAD shows 1.5).", rnd=0.3)
+
+# ---------------------------------------------------------------- floor shoe (round 8): base under the lower stringer's foot, two cheeks up
+f_ = G.LOWER
+x0_ = f_.u0 - G.SHOE_TAB
+Lb = (f_.u1 + G.SHOE_TAB) - x0_
+Wf = 2 * G.SHOE_HW - BD                                         # base, flat between the two bend lines (outside 2 x SHOE_HW, two bends)
+cheek = Polygon(G.shoe_cheek())
+parts_ = [rect(0, Lb, 0, Wf)]
+for side in (0, 1):
+    pts = [(u - x0_, (-(z - BD / 2)) if side == 0 else (Wf + (z - BD / 2))) for u, z in cheek.exterior.coords]
+    parts_ += [Polygon(pts), rect(f_.u0 - x0_, f_.u1 - x0_, -0.1 if side == 0 else Wf, 0 if side == 0 else Wf + 0.1)]
+shp = unary_union(parts_)
+for side in (0, 1):                                              # bend reliefs into the base at the cheek ends
+    y0r, y1r = (0, 0.4) if side == 0 else (Wf - 0.4, Wf)
+    shp = shp.difference(rect(f_.u0 - x0_ - 0.25, f_.u0 - x0_, y0r, y1r)).difference(rect(f_.u1 - x0_, f_.u1 - x0_ + 0.25, y0r, y1r))
+bu, bz = G.bracket_bolts(f_, 1)[0]
+holes = [Point(u - x0_, Wf / 2).buffer(HANC / 2, 64) for u, _ in G.shoe_anchors()]
+holes += [Point(bu - x0_, -(bz - BD / 2)).buffer(H38 / 2, 64), Point(bu - x0_, Wf + (bz - BD / 2)).buffer(H38 / 2, 64)]
+part("floor_shoe_qty1.dxf", "Floor shoe under the lower stringer", 1, 0.25, shp, holes,
+     [((f_.u0 - x0_, 0), (f_.u1 - x0_, 0)), ((f_.u0 - x0_, Wf), (f_.u1 - x0_, Wf))],
+     "2 bends, both 90 deg the same way (cheeks up): a U channel with tabs past each end",
+     "the lower stringer's level foot stands on the base; the cheeks run up outside the first tread's bracket webs and share that bracket's "
+     "lower bolt (6 in, cheek, web, tube, web, cheek, crush sleeve inside). One 3/8 slab anchor through each end tab (1/2 in holes).", rnd=0.3)
 
 # ---------------------------------------------------------------- stringer head clips (round 6: the same part at both stringer tops)
 def clip_flat(f):

@@ -196,7 +196,7 @@ for f in G.FLIGHTS:
             ft_ = tuple(sorted((vs[0] if sg_ > 0 else vs[1], (vs[0] if sg_ > 0 else vs[1]) + sg_ * G.FOOT_W))) if G.MONO else vs
             us0 = uk + G.SEAT_S if G.MONO else uk + 1
             br = prism(f, web, *vw).fuse(prism(f, [(us0, zk - BT), (uk + G.TD + G.RT, zk - BT), (uk + G.TD + G.RT, zk), (us0, zk)], *vs))
-            if G.MONO:                                                         # flange folded off the web's vertical front edge, one bolt into the strip
+            if G.MONO and G.STRIPS:                                            # flange folded off the web's vertical front edge, one bolt into the strip
                 fo_ = vw[1] if sg_ > 0 else vw[0]
                 br = br.fuse(prism(f, [(A[0], zk - G.ARM_D), (A[0] + BT, zk - G.ARM_D), (A[0] + BT, zk), (A[0], zk)], *sorted((fo_ - sg_ * BT, fo_ + sg_ * G.ARM_FL))))
                 fbolt(f, A[0] + BT, fo_ + sg_ * 0.95, zk - G.FLANGE_BOLT, "u")
@@ -229,9 +229,11 @@ for f in G.FLIGHTS:
                 ub_ = A[0] + s_ * math.cos(G.ANG) + nx * G.BOLT_N
                 zb_ = f.zl(A[0]) + s_ * math.sin(G.ANG) + nz * G.BOLT_N
                 if zb_ > zc_ + 0.5 or not foot:
-                    (fbolt if side == "open" else fnut)(f, ub_, vw[1] if vs[0] == vw[0] else vw[0], zb_, "v", 1 if vs[0] == vw[0] else -1)
-            for ub_ in ((uk + 6.5, uk + 8.0) if G.MONO else (uk + 2.5, uk + 7.0)):   # two screws up through each seat into the tread
-                fbolt(f, ub_, (vs[0] + vs[1]) / 2 + (0.3 if vs[0] == vw[0] else -0.3), zk - BT, "z", -1, d=0.5, h=0.15)
+                    sh_ = BT if (G.MONO and f is G.LOWER and k == 1 and s_ == 4.25) else 0.0   # round 8: the floor shoe's cheeks share this bolt
+                    sgv = 1 if vs[0] == vw[0] else -1
+                    (fbolt if side == "open" else fnut)(f, ub_, (vw[1] if sgv > 0 else vw[0]) + sgv * sh_, zb_, "v", sgv)
+            for ub_ in G.seat_lags(uk):                                         # screws (no strip option: bigger lags) up through each seat into the tread
+                fbolt(f, ub_, (vs[0] + vs[1]) / 2 + (G.SEAT_LAG_V if vs[0] == vw[0] else -G.SEAT_LAG_V), zk - BT, "z", -1, d=0.5 if G.STRIPS else 0.56, h=0.15 if G.STRIPS else 0.22)
         sgn = 1 if vs[0] == vw[0] else -1                                      # head angles, 3 x 3 x 1/4, 4 in long (the feet are held by the first tread brackets)
         e0 = vw[0] if sgn > 0 else vw[1]
         vi, vl = tuple(sorted((e0, e0 + sgn * 3.0))), tuple(sorted((e0, e0 + sgn * 0.25)))
@@ -258,6 +260,14 @@ for f in G.FLIGHTS:
                 .fuse(prism(f, [(ub - BT, hc["beam"][0]), (ub, hc["beam"][0]), (ub, hc["beam"][1]), (ub - BT, hc["beam"][1])], *sorted((vt, vt + sg * 2.25)))))
             (fbolt if sg < 0 else fnut)(f, *hc["tube_bolt"][:1], vt + sg * BT, hc["tube_bolt"][1], "v", sg)   # one through bolt across the tube, crush sleeve inside
             fbolt(f, ub - BT, vt + sg * 1.3, hc["beam_bolt_z"], "u", -1); fnut(f, ub + G.FW, vt + sg * 1.3, hc["beam_bolt_z"], "u", 1)
+    if G.MONO and f is G.LOWER:                                                # round 8: floor shoe under the lower stringer's level foot
+        u0_, u1_ = f.u0 - G.SHOE_TAB, f.u1 + G.SHOE_TAB
+        shoe = prism(f, [(u0_, 0.0), (u1_, 0.0), (u1_, BT), (u0_, BT)], VC - G.SHOE_HW, VC + G.SHOE_HW)
+        for sg in (-1, 1):
+            shoe = shoe.fuse(prism(f, G.shoe_cheek(), *sorted((VC + sg * G.TW / 2 + sg * BT, VC + sg * G.SHOE_HW))))
+        add(g, "lower_floor_shoe", shoe)
+        for ua_, va_ in G.shoe_anchors():
+            fnut(f, ua_, va_, BT, "z")
     if G.MONO and f is G.UPPER:                                                # round 6: the foot sits level on a saddle on one 3 x 3 post; the saddle's
         zs = G.Z_SEAT                                                          # cheeks bolt through the stringer and its tabs to the landing's north beam
         zpt = zs - BT
@@ -283,7 +293,7 @@ for f in G.FLIGHTS:
         add(g, "upper_stringer_post_saddle", sad)
     if G.RT and f is G.UPPER:                                                  # and one stands on the landing under the upper flight's first tread
         ur = G.TD - G.GO
-        add(g, "landing_riser", prism(f, [(ur, f.z0 - G.TT), (ur + G.RT, f.z0 - G.TT), (ur + G.RT, f.z0 + G.RH), (ur, f.z0 + G.RH)], 0.05, G.WN - 0.05), OAK, "oak")
+        add(g, "landing_riser", prism(f, [(ur, f.z0 - G.TTD), (ur + G.RT, f.z0 - G.TTD), (ur + G.RT, f.z0 + G.RH), (ur, f.z0 + G.RH)], 0.05, G.WN - 0.05), OAK, "oak")
     if RISER_PANELS:
         for k in range(0 if f is G.UPPER else 1, f.nr):
             zk = f.z0 + k * G.RI
@@ -316,7 +326,7 @@ for f in G.FLIGHTS:
         if G.WALL_RAIL:
             add("rails", "upper_rail_wall", slope_tube(f, 0.0, G.UU - G.NOSE, ztop, RD2, G.WN + G.GAP - 3.0, G.WN + G.GAP - 1.5, G.RAIL_T))
 
-XL, ZP, FL, TT, TK = G.XL, G.ZP, G.FL, G.TT, G.TK
+XL, ZP, FL, TT, TK = G.XL, G.ZP, G.FL, G.TTD, G.TK      # round 8: the platform decks keep 1.44 oak whatever the treads are
 # corner landing
 lz = (ZP - TK, ZP - TT)
 FTL, FTB = G.FT_L, G.FT_B

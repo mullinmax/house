@@ -11,7 +11,9 @@ import ladder_geom as G
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "."
 POST_BASE = os.environ.get("LADDER_POST_BASE", "fixed")       # upper stringer post base: fixed (default) or pinned
-HEAD_VERT = os.environ.get("LADDER_HEAD_VERT", "0") == "1"    # upper stringer head clips carry weight too (round holes), default no (vertical slots)
+HEAD_VERT = os.environ.get("LADDER_HEAD_VERT", "0") == "1"
+LAG_K = float(os.environ.get("LADDER_LAG_K", "0"))
+BAL_K = float(os.environ.get("LADDER_BAL_K", "0"))              # >0: balcony ledger bolts and knee post lags as springs (lb/in) instead of rigid              # >0: landing wall lags as springs of this stiffness (lb/in, each direction) instead of rigid pins    # upper stringer head clips carry weight too (round holes), default no (vertical slots)
 os.makedirs(OUT, exist_ok=True)
 FY_STEEL, FB_OAK = 46000.0, 1150.0            # A500 Gr B yield; white oak allowable bending (No. 1 class, before adjustment factors)
 ALLOW = 0.6 * FY_STEEL
@@ -34,7 +36,7 @@ SEC = dict(TUBE=("steel", 1.54, 0.932, 1.77, 1.90, 0.932, 1.18),          # HSS 
            POST=("steel", 1.19, 0.641, 0.641, 1.09, 0.641, 0.641),        # HSS 2 x 2 x 3/16
            RAIL=("steel", 0.84, 0.235, 0.235, 0.41, 0.313, 0.313),        # HSS 1 1/2 x 1 1/2 x 3/16
            BRKT=("steel", 1.19, 0.0062, 2.23, 0.025, 0.0495, 0.94),       # 1/4 x 4 3/4 bracket web
-           TREAD=("oak", 8.5 * 1.44, 1.44 * 8.5 ** 3 / 12, 8.5 * 1.44 ** 3 / 12, 7.5, 1.44 * 8.5 ** 2 / 6, 8.5 * 1.44 ** 2 / 6),
+           TREAD=("oak", 8.5 * G.TT, G.TT * 8.5 ** 3 / 12, 8.5 * G.TT ** 3 / 12, 7.5 * (G.TT / 1.44) ** 3, G.TT * 8.5 ** 2 / 6, 8.5 * G.TT ** 2 / 6),   # round 8: tread thickness from the config
            DECKL=("oak", 5.73 * 1.44, 1.44 * 5.73 ** 3 / 12, 5.73 * 1.44 ** 3 / 12, 4.8, 1.44 * 5.73 ** 2 / 6, 5.73 * 1.44 ** 2 / 6),
            DECKB=("oak", 6.3 * 1.44, 1.44 * 6.3 ** 3 / 12, 6.3 * 1.44 ** 3 / 12, 5.3, 1.44 * 6.3 ** 2 / 6, 6.3 * 1.44 ** 2 / 6),
            STR=("steel", 3.37, 7.80, 7.80, 12.8, 3.90, 3.90) if G.MONO else ("steel", 1.54, 0.932, 1.77, 1.90, 0.932, 1.18),   # stringer: HSS 4 x 4 x 1/4, or the 3 x 2
@@ -91,7 +93,7 @@ if G.MONO:
             foot, head = f.p(f.ufc, VC, f.zf), f.p(G.U_BEAR_L, VC, f.zc(G.U_BEAR_L))
         M(f"{fn}tube_c", foot, head, "STR")
         f.ends = dict(c=(foot, head))
-        for nm, pc, half in (("foot", foot, 4.0 if f is LO else G.TW / 2 + 0.125), ("head", head, G.TW / 2 + 0.125)):      # anchors or clips each side of the tube resist its twist
+        for nm, pc, half in (("foot", foot, G.SHOE_HW if f is LO else G.TW / 2 + 0.125), ("head", head, G.TW / 2 + 0.125)):      # anchors or clips each side of the tube resist its twist
             u_ = (G.U_FOOT if nm == "foot" else G.U_BEAR) if f is UP else (f.ufc if nm == "foot" else G.U_BEAR_L)
             M(f"{fn}{nm}bar", f.p(u_, VC - half, pc[2]), f.p(u_, VC + half, pc[2]), "RIGID")
             f.ends[nm] = (f.p(u_, VC - half, pc[2]), f.p(u_, VC + half, pc[2]))
@@ -101,15 +103,24 @@ if G.MONO:
             M(f"{fn}brkt{k}c", pb, pt, "BRKT2")
             VB = G.TW / 2 + G.BRKT_T + 0.95                    # the one flange bolt each side of the stringer
             e = {s_: f.p(f.uk(k) + 4.25, v_, pt[2]) for s_, v_ in (("o", 0.0), ("so", VC - SE), ("bo", VC - VB), ("bw", VC + VB), ("sw", VC + SE), ("w", G.WN))}
-            M(f"{fn}tread{k}o", e["o"], e["so"], "TREAD")     # the tread only spans the last 1.2 in past each strip end; the strip is checked as if the oak gave it no help
-            M(f"{fn}seat{k}", e["so"], e["bo"], "ARM")
-            M(f"{fn}flange{k}o", e["bo"], pt, "RIGID")         # strip bolts to the two bracket flanges
-            M(f"{fn}flange{k}w", pt, e["bw"], "RIGID")
-            M(f"{fn}seat{k}w", e["bw"], e["sw"], "ARM")
-            M(f"{fn}tread{k}w", e["sw"], e["w"], "TREAD")
-            TREADS[(fn, k)] = dict(o=e["o"], w=e["w"], mid=pt, members=(f"{fn}tread{k}o", f"{fn}seat{k}", f"{fn}flange{k}o", f"{fn}flange{k}w", f"{fn}seat{k}w", f"{fn}tread{k}w"))
+            if G.STRIPS:
+                M(f"{fn}tread{k}o", e["o"], e["so"], "TREAD")     # the tread only spans the last 1.2 in past each strip end; the strip is checked as if the oak gave it no help
+                M(f"{fn}seat{k}", e["so"], e["bo"], "ARM")
+                M(f"{fn}flange{k}o", e["bo"], pt, "RIGID")         # strip bolts to the two bracket flanges
+                M(f"{fn}flange{k}w", pt, e["bw"], "RIGID")
+                M(f"{fn}seat{k}w", e["bw"], e["sw"], "ARM")
+                M(f"{fn}tread{k}w", e["sw"], e["w"], "TREAD")
+                TREADS[(fn, k)] = dict(o=e["o"], w=e["w"], mid=pt, members=(f"{fn}tread{k}o", f"{fn}seat{k}", f"{fn}flange{k}o", f"{fn}flange{k}w", f"{fn}seat{k}w", f"{fn}tread{k}w"))
+            else:                                              # round 8 no strip option: the thicker oak cantilevers off the two bracket seats' outer edges
+                VS = G.TW / 2 + G.SEAT_TAB                     # (the seats and their lags are checked by hand and in the solid bracket model)
+                e["so"], e["sw"] = f.p(f.uk(k) + 4.25, VC - VS, pt[2]), f.p(f.uk(k) + 4.25, VC + VS, pt[2])
+                M(f"{fn}tread{k}o", e["o"], e["so"], "TREAD")
+                M(f"{fn}bseat{k}o", e["so"], pt, "RIGID")
+                M(f"{fn}bseat{k}w", pt, e["sw"], "RIGID")
+                M(f"{fn}tread{k}w", e["sw"], e["w"], "TREAD")
+                TREADS[(fn, k)] = dict(o=e["o"], w=e["w"], mid=pt, members=(f"{fn}tread{k}o", f"{fn}bseat{k}o", f"{fn}bseat{k}w", f"{fn}tread{k}w"))
     for i in (0, 1):
-        S(LO.ends["foot"][i], what="lower stringer foot anchor (first bracket's foot flange)")
+        S(LO.ends["foot"][i], what="lower stringer floor shoe (base plate bearing and its 2 anchors)")
 else:
   for f in G.FLIGHTS:
     fn = f.name[0].upper()
@@ -153,10 +164,18 @@ for nm, (a0_, a1_, b0_, b1_) in G.LAND_POSTS.items():          # round 3: posts 
     pa_ = 1 if nm == "ne" else XW
     M(f"Lpost_{nm}", (pa_, G.B_LN, 0.0), (pa_, G.B_LN, ZL), "POST", "j")
     S((pa_, G.B_LN, 0.0), what=f"landing post base on the slab ({nm})")
+def LAG(p, what):
+    if LAG_K <= 0:
+        return S(p, what=what)
+    n = N(*p)                                             # a loose or soft lag: the wall gives a little in every direction
+    for d_ in ("DX", "DY", "DZ"):
+        m.def_support_spring(n, d_, LAG_K)
+    SUP[n] = what + f" (spring {LAG_K:g} lb/in)"
+    return n
 for b in G.LAND_LAGS["LE"]:
-    S((1, b, ZL), what="landing east ledger lag")
+    LAG((1, b, ZL), "landing east ledger lag")
 for a in G.LAND_LAGS["LS"]:
-    S((a, 1, ZL), what="landing south ledger lag")
+    LAG((a, 1, ZL), "landing south ledger lag")
 for i, b in enumerate(G.LAND_STRIPS):
     N(G.A_LH, b, ZL); N(10.5, b, ZL)
     M(f"Ldeck{i}", (1, b, ZL), (XW, b, ZL), "DECKL", "ij")
@@ -197,6 +216,13 @@ M("BH", (1, G.B_BH, ZB), (XW, G.B_BH, ZB), "TUBE", "i")
 M("BN", (1, BN1, ZB), (XW, BN1, ZB), "TUBE", "i")
 M("BW", (XW, BS1, ZB), (XW, BN1, ZB), "TUBE")
 for b in G.BAL_LAGS:
+    if BAL_K > 0:
+        n_ = N(1, b, ZB)
+        for d_ in ("DX", "DY", "DZ"):
+            m.def_support_spring(n_, d_, BAL_K)
+        m.def_support(n_, False, False, False, True, False, False)
+        SUP[n_] = f"balcony ledger bolt to the loft rim (spring {BAL_K:g} lb/in)"
+        continue
     S((1, b, ZB), what="balcony ledger bolt to the loft rim")
     m.def_support(N(1, b, ZB), True, True, True, True, False, False)   # the joists are pinned to the ledger: stop it rolling about its own length (a free mode some solvers reject)
 for nm, b in (("BRh", G.B_BH), ("BRn", BN1)):      # mono round 5: a brace under the head beam too (Maxwell 11/23/2026)
@@ -205,8 +231,14 @@ for nm, b in (("BRh", G.B_BH), ("BRn", BN1)):      # mono round 5: a brace under
         zl_ = ZB - (G.KB_ZU + 1.5 - G.KB_LAGS[1])
         M(nm + "_post_top", (1, b, ZB), (1, b, zl_), "POST")
         M(nm + "_post", (1, b, zl_), (1, b, ZB - G.BRACE), "POST")
-        S((1, b, zl_), True, False, True, what=f"knee post upper lag into the wall ({'south' if nm == 'BRh' else 'north'}), no vertical")
-        S((1, b, ZB - G.BRACE), True, False, True, what=f"knee post foot: bears on the wall, lower lag ({'south' if nm == 'BRh' else 'north'}), no vertical")
+        for z_, w_ in ((zl_, "upper lag into the wall"), (ZB - G.BRACE, "foot: bears on the wall, lower lag")):
+            if BAL_K > 0:
+                n_ = N(1, b, z_)
+                for d_ in ("DX", "DZ"):
+                    m.def_support_spring(n_, d_, BAL_K)
+                SUP[n_] = f"knee post {w_} ({'south' if nm == 'BRh' else 'north'}), spring {BAL_K:g} lb/in, no vertical"
+            else:
+                S((1, b, z_), True, False, True, what=f"knee post {w_} ({'south' if nm == 'BRh' else 'north'}), no vertical")
     else:
         S((1, b, ZB - G.BRACE), what=f"knee brace wall bracket ({'south' if nm == 'BRh' else 'north'})")
 for i, a in enumerate(G.BAL_STRIPS):
@@ -509,7 +541,7 @@ for n, what in LINKS.items():
 # sway stiffness and the first few natural modes (self weight plus one 170 lb person standing mid way up the upper flight)
 res["sway"] = {c: dict(desc=CASES[c]["desc"], defl_in=round(res["cases"][c]["defl_at_load"], 4), stiffness_lb_per_in=round(SW / max(res["cases"][c]["defl_at_load"], 1e-9)))
                for c in CASES if CASES[c]["kind"] == "sway"}
-res["variant"] = dict(post_base=POST_BASE, head_carries_weight=HEAD_VERT)
+res["variant"] = dict(post_base=POST_BASE, head_carries_weight=HEAD_VERT, landing_lag_k=LAG_K or "rigid")
 if CUTS:
     # forces (lb) and moments (in lb) on each solid piece, in PyNite global axes (X north, Y up, Z east), about the node they act at
     def sub_at(phys, node, end):
@@ -594,7 +626,7 @@ if G.MONO and os.environ.get("LADDER_MODAL", "1") == "1":
     freqs = [float(x) for x in m.frequencies]
     modes = []
     for i_, fq in enumerate(freqs):
-        if fq < 1.0:                                     # loose analysis-only nodes (no stiffness) show up as 0 Hz modes: skip them
+        if not fq >= 1.0:                                # NaN or ~0: loose analysis-only nodes (no stiffness) show up as 0 Hz modes: skip them
             continue
         cmb = f"Mode {i_ + 1}"
         try:
