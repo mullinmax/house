@@ -366,14 +366,24 @@ def mono_ladder(WX, WY):
         else:
             for z_ in (8.0, z0 - 8.0):
                 nut(a1_, (b0_ + b1_) / 2, z_, "a")
-    # balcony: deck, frame, two 45 degree braces (under the head beam and the north arm) from the west end down to the wall
+    # balcony (round 10): deck out to the rail lines, posts at three corners, west posts on corner plates, the north east post is the north
+    # knee frame's wall post in one piece and the north brace runs up to the north west post
     z0, z1 = FL_ - TK, FL_ - TT - e
-    gb(OAK, 0.03, XL, G.BAL_S, G.BAL_N, FL_ - TT, FL_ - 0.05)
-    for a0, a1, b0, b1 in ((0.05, 2, G.BAL_S + e, G.BAL_N - e), (2 + e, XL - 2 - e, G.BAL_S + e, G.BAL_S + 2), (2 + e, XL - 2 - e, G.B_BH - 1, G.B_BH + 1), (2 + e, XL - e, G.BAL_N - 2, G.BAL_N - e), (XL - 2, XL - e, G.BAL_S + e, G.BAL_N - 2 - e)):
+    BN_ = G.BAL_N
+    PN = (BN_ - G.POST, BN_)
+    for a0, a1, b0, b1 in ((0.03, XL, G.BAL_S, PN[0]), (G.POST + e, XL, PN[0], BN_), (XL, XL + G.POST, G.BAL_S + G.POST, PN[0])):   # deck, notched at the posts
+        gb(OAK, a0, a1, b0, b1, FL_ - TT, FL_ - 0.05)
+    for a0, a1, b0, b1 in ((0.05, 2, G.BAL_S + e, PN[0] - e), (2 + e, XL - e, G.BAL_S + e, G.BAL_S + 2), (2 + e, XL - 2 - e, G.B_BH - 1, G.B_BH + 1),
+                           (2 + e, XL - e, BN_ - 2, BN_ - e), (XL - 2, XL - e, G.BAL_S + 2 + G.CP_T, BN_ - 2 - G.CP_T)):
         gb(ST, a0, a1, b0, b1, z0, z1)
     for b_ in G.BAL_LAGS:
         nut(2, b_, z0 + 1.5, "a")
     r2, c_, zb_ = G.POST / math.sqrt(2), G.A_BR, G.KB_BOT
+
+    def gplate(pts, b0, b1):
+        for i_ in range(1, len(pts) - 1, 2):
+            q_ = [pts[0], pts[i_], pts[i_ + 1], pts[min(i_ + 2, len(pts) - 1)]]
+            hexa(ST, [P(a, b0, z) for a, z in q_] + [P(a, b1, z) for a, z in q_])
     for nm_, b, sd in G.knee_frames():                   # round 7: each brace closes a triangle with a post down the wall, a gusset at every joint
         hexa(ST, [P(a, bb, z) for bb in (b - 1 + e, b + 1 - 2 * e) for a, z in ((c_ + r2, z0 - e), (c_ - r2, z0 - e), (2.0 + e, zb_ + r2), (2.0 + e, zb_ - r2))])
         pa0, pa1, pz0, pz1 = G.KB_POST
@@ -381,29 +391,36 @@ def mono_ladder(WX, WY):
         gb0, gb1 = (b + 1 + e, b + 1 + BT) if sd > 0 else (b - 1 - BT, b - 1 - e)
         fo_, fi_ = (gb1, b - 1) if sd > 0 else (gb0, b + 1)
         for j_ in ("top", "foot", "corner"):
-            g_ = G.gusset(j_)
-            for i_ in range(1, len(g_) - 1, 2):
-                q_ = [g_[0], g_[i_], g_[i_ + 1], g_[min(i_ + 2, len(g_) - 1)]]
-                hexa(ST, [P(a, gb0, z) for a, z in q_] + [P(a, gb1, z) for a, z in q_])
+            gplate(G.gusset(j_), gb0, gb1)
             for a_, z_ in G.KG[j_]:
                 bolt(a_, fo_, z_, "b", sd); nut(a_, fi_, z_, "b", -sd)
         for z_ in G.KB_LAGS:
             nut(pa1, b, z_, "a")
-    # the free posts stand outside the frame and stop under the rail; an L shaped plate bolts each to the end beam and 3 1/2 in up the post
-    PN = (G.BAL_N + 0.375 + e, G.BAL_N + 0.375 + G.POST)
-    post(XL + e, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, z0)
-    post(XL + e, XL + G.POST, *PN, z0)
-    for b0, b1, sg in ((G.BAL_S - 0.375, G.BAL_S - e, -1), (G.BAL_N + e, G.BAL_N + 0.375, 1)):
-        gb(ST, XL - 8, XL + G.POST - e, b0, b1, z0 + e, FL_ - TT)
-        gb(ST, XL + 2 * e, XL + G.POST - e, b0, b1, FL_ - TT + e, FL_ + 3.5)
-        for a_ in (XL - 7, XL - 2.5):
-            bolt(a_, b1 if sg > 0 else b0, z0 + 1.5, "b", sg)
-        for z_ in (z0 + 1.2, FL_ + 2.6):
-            bolt(XL + 1, b0, z_, "b", -1)
-            nut(XL + 1, b1 + G.POST, z_, "b", 1)
-    post(0.05, G.POST, *PN, FL_ - 13)
-    for z_ in (FL_ - 11, FL_ - 2):
-        nut(G.POST, PN[0] + 1, z_, "a")
+    b = BN_ - 1                                          # north knee frame: brace from the north east post up to the north west post
+    hexa(ST, [P(a, bb, z) for bb in (b - 1 + e, b + 1 - 2 * e) for a, z in ((XL - e, G.NK_ZT + r2), (XL - e, G.NK_ZT - r2), (2.0 + e, G.NK_ZB - r2), (2.0 + e, G.NK_ZB + r2))])
+    for j_ in ("top", "foot"):
+        gplate(G.nk_gusset(j_), BN_ + e, BN_ + BT)
+        for a_, z_ in G.NKG[j_]:
+            bolt(a_, BN_ + BT, z_, "b", 1); nut(a_, b - 1, z_, "b", -1)
+    for z_ in G.NK_LAGS:
+        nut(G.POST, b, z_, "a")
+    zl_ = z0 - G.CP_DROP                                 # the corner posts
+    post(XL + e, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, zl_)
+    post(XL + e, XL + G.POST, PN[0] + e, PN[1], zl_)
+    m_ = G.NK_MITER
+    hexa(ST, [P(a, bb, z) for bb in (PN[0] + e, PN[1]) for a, z in ((0.05, m_ + 0.05), (G.POST, m_ + G.POST), (G.POST, G.G_TOP - G.RAIL - e), (0.05, G.G_TOP - G.RAIL - e))])
+    for nm_, sg in (("sw", -1), ("nw", 1)):              # corner plates on the west posts' inside faces, flange under the end beam
+        out_, (fa0, fa1, fw), pbolts, fbolts = G.corner_plate(sg)
+        b0_, b1_ = (G.BAL_S + 2 + e, G.BAL_S + 2 + G.CP_T) if sg < 0 else (BN_ - 2 - G.CP_T, BN_ - 2 - e)
+        gplate(out_, b0_, b1_)
+        bf0, bf1 = (b0_ - fw + G.CP_T, b0_) if sg < 0 else (b1_, b1_ + fw - G.CP_T)
+        gb(ST, fa0, fa1, bf0, bf1, z0 - G.CP_T, z0 - e)
+        bm_ = G.BAL_S + 1 if sg < 0 else BN_ - 1
+        for a_ in fbolts:
+            bolt(a_, bm_, z0 - G.CP_T, "z", -1)
+        po_, pi_ = (G.BAL_S, b1_) if sg < 0 else (BN_ + BT, b0_)
+        for a_, z_ in pbolts:
+            bolt(a_, po_, z_, "b", sg); nut(a_, pi_, z_, "b", -sg)
     ra, rb = (XL + 0.25, XL + 0.25 + G.RAIL), (G.GP_B - G.RAIL / 2, G.GP_B + G.RAIL / 2)
     zr = FL_ + 3.6                                       # bottom rails; the top rails are the continuous rail
     gb(ST, ra[0], ra[1], G.BAL_S + G.POST + e, PN[0] - e, zr, zr + G.RAIL - e)

@@ -74,10 +74,17 @@ UL = (N_LO - 1) * GO + NOSE                       # lower flight, first nosing t
 UU = (N_UP - 1) * GO + NOSE
 B0 = XL + 1.2                                     # upper flight's first nosing
 BAL_S, BAL_N = B0 + UU, B0 + UU + WN + 1.2        # balcony
+BAL_N0 = BAL_N                                    # round 9's north edge (the plate line the north guard posts stood outside)
 POST, RAIL, RAIL_T = 2.0, 1.5, (GA11 if MONO else 0.1875)   # square tube posts and rails (cost pass 11/24/2026: 11 ga walls)
 POST_T = GA11 if MONO else 0.1875                 # 2 x 2 posts, knee braces and knee posts
 GUARD_H = 36.0
 PICKET = 0.5
+# Round 10 (Maxwell 11/24/2026): the balcony grows out to its rail lines: north to the outer face of the north guard posts, which stay put,
+# and west to the outer face of the west posts. The posts stand at the corners: the north east one is the north knee frame's wall post run
+# up in one piece to the guard rail; the west two hold the frame through a corner plate on their inside face (nothing on the stair side).
+if MONO:
+    BAL_N = BAL_N0 + 0.375 + POST
+BAL_W = XL + POST if MONO else XL                 # the deck's west edge
 
 
 class Flight:
@@ -394,17 +401,48 @@ def gusset(joint):
 
 
 def knee_frames():
-    """(name, b centre, side): side = +1 gusset on the brace's north face, -1 on its south face (toward the balcony's middle)"""
-    return [("south", B_BH, 1), ("north", BAL_N - 1, -1)]
+    """(name, b centre, side): side = +1 gusset on the brace's north face, -1 on its south face (toward the balcony's middle).
+    Round 10: only the south frame is this kind; the north one is NORTH_KNEE below."""
+    return [("south", B_BH, 1)]
+
+
+# round 10 north knee frame (Maxwell 11/24/2026): the north east guard post runs down the wall in one piece as the frame's wall post, and the
+# 45 degree brace runs from it up to the north west guard post's foot (the railing corner) instead of to the frame. Gussets on the north face.
+CP_T, CP_DROP, CP_BAND = 0.375, 4.5, 8.0          # west corner plates: thickness, how far the west posts and plates run below the frame, band along the beam
+NK_ZT = FL - TK - 2.75                             # brace centreline where it meets the north west post's east face (a = XL)
+NK_ZB = NK_ZT - (XL - POST)                        # and the north east post's west face (a = 2)
+NK_MITER = NK_ZB - POST / math.sqrt(2) - 2.0       # north east post's 45 degree foot cut: z = NK_MITER + a
+NK_LAGS = (NK_ZB + 6.0, FL - 11.0)                 # lags through the north east post into the wall framing (none in the frame depth: the ledger is there)
+NKG = dict(foot=[(1.0, NK_ZB + 2.5), (1.0, NK_ZB - 1.0), (4.25, NK_ZB + 2.25)],
+           top=[(XL + 1.0, FL - TK + 1.5), (XL + 1.0, FL - TK - 3.0), (XL - 3.25, NK_ZT - 3.25 + 0.0)])   # top: the two post bolts are the corner plate's
+
+
+def nk_gusset(joint):
+    """north knee frame gusset outline (a, z)"""
+    if joint == "foot":
+        p = [(0.0, NK_MITER), (7.0, NK_MITER + 7.0), (0.0, NK_ZB + 4.25)]
+        return _fillet(p, 0, 0.6, cap=0.3) + _fillet(p, 1, 0.75, cap=0.3) + _fillet(p, 2, 0.75, cap=0.3)
+    pts = [(a + KB_M * math.cos(2 * math.pi * j / 48), z + KB_M * math.sin(2 * math.pi * j / 48)) for a, z in NKG[joint] for j in range(48)]
+    return _hull(pts)
+
+
+def corner_plate(sg):
+    """west corner plate in its plane (a, z): a band along the end beam's inside face and a leg down the post's inside face; and its flange
+    folded under the beam (a0, a1). sg = -1 south west (plate on the south beam's north face), +1 north west (on the north arm's south face).
+    Returns (outline, flange (a0, a1, width), post bolts [(a, z)], flange bolts [a])"""
+    zu, zt = FL - TK, FL - TTD
+    p = [(XL - CP_BAND, zu), (XL, zu), (XL, zu - CP_DROP), (XL + POST, zu - CP_DROP), (XL + POST, zt), (XL - CP_BAND, zt)]
+    out = [p[0], p[1]] + _fillet(p, 2, 0.5) + _fillet(p, 3, 0.6) + [p[4]] + _fillet(p, 5, 0.6)
+    return out, (XL - CP_BAND, XL - 0.25, 2.25), [(XL + 1.0, zu + 1.5), (XL + 1.0, zu - 3.0)], [XL - CP_BAND + 1.0, XL - 1.0]
 
 
 # frame members, centrelines (a, b) to (a, b): 2 x 3 tube on edge
 LAND_FRAME = dict(LE=((1, 0), (1, LAND_N)), LS=((1, 1), (XL, 1)), LW=((XL - 1, 1), (XL - 1, LAND_N)),
                   LN=((1, B_LN), (XL - 1, B_LN)), LH=((A_LH, 1), (A_LH, LAND_N - 1)))
 BAL_FRAME = dict(BE=((1, BAL_S), (1, BAL_N)), BS=((1, BAL_S + 1), (XL - 1, BAL_S + 1)), BH=((1, B_BH), (XL - 1, B_BH)),
-                 BN=((1, BAL_N - 1), (XL, BAL_N - 1)), BW=((XL - 1, BAL_S), (XL - 1, BAL_N - 1)))
+                 BN=((1, BAL_N - 1), (XL, BAL_N - 1)), BW=((XL - 1, BAL_S), (XL - 1, BAL_N - 1)))   # (round 9 layout; drawings only)
 LAND_LAGS = dict(LE=(4.0, 16.0, 27.0) if MONO else (4.0, 20.0, 32.0), LS=(8.0, 22.0))          # along each ledger, assumed stud or blocking positions
-BAL_LAGS = (BAL_S + 3, B_BH - 3.5, (BAL_S + BAL_N) / 2, BAL_N - 3) if MONO else (BAL_S + 3, (BAL_S + BAL_N) / 2, BAL_N - 3)   # round 8: a 4th bolt beside the head beam, holes drilled tight
+BAL_LAGS = (BAL_S + 3, B_BH - 3.5, (BAL_S + BAL_N0) / 2, BAL_N0 - 3) if MONO else (BAL_S + 3, (BAL_S + BAL_N) / 2, BAL_N - 3)   # round 8: a 4th bolt beside the head beam, holes drilled tight
 # round 8 (Maxwell 11/24/2026): the upper stringer's head pushes the balcony north along the wall, carried by these bolts in shear. A flat
 # bar diagonal under the frame was tried in the frame model and changed nothing (the frame does not rack; what moves is the bolts' give),
 # so the fix is a 4th bolt by the head beam and tight holes.
@@ -414,7 +452,7 @@ BAL_STRIPS = (4.0, 9.0, 14.0, 19.0)                             # and north to s
 NEWEL_TOP = UPPER.zn(XL + POST - B0) + HR + 1.5                 # corner newel, a little above the upper rail
 GSW_TOP_OLD = max(UPPER.zn(BAL_S - B0) + HR + 1.5, FL + GUARD_H)                       # top newel at the balcony's south west corner
 G_TOP = FL + GUARD_H                                            # top of the balcony guard rail
-GP_B = BAL_N + 0.375 + POST / 2 if MONO else BAL_N + POST / 2  # north guard posts stand outside the north face (mono: outside the north west post's L plate)
+GP_B = BAL_N - POST / 2 if MONO else BAL_N + POST / 2  # north guard posts (mono round 10: at the balcony's north edge, which grew out to them)
 # corner landing posts (Maxwell 11/22/2026 round 3): 2 x 2 posts from the slab to the two ends of the north beam, which carries the upper stringer's foot
 LAND_POSTS = {}                                   # round 3's corner posts, dropped in round 4 for the one stringer post
 UP_POST_W = 3.0                                   # round 4: 3 x 3 x 3/16 post under the upper stringer's foot, on a 4 anchor plate

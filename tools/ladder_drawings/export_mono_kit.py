@@ -229,13 +229,24 @@ part("upper_post_saddle_qty1.dxf", "Upper stringer post saddle (seat, legs down 
 # ---------------------------------------------------------------- post bases (round 10): no laser cut base plates. Each slab post stands between
 # two clip angles cut from standard L 4 x 4 x 3/8 angle (6 pieces, 8 in long, all the same), listed in the BOM with the steel stock.
 
-# ---------------------------------------------------------------- balcony post L plates, 3/8 in
-x0 = G.XL - 8
-shp = unary_union([rect(0, 10, 0, G.TK - G.TT), rect(8, 10, G.TK - G.TT - 0.01, G.TK + 3.5)])
-holes = [Point(G.XL - 7 - x0, 1.5).buffer(H38 / 2, 64), Point(G.XL - 2.5 - x0, 1.5).buffer(H38 / 2, 64),
-         Point(9, 1.2).buffer(H38 / 2, 64), Point(9, G.TK + 2.6).buffer(H38 / 2, 64)]
-part("balcony_post_L_plate_qty2.dxf", "Balcony post L plate (south west newel and north west post)", 2, 0.375, shp, holes, (), "none",
-     "flat; the long leg bolts to the end beam of the balcony frame, the short leg up the post. Same part both posts (flip one).", rnd=0.5, inner=0.5)
+# ---------------------------------------------------------------- balcony corner plates (round 10), 3/8 in: replace the round 3 L plates
+# Flat in the plate's own plane: x = a (inches west of the bath 1 wall), y = z (height), the flange unfolded below the band's bend line.
+BD38 = 0.60                                                      # 90 degree bend deduction taken for 3/8 in, CHECK in SendCutSend's preview
+out_, (fa0, fa1, fw), pbolts, fbolts = G.corner_plate(-1)
+zu_ = G.FL - G.TK
+yb_ = zu_ - G.CP_T + BD38 / 2                                    # bend line
+plate = Polygon(out_).difference(rect(fa0 - 1, fa1, zu_ - 1, yb_))   # the band's bottom edge becomes the bend line (the post leg keeps its length)
+flange = rect(fa0, fa1, yb_ - (fw - BD38 / 2), yb_)
+shp = unary_union([plate, flange])
+shp = translate(shp, -(G.XL - G.CP_BAND), -(zu_ - G.CP_DROP))
+holes = [Point(a - (G.XL - G.CP_BAND), z - (zu_ - G.CP_DROP)).buffer(H38 / 2, 64) for a, z in pbolts]
+holes += [Point(a - (G.XL - G.CP_BAND), yb_ - ((1.0 + G.CP_T) - BD38 / 2) - (zu_ - G.CP_DROP)).buffer(H38 / 2, 64) for a in fbolts]
+part("balcony_corner_plate_qty2.dxf", "Balcony corner plate (south west newel and north west post)", 2, 0.375, shp, holes,
+     [((fa0 - (G.XL - G.CP_BAND), yb_ - (zu_ - G.CP_DROP)), (fa1 - (G.XL - G.CP_BAND), yb_ - (zu_ - G.CP_DROP)))],
+     "1 bend, 90 deg: the flange folds under the end beam. The two are mirror images: bend ONE UP and ONE DOWN (same flat)",
+     "on the inside face of the post and the end beam (south west: the south beam's north face; north west: the north arm's south face). "
+     "Two 3/8 grade 5 through bolts across the post (crush sleeve inside); two 3/8 bolts up through the flange and the beam (crush sleeves), "
+     "nuts in counterbores on the underside of the oak. Replaces the round 3 L plates: nothing on the stair side.", rnd=0.5, inner=0.5)
 
 # ---------------------------------------------------------------- placeholder clips for joints the CAD does not detail yet
 def clip(w, leg, file, name, qty, notes):
@@ -244,16 +255,21 @@ def clip(w, leg, file, name, qty, notes):
     part(file, name, qty, 0.25, shp, holes, [((0, 0), (w, 0))], "1 bend, 90 deg", "PLACEHOLDER for an engineer: " + notes, rnd=0.25)
 
 
-clip(2.0, 1.75, "clip_angle_2in_qty16.dxf", "Clip angle 2 in wide, 1 3/4 legs", 16,
-     "16 at the landing and balcony frame corners. Round 7: the knee braces use gusset plates instead. Round 10: the post bases use stock angle instead.")
+clip(2.0, 1.75, "clip_angle_2in_qty18.dxf", "Clip angle 2 in wide, 1 3/4 legs", 18,
+     "at the landing and balcony frame corners, including the ledger and north arm ends on the north east post. Round 7: the knee braces use gusset plates instead. Round 10: the post bases use stock angle instead.")
 
 # ---------------------------------------------------------------- knee frame gussets (round 7): brace top, brace foot, post top
-for j_, what in (("top", "brace top to the balcony beam (2 bolts in the beam, 1 in the brace)"), ("foot", "brace foot to the wall post (2 in the post, 1 in the brace); a triangle whose lower edge follows the post's 45 deg foot cut"),
-                 ("corner", "wall post top to the balcony beam's end (1 in each)")):
-    shp = Polygon(G.gusset(j_))
-    holes = [Point(a, z).buffer(H38 / 2, 64) for a, z in G.KG[j_]]
-    part(f"knee_gusset_{j_}_qty2.dxf", f"Knee frame gusset, {j_}", 2, 0.25, shp, holes, (), "none",
-         f"flat, one per knee frame (south and north): {what}. On the face toward the middle of the balcony; 3/8 through bolts with crush sleeves.")
+# round 10: the north knee frame's wall post is the north east guard post in one piece, so its corner gusset is gone; its brace runs to the
+# north west post, so its top gusset is a new shape. The foot gusset is the same part on both frames.
+for j_, what, qty, shape, bolts_ in (("top", "south frame: brace top to the head beam (2 bolts in the beam, 1 in the brace)", 1, G.gusset("top"), G.KG["top"]),
+                                     ("foot", "both frames: brace foot to the wall post (2 in the post, 1 in the brace); a triangle whose lower edge follows the post's 45 deg foot cut", 2, G.gusset("foot"), G.KG["foot"]),
+                                     ("corner", "south frame: wall post top to the head beam's end (1 in each)", 1, G.gusset("corner"), G.KG["corner"]),
+                                     ("north_top", "north frame: brace top to the north west post (the post's 2 bolts are the corner plate's, 1 in the brace)", 1, G.nk_gusset("top"), G.NKG["top"])):
+    a0_, z0_ = min(a for a, _ in shape), min(z for _, z in shape)
+    shp = Polygon([(a - a0_, z - z0_) for a, z in shape])
+    holes = [Point(a - a0_, z - z0_).buffer(H38 / 2, 64) for a, z in bolts_]
+    part(f"knee_gusset_{j_}_qty{qty}.dxf", f"Knee frame gusset, {j_.replace('_', ' ')}", qty, 0.25, shp, holes, (), "none",
+         f"flat: {what}. South frame: on the brace's north face; north frame: on the north face. 3/8 through bolts with crush sleeves.")
 clip(1.25, 1.5, "rail_clip_1-25in_qty10.dxf", "Rail end clip 1 1/4 in wide, 1 1/2 legs", 10,
      "straight rail ends into post faces, the north guard rail into the west one, the north guard rail at the bath 1 wall, and the four guard bottom rail ends. 9/32 in holes for 1/4-20.")
 

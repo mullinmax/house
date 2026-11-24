@@ -410,13 +410,46 @@ for z_ in (ZP - TK + 0.8, ZP - TT - 0.8):          # corner newel lapped onto th
     nut(XL - 2, XL + 1, z_, "a", -1)
 # balcony
 bz = (FL - TK, FL - TT)
-add("balcony", "balcony_ledger", tube(0, 2, G.BAL_S, G.BAL_N, *bz, "b", FTB))
-add("balcony", "balcony_south_beam", tube(2, XL - 2, G.BAL_S, G.BAL_S + 2, *bz, "a", FTB))
-add("balcony", "balcony_head_arm", tube(2, XL - 2, G.B_BH - 1, G.B_BH + 1, *bz, "a", FTB))
-add("balcony", "balcony_north_arm", tube(2, XL, G.BAL_N - 2, G.BAL_N, *bz, "a", FTB))
-add("balcony", "balcony_west_beam", tube(XL - 2, XL, G.BAL_S, G.BAL_N - 2, *bz, "b", FTB))
-deck = box(0, XL, G.BAL_S, G.BAL_N, FL - TT, FL)
-add("balcony", "balcony_deck", deck.fuse(box(G.GAP, XL, G.BAL_S - G.NOSE, G.BAL_S, FL - TT, FL)) if G.NOSE else deck, OAK, "oak")
+if G.MONO:
+    # Round 10 (Maxwell 11/24/2026): the balcony grows out to its rail lines (north to the outer face of the north posts, west to the outer
+    # face of the west posts). The posts stand at its corners. The north east post is the north knee frame's wall post run up in one piece;
+    # the ledger and north arm stop against it on clip angles. The two west posts reach 4 1/2 in below the frame and are held by a corner
+    # plate on their inside face: a band along the end beam's inside face, folded under the beam and bolted up through it (nuts under the
+    # oak), and a leg down the post with two through bolts. Nothing is on the stair side of the south beam any more.
+    BN_ = G.BAL_N
+    add("balcony", "balcony_ledger", tube(0, 2, G.BAL_S, BN_ - G.POST, *bz, "b", FTB))
+    add("balcony", "balcony_south_beam", tube(2, XL, G.BAL_S, G.BAL_S + 2, *bz, "a", FTB))
+    add("balcony", "balcony_head_arm", tube(2, XL - 2, G.B_BH - 1, G.B_BH + 1, *bz, "a", FTB))
+    add("balcony", "balcony_north_arm", tube(2, XL, BN_ - 2, BN_, *bz, "a", FTB))
+    add("balcony", "balcony_west_beam", tube(XL - 2, XL, G.BAL_S + 2 + G.CP_T, BN_ - 2 - G.CP_T, *bz, "b", FTB))
+    deck = box(0, G.BAL_W, G.BAL_S, BN_, FL - TT, FL)
+    for a0_, b0_ in ((XL, G.BAL_S), (XL, BN_ - G.POST), (0.0, BN_ - G.POST)):     # notched round the three corner posts
+        deck = deck.cut(box(a0_ - 0.02, a0_ + G.POST + 0.02, b0_ - 0.02, b0_ + G.POST + 0.02, FL - TT - 1, FL + 1))
+    add("balcony", "balcony_deck", deck, OAK, "oak")
+    for nm, sg in (("sw", -1), ("nw", 1)):
+        out_, (fa0, fa1, fw), pbolts, fbolts = G.corner_plate(sg)
+        b0_, b1_ = (G.BAL_S + 2, G.BAL_S + 2 + G.CP_T) if sg < 0 else (BN_ - 2 - G.CP_T, BN_ - 2)
+        bf0, bf1 = (b0_ - fw + G.CP_T, b1_) if sg < 0 else (b0_, b1_ + fw - G.CP_T)          # flange under the beam
+        pl = aprism(out_, b0_, b1_).fuse(box(fa0, fa1, bf0, bf1, FL - TK - G.CP_T, FL - TK))
+        add("posts", f"corner_plate_{nm}", pl)
+        bm_ = G.BAL_S + 1 if sg < 0 else BN_ - 1                                # beam centreline
+        for a_ in fbolts:                                                     # up through the flange and the beam, nut under the oak
+            bolt(a_, bm_, FL - TK - G.CP_T, "z", -1); nut(a_, bm_, FL - TT, "z", 1, d=0.5)
+        po_, pi_ = (G.BAL_S, b1_) if sg < 0 else (BN_ + BT, b0_)                 # post's outer face (north west: on the brace gusset), plate's open face
+        for a_, z_ in pbolts:
+            bolt(a_, po_, z_, "b", sg); nut(a_, pi_, z_, "b", -sg)
+    for b_ in G.BAL_LAGS:
+        nut(2, b_, FL - TK + 1.5, "a")
+else:
+    add("balcony", "balcony_ledger", tube(0, 2, G.BAL_S, G.BAL_N, *bz, "b", FTB))
+    add("balcony", "balcony_south_beam", tube(2, XL - 2, G.BAL_S, G.BAL_S + 2, *bz, "a", FTB))
+    add("balcony", "balcony_head_arm", tube(2, XL - 2, G.B_BH - 1, G.B_BH + 1, *bz, "a", FTB))
+    add("balcony", "balcony_north_arm", tube(2, XL, G.BAL_N - 2, G.BAL_N, *bz, "a", FTB))
+    add("balcony", "balcony_west_beam", tube(XL - 2, XL, G.BAL_S, G.BAL_N - 2, *bz, "b", FTB))
+    deck = box(0, XL, G.BAL_S, G.BAL_N, FL - TT, FL)
+    add("balcony", "balcony_deck", deck.fuse(box(G.GAP, XL, G.BAL_S - G.NOSE, G.BAL_S, FL - TT, FL)) if G.NOSE else deck, OAK, "oak")
+    for b_ in G.BAL_LAGS:
+        nut(2, b_, FL - TK + 1.5, "a")
 zu, r2 = FL - TK, G.POST / math.sqrt(2) * 1.0
 if not G.MONO:
     for nm, b in (("south", G.B_BH), ("north", G.BAL_N - 1)):
@@ -436,33 +469,34 @@ for nm, b, sd in (G.knee_frames() if G.MONO else ()):         # round 7: each br
             bolt(a_, fo_, z_, "b", sd); nut(a_, fi_, z_, "b", -sd)              # through the plate and the tube, crush sleeve inside
     for z_ in G.KB_LAGS:                                                   # two lags through the post into the wall framing
         nut(pa1, b, z_, "a", 1)
+if G.MONO:                                         # round 10: north knee frame, wall post = north east guard post, brace up to the north west post
+    BN_ = G.BAL_N
+    b = BN_ - 1
+    add("balcony", "knee_brace_north", aprism([(XL, G.NK_ZT + r2), (XL, G.NK_ZT - r2), (2.0, G.NK_ZB - r2), (2.0, G.NK_ZB + r2)], b - 1, b + 1))
+    gb0, gb1 = BN_, BN_ + BT                                               # gussets on the north face
+    for j_ in ("top", "foot"):
+        add("balcony", f"knee_gusset_{j_}_north", aprism(G.nk_gusset(j_), gb0, gb1))
+        for a_, z_ in G.NKG[j_]:
+            if j_ == "top" and a_ > XL:
+                continue                                                   # the north west post's two bolts are drawn with its corner plate
+            bolt(a_, gb1, z_, "b", 1); nut(a_, b - 1, z_, "b", -1)
+    for z_ in G.NK_LAGS:
+        nut(G.POST, b, z_, "a", 1)
 # balcony newel, guard posts, rails, pickets
 if G.MONO:
-    # Both free posts stand outside the west beam and stop at the frame's underside. Each is held by an L shaped 3/8 in plate bolted to the
-    # end beam's outer face and 4 in up the post (Maxwell 11/22/2026: no low tie to the stringer, no kickers).
-    # Round 3: every post stops under the one continuous rail, its top cut to the rail's slope. The north posts stand north of the plate line.
-    PN = (G.BAL_N + 0.375, G.BAL_N + 0.375 + G.POST)
+    # Round 10: the three corner posts. The south west newel and the north west post reach CP_DROP below the frame on their corner plates;
+    # the north east post runs from its 45 degree foot at the north knee brace up to the guard rail (one piece, lagged to the wall).
+    PN = (G.BAL_N - G.POST, G.BAL_N)
+    zl_ = FL - TK - G.CP_DROP
     if G.CONT_RAIL:
-        add("posts", "balcony_sw_newel", post_box(XL, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, FL - TK))
-        add("posts", "guard_post_nw", post_box(XL, XL + G.POST, *PN, FL - TK))
+        add("posts", "balcony_sw_newel", post_box(XL, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, zl_))
+        add("posts", "guard_post_nw", post_box(XL, XL + G.POST, *PN, zl_))
     else:                                          # straight rails (Maxwell 11/24/2026): flat topped posts, level guard top rails over them
-        add("posts", "balcony_sw_newel", tube(XL, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, FL - TK, G.GSW_TOP, "z", G.POST_T))
-        add("posts", "guard_post_nw", tube(XL, XL + G.POST, *PN, FL - TK, G.G_TOP - G.RAIL, "z", G.POST_T))
-    for nm, b0_, b1_, sg in (("sw", G.BAL_S - 0.375, G.BAL_S, -1), ("nw", G.BAL_N, G.BAL_N + 0.375, 1)):
-        add("posts", f"post_plate_{nm}", box(XL - 8, XL + G.POST, b0_, b1_, FL - TK, FL - TT).fuse(box(XL, XL + G.POST, b0_, b1_, FL - TT, FL + 3.5)))
-        fo_, fi_ = (b1_, b0_ - 2.0) if sg > 0 else (b0_, b1_ + 2.0)        # plate's outer face, far face of the end beam
-        for a_, z_ in ((XL - 7, FL - TK + 1.5), (XL - 2.5, FL - TK + 1.5)):      # into the end beam: head on the plate, nut inside the frame
-            bolt(a_, fo_, z_, "b", sg)
-            nut(a_, fi_, z_, "b", -sg)
-        po_ = b1_ + G.POST if sg > 0 else b1_ + G.POST                           # through the plate and the post: head on the plate's open face, nut on the post
-        for z_ in (FL - TK + 1.2, FL + 2.6):
-            if sg > 0:
-                bolt(XL + 1, b0_, z_, "b", -1); nut(XL + 1, po_, z_, "b", 1)
-            else:
-                bolt(XL + 1, b0_, z_, "b", -1); nut(XL + 1, po_, z_, "b", 1)
-    add("posts", "guard_post_ne", post_box(0, G.POST, *PN, FL - 13) if G.CONT_RAIL else tube(0, G.POST, *PN, FL - 13, G.G_TOP - G.RAIL, "z", G.POST_T))
-    for z_ in (FL - 11, FL - 2):
-        nut(G.POST, PN[0] + 1, z_, "a")
+        add("posts", "balcony_sw_newel", tube(XL, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, zl_, G.GSW_TOP, "z", G.POST_T))
+        add("posts", "guard_post_nw", tube(XL, XL + G.POST, *PN, zl_, G.G_TOP - G.RAIL, "z", G.POST_T))
+    pz0_ = G.NK_MITER
+    ne_ = post_box(0, G.POST, *PN, pz0_) if G.CONT_RAIL else tube(0, G.POST, *PN, pz0_, G.G_TOP - G.RAIL, "z", G.POST_T)
+    add("posts", "guard_post_ne", ne_.cut(aprism([(-0.1, pz0_ - 0.1), (G.POST + 0.1, pz0_ + G.POST + 0.1), (G.POST + 0.1, pz0_ - 1), (-0.1, pz0_ - 1)], PN[0] - 0.5, PN[1] + 0.5)))
     if G.CONT_RAIL:
         add("rails", "handrail_and_guard_rail", rail_sweep(), mat="rail")
     else:
