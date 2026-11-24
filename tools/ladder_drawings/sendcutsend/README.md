@@ -13,4 +13,5 @@ The knee braces get gusset plates (knee_gusset_*) instead of clip angles, so the
 Round 8 (11/24/2026): the lower flight's foot bracket is gone. A floor shoe (floor_shoe_qty1: base under the stringer's level foot,
 two cheeks up outside the first bracket's webs on its lower bolt, one slab anchor through each end tab) takes the foot, so every
 tread has the same bracket (11 per hand). Balcony ledger gets a 4th bolt beside the head beam; drill the ledger holes tight.
-The no strip tread option (thicker 1 3/4 in oak, no tread strips, longer seat tabs with 5/16 lags) is in ../sendcutsend_no_strip/.
+Maxwell chose the NO STRIP option (11/24/2026): this folder is that kit (1 3/4 in oak treads, no tread strips, brackets with no front
+flange and a 2 1/2 in seat with 3 x 11/32 holes for 5/16 x 1 1/2 lags). The older strip version is in ../sendcutsend_strips/.

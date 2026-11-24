@@ -49,6 +49,12 @@ if G.MONO:                                          # round 3: the corner landin
     SEC["LN43"] = ("steel",) + rect_hss(4.0, 3.0, G.FT_L)
 else:
     SEC["TUBEL"] = SEC["LN43"] = SEC["TUBE"]
+# cost study (Maxwell 11/24/2026): thinner walls by env, inches: stringer, posts, rails, balcony frame
+if G.MONO and abs(G.WT - 0.25) > 1e-6:
+    SEC["STR"] = ("steel",) + rect_hss(4.0, 4.0, G.WT)
+for env_, key_, dims_ in (("LADDER_POST_T", "POST", (2.0, 2.0)), ("LADDER_RAIL_T", "RAIL", (1.5, 1.5)), ("LADDER_FTB", "TUBE", (2.0, 3.0))):
+    if os.environ.get(env_):
+        SEC[key_] = ("steel",) + rect_hss(*dims_, float(os.environ[env_]))
 for k_, s_ in SEC.items():
     m.add_section(k_, *s_[1:5])
 

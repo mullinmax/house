@@ -7,11 +7,11 @@
    "qty": 11,
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "1 bend, 90 deg toward the outside face: seat tab off the top edge",
-   "notes": "every tread (4 lower + 7 upper); west side of the upper flight, north side of the lower flight. 2 x 7/16 bolt holes into the stringer, 3 x 11/32 holes in the seat for 5/16 x 1 1/2 lags up into the tread.",
+   "bends": "2 bends, both 90 deg toward the outside face: flange off the front edge, seat tab off the top edge",
+   "notes": "every tread (4 lower + 7 upper); west side of the upper flight, north side of the lower flight. 2 x 7/16 bolt holes into the stringer, flange bolt slotted. Drill the seat tab screw holes at assembly.",
    "size": [
-    6.23,
-    9.09
+    8.04,
+    8.09
    ]
   },
   {
@@ -20,11 +20,24 @@
    "qty": 11,
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "1 bend, 90 deg toward the outside face: seat tab off the top edge",
+   "bends": "2 bends, both 90 deg toward the outside face: flange off the front edge, seat tab off the top edge",
    "notes": "mirror image of the open side part. every tread (4 lower + 7 upper).",
    "size": [
-    6.23,
-    9.09
+    8.04,
+    8.09
+   ]
+  },
+  {
+   "file": "tread_strip_qty11.dxf",
+   "name": "Tread strip (2 in on edge, closes the riser)",
+   "qty": 11,
+   "thick": 0.25,
+   "material": "Mild steel A36 (hot rolled P&O)",
+   "bends": "2 bends, 90 deg: a screw tab at each end folds toward the back of the tread",
+   "notes": "one under every tread. 2 x 7/16 holes for the bracket flange bolts. Drill the tab screw holes at assembly. Tabs 1.6 in outside (CAD shows 1.5).",
+   "size": [
+    22.05,
+    3.41
    ]
   },
   {
@@ -37,7 +50,7 @@
    "notes": "the lower stringer's level foot stands on the base; the cheeks run up outside the first tread's bracket webs and share that bracket's lower bolt (6 in, cheek, web, tube, web, cheek, crush sleeve inside). One 3/8 slab anchor through each end tab (1/2 in holes).",
    "size": [
     9.04,
-    9.71
+    10.33
    ]
   },
   {

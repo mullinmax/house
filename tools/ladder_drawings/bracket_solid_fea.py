@@ -49,7 +49,7 @@ HOLE_D, BOLT_SP = 7 / 16, 4.0
 TG, GLEG = 0.25, 3.0                              # gusset plate thickness and leg length
 PATCH = 2.0                                       # load patch, square
 FLIGHT, K = G.UPPER, 4                            # a mid flight tread (every non foot tread has the same bracket)
-OPTIONS = {"t25": (0.25, False), "t375": (0.375, False), "t25g": (0.25, True)}
+OPTIONS = {"t25": (0.25, False), "t375": (0.375, False), "t25g": (0.25, True), "t1875": (0.1875, False)}
 LOADS = ("A_half", "A_cont", "B_seat")
 SUPPORTS = ("bolts", "bolts+contact")
 
