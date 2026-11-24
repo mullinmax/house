@@ -82,6 +82,7 @@ ladder_width_in = 24.45           # corner design: overall width. Was 24 with ho
 ladder_stringer = "mono"          # corner design: "mono" = ONE 4 x 4 x 1/4 in square tube under the middle of the treads, bracket pairs each side, a 2 in oak riser lip behind every tread under a 2 in steel strip (Maxwell 11/22/2026). "tube" = two 2 x 3 tubes under the tread ends
 ladder_mono_in = [4.0, 4.0]       # mono stringer width and depth
 ladder_landing_nosing_in = 0.0    # corner design: oak nosing past the landing and balcony edges. 0 = each platform's own edge is the top nosing, so the foot sits 3 1/2 in further from the living room opening and the balcony 3 1/2 in further south (Maxwell 11/22/2026). Remove for the 3 1/2 in lips
+ladder_rail_continuous = false  # open side rail: true = round 3's one continuous curved rail; false = straight rails between the posts (Maxwell 11/24/2026: back to straight)
 ladder_wall_rail = false          # wall side handrails hidden (Maxwell 11/22/2026 round 3). A ships ladder needs a rail on both sides to pass inspection (R311.7.12), so set true for the inspection drawings
 #ladder_stringer = "tube"          # corner design: "tube" = stock 2 x 3 x 3/16 in rectangular steel tube stringers under the treads with laser cut tread brackets (Maxwell 11/21/2026: the plate stringers were too long for SendCutSend). Remove for the plate or oak stringers below
 ladder_tube_in = [2.0, 3.0]       # tube width and depth
@@ -90,6 +91,8 @@ ladder_wall_gap_in = 0.75         # corner design: ladder edge to the bath 1 wal
 ladder_wall_stringer_under = false # corner design: wall side stringers under the treads. Tried 11/21/2026 and dropped: the overlapping treads leave no seat. With steel plates both stringers sit beside the treads, treads on bolt on angle clips, wall side rails on brackets, wall plates lagged to blocking
 ladder_going_in = 5.0             # nosing to nosing
 ladder_tread_in = 8.5             # each tread overlaps the next by 3.5 in; the loft edge gets a 3.5 in oak nosing over the top tread
+ladder_tread_strips = false       # round 8 (Maxwell 11/24/2026): no tread strips; thicker oak on the bracket seats, 5/16 lags up into it
+ladder_tread_thick_in = 1.75      # tread oak with no strips (the landing and balcony decks stay 1.44)
 ladder_handrail_in = 32.0         # top of rail above the nosing line, 30 to 34 in allowed
 attic_access = { east_gap = 2.05, width = 2.96, door = { top_in = 60 } }   # walk through opening in the loft north wall onto the attic deck: east edge 1 ft off the inside face of the east wall (Maxwell, 11/19/2026). Width kept from the A-11 gap (x 34.37-37.33) that used to be the way in, now walled above the loft floor. Moved 12 5/8 in west 11/21/2026 (Maxwell) so the 23 in deep bookcase in the loft's north east corner has solid wall behind it; was east_gap = 1.0. door: a short leaf (top_in above the loft floor) swinging into the attic, low enough to clear the roof when open 90 degrees (Maxwell 11/21/2026)
 

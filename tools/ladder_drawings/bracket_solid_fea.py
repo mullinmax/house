@@ -49,12 +49,19 @@ HOLE_D, BOLT_SP = 7 / 16, 4.0
 TG, GLEG = 0.25, 3.0                              # gusset plate thickness and leg length
 PATCH = 2.0                                       # load patch, square
 FLIGHT, K = G.UPPER, 4                            # a mid flight tread (every non foot tread has the same bracket)
-OPTIONS = {"t25": (0.25, False), "t375": (0.375, False), "t25g": (0.25, True)}
+OPTIONS = {"t25": (0.25, False), "t375": (0.375, False), "t25g": (0.25, True), "t1875": (0.1875, False)}
 LOADS = ("A_half", "A_cont", "B_seat")
 SUPPORTS = ("bolts", "bolts+contact")
 
+# Round 8 (Maxwell 11/24/2026): the no strip option. BRACKET_R8=1 uses the round 7 web (G.bracket_web, a hull round the bolts), a seat
+# along the web's whole top edge (no flange to a strip), BRACKET_SEAT_W wide, under a BRACKET_TT thick tread.
+R8 = os.environ.get("BRACKET_R8", "0") == "1"
+if R8:
+    G.SEAT_W = float(os.environ.get("BRACKET_SEAT_W", "1.5"))
+    G.TT = float(os.environ.get("BRACKET_TT", "1.75"))
+    OPTIONS["t25"], OPTIONS["t375"] = (0.25, False), (0.375, False)
 CA, SA, SL = math.cos(G.ANG), math.sin(G.ANG), G.SL
-XS0, XS1 = 1.0, G.TD + G.RT                       # seat, along x
+XS0, XS1 = (G.WEB0 if R8 else 1.0), G.TD + G.RT   # seat, along x
 XW = G.WEB0                                       # web front edge
 YF = -G.TW / 2                                    # tube side face (open side)
 ZL = lambda x: (x - G.TD - G.RT) * SL             # tube top line, relative to the tread underside
@@ -62,6 +69,9 @@ A_, B_ = (XW, 0.0), (XS1, 0.0)
 C_ = (XW, ZL(XW))
 NV = (SA, -CA)                                    # unit normal to the slope, pointing down into the tube side
 WEB = [A_, C_, (C_[0] + NV[0] * G.LAP, C_[1] + NV[1] * G.LAP), (B_[0] + NV[0] * G.LAP, B_[1] + NV[1] * G.LAP), B_]
+if R8:
+    _uk, _zk = FLIGHT.uk(K), FLIGHT.z0 + K * G.RI - G.TT
+    WEB = [(u - _uk, z - _zk) for u, z in G.bracket_web(FLIGHT, K)]
 BU = FLIGHT.bolt_u(K) - FLIGHT.uk(K)              # bolt group centroid, x
 BC = (C_[0] + 6.25 * CA + G.BOLT_N * SA, C_[1] + 6.25 * SA - G.BOLT_N * CA)
 assert abs(BC[0] - BU) < 1e-9

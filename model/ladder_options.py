@@ -136,7 +136,7 @@ def mono_ladder(WX, WY):
     P = lambda a, b, z: (WX - a / 12, WY - b / 12, z / 12)
     gb = lambda mat, a0, a1, b0, b1, z0, z1: box(mat, WX - a1 / 12, WX - a0 / 12, WY - b1 / 12, WY - b0 / 12, z0 / 12, z1 / 12)
     gh = lambda mat, f, uz, v0, v1: hexa(mat, [P(*f.p(u, v0, z)) for u, z in uz] + [P(*f.p(u, v1, z)) for u, z in uz])
-    XL, ZP, FL_, TT, TK, VC, BT = G.XL, G.ZP, G.FL, G.TT, G.TK, G.VC, G.BRKT_T
+    XL, ZP, FL_, TT, TK, VC, BT = G.XL, G.ZP, G.FL, G.TTD, G.TK, G.VC, G.BRKT_T   # TT here: the platform decks (round 8: treads use G.TT)
     gv = lambda mat, f, vz, u0, u1: hexa(mat, [P(*f.p(u0, v, z)) for v, z in vz] + [P(*f.p(u1, v, z)) for v, z in vz])
     nx, nz = math.sin(G.ANG), -math.cos(G.ANG)
     SOCKETS = False
@@ -174,6 +174,17 @@ def mono_ladder(WX, WY):
     def fnut(f, u, v, z, axis, sign=1, **kw):
         fbolt(f, u, v, z, axis, sign, kind="hex", **kw)
 
+    def gpoly(mat, f, pts, v0, v1):
+        """a convex (u, z) outline as fan quads from its first point"""
+        for i in range(1, len(pts) - 1, 2):
+            j = min(i + 2, len(pts) - 1)
+            gh(mat, f, [pts[0], pts[i], pts[i + 1], pts[j]], v0, v1)
+
+    def gstrips(mat, f, zb, top, v0, v1):
+        """outline from a level bottom at zb up to a sampled top line [(u, z), ...], as plumb strips"""
+        for (u0, z0), (u1, z1) in zip(top, top[1:]):
+            gh(mat, f, [(u0, zb), (u1, zb), (u1, z1), (u0, z0)], v0, v1)
+
     def post(a0, a1, b0, b1, z0):
         """square post whose top is cut to the plane just under the one continuous rail"""
         zt = G.rail_plane(a0, a1, b0, b1)
@@ -182,97 +193,117 @@ def mono_ladder(WX, WY):
 
     for f in G.FLIGHTS:
         zb_ = lambda u, f=f: f.zl(u) - G.PL
-        if f is G.UPPER:                                 # round 4: plumb foot against the landing beam, notched head leaning on the balcony's head beam
-            uf, ub, us_ = G.U_FOOT, G.U_BEAR, G.U_FOOT + G.L_SEAT     # round 5: level foot on the saddle, one plumb cut at the head, top trimmed level
+        ub, ztr, utr, _ = G.head_cut(f)                  # round 5 head (both flights from round 6): one plumb cut at the beam face, top trimmed level
+        if f is G.UPPER:                                 # level foot on the saddle
+            uf, us_ = G.U_FOOT, G.U_FOOT + G.L_SEAT
             gh(ST, f, [(uf, G.Z_SEAT), (us_, zb_(us_)), (us_, f.zl(us_) - e), (uf, f.zl(uf) - e)], VC - G.TW / 2, VC + G.TW / 2)
-            gh(ST, f, [(us_, zb_(us_)), (ub, zb_(ub)), (ub, G.Z_TRIM - e), (us_, f.zl(us_) - e)], VC - G.TW / 2, VC + G.TW / 2)
-            gh(ST, f, [(us_, f.zl(us_) - e), (ub, G.Z_TRIM - e), (G.U_TRIM, G.Z_TRIM - e), (G.U_TRIM, G.Z_TRIM - e)], VC - G.TW / 2, VC + G.TW / 2)
-        else:
-            gh(ST, f, [(f.u0, f.zf + e), (f.u1, f.zf + e), (f.u3, f.zu - e), (f.u2, f.zu - e)], VC - G.TW / 2, VC + G.TW / 2)
+        else:                                            # level foot on the slab
+            us_ = f.u1
+            gh(ST, f, [(f.u0, f.zf + e), (us_, f.zf + e), (us_, f.zl(us_) - e), (f.u0, f.zl(f.u0) - e)], VC - G.TW / 2, VC + G.TW / 2)
+        gh(ST, f, [(us_, zb_(us_) if f is G.UPPER else f.zf + e), (ub, zb_(ub)), (ub, ztr - e), (us_, f.zl(us_) - e)], VC - G.TW / 2, VC + G.TW / 2)
+        gh(ST, f, [(us_, f.zl(us_) - e), (ub, ztr - e), (utr, ztr - e), (utr, ztr - e)], VC - G.TW / 2, VC + G.TW / 2)
         for k in range(1, f.nr):
-            uk, zk = f.uk(k), f.z0 + k * G.RI - TT
+            uk, zk = f.uk(k), f.z0 + k * G.RI - G.TT
             for sg in (-1, 1):
                 v0 = VC + sg * (G.TW / 2 + e)
-                A, B = (uk + G.WEB0, zk - BT), (uk + G.TD + G.RT, zk - BT)
-                fl_ = f.zf + BT if f is G.LOWER else -1e9      # the lower flight's first web stops at its foot flange
-                C = (A[0], max(f.zl(A[0]), fl_))
-                C2, B2 = (A[0] + nx * G.LAP, max(f.zl(A[0]) + nz * G.LAP, fl_)), (B[0] + nx * G.LAP, max(zk + nz * G.LAP, fl_))
-                M_ = ((C2[0] + B2[0]) / 2, (C2[1] + B2[1]) / 2)
-                gh(ST, f, [A, C, C2, M_], v0, v0 + sg * BT)     # the web, as two quads so its whole outline is drawn
-                gh(ST, f, [A, M_, B2, B], v0, v0 + sg * BT)
-                gh(ST, f, [(uk + G.SEAT_S, zk - BT), (uk + G.TD + G.RT - e, zk - BT), (uk + G.TD + G.RT - e, zk - e), (uk + G.SEAT_S, zk - e)], v0 + sg * BT, v0 + sg * G.SEAT_TAB)
-                # flange folded off the web's front edge, one bolt into the strip that crosses under the tread
-                gh(ST, f, [(A[0] + e, zk - G.ARM_D), (A[0] + BT, zk - G.ARM_D), (A[0] + BT, zk - BT - e), (A[0] + e, zk - BT - e)], v0, v0 + sg * (BT + G.ARM_FL))
-                fbolt(f, A[0] + BT, v0 + sg * (BT + 0.95), zk - G.FLANGE_BOLT, "u")
-                fnut(f, A[0] - BT, v0 + sg * (BT + 0.95), zk - G.FLANGE_BOLT, "u", -1)
+                A = (uk + G.WEB0, zk - G.WEB_T)
+                web = [(u_, min(z_, zk - e)) for u_, z_ in G.bracket_web(f, k)]    # round 6: corners rounded, top just under the tread
+                zc_ = f.zf + BT
+                foot_ = f is G.LOWER and min(z_ for _, z_ in web) < zc_     # the lower flight's first web stops at its foot flange
+                if foot_:
+                    cl = []
+                    for p_, q_ in zip(web, web[1:] + web[:1]):
+                        if p_[1] >= zc_:
+                            cl.append(p_)
+                        if (p_[1] - zc_) * (q_[1] - zc_) < 0:
+                            t_ = (zc_ - p_[1]) / (q_[1] - p_[1])
+                            cl.append((p_[0] + t_ * (q_[0] - p_[0]), zc_))
+                    web = cl
+                gpoly(ST, f, web, v0, v0 + sg * G.WEB_T)
+                gh(ST, f, [(uk + G.SEAT_S, zk - G.WEB_T), (uk + G.TD + G.RT - e, zk - G.WEB_T), (uk + G.TD + G.RT - e, zk - e), (uk + G.SEAT_S, zk - e)], v0 + sg * G.WEB_T, v0 + sg * G.SEAT_TAB)
+                if G.STRIPS:                                 # flange folded off the web's front edge, one bolt into the strip that crosses under the tread
+                    gh(ST, f, [(A[0] + e, zk - G.ARM_D), (A[0] + G.WEB_T, zk - G.ARM_D), (A[0] + G.WEB_T, zk - G.WEB_T - e), (A[0] + e, zk - G.WEB_T - e)], v0, v0 + sg * (G.WEB_T + G.ARM_FL))
+                    fbolt(f, A[0] + G.WEB_T, v0 + sg * (G.WEB_T + 0.95), zk - G.FLANGE_BOLT, "u")
+                    fnut(f, A[0] - G.WEB_T, v0 + sg * (G.WEB_T + 0.95), zk - G.FLANGE_BOLT, "u", -1)
                 for s_ in (4.25, 8.25):                      # two through bolts per bracket pair: socket head on the open side, nut on the wall side
                     ub_, zb2 = A[0] + s_ * math.cos(G.ANG) + nx * G.BOLT_N, f.zl(A[0]) + s_ * math.sin(G.ANG) + nz * G.BOLT_N
                     if zb2 > f.zf + BT + 0.5:
-                        (fbolt if sg < 0 else fnut)(f, ub_, v0 + sg * BT, zb2, "v", sg)
-                for ub_ in (uk + 6.5, uk + 8.0):
-                    fbolt(f, ub_, v0 + sg * 0.9, zk - BT, "z", -1, d=0.5, h=0.15)
-                if k == 1 and f is G.LOWER:                  # foot flange on the slab, two anchors
-                    fu = (C2[0], B2[0])
+                        sh_ = BT if (f is G.LOWER and k == 1 and s_ == 4.25) else 0.0     # round 8: through the floor shoe's cheeks too
+                        (fbolt if sg < 0 else fnut)(f, ub_, v0 + sg * (G.WEB_T + sh_), zb2, "v", sg)
+                for ub_ in G.seat_lags(uk):                   # screws (no strip option: 5/16 lags) up through each seat into the tread
+                    fbolt(f, ub_, v0 + sg * (G.WEB_T + G.SEAT_TAB / 2 + G.SEAT_LAG_V - 0.25), zk - G.WEB_T, "z", -1, d=0.5 if G.STRIPS else 0.56, h=0.15 if G.STRIPS else 0.22)
+                if foot_:                                    # foot flange on the slab, two anchors
+                    us_f = [u_ for u_, z_ in web if abs(z_ - zc_) < 1e-6]
+                    fu = (min(us_f), max(us_f))
                     gh(ST, f, [(fu[0], f.zf + e), (fu[1], f.zf + e), (fu[1], f.zf + BT), (fu[0], f.zf + BT)], v0 + sg * BT, v0 + sg * G.FOOT_W)
                     for ub_ in (fu[0] + 0.8, fu[1] - 0.8):
                         fnut(f, ub_, v0 + sg * (G.FOOT_W / 2 + 0.6), f.zf + BT, "z")
+            if not G.STRIPS:                                 # round 8 no strip option: thicker oak on the two seats only
+                gh(OAK, f, [(uk, zk), (uk + G.TD, zk), (uk + G.TD, zk + G.TT), (uk, zk + G.TT)], 0.05, G.WN - 0.05)
+                ur = uk + G.TD
+                gh(OAK, f, [(ur + e, zk), (ur + G.RT, zk), (ur + G.RT, zk + G.TT + G.RH), (ur + e, zk + G.TT + G.RH)], 0.05 + e, G.WN - 0.05 - e)
+                continue
             ua_, v0_, v1_ = uk + G.WEB0, G.ARM_END, G.WN - G.ARM_END
-            gv(ST, f, [(v0_, zk - G.ARM_D), (v1_, zk - G.ARM_D), (v1_, zk - e), (v0_, zk - e)], ua_ - BT, ua_ - e)    # the strip: also the top of the riser below
+            so_ = G.strip_outline(zk - e)                    # the strip: also the top of the riser below (round 7: bottom end corners rounded)
+            for i_ in range(1, len(so_) - 1, 2):
+                gv(ST, f, [so_[0], so_[i_], so_[i_ + 1], so_[min(i_ + 2, len(so_) - 1)]], ua_ - BT, ua_ - e)
             for vt_ in (v0_ + G.STRIP_TAB, v1_ - G.STRIP_TAB):          # screw tab at each end, folded toward the back of the tread (Maxwell 11/23/2026)
                 gh(ST, f, [(ua_ + e, zk - BT), (ua_ + 1.25, zk - BT), (ua_ + 1.25, zk - e), (ua_ + e, zk - e)], vt_ - 0.9, vt_ + 0.9)
                 fbolt(f, ua_ + 0.7, vt_, zk - BT, "z", -1, d=0.5, h=0.15)
-            gh(OAK, f, [(uk, zk), (uk + G.TD, zk), (uk + G.TD, zk + TT), (uk, zk + TT)], 0.05, G.WN - 0.05)
+            gh(OAK, f, [(uk, zk), (uk + G.TD, zk), (uk + G.TD, zk + G.TT), (uk, zk + G.TT)], 0.05, G.WN - 0.05)
             ur = uk + G.TD                                   # riser lip behind every tread
-            gh(OAK, f, [(ur + e, zk), (ur + G.RT, zk), (ur + G.RT, zk + TT + G.RH), (ur + e, zk + TT + G.RH)], 0.05 + e, G.WN - 0.05 - e)
-        if f is G.LOWER:                                     # lower stringer head: two angles under the landing frame
+            gh(OAK, f, [(ur + e, zk), (ur + G.RT, zk), (ur + G.RT, zk + G.TT + G.RH), (ur + e, zk + G.TT + G.RH)], 0.05 + e, G.WN - 0.05 - e)
+        hc = G.head_clip(f)                                  # round 6: the same head clip pair at both stringer tops
+        ub = hc["ub"]
+        for sg in (-1, 1):
+            vt = VC + sg * (G.TW / 2 + e)
+            gpoly(ST, f, hc["leg"], vt, vt + sg * BT)
+            gh(ST, f, [(ub - BT + e, hc["beam"][0]), (ub - e, hc["beam"][0]), (ub - e, hc["beam"][1]), (ub - BT + e, hc["beam"][1])], vt + sg * BT, vt + sg * 2.25)
+            (fbolt if sg < 0 else fnut)(f, hc["tube_bolt"][0], vt + sg * BT, hc["tube_bolt"][1], "v", sg)   # one through bolt across the tube, crush sleeve inside
+            fbolt(f, ub - BT, vt + sg * 1.3, hc["beam_bolt_z"], "u", -1); fnut(f, ub + G.FW, vt + sg * 1.3, hc["beam_bolt_z"], "u", 1)
+        if f is G.LOWER:                                     # round 8: floor shoe under the level foot, cheeks share the first bracket's lower bolt
+            u0_, u1_ = f.u0 - G.SHOE_TAB, f.u1 + G.SHOE_TAB
+            gh(ST, f, [(u0_, 0.02), (u1_, 0.02), (u1_, BT), (u0_, BT)], VC - G.SHOE_HW, VC + G.SHOE_HW)
             for sg in (-1, 1):
-                e0 = VC + sg * (G.TW / 2 + BT)
-                uc = (f.u2 + f.u3) / 2 - 1.0
-                gh(ST, f, [(uc - 2, f.zu - 0.25), (uc + 2, f.zu - 0.25), (uc + 2, f.zu - e), (uc - 2, f.zu - e)], e0, e0 + sg * 3.0)
-                gh(ST, f, [(uc - 2, f.zu - 3.0), (uc + 2, f.zu - 3.0), (uc + 2, f.zu - 0.25), (uc - 2, f.zu - 0.25)], e0, e0 + sg * 0.25)
-                for ub_ in (uc - 1.2, uc + 1.2):
-                    (fbolt if sg < 0 else fnut)(f, ub_, e0 + sg * 0.25, f.zu - 1.6, "v", sg)   # through the tube, crush sleeve inside
-                    fbolt(f, ub_, e0 + sg * 1.9, f.zu - 0.25, "z", -1)
-        else:                                                # round 5: angle clips lock both ends of the upper stringer, it sits level on a saddle on one 3 x 3 post
+                gpoly(ST, f, G.shoe_cheek(), VC + sg * (G.TW / 2 + G.WEB_T + e), VC + sg * G.SHOE_HW)
+            for ua_, va_ in G.shoe_anchors():
+                fnut(f, ua_, va_, BT, "z")
+        if f is G.UPPER:                                     # round 6: level foot on a saddle on one 3 x 3 post; cheeks bolt through the stringer, tabs to the landing's north beam
             zs, zpt = G.Z_SEAT, G.Z_SEAT - BT
-            for sg in (-1, 1):
-                vt = VC + sg * (G.TW / 2 + e)
-                vs_ = (vt, vt + sg * BT)
-                ub, ua = G.U_BEAR, G.U_BEAR - 2.25
-                xq = G.U_TRIM - 0.15 / G.SL
-                gh(ST, f, [(ua, f.zu - 3.0), (ub - BT, f.zu - 3.0), (ub - BT, G.Z_TRIM - 0.25), (ua, f.zl(ua) - 0.1)], *vs_)
-                gh(ST, f, [(ub - BT + e, f.zu - 3.0), (ub - e, f.zu - 3.0), (ub - e, G.Z_TRIM - 0.25), (ub - BT + e, G.Z_TRIM - 0.25)], vt + sg * BT, vt + sg * 2.25)
-                (fbolt if sg < 0 else fnut)(f, ub - 1.25, vt + sg * BT, f.zu - 1.5, "v", sg)   # one through bolt across the tube, crush sleeve inside
-                fbolt(f, ub - BT, vt + sg * 1.3, G.ZBF, "u", -1); fnut(f, ub + G.FW, vt + sg * 1.3, G.ZBF, "u", 1)
-                uf = G.U_FOOT
-                vc_ = vt + sg * BT
-                c_ = G.FOOT_CLIP
-                gh(ST, f, [c_[0], c_[1], c_[2], c_[5]], vc_, vc_ + sg * BT)
-                gh(ST, f, [c_[5], c_[2], c_[3], c_[4]], vc_, vc_ + sg * BT)
-                gh(ST, f, [(uf + e, 42.0), (uf + BT, 42.0), (uf + BT, ZP - TT - 0.25), (uf + e, ZP - TT - 0.25)], vc_ + sg * BT, vc_ + sg * 2.25)
-                fbolt(f, uf + BT, vc_ + sg * 1.3, G.ZLF, "u", 1); fnut(f, uf - G.FW, vc_ + sg * 1.3, G.ZLF, "u", -1)
-            fbolt(f, G.FOOT_BOLT[0], VC - G.TW / 2 - 2 * BT, G.FOOT_BOLT[1], "v", -1); fnut(f, G.FOOT_BOLT[0], VC + G.TW / 2 + 2 * BT, G.FOOT_BOLT[1], "v", 1)
             a0p, a1p, b0p, b1p = G.UP_POST
             gb(ST, a0p, a1p, b0p, b1p, 0.375, zpt - e)
             gb(ST, a0p - 2, a1p + 2, b0p - 2, b1p + 2, 0.02, 0.375)
             for a_ in (a0p - 1.2, a1p + 1.2):
                 for b_ in (b0p - 1.2, b1p + 1.2):
                     nut(a_, b_, 0.375, "z")
-            u0p, u1p = b0p - G.B0 - BT, b1p - G.B0 + BT
+            u0p, u1p = G.SAD_U0, G.SAD_U1
             gh(ST, f, [(u0p, zpt), (u1p, zpt), (u1p, zs - e), (u0p, zs - e)], VC - G.TW / 2 - BT, VC + G.TW / 2 + BT)
             for sg in (-1, 1):
                 vt = VC + sg * (G.TW / 2 + e)
-                gh(ST, f, [(u0p, zs), (u1p, zs), (u1p, zs + G.SEAT_LIP), (u0p, zs + G.SEAT_LIP)], vt, vt + sg * BT)
-            for u0_ in (u0p, u1p - BT):
-                gh(ST, f, [(u0_, zpt - 3.5), (u0_ + BT, zpt - 3.5), (u0_ + BT, zpt - e), (u0_, zpt - e)], VC - 1.5, VC + 1.5)
+                gstrips(ST, f, zs, G.CHEEK[1:-1], vt, vt + sg * BT)          # cheek, above the seat (the seat block covers below)
+                gh(ST, f, [(u0p + e, G.TAB_Z[0]), (u0p + BT, G.TAB_Z[0]), (u0p + BT, G.TAB_Z[1]), (u0p + e, G.TAB_Z[1])], vt + sg * BT, vt + sg * (BT + G.TAB_W))
+                fbolt(f, u0p + BT, vt + sg * (BT + 1.05), G.TAB_BOLT_Z, "u", 1); fnut(f, u0p - G.LN_W, vt + sg * (BT + 1.05), G.TAB_BOLT_Z, "u", -1)
+            for u0_ in (u0p, u1p - BT):                      # legs down the post's south and north faces
+                gh(ST, f, [(u0_, zpt - G.SAD_LEG), (u0_ + BT, zpt - G.SAD_LEG), (u0_ + BT, zpt - e), (u0_, zpt - e)], VC - 1.5, VC + 1.5)
             zlb = zpt - 2.0
             fbolt(f, u0p, VC, zlb, "u", -1); fnut(f, u1p, VC, zlb, "u", 1)
+            fbolt(f, G.SAD_BOLT[0], VC - G.TW / 2 - BT, G.SAD_BOLT[1], "v", -1); fnut(f, G.SAD_BOLT[0], VC + G.TW / 2 + BT, G.SAD_BOLT[1], "v", 1)
     ur = G.TD - G.GO
     gh(OAK, G.UPPER, [(ur + e, ZP - TT), (ur + G.RT, ZP - TT), (ur + G.RT, ZP + G.RH), (ur + e, ZP + G.RH)], 0.05 + e, G.WN - 0.05 - e)
     # one continuous open side rail, lower flight to the bath 1 wall, every post tucked under it (Maxwell 11/22/2026 round 3)
-    fr = G.rail_frames()
-    for (p0, p1, zt0, zb0), (q0, q1, zt1, zb1) in zip(fr, fr[1:]):
-        hexa(ST, [P(*p0, zb0), P(*p1, zb0), P(*p1, zt0), P(*p0, zt0), P(*q0, zb1), P(*q1, zb1), P(*q1, zt1), P(*q0, zt1)])
+    if G.CONT_RAIL:
+        fr = G.rail_frames()
+        for (p0, p1, zt0, zb0), (q0, q1, zt1, zb1) in zip(fr, fr[1:]):
+            hexa(ST, [P(*p0, zb0), P(*p1, zb0), P(*p1, zt0), P(*p0, zt0), P(*q0, zb1), P(*q1, zb1), P(*q1, zt1), P(*q0, zt1)])
+    else:                                                # straight rails between the posts (Maxwell 11/24/2026)
+        for nm_, a0, a1, b0, b1, z0_, z1_, ax in G.straight_rails():
+            dp = G.RAIL / math.cos(G.ANG) if z0_ != z1_ else G.RAIL     # plumb depth of a sloped rail
+            if ax == "a":
+                ends = (((a0, b0), (a0, b1)), ((a1, b0), (a1, b1)))
+            else:
+                ends = (((a0, b0), (a1, b0)), ((a0, b1), (a1, b1)))
+            (p0, p1), (q0, q1) = ends
+            hexa(ST, [P(*p0, z0_ - dp), P(*p1, z0_ - dp), P(*p1, z0_), P(*p0, z0_), P(*q0, z1_ - dp), P(*q1, z1_ - dp), P(*q1, z1_), P(*q0, z1_)])
     # lower flight foot post and the corner newel, each on a base plate with four slab anchors
     fa = G.A_FOOT
     post(fa - 1, fa + 1, XL + e, XL + G.POST, 0.375)
@@ -320,10 +351,22 @@ def mono_ladder(WX, WY):
         gb(ST, a0, a1, b0, b1, z0, z1)
     for b_ in G.BAL_LAGS:
         nut(2, b_, z0 + 1.5, "a")
-    r2, c_ = G.POST / math.sqrt(2), XL - 1.5
-    for b in (G.B_BH, G.BAL_N - 1):                      # round 5: a second brace under the head beam (Maxwell 11/23/2026), clear of the treads
-        hexa(ST, [P(a, bb, z) for bb in (b - 1 + e, b + 1 - 2 * e) for a, z in ((c_ + r2, z0 - e), (c_ - r2, z0 - e), (0.05, z0 - c_ + r2), (0.05, z0 - c_ - r2))])
-        bolt(c_ - 2.2, b + 1 - 2 * e, z0 - 2.2, "b"); nut(1.6, b + 1 - 2 * e, z0 - c_ + 1.6, "b")
+    r2, c_, zb_ = G.POST / math.sqrt(2), G.A_BR, G.KB_BOT
+    for nm_, b, sd in G.knee_frames():                   # round 7: each brace closes a triangle with a post down the wall, a gusset at every joint
+        hexa(ST, [P(a, bb, z) for bb in (b - 1 + e, b + 1 - 2 * e) for a, z in ((c_ + r2, z0 - e), (c_ - r2, z0 - e), (2.0 + e, zb_ + r2), (2.0 + e, zb_ - r2))])
+        pa0, pa1, pz0, pz1 = G.KB_POST
+        gb(ST, pa0 + 0.05, pa1, b - 1, b + 1, pz0, pz1 - e)
+        gb0, gb1 = (b + 1 + e, b + 1 + BT) if sd > 0 else (b - 1 - BT, b - 1 - e)
+        fo_, fi_ = (gb1, b - 1) if sd > 0 else (gb0, b + 1)
+        for j_ in ("top", "foot", "corner"):
+            g_ = G.gusset(j_)
+            for i_ in range(1, len(g_) - 1, 2):
+                q_ = [g_[0], g_[i_], g_[i_ + 1], g_[min(i_ + 2, len(g_) - 1)]]
+                hexa(ST, [P(a, gb0, z) for a, z in q_] + [P(a, gb1, z) for a, z in q_])
+            for a_, z_ in G.KG[j_]:
+                bolt(a_, fo_, z_, "b", sd); nut(a_, fi_, z_, "b", -sd)
+        for z_ in G.KB_LAGS:
+            nut(pa1, b, z_, "a")
     # the free posts stand outside the frame and stop under the rail; an L shaped plate bolts each to the end beam and 3 1/2 in up the post
     PN = (G.BAL_N + 0.375 + e, G.BAL_N + 0.375 + G.POST)
     post(XL + e, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, z0)
