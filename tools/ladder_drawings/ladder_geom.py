@@ -49,7 +49,7 @@ def seat_lags(uk):
     """u of the lags up through each bracket seat (two with the strips, three spread along the longer seat without)"""
     if STRIPS:
         return (uk + 6.5, uk + 8.0)
-    u0, u1 = uk + SEAT_S + 0.75, uk + TD + RT - 0.75
+    u0, u1 = uk + SEAT_S + 0.75, uk + SEAT_E - 0.75   # round 10: the seat stops where the web's riser corner starts to round
     return (u0, (u0 + u1) / 2, u1)          # seat tab starts 1 in behind the flange fold, so the two bends are not on top of each other
 FLANGE_BOLT = 1.0                                 # the one flange bolt, this far below the tread
 STRIP_TAB = 1.4                                   # screw tabs at the strip ends: this far in from each end, to the screw; they fold toward the back of the tread (Maxwell 11/23/2026)
@@ -172,7 +172,8 @@ WEB_R_FRONT, WEB_R_BACK = 0.4, 1.0                 # and its other two corners o
 
 WEB_EDGE = 1.0                                     # round 7: web edge this far round each stringer bolt (2.3 bolt diameters)
 WEB_DROP = 1.0                                     # and its front edge runs this far below the flange's foot before it rounds away
-WEB_R_DROP = 0.5
+WEB_R_DROP = 2.0                                   # round 10 (Maxwell 11/24/2026): the front edge's bottom corner and the
+WEB_R_RISER = WEB_EDGE                             # corner by the riser rounded to the bolt margin radius
 
 
 def _hull(pts):
@@ -221,10 +222,13 @@ def bracket_web(f, k):
         if h[1] != F:
             h = [h[0]] + h[1:][::-1]
         assert h[1] == F and h[-1] == B, "bracket web hull"
-        return [A] + _fillet(h[0:3], 1, WEB_R_DROP) + h[2:]
+        return [A] + _fillet(h[0:3], 1, WEB_R_DROP, cap=0.6) + h[2:-1] + _fillet([h[-2], B, A], 1, WEB_R_RISER, cap=0.6)
     mid = _sweep(raw, 2, *WEB_SWEEP)
     pts = [A] + _fillet([A, C, mid[0]], 1, WEB_R_FRONT) + mid + _fillet([mid[-1], E, B], 1, WEB_R_BACK) + [B]
     return pts
+
+
+SEAT_E = (bracket_web(UPPER, 2)[-1][0] - UPPER.uk(2)) if MONO else TD + RT   # round 10: seat tab's back end, where the rounded riser corner starts
 
 
 STRIP_R = 1.5                                      # round 7: the tread strips' bottom end corners rounded this much (Maxwell 11/24/2026)
@@ -270,28 +274,79 @@ A_BR = XL - 4.5 if MONO else 17.0                 # knee brace: where it meets t
 BRACE = A_BR - 1.0 if MONO else 16.0              # its rise, to the wall post's centreline
 
 
-# round 8 floor shoe (Maxwell 11/24/2026): the lower stringer's level foot stands on a 1/4 in base plate, a simple cover like the upper
-# saddle. Two cheeks fold up from its long edges outside the first tread's bracket webs and share that bracket's lower bolt (cheek, web,
-# tube, web, cheek). A tab runs past each end of the foot with one 3/8 slab anchor on the centreline. This frees the first tread for a
-# standard bracket.
-SHOE_TAB = 2.25                                    # tab past each end of the tube's foot
-SHOE_HW = TW / 2 + WEB_T + BRKT_T                  # half width over the cheeks (outside the bracket webs)
-SHOE_EDGE = 1.0                                    # cheek edge round its bolt, like the webs
+# round 8 floor shoe (Maxwell 11/24/2026): the lower stringer's level foot stands on a 1/4 in base plate.
+# Round 10 (Maxwell 11/24/2026): the shoe no longer shares the first bracket's bolt. Its west end bends up into a WALL that lies flat on the
+# tube's sloped top face, so the foot sits in a pocket and cannot slide west (the way the stringer's thrust pushes it). One through bolt of
+# its own goes square through the wall and the tube (crush sleeve inside), nut on the tube's underside. Two anchors in wings beside the
+# tube at the west end, one on the centreline in a tab past the east end. The side cheeks are gone.
+SHOE_TAB = 2.25                                    # tab past the east end of the tube's foot
+SHOE_WALL = 4.5                                    # wall length up the tube's top face from the foot's toe
+SHOE_BOLT_S = 3.6                                  # wall bolt this far up the face (clears bracket 1's lower bolt by about 1 in; nut end clears the base)
+SHOE_ANC_V = 3.0                                   # west anchors this far each side of the centreline, outside the bracket webs
+SHOE_HW = SHOE_ANC_V + 0.85                        # base half width over the wings
+SHOE_R = 0.6                                       # free corners rounded
 
 
-def shoe_cheek():
-    """the floor shoe cheek outline in the lower flight's (u, z): the hull of the base along the tube's foot and a circle round the first
-    bracket's lower bolt"""
+def shoe_base():
+    """floor shoe base outline (u, v) in the lower flight: bend line across the tube's width at the toe (u0), wings round the west anchors,
+    a tapered tab round the east anchor"""
     f = LOWER
-    bu, bz = bracket_bolts(f, 1)[0]
-    cl = [(bu + SHOE_EDGE * math.cos(2 * math.pi * j / 48), bz + SHOE_EDGE * math.sin(2 * math.pi * j / 48)) for j in range(48)]
-    return _hull([(f.u0, f.zf), (f.u1, f.zf)] + cl)
+    ue = f.u1 + SHOE_TAB
+    circ = lambda cu, cv, r: [(cu + r * math.cos(2 * math.pi * j / 48), cv + r * math.sin(2 * math.pi * j / 48)) for j in range(48)]
+    pts = [(f.u0, VC - TW / 2), (f.u0, VC + TW / 2)]
+    for sg in (-1, 1):
+        pts += circ(f.u0 + 1.0, VC + sg * SHOE_ANC_V, 0.85) + circ(ue - SHOE_R, VC + sg * (TW / 2 - SHOE_R), SHOE_R)
+    return _hull(pts)
+
+
+def shoe_wall():
+    """the wall's outline (s, w): s up the tube's top face from the toe, w across it from the centreline; top corners rounded"""
+    p = [(0.0, -TW / 2), (SHOE_WALL, -TW / 2), (SHOE_WALL, TW / 2), (0.0, TW / 2)]
+    return [p[0]] + _fillet(p, 1, SHOE_R) + _fillet(p, 2, SHOE_R) + [p[3]]
+
+
+def shoe_wall_uz(s):
+    """(u, z) of the point s up the tube's top face from the foot's toe"""
+    f = LOWER
+    return (f.u0 + s * math.cos(ANG), f.zf + s * math.sin(ANG))
 
 
 def shoe_anchors():
-    """the two slab anchors, (u, v) in the lower flight"""
+    """the three slab anchors, (u, v) in the lower flight"""
     f = LOWER
-    return [(f.u0 - SHOE_TAB / 2, VC), (f.u1 + SHOE_TAB / 2, VC)]
+    return [(f.u0 + 1.0, VC - SHOE_ANC_V), (f.u0 + 1.0, VC + SHOE_ANC_V), (f.u1 + SHOE_TAB / 2, VC)]
+
+# round 10 standard post base (Maxwell 11/24/2026: one standard base everywhere, standard parts wherever possible, no welding): every slab
+# post (foot post, corner newel, upper stringer post) stands on the slab between two clip angles cut from standard L 4 x 4 x 3/8 angle,
+# 8 in long, all the same part with the same holes. Each angle's upright leg takes two 3/8 through bolts that cross the post (crush sleeve
+# inside), and its flat leg two 3/8 slab anchors. The posts sit straight on the slab: no plate under them and no square hole.
+BA_LEG, BA_T, BA_L = 4.0, 0.375, 8.0
+BA_BOLT_Z = (1.25, 3.25)                           # through bolts up the upright leg, on the post's centreline (3/8 grade 5: double shear)
+BA_ANC = (-3.0, 3.0)                               # anchors along the angle from its middle
+BA_ANC_OUT = 2.25                                  # and this far out from the upright leg's back face
+
+
+def base_angles(a0, a1, b0, b1, axis):
+    """the two clip angles at a post's foot: axis 'a' puts them on the post's two a faces (flat legs pointing along a), 'b' on its b faces.
+    Returns [(upright box, flat box, through bolt points [(a, b, z)], anchor points [(a, b)], outward sign)], boxes as (a0, a1, b0, b1, z0, z1)"""
+    out = []
+    ac, bc = (a0 + a1) / 2, (b0 + b1) / 2
+    for sg in (-1, 1):
+        if axis == "a":
+            fa = a1 if sg > 0 else a0
+            up = tuple(sorted((fa, fa + sg * BA_T))) + (bc - BA_L / 2, bc + BA_L / 2, 0.0, BA_LEG)
+            fl = tuple(sorted((fa, fa + sg * BA_LEG))) + (bc - BA_L / 2, bc + BA_L / 2, 0.0, BA_T)
+            bolts = [(fa + sg * BA_T, bc, z) for z in BA_BOLT_Z]
+            anc = [(fa + sg * BA_ANC_OUT, bc + d) for d in BA_ANC]
+        else:
+            fb = b1 if sg > 0 else b0
+            up = (ac - BA_L / 2, ac + BA_L / 2) + tuple(sorted((fb, fb + sg * BA_T))) + (0.0, BA_LEG)
+            fl = (ac - BA_L / 2, ac + BA_L / 2) + tuple(sorted((fb, fb + sg * BA_LEG))) + (0.0, BA_T)
+            bolts = [(ac, fb + sg * BA_T, z) for z in BA_BOLT_Z]
+            anc = [(ac + d, fb + sg * BA_ANC_OUT) for d in BA_ANC]
+        out.append((up, fl, bolts, anc, sg))
+    return out
+
 
 # round 7 knee frames (Maxwell 11/24/2026): each 45 degree brace closes a full triangle with a 2 x 2 post down the bath 1 wall from the
 # balcony ledger, so the brace no longer leans on its bite into the wall. One 1/4 in gusset plate per joint (brace top to the beam,
@@ -301,13 +356,21 @@ KB_BOT = KB_ZU - (A_BR - 2.0)                      # brace centreline where it m
 KB_POST = (0.0, 2.0, KB_BOT - POST / math.sqrt(2) - 2.0, KB_ZU)    # wall post: a0, a1, z0, z1
 KB_M = 0.9                                         # gusset edge round each bolt
 KG = dict(top=[(A_BR - 2.5, KB_ZU + 1.5), (A_BR + 1.5, KB_ZU + 1.5), (A_BR - 3.0, KB_ZU - 3.0)],
-          foot=[(1.0, KB_BOT + 2.5), (1.0, KB_BOT - 2.5), (5.0, KB_BOT + 3.0)],
+          foot=[(1.0, KB_BOT + 2.5), (1.0, KB_BOT - 1.0), (4.25, KB_BOT + 2.25)],   # round 10: the lower post bolt up, the brace bolt on its centreline
           corner=[(1.0, KB_ZU - 2.5), (4.75, KB_ZU + 1.5)])
 KB_LAGS = (KB_BOT + 6.0, KB_ZU - 5.0)            # two lags through each post into the wall framing
 
 
+KB_MITER = KB_BOT - POST / math.sqrt(2) - 2.0      # round 10 (Maxwell 11/24/2026): the post's foot is cut at 45 degrees, flush with the brace's
+                                                  # underside, along the line z = KB_MITER + a; the foot gusset is a triangle on the same line
+
+
 def gusset(joint):
-    """knee frame gusset outline (a, z): the smooth hull of a KB_M margin round its bolts"""
+    """knee frame gusset outline (a, z): the smooth hull of a KB_M margin round its bolts. Round 10: the foot gusset is a triangle, its
+    lower edge on the post's 45 degree foot cut and the brace's underside, its back edge on the wall face of the post, corners rounded"""
+    if joint == "foot":
+        p = [(0.0, KB_MITER), (7.0, KB_MITER + 7.0), (0.0, KB_BOT + 4.25)]
+        return _fillet(p, 0, 0.6, cap=0.3) + _fillet(p, 1, 0.75, cap=0.3) + _fillet(p, 2, 0.75, cap=0.3)
     pts = [(a + KB_M * math.cos(2 * math.pi * j / 48), z + KB_M * math.sin(2 * math.pi * j / 48)) for a, z in KG[joint] for j in range(48)]
     return _hull(pts)
 
@@ -345,13 +408,24 @@ if MONO:
     _cu = [SAD_U0 + i * (CHEEK_U1 - SAD_U0) / 34 for i in range(35)]
     _wb = [web_bottom(UPPER, 1, u) for u in _cu]
     assert min(z for z in _wb if z is not None) - SAD_GAP >= Z_SEAT + CHEEK_H, "first upper bracket web hits the saddle cheek"
-    CHEEK = [(SAD_U0, Z_SEAT - BRKT_T), (SAD_U0, Z_SEAT + CHEEK_H), (CHEEK_U1, Z_SEAT + CHEEK_H), (CHEEK_U1, Z_SEAT - BRKT_T)]
+    SAD_R = 0.6                                       # round 10 (Maxwell 11/24/2026): the saddle's free corners rounded
+    _ck = [(SAD_U0, Z_SEAT - BRKT_T), (SAD_U0, Z_SEAT + CHEEK_H), (CHEEK_U1, Z_SEAT + CHEEK_H), (CHEEK_U1, Z_SEAT - BRKT_T)]
+    CHEEK = _ck[:2] + _fillet(_ck, 2, SAD_R) + _fillet(_ck, 3, SAD_R)
     SAD_BOLT = (SAD_U1 - 0.15, Z_SEAT + 0.85)         # cheek bolt toward the back, where the cheek is taller
-    TAB_Z = (Z_SEAT + 0.2, ZP - TTD - 0.1)             # foot tab against the landing north beam's north face, under the oak; starts above the
-                                                      # cheek's bend so it folds off flat cheek (flat pattern: 0.26 in clear of the bend line)
+    TAB_Z = (Z_SEAT + 0.2, Z_SEAT + CHEEK_H)          # foot tab against the landing north beam's north face (north of the oak riser lip); starts above
+                                                      # the cheek's bend so it folds off flat cheek (flat pattern: 0.26 in clear of the bend line).
+                                                      # Round 10: its top runs up to the cheek's top so the tab is as tall as the cheek (it stood
+                                                      # 0.6 in lower before for no good reason, Maxwell 11/24/2026)
     TAB_W = 2.0                                       # tab reaches this far out from the cheek
-    TAB_BOLT_Z = (TAB_Z[0] + TAB_Z[1]) / 2
+    TAB_BOLT_Z = Z_SEAT + 0.79                        # bolt stays where it was: 0.68 in below the beam's top
+    def tab_outline():
+        """saddle tab outline (w, z): w out from the cheek's outer face, its two outer corners rounded"""
+        p = [(0.0, TAB_Z[0]), (TAB_W, TAB_Z[0]), (TAB_W, TAB_Z[1]), (0.0, TAB_Z[1])]
+        return [p[0]] + _fillet(p, 1, SAD_R) + _fillet(p, 2, SAD_R) + [p[3]]
     SAD_LEG = 3.5                                     # legs down the post faces, one through bolt 2 in down
+    POST_BASES = dict(foot_post=((A_FOOT - 1, A_FOOT + 1, XL, XL + POST), "a"),          # round 10: which faces take the clip angles
+                      corner_newel=((XL, XL + POST, XL, XL + POST), "b"),
+                      upper_stringer_post=(UP_POST, "a"))
 
 
 

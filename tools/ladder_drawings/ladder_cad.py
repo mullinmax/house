@@ -47,6 +47,24 @@ def vprism(f, vz, u0, u1):
     return cq.Solid.extrudeLinear(cq.Face.makeFromWires(w), W(*f.p(u1, 0, 0)) - W(*f.p(u0, 0, 0)))
 
 
+def base_angles(post):
+    """round 10: the standard post base, two L 4 x 4 x 3/8 clip angles, each with two through bolts across the post and two slab anchors"""
+    rect, axis = G.POST_BASES[post]
+    for i, (up, fl, bolts, anc, sg) in enumerate(G.base_angles(*rect, axis)):
+        side = ("west" if sg > 0 else "east") if axis == "a" else ("north" if sg > 0 else "south")
+        add("posts", f"{post}_base_angle_{side}", box(*up).fuse(box(*fl)))
+        for a_, b_, z_ in bolts:
+            (bolt if sg > 0 else nut)(a_, b_, z_, axis, sg)
+        for a_, b_ in anc:
+            nut(a_, b_, G.BA_T, "z")
+
+
+def zprism(f, uv, z0, z1):
+    """polygon in a flight's plan (u, v), from z0 up to z1"""
+    w = cq.Wire.makePolygon([W(*f.p(u, v, z0)) for u, v in uv], close=True)
+    return cq.Solid.extrudeLinear(cq.Face.makeFromWires(w), cq.Vector(0, 0, z1 - z0))
+
+
 def aprism(az, b0, b1):
     """polygon in the (a, z) plane, from b0 to b1"""
     w = cq.Wire.makePolygon([W(a, b0, z) for a, z in az], close=True)
@@ -93,6 +111,23 @@ def bolt(a, b, z, axis, sign=1, d=0.66, h=0.21, kind="socket"):
 
 def nut(a, b, z, axis, sign=1, **kw):
     bolt(a, b, z, axis, sign, kind="hex", **kw)
+
+
+def fboltn(f, u, v, z, d_uz, d=0.66, h=0.21, kind="socket"):
+    """a head on the flight point (u, v, z) pointing along the (u, z) direction d_uz (round 10: the floor shoe's sloped bolt)"""
+    o = W(*f.p(u, v, z))
+    dv = W(*f.p(u + d_uz[0], v, z + d_uz[1])) - o
+    dv = dv * (1.0 / dv.Length)
+    if kind == "socket":
+        FAST.append(cq.Solid.makeCylinder(d / 2, h, o, dv))
+        return
+    d, h = 0.65, 0.33
+    e1 = W(*f.p(u, v + 1, z)) - o
+    e1 = e1 * (1.0 / e1.Length)
+    e2 = dv.cross(e1)
+    r = d / math.sqrt(3)
+    pts = [o + e1 * (r * math.cos(math.pi / 3 * i)) + e2 * (r * math.sin(math.pi / 3 * i)) for i in range(6)]
+    FAST.append(cq.Solid.extrudeLinear(cq.Face.makeFromWires(cq.Wire.makePolygon(pts, close=True)), dv * h))
 
 
 def fbolt(f, u, v, z, axis, sign=1, **kw):
@@ -196,7 +231,7 @@ for f in G.FLIGHTS:
             sg_ = 1 if vs[0] == vw[0] else -1                                  # outward from the tube
             ft_ = tuple(sorted((vs[0] if sg_ > 0 else vs[1], (vs[0] if sg_ > 0 else vs[1]) + sg_ * G.FOOT_W))) if G.MONO else vs
             us0 = uk + G.SEAT_S if G.MONO else uk + 1
-            br = prism(f, web, *vw).fuse(prism(f, [(us0, zk - G.WEB_T), (uk + G.TD + G.RT, zk - G.WEB_T), (uk + G.TD + G.RT, zk), (us0, zk)], *vs))
+            br = prism(f, web, *vw).fuse(prism(f, [(us0, zk - G.WEB_T), (uk + G.SEAT_E, zk - G.WEB_T), (uk + G.SEAT_E, zk), (us0, zk)], *vs))
             if G.MONO and G.STRIPS:                                            # flange folded off the web's vertical front edge, one bolt into the strip
                 fo_ = vw[1] if sg_ > 0 else vw[0]
                 br = br.fuse(prism(f, [(A[0], zk - G.ARM_D), (A[0] + BT, zk - G.ARM_D), (A[0] + BT, zk), (A[0], zk)], *sorted((fo_ - sg_ * BT, fo_ + sg_ * G.ARM_FL))))
@@ -230,9 +265,8 @@ for f in G.FLIGHTS:
                 ub_ = A[0] + s_ * math.cos(G.ANG) + nx * G.BOLT_N
                 zb_ = f.zl(A[0]) + s_ * math.sin(G.ANG) + nz * G.BOLT_N
                 if zb_ > zc_ + 0.5 or not foot:
-                    sh_ = BT if (G.MONO and f is G.LOWER and k == 1 and s_ == 4.25) else 0.0   # round 8: the floor shoe's cheeks share this bolt
                     sgv = 1 if vs[0] == vw[0] else -1
-                    (fbolt if side == "open" else fnut)(f, ub_, (vw[1] if sgv > 0 else vw[0]) + sgv * sh_, zb_, "v", sgv)
+                    (fbolt if side == "open" else fnut)(f, ub_, vw[1] if sgv > 0 else vw[0], zb_, "v", sgv)
             for ub_ in G.seat_lags(uk):                                         # screws (no strip option: bigger lags) up through each seat into the tread
                 fbolt(f, ub_, (vs[0] + vs[1]) / 2 + (G.SEAT_LAG_V if vs[0] == vw[0] else -G.SEAT_LAG_V), zk - G.WEB_T, "z", -1, d=0.5 if G.STRIPS else 0.56, h=0.15 if G.STRIPS else 0.22)
         sgn = 1 if vs[0] == vw[0] else -1                                      # head angles, 3 x 3 x 1/4, 4 in long (the feet are held by the first tread brackets)
@@ -261,30 +295,31 @@ for f in G.FLIGHTS:
                 .fuse(prism(f, [(ub - BT, hc["beam"][0]), (ub, hc["beam"][0]), (ub, hc["beam"][1]), (ub - BT, hc["beam"][1])], *sorted((vt, vt + sg * 2.25)))))
             (fbolt if sg < 0 else fnut)(f, *hc["tube_bolt"][:1], vt + sg * BT, hc["tube_bolt"][1], "v", sg)   # one through bolt across the tube, crush sleeve inside
             fbolt(f, ub - BT, vt + sg * 1.3, hc["beam_bolt_z"], "u", -1); fnut(f, ub + G.FW, vt + sg * 1.3, hc["beam_bolt_z"], "u", 1)
-    if G.MONO and f is G.LOWER:                                                # round 8: floor shoe under the lower stringer's level foot
-        u0_, u1_ = f.u0 - G.SHOE_TAB, f.u1 + G.SHOE_TAB
-        shoe = prism(f, [(u0_, 0.0), (u1_, 0.0), (u1_, BT), (u0_, BT)], VC - G.SHOE_HW, VC + G.SHOE_HW)
-        for sg in (-1, 1):
-            shoe = shoe.fuse(prism(f, G.shoe_cheek(), *sorted((VC + sg * (G.TW / 2 + G.WEB_T), VC + sg * G.SHOE_HW))))
+    if G.MONO and f is G.LOWER:                                                # round 10: floor shoe, a pocket: base plate and a wall up the tube's top face
+        nu_, nz_ = math.sin(G.ANG), -math.cos(G.ANG)                           # into the tube, square to its top face
+        shoe = zprism(f, G.shoe_base(), 0.0, BT)
+        wall_ = [G.shoe_wall_uz(s_) + (VC + w_,) for s_, w_ in G.shoe_wall()]
+        wire_ = cq.Wire.makePolygon([W(*f.p(u_, v_, z_)) for u_, z_, v_ in wall_], close=True)
+        shoe = shoe.fuse(cq.Solid.extrudeLinear(cq.Face.makeFromWires(wire_), W(*f.p(-BT * nu_, 0, -BT * nz_)) - W(*f.p(0, 0, 0))))
+        shoe = shoe.fuse(prism(f, [(f.u0 - BT * nu_, 0.0), (f.u0, 0.0), (f.u0, f.zf), (f.u0 - BT * nu_, f.zf - BT * nz_)], VC - G.TW / 2, VC + G.TW / 2))   # the bend
         add(g, "lower_floor_shoe", shoe)
         for ua_, va_ in G.shoe_anchors():
             fnut(f, ua_, va_, BT, "z")
+        ub_, zb_ = G.shoe_wall_uz(G.SHOE_BOLT_S)                              # its own through bolt: head on the wall, nut on the tube's underside
+        fboltn(f, ub_ - BT * nu_, VC, zb_ - BT * nz_, (-nu_, -nz_))
+        fboltn(f, ub_ + G.TW * nu_, VC, zb_ + G.TW * nz_, (nu_, nz_), kind="hex")
     if G.MONO and f is G.UPPER:                                                # round 6: the foot sits level on a saddle on one 3 x 3 post; the saddle's
         zs = G.Z_SEAT                                                          # cheeks bolt through the stringer and its tabs to the landing's north beam
         zpt = zs - BT
         a0p, a1p, b0p, b1p = G.UP_POST
         u0p, u1p = G.SAD_U0, G.SAD_U1
-        add("posts", "upper_stringer_post", tube(a0p, a1p, b0p, b1p, 0.375, zpt, "z", 0.1875))
-        add("posts", "upper_stringer_post_base_plate", box(a0p - 2, a1p + 2, b0p - 2, b1p + 2, 0, 0.375))
-        for a_ in (a0p - 1.2, a1p + 1.2):
-            for b_ in (b0p - 1.2, b1p + 1.2):
-                nut(a_, b_, 0.375, "z")
+        add("posts", "upper_stringer_post", tube(a0p, a1p, b0p, b1p, 0.0, zpt, "z", 0.1875))
+        base_angles("upper_stringer_post")
         sad = prism(f, [(u0p, zpt), (u1p, zpt), (u1p, zs), (u0p, zs)], VC - G.TW / 2 - BT, VC + G.TW / 2 + BT)
         for sg in (-1, 1):
             vt = VC + sg * G.TW / 2
             sad = sad.fuse(prism(f, G.CHEEK, *sorted((vt, vt + sg * BT))))                     # cheek up the stringer side, under the first bracket
-            sad = sad.fuse(prism(f, [(u0p, G.TAB_Z[0]), (u0p + BT, G.TAB_Z[0]), (u0p + BT, G.TAB_Z[1]), (u0p, G.TAB_Z[1])],
-                                 *sorted((vt + sg * BT, vt + sg * (BT + G.TAB_W)))))               # tab onto the landing's north beam
+            sad = sad.fuse(vprism(f, [(vt + sg * (BT + w_), z_) for w_, z_ in G.tab_outline()], u0p, u0p + BT))   # tab onto the landing's north beam (round 10: full height, rounded)
             fbolt(f, u0p + BT, vt + sg * (BT + 1.05), G.TAB_BOLT_Z, "u", 1); fnut(f, u0p - G.LN_W, vt + sg * (BT + 1.05), G.TAB_BOLT_Z, "u", -1)
         for u0_ in (u0p, u1p - BT):                                            # legs down the post's south and north faces
             sad = sad.fuse(prism(f, [(u0_, zpt - G.SAD_LEG), (u0_ + BT, zpt - G.SAD_LEG), (u0_ + BT, zpt + 0.01), (u0_, zpt + 0.01)], VC - 1.5, VC + 1.5))
@@ -317,10 +352,7 @@ for f in G.FLIGHTS:
         post = post.cut(prism(f, [(u_a + T, -1), (u_b - T, -1), (u_b - T, 200), (u_a + T, 200)], -G.POST + T, -T))
         add("posts", "foot_post", post)
         if G.MONO:
-            for du in (-2.3, 2.3):
-                for v_ in (-G.POST - 1.3, 1.3):
-                    fnut(f, G.FOOT_U + du, v_, 0.375, "z")
-            add("posts", "foot_post_base_plate", prism(f, [(G.FOOT_U - 3, 0), (G.FOOT_U + 3, 0), (G.FOOT_U + 3, 0.375), (G.FOOT_U - 3, 0.375)], -G.POST - 2, 2).cut(prism(f, [(u_a, -1), (u_b, -1), (u_b, 1), (u_a, 1)], -G.POST, 0.0)))
+            base_angles("foot_post")
     else:
         if not G.CONT_RAIL:
             add("rails", "upper_rail_open", slope_tube(f, G.POST + G.XL - G.B0, G.BAL_S - G.B0, ztop, RD2, -1.75, -0.25, G.RAIL_T))
@@ -364,12 +396,9 @@ for nm, (a0_, a1_, b0_, b1_) in G.LAND_POSTS.items():
             nut(a1_, (b0_ + b1_) / 2, z_, "a")
 deck = box(0, XL, 0, G.LAND_DECK_N, ZP - TT, ZP)
 add("landing", "landing_deck", deck.fuse(box(XL, XL + G.NOSE, G.GAP, XL, ZP - TT, ZP)) if G.NOSE else deck, OAK, "oak")
-add("posts", "corner_newel", post_box(XL, XL + G.POST, XL, XL + G.POST, 0.375) if G.CONT_RAIL else tube(XL, XL + G.POST, XL, XL + G.POST, 0.375 if G.MONO else 0, G.NEWEL_TOP, "z", G.POST_T))
-if G.MONO:                                         # bolted floor flange under the corner newel: four anchors into the slab
-    add("posts", "corner_newel_base_plate", box(XL - 2, XL + G.POST + 2, XL - 2, XL + G.POST + 2, 0, 0.375))
-    for a_ in (XL - 1.3, XL + G.POST + 1.3):
-        for b_ in (XL - 1.3, XL + G.POST + 1.3):
-            nut(a_, b_, 0.375, "z")
+add("posts", "corner_newel", post_box(XL, XL + G.POST, XL, XL + G.POST, 0.0) if G.CONT_RAIL else tube(XL, XL + G.POST, XL, XL + G.POST, 0.0, G.NEWEL_TOP, "z", G.POST_T))
+if G.MONO:                                         # round 10: the standard clip angle base
+    base_angles("corner_newel")
 for z_ in (ZP - TK + 0.8, ZP - TT - 0.8):          # corner newel lapped onto the landing's west beam
     bolt(XL + G.POST, XL + 1, z_, "a")
     nut(XL - 2, XL + 1, z_, "a", -1)
@@ -391,7 +420,8 @@ for nm, b, sd in (G.knee_frames() if G.MONO else ()):         # round 7: each br
     c_, zb_ = G.A_BR, G.KB_BOT
     add("balcony", f"knee_brace_{nm}", aprism([(c_ + r2, zu), (c_ - r2, zu), (2.0, zb_ + r2), (2.0, zb_ - r2)], b - 1, b + 1))
     pa0, pa1, pz0, pz1 = G.KB_POST
-    add("balcony", f"knee_post_{nm}", tube(pa0, pa1, b - 1, b + 1, pz0, pz1, "z", G.POST_T))
+    add("balcony", f"knee_post_{nm}", tube(pa0, pa1, b - 1, b + 1, pz0, pz1, "z", G.POST_T)
+        .cut(aprism([(pa0 - 0.1, G.KB_MITER - 0.1), (pa1 + 0.1, G.KB_MITER + pa1 - pa0 + 0.1), (pa1 + 0.1, pz0 - 1), (pa0 - 0.1, pz0 - 1)], b - 1.5, b + 1.5)))   # round 10: 45 degree foot, flush with the brace
     gb0, gb1 = (b + 1, b + 1 + BT) if sd > 0 else (b - 1 - BT, b - 1)
     fo_, fi_ = (gb1, b - 1) if sd > 0 else (gb0, b + 1)                   # gusset's open face, the tube's far face
     for j_ in ("top", "foot", "corner"):

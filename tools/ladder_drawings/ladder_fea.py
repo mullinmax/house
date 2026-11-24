@@ -130,7 +130,7 @@ if G.MONO:
                 M(f"{fn}tread{k}w", e["sw"], e["w"], "TREAD")
                 TREADS[(fn, k)] = dict(o=e["o"], w=e["w"], mid=pt, members=(f"{fn}tread{k}o", f"{fn}bseat{k}o", f"{fn}bseat{k}w", f"{fn}tread{k}w"))
     for i in (0, 1):
-        S(LO.ends["foot"][i], what="lower stringer floor shoe (base plate bearing and its 2 anchors)")
+        S(LO.ends["foot"][i], what="lower stringer floor shoe (base plate bearing, its wall and 3 anchors)")
 else:
   for f in G.FLIGHTS:
     fn = f.name[0].upper()
@@ -502,6 +502,8 @@ for n, what in SUP.items():
     res["reactions"].setdefault(what, [])
     res["reactions"][what].append(dict(north=round(env[0]), up=round(env[1]), east=round(env[2]), total=round(math.hypot(*env[:3])), case=env[3], dead_up=round(nd.RxnFY["D"])))
 # total dead weight, and a frequency estimate from the self weight plus one 170 lb person at mid flight
+res["knee_post_top"] = {n: dict(tension_lb=round(max(m.members[n].max_axial("D+" + c) for c in CASES)), compression_lb=round(-min(m.members[n].min_axial("D+" + c) for c in CASES)))
+                        for n in MEM if n.endswith("_post_top")}   # round 10: what the corner gusset (post top to the ledger) carries
 res["dead_weight"] = round(sum(m.nodes[n].RxnFY["D"] for n in SUP))
 d_p = abs(m.nodes[N(*TREADS[("U", 4)]["mid"])].DY["T_up4"]) * 170 / 300 + abs(m.nodes[N(*TREADS[("U", 4)]["mid"])].DY["D"])
 res["freq_hz"] = round(0.18 * math.sqrt(386.4 / d_p), 1)
