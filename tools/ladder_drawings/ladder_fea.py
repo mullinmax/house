@@ -211,7 +211,7 @@ else:
 
 # posts and rails
 PC = G.PC
-if G.MONO:
+if G.CONT_RAIL:
     # Round 3: ONE continuous rail from the lower flight's foot to the bath 1 wall, a chain of nodes along its centreline; every post's top
     # is tied to it (the post stops just under the rail, a bolted saddle joins them)
     PS = G.POST_S
@@ -300,10 +300,10 @@ else:
     M("rail_upper", nw[4], gs[2], "RAIL", "ij")
     # balcony guard
     zg = G.G_TOP - 0.75
-    if G.MONO:                                          # the north west post mirrors the south west one: outside the west beam, on its own L plate
-        corner = (PC, BN1, zg)
-        M("gnw_BN", (PC, BN1, ZB), (XW, BN1, ZB), "RIGID")
-        M("gnw", (PC, BN1, ZB), corner, "POST")
+    if G.MONO:                                          # the north west post: outside the west beam, north of its own L plate (round 3)
+        corner = (PC, G.GP_B, zg)
+        M("gnw_BN", (PC, G.GP_B, ZB), (XW, BN1, ZB), "RIGID")
+        M("gnw", (PC, G.GP_B, ZB), corner, "POST")
     else:
         corner = (PC, G.GP_B, zg)
         M("gnw_BN", (XW, G.GP_B, ZB), (XW, BN1, ZB), "RIGID")

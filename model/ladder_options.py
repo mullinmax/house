@@ -269,9 +269,19 @@ def mono_ladder(WX, WY):
     ur = G.TD - G.GO
     gh(OAK, G.UPPER, [(ur + e, ZP - TT), (ur + G.RT, ZP - TT), (ur + G.RT, ZP + G.RH), (ur + e, ZP + G.RH)], 0.05 + e, G.WN - 0.05 - e)
     # one continuous open side rail, lower flight to the bath 1 wall, every post tucked under it (Maxwell 11/22/2026 round 3)
-    fr = G.rail_frames()
-    for (p0, p1, zt0, zb0), (q0, q1, zt1, zb1) in zip(fr, fr[1:]):
-        hexa(ST, [P(*p0, zb0), P(*p1, zb0), P(*p1, zt0), P(*p0, zt0), P(*q0, zb1), P(*q1, zb1), P(*q1, zt1), P(*q0, zt1)])
+    if G.CONT_RAIL:
+        fr = G.rail_frames()
+        for (p0, p1, zt0, zb0), (q0, q1, zt1, zb1) in zip(fr, fr[1:]):
+            hexa(ST, [P(*p0, zb0), P(*p1, zb0), P(*p1, zt0), P(*p0, zt0), P(*q0, zb1), P(*q1, zb1), P(*q1, zt1), P(*q0, zt1)])
+    else:                                                # straight rails between the posts (Maxwell 11/24/2026)
+        for nm_, a0, a1, b0, b1, z0_, z1_, ax in G.straight_rails():
+            dp = G.RAIL / math.cos(G.ANG) if z0_ != z1_ else G.RAIL     # plumb depth of a sloped rail
+            if ax == "a":
+                ends = (((a0, b0), (a0, b1)), ((a1, b0), (a1, b1)))
+            else:
+                ends = (((a0, b0), (a1, b0)), ((a0, b1), (a1, b1)))
+            (p0, p1), (q0, q1) = ends
+            hexa(ST, [P(*p0, z0_ - dp), P(*p1, z0_ - dp), P(*p1, z0_), P(*p0, z0_), P(*q0, z1_ - dp), P(*q1, z1_ - dp), P(*q1, z1_), P(*q0, z1_)])
     # lower flight foot post and the corner newel, each on a base plate with four slab anchors
     fa = G.A_FOOT
     post(fa - 1, fa + 1, XL + e, XL + G.POST, 0.375)

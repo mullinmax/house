@@ -17,6 +17,7 @@ TW, TDp = L.get("ladder_mono_in", [4.0, 4.0]) if MONO else L.get("ladder_tube_in
 WT = 0.25 if MONO else 0.1875                     # nominal stringer wall
 FW, FD = 2.0, 3.0                                 # landing and balcony frame tube, on edge
 FT_L, FT_B = (0.125, 0.1875) if MONO else (0.1875, 0.1875)   # frame tube walls: the corner landing now stands on posts, so its frame is 1/8 wall (Maxwell 11/22/2026: less metal)
+CONT_RAIL = MONO and bool(L.get("ladder_rail_continuous", False))   # round 3's one curved rail; Maxwell 11/24/2026: back to straight rails between posts
 WALL_RAIL = bool(L.get("ladder_wall_rail", True))   # wall side handrails; code wants rails on both sides of a ships ladder, Maxwell asked to hide them for now
 RT, RH = (0.75, 2.0) if MONO else (0.0, 0.0)      # mono: an oak riser lip behind every tread; the 2 in steel strip under the tread above closes the rest (Maxwell 11/22/2026 round 3)
 WEB0, BOLT_N, LAP, SEAT_W = (4.5, 1.5, 3.0, 3.5) if MONO else (3.75, 1.25, 2.25, 2.5)   # tread bracket: web start behind the nosing, bolt line below the tube top, lap, seat width
@@ -219,9 +220,9 @@ def rail_samples(extra=(), step=0.75):
     return sorted(x for x in ss if 0 <= x <= S_END)
 
 
-POST_S = dict(foot=FOOT_U, newel=rail_s(PC, PC), gsw=rail_s(PC, BAL_S + POST / 2), nw=rail_s(PC, GP_B), ne=rail_s(POST / 2, GP_B)) if MONO else {}
-NEWEL_TOP2 = rail_under(PC, PC) if MONO else NEWEL_TOP                  # mono: posts stop under the rail
-GSW_TOP = rail_under(PC, BAL_S + POST / 2) if MONO else GSW_TOP_OLD
+POST_S = dict(foot=FOOT_U, newel=rail_s(PC, PC), gsw=rail_s(PC, BAL_S + POST / 2), nw=rail_s(PC, GP_B), ne=rail_s(POST / 2, GP_B)) if CONT_RAIL else {}
+NEWEL_TOP2 = rail_under(PC, PC) if CONT_RAIL else NEWEL_TOP             # continuous rail: posts stop under the rail
+GSW_TOP = rail_under(PC, BAL_S + POST / 2) if CONT_RAIL else GSW_TOP_OLD
 
 if __name__ == "__main__":
     for f in FLIGHTS:
@@ -235,6 +236,15 @@ if __name__ == "__main__":
 
 def rail_plane(a0, a1, b0, b1, gap=0.12):
     """z(a, b) of the plane a post's top is cut to, just under the rail's underside above the post's centre"""
+    if not CONT_RAIL:                                           # straight rails: the posts' tops (see straight_rails)
+        ac, bc = (a0 + a1) / 2, (b0 + b1) / 2
+        if abs(bc - PC) < 0.1 and ac > XL + POST + 0.5:        # lower flight foot post, under the sloped lower rail
+            return lambda a, b: LOWER.zn(XL + UL - a) + HR - RAIL / math.cos(ANG) - gap
+        if abs(ac - PC) < 0.1 and abs(bc - PC) < 0.1:          # corner newel, above the upper rail
+            return lambda a, b: NEWEL_TOP
+        if abs(bc - (BAL_S + POST / 2)) < 0.1:                 # balcony south west newel, flush with the guard's top rail
+            return lambda a, b: GSW_TOP
+        return lambda a, b: G_TOP - RAIL                        # guard posts, under the level top rails
     s_ = rail_s((a0 + a1) / 2, (b0 + b1) / 2)
     pa, pb = rail_plan(s_)
     qa, qb = rail_plan(min(s_ + 0.05, S_END))
@@ -244,6 +254,21 @@ def rail_plane(a0, a1, b0, b1, gap=0.12):
     ta, tb, m_ = ta / n_, tb / n_, rail_slope(s_)
     z0 = rail_z(s_) - rail_depth(s_) - gap
     return lambda a, b: z0 + m_ * ((a - pa) * ta + (b - pb) * tb)
+
+
+def straight_rails():
+    """straight rails (Maxwell 11/24/2026): (name, a0, a1, b0, b1, z top at the a0 or b0 end, z top at the other end, axis) for 1 1/2 in square tubes.
+    The lower and upper open side rails die into the corner newel's west and north faces, the upper one into the balcony's south west newel;
+    the level guard top rails run over the guard posts."""
+    h = RAIL / 2
+    za = lambda a: LOWER.zn(XL + UL - a) + HR
+    zb = lambda b: UPPER.zn(b - B0) + HR
+    ra = (PC - h, PC + h)
+    rb = (GP_B - h, GP_B + h)
+    return [("lower_rail_open", XL + POST, XL + UL, PC - h, PC + h, za(XL + POST), za(XL + UL), "a"),
+            ("upper_rail_open", *ra, XL + POST, BAL_S, zb(XL + POST), zb(BAL_S), "b"),
+            ("guard_west_top_rail", *ra, BAL_S + POST, rb[1], G_TOP, G_TOP, "b"),
+            ("guard_north_top_rail", 0.0, ra[0], *rb, G_TOP, G_TOP, "a")]
 
 
 def rail_frames():

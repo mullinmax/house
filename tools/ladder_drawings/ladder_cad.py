@@ -301,13 +301,13 @@ for f in G.FLIGHTS:
     RD2 = G.RAIL / math.cos(G.ANG)
     ztop = lambda u, f=f: f.zn(u) + G.HR
     if f is G.LOWER:
-        if not G.MONO:
+        if not G.CONT_RAIL:
             add("rails", "lower_rail_open", slope_tube(f, 0.0, G.UL - G.POST, ztop, RD2, -1.75, -0.25, G.RAIL_T))
         if G.WALL_RAIL:
             add("rails", "lower_rail_wall", slope_tube(f, 0.0, G.UL, ztop, RD2, G.WN + G.GAP - 3.0, G.WN + G.GAP - 1.5, G.RAIL_T))
-        und = (lambda u: ztop(u) - RD2) if not G.MONO else (lambda u: G.rail_under(*f.p(u, -1.0, 0)[:2]) - 0.05)
+        und = (lambda u: ztop(u) - RD2) if not G.CONT_RAIL else (lambda u: G.rail_under(*f.p(u, -1.0, 0)[:2]) - 0.05)
         u_a, u_b = G.FOOT_U - 1, G.FOOT_U + 1
-        post = prism(f, [(u_a, 0), (u_b, 0), (u_b, und(u_b)), (u_a, und(u_a))], -G.POST, 0.0) if not G.MONO else post_box(G.A_FOOT - 1, G.A_FOOT + 1, G.XL, G.XL + G.POST, 0.0)
+        post = prism(f, [(u_a, 0), (u_b, 0), (u_b, und(u_b)), (u_a, und(u_a))], -G.POST, 0.0) if not G.CONT_RAIL else post_box(G.A_FOOT - 1, G.A_FOOT + 1, G.XL, G.XL + G.POST, 0.0)
         post = post.cut(prism(f, [(u_a + T, -1), (u_b - T, -1), (u_b - T, 200), (u_a + T, 200)], -G.POST + T, -T))
         add("posts", "foot_post", post)
         if G.MONO:
@@ -316,7 +316,7 @@ for f in G.FLIGHTS:
                     fnut(f, G.FOOT_U + du, v_, 0.375, "z")
             add("posts", "foot_post_base_plate", prism(f, [(G.FOOT_U - 3, 0), (G.FOOT_U + 3, 0), (G.FOOT_U + 3, 0.375), (G.FOOT_U - 3, 0.375)], -G.POST - 2, 2).cut(prism(f, [(u_a, -1), (u_b, -1), (u_b, 1), (u_a, 1)], -G.POST, 0.0)))
     else:
-        if not G.MONO:
+        if not G.CONT_RAIL:
             add("rails", "upper_rail_open", slope_tube(f, G.POST + G.XL - G.B0, G.BAL_S - G.B0, ztop, RD2, -1.75, -0.25, G.RAIL_T))
         if G.WALL_RAIL:
             add("rails", "upper_rail_wall", slope_tube(f, 0.0, G.UU - G.NOSE, ztop, RD2, G.WN + G.GAP - 3.0, G.WN + G.GAP - 1.5, G.RAIL_T))
@@ -358,7 +358,7 @@ for nm, (a0_, a1_, b0_, b1_) in G.LAND_POSTS.items():
             nut(a1_, (b0_ + b1_) / 2, z_, "a")
 deck = box(0, XL, 0, G.LAND_DECK_N, ZP - TT, ZP)
 add("landing", "landing_deck", deck.fuse(box(XL, XL + G.NOSE, G.GAP, XL, ZP - TT, ZP)) if G.NOSE else deck, OAK, "oak")
-add("posts", "corner_newel", post_box(XL, XL + G.POST, XL, XL + G.POST, 0.375) if G.MONO else tube(XL, XL + G.POST, XL, XL + G.POST, 0, G.NEWEL_TOP, "z"))
+add("posts", "corner_newel", post_box(XL, XL + G.POST, XL, XL + G.POST, 0.375) if G.CONT_RAIL else tube(XL, XL + G.POST, XL, XL + G.POST, 0.375 if G.MONO else 0, G.NEWEL_TOP, "z"))
 if G.MONO:                                         # bolted floor flange under the corner newel: four anchors into the slab
     add("posts", "corner_newel_base_plate", box(XL - 2, XL + G.POST + 2, XL - 2, XL + G.POST + 2, 0, 0.375))
     for a_ in (XL - 1.3, XL + G.POST + 1.3):
@@ -388,8 +388,12 @@ if G.MONO:
     # end beam's outer face and 4 in up the post (Maxwell 11/22/2026: no low tie to the stringer, no kickers).
     # Round 3: every post stops under the one continuous rail, its top cut to the rail's slope. The north posts stand north of the plate line.
     PN = (G.BAL_N + 0.375, G.BAL_N + 0.375 + G.POST)
-    add("posts", "balcony_sw_newel", post_box(XL, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, FL - TK))
-    add("posts", "guard_post_nw", post_box(XL, XL + G.POST, *PN, FL - TK))
+    if G.CONT_RAIL:
+        add("posts", "balcony_sw_newel", post_box(XL, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, FL - TK))
+        add("posts", "guard_post_nw", post_box(XL, XL + G.POST, *PN, FL - TK))
+    else:                                          # straight rails (Maxwell 11/24/2026): flat topped posts, level guard top rails over them
+        add("posts", "balcony_sw_newel", tube(XL, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, FL - TK, G.GSW_TOP, "z"))
+        add("posts", "guard_post_nw", tube(XL, XL + G.POST, *PN, FL - TK, G.G_TOP - G.RAIL, "z"))
     for nm, b0_, b1_, sg in (("sw", G.BAL_S - 0.375, G.BAL_S, -1), ("nw", G.BAL_N, G.BAL_N + 0.375, 1)):
         add("posts", f"post_plate_{nm}", box(XL - 8, XL + G.POST, b0_, b1_, FL - TK, FL - TT).fuse(box(XL, XL + G.POST, b0_, b1_, FL - TT, FL + 3.5)))
         fo_, fi_ = (b1_, b0_ - 2.0) if sg > 0 else (b0_, b1_ + 2.0)        # plate's outer face, far face of the end beam
@@ -402,10 +406,14 @@ if G.MONO:
                 bolt(XL + 1, b0_, z_, "b", -1); nut(XL + 1, po_, z_, "b", 1)
             else:
                 bolt(XL + 1, b0_, z_, "b", -1); nut(XL + 1, po_, z_, "b", 1)
-    add("posts", "guard_post_ne", post_box(0, G.POST, *PN, FL - 13))
+    add("posts", "guard_post_ne", post_box(0, G.POST, *PN, FL - 13) if G.CONT_RAIL else tube(0, G.POST, *PN, FL - 13, G.G_TOP - G.RAIL, "z"))
     for z_ in (FL - 11, FL - 2):
         nut(G.POST, PN[0] + 1, z_, "a")
-    add("rails", "handrail_and_guard_rail", rail_sweep(), mat="rail")
+    if G.CONT_RAIL:
+        add("rails", "handrail_and_guard_rail", rail_sweep(), mat="rail")
+    else:
+        for nm_, a0_, a1_, b0_, b1_, *_ in G.straight_rails()[2:]:       # the two open side rails are added with their flights
+            add("rails", nm_, tube(a0_, a1_, b0_, b1_, G.G_TOP - G.RAIL, G.G_TOP, "a" if "north" in nm_ else "b", G.RAIL_T))
     ra = (XL + 0.25, XL + 0.25 + G.RAIL)
     rb = (G.GP_B - G.RAIL / 2, G.GP_B + G.RAIL / 2)
     add("guard", "guard_west_bottom_rail", tube(*ra, G.BAL_S + G.POST, PN[0], FL + 3.6, FL + 3.6 + G.RAIL, "b", G.RAIL_T))
