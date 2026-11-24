@@ -85,9 +85,21 @@ A_LH = XL + UL - LOWER.uhc                        # landing header, over the low
 # Round 4 (Maxwell 11/23/2026): the upper stringer leans like a ladder. Its top runs past the plumb cut line and is notched: the part above the
 # balcony frame's underside stops against the head beam's south face (U_BEAR), the rest passes under the beam to its north face (U_END).
 # Its foot is cut plumb against the landing's north beam and stands on one 3 x 3 post. Angle clips lock both ends.
-U_BEAR = UPPER.u2 + 1.0 if MONO else None
-U_END = U_BEAR + FW if MONO else None
+# Round 5 (Maxwell 11/23/2026): the head beam moves north by its width and the stringer ends in ONE plumb cut against its south face, the
+# tube's top trimmed level at the balcony frame's top (the oak's underside), so the beam's full depth bears on the full tube wall: no tongue
+# under the beam, no relief hole. The foot is cut level and sits flat on a level saddle on the post (direct bearing, no wedge); a short
+# plumb face stays against the landing's north beam.
+U_BEAR = UPPER.u2 + 1.0 + FW if MONO else None
+U_END = U_BEAR                                     # (round 4's under beam tongue is gone)
+Z_TRIM = ZBF + FD / 2 if MONO else None            # stringer top trimmed level here, near its head
+U_TRIM = UPPER.u2 + (Z_TRIM - UPPER.zu) / SL if MONO else None
 U_FOOT = UPPER.u0 if MONO else None                # plumb cut foot, against the landing's north beam
+L_SEAT = 3.75                                      # level bearing cut at the foot, this long from the plumb face (covers the saddle)
+Z_SEAT = UPPER.zl(U_FOOT) - PL + L_SEAT * SL if MONO else None   # level foot cut = top of the saddle seat
+SEAT_LIP = 0.375                                   # the saddle seat's upturned edges each side of the tube (stops it sliding sideways)
+# foot clip leg on the first tread bracket's web, outside it (x along the flight, z): runs down past the web to the beam leg
+FOOT_CLIP = [(U_FOOT, 42.0), (U_FOOT + 0.75, 42.0), (U_FOOT + 0.75, 45.6), (U_FOOT + 2.75, 45.6), (U_FOOT + 2.75, 48.0), (U_FOOT, 48.0)] if MONO else None
+FOOT_BOLT = (U_FOOT + 1.75, 46.8) if MONO else None   # through clip, web, tube, web, clip
 B_BH = B0 + U_BEAR + FW / 2 if MONO else B0 + UPPER.uhc   # balcony head beam
 B_UF = B0 + UPPER.ufc                             # upper tubes' feet on the landing
 LN_W = 2.0                                        # landing north beam width

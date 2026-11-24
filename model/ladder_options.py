@@ -183,9 +183,10 @@ def mono_ladder(WX, WY):
     for f in G.FLIGHTS:
         zb_ = lambda u, f=f: f.zl(u) - G.PL
         if f is G.UPPER:                                 # round 4: plumb foot against the landing beam, notched head leaning on the balcony's head beam
-            uf, ub, ue = G.U_FOOT, G.U_BEAR, G.U_END
-            gh(ST, f, [(uf, zb_(uf)), (ub, zb_(ub)), (ub, f.zl(ub) - e), (uf, f.zl(uf) - e)], VC - G.TW / 2, VC + G.TW / 2)
-            gh(ST, f, [(ub, zb_(ub)), (ue, zb_(ue)), (ue, f.zu - e), (ub, f.zu - e)], VC - G.TW / 2, VC + G.TW / 2)
+            uf, ub, us_ = G.U_FOOT, G.U_BEAR, G.U_FOOT + G.L_SEAT     # round 5: level foot on the saddle, one plumb cut at the head, top trimmed level
+            gh(ST, f, [(uf, G.Z_SEAT), (us_, zb_(us_)), (us_, f.zl(us_) - e), (uf, f.zl(uf) - e)], VC - G.TW / 2, VC + G.TW / 2)
+            gh(ST, f, [(us_, zb_(us_)), (ub, zb_(ub)), (ub, G.Z_TRIM - e), (us_, f.zl(us_) - e)], VC - G.TW / 2, VC + G.TW / 2)
+            gh(ST, f, [(us_, f.zl(us_) - e), (ub, G.Z_TRIM - e), (G.U_TRIM, G.Z_TRIM - e), (G.U_TRIM, G.Z_TRIM - e)], VC - G.TW / 2, VC + G.TW / 2)
         else:
             gh(ST, f, [(f.u0, f.zf + e), (f.u1, f.zf + e), (f.u3, f.zu - e), (f.u2, f.zu - e)], VC - G.TW / 2, VC + G.TW / 2)
         for k in range(1, f.nr):
@@ -230,41 +231,41 @@ def mono_ladder(WX, WY):
                 gh(ST, f, [(uc - 2, f.zu - 0.25), (uc + 2, f.zu - 0.25), (uc + 2, f.zu - e), (uc - 2, f.zu - e)], e0, e0 + sg * 3.0)
                 gh(ST, f, [(uc - 2, f.zu - 3.0), (uc + 2, f.zu - 3.0), (uc + 2, f.zu - 0.25), (uc - 2, f.zu - 0.25)], e0, e0 + sg * 0.25)
                 for ub_ in (uc - 1.2, uc + 1.2):
-                    fbolt(f, ub_, e0 + sg * 0.25, f.zu - 1.6, "v", sg)
+                    (fbolt if sg < 0 else fnut)(f, ub_, e0 + sg * 0.25, f.zu - 1.6, "v", sg)   # through the tube, crush sleeve inside
                     fbolt(f, ub_, e0 + sg * 1.9, f.zu - 0.25, "z", -1)
-        else:                                                # round 4: angle clips lock both ends of the upper stringer, one 3 x 3 post carries its foot
-            tp_ = BT / math.cos(G.ANG)
+        else:                                                # round 5: angle clips lock both ends of the upper stringer, it sits level on a saddle on one 3 x 3 post
+            zs, zpt = G.Z_SEAT, G.Z_SEAT - BT
             for sg in (-1, 1):
                 vt = VC + sg * (G.TW / 2 + e)
-                vs_, vo_ = (vt, vt + sg * BT), (vt, vt + sg * 2.25)
-                ub, ua = G.U_BEAR, G.U_BEAR - 1.75
-                us_ = f.u2 - 0.15 / G.SL
-                gh(ST, f, [(ua, f.zu - 3.5), (ub - BT, f.zu - 3.5), (ub - BT, f.zu - 0.25), (ua, f.zl(ua) - 0.1)], *vs_)
-                gh(ST, f, [(ub - BT + e, f.zu - 3.5), (ub - e, f.zu - 3.5), (ub - e, FL_ - TT - 0.25), (ub - BT + e, FL_ - TT - 0.25)], vt + sg * BT, vt + sg * 2.25)
-                fbolt(f, ub - 0.9, vt + sg * BT, f.zu - 2.0, "v", sg)
+                vs_ = (vt, vt + sg * BT)
+                ub, ua = G.U_BEAR, G.U_BEAR - 2.25
+                xq = G.U_TRIM - 0.15 / G.SL
+                gh(ST, f, [(ua, f.zu - 3.0), (ub - BT, f.zu - 3.0), (ub - BT, G.Z_TRIM - 0.25), (ua, f.zl(ua) - 0.1)], *vs_)
+                gh(ST, f, [(ub - BT + e, f.zu - 3.0), (ub - e, f.zu - 3.0), (ub - e, G.Z_TRIM - 0.25), (ub - BT + e, G.Z_TRIM - 0.25)], vt + sg * BT, vt + sg * 2.25)
+                (fbolt if sg < 0 else fnut)(f, ub - 1.25, vt + sg * BT, f.zu - 1.5, "v", sg)   # one through bolt across the tube, crush sleeve inside
                 fbolt(f, ub - BT, vt + sg * 1.3, G.ZBF, "u", -1); fnut(f, ub + G.FW, vt + sg * 1.3, G.ZBF, "u", 1)
                 uf = G.U_FOOT
-                gh(ST, f, [(uf + e, 42.0), (uf + 1.5, 42.0), (uf + 1.5, 44.2), (uf + e, 44.2)], *vs_)
-                gh(ST, f, [(uf + e, 41.0), (uf + BT, 41.0), (uf + BT, ZP - TT - 0.25), (uf + e, ZP - TT - 0.25)], vt + sg * BT, vt + sg * 2.25)
-                fbolt(f, uf + 1.0, vt + sg * BT, 43.1, "v", sg)
-                fbolt(f, uf + BT, vt + sg * 1.3, G.ZLF, "u", 1); fnut(f, uf - G.FW, vt + sg * 1.3, G.ZLF, "u", -1)
+                vc_ = vt + sg * BT
+                c_ = G.FOOT_CLIP
+                gh(ST, f, [c_[0], c_[1], c_[2], c_[5]], vc_, vc_ + sg * BT)
+                gh(ST, f, [c_[5], c_[2], c_[3], c_[4]], vc_, vc_ + sg * BT)
+                gh(ST, f, [(uf + e, 42.0), (uf + BT, 42.0), (uf + BT, ZP - TT - 0.25), (uf + e, ZP - TT - 0.25)], vc_ + sg * BT, vc_ + sg * 2.25)
+                fbolt(f, uf + BT, vc_ + sg * 1.3, G.ZLF, "u", 1); fnut(f, uf - G.FW, vc_ + sg * 1.3, G.ZLF, "u", -1)
+            fbolt(f, G.FOOT_BOLT[0], VC - G.TW / 2 - 2 * BT, G.FOOT_BOLT[1], "v", -1); fnut(f, G.FOOT_BOLT[0], VC + G.TW / 2 + 2 * BT, G.FOOT_BOLT[1], "v", 1)
             a0p, a1p, b0p, b1p = G.UP_POST
-            zcap = lambda b: zb_(b - G.B0) - tp_
-            cs = ((a0p, b0p), (a1p, b0p), (a1p, b1p), (a0p, b1p))
-            hexa(ST, [P(a, b, 0.375) for a, b in cs] + [P(a, b, zcap(b) - e) for a, b in cs])
+            gb(ST, a0p, a1p, b0p, b1p, 0.375, zpt - e)
             gb(ST, a0p - 2, a1p + 2, b0p - 2, b1p + 2, 0.02, 0.375)
             for a_ in (a0p - 1.2, a1p + 1.2):
                 for b_ in (b0p - 1.2, b1p + 1.2):
                     nut(a_, b_, 0.375, "z")
             u0p, u1p = b0p - G.B0 - BT, b1p - G.B0 + BT
-            gh(ST, f, [(u0p, zb_(u0p) - tp_), (u1p, zb_(u1p) - tp_), (u1p, zb_(u1p) - e), (u0p, zb_(u0p) - e)], VC - G.TW / 2 - BT, VC + G.TW / 2 + BT)
+            gh(ST, f, [(u0p, zpt), (u1p, zpt), (u1p, zs - e), (u0p, zs - e)], VC - G.TW / 2 - BT, VC + G.TW / 2 + BT)
             for sg in (-1, 1):
                 vt = VC + sg * (G.TW / 2 + e)
-                gh(ST, f, [(u0p, zb_(u0p)), (u1p, zb_(u1p)), (u1p, zb_(u1p) + 1.75), (u0p, zb_(u0p) + 1.75)], vt, vt + sg * BT)
-                fbolt(f, (u0p + u1p) / 2, vt + sg * BT, zb_((u0p + u1p) / 2) + 0.9, "v", sg)
+                gh(ST, f, [(u0p, zs), (u1p, zs), (u1p, zs + G.SEAT_LIP), (u0p, zs + G.SEAT_LIP)], vt, vt + sg * BT)
             for u0_ in (u0p, u1p - BT):
-                gh(ST, f, [(u0_, zb_(u0_ + BT) - 3.5), (u0_ + BT, zb_(u0_ + BT) - 3.5), (u0_ + BT, zb_(u0_ + BT) - tp_ - e), (u0_, zb_(u0_) - tp_ - e)], VC - 1.5, VC + 1.5)
-            zlb = zb_(u0p + BT) - 2.0
+                gh(ST, f, [(u0_, zpt - 3.5), (u0_ + BT, zpt - 3.5), (u0_ + BT, zpt - e), (u0_, zpt - e)], VC - 1.5, VC + 1.5)
+            zlb = zpt - 2.0
             fbolt(f, u0p, VC, zlb, "u", -1); fnut(f, u1p, VC, zlb, "u", 1)
     ur = G.TD - G.GO
     gh(OAK, G.UPPER, [(ur + e, ZP - TT), (ur + G.RT, ZP - TT), (ur + G.RT, ZP + G.RH), (ur + e, ZP + G.RH)], 0.05 + e, G.WN - 0.05 - e)
@@ -322,16 +323,17 @@ def mono_ladder(WX, WY):
         else:
             for z_ in (8.0, z0 - 8.0):
                 nut(a1_, (b0_ + b1_) / 2, z_, "a")
-    # balcony: deck, frame, one 45 degree brace from under the north west corner down to the wall
+    # balcony: deck, frame, two 45 degree braces (under the head beam and the north arm) from the west end down to the wall
     z0, z1 = FL_ - TK, FL_ - TT - e
     gb(OAK, 0.03, XL, G.BAL_S, G.BAL_N, FL_ - TT, FL_ - 0.05)
     for a0, a1, b0, b1 in ((0.05, 2, G.BAL_S + e, G.BAL_N - e), (2 + e, XL - 2 - e, G.BAL_S + e, G.BAL_S + 2), (2 + e, XL - 2 - e, G.B_BH - 1, G.B_BH + 1), (2 + e, XL - e, G.BAL_N - 2, G.BAL_N - e), (XL - 2, XL - e, G.BAL_S + e, G.BAL_N - 2 - e)):
         gb(ST, a0, a1, b0, b1, z0, z1)
     for b_ in G.BAL_LAGS:
         nut(2, b_, z0 + 1.5, "a")
-    r2, b, c_ = G.POST / math.sqrt(2), G.BAL_N - 1, XL - 1.5
-    hexa(ST, [P(a, bb, z) for bb in (b - 1 + e, b + 1 - 2 * e) for a, z in ((c_ + r2, z0 - e), (c_ - r2, z0 - e), (0.05, z0 - c_ + r2), (0.05, z0 - c_ - r2))])
-    bolt(c_ - 2.2, b + 1 - 2 * e, z0 - 2.2, "b"); nut(1.6, b + 1 - 2 * e, z0 - c_ + 1.6, "b")
+    r2, c_ = G.POST / math.sqrt(2), XL - 1.5
+    for b in (G.B_BH, G.BAL_N - 1):                      # round 5: a second brace under the head beam (Maxwell 11/23/2026), clear of the treads
+        hexa(ST, [P(a, bb, z) for bb in (b - 1 + e, b + 1 - 2 * e) for a, z in ((c_ + r2, z0 - e), (c_ - r2, z0 - e), (0.05, z0 - c_ + r2), (0.05, z0 - c_ - r2))])
+        bolt(c_ - 2.2, b + 1 - 2 * e, z0 - 2.2, "b"); nut(1.6, b + 1 - 2 * e, z0 - c_ + 1.6, "b")
     # the free posts stand outside the frame and stop under the rail; an L shaped plate bolts each to the end beam and 3 1/2 in up the post
     PN = (G.BAL_N + 0.375 + e, G.BAL_N + 0.375 + G.POST)
     post(XL + e, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, z0)
