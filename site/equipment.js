@@ -182,14 +182,6 @@ function bar(g, len, x, y, z, vertical, m = steelH(), r = 0.42, off = 1.5) {   /
     for (const s of [-1, 1]) cyl(g, r * 0.8, off, m, x + s * (len / 2 - 1.4), y, z + off / 2, 'z', 10);
   }
 }
-// a strap handle that leaves the door at both ends and bows out between them
-function bowHandle(g, x, y0, y1, z, bow, m, r = 0.42) {
-  const c = new THREE.CubicBezierCurve3(new THREE.Vector3(x, y0, z - 0.2), new THREE.Vector3(x, y0 + (y1 - y0) * 0.12, z + bow * 1.25),
-    new THREE.Vector3(x, y1 - (y1 - y0) * 0.12, z + bow * 1.25), new THREE.Vector3(x, y1, z - 0.2));
-  const geo = new THREE.TubeGeometry(c, 20, r, 8);
-  const me = add(g, geo, m, 0, 0, 0); me.scale.x = 1.5; me.position.x = x - x * 1.5;
-  return me;
-}
 // tube between two points (any frame), radius r
 function tube(g, a, b, r, m, seg = 14) {
   const d = new THREE.Vector3().subVectors(b, a), len = d.length();
