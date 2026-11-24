@@ -562,7 +562,7 @@ const BUILD = {
   },
   fridge_french_door(s) {          // Frigidaire Gallery GRFC2353AF: two doors with flat bar handles, silver dispenser in the left door, bar handle on the freezer drawer
     const [w, h, d] = s, g = new THREE.Group();
-    const dt = 4.1, zf = d - 2.3, cd = zf - dt, dzc = cd + dt / 2;                            // 30.8 in deep with handles, 28.5 without
+    const dt = 4.9, zf = d - 2.3, cd = zf - dt, dzc = cd + dt / 2;                            // 30.8 in deep with handles, 28.5 without doors' handles, 23.6 case (spec sheet)
     box(g, w - 0.3, h - 2.0, cd, steelSide(), 0, 1.1 + (h - 2.0) / 2, cd / 2);                // case
     for (const x of [-1, 1]) {
       box(g, 4.2, 0.9, 3.4, darkPlastic(), x * (w / 2 - 2.4), h - 0.45, cd - 0.9);            // hinge covers

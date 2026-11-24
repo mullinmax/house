@@ -401,8 +401,11 @@ cooktop_y = [45.6, 48.4]
 axis = "x"
 back = 35.158
 facing = 1
-units = [[3.9, 7.05, "fridge"], [7.1, 9.4, "drawers3"], [9.4, 11.7, "drawer_doors2"]]
-uppers = [[7.1, 9.4, "microwave", 1.5], [9.4, 11.7, "glass", 1.1]]   # [start, end, type, depth ft]; microwave upper deepened (redline). Order from Danielle's 11/19/2026 rendering: microwave by the fridge, glass at the east end
+# Danielle Gross's 11/24/2026 design plan (HEILMAN_MULLINS DESIGN PLAN 11.24.pdf), read off the plan at 14.8 px/in, inches east of the
+# west wall's inside face: 1 in filler, WTP362490 hidden pantry 1 to 37, REP 1-1/2 37 to 38.5, 36 in fridge opening 38.5 to 74.5,
+# REP 1-1/2 74.5 to 76, 1 in filler, base + WMC272136 microwave cabinet 77 to 104.3, B27 + W2736 104.3 to 131.4. Was fridge [3.9, 7.05].
+units = [[3.625, 6.875, "fridge"], [6.958, 9.233, "drawers3"], [9.233, 11.492, "drawer_doors2"]]
+uppers = [[6.958, 9.233, "microwave", 1.75], [9.233, 11.492, "glass", 1.1]]   # [start, end, type, depth ft]; microwave cabinet 21 in deep (Danielle 11/19/2026 and 11/24/2026 plan). Order from Danielle's 11/19/2026 rendering: microwave by the fridge, glass at the east end
 pantry_style = "shelf"                   # Maxwell 11/19/2026 picked shelf, as a spice rack. The deep Murphy cabinet can't swing past the fridge and wall. Options: flush (thin door dressed as tall pantry doors, swings out) | pocket (slides into the wall behind the fridge) | shelf (shallow Murphy shelf door, swings into the pantry) | murphy (the deep one, PR 53) | door (Erin's redline oak slab)
 shelf_swing = "out"                      # spice rack door: out into the kitchen, hinged at its front west corner (Maxwell 11/19/2026) | in (into the pantry)
 alcove_head = 6.67                       # underside of the upper cabinet over the pantry doorway (flush, pocket, shelf)
@@ -412,7 +415,9 @@ pantry_door = [0.743, 3.443]             # redline: door into the pantry where C
 pantry_door_leaf = 2.5                   # 2'-6" x 6'-8" white oak slab. ASSUMED (a 2'-8" leaf leaves no room for casing against the west wall)
 pantry_casing_east = 0.292               # 3-1/2" casing; its outer edge stops 2" (0.167 ft) short of the fridge side panel at x = 3.9
 pantry_casing_west = 0.20                # trimmed to 2-3/8" so it dies into the west wall face at x = 0.542
-fridge_panels = 0.06                     # 3/4" oak side panels inside the fridge bay [3.9, 7.05], stainless unit between them. ASSUMED. Bay widened from 6.95 (36.6 in) to 7.05 (37.8 in) which leaves about 36.3 in clear between the panels. The 36 in Frigidaire Gallery GRFC2353AF (Erin's list, 11/17/2026) has under 3/16 in each side
+fridge_panels = 0.125                    # Danielle 11/24/2026: REP 1-1/2 x 90 refrigerator end panels, 36 in clear between them. The GRFC2353AF case is 35.6 in wide (Frigidaire asks 3/8 in sides and top, 1 in rear), so about 3/16 in a side: tight against the 3/8 in ask. Was 3/4 in panels, 36.3 in clear
+fridge_panel_depth = 2.0                 # flush with the 24 in cabinet faces (Danielle's plan). Frigidaire's top view recommends 28 7/8 in deep side panels (doors nearly flush with them); 2.4 would show that. Was 27.8 in
+fridge_panel_height = 7.75               # full height, floor to the top of the over fridge cabinet (REP ... .90). Was 6 ft
 [kitchen.runs.island]                    # island working side faces south (elevation 4)
 axis = "x"
 back = 43.77
