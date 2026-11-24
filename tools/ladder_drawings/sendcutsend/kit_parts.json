@@ -10,8 +10,8 @@
    "bends": "2 bends, both 90 deg toward the outside face: flange off the front edge, seat tab off the top edge",
    "notes": "every other tread (3 lower + 7 upper); west side of the upper flight, north side of the lower flight. 2 x 7/16 bolt holes into the stringer, flange bolt slotted. Drill the seat tab screw holes at assembly.",
    "size": [
-    8.84,
-    10.72
+    8.04,
+    8.09
    ]
   },
   {
@@ -23,8 +23,8 @@
    "bends": "2 bends, both 90 deg toward the outside face: flange off the front edge, seat tab off the top edge",
    "notes": "mirror image of the open side part. every other tread (3 lower + 7 upper).",
    "size": [
-    8.84,
-    10.72
+    8.04,
+    8.09
    ]
   },
   {
@@ -158,16 +158,55 @@
    ]
   },
   {
-   "file": "clip_angle_2in_qty30.dxf",
+   "file": "clip_angle_2in_qty22.dxf",
    "name": "Clip angle 2 in wide, 1 3/4 legs",
-   "qty": 30,
+   "qty": 22,
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "1 bend, 90 deg",
-   "notes": "PLACEHOLDER for an engineer: 16 at the landing and balcony frame corners, 6 at the three post bases (2 each, flat heads up through the base plates), 8 at the two knee braces' ends (the south brace's wall end needs a bracket rated about 750 lb: engineer).",
+   "notes": "PLACEHOLDER for an engineer: 16 at the landing and balcony frame corners, 6 at the three post bases (2 each, flat heads up through the base plates). Round 7: the knee braces use gusset plates instead.",
    "size": [
     2.0,
     3.11
+   ]
+  },
+  {
+   "file": "knee_gusset_top_qty2.dxf",
+   "name": "Knee frame gusset, top",
+   "qty": 2,
+   "thick": 0.25,
+   "material": "Mild steel A36 (hot rolled P&O)",
+   "bends": "none",
+   "notes": "flat, one per knee frame (south and north): brace top to the balcony beam (2 bolts in the beam, 1 in the brace). On the face toward the middle of the balcony; 3/8 through bolts with crush sleeves.",
+   "size": [
+    6.3,
+    6.3
+   ]
+  },
+  {
+   "file": "knee_gusset_foot_qty2.dxf",
+   "name": "Knee frame gusset, foot",
+   "qty": 2,
+   "thick": 0.25,
+   "material": "Mild steel A36 (hot rolled P&O)",
+   "bends": "none",
+   "notes": "flat, one per knee frame (south and north): brace foot to the wall post (2 in the post, 1 in the brace). On the face toward the middle of the balcony; 3/8 through bolts with crush sleeves.",
+   "size": [
+    5.8,
+    7.3
+   ]
+  },
+  {
+   "file": "knee_gusset_corner_qty2.dxf",
+   "name": "Knee frame gusset, corner",
+   "qty": 2,
+   "thick": 0.25,
+   "material": "Mild steel A36 (hot rolled P&O)",
+   "bends": "none",
+   "notes": "flat, one per knee frame (south and north): wall post top to the balcony beam's end (1 in each). On the face toward the middle of the balcony; 3/8 through bolts with crush sleeves.",
+   "size": [
+    5.55,
+    5.8
    ]
   },
   {

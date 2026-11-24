@@ -203,7 +203,7 @@ for f in G.FLIGHTS:
                 fnut(f, A[0] - BT, fo_ + sg_ * 0.95, zk - G.FLANGE_BOLT, "u", -1)
                 if side == "open":                                             # the strip: one flat plate on edge under the tread, across both brackets; it is also the top of the riser below
                     v0_, v1_ = G.ARM_END, G.WN - G.ARM_END
-                    arm = vprism(f, [(v0_, zk), (v1_, zk), (v1_, zk - G.ARM_D), (v0_, zk - G.ARM_D)], A[0] - BT, A[0])
+                    arm = vprism(f, G.strip_outline(zk), A[0] - BT, A[0])     # round 7: bottom end corners rounded
                     for vt_ in (v0_ + G.STRIP_TAB, v1_ - G.STRIP_TAB):          # a screw tab folded off its top edge at each end, into the tread where the lever is longest
                         arm = arm.fuse(prism(f, [(A[0], zk - BT), (A[0] + 1.25, zk - BT), (A[0] + 1.25, zk), (A[0], zk)], vt_ - 0.9, vt_ + 0.9))   # toward the back of the tread (round 4)
                         fbolt(f, A[0] + 0.7, vt_, zk - BT, "z", -1, d=0.5, h=0.15)
@@ -372,11 +372,23 @@ add("balcony", "balcony_west_beam", tube(XL - 2, XL, G.BAL_S, G.BAL_N - 2, *bz, 
 deck = box(0, XL, G.BAL_S, G.BAL_N, FL - TT, FL)
 add("balcony", "balcony_deck", deck.fuse(box(G.GAP, XL, G.BAL_S - G.NOSE, G.BAL_S, FL - TT, FL)) if G.NOSE else deck, OAK, "oak")
 zu, r2 = FL - TK, G.POST / math.sqrt(2) * 1.0
-for nm, b in (("south", G.B_BH), ("north", G.BAL_N - 1)):     # mono round 5: a second brace under the head beam (Maxwell 11/23/2026), clear of the treads
-    c_ = XL - 1.5 if G.MONO else G.A_BR + 1         # mono: 45 degrees from under the west end down to the wall
-    br = aprism([(c_ + r2, zu), (c_ - r2, zu), (0, zu - c_ + r2), (0, zu - c_ - r2)], b - 1, b + 1)
-    add("balcony", f"knee_brace_{nm}", br)
-    bolt(c_ - 2.2, b + 1, zu - 2.2, "b"); nut(1.6, b + 1, zu - c_ + 1.6, "b")
+if not G.MONO:
+    for nm, b in (("south", G.B_BH), ("north", G.BAL_N - 1)):
+        c_ = G.A_BR + 1
+        add("balcony", f"knee_brace_{nm}", aprism([(c_ + r2, zu), (c_ - r2, zu), (0, zu - c_ + r2), (0, zu - c_ - r2)], b - 1, b + 1))
+for nm, b, sd in (G.knee_frames() if G.MONO else ()):         # round 7: each brace closes a triangle with a post down the wall, gusset at every joint
+    c_, zb_ = G.A_BR, G.KB_BOT
+    add("balcony", f"knee_brace_{nm}", aprism([(c_ + r2, zu), (c_ - r2, zu), (2.0, zb_ + r2), (2.0, zb_ - r2)], b - 1, b + 1))
+    pa0, pa1, pz0, pz1 = G.KB_POST
+    add("balcony", f"knee_post_{nm}", tube(pa0, pa1, b - 1, b + 1, pz0, pz1, "z", 0.1875))
+    gb0, gb1 = (b + 1, b + 1 + BT) if sd > 0 else (b - 1 - BT, b - 1)
+    fo_, fi_ = (gb1, b - 1) if sd > 0 else (gb0, b + 1)                   # gusset's open face, the tube's far face
+    for j_ in ("top", "foot", "corner"):
+        add("balcony", f"knee_gusset_{j_}_{nm}", aprism(G.gusset(j_), gb0, gb1))
+        for a_, z_ in G.KG[j_]:
+            bolt(a_, fo_, z_, "b", sd); nut(a_, fi_, z_, "b", -sd)              # through the plate and the tube, crush sleeve inside
+    for z_ in G.KB_LAGS:                                                   # two lags through the post into the wall framing
+        nut(pa1, b, z_, "a", 1)
 # balcony newel, guard posts, rails, pickets
 if G.MONO:
     # Both free posts stand outside the west beam and stop at the frame's underside. Each is held by an L shaped 3/8 in plate bolted to the

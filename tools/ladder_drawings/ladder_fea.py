@@ -201,7 +201,14 @@ for b in G.BAL_LAGS:
     m.def_support(N(1, b, ZB), True, True, True, True, False, False)   # the joists are pinned to the ledger: stop it rolling about its own length (a free mode some solvers reject)
 for nm, b in (("BRh", G.B_BH), ("BRn", BN1)):      # mono round 5: a brace under the head beam too (Maxwell 11/23/2026)
     M(nm, (G.A_BR, b, ZB), (1, b, ZB - G.BRACE), "POST", "i")
-    S((1, b, ZB - G.BRACE), what=f"knee brace wall bracket ({'south' if nm == 'BRh' else 'north'})")
+    if G.MONO:                                     # round 7: a 2 x 2 post down the wall from the ledger closes the triangle (gussets, taken as fixed)
+        zl_ = ZB - (G.KB_ZU + 1.5 - G.KB_LAGS[1])
+        M(nm + "_post_top", (1, b, ZB), (1, b, zl_), "POST")
+        M(nm + "_post", (1, b, zl_), (1, b, ZB - G.BRACE), "POST")
+        S((1, b, zl_), True, False, True, what=f"knee post upper lag into the wall ({'south' if nm == 'BRh' else 'north'}), no vertical")
+        S((1, b, ZB - G.BRACE), True, False, True, what=f"knee post foot: bears on the wall, lower lag ({'south' if nm == 'BRh' else 'north'}), no vertical")
+    else:
+        S((1, b, ZB - G.BRACE), what=f"knee brace wall bracket ({'south' if nm == 'BRh' else 'north'})")
 for i, a in enumerate(G.BAL_STRIPS):
     N(a, G.B_BH, ZB); N(a, (G.B_BH + BN1) / 2, ZB)
     M(f"Bdeck{i}", (a, BS1, ZB), (a, BN1, ZB), "DECKB", "ij")

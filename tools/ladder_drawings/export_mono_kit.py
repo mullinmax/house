@@ -45,8 +45,35 @@ def slot(cx, cy, w, ln, vertical=True):
 PARTS = []                    # dict(file, name, qty, thick, material, bends, notes, shape, bends_xy, holes)
 
 
-def part(file, name, qty, thick, outline, holes=(), bends=(), bend_text="none", notes="", mirror=False):
-    shp = outline
+def round_outline(shp, r, bends=(), inner=0.0, keep=0.45):
+    """round 7 (Maxwell 11/24/2026): round every convex outline corner to r (laser cut, costs nothing), except corners within keep of a
+    bend line (bend reliefs and flange roots stay as drawn); inner > 0 also fills concave corners to that radius (flat plates only)."""
+    from shapely.geometry import LineString
+    if inner:
+        shp = shp.buffer(inner, 64, join_style=1).buffer(-inner, 64, join_style=2).simplify(0.002)
+    if r <= 0:
+        return shp
+    shp = shp.buffer(0)
+    ext = list(shp.exterior.coords)[:-1]
+    if Polygon(ext).exterior.is_ccw is False:
+        ext = ext[::-1]
+    bl = [LineString(b) for b in bends]
+    out = []
+    n = len(ext)
+    for i, p in enumerate(ext):
+        a, b = ext[i - 1], ext[(i + 1) % n]
+        cross = (p[0] - a[0]) * (b[1] - p[1]) - (p[1] - a[1]) * (b[0] - p[0])
+        near = any(l.distance(Point(p)) < keep for l in bl)
+        la, lb = math.hypot(p[0] - a[0], p[1] - a[1]), math.hypot(b[0] - p[0], b[1] - p[1])
+        if cross > 1e-9 and not near and min(la, lb) > 0.05:
+            out += G._fillet([a, p, b], 1, r, n=8)
+        else:
+            out.append(p)
+    return Polygon(out, [list(h.coords) for h in shp.interiors])
+
+
+def part(file, name, qty, thick, outline, holes=(), bends=(), bend_text="none", notes="", mirror=False, rnd=0.0, inner=0.0):
+    shp = round_outline(outline, rnd, bends, inner) if (rnd or inner) else outline
     for h in holes:
         shp = shp.difference(h)
     if mirror:
@@ -108,14 +135,14 @@ for foot in (False, True):
           else "2 bends, both 90 deg toward the outside face: flange off the front edge, seat tab off the top edge")
     where = "lower flight first tread" if foot else f"every other tread ({G.N_LO - 2} lower + {G.N_UP - 1} upper)"
     part(f"{nm}_open_qty{n}.dxf", f"Tread bracket{' with slab foot' if foot else ''}, open side", n, 0.25, shp, holes, bends, bt,
-         f"{where}; west side of the upper flight, north side of the lower flight. 2 x 7/16 bolt holes into the stringer, flange bolt slotted. Drill the seat tab screw holes at assembly.")
+         f"{where}; west side of the upper flight, north side of the lower flight. 2 x 7/16 bolt holes into the stringer, flange bolt slotted. Drill the seat tab screw holes at assembly.", rnd=0.3)
     part(f"{nm}_wall_qty{n}.dxf", f"Tread bracket{' with slab foot' if foot else ''}, wall side (mirror)", n, 0.25, shp, holes, bends, bt,
-         f"mirror image of the open side part. {where}.", mirror=True)
+         f"mirror image of the open side part. {where}.", mirror=True, rnd=0.3)
 
 # ---------------------------------------------------------------- tread strips (2 in strip on edge under each tread, across both brackets)
 L_ = G.WN - 2 * G.ARM_END
 TAB_OUT = 1.60                     # outside, from the strip's front face (CAD 1.50; lengthened so the flat tab clears SendCutSend's 1.15 in minimum)
-shp = rect(0, L_, -G.ARM_D, 0)
+shp = Polygon([(v - G.ARM_END, z) for v, z in G.strip_outline(0.0)])     # round 7: bottom end corners rounded
 bends, cuts = [], []
 for vt in (G.STRIP_TAB, L_ - G.STRIP_TAB):
     shp = unary_union([shp, rect(vt - 0.9, vt + 0.9, 0, TAB_OUT - BD / 2)])
@@ -127,7 +154,7 @@ holes = [Point(v - G.ARM_END, -G.FLANGE_BOLT).buffer(H38 / 2, 64) for v in (G.VC
 nstrip = (G.N_LO - 1) + (G.N_UP - 1)
 part(f"tread_strip_qty{nstrip}.dxf", "Tread strip (2 in on edge, closes the riser)", nstrip, 0.25, shp, holes, bends,
      "2 bends, 90 deg: a screw tab at each end folds toward the back of the tread",
-     "one under every tread. 2 x 7/16 holes for the bracket flange bolts. Drill the tab screw holes at assembly. Tabs 1.6 in outside (CAD shows 1.5).")
+     "one under every tread. 2 x 7/16 holes for the bracket flange bolts. Drill the tab screw holes at assembly. Tabs 1.6 in outside (CAD shows 1.5).", rnd=0.3)
 
 # ---------------------------------------------------------------- stringer head clips (round 6: the same part at both stringer tops)
 def clip_flat(f):
@@ -145,7 +172,7 @@ for side, mir in (("west", False), ("east", True)):
     part(f"head_clip_{side}_qty2.dxf", f"Stringer top clip, {side} side (both flights)", 2, 0.25, shp, holes, bl,
          "1 bend, 90 deg (west and east are mirror images)",
          "one pair at each stringer top (upper on the balcony head beam, lower on the landing header). Tube leg hole is a 1 in VERTICAL SLOT: "
-         "one through bolt across the stringer (crush sleeve inside). Other leg bolts through the beam.", mirror=mir)
+         "one through bolt across the stringer (crush sleeve inside). Other leg bolts through the beam.", mirror=mir, rnd=0.4)
 # saddle (round 6): level seat under the stringer's level foot cut; legs DOWN the post's south and north faces (one bolt through the post);
 # cheeks UP both sides of the stringer (one bolt through the stringer); a tab off each cheek's south edge onto the landing's north beam.
 # Flat: x across the flight (west +), y along the flight (north +), origin at the seat's centre.
@@ -179,7 +206,7 @@ part("upper_post_saddle_qty1.dxf", "Upper stringer post saddle (seat, legs down 
      "south edge bent OUT, away from the stringer (bend the tabs before the cheeks)",
      f"seat {seat_v:.2f} x {seat_u:.2f} in outside; legs 3 in wide, {leg_out:.2f} in outside, one 3/8 through bolt across the post; cheeks "
      f"{SAD_INFO['cheek_h']:.2f} in tall outside, one 3/8 through bolt across the stringer (crush sleeve inside); tabs {SAD_INFO['tab'][0]:.2f} in out x "
-     f"{SAD_INFO['tab'][1]:.2f} in tall, one 3/8 bolt each through the landing's north beam. Replaces round 5's foot clips.")
+     f"{SAD_INFO['tab'][1]:.2f} in tall, one 3/8 bolt each through the landing's north beam. Replaces round 5's foot clips.", rnd=0.3)
 
 # ---------------------------------------------------------------- base plates, 3/8 in
 def base_plate(w, post, through, file, name, qty, notes):
@@ -189,7 +216,7 @@ def base_plate(w, post, through, file, name, qty, notes):
     off = post / 2 + 1.2 if post > 2 else 2.3
     holes = [Point(sx * off, sy * off).buffer(HANC / 2, 64) for sx in (-1, 1) for sy in (-1, 1)]
     holes += [Point(sx * (post / 2 + 1.1), 0).buffer(CSK38 / 2, 64) for sx in (-1, 1)]
-    part(file, name, qty, 0.375, shp, holes, (), "none", notes + " COUNTERSINK the two 13/32 in holes from the BOTTOM face (82 deg, 3/8 flat head): flat head screws up through the plate into the post clips, nuts on top (no tapped threads). Four 1/2 in holes for 3/8 in slab anchors.")
+    part(file, name, qty, 0.375, shp, holes, (), "none", notes + " COUNTERSINK the two 13/32 in holes from the BOTTOM face (82 deg, 3/8 flat head): flat head screws up through the plate into the post clips, nuts on top (no tapped threads). Four 1/2 in holes for 3/8 in slab anchors.", rnd=0.5)
 
 
 base_plate(6.0, 2.0, True, "foot_post_base_plate_qty1.dxf", "Foot post base plate, 6 x 6 (post passes through)", 1, "lower flight foot post; the 2 x 2 post stands through the square hole on the slab.")
@@ -202,24 +229,32 @@ shp = unary_union([rect(0, 10, 0, G.TK - G.TT), rect(8, 10, G.TK - G.TT - 0.01, 
 holes = [Point(G.XL - 7 - x0, 1.5).buffer(H38 / 2, 64), Point(G.XL - 2.5 - x0, 1.5).buffer(H38 / 2, 64),
          Point(9, 1.2).buffer(H38 / 2, 64), Point(9, G.TK + 2.6).buffer(H38 / 2, 64)]
 part("balcony_post_L_plate_qty2.dxf", "Balcony post L plate (south west newel and north west post)", 2, 0.375, shp, holes, (), "none",
-     "flat; the long leg bolts to the end beam of the balcony frame, the short leg up the post. Same part both posts (flip one).")
+     "flat; the long leg bolts to the end beam of the balcony frame, the short leg up the post. Same part both posts (flip one).", rnd=0.5, inner=0.5)
 
 # ---------------------------------------------------------------- placeholder clips for joints the CAD does not detail yet
 def clip(w, leg, file, name, qty, notes):
     shp = rect(0, w, -(leg - BD / 2), leg - BD / 2)
     holes = [Point(w / 2, s * (leg * 0.63 - BD / 2)).buffer(H38 / 2 if w > 1.5 else 0.28 / 2, 64) for s in (-1, 1)]
-    part(file, name, qty, 0.25, shp, holes, [((0, 0), (w, 0))], "1 bend, 90 deg", "PLACEHOLDER for an engineer: " + notes)
+    part(file, name, qty, 0.25, shp, holes, [((0, 0), (w, 0))], "1 bend, 90 deg", "PLACEHOLDER for an engineer: " + notes, rnd=0.25)
 
 
-clip(2.0, 1.75, "clip_angle_2in_qty30.dxf", "Clip angle 2 in wide, 1 3/4 legs", 30,
-     "16 at the landing and balcony frame corners, 6 at the three post bases (2 each, flat heads up through the base plates), 8 at the two knee braces' ends (the south brace's wall end needs a bracket rated about 750 lb: engineer).")
+clip(2.0, 1.75, "clip_angle_2in_qty22.dxf", "Clip angle 2 in wide, 1 3/4 legs", 22,
+     "16 at the landing and balcony frame corners, 6 at the three post bases (2 each, flat heads up through the base plates). Round 7: the knee braces use gusset plates instead.")
+
+# ---------------------------------------------------------------- knee frame gussets (round 7): brace top, brace foot, post top
+for j_, what in (("top", "brace top to the balcony beam (2 bolts in the beam, 1 in the brace)"), ("foot", "brace foot to the wall post (2 in the post, 1 in the brace)"),
+                 ("corner", "wall post top to the balcony beam's end (1 in each)")):
+    shp = Polygon(G.gusset(j_))
+    holes = [Point(a, z).buffer(H38 / 2, 64) for a, z in G.KG[j_]]
+    part(f"knee_gusset_{j_}_qty2.dxf", f"Knee frame gusset, {j_}", 2, 0.25, shp, holes, (), "none",
+         f"flat, one per knee frame (south and north): {what}. On the face toward the middle of the balcony; 3/8 through bolts with crush sleeves.")
 clip(1.25, 1.5, "rail_clip_1-25in_qty10.dxf", "Rail end clip 1 1/4 in wide, 1 1/2 legs", 10,
      "straight rail ends into post faces, the north guard rail into the west one, the north guard rail at the bath 1 wall, and the four guard bottom rail ends. 9/32 in holes for 1/4-20.")
 
 shp = rect(0, 1.25, 0, 4.5)
 holes = [Point(0.625, y).buffer(0.28 / 2, 64) for y in (1.0, 3.5)]
 part("rail_post_strap_qty3.dxf", "Rail to post strap 1 1/4 x 4 1/2", 3, 0.25, shp, holes, (), "none",
-     "PLACEHOLDER for an engineer: flat strap on the side where a rail runs over a post top (lower rail on the foot post, guard top rails on the north west and north east posts); 1/4 in spacer behind it on the rail, which sits 1/4 in in from the post face.")
+     "PLACEHOLDER for an engineer: flat strap on the side where a rail runs over a post top (lower rail on the foot post, guard top rails on the north west and north east posts); 1/4 in spacer behind it on the rail, which sits 1/4 in in from the post face.", rnd=0.6)
 
 # ---------------------------------------------------------------- write
 for p in PARTS:

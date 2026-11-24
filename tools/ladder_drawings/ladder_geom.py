@@ -121,12 +121,12 @@ def head_clip(f):
     return dict(leg=leg, beam=(f.zu - 3.0, zt - 0.25), tube_bolt=(ub - 1.25, f.zu - 1.5), beam_bolt_z=zbeam, ub=ub)
 
 
-def _fillet(pts, i, r, n=10):
+def _fillet(pts, i, r, n=10, cap=0.45):
     p, a, b = pts[i], pts[i - 1], pts[(i + 1) % len(pts)]
     u1 = ((a[0] - p[0]), (a[1] - p[1])); l1 = math.hypot(*u1); u1 = (u1[0] / l1, u1[1] / l1)
     u2 = ((b[0] - p[0]), (b[1] - p[1])); l2 = math.hypot(*u2); u2 = (u2[0] / l2, u2[1] / l2)
     th = math.acos(max(-1.0, min(1.0, u1[0] * u2[0] + u1[1] * u2[1])))
-    t = min(r / math.tan(th / 2), 0.45 * l1, 0.45 * l2)
+    t = min(r / math.tan(th / 2), cap * l1, cap * l2)
     r = t * math.tan(th / 2)
     bx, by = u1[0] + u2[0], u1[1] + u2[1]; lb = math.hypot(bx, by); bx, by = bx / lb, by / lb
     c = (p[0] + bx * r / math.sin(th / 2), p[1] + by * r / math.sin(th / 2))
@@ -148,9 +148,40 @@ WEB_SWEEP = (2.4, 3.3)                             # round 6: the web's bottom f
 WEB_R_FRONT, WEB_R_BACK = 0.4, 1.0                 # and its other two corners on the tube side rounded
 
 
+WEB_EDGE = 1.0                                     # round 7: web edge this far round each stringer bolt (2.3 bolt diameters)
+WEB_DROP = 1.0                                     # and its front edge runs this far below the flange's foot before it rounds away
+WEB_R_DROP = 0.5
+
+
+def _hull(pts):
+    """convex hull, counter clockwise (monotone chain)"""
+    pts = sorted(set(pts))
+    cr = lambda o, a, b: (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0])
+    lo, hi = [], []
+    for q in pts:
+        while len(lo) >= 2 and cr(lo[-2], lo[-1], q) <= 1e-12:
+            lo.pop()
+        lo.append(q)
+    for q in reversed(pts):
+        while len(hi) >= 2 and cr(hi[-2], hi[-1], q) <= 1e-12:
+            hi.pop()
+        hi.append(q)
+    return lo[:-1] + hi[:-1]
+
+
+def bracket_bolts(f, k):
+    """tread k's two bracket bolts through the stringer, (u, z)"""
+    uk = f.uk(k)
+    a0 = uk + WEB0
+    nx, nz = math.sin(ANG), -math.cos(ANG)
+    return [(a0 + s * math.cos(ANG) + nx * BOLT_N, f.zl(a0) + s * math.sin(ANG) + nz * BOLT_N) for s in (4.25, 8.25)]
+
+
 def bracket_web(f, k):
-    """tread k's bracket web outline in its flight's (u, z), round 6: corners rounded (laser cut, costs nothing). Corners at the tread
-    (A, B) stay square: the flange and the seat tab fold off them."""
+    """tread k's bracket web outline in its flight's (u, z). Corners at the tread (A, B) stay square: the flange and the seat tab fold
+    off them. Round 7 (Maxwell 11/24/2026): every web but the lower flight's foot bracket is the smooth hull of the flange edge and a
+    1 in margin round its two stringer bolts, so nothing hangs down past the bolts (the saddle's cheeks under the first upper bracket
+    are flat topped). The foot bracket keeps the round 6 outline down to its slab flange."""
     uk, zk = f.uk(k), f.z0 + k * RI - TT
     nx, nz = math.sin(ANG), -math.cos(ANG)
     A, B = (uk + WEB0, zk), (uk + TD + RT, zk)
@@ -159,9 +190,31 @@ def bracket_web(f, k):
     raw = [A, C, D, E, B]
     if not MONO:
         return raw
+    if not (f is LOWER and k == 1):
+        F = (A[0], zk - ARM_D - WEB_DROP)
+        cl = [(bu + WEB_EDGE * math.cos(2 * math.pi * j / 48), bz + WEB_EDGE * math.sin(2 * math.pi * j / 48)) for bu, bz in bracket_bolts(f, k) for j in range(48)]
+        h = _hull([A, B, F] + cl)                  # counter clockwise; start at A going down the front edge (A, F, ..., B)
+        i = h.index(A)
+        h = h[i:] + h[:i]
+        if h[1] != F:
+            h = [h[0]] + h[1:][::-1]
+        assert h[1] == F and h[-1] == B, "bracket web hull"
+        return [A] + _fillet(h[0:3], 1, WEB_R_DROP) + h[2:]
     mid = _sweep(raw, 2, *WEB_SWEEP)
     pts = [A] + _fillet([A, C, mid[0]], 1, WEB_R_FRONT) + mid + _fillet([mid[-1], E, B], 1, WEB_R_BACK) + [B]
     return pts
+
+
+STRIP_R = 1.5                                      # round 7: the tread strips' bottom end corners rounded this much (Maxwell 11/24/2026)
+
+
+def strip_outline(zk):
+    """tread strip (the riser support under each tread) outline across the flight (v, z), top at zk; its bottom end corners rounded"""
+    v0, v1, zb = ARM_END, WN - ARM_END, zk - ARM_D
+    pts = [(v0, zk), (v0, zb), (v1, zb), (v1, zk)]
+    if not MONO:
+        return pts
+    return [pts[0]] + _fillet(pts, 1, STRIP_R, cap=0.8) + _fillet(pts, 2, STRIP_R, cap=0.8) + [pts[3]]
 
 
 def web_bottom(f, k, u):
@@ -190,8 +243,33 @@ VC = WN / 2
 PC = XL + POST / 2                                # posts stand outside the open edge, lapped onto the tubes and frames
 FOOT_U = 4.0 if MONO else 12.0                   # lower flight foot post (mono: beside the first tread on a 4 anchor moment base plate)
 A_FOOT = XL + UL - FOOT_U
-A_BR = XL - 2.0 if MONO else 17.0                 # knee brace: where it meets the balcony frame (mono: one 45 degree brace from the north west corner to the wall, Maxwell 11/22/2026)
-BRACE = A_BR - 1.0 if MONO else 16.0              # its rise
+A_BR = XL - 4.5 if MONO else 17.0                 # knee brace: where it meets the balcony frame (mono: 45 degree braces to the wall, Maxwell 11/22/2026;
+                                                  # round 7: 2 1/2 in further east so its gusset clears the west beam)
+BRACE = A_BR - 1.0 if MONO else 16.0              # its rise, to the wall post's centreline
+
+# round 7 knee frames (Maxwell 11/24/2026): each 45 degree brace closes a full triangle with a 2 x 2 post down the bath 1 wall from the
+# balcony ledger, so the brace no longer leans on its bite into the wall. One 1/4 in gusset plate per joint (brace top to the beam,
+# brace foot to the post, post top to the beam end), on the face toward the middle of the balcony, through bolts with crush sleeves.
+KB_ZU = FL - TK                                    # balcony frame underside
+KB_BOT = KB_ZU - (A_BR - 2.0)                      # brace centreline where it meets the post's face (a = 2)
+KB_POST = (0.0, 2.0, KB_BOT - POST / math.sqrt(2) - 2.0, KB_ZU)    # wall post: a0, a1, z0, z1
+KB_M = 0.9                                         # gusset edge round each bolt
+KG = dict(top=[(A_BR - 2.5, KB_ZU + 1.5), (A_BR + 1.5, KB_ZU + 1.5), (A_BR - 3.0, KB_ZU - 3.0)],
+          foot=[(1.0, KB_BOT + 2.5), (1.0, KB_BOT - 2.5), (5.0, KB_BOT + 3.0)],
+          corner=[(1.0, KB_ZU - 2.5), (4.75, KB_ZU + 1.5)])
+KB_LAGS = (KB_BOT + 6.0, KB_ZU - 5.0)            # two lags through each post into the wall framing
+
+
+def gusset(joint):
+    """knee frame gusset outline (a, z): the smooth hull of a KB_M margin round its bolts"""
+    pts = [(a + KB_M * math.cos(2 * math.pi * j / 48), z + KB_M * math.sin(2 * math.pi * j / 48)) for a, z in KG[joint] for j in range(48)]
+    return _hull(pts)
+
+
+def knee_frames():
+    """(name, b centre, side): side = +1 gusset on the brace's north face, -1 on its south face (toward the balcony's middle)"""
+    return [("south", B_BH, 1), ("north", BAL_N - 1, -1)]
+
 
 # frame members, centrelines (a, b) to (a, b): 2 x 3 tube on edge
 LAND_FRAME = dict(LE=((1, 0), (1, LAND_N)), LS=((1, 1), (XL, 1)), LW=((XL - 1, 1), (XL - 1, LAND_N)),
@@ -214,11 +292,11 @@ UP_POST = (XL - VC - UP_POST_W / 2, XL - VC + UP_POST_W / 2, LAND_N + BRKT_T, LA
 if MONO:
     SAD_U1 = U_FOOT + BRKT_T + UP_POST_W + BRKT_T
     CHEEK_U1 = SAD_U1 + 0.75                          # cheeks run on past the seat's back edge, for edge distance round their bolt
+    CHEEK_H = 2.0                                     # round 7: cheeks flat topped, this far above the seat (the rounder webs clear them)
     _cu = [SAD_U0 + i * (CHEEK_U1 - SAD_U0) / 34 for i in range(35)]
     _wb = [web_bottom(UPPER, 1, u) for u in _cu]
-    _first = next(z for z in _wb if z is not None)
-    # cheek outline (u, z): from the seat's underside up to just under the rounded first bracket, capped 2 in above the seat
-    CHEEK = [(SAD_U0, Z_SEAT - BRKT_T)] + [(u, min((z if z is not None else _first) - SAD_GAP, Z_SEAT + 2.0)) for u, z in zip(_cu, _wb)] + [(CHEEK_U1, Z_SEAT - BRKT_T)]
+    assert min(z for z in _wb if z is not None) - SAD_GAP >= Z_SEAT + CHEEK_H, "first upper bracket web hits the saddle cheek"
+    CHEEK = [(SAD_U0, Z_SEAT - BRKT_T), (SAD_U0, Z_SEAT + CHEEK_H), (CHEEK_U1, Z_SEAT + CHEEK_H), (CHEEK_U1, Z_SEAT - BRKT_T)]
     SAD_BOLT = (SAD_U1 - 0.15, Z_SEAT + 0.85)         # cheek bolt toward the back, where the cheek is taller
     TAB_Z = (Z_SEAT + 0.2, ZP - TT - 0.1)             # foot tab against the landing north beam's north face, under the oak; starts above the
                                                       # cheek's bend so it folds off flat cheek (flat pattern: 0.26 in clear of the bend line)

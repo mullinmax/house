@@ -238,7 +238,9 @@ def mono_ladder(WX, WY):
                     for ub_ in (fu[0] + 0.8, fu[1] - 0.8):
                         fnut(f, ub_, v0 + sg * (G.FOOT_W / 2 + 0.6), f.zf + BT, "z")
             ua_, v0_, v1_ = uk + G.WEB0, G.ARM_END, G.WN - G.ARM_END
-            gv(ST, f, [(v0_, zk - G.ARM_D), (v1_, zk - G.ARM_D), (v1_, zk - e), (v0_, zk - e)], ua_ - BT, ua_ - e)    # the strip: also the top of the riser below
+            so_ = G.strip_outline(zk - e)                    # the strip: also the top of the riser below (round 7: bottom end corners rounded)
+            for i_ in range(1, len(so_) - 1, 2):
+                gv(ST, f, [so_[0], so_[i_], so_[i_ + 1], so_[min(i_ + 2, len(so_) - 1)]], ua_ - BT, ua_ - e)
             for vt_ in (v0_ + G.STRIP_TAB, v1_ - G.STRIP_TAB):          # screw tab at each end, folded toward the back of the tread (Maxwell 11/23/2026)
                 gh(ST, f, [(ua_ + e, zk - BT), (ua_ + 1.25, zk - BT), (ua_ + 1.25, zk - e), (ua_ + e, zk - e)], vt_ - 0.9, vt_ + 0.9)
                 fbolt(f, ua_ + 0.7, vt_, zk - BT, "z", -1, d=0.5, h=0.15)
@@ -336,10 +338,22 @@ def mono_ladder(WX, WY):
         gb(ST, a0, a1, b0, b1, z0, z1)
     for b_ in G.BAL_LAGS:
         nut(2, b_, z0 + 1.5, "a")
-    r2, c_ = G.POST / math.sqrt(2), XL - 1.5
-    for b in (G.B_BH, G.BAL_N - 1):                      # round 5: a second brace under the head beam (Maxwell 11/23/2026), clear of the treads
-        hexa(ST, [P(a, bb, z) for bb in (b - 1 + e, b + 1 - 2 * e) for a, z in ((c_ + r2, z0 - e), (c_ - r2, z0 - e), (0.05, z0 - c_ + r2), (0.05, z0 - c_ - r2))])
-        bolt(c_ - 2.2, b + 1 - 2 * e, z0 - 2.2, "b"); nut(1.6, b + 1 - 2 * e, z0 - c_ + 1.6, "b")
+    r2, c_, zb_ = G.POST / math.sqrt(2), G.A_BR, G.KB_BOT
+    for nm_, b, sd in G.knee_frames():                   # round 7: each brace closes a triangle with a post down the wall, a gusset at every joint
+        hexa(ST, [P(a, bb, z) for bb in (b - 1 + e, b + 1 - 2 * e) for a, z in ((c_ + r2, z0 - e), (c_ - r2, z0 - e), (2.0 + e, zb_ + r2), (2.0 + e, zb_ - r2))])
+        pa0, pa1, pz0, pz1 = G.KB_POST
+        gb(ST, pa0 + 0.05, pa1, b - 1, b + 1, pz0, pz1 - e)
+        gb0, gb1 = (b + 1 + e, b + 1 + BT) if sd > 0 else (b - 1 - BT, b - 1 - e)
+        fo_, fi_ = (gb1, b - 1) if sd > 0 else (gb0, b + 1)
+        for j_ in ("top", "foot", "corner"):
+            g_ = G.gusset(j_)
+            for i_ in range(1, len(g_) - 1, 2):
+                q_ = [g_[0], g_[i_], g_[i_ + 1], g_[min(i_ + 2, len(g_) - 1)]]
+                hexa(ST, [P(a, gb0, z) for a, z in q_] + [P(a, gb1, z) for a, z in q_])
+            for a_, z_ in G.KG[j_]:
+                bolt(a_, fo_, z_, "b", sd); nut(a_, fi_, z_, "b", -sd)
+        for z_ in G.KB_LAGS:
+            nut(pa1, b, z_, "a")
     # the free posts stand outside the frame and stop under the rail; an L shaped plate bolts each to the end beam and 3 1/2 in up the post
     PN = (G.BAL_N + 0.375 + e, G.BAL_N + 0.375 + G.POST)
     post(XL + e, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, z0)
