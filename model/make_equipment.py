@@ -1817,6 +1817,102 @@ def _follow_drywall():
                 break
 
 
+# ------------------------------------------------------------------ bedroom return options (mockups, not the design)
+# Maxwell, 11/24/2026: the attic floor trusses bear on the top plate of the hall 2 north wall (bedrooms 2 and 3 and the study)
+# and of bedroom 1's south wall, so every low return stack in those walls goes through a bearing plate. RETURN_OPT=1, 2 or 3
+# rebuilds equipment.json with one of three ways round it, for comparison renders only. Unset, nothing changes.
+RETURN_OPT = os.environ.get("RETURN_OPT", "")
+def _return_option(opt):
+    D = {d["id"]: d for d in ducts}
+    def drop(*ids):
+        for i in ids:
+            if i in D: ducts.remove(D.pop(i))
+    def lead(id, p0):                           # restart a run at p0, dropping its points behind p0 (south of it)
+        d = D[id]; d["points"] = [p0] + [p for p in d["points"] if p[1] > p0[1] + 0.05]
+    def mock(d, note):
+        ducts.append(d); D[d["id"]] = d
+        if "info_of" not in d: d.setdefault("info", {}).setdefault("notes", []).append(note)
+        return d
+    xs_all = sorted(set(round(v, 4) for xs_ in trusses["xs"] for v in xs_))
+    CWH = CFG["floor_trusses"].get("chord_w_in", 3.5) / 24
+    bedroom_stacks = ["return_bed3_stack", "return_bed3_stack2", "return_bed2_stack", "return_study_stack", "return_study_stack2", "return_bed1_stack", "return_bed1_stack2"]
+    heads = ["return_bed3_head", "return_bed3b_head", "return_bed2_head", "return_study_head", "return_study2_head"]
+    ZB = ZT                                       # centre of a grille in the truss band, the 11 7/8 in just above the 9 ft plate
+    OVER = 8.29                                   # centre of a grille over a door: between the 83 in header (top about 7 ft 10 in) and the plate (8 ft 9 in)
+    if opt == "1":
+        # Above the plate. Bedroom 3 has attic over it, so its return comes down through its ceiling between two trusses.
+        # Bedroom 2, the study and bedroom 1 are vaulted: their wall goes on up past the 9 ft plate, so a high grille in the
+        # band where the truss ends sit (or, for bedroom 1, higher still, on its return header) opens straight into the duct.
+        drop(*bedroom_stacks, *heads, "return_bed3b")
+        D["return_bed23"].pop("grilles", None); lead("return_bed23", [XR3, 11.6, ZT])
+        mock(dict(id="opt1_bed3_ceiling", name="Bedroom 3 ceiling return (option 1)", category="HVAC return duct", system="hvac.return", type="return", shape="rect", size=[12, 12],
+                  points=[[XR3, 11.6, CEIL], [XR3, 11.6, ZT + 0.3]], grilles=[dict(at=[XR3, 11.6, CEIL - 0.02], size=[14, 14])], info=dict(model="14 x 14 in ceiling return grille and box between two trusses")),
+             "Option 1 mockup: the grille sits in bedroom 3's ceiling by its north wall, in the truss bay its 10 in return already runs south in. Nothing goes through a wall.")
+        D["return_bed2"]["grilles"] = [dict(at=[XR2, 10.64, ZB], size=[14, 6], wall=N)]; lead("return_bed2", [XR2, 10.66, ZT])
+        D["return_study"]["grilles"] = [dict(at=[XSB, 10.64, ZB], size=[14, 6], wall=N)]; lead("return_study", [XSB, 10.66, ZT])
+        D["return_study2"]["grilles"] = [dict(at=[XSB2, 10.64, ZB], size=[14, 6], wall=N)]; lead("return_study2", [XSB2, 10.66, ZT])
+        h = D["return_bed1_head"]; h["size"] = [24, 10]; h["points"] = [[XBH, 15.05, ZH], [XBH, 15.95, ZH]]
+        D["return_bed1"]["grilles"] = [dict(at=[XBH, 15.01, ZH], size=[24, 10], wall=N)]
+        for id, room in (("opt1_bed3_ceiling", "Bedroom 3"), ("return_bed2", "Bedroom 2"), ("return_study", "Bedroom 4 / study"), ("return_study2", "Bedroom 4 / study"), ("return_bed1_head", "Bedroom 1")):
+            D[id].update(room=room, intake=True)       # for tools/duct_balance.py: these pieces now start at the room's grille
+        D["opt1_bed3_ceiling"].update(parent="return_bed23", el=35)
+    elif opt == "2":
+        # Through the plate, strapped. Today's low grilles and stacks stay. Each stack is narrowed to the part of its stud bay
+        # that sits between two trusses (about 12 in), so no truss bears over the cut, and a 16 ga x 1 1/2 in strap runs across
+        # the cut on the face of each top plate, 6 in past it each side with eight 10d nails each side (IRC R602.6.1).
+        for sid in bedroom_stacks:
+            d = D[sid]; x = d["points"][0][0]; y = d["points"][0][1]; w = d["size"][0] / 12
+            a, b = x - w / 2, x + w / 2
+            for tx in xs_all:
+                if tx - CWH - 0.25 / 12 < a < tx + CWH + 0.25 / 12: a = tx + CWH + 0.25 / 12
+                if tx - CWH - 0.25 / 12 < b < tx + CWH + 0.25 / 12: b = tx - CWH - 0.25 / 12
+            x2 = round((a + b) / 2, 3); w2 = round((b - a) * 12, 2)
+            d["size"] = [w2, 2.5]; d["points"] = [[x2, p[1], p[2]] for p in d["points"]]
+            for g in ducts:
+                for gr in g.get("grilles", []):
+                    if abs(gr["at"][0] - x) < 0.02 and abs(gr["at"][2] - LOW) < 0.05 and abs(gr["at"][1] - y) < 0.5: gr["at"][0] = x2
+            L = round(w2 + 12)
+            faces = [10.8 + 1.75 / 12 + 0.01] if abs(y - 10.8) < 0.1 else [15.26 - 1.75 / 12 - 0.01]   # the hall 2 face, or the closet 1 face
+            for k, z in enumerate([CEIL - 0.75 / 12 - 0.75 / 12, CEIL - 2.25 / 12 - 0.75 / 12]):
+                items.append(dict(id=f"opt2_strap_{sid}_{k}", name="Top plate strap (option 2)", category="Framing", system="framing", layer="ducts", builder="plate_strap",
+                                  size=[L, 1.5, 0.06], at=[x2, faces[0], z], facing=180 if abs(y - 10.8) < 0.1 else 0,
+                                  info=dict(model=f"16 ga x 1-1/2 x {L} in galvanized strap, eight 10d nails each side",
+                                            notes=[f"Option 2 mockup: the {w2} in stack cuts about 70% of the plate's 3 1/2 in width, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses that bear on this plate."])))
+    elif opt == "3":
+        # Transfer to hall 2. Bedroom 2, the study and bedroom 1 pass their air through a grille pair over their own door, in the
+        # cripple space between the header and the plate, and hall 2 gets ceiling returns. Bedroom 3 keeps a ceiling return of its own
+        # (option 1's), since it has attic over it and no plate in the way.
+        drop(*bedroom_stacks, *heads, "return_bed3b", "return_bed2", "return_bed1_head")
+        D["return_bed23"].pop("grilles", None); lead("return_bed23", [XR3, 11.6, ZT])
+        mock(dict(id="opt3_bed3_ceiling", name="Bedroom 3 ceiling return (option 3)", category="HVAC return duct", system="hvac.return", type="return", shape="rect", size=[12, 12],
+                  points=[[XR3, 11.6, CEIL], [XR3, 11.6, ZT + 0.3]], grilles=[dict(at=[XR3, 11.6, CEIL - 0.02], size=[14, 14])], info=dict(model="14 x 14 in ceiling return grille and box between two trusses")),
+             "Option 3 mockup: bedroom 3 has attic over it, so it keeps its own ceiling return.")
+        # Bedroom 2's and the study's doors are in the wall the trusses bear on, so the cripples over the header carry trusses:
+        # each grille pair sits in its own cripple bay between two trusses (two per door) and no cripple under a truss comes out.
+        for nm, xs2 in (("bed2", (bay(13.3), bay(14.7))), ("study", (bay(24.0), bay(25.3)))):
+            for k, x in enumerate(xs2):
+                mock(dict(id=f"opt3_xfer_{nm}_{k}", name=f"{'Bedroom 2' if nm == 'bed2' else 'Study'} transfer grilles (option 3)", category="HVAC transfer", system="hvac.return", type="transfer", shape="rect", size=[10, 6],
+                          points=[[x, 10.62, OVER], [x, 10.97, OVER]], grilles=[dict(at=[x, 10.64, OVER], size=[12, 8], wall=N), dict(at=[x, 10.97, OVER], size=[12, 8], wall=S)],
+                          info=dict(model="Two pairs of 12 x 8 in grilles over the door, one per cripple bay, lined sleeves through the wall")),
+                     "Option 3 mockup: the room's air goes through the wall over its door into hall 2, in the cripple bays between the header and the top plate. "
+                     "This wall carries the trusses, so the grilles stay between the cripples that sit under them. Sound and light carry through; a lined or offset sleeve cuts that.")
+        mock(dict(id="opt3_xfer_bed1", name="Bedroom 1 transfer grille (option 3)", category="HVAC transfer", system="hvac.return", type="transfer", shape="rect", size=[22, 6],
+                  points=[[30.23, 13.0, OVER], [30.57, 13.0, OVER]], grilles=[dict(at=[30.23, 13.0, OVER], size=[24, 8], wall="W"), dict(at=[30.565, 13.0, OVER], size=[24, 8], wall="E")],
+                  info=dict(model="Pair of 24 x 8 in grilles over the door, lined sleeve through the wall")),
+             "Option 3 mockup: over bedroom 1's door into the hall 2 east leg. That wall is parallel to the trusses, so its plate carries none of them.")
+        for id, x in (("return_study", XSB), ("return_study2", XSB2)):
+            D[id].pop("grilles", None); lead(id, [x, 11.5, ZT])
+            mock(dict(id=f"opt3_hall2_{id}", name="Hall 2 ceiling return (option 3)", category="HVAC return duct", system="hvac.return", type="return", shape="rect", size=[8, 8],
+                      points=[[x, 11.5, CEIL], [x, 11.5, ZT + 0.25]], grilles=[dict(at=[x, 11.5, CEIL - 0.02], size=[10, 10])], info_of="opt3_hall2_main"), "")
+        D["return_bed1"]["points"] = D["return_bed1"]["points"][4:]; D["return_bed1"].pop("grilles", None)
+        HX = bay(21.3)
+        mock(dict(id="opt3_hall2_main", name="Hall 2 ceiling return (option 3)", category="HVAC return duct", system="hvac.return", type="return", shape="round", size=8,
+                  points=[[HX, 13.4, CEIL], [HX, 13.4, ZR], [HX, 12.45, ZR]], grilles=[dict(at=[HX, 13.4, CEIL - 0.02], size=[14, 14])],
+                  info=dict(model="14 x 14 in ceiling grille, 8 in riser into the 10 in return on the trunk")),
+             "Option 3 mockup: the main hall 2 return. It rises in one truss bay, up through the deck beside the supply trunk, and turns into the side of the 10 in return that rides on top of the trunk. Two smaller ceiling grilles at the east end feed the study's old 6 in runs.")
+if RETURN_OPT:
+    _return_option(RETURN_OPT)
+
 _follow_drywall()
 
 out = dict(

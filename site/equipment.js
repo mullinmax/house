@@ -1277,6 +1277,12 @@ const BUILD = {
   },
   car(s, it) { return buildCar(it); },                 // Tesla Model Y and Honda Insight, in vehicles.js
   wall_connector(s) { return buildWallConnector(s); },
+  plate_strap(s) {                 // flat galvanized strap across a cut top plate, nail heads in two rows each side of the middle (s = [length, width, thickness] in)
+    const [L, w, t] = s, g = new THREE.Group(), nail = mat('nail head', 0x55595c, 0.5, 0.6);
+    box(g, L, w, t, galv(), 0, w / 2, t / 2);
+    for (const sg of [-1, 1]) for (let k = 0; k < 4; k++) for (const r of [0.4, 1.1]) box(g, 0.28, 0.28, 0.08, nail, sg * (L / 2 - 1.0 - k * 1.25), r, t + 0.04);
+    return g;
+  },
   generic(s) {
     const [w, h, d] = s, g = new THREE.Group();
     box(g, w, h, d, greyPlastic(), 0, h / 2, d / 2); return g;
