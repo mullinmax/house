@@ -193,6 +193,7 @@ M("BN", (1, BN1, ZB), (XW, BN1, ZB), "TUBE", "i")
 M("BW", (XW, BS1, ZB), (XW, BN1, ZB), "TUBE")
 for b in G.BAL_LAGS:
     S((1, b, ZB), what="balcony ledger bolt to the loft rim")
+    m.def_support(N(1, b, ZB), True, True, True, True, False, False)   # the joists are pinned to the ledger: stop it rolling about its own length (a free mode some solvers reject)
 for nm, b in ((("BRn", BN1),) if G.MONO else (("BRh", G.B_BH), ("BRn", BN1))):      # mono: the centre stringer's head stands where the south brace was
     M(nm, (G.A_BR, b, ZB), (1, b, ZB - G.BRACE), "POST", "i")
     S((1, b, ZB - G.BRACE), what=f"knee brace wall bracket ({'south' if nm == 'BRh' else 'north'})")
