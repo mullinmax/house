@@ -339,10 +339,15 @@ def write_inp(path, m, loads, variant):
             L += ["2", f"{a_},{dof},1.,{b_},{dof},-1."]
     for s_, mst in ties:
         L += [f"*TIE,NAME=T{s_[2:]},POSITION TOLERANCE=0.02,ADJUST=NO", f"{s_},{mst}"]
+    L += ["*NSET,NSET=CUTREF", str(refs["cut"][0])]
     L += ["*STEP", f"*STATIC,SOLVER={SOLVER}", "*BOUNDARY"]
     L += [f"FIX_{k.upper()},1,3" for k in fixed]
     if "bear" in variant:
         L.append("BEAR,1,1")
+    if "slot" in variant and piece == "head":
+        # slotted clips leave the cut off piece free to slide up and down (in the frame the rest of the stringer holds it): hold the cut's
+        # reference node vertically; its reaction is reported and should be near zero, the frame having no weight at the top
+        L.append(f"{refs['cut'][0]},3,3")
     L += ["*DLOAD", "EALL,GRAV,386.1,0.,0.,-1."]
     L.append("*CLOAD")
     f_cut = loads["cut"]
@@ -359,6 +364,8 @@ def write_inp(path, m, loads, variant):
         L += [f"*NODE PRINT,NSET=FIX_{k.upper()},TOTALS=ONLY", "RF"]
     if "bear" in variant:
         L += ["*NODE PRINT,NSET=BEAR,TOTALS=ONLY", "RF"]
+    if "slot" in variant and piece == "head":
+        L += ["*NODE PRINT,NSET=CUTREF,TOTALS=ONLY", "RF"]
     L += ["*NODE PRINT,NSET=NALL", "U", "*EL PRINT,ELSET=EALL", "S", "*END STEP"]
     open(path, "w").write("\n".join(L) + "\n")
     m["refs"] = refs
