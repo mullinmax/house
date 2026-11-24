@@ -172,7 +172,7 @@ if G.MONO:
     a0p, a1p, b0p, b1p = G.UP_POST
     upc = (b0p + b1p) / 2 - G.B0
     pc_ = UP.p(upc, VC, UP.zc(upc))
-    ptop = (pc_[0], pc_[1], UP.zl(upc) - G.PL - G.BRKT_T)
+    ptop = (pc_[0], pc_[1], G.Z_SEAT - G.BRKT_T)        # round 5: the post's level top under the saddle seat
     fixed_ = POST_BASE == "fixed"                       # LADDER_POST_BASE=pinned: the 4 anchor plate taken as a pin, the bound on base flexibility
     m.def_support(N(pc_[0], pc_[1], 0.0), True, True, True, fixed_, fixed_, fixed_)
     SUP[N(pc_[0], pc_[1], 0.0)] = "upper stringer post base plate on the slab"
@@ -194,7 +194,7 @@ M("BW", (XW, BS1, ZB), (XW, BN1, ZB), "TUBE")
 for b in G.BAL_LAGS:
     S((1, b, ZB), what="balcony ledger bolt to the loft rim")
     m.def_support(N(1, b, ZB), True, True, True, True, False, False)   # the joists are pinned to the ledger: stop it rolling about its own length (a free mode some solvers reject)
-for nm, b in ((("BRn", BN1),) if G.MONO else (("BRh", G.B_BH), ("BRn", BN1))):      # mono: the centre stringer's head stands where the south brace was
+for nm, b in (("BRh", G.B_BH), ("BRn", BN1)):      # mono round 5: a brace under the head beam too (Maxwell 11/23/2026)
     M(nm, (G.A_BR, b, ZB), (1, b, ZB - G.BRACE), "POST", "i")
     S((1, b, ZB - G.BRACE), what=f"knee brace wall bracket ({'south' if nm == 'BRh' else 'north'})")
 for i, a in enumerate(G.BAL_STRIPS):

@@ -1,27 +1,29 @@
 #!/usr/bin/env python3
-"""Solid element check of the round 4 upper stringer joints (Maxwell 11/23/2026): the foot on its one post, and the notched top.
+"""Solid element check of the upper stringer joints, round 5 (Maxwell 11/23/2026): the foot on its one post, and the plumb cut top.
 
-Pieces (ladder_geom.py / ladder_cad.py, mono round 4), each cut out of the frame model (ladder_fea.py) at a station on the HSS
-4 x 4 x 1/4 stringer mid way between two tread bracket bolt groups, so the only loads are the frame's forces across the cut, the
-forces from the tread brackets on the piece, and the piece's own weight:
+Pieces (ladder_geom.py / ladder_cad.py, mono), each cut out of the frame model (ladder_fea.py) at a station on the HSS 4 x 4 x 1/4
+stringer mid way between two tread bracket bolt groups, so the only loads are the frame's forces across the cut, the forces from the
+tread brackets on the piece, and the piece's own weight:
 
-  foot   stringer from its plumb cut foot (U_FOOT) to the cut; the bent saddle (seat under the tube, a cheek up each side with one
-         through bolt, legs down the post's south and north faces with one bolt through the post); the 3 x 3 x 3/16 post down to its
-         base plate (fixed there); one angle clip each side (a leg on the tube side, one through bolt across the tube, and a leg against
-         the landing's north beam with one bolt through the beam, taken as rigid)
-  head   stringer from the cut to its notched top: the part above the balcony frame's underside stops at the head beam's south face
-         (U_BEAR), the rest runs under the beam to its north face (U_END); one angle clip each side (tube leg, through bolt across the
-         tube; beam leg with one bolt through the head beam, rigid)
+  foot   stringer from its foot to the cut: the foot is cut level (Z_SEAT) and sits on a bent saddle (level seat with low upturned edges,
+         legs down the post's south and north faces with one bolt through the post); a short plumb face stays against the landing's
+         north beam; the 3 x 3 x 3/16 post down to its base plate (fixed there); one angle clip each side (a leg on the first tread
+         bracket's web, one through bolt across the tube, and a leg against the landing's north beam with one bolt through the beam,
+         taken as rigid; the web itself is not modelled, the rigid bolt bridges it)
+  head   stringer from the cut to its plumb cut top against the head beam's south face (U_BEAR), the top trimmed level at the frame's
+         top (Z_TRIM); one angle clip each side (tube leg in vertical slots, through bolt across the tube; beam leg with one bolt
+         through the head beam, rigid)
 
-Joints: bolts are rigid bodies over every ply's hole surface (snug, no slip, no hole clearance); the tube bottom sits on the saddle
-seat and the seat on the post's cut top, both modelled as tied (bonded) faces. Variants:
-  bear     the foot's plumb end bears on the landing beam / the notched top bears on the head beam (normal restraint on the end face
+Joints: bolts are rigid bodies over every ply's hole surface (snug, no slip, no hole clearance); the foot sits on the seat and the seat
+on the post's level top, both modelled as tied (bonded) faces. Variants:
+  bear     the foot's plumb face bears on the landing beam / the plumb top bears on the head beam (normal restraint on the end face
            where the beam is); none = clips carry it all
   slot     head clip holes slotted vertically: the clip bolts pass no vertical force (what the frame model assumes)
 Steel: E 29e6 psi, nu 0.29; HSS A500 Gr B Fy 46 ksi (tube, post: design wall 0.93 t), plate A36 Fy 36 ksi (saddle, clips, 1/4 in).
 Allowable 0.6 Fy. Mesh: gmsh 10 node tets, separate per part; CalculiX linear static.
 
 Run:  python joint_solid_fea.py --loads DIR/ladder_cut_loads.json --piece foot --out OUT [--coarse 2] [--cases 6] [--threads 8]
+      --coarse 1 (default) is the quick mesh used for design; 0.7 agreed with it within 1% in round 4.
 PRELIMINARY: for an engineer's review, not for construction.
 """
 import argparse, json, math, os, shutil, subprocess, sys, time
@@ -54,21 +56,20 @@ U0P, U1P = PX0 - BT, PX1 + BT                       # saddle
 TPP = BT / CA                                       # saddle plate, plumb
 ZCAP = lambda x: zb(x) - TPP                        # post top = saddle underside
 PB = 0.375                                          # base plate
-XS = (U0P + U1P) / 2                                # saddle cheek bolt
-ZS = zb(XS) + 0.9
-ZLB = zb(U0P + BT) - 2.0                            # saddle leg bolt (through the post)
+ZS5 = G.Z_SEAT                                      # round 5: level foot cut = saddle seat top
+ZPT = ZS5 - BT                                      # post's level top
+ZLB = ZPT - 2.0                                     # saddle leg bolt (through both legs and the post)
 SOLVER = os.environ.get("FEA_SOLVER", "SPOOLES")
-NOTCH_HOLE = float(os.environ.get("NOTCH_HOLE", "0.75"))   # relief hole diameter at the notch corner (0 = sharp corner as drawn)
 
 
 # ---------------------------------------------------------------- geometry (x north along the flight, y west, z up; inches)
 def bolts(piece):
-    """(name, point, axis, kind): kind 'rigid' joins every ply, 'fixed' is a bolt into a beam taken as rigid, 'slot' = vertical slots in the clips"""
+    """(name, point, axis, kind): kind 'rigid' joins every ply, 'fixed' is a bolt into a beam taken as rigid"""
     if piece == "foot":
-        return [("cheek", (XS, 0.0, ZS), "y", "rigid"), ("leg", (U0P - 1, 0.0, ZLB), "x", "rigid"),
-                ("clip", (UF + 1.0, 0.0, 43.1), "y", "rigid"),
-                ("beam_w", (UF - 1, HW + 1.3, G.ZLF), "x", "fixed"), ("beam_e", (UF - 1, -HW - 1.3, G.ZLF), "x", "fixed")]
-    return [("clip", (UB - 0.9, 0.0, ZU - 2.0), "y", "rigid"),
+        yb_ = HW + BT + 1.3                                 # clip beam legs sit outside the first bracket's webs
+        return [("clip", (G.FOOT_BOLT[0], 0.0, G.FOOT_BOLT[1]), "y", "rigid"), ("leg", (U0P - 1, 0.0, ZLB), "x", "rigid"),
+                ("beam_w", (UF - 1, yb_, G.ZLF), "x", "fixed"), ("beam_e", (UF - 1, -yb_, G.ZLF), "x", "fixed")]
+    return [("clip", (UB - 1.25, 0.0, ZU - 1.5), "y", "rigid"),
             ("beam_w", (UB - 2, HW + 1.3, G.ZBF), "x", "fixed"), ("beam_e", (UB - 2, -HW - 1.3, G.ZBF), "x", "fixed")]
 
 
@@ -92,50 +93,48 @@ def build_parts(piece, xc, path):
 
     tp = T_TUBE / CA
     parts = {}
-    if piece == "foot":
+    if piece == "foot":                                     # round 5: level cut on the saddle, short plumb face against the landing beam
         x0, x1 = UF, xc
-        outer = prism([(x0, zb(x0)), (x1, zb(x1)), (x1, zt(x1)), (x0, zt(x0))], -HW, HW)
-    else:
-        x0, x1 = xc, UE
-        outer = prism([(x0, zb(x0)), (UE, zb(UE)), (UE, ZU), (UB, ZU), (UB, zt(UB)), (x0, zt(x0))], -HW, HW)
+        outer = prism([(UF, ZS5), (UF + G.L_SEAT, zb(UF + G.L_SEAT)), (x1, zb(x1)), (x1, zt(x1)), (UF, zt(UF))], -HW, HW)
+    else:                                                   # round 5: one plumb cut against the head beam, top trimmed level
+        x0, x1 = xc, UB
+        outer = prism([(x0, zb(x0)), (UB, zb(UB)), (UB, G.Z_TRIM), (G.U_TRIM, G.Z_TRIM), (x0, zt(x0))], -HW, HW)
     e0, e1 = x0 - 4, x1 + 4
     inner = prism([(e0, zb(e0) + tp), (e1, zb(e1) + tp), (e1, zt(e1) - tp), (e0, zt(e0) - tp)], -HW + T_TUBE, HW - T_TUBE)
     parts["TUBE"] = outer.cut(inner)
     for s in (1, -1):
         nm = "CLIPW" if s > 0 else "CLIPE"
         if piece == "foot":
-            c = prism([(UF, 42.0), (UF + 1.5, 42.0), (UF + 1.5, 44.2), (UF, 44.2)], s * HW, s * (HW + BT))
-            c = c.fuse(box(UF, UF + BT, s * HW, s * (HW + 2.25), 41.0, G.ZP - G.TT - 0.25))
+            y0_ = HW + BT                                   # outside the first bracket's web
+            c = prism(G.FOOT_CLIP, s * y0_, s * (y0_ + BT))
+            xr, zr = G.FOOT_CLIP[2]                         # the profile's inside cut corner: laser cut with a 1/4 in radius
+            ed = [e for e in c.Edges() if e.geomType() == "LINE" and all(abs(p.x - xr) < 1e-6 and abs(p.z - zr) < 1e-6 for p in (e.startPoint(), e.endPoint()))]
+            try:
+                c = c.fillet(0.25, ed)
+            except Exception as ex:
+                print(f"  {nm} profile corner radius failed, left sharp:", ex)
+            c = c.fuse(box(UF, UF + BT, s * y0_, s * (y0_ + 2.25), 42.0, G.ZP - G.TT - 0.25))
+            yi, xi = y0_ + BT, UF + BT
         else:
-            ua, us_ = UB - 1.75, UP.u2 - 0.15 / G.SL
-            c = prism([(ua, ZU - 3.5), (UB - BT, ZU - 3.5), (UB - BT, ZU - 0.25), (us_, ZU - 0.25), (ua, zt(ua) - 0.1)], s * HW, s * (HW + BT))
-            c = c.fuse(box(UB - BT, UB, s * HW, s * (HW + 2.25), ZU - 3.5, G.FL - G.TT - 0.25))
+            ua, xq = UB - 2.25, G.U_TRIM - 0.15 / G.SL
+            c = prism([(ua, ZU - 3.0), (UB - BT, ZU - 3.0), (UB - BT, G.Z_TRIM - 0.25), (xq, G.Z_TRIM - 0.25), (ua, zt(ua) - 0.1)], s * HW, s * (HW + BT))
+            c = c.fuse(box(UB - BT, UB, s * HW, s * (HW + 2.25), ZU - 3.0, G.Z_TRIM - 0.25))
+            yi, xi = HW + BT, UB - BT
         c = c.clean()
-        xi = UF + BT if piece == "foot" else UB - BT                # inside corner of the angle: bent, inside radius = plate thickness
-        ed = [e for e in c.Edges() if e.geomType() == "LINE" and all(abs(p.x - xi) < 1e-6 and abs(abs(p.y) - (HW + BT)) < 1e-6 for p in (e.startPoint(), e.endPoint()))]
-        try:
+        ed = [e for e in c.Edges() if e.geomType() == "LINE" and all(abs(p.x - xi) < 1e-6 and abs(abs(p.y) - yi) < 1e-6 for p in (e.startPoint(), e.endPoint()))]
+        try:                                                # inside corner of the angle: bent, inside radius = plate thickness
             c = c.fillet(BT, ed)
         except Exception as ex:
             print(f"  {nm} bend fillet failed ({len(ed)} edges), left sharp:", ex)
         parts[nm] = c
-    if piece == "head" and NOTCH_HOLE > 0:                          # relief hole drilled at the notch's re-entrant corner, through both side walls
-        parts["TUBE"] = parts["TUBE"].cut(cq.Solid.makeCylinder(NOTCH_HOLE / 2, 10, V(UB, -5, ZU), V(0, 1, 0)))
     if piece == "foot":
-        sad = prism([(U0P, ZCAP(U0P)), (U1P, ZCAP(U1P)), (U1P, zb(U1P)), (U0P, zb(U0P))], -HW - BT, HW + BT)
+        sad = box(U0P, U1P, -HW - BT, HW + BT, ZPT, ZS5)                        # level seat
         for s in (1, -1):
-            sad = sad.fuse(prism([(U0P, zb(U0P)), (U1P, zb(U1P)), (U1P, zb(U1P) + 1.75), (U0P, zb(U0P) + 1.75)], s * HW, s * (HW + BT)))
+            sad = sad.fuse(box(U0P, U1P, s * HW, s * (HW + BT), ZS5, ZS5 + G.SEAT_LIP))     # low upturned edges
         for u0_ in (U0P, U1P - BT):
-            sad = sad.fuse(prism([(u0_, zb(u0_ + BT) - 3.5), (u0_ + BT, zb(u0_ + BT) - 3.5), (u0_ + BT, ZCAP(u0_ + BT) + 0.01), (u0_, ZCAP(u0_) + 0.01)], -1.5, 1.5))
-        sad = sad.clean()
-        ed = [e for e in sad.Edges() if e.geomType() == "LINE" and all(abs(abs(p.y) - HW) < 1e-6 and abs(p.z - zb(p.x)) < 1e-6 for p in (e.startPoint(), e.endPoint()))]
-        try:                                                        # seat to cheek bends, inside radius = plate thickness
-            sad = sad.fillet(BT, ed)
-        except Exception as ex:
-            print(f"  saddle bend fillet failed ({len(ed)} edges), left sharp:", ex)
-        parts["SADDLE"] = sad
-        ztop = ZCAP(PX1) + 1
-        post = box(PX0, PX1, -1.5, 1.5, PB, ztop).cut(box(PX0 + T_POST, PX1 - T_POST, -1.5 + T_POST, 1.5 - T_POST, PB - 1, ztop + 1))
-        post = post.cut(prism([(PX0 - 1, ZCAP(PX0 - 1)), (PX1 + 1, ZCAP(PX1 + 1)), (PX1 + 1, ztop + 5), (PX0 - 1, ztop + 5)], -3, 3))
+            sad = sad.fuse(box(u0_, u0_ + BT, -1.5, 1.5, ZPT - 3.5, ZPT + 0.01))           # legs down the post
+        parts["SADDLE"] = sad.clean()
+        post = box(PX0, PX1, -1.5, 1.5, PB, ZPT).cut(box(PX0 + T_POST, PX1 - T_POST, -1.5 + T_POST, 1.5 - T_POST, PB - 1, ZPT + 1))
         parts["POST"] = post
     for nm, p, ax, kind in bolts(piece):
         for k in parts:
@@ -171,11 +170,11 @@ def mesh(piece, xc, work, coarse):
         r = {"x": f"Sqrt((y-({p[1]}))^2+(z-({p[2]}))^2)", "y": f"Sqrt((x-({p[0]}))^2+(z-({p[2]}))^2)", "z": f"Sqrt((x-({p[0]}))^2+(y-({p[1]}))^2)"}[ax]
         me(f"{h_fine} + 0.4*Abs({r}-{HOLE / 2})")
     if piece == "head":
-        me(f"{h_fine} + 0.4*Sqrt((x-{UB})^2+(z-{ZU})^2)")             # the notch's re-entrant corner (both side walls)
-        jb = (UB - 4.5, UE + 0.5, ZU - 9.0, G.FL)
+        me(f"{h_fine} + 0.4*Sqrt((x-{UB})^2+(z-{ZU})^2)")             # where the beam's bottom edge bears on the plumb face
+        jb = (UB - 5.0, UB + 0.5, ZU - 9.0, G.Z_TRIM + 0.5)
     else:
-        me(f"{h_fine} + 0.4*Sqrt((x-{UF})^2+(z-{zb(UF)})^2)")         # the foot's bottom corner, over the saddle
-        jb = (UF - 0.5, U1P + 2.5, ZLB - 2.5, G.ZP)
+        me(f"{h_fine} + 0.4*Sqrt((x-{UF + G.L_SEAT})^2+(z-{ZS5})^2)")  # the level cut's north end
+        jb = (UF - 0.5, U1P + 2.5, ZLB - 2.5, 48.5)
     f = Fd.add("Box")
     for k_, v_ in (("VIn", h_joint), ("VOut", h_far), ("XMin", jb[0]), ("XMax", jb[1]), ("YMin", -6), ("YMax", 6), ("ZMin", jb[2]), ("ZMax", jb[3]), ("Thickness", 2.0)):
         Fd.setNumber(f, k_, v_)
@@ -308,14 +307,13 @@ def write_inp(path, m, loads, variant):
         nset("FIX_" + nm.upper(), nodes)
     # ties: tube bottom on the saddle seat, the seat on the post's cut top
     ties = []
-    if piece == "foot":
-        sn = m["nodes"]["SADDLE"]
-        bot = tn[(np.abs(X[tn, 2] - zb(X[tn, 0])) < 1e-4) & (X[tn, 0] > U0P - 1e-4) & (X[tn, 0] < U1P + 1e-4)]
-        fc = ccx_faces(m, "SADDLE", lambda p: (np.abs(p[..., 2] - zb(p[..., 0])) < 1e-4).all(axis=1) & (np.abs(p[..., 1]) < HW + 1e-4).all(axis=1))
+    if piece == "foot":                                  # the level foot cut on the seat, the seat on the post's level top
+        bot = tn[(np.abs(X[tn, 2] - ZS5) < 1e-4) & (X[tn, 0] > U0P - 1e-4)]
+        fc = ccx_faces(m, "SADDLE", lambda p: (np.abs(p[..., 2] - ZS5) < 1e-4).all(axis=1) & (np.abs(p[..., 1]) < HW + 1e-4).all(axis=1))
         nset("S_TUBEBOT", bot, True); esurf("M_SEATTOP", fc); ties.append(("S_TUBEBOT", "M_SEATTOP"))
         pn = m["nodes"]["POST"]
-        top = pn[np.abs(X[pn, 2] - ZCAP(X[pn, 0])) < 1e-4]
-        fc = ccx_faces(m, "SADDLE", lambda p: (np.abs(p[..., 2] - ZCAP(p[..., 0])) < 1e-4).all(axis=1))
+        top = pn[np.abs(X[pn, 2] - ZPT) < 1e-4]
+        fc = ccx_faces(m, "SADDLE", lambda p: (np.abs(p[..., 2] - ZPT) < 1e-4).all(axis=1))
         nset("S_POSTTOP", top, True); esurf("M_SEATBOT", fc); ties.append(("S_POSTTOP", "M_SEATBOT"))
         m["tie_nodes"] = dict(tube_bottom=len(bot), post_top=len(top))
         base = pn[np.abs(X[pn, 2] - PB) < 1e-4]
@@ -325,7 +323,7 @@ def write_inp(path, m, loads, variant):
         if piece == "foot":
             be = tn[(np.abs(X[tn, 0] - UF) < 1e-4) & (X[tn, 2] > ZBEAM_L[0]) & (X[tn, 2] < ZBEAM_L[1])]
         else:
-            be = tn[(np.abs(X[tn, 0] - UB) < 1e-4) & (X[tn, 2] > ZU + 1e-4)]
+            be = tn[(np.abs(X[tn, 0] - UB) < 1e-4) & (X[tn, 2] > ZU - 1e-4)]
         nset("BEAR", be)
         m["bear_nodes"] = len(be)
     L += ["*MATERIAL,NAME=STEEL", "*ELASTIC", f"{E_ST},{NU_ST}", "*DENSITY", f"{RHO:.6g}", "*SOLID SECTION,ELSET=EALL,MATERIAL=STEEL"]
@@ -402,8 +400,8 @@ def describe(m, p, g="TUBE"):
                 return f"edge of the {nm} bolt hole ({'beam bolt, fixed' if kind == 'fixed' else 'rigid bolt'}: peak is local)"
         return f"{g.lower()}: x {x:.2f}, y {y:.2f}, z {z:.2f}"
     side = "west" if y > 0 else "east"
-    if m["piece"] == "head" and math.hypot(x - UB, z - ZU) < 0.5 + NOTCH_HOLE / 2 and abs(abs(y) - HW) < 0.3:
-        return f"notch corner, {side} side wall ({'edge of the %.2f in relief hole' % NOTCH_HOLE if NOTCH_HOLE else 'sharp re-entrant corner'})"
+    if m["piece"] == "head" and abs(x - UB) < 0.4 and abs(z - ZU) < 0.5:
+        return f"plumb head cut at the beam's bottom edge, {side} side wall (edge of the bearing)"
     for nm, q, ax, kind in bolts(m["piece"]):
         i = "xyz".index(ax)
         d = np.delete(np.array(p) - np.array(q), i)
@@ -448,9 +446,6 @@ def analyse(m, ccx, case, loads, variant, work, threads):
         allow = 0.6 * FY[g]
         out["parts"][g] = dict(peak=round(float(vm[n][i_all])), peak_at=describe(m, tuple(P[i_all]), g), away_from_holes=round(float(vm[n][i_away])),
                                away_at=describe(m, tuple(P[i_away]), g), allow=allow, use_away=round(float(vm[n][i_away]) / allow, 3))
-        if g == "TUBE" and m["piece"] == "head":
-            c = np.hypot(P[:, 0] - UB, P[:, 2] - ZU) < 0.5 + NOTCH_HOLE / 2
-            out["parts"][g]["notch_corner"] = round(float(vm[n][c].max())) if c.any() else None
     out["reactions"] = {k: [round(v, 1) for v in r] for k, r in totals(dat).items()}
     un = U[:, 0].astype(int)
     du = np.linalg.norm(U[:, 1:4], axis=1)
@@ -499,7 +494,7 @@ def main():
     m = mesh(a.piece, piece["u"], work, a.coarse)
     nn = len(np.unique(m["ccx_STEEL"]))
     print(f"{a.piece}: {nn} nodes, {len(m['ccx_STEEL'])} elements, mesh {time.time() - t0:.0f} s", flush=True)
-    variants = a.variants or (["bear", "none"] if a.piece == "foot" else ["bear", "bear+slot", "none"])
+    variants = a.variants or (["bear", "none"] if a.piece == "foot" else ["bear+slot"])
     cases = a.only or pick_cases(data, a.piece, a.cases)
     res = dict(piece=a.piece, cut_u=piece["u"], nodes=nn, elements=len(m["ccx_STEEL"]), sizes=m["sizes"], runs=[])
     for v in variants:
