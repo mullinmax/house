@@ -47,16 +47,22 @@ def vprism(f, vz, u0, u1):
     return cq.Solid.extrudeLinear(cq.Face.makeFromWires(w), W(*f.p(u1, 0, 0)) - W(*f.p(u0, 0, 0)))
 
 
-def base_angles(post):
-    """round 10: the standard post base, two L 4 x 4 x 3/8 clip angles, each with two through bolts across the post and two slab anchors"""
+def post_base(post):
+    """round 11: the standard post base, a 7 x 7 x 1/2 plate with rounded corners on four slab anchors, two clips cut from L 2 x 2 x 3/8
+    against the post, one through bolt across the post and the clips, a flat head screw up through the plate into each clip"""
     rect, axis = G.POST_BASES[post]
-    for i, (up, fl, bolts, anc, sg) in enumerate(G.base_angles(*rect, axis)):
+    pb = G.post_base(*rect, axis)
+    w = cq.Wire.makePolygon([W(a, b, 0.0) for a, b in pb["plate"]], close=True)
+    add("posts", f"{post}_base_plate", cq.Solid.extrudeLinear(cq.Face.makeFromWires(w), cq.Vector(0, 0, G.BP_T)))
+    for up, fl, sg in pb["clips"]:
         side = ("west" if sg > 0 else "east") if axis == "a" else ("north" if sg > 0 else "south")
-        add("posts", f"{post}_base_angle_{side}", box(*up).fuse(box(*fl)))
-        for a_, b_, z_ in bolts:
-            (bolt if sg > 0 else nut)(a_, b_, z_, axis, sg)
-        for a_, b_ in anc:
-            nut(a_, b_, G.BA_T, "z")
+        add("posts", f"{post}_base_clip_{side}", box(*up).fuse(box(*fl)))
+    (ha, hb, hz), (na, nb, nz) = pb["bolt"]
+    bolt(ha, hb, hz, axis, 1); nut(na, nb, nz, axis, -1)
+    for a_, b_ in pb["anchors"]:
+        nut(a_, b_, G.BP_T, "z")
+    for a_, b_ in pb["screws"]:
+        nut(a_, b_, G.BP_T + G.BC_T, "z")
 
 
 def zprism(f, uv, z0, z1):
@@ -319,8 +325,8 @@ for f in G.FLIGHTS:
         zpt = zs - BT
         a0p, a1p, b0p, b1p = G.UP_POST
         u0p, u1p = G.SAD_U0, G.SAD_U1
-        add("posts", "upper_stringer_post", tube(a0p, a1p, b0p, b1p, 0.0, zpt, "z", 0.1875))
-        base_angles("upper_stringer_post")
+        add("posts", "upper_stringer_post", tube(a0p, a1p, b0p, b1p, G.BP_T if G.MONO else 0.0, zpt, "z", 0.1875))   # round 11: stands on its base plate
+        post_base("upper_stringer_post")
         sad = prism(f, [(u0p, zpt), (u1p, zpt), (u1p, zs), (u0p, zs)], VC - G.TW / 2 - BT, VC + G.TW / 2 + BT)
         for sg in (-1, 1):
             vt = VC + sg * G.TW / 2
@@ -355,10 +361,12 @@ for f in G.FLIGHTS:
         und = (lambda u: ztop(u) - RD2) if not G.CONT_RAIL else (lambda u: G.rail_under(*f.p(u, -1.0, 0)[:2]) - 0.05)
         u_a, u_b = G.FOOT_U - 1, G.FOOT_U + 1
         post = prism(f, [(u_a, 0), (u_b, 0), (u_b, und(u_b)), (u_a, und(u_a))], -G.POST, 0.0) if not G.CONT_RAIL else post_box(G.A_FOOT - 1, G.A_FOOT + 1, G.XL, G.XL + G.POST, 0.0)
+        if G.MONO:                                                             # round 11: stands on its base plate
+            post = post.cut(box(G.A_FOOT - 2, G.A_FOOT + 2, G.XL - 1, G.XL + G.POST + 1, -1.0, G.BP_T))
         post = post.cut(prism(f, [(u_a + T, -1), (u_b - T, -1), (u_b - T, 200), (u_a + T, 200)], -G.POST + T, -T))
         add("posts", "foot_post", post)
         if G.MONO:
-            base_angles("foot_post")
+            post_base("foot_post")
     else:
         if not G.CONT_RAIL:
             add("rails", "upper_rail_open", slope_tube(f, G.POST + G.XL - G.B0, G.BAL_S - G.B0, ztop, RD2, -1.75, -0.25, G.RAIL_T))
@@ -402,9 +410,9 @@ for nm, (a0_, a1_, b0_, b1_) in G.LAND_POSTS.items():
             nut(a1_, (b0_ + b1_) / 2, z_, "a")
 deck = box(0, XL, 0, G.LAND_DECK_N, ZP - TT, ZP)
 add("landing", "landing_deck", deck.fuse(box(XL, XL + G.NOSE, G.GAP, XL, ZP - TT, ZP)) if G.NOSE else deck, OAK, "oak")
-add("posts", "corner_newel", post_box(XL, XL + G.POST, XL, XL + G.POST, 0.0) if G.CONT_RAIL else tube(XL, XL + G.POST, XL, XL + G.POST, 0.0, G.NEWEL_TOP, "z", G.POST_T))
+add("posts", "corner_newel", post_box(XL, XL + G.POST, XL, XL + G.POST, 0.0) if G.CONT_RAIL else tube(XL, XL + G.POST, XL, XL + G.POST, G.BP_T if G.MONO else 0.0, G.NEWEL_TOP, "z", G.POST_T))
 if G.MONO:                                         # round 10: the standard clip angle base
-    base_angles("corner_newel")
+    post_base("corner_newel")
 for z_ in (ZP - TK + 0.8, ZP - TT - 0.8):          # corner newel lapped onto the landing's west beam
     bolt(XL + G.POST, XL + 1, z_, "a")
     nut(XL - 2, XL + 1, z_, "a", -1)
@@ -472,7 +480,7 @@ for nm, b, sd in (G.knee_frames() if G.MONO else ()):         # round 7: each br
 if G.MONO:                                         # round 10: north knee frame, wall post = north east guard post, brace up to the north west post
     BN_ = G.BAL_N
     b = BN_ - 1
-    add("balcony", "knee_brace_north", aprism([(XL, G.NK_ZT + r2), (XL, G.NK_ZT - r2), (2.0, G.NK_ZB - r2), (2.0, G.NK_ZB + r2)], b - 1, b + 1))
+    add("balcony", "knee_brace_north", aprism([(G.A_BR + r2, zu - G.CP_T), (G.A_BR - r2, zu - G.CP_T), (2.0, G.NK_ZB + r2), (2.0, G.NK_ZB - r2)], b - 1, b + 1))   # round 11: same part as the south brace
     gb0, gb1 = BN_, BN_ + BT                                               # gussets on the north face
     for j_ in ("top", "foot"):
         add("balcony", f"knee_gusset_{j_}_north", aprism(G.nk_gusset(j_), gb0, gb1))

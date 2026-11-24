@@ -80,6 +80,19 @@
    ]
   },
   {
+   "file": "post_base_plate_qty3.dxf",
+   "name": "Post base plate (foot post, corner newel, upper stringer post)",
+   "qty": 3,
+   "thick": 0.5,
+   "material": "Mild steel A36 (hot rolled P&O)",
+   "bends": "none",
+   "notes": "7 x 7 in, corners R 0.75. Four 1/2 in holes at the corners for 3/8 wedge anchors. COUNTERSINK the two 13/32 in holes (2.45 in each side of centre) from the BOTTOM face (82 deg, 3/8 flat head): the screws go up through the plate into the two clip angles (cut from stock L 2 x 2 x 3/8, 3 in long), nuts on top; put them in before the plate is anchored. The same plate fits the 2 x 2 and the 3 x 3 posts: only the hole in the clip's flat leg moves (1.45 in from the heel for 2 x 2, 0.95 in for 3 x 3).",
+   "size": [
+    7.0,
+    7.0
+   ]
+  },
+  {
    "file": "balcony_corner_plate_qty2.dxf",
    "name": "Balcony corner plate (south west newel and north west post)",
    "qty": 2,
@@ -114,8 +127,8 @@
    "bends": "none",
    "notes": "flat: south frame: brace top to the head beam (2 bolts in the beam, 1 in the brace). South frame: on the brace's north face; north frame: on the north face. 3/8 through bolts with crush sleeves.",
    "size": [
-    6.3,
-    6.3
+    4.8,
+    6.8
    ]
   },
   {
@@ -138,10 +151,10 @@
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "none",
-   "notes": "flat: south frame: wall post top to the head beam's end (1 in each). South frame: on the brace's north face; north frame: on the north face. 3/8 through bolts with crush sleeves.",
+   "notes": "flat: south frame: wall post top to the head beam's end, an L plate (2 bolts in the post, 2 in the beam, so it cannot pivot). South frame: on the brace's north face; north frame: on the north face. 3/8 through bolts with crush sleeves.",
    "size": [
-    5.55,
-    5.8
+    7.5,
+    7.25
    ]
   },
   {
@@ -151,10 +164,10 @@
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "none",
-   "notes": "flat: north frame: brace top to the north west post (the post's 2 bolts are the corner plate's, 1 in the brace). South frame: on the brace's north face; north frame: on the north face. 3/8 through bolts with crush sleeves.",
+   "notes": "flat: north frame: brace top to the north arm's west end and the north west post (the post's 2 bolts are the corner plate's, 1 in the brace). South frame: on the brace's north face; north frame: on the north face. 3/8 through bolts with crush sleeves.",
    "size": [
-    6.05,
-    9.3
+    7.71,
+    7.18
    ]
   },
   {

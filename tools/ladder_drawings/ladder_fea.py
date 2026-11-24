@@ -373,12 +373,12 @@ else:
         M("gnw", (PC, G.GP_B, ZB), corner, "POST")
         # the north east post: the north knee frame's wall post in one piece from its 45 degree foot to the guard rail, lagged to the wall
         # (lags take no weight), the ledger and north arm clipped to it at the frame's level
-        nez = sorted({G.NK_ZB - 1.0, ZB, zg, *G.NK_LAGS})
+        nez = sorted({ZB - G.BRACE, ZB, zg, *G.NK_LAGS})
         for i_, (za_, zb2_) in enumerate(zip(nez, nez[1:])):
             M(f"gne{i_}", (1, G.GP_B, za_), (1, G.GP_B, zb2_), "POST")
         for z_ in G.NK_LAGS:
             S((1, G.GP_B, z_), True, False, True, what="north east post lag into the wall, no vertical")
-        M("BRn", (PC, G.GP_B, G.NK_ZT + 1.0), (1, G.GP_B, G.NK_ZB - 1.0), "POST")   # gussets, taken as fixed
+        M("BRn", (G.A_BR, G.GP_B, ZB), (1, G.GP_B, ZB - G.BRACE), "POST")   # round 11: the same brace as the south one, bearing under the north arm (gussets taken as fixed)
         ne = [None, None, (1, G.GP_B, zg)]
     else:
         corner = (PC, G.GP_B, zg)
@@ -516,6 +516,9 @@ for n, what in SUP.items():
             env = [r[0], r[1], r[2], c]
     res["reactions"].setdefault(what, [])
     res["reactions"][what].append(dict(north=round(env[0]), up=round(env[1]), east=round(env[2]), total=round(math.hypot(*env[:3])), case=env[3], dead_up=round(nd.RxnFY["D"])))
+    mm = max(((math.hypot(nd.RxnMX["D+" + c], nd.RxnMZ["D+" + c]), c) for c in CASES), key=lambda t: t[0])
+    if mm[0] > 1.0:                                   # round 11: base moment (in-lb) where a support is fixed, to size the post base plates
+        res["reactions"][what][-1].update(moment_inlb=round(mm[0]), moment_case=mm[1])
 # total dead weight, and a frequency estimate from the self weight plus one 170 lb person at mid flight
 res["knee_post_top"] = {n: dict(tension_lb=round(max(m.members[n].max_axial("D+" + c) for c in CASES)), compression_lb=round(-min(m.members[n].min_axial("D+" + c) for c in CASES)))
                         for n in MEM if n.endswith("_post_top")}   # round 10: what the corner gusset (post top to the ledger) carries

@@ -37,7 +37,7 @@ FT_L, FT_B = (GA11, GA11) if MONO else (0.1875, 0.1875)   # frame tube walls (co
 CONT_RAIL = MONO and bool(L.get("ladder_rail_continuous", False))   # round 3's one curved rail; Maxwell 11/24/2026: back to straight rails between posts
 WALL_RAIL = bool(L.get("ladder_wall_rail", True))   # wall side handrails; code wants rails on both sides of a ships ladder, Maxwell asked to hide them for now
 SPHERE_GAP = 3.875                               # no strip option: riser lip top to the next tread's underside, under the 4 in sphere
-RT, RH = ((0.75, 2.0) if STRIPS else (0.75, RI - TT - SPHERE_GAP)) if MONO else (0.0, 0.0)      # mono: an oak riser lip behind every tread; the 2 in steel strip under the tread above closes the rest (Maxwell 11/22/2026 round 3)
+RT, RH = ((0.75, 2.0) if STRIPS else (0.75, RI - TT - SPHERE_GAP - (DECOR_ANG[0] if DECOR else 0.0))) if MONO else (0.0, 0.0)   # round 11: the decor angle's 2 in leg closes the top of the riser, so its lip is that much shorter      # mono: an oak riser lip behind every tread; the 2 in steel strip under the tread above closes the rest (Maxwell 11/22/2026 round 3)
 WEB0, BOLT_N, LAP, SEAT_W = (4.5, 1.5, 3.0, 3.5) if MONO else (3.75, 1.25, 2.25, 2.5)   # tread bracket: web start behind the nosing, bolt line below the tube top, lap, seat width
 # Mono tread support (Maxwell 11/22/2026 PM): a flat plate ARM on edge crosses over the stringer under each tread and reaches near both tread ends.
 # Each bracket web has a flange folded off its vertical front edge that bolts to the arm, so the load goes into the webs in their own plane.
@@ -294,7 +294,8 @@ VC = WN / 2
 PC = XL + POST / 2                                # posts stand outside the open edge, lapped onto the tubes and frames
 FOOT_U = 4.0 if MONO else 12.0                   # lower flight foot post (mono: beside the first tread on a 4 anchor moment base plate)
 A_FOOT = XL + UL - FOOT_U
-A_BR = XL - 4.5 if MONO else 17.0                 # knee brace: where it meets the balcony frame (mono: 45 degree braces to the wall, Maxwell 11/22/2026;
+A_BR = XL - POST / math.sqrt(2) if MONO else 17.0   # round 11 (Maxwell 11/24/2026: both knee braces the same size): the south brace's level top cut ends at
+                                                  # the balcony's west edge, so it spans the same 23.2 in from the wall post as the north one. Before: XL - 4.5                 # knee brace: where it meets the balcony frame (mono: 45 degree braces to the wall, Maxwell 11/22/2026;
                                                   # round 7: 2 1/2 in further east so its gusset clears the west beam)
 BRACE = A_BR - 1.0 if MONO else 16.0              # its rise, to the wall post's centreline
 
@@ -341,36 +342,45 @@ def shoe_anchors():
     f = LOWER
     return [(f.u0 + 1.0, VC - SHOE_ANC_V), (f.u0 + 1.0, VC + SHOE_ANC_V), (f.u1 + SHOE_TAB / 2, VC)]
 
-# round 10 standard post base (Maxwell 11/24/2026: one standard base everywhere, standard parts wherever possible, no welding): every slab
-# post (foot post, corner newel, upper stringer post) stands on the slab between two clip angles cut from standard L 4 x 4 x 3/8 angle,
-# 8 in long, all the same part with the same holes. Each angle's upright leg takes two 3/8 through bolts that cross the post (crush sleeve
-# inside), and its flat leg two 3/8 slab anchors. The posts sit straight on the slab: no plate under them and no square hole.
-BA_LEG, BA_T, BA_L = 4.0, 0.375, 8.0
-BA_BOLT_Z = (1.25, 3.25)                           # through bolts up the upright leg, on the post's centreline (3/8 grade 5: double shear)
-BA_ANC = (-3.0, 3.0)                               # anchors along the angle from its middle
-BA_ANC_OUT = 2.25                                  # and this far out from the upright leg's back face
+# round 11 standard post base (Maxwell 11/24/2026: the round 10 stock angle bases looked overbuilt; back to a small square plate like the
+# round 3 ones, corners rounded, one part for every slab post, no welding). Every slab post (foot post, corner newel, upper stringer post)
+# stands ON a 7 x 7 x 1/2 in laser cut plate held by four slab anchors at its corners. Two short clip angles cut from stock L 2 x 2 x 3/8
+# (3 in long) stand against two opposite faces of the post: one 3/8 through bolt crosses the post and both clips, and each clip's flat leg
+# takes a 3/8 flat head screw up through a countersunk hole in the plate (put in before the plate is anchored). The plate's two screw holes
+# sit 2.45 in from its centre, so the same plate fits the 2 x 2 and the 3 x 3 posts: only the hole in the clip's flat leg moves (1.45 in from
+# the heel on a 2 x 2 post, 0.95 in on the 3 x 3). Foot post base moment 4810 in-lb (frame model): screw pull about 1390 lb, clip leg
+# about 21 ksi as a plain cantilever (under 0.6 Fy before any credit for the screw clamping it), plate about 13 ksi.
+BP_W, BP_T, BP_R = 7.0, 0.5, 0.75                 # plate size, thickness, corner radius
+BP_ANC = 2.75                                      # anchors at the plate's corners, this far from its centre each way
+BP_SCREW = 2.45                                    # countersunk clip screw holes, this far from the centre on the clips' axis
+BC_LEG, BC_T, BC_L = 2.0, 0.375, 3.0               # clip angle legs, thickness, length (along the post face)
+BC_BOLT_Z = BP_T + 1.25                            # the through bolt across the post, up from the slab
 
 
-def base_angles(a0, a1, b0, b1, axis):
-    """the two clip angles at a post's foot: axis 'a' puts them on the post's two a faces (flat legs pointing along a), 'b' on its b faces.
-    Returns [(upright box, flat box, through bolt points [(a, b, z)], anchor points [(a, b)], outward sign)], boxes as (a0, a1, b0, b1, z0, z1)"""
-    out = []
-    ac, bc = (a0 + a1) / 2, (b0 + b1) / 2
+def post_base(a0, a1, b0, b1, axis):
+    """the standard post base. axis 'a' puts the clips on the post's two a faces, 'b' on its b faces. Returns dict: plate outline [(a, b)],
+    anchors [(a, b)], clips [(upright box, flat box, outward sign)] boxes (a0, a1, b0, b1, z0, z1), bolt (head point, nut point) as (a, b, z),
+    screws [(a, b)] (flat heads up through the plate into the clips' flat legs)"""
+    ac, bc, h = (a0 + a1) / 2, (b0 + b1) / 2, BP_W / 2
+    sq = [(ac - h, bc - h), (ac + h, bc - h), (ac + h, bc + h), (ac - h, bc + h)]
+    plate = [q for i in range(4) for q in _fillet(sq, i, BP_R, cap=0.45)]
+    anchors = [(ac + i * BP_ANC, bc + j * BP_ANC) for i in (-1, 1) for j in (-1, 1)]
+    clips, screws, ends = [], [], []
     for sg in (-1, 1):
         if axis == "a":
             fa = a1 if sg > 0 else a0
-            up = tuple(sorted((fa, fa + sg * BA_T))) + (bc - BA_L / 2, bc + BA_L / 2, 0.0, BA_LEG)
-            fl = tuple(sorted((fa, fa + sg * BA_LEG))) + (bc - BA_L / 2, bc + BA_L / 2, 0.0, BA_T)
-            bolts = [(fa + sg * BA_T, bc, z) for z in BA_BOLT_Z]
-            anc = [(fa + sg * BA_ANC_OUT, bc + d) for d in BA_ANC]
+            up = tuple(sorted((fa, fa + sg * BC_T))) + (bc - BC_L / 2, bc + BC_L / 2, BP_T, BP_T + BC_LEG)
+            fl = tuple(sorted((fa, fa + sg * BC_LEG))) + (bc - BC_L / 2, bc + BC_L / 2, BP_T, BP_T + BC_T)
+            screws.append((ac + sg * BP_SCREW, bc))
+            ends.append((fa + sg * BC_T, bc, BC_BOLT_Z))
         else:
             fb = b1 if sg > 0 else b0
-            up = (ac - BA_L / 2, ac + BA_L / 2) + tuple(sorted((fb, fb + sg * BA_T))) + (0.0, BA_LEG)
-            fl = (ac - BA_L / 2, ac + BA_L / 2) + tuple(sorted((fb, fb + sg * BA_LEG))) + (0.0, BA_T)
-            bolts = [(ac, fb + sg * BA_T, z) for z in BA_BOLT_Z]
-            anc = [(ac + d, fb + sg * BA_ANC_OUT) for d in BA_ANC]
-        out.append((up, fl, bolts, anc, sg))
-    return out
+            up = (ac - BC_L / 2, ac + BC_L / 2) + tuple(sorted((fb, fb + sg * BC_T))) + (BP_T, BP_T + BC_LEG)
+            fl = (ac - BC_L / 2, ac + BC_L / 2) + tuple(sorted((fb, fb + sg * BC_LEG))) + (BP_T, BP_T + BC_T)
+            screws.append((ac, bc + sg * BP_SCREW))
+            ends.append((ac, fb + sg * BC_T, BC_BOLT_Z))
+        clips.append((up, fl, sg))
+    return dict(plate=plate, anchors=anchors, clips=clips, bolt=(ends[1], ends[0]), screws=screws)
 
 
 # round 7 knee frames (Maxwell 11/24/2026): each 45 degree brace closes a full triangle with a 2 x 2 post down the bath 1 wall from the
@@ -380,10 +390,10 @@ KB_ZU = FL - TK                                    # balcony frame underside
 KB_BOT = KB_ZU - (A_BR - 2.0)                      # brace centreline where it meets the post's face (a = 2)
 KB_POST = (0.0, 2.0, KB_BOT - POST / math.sqrt(2) - 2.0, KB_ZU)    # wall post: a0, a1, z0, z1
 KB_M = 0.9                                         # gusset edge round each bolt
-KG = dict(top=[(A_BR - 2.5, KB_ZU + 1.5), (A_BR + 1.5, KB_ZU + 1.5), (A_BR - 3.0, KB_ZU - 3.0)],
+KG = dict(top=[(A_BR - 4.75, KB_ZU + 1.5), (A_BR - 1.75, KB_ZU + 1.5), (A_BR - 3.5, KB_ZU - 3.5)],   # round 11: clear of the west beam (a < XL - 2)
           foot=[(1.0, KB_BOT + 2.5), (1.0, KB_BOT - 1.0), (4.25, KB_BOT + 2.25)],   # round 10: the lower post bolt up, the brace bolt on its centreline
-          corner=[(1.0, KB_ZU - 2.5), (4.75, KB_ZU + 1.5)])
-KB_LAGS = (KB_BOT + 6.0, KB_ZU - 5.0)            # two lags through each post into the wall framing
+          corner=[(1.0, KB_ZU - 1.25), (1.0, KB_ZU - 3.5), (4.0, KB_ZU + 1.5), (6.5, KB_ZU + 1.5)])   # round 11: 2 bolts in the post, 2 in the beam, no pivot
+KB_LAGS = (KB_BOT + 6.0, KB_ZU - 6.0)            # two lags through each post into the wall framing (round 11: upper one below the corner plate)
 
 
 KB_MITER = KB_BOT - POST / math.sqrt(2) - 2.0      # round 10 (Maxwell 11/24/2026): the post's foot is cut at 45 degrees, flush with the brace's
@@ -396,6 +406,10 @@ def gusset(joint):
     if joint == "foot":
         p = [(0.0, KB_MITER), (7.0, KB_MITER + 7.0), (0.0, KB_BOT + 4.25)]
         return _fillet(p, 0, 0.6, cap=0.3) + _fillet(p, 1, 0.75, cap=0.3) + _fillet(p, 2, 0.75, cap=0.3)
+    if joint == "corner":                          # round 11: an L shaped corner plate, the post's top and the head beam's end, kept off the ledger
+        zu = KB_ZU                                 # (the ledger fills a < 2 above the frame's underside)
+        p = [(0.0, zu - 4.75), (2.75, zu - 4.75), (7.5, zu), (7.5, zu + 2.5), (2.0, zu + 2.5), (2.0, zu), (0.0, zu)]
+        return [p[5], p[6], p[0]] + _fillet(p, 1, 1.0) + _fillet(p, 2, 1.0) + _fillet(p, 3, 0.6) + [p[4]]   # starts at the inside corner (fans cleanly)
     pts = [(a + KB_M * math.cos(2 * math.pi * j / 48), z + KB_M * math.sin(2 * math.pi * j / 48)) for a, z in KG[joint] for j in range(48)]
     return _hull(pts)
 
@@ -409,12 +423,16 @@ def knee_frames():
 # round 10 north knee frame (Maxwell 11/24/2026): the north east guard post runs down the wall in one piece as the frame's wall post, and the
 # 45 degree brace runs from it up to the north west guard post's foot (the railing corner) instead of to the frame. Gussets on the north face.
 CP_T, CP_DROP, CP_BAND = 0.375, 4.5, 8.0          # west corner plates: thickness, how far the west posts and plates run below the frame, band along the beam
-NK_ZT = FL - TK - 2.75                             # brace centreline where it meets the north west post's east face (a = XL)
-NK_ZB = NK_ZT - (XL - POST)                        # and the north east post's west face (a = 2)
+# round 11 (Maxwell 11/24/2026: the two 45 degree braces should be the same size): the north brace is now the SAME PART as the south one,
+# a level top cut bearing under the north arm and ending at the west edge (beside the north west post), a plumb foot cut on the north east
+# post at the same height as the south brace's foot. Its top gusset still takes the corner plate's two post bolts.
+NK_ZT = FL - TK - 3.0                              # the north west post's lower gusset bolt (a frame model node)
+NK_ZB = KB_BOT - CP_T                              # brace centreline where it meets the north east post's west face (a = 2): 3/8 lower than the
+                                                  # south one, because its top bears on the north west corner plate's flange under the north arm
 NK_MITER = NK_ZB - POST / math.sqrt(2) - 2.0       # north east post's 45 degree foot cut: z = NK_MITER + a
 NK_LAGS = (NK_ZB + 6.0, FL - 11.0)                 # lags through the north east post into the wall framing (none in the frame depth: the ledger is there)
 NKG = dict(foot=[(1.0, NK_ZB + 2.5), (1.0, NK_ZB - 1.0), (4.25, NK_ZB + 2.25)],
-           top=[(XL + 1.0, FL - TK + 1.5), (XL + 1.0, FL - TK - 3.0), (XL - 3.25, NK_ZT - 3.25 + 0.0)])   # top: the two post bolts are the corner plate's
+           top=[(XL + 1.0, FL - TK + 1.5), (XL + 1.0, FL - TK - 3.0), (A_BR - 3.5, KB_ZU - CP_T - 3.5)])   # top: the two post bolts are the corner plate's
 
 
 def nk_gusset(joint):

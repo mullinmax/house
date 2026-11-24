@@ -25,3 +25,8 @@ R 2, riser corner R 1, and the seat ends where the round starts. South knee post
 rounded triangle on that line. The balcony deck grows to the rail lines (north and west); the old L plates are replaced by
 balcony_corner_plate_qty2 (SW and NW, mirror pair: bend one each way), whose flange bolts up through the end beam.
 The NE guard post runs down as the north knee post (one tube), so the north frame has only top and foot gussets.
+Round 11 (11/24/2026): the post bases go back to a small square plate (Maxwell: the stock angle bases looked overbuilt).
+post_base_plate_qty3 (1/2 in, 7 x 7, corners R 0.75) is one part under all three slab posts: four wedge anchors at the corners, and two
+countersunk holes for 3/8 flat heads that go up into two clip angles cut from stock L 2 x 2 x 3/8, 3 in long (buy as angle, not in this
+kit). One through bolt crosses the post and both clips. The south knee frame's corner plate is now an L with 2 bolts in the post and 2 in
+the head beam (no pivot). Both knee braces are now the same part: level top cut bearing under the frame at its west edge, plumb foot cut.

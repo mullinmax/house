@@ -1,0 +1,1183 @@
+{
+ "parts": [
+  {
+   "group": "lower_flight",
+   "name": "lower_stringer",
+   "material": "steel",
+   "weight_lb": 51.11,
+   "bbox_in": [
+    25.47,
+    4.0,
+    44.7
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_bracket_1_open",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    6.23,
+    2.5,
+    6.79
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_bracket_2_open",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    6.23,
+    2.5,
+    6.79
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_bracket_3_open",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    6.23,
+    2.5,
+    6.79
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_bracket_4_open",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    6.23,
+    2.5,
+    6.79
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_bracket_1_wall",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    6.23,
+    2.5,
+    6.79
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_bracket_2_wall",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    6.23,
+    2.5,
+    6.79
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_bracket_3_wall",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    6.23,
+    2.5,
+    6.79
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_bracket_4_wall",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    6.23,
+    2.5,
+    6.79
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_tread_1",
+   "material": "oak",
+   "weight_lb": 9.78,
+   "bbox_in": [
+    8.5,
+    24.35,
+    1.75
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_riser_1",
+   "material": "oak",
+   "weight_lb": 2.66,
+   "bbox_in": [
+    0.75,
+    24.35,
+    5.4
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_tread_2",
+   "material": "oak",
+   "weight_lb": 9.78,
+   "bbox_in": [
+    8.5,
+    24.35,
+    1.75
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_riser_2",
+   "material": "oak",
+   "weight_lb": 2.66,
+   "bbox_in": [
+    0.75,
+    24.35,
+    5.4
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_tread_3",
+   "material": "oak",
+   "weight_lb": 9.78,
+   "bbox_in": [
+    8.5,
+    24.35,
+    1.75
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_riser_3",
+   "material": "oak",
+   "weight_lb": 2.66,
+   "bbox_in": [
+    0.75,
+    24.35,
+    5.4
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_tread_4",
+   "material": "oak",
+   "weight_lb": 9.78,
+   "bbox_in": [
+    8.5,
+    24.35,
+    1.75
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_riser_4",
+   "material": "oak",
+   "weight_lb": 2.66,
+   "bbox_in": [
+    0.75,
+    24.35,
+    5.4
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_head_clip_w",
+   "material": "steel",
+   "weight_lb": 1.69,
+   "bbox_in": [
+    2.25,
+    2.25,
+    5.75
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_head_clip_e",
+   "material": "steel",
+   "weight_lb": 1.69,
+   "bbox_in": [
+    2.25,
+    2.25,
+    5.75
+   ]
+  },
+  {
+   "group": "lower_flight",
+   "name": "lower_floor_shoe",
+   "material": "steel",
+   "weight_lb": 4.18,
+   "bbox_in": [
+    7.01,
+    7.7,
+    4.33
+   ]
+  },
+  {
+   "group": "rails",
+   "name": "lower_rail_open",
+   "material": "steel",
+   "weight_lb": 7.11,
+   "bbox_in": [
+    18.0,
+    1.5,
+    36.57
+   ]
+  },
+  {
+   "group": "posts",
+   "name": "foot_post",
+   "material": "steel",
+   "weight_lb": 22.35,
+   "bbox_in": [
+    2.0,
+    2.0,
+    46.9
+   ]
+  },
+  {
+   "group": "posts",
+   "name": "foot_post_base_plate",
+   "material": "steel",
+   "weight_lb": 6.88,
+   "bbox_in": [
+    7.0,
+    7.0,
+    0.5
+   ]
+  },
+  {
+   "group": "posts",
+   "name": "foot_post_base_clip_east",
+   "material": "steel",
+   "weight_lb": 1.16,
+   "bbox_in": [
+    2.0,
+    3.0,
+    2.0
+   ]
+  },
+  {
+   "group": "posts",
+   "name": "foot_post_base_clip_west",
+   "material": "steel",
+   "weight_lb": 1.16,
+   "bbox_in": [
+    2.0,
+    3.0,
+    2.0
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_stringer",
+   "material": "steel",
+   "weight_lb": 88.14,
+   "bbox_in": [
+    4.0,
+    41.38,
+    75.7
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_bracket_1_open",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    2.5,
+    6.23,
+    6.79
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_bracket_2_open",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    2.5,
+    6.23,
+    6.79
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_bracket_3_open",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    2.5,
+    6.23,
+    6.79
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_bracket_4_open",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    2.5,
+    6.23,
+    6.79
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_bracket_5_open",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    2.5,
+    6.23,
+    6.79
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_bracket_6_open",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    2.5,
+    6.23,
+    6.79
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_bracket_7_open",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    2.5,
+    6.23,
+    6.79
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_bracket_1_wall",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    2.5,
+    6.23,
+    6.79
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_bracket_2_wall",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    2.5,
+    6.23,
+    6.79
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_bracket_3_wall",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    2.5,
+    6.23,
+    6.79
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_bracket_4_wall",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    2.5,
+    6.23,
+    6.79
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_bracket_5_wall",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    2.5,
+    6.23,
+    6.79
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_bracket_6_wall",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    2.5,
+    6.23,
+    6.79
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_bracket_7_wall",
+   "material": "steel",
+   "weight_lb": 2.14,
+   "bbox_in": [
+    2.5,
+    6.23,
+    6.79
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_tread_1",
+   "material": "oak",
+   "weight_lb": 9.78,
+   "bbox_in": [
+    24.35,
+    8.5,
+    1.75
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_riser_1",
+   "material": "oak",
+   "weight_lb": 2.66,
+   "bbox_in": [
+    24.35,
+    0.75,
+    5.4
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_tread_2",
+   "material": "oak",
+   "weight_lb": 9.78,
+   "bbox_in": [
+    24.35,
+    8.5,
+    1.75
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_riser_2",
+   "material": "oak",
+   "weight_lb": 2.66,
+   "bbox_in": [
+    24.35,
+    0.75,
+    5.4
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_tread_3",
+   "material": "oak",
+   "weight_lb": 9.78,
+   "bbox_in": [
+    24.35,
+    8.5,
+    1.75
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_riser_3",
+   "material": "oak",
+   "weight_lb": 2.66,
+   "bbox_in": [
+    24.35,
+    0.75,
+    5.4
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_tread_4",
+   "material": "oak",
+   "weight_lb": 9.78,
+   "bbox_in": [
+    24.35,
+    8.5,
+    1.75
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_riser_4",
+   "material": "oak",
+   "weight_lb": 2.66,
+   "bbox_in": [
+    24.35,
+    0.75,
+    5.4
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_tread_5",
+   "material": "oak",
+   "weight_lb": 9.78,
+   "bbox_in": [
+    24.35,
+    8.5,
+    1.75
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_riser_5",
+   "material": "oak",
+   "weight_lb": 2.66,
+   "bbox_in": [
+    24.35,
+    0.75,
+    5.4
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_tread_6",
+   "material": "oak",
+   "weight_lb": 9.78,
+   "bbox_in": [
+    24.35,
+    8.5,
+    1.75
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_riser_6",
+   "material": "oak",
+   "weight_lb": 2.66,
+   "bbox_in": [
+    24.35,
+    0.75,
+    5.4
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_tread_7",
+   "material": "oak",
+   "weight_lb": 9.78,
+   "bbox_in": [
+    24.35,
+    8.5,
+    1.75
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_riser_7",
+   "material": "oak",
+   "weight_lb": 2.66,
+   "bbox_in": [
+    24.35,
+    0.75,
+    5.4
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_head_clip_w",
+   "material": "steel",
+   "weight_lb": 1.69,
+   "bbox_in": [
+    2.25,
+    2.25,
+    5.75
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_head_clip_e",
+   "material": "steel",
+   "weight_lb": 1.69,
+   "bbox_in": [
+    2.25,
+    2.25,
+    5.75
+   ]
+  },
+  {
+   "group": "posts",
+   "name": "upper_stringer_post",
+   "material": "steel",
+   "weight_lb": 25.56,
+   "bbox_in": [
+    3.0,
+    3.0,
+    42.73
+   ]
+  },
+  {
+   "group": "posts",
+   "name": "upper_stringer_post_base_plate",
+   "material": "steel",
+   "weight_lb": 6.88,
+   "bbox_in": [
+    7.0,
+    7.0,
+    0.5
+   ]
+  },
+  {
+   "group": "posts",
+   "name": "upper_stringer_post_base_clip_east",
+   "material": "steel",
+   "weight_lb": 1.16,
+   "bbox_in": [
+    2.0,
+    3.0,
+    2.0
+   ]
+  },
+  {
+   "group": "posts",
+   "name": "upper_stringer_post_base_clip_west",
+   "material": "steel",
+   "weight_lb": 1.16,
+   "bbox_in": [
+    2.0,
+    3.0,
+    2.0
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "upper_stringer_post_saddle",
+   "material": "steel",
+   "weight_lb": 4.3,
+   "bbox_in": [
+    8.5,
+    4.25,
+    5.75
+   ]
+  },
+  {
+   "group": "upper_flight",
+   "name": "landing_riser",
+   "material": "oak",
+   "weight_lb": 2.51,
+   "bbox_in": [
+    24.35,
+    0.75,
+    5.09
+   ]
+  },
+  {
+   "group": "rails",
+   "name": "upper_rail_open",
+   "material": "steel",
+   "weight_lb": 13.5,
+   "bbox_in": [
+    1.5,
+    34.2,
+    66.63
+   ]
+  },
+  {
+   "group": "landing",
+   "name": "landing_east_ledger",
+   "material": "steel",
+   "weight_lb": 9.95,
+   "bbox_in": [
+    2.0,
+    30.82,
+    3.0
+   ]
+  },
+  {
+   "group": "landing",
+   "name": "landing_south_ledger",
+   "material": "steel",
+   "weight_lb": 7.49,
+   "bbox_in": [
+    23.2,
+    2.0,
+    3.0
+   ]
+  },
+  {
+   "group": "landing",
+   "name": "landing_west_beam",
+   "material": "steel",
+   "weight_lb": 9.31,
+   "bbox_in": [
+    2.0,
+    28.82,
+    3.0
+   ]
+  },
+  {
+   "group": "landing",
+   "name": "landing_north_beam",
+   "material": "steel",
+   "weight_lb": 6.85,
+   "bbox_in": [
+    21.2,
+    2.0,
+    3.0
+   ]
+  },
+  {
+   "group": "landing",
+   "name": "landing_header",
+   "material": "steel",
+   "weight_lb": 8.66,
+   "bbox_in": [
+    2.0,
+    26.82,
+    3.0
+   ]
+  },
+  {
+   "group": "landing",
+   "name": "landing_deck",
+   "material": "oak",
+   "weight_lb": 29.3,
+   "bbox_in": [
+    25.2,
+    29.9,
+    1.44
+   ]
+  },
+  {
+   "group": "posts",
+   "name": "corner_newel",
+   "material": "steel",
+   "weight_lb": 23.0,
+   "bbox_in": [
+    2.0,
+    2.0,
+    90.16
+   ]
+  },
+  {
+   "group": "posts",
+   "name": "corner_newel_base_plate",
+   "material": "steel",
+   "weight_lb": 6.88,
+   "bbox_in": [
+    7.0,
+    7.0,
+    0.5
+   ]
+  },
+  {
+   "group": "posts",
+   "name": "corner_newel_base_clip_south",
+   "material": "steel",
+   "weight_lb": 1.16,
+   "bbox_in": [
+    3.0,
+    2.0,
+    2.0
+   ]
+  },
+  {
+   "group": "posts",
+   "name": "corner_newel_base_clip_north",
+   "material": "steel",
+   "weight_lb": 1.16,
+   "bbox_in": [
+    3.0,
+    2.0,
+    2.0
+   ]
+  },
+  {
+   "group": "balcony",
+   "name": "balcony_ledger",
+   "material": "steel",
+   "weight_lb": 8.41,
+   "bbox_in": [
+    2.0,
+    26.03,
+    3.0
+   ]
+  },
+  {
+   "group": "balcony",
+   "name": "balcony_south_beam",
+   "material": "steel",
+   "weight_lb": 7.49,
+   "bbox_in": [
+    23.2,
+    2.0,
+    3.0
+   ]
+  },
+  {
+   "group": "balcony",
+   "name": "balcony_head_arm",
+   "material": "steel",
+   "weight_lb": 6.85,
+   "bbox_in": [
+    21.2,
+    2.0,
+    3.0
+   ]
+  },
+  {
+   "group": "balcony",
+   "name": "balcony_north_arm",
+   "material": "steel",
+   "weight_lb": 7.49,
+   "bbox_in": [
+    23.2,
+    2.0,
+    3.0
+   ]
+  },
+  {
+   "group": "balcony",
+   "name": "balcony_west_beam",
+   "material": "steel",
+   "weight_lb": 7.52,
+   "bbox_in": [
+    2.0,
+    23.28,
+    3.0
+   ]
+  },
+  {
+   "group": "balcony",
+   "name": "balcony_deck",
+   "material": "oak",
+   "weight_lb": 29.16,
+   "bbox_in": [
+    27.2,
+    28.03,
+    1.44
+   ]
+  },
+  {
+   "group": "posts",
+   "name": "corner_plate_sw",
+   "material": "steel",
+   "weight_lb": 5.98,
+   "bbox_in": [
+    10.0,
+    2.25,
+    7.5
+   ]
+  },
+  {
+   "group": "posts",
+   "name": "corner_plate_nw",
+   "material": "steel",
+   "weight_lb": 5.98,
+   "bbox_in": [
+    10.0,
+    2.25,
+    7.5
+   ]
+  },
+  {
+   "group": "balcony",
+   "name": "knee_brace_south",
+   "material": "steel",
+   "weight_lb": 34.95,
+   "bbox_in": [
+    23.2,
+    2.0,
+    23.2
+   ]
+  },
+  {
+   "group": "balcony",
+   "name": "knee_post_south",
+   "material": "steel",
+   "weight_lb": 6.17,
+   "bbox_in": [
+    2.0,
+    2.0,
+    25.2
+   ]
+  },
+  {
+   "group": "balcony",
+   "name": "knee_gusset_top_south",
+   "material": "steel",
+   "weight_lb": 1.57,
+   "bbox_in": [
+    4.8,
+    0.25,
+    6.8
+   ]
+  },
+  {
+   "group": "balcony",
+   "name": "knee_gusset_foot_south",
+   "material": "steel",
+   "weight_lb": 1.82,
+   "bbox_in": [
+    6.09,
+    0.25,
+    6.74
+   ]
+  },
+  {
+   "group": "balcony",
+   "name": "knee_gusset_corner_south",
+   "material": "steel",
+   "weight_lb": 2.69,
+   "bbox_in": [
+    7.5,
+    0.25,
+    7.25
+   ]
+  },
+  {
+   "group": "balcony",
+   "name": "knee_brace_north",
+   "material": "steel",
+   "weight_lb": 34.95,
+   "bbox_in": [
+    23.2,
+    2.0,
+    23.2
+   ]
+  },
+  {
+   "group": "balcony",
+   "name": "knee_gusset_top_north",
+   "material": "steel",
+   "weight_lb": 2.3,
+   "bbox_in": [
+    7.71,
+    0.25,
+    7.18
+   ]
+  },
+  {
+   "group": "balcony",
+   "name": "knee_gusset_foot_north",
+   "material": "steel",
+   "weight_lb": 1.82,
+   "bbox_in": [
+    6.09,
+    0.25,
+    6.74
+   ]
+  },
+  {
+   "group": "posts",
+   "name": "balcony_sw_newel",
+   "material": "steel",
+   "weight_lb": 11.47,
+   "bbox_in": [
+    2.0,
+    2.0,
+    44.94
+   ]
+  },
+  {
+   "group": "posts",
+   "name": "guard_post_nw",
+   "material": "steel",
+   "weight_lb": 11.08,
+   "bbox_in": [
+    2.0,
+    2.0,
+    43.44
+   ]
+  },
+  {
+   "group": "posts",
+   "name": "guard_post_ne",
+   "material": "steel",
+   "weight_lb": 16.2,
+   "bbox_in": [
+    2.0,
+    2.0,
+    64.52
+   ]
+  },
+  {
+   "group": "rails",
+   "name": "guard_west_top_rail",
+   "material": "steel",
+   "weight_lb": 4.83,
+   "bbox_in": [
+    1.5,
+    25.78,
+    1.5
+   ]
+  },
+  {
+   "group": "rails",
+   "name": "guard_north_top_rail",
+   "material": "steel",
+   "weight_lb": 4.77,
+   "bbox_in": [
+    25.45,
+    1.5,
+    1.5
+   ]
+  },
+  {
+   "group": "guard",
+   "name": "guard_west_bottom_rail",
+   "material": "steel",
+   "weight_lb": 4.5,
+   "bbox_in": [
+    1.5,
+    24.03,
+    1.5
+   ]
+  },
+  {
+   "group": "guard",
+   "name": "guard_north_bottom_rail",
+   "material": "steel",
+   "weight_lb": 4.35,
+   "bbox_in": [
+    23.2,
+    1.5,
+    1.5
+   ]
+  },
+  {
+   "group": "guard",
+   "name": "picket_west_1",
+   "material": "steel",
+   "weight_lb": 1.64,
+   "bbox_in": [
+    0.5,
+    0.5,
+    29.38
+   ]
+  },
+  {
+   "group": "guard",
+   "name": "picket_west_2",
+   "material": "steel",
+   "weight_lb": 1.64,
+   "bbox_in": [
+    0.5,
+    0.5,
+    29.38
+   ]
+  },
+  {
+   "group": "guard",
+   "name": "picket_west_3",
+   "material": "steel",
+   "weight_lb": 1.64,
+   "bbox_in": [
+    0.5,
+    0.5,
+    29.38
+   ]
+  },
+  {
+   "group": "guard",
+   "name": "picket_west_4",
+   "material": "steel",
+   "weight_lb": 1.64,
+   "bbox_in": [
+    0.5,
+    0.5,
+    29.38
+   ]
+  },
+  {
+   "group": "guard",
+   "name": "picket_west_5",
+   "material": "steel",
+   "weight_lb": 1.64,
+   "bbox_in": [
+    0.5,
+    0.5,
+    29.38
+   ]
+  },
+  {
+   "group": "guard",
+   "name": "picket_north_1",
+   "material": "steel",
+   "weight_lb": 1.64,
+   "bbox_in": [
+    0.5,
+    0.5,
+    29.38
+   ]
+  },
+  {
+   "group": "guard",
+   "name": "picket_north_2",
+   "material": "steel",
+   "weight_lb": 1.64,
+   "bbox_in": [
+    0.5,
+    0.5,
+    29.38
+   ]
+  },
+  {
+   "group": "guard",
+   "name": "picket_north_3",
+   "material": "steel",
+   "weight_lb": 1.64,
+   "bbox_in": [
+    0.5,
+    0.5,
+    29.38
+   ]
+  },
+  {
+   "group": "guard",
+   "name": "picket_north_4",
+   "material": "steel",
+   "weight_lb": 1.64,
+   "bbox_in": [
+    0.5,
+    0.5,
+    29.38
+   ]
+  },
+  {
+   "group": "guard",
+   "name": "picket_north_5",
+   "material": "steel",
+   "weight_lb": 1.64,
+   "bbox_in": [
+    0.5,
+    0.5,
+    29.38
+   ]
+  }
+ ],
+ "weight_by_group": {
+  "lower_flight steel": 75.8,
+  "lower_flight oak": 49.8,
+  "rails steel": 30.2,
+  "posts steel": 149.2,
+  "upper_flight steel": 125.8,
+  "upper_flight oak": 89.6,
+  "landing steel": 42.3,
+  "landing oak": 29.3,
+  "balcony steel": 124.0,
+  "balcony oak": 29.2,
+  "guard steel": 25.2
+ }
+}

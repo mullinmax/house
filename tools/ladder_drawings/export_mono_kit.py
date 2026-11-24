@@ -226,8 +226,17 @@ part("upper_post_saddle_qty1.dxf", "Upper stringer post saddle (seat, legs down 
      f"{SAD_INFO['cheek_h']:.2f} in tall outside, one 3/8 through bolt across the stringer (crush sleeve inside); tabs {SAD_INFO['tab'][0]:.2f} in out x "
      f"{SAD_INFO['tab'][1]:.2f} in tall, one 3/8 bolt each through the landing's north beam. Replaces round 5's foot clips.", rnd=0.3)
 
-# ---------------------------------------------------------------- post bases (round 10): no laser cut base plates. Each slab post stands between
-# two clip angles cut from standard L 4 x 4 x 3/8 angle (6 pieces, 8 in long, all the same), listed in the BOM with the steel stock.
+# ---------------------------------------------------------------- post base plate (round 11): one part under all three slab posts
+pb_ = G.post_base(-1.0, 1.0, -1.0, 1.0, "a")
+h_ = G.BP_W / 2
+shp = Polygon([(a + h_, b + h_) for a, b in pb_["plate"]])
+holes = [Point(a + h_, b + h_).buffer(HANC / 2, 64) for a, b in pb_["anchors"]]
+holes += [Point(a + h_, b + h_).buffer(CSK38 / 2, 64) for a, b in pb_["screws"]]
+part("post_base_plate_qty3.dxf", "Post base plate (foot post, corner newel, upper stringer post)", 3, G.BP_T, shp, holes, (), "none",
+     f"{G.BP_W:g} x {G.BP_W:g} in, corners R {G.BP_R:g}. Four 1/2 in holes at the corners for 3/8 wedge anchors. COUNTERSINK the two 13/32 in "
+     f"holes ({G.BP_SCREW:g} in each side of centre) from the BOTTOM face (82 deg, 3/8 flat head): the screws go up through the plate into the "
+     f"two clip angles (cut from stock L 2 x 2 x 3/8, {G.BC_L:g} in long), nuts on top; put them in before the plate is anchored. The same plate "
+     "fits the 2 x 2 and the 3 x 3 posts: only the hole in the clip's flat leg moves (1.45 in from the heel for 2 x 2, 0.95 in for 3 x 3).")
 
 # ---------------------------------------------------------------- balcony corner plates (round 10), 3/8 in: replace the round 3 L plates
 # Flat in the plate's own plane: x = a (inches west of the bath 1 wall), y = z (height), the flange unfolded below the band's bend line.
@@ -263,8 +272,8 @@ clip(2.0, 1.75, "clip_angle_2in_qty18.dxf", "Clip angle 2 in wide, 1 3/4 legs", 
 # north west post, so its top gusset is a new shape. The foot gusset is the same part on both frames.
 for j_, what, qty, shape, bolts_ in (("top", "south frame: brace top to the head beam (2 bolts in the beam, 1 in the brace)", 1, G.gusset("top"), G.KG["top"]),
                                      ("foot", "both frames: brace foot to the wall post (2 in the post, 1 in the brace); a triangle whose lower edge follows the post's 45 deg foot cut", 2, G.gusset("foot"), G.KG["foot"]),
-                                     ("corner", "south frame: wall post top to the head beam's end (1 in each)", 1, G.gusset("corner"), G.KG["corner"]),
-                                     ("north_top", "north frame: brace top to the north west post (the post's 2 bolts are the corner plate's, 1 in the brace)", 1, G.nk_gusset("top"), G.NKG["top"])):
+                                     ("corner", "south frame: wall post top to the head beam's end, an L plate (2 bolts in the post, 2 in the beam, so it cannot pivot)", 1, G.gusset("corner"), G.KG["corner"]),
+                                     ("north_top", "north frame: brace top to the north arm's west end and the north west post (the post's 2 bolts are the corner plate's, 1 in the brace)", 1, G.nk_gusset("top"), G.NKG["top"])):
     a0_, z0_ = min(a for a, _ in shape), min(z for _, z in shape)
     shp = Polygon([(a - a0_, z - z0_) for a, z in shape])
     holes = [Point(a - a0_, z - z0_).buffer(H38 / 2, 64) for a, z in bolts_]

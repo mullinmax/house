@@ -180,16 +180,23 @@ def mono_ladder(WX, WY):
             j = min(i + 2, len(pts) - 1)
             gh(mat, f, [pts[0], pts[i], pts[i + 1], pts[j]], v0, v1)
 
-    def base_angles(post_):
-        """round 10: the standard post base, two clip angles cut from L 4 x 4 x 3/8, two through bolts and two slab anchors each"""
+    def post_base(post_):
+        """round 11: the standard post base, a 7 x 7 x 1/2 plate with rounded corners on four anchors, two clips from L 2 x 2 x 3/8, one through bolt"""
         rect_, axis_ = G.POST_BASES[post_]
-        for up_, fl_, bolts_, anc_, sg_ in G.base_angles(*rect_, axis_):
-            for bx_ in (up_, fl_):
-                gb(ST, bx_[0], bx_[1], bx_[2], bx_[3], max(bx_[4], 0.02), bx_[5])
-            for a_, b_, z_ in bolts_:
-                (bolt if sg_ > 0 else nut)(a_, b_, z_, axis_, sg_)
-            for a_, b_ in anc_:
-                nut(a_, b_, G.BA_T, "z")
+        pb_ = G.post_base(*rect_, axis_)
+        pl_ = pb_["plate"]
+        for i_ in range(1, len(pl_) - 1, 2):
+            q_ = [pl_[0], pl_[i_], pl_[i_ + 1], pl_[min(i_ + 2, len(pl_) - 1)]]
+            hexa(ST, [P(a, b, 0.02) for a, b in q_] + [P(a, b, G.BP_T) for a, b in q_])
+        for up_, fl_, sg_ in pb_["clips"]:
+            gb(ST, up_[0], up_[1], up_[2], up_[3], up_[4] + e, up_[5])
+            gb(ST, fl_[0], fl_[1], fl_[2], fl_[3], fl_[4] + e, fl_[5])
+        (ha_, hb_, hz_), (na_, nb_, nz_) = pb_["bolt"]
+        bolt(ha_, hb_, hz_, axis_, 1); nut(na_, nb_, nz_, axis_, -1)
+        for a_, b_ in pb_["anchors"]:
+            nut(a_, b_, G.BP_T, "z")
+        for a_, b_ in pb_["screws"]:
+            nut(a_, b_, G.BP_T + G.BC_T, "z")
 
     def gstrips(mat, f, zb, top, v0, v1):
         """outline from a level bottom at zb up to a sampled top line [(u, z), ...], as plumb strips"""
@@ -297,8 +304,8 @@ def mono_ladder(WX, WY):
         if f is G.UPPER:                                     # round 6: level foot on a saddle on one 3 x 3 post; cheeks bolt through the stringer, tabs to the landing's north beam
             zs, zpt = G.Z_SEAT, G.Z_SEAT - BT
             a0p, a1p, b0p, b1p = G.UP_POST
-            gb(ST, a0p, a1p, b0p, b1p, 0.02, zpt - e)
-            base_angles("upper_stringer_post")
+            gb(ST, a0p, a1p, b0p, b1p, G.BP_T + e, zpt - e)     # round 11: on its base plate
+            post_base("upper_stringer_post")
             u0p, u1p = G.SAD_U0, G.SAD_U1
             gh(ST, f, [(u0p, zpt), (u1p, zpt), (u1p, zs - e), (u0p, zs - e)], VC - G.TW / 2 - BT, VC + G.TW / 2 + BT)
             for sg in (-1, 1):
@@ -333,9 +340,9 @@ def mono_ladder(WX, WY):
             hexa(ST, [P(*p0, z0_ - dp), P(*p1, z0_ - dp), P(*p1, z0_), P(*p0, z0_), P(*q0, z1_ - dp), P(*q1, z1_ - dp), P(*q1, z1_), P(*q0, z1_)])
     # lower flight foot post and the corner newel, each on a base plate with four slab anchors
     fa = G.A_FOOT
-    post(fa - 1, fa + 1, XL + e, XL + G.POST, 0.02)          # round 10: straight on the slab between two standard clip angles
-    post(XL + e, XL + G.POST, XL + e, XL + G.POST, 0.02)
-    base_angles("foot_post"); base_angles("corner_newel")
+    post(fa - 1, fa + 1, XL + e, XL + G.POST, G.BP_T + e)    # round 11: each stands on a small square base plate between two clips
+    post(XL + e, XL + G.POST, XL + e, XL + G.POST, G.BP_T + e)
+    post_base("foot_post"); post_base("corner_newel")
     for z_ in (ZP - TK + 0.8, ZP - TT - 0.8):                # corner newel lapped onto the landing's west beam
         bolt(XL + G.POST, XL + 1, z_, "a")
         nut(XL - 2, XL + 1, z_, "a", -1)
@@ -397,7 +404,7 @@ def mono_ladder(WX, WY):
         for z_ in G.KB_LAGS:
             nut(pa1, b, z_, "a")
     b = BN_ - 1                                          # north knee frame: brace from the north east post up to the north west post
-    hexa(ST, [P(a, bb, z) for bb in (b - 1 + e, b + 1 - 2 * e) for a, z in ((XL - e, G.NK_ZT + r2), (XL - e, G.NK_ZT - r2), (2.0 + e, G.NK_ZB - r2), (2.0 + e, G.NK_ZB + r2))])
+    hexa(ST, [P(a, bb, z) for bb in (b - 1 + e, b + 1 - 2 * e) for a, z in ((c_ + r2, z0 - G.CP_T - e), (c_ - r2, z0 - G.CP_T - e), (2.0 + e, G.NK_ZB + r2), (2.0 + e, G.NK_ZB - r2))])   # round 11: same part as the south brace
     for j_ in ("top", "foot"):
         gplate(G.nk_gusset(j_), BN_ + e, BN_ + BT)
         for a_, z_ in G.NKG[j_]:
