@@ -1,8 +1,7 @@
 // House walkthrough: three.js viewer for the parametric house model.
 // The house is built in the browser from models/house.json (model/make_house.py) and the equipment from
 // models/equipment.json (model/make_equipment.py). Terrain, trees and furniture are .glb parts listed in
-// models/manifest.json, last exported from the archived Blender model. Add ?baked to the address to load the old
-// Blender shell.glb and interior.glb instead of the generated house, for comparison.
+// models/manifest.json, last exported from the old Blender model (11/13/2026).
 // Units are metres, glTF Y up. Plan feet (x east, y south from the NW slab corner) map to (x*F, z, y*F).
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -35,7 +34,6 @@ const ROOMS = {
   Bed2: [8, 7, 11, 1], Bed3: [8, 17, 1, 17], Bath1: [36, 27, 36, 32], Bath2: [19, 7, 19, 2],
   Garage: [79, 30, 79, 18], Outside_SW: [-35, 95, 21, 26],
 };
-const ROOM_LABELS = { Bed1: 'Bedroom 1', Bed2: 'Bedroom 2', Bed3: 'Bedroom 3', Bath1: 'Bath 1', Bath2: 'Bath 2', Outside_SW: 'Outside, southwest' };
 
 // ---------------------------------------------------------------- renderer, scene
 // No logarithmic depth: it writes depth per pixel, which turns off the GPU's early depth test and made every
@@ -124,16 +122,12 @@ async function getEquipment() {
 }
 
 // The house: walls, roof, windows, doors, cabinets, trim, loft, garage and porch, from models/house.json.
-// It replaces the Blender shell.glb and interior.glb, which ?baked brings back.
-const BAKED = /[?&]baked\b/.test(location.search);
-const HOUSE_PARTS = /^(shell|interior)$/i;
 let house = null, houseMeta = {}, houseSpawns = {};
 async function getHouse() {
-  if (BAKED) return null;
   try {
     const r = await fetch('models/house.json', { cache: 'no-cache' });
     if (r.ok) return await r.json();
-  } catch (e) { /* fall back to the baked parts */ }
+  } catch (e) { console.warn('house.json failed to load', e); }
   return null;
 }
 
@@ -157,7 +151,6 @@ async function loadAll() {
     houseMeta = hd.meta || {}; houseSpawns = hd.spawns || {};
     mergeEquipEdits();
     world.add(house.root);
-    parts = parts.filter((p) => !HOUSE_PARTS.test(p.name || p.file.replace(/\.glb$/, '')));
     console.log(`house: ${house.recs.length} records built from house.json`);
   }
   // Trees load only once their layer is on (off by default, Maxwell 11/20/2026: save viewers' compute). The furniture parts
@@ -945,13 +938,8 @@ let xray = false;
 // The room picker and the equipment finder draw the floor plan from house.json (rooms, outline) in plan feet.
 const svgNS = 'http://www.w3.org/2000/svg';
 const el = (tag, attrs = {}, parent) => { const e = document.createElementNS(svgNS, tag); for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v); if (parent) parent.append(e); return e; };
-const PLAN_ROOMS = [   // used when house.json has no room list (?baked)
-  ['Kitchen', 0.5, 34.6, 16.7, 51.5], ['Living', 16.7, 22.9, 31.1, 34.6], ['Dining', 16.7, 34.6, 31.1, 51.5], ['Bedroom 1', 31.1, 0.5, 42.6, 11.0],
-  ['Bedroom 2', 5.9, 0.5, 16.1, 10.7], ['Bedroom 3', 0.5, 10.95, 12.12, 22.41], ['Bath 1', 31.6, 22.9, 42.5, 34.6], ['Bath 2', 16.1, 0.5, 22.7, 10.7],
-];
 function planRooms() {
-  const rs = houseMeta.rooms || PLAN_ROOMS.map(([name, a, b, c, d]) => ({ name, rect: [a, b, c, d] }));
-  return rs;
+  return houseMeta.rooms || [];
 }
 function planSvg(withGarage = true) {
   const o = houseMeta.outline || { house: [0, 0, 43.0833, 52], garage: [63.0833, 15, 95.0833, 43], porch: [43.0833, 26.7, 63.0833, 42.6] };

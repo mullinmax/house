@@ -19,7 +19,7 @@ plan feet (x east, y south from the outside NW slab corner, z up from the slab t
 Moving parts sit in a record's "ops": {id, name, type: swing|slide|drawer|rollup, pivot [x, y, z], angle (deg, + turns
 counterclockwise seen from above), slide [dx, dy, dz] plan ft, parts}.
 
-This is a port of archive/blender/build_house.py and build_details.py (v21, 11/13/2026): same config, same rules,
+This is a port of the Blender build_house.py and build_details.py (v21, 11/13/2026, removed 11/24/2026, in git history): same config, same rules,
 same numbers. Records marked "placeholder_for" are the plain appliance boxes from the Blender model; the walkthrough
 skips them when site/models/equipment.json has the real appliance.
 """

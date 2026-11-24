@@ -553,56 +553,6 @@ tree_species = { oak = 0.35, maple = 0.30, ash = 0.15, hickory = 0.20 }   # SW O
 show_osm_buildings = true
 show_roads = true
 
-# ---------------------------------------------------------------- DOLLHOUSE STILLS
-[dollhouse]                     # --render dollhouse : roof and ceilings off, walls sliced at cut_height
-cut_height = 9.25               # ft above slab
-plan_view = true                # also a straight-down cutaway plan
-plan_cut_height = 4.5           # the plan view is sliced lower so doorways show
-# views = { name = [x, y, z, lens_mm], ... } in plan feet; defaults are four high corner views
-# (separately, --render stills --only dollhouse_southwest,... renders the 8.6 ft cut set incl. close-ups; --cut sets its height)
-
-# ---------------------------------------------------------------- ASSETS (all CC0; fetch with: python fetch_assets.py)
-[assets]
-enabled = true
-dir = "assets"
-hdri = "kloofendal_48d_partly_cloudy_puresky"   # Poly Haven, CC0
-hdri_res = "2k"
-hdri_strength = 0.9
-hdri_rotation_deg = 0.0
-model_turn = {}                  # per-model extra rotation (deg); frames face front as authored (their placeholder card is replaced with generated prints)
-model_res = "1k"                 # Poly Haven glTF texture resolution (4 GB GPU: keep 1k)
-texture_res = "1K"               # ambientCG PBR set resolution
-polyhaven_models = ["sofa_03", "mid_century_lounge_chair", "modern_coffee_table_01", "side_table_01", "throw_pillows_01",
-                    "gallinera_table", "gallinera_chair", "painted_wooden_nightstand", "modern_wooden_cabinet",
-                    "modern_arm_chair_01", "bar_chair_round_01", "desk_lamp_arm_01", "potted_plant_01", "potted_plant_02",
-                    "potted_plant_04", "hanging_picture_frame_01", "hanging_picture_frame_02", "hanging_picture_frame_03",
-                    "industrial_wall_lamp", "modern_ceiling_lamp_01", "ceramic_vase_02"]
-ph_texture_res = "2k"
-[assets.polyhaven_textures]      # role = Poly Haven texture id (CC0), real-world tile size read from Poly Haven
-white_oak = "white_oak_veneer"   # 0.5 m tile: trim, doors, casings, sills, barn doors
-cabinet_oak = "oak_veneer_01"    # 1.83 m tile: KraftMaid natural cabinets (tinted to cabinet_wood)
-siding_grain = "fine_grained_wood"   # 0.6 m tile: cedar-grain emboss under the SmartSide paint
-[assets.ambientcg]               # role = ambientCG asset id (CC0)
-siding = "Wood026"               # wood grain under the painted SmartSide color
-floor = "Concrete048"            # roughness/normal variation under the stained-concrete color
-oak = "Wood058"
-quartz = "Marble012"
-tile_wall = "Tiles107"
-tile_floor = "Tiles071"
-roof = "PaintedMetal004"
-curtain = "Fabric061"
-bedding = "Fabric085"
-rug = "Carpet016"
-gravel = "Gravel043"
-asphalt = "Asphalt031"
-plaster = "PaintedPlaster017"
-leaf_a = "LeafSet024"            # leaf atlases with opacity for the procedural hardwoods
-leaf_b = "LeafSet022"
-leaf_c = "LeafSet017"
-leaf_d = "LeafSet019"
-bark = "Bark006"
-bark_b = "Bark001"
-
 # ---------------------------------------------------------------- FURNISHINGS (realism pass, 11/13/2026)
 # Every placement below is ASSUMED: rooms read from the A-11 room labels and wall vectors, nothing here is from a
 # furniture plan. x, y = plan feet (center of the piece), facing = compass direction the FRONT of the piece faces
@@ -762,36 +712,6 @@ exterior_fixtures = [
 ]
 
 # ---------------------------------------------------------------- LIGHTING (night)
-[lighting]
-enabled = true
-fixtures = [   # room, x, y, kind (flush = ceiling disc, can = recessed), lumens. ASSUMED positions
-  ["Kitchen", 4.0, 46.0, "can", 800], ["Kitchen", 10.0, 49.0, "can", 800], ["Kitchen", 10.0, 39.5, "can", 800],
-  ["Dining", 23.9, 39.0, "can", 800], ["Great room", 16.5, 47.0, "can", 800], ["Great room", 31.0, 47.0, "can", 800],
-  ["Entry", 39.5, 39.5, "can", 800], ["Family", 37.0, 46.5, "can", 800],
-  ["Living", 21.0, 28.5, "flush", 1600], ["Living", 28.0, 25.0, "can", 800],
-  ["Bed1", 36.8, 5.8, "flush", 1600], ["Bed2", 11.0, 5.6, "flush", 1600], ["Bed3", 6.5, 16.6, "flush", 1600],
-  ["Study", 27.0, 5.6, "flush", 1600], ["Bath1", 34.5, 26.0, "flush", 1200], ["Bath1 shower", 40.45, 29.9, "can", 600], ["Bath1 toilet", 34.8, 31.1, "flush", 600],
-  ["Bath2", 19.4, 6.0, "flush", 1200], ["Powder", 9.0, 31.6, "flush", 800], ["Pantry", 3.0, 31.8, "flush", 800],
-  ["Utility", 6.3, 25.9, "flush", 1200], ["Laundry", 24.0, 18.9, "flush", 1600], ["Closet 1", 34.0, 18.9, "flush", 1200],
-  ["Closet 1", 40.0, 18.9, "flush", 1200], ["Hall 2", 14.4, 13.0, "flush", 1000], ["Hall 2", 19.0, 13.0, "flush", 1000], ["Hall 2", 27.0, 13.0, "flush", 1000],
-  ["Hall", 14.2, 30.5, "can", 800], ["Loft", 36.8, 28.8, "flush", 1200], ["Garage", 71.0, 24.0, "flush", 2500],
-  ["Garage", 87.0, 24.0, "flush", 2500], ["Garage", 71.0, 34.0, "flush", 2500], ["Garage", 87.0, 34.0, "flush", 2500],
-  ["Porch", 53.0, 34.5, "flush", 1000], ["Greenhouse", 21.5, 62.0, "flush", 1500],   # greenhouse fixture is skipped while [greenhouse] is off
-]
-
-# ---------------------------------------------------------------- RENDERING
-[render]
-engine = "CYCLES"
-resolution = [1280, 720]
-fps = 24
-samples = 24
-exterior_seconds = 20
-interior_seconds = 26
-sun_azimuth_deg = 200           # from north, clockwise
-sun_elevation_deg = 38           # used when [assets] is off; with the HDRI the sky's own sun is rotated to sun_azimuth_deg
-look = "AgX - Medium High Contrast"
-interior_light_w = 250          # per ceiling light
-
 [framing]                       # as-built framing on its own layer (Maxwell 11/20/2026), read off the 11/19/2026 drone photos (DJI_0276 to 0294)
 # NEEDS MEASURING: only aerial shots so far, every size and height here is estimated from them (confidence per header). Better ground photos
 # with a tape will firm them up. A header entry matches an opening by its plan point "at" (within r, default 1.6 ft).
