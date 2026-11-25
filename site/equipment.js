@@ -182,14 +182,6 @@ function bar(g, len, x, y, z, vertical, m = steelH(), r = 0.42, off = 1.5) {   /
     for (const s of [-1, 1]) cyl(g, r * 0.8, off, m, x + s * (len / 2 - 1.4), y, z + off / 2, 'z', 10);
   }
 }
-// a strap handle that leaves the door at both ends and bows out between them
-function bowHandle(g, x, y0, y1, z, bow, m, r = 0.42) {
-  const c = new THREE.CubicBezierCurve3(new THREE.Vector3(x, y0, z - 0.2), new THREE.Vector3(x, y0 + (y1 - y0) * 0.12, z + bow * 1.25),
-    new THREE.Vector3(x, y1 - (y1 - y0) * 0.12, z + bow * 1.25), new THREE.Vector3(x, y1, z - 0.2));
-  const geo = new THREE.TubeGeometry(c, 20, r, 8);
-  const me = add(g, geo, m, 0, 0, 0); me.scale.x = 1.5; me.position.x = x - x * 1.5;
-  return me;
-}
 // tube between two points (any frame), radius r
 function tube(g, a, b, r, m, seg = 14) {
   const d = new THREE.Vector3().subVectors(b, a), len = d.length();
@@ -562,7 +554,7 @@ const BUILD = {
   },
   fridge_french_door(s) {          // Frigidaire Gallery GRFC2353AF: two doors with flat bar handles, silver dispenser in the left door, bar handle on the freezer drawer
     const [w, h, d] = s, g = new THREE.Group();
-    const dt = 4.1, zf = d - 2.3, cd = zf - dt, dzc = cd + dt / 2;                            // 30.8 in deep with handles, 28.5 without
+    const dt = 4.9, zf = d - 2.3, cd = zf - dt, dzc = cd + dt / 2;                            // 30.8 in deep with handles, 28.5 without doors' handles, 23.6 case (spec sheet)
     box(g, w - 0.3, h - 2.0, cd, steelSide(), 0, 1.1 + (h - 2.0) / 2, cd / 2);                // case
     for (const x of [-1, 1]) {
       box(g, 4.2, 0.9, 3.4, darkPlastic(), x * (w / 2 - 2.4), h - 0.45, cd - 0.9);            // hinge covers
@@ -1285,6 +1277,12 @@ const BUILD = {
   },
   car(s, it) { return buildCar(it); },                 // Tesla Model Y and Honda Insight, in vehicles.js
   wall_connector(s) { return buildWallConnector(s); },
+  plate_strap(s) {                 // flat galvanized strap across a cut top plate, nail heads in two rows each side of the middle (s = [length, width, thickness] in)
+    const [L, w, t] = s, g = new THREE.Group(), nail = mat('nail head', 0x55595c, 0.5, 0.6);
+    box(g, L, w, t, galv(), 0, w / 2, t / 2);
+    for (const sg of [-1, 1]) for (let k = 0; k < 4; k++) for (const r of [0.4, 1.1]) box(g, 0.28, 0.28, 0.08, nail, sg * (L / 2 - 1.0 - k * 1.25), r, t + 0.04);
+    return g;
+  },
   generic(s) {
     const [w, h, d] = s, g = new THREE.Group();
     box(g, w, h, d, greyPlastic(), 0, h / 2, d / 2); return g;

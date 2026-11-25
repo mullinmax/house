@@ -474,18 +474,18 @@
     30.8
    ],
    "at": [
-    5.475,
-    35.2,
+    5.25,
+    35.241,
     0
    ],
    "facing": 180,
    "cull": [
     {
      "box": [
-      3.96,
+      3.76,
       35.1,
       0,
-      6.99,
+      6.74,
       37.75,
       5.99
      ],
@@ -507,7 +507,11 @@
      ],
      [
       "Depth",
-      "28.5 in without handles, 23.6 in without doors"
+      "28.5 in without handles, 23.6 in without doors, 42.6 in with a door open 90 degrees (10/21 spec sheet; another version says 43.5)"
+     ],
+     [
+      "Clearances",
+      "1 in behind; Frigidaire's top view shows 28 7/8 in deep side panels (1/2 in min) beside a 24 in cabinet and 25 in counter; 3/8 in sides and top in the install guide"
      ],
      [
       "Capacity",
@@ -533,7 +537,10 @@
     "notes": [
      "From Erin's list (11/17/2026), replacing the Whirlpool WRFC5036RZ. Size from the Lowe's listing.",
      "Erin's note prices the fridge at $1,699 as FRFC2323AS, which is the plain Frigidaire version of this fridge: same 36 x 70 x 30.8 in and 22.6 cu ft, also with a door dispenser, $1,899 at Lowe's on 11/17/2026. The link on the list points to the Gallery GRFC2353AF, so that is what is modelled. Either one fits the same bay.",
-     "The fridge bay is 37.8 in wide with 3/4 in panels inside it, which leaves about 36.3 in clear, so this 36 in fridge has under 3/16 in each side. Check the opening width in the Frigidaire install guide with Carter Lumber. It is 1 in shallower than the Whirlpool, so the pantry door beside it has no less room than before."
+     "Danielle Gross's 11/24/2026 plan: a 36 in opening between 1-1/2 in full height end panels (REP), panels and the over fridge cabinet 24 in deep, counter 25 in deep beside it. The 35.6 in case leaves about 3/16 in a side, under the 3/8 in Frigidaire asks for.",
+     "Set 1 in off the wall, the case front is about 24.6 in from the wall, just behind the 25 in counter edge, and the closed doors stand about 4.9 in proud of it (7.2 in with handles).",
+     "Door swing: the doors are 4.9 in thick (28.5 less the 23.6 in case), 7.2 in with handles. The 42.6 in open depth fixes the hinge pin 1.2 in further forward than it is in from the door's outer edge, so any hinge puts the open door's hinge edge about 25.8 in from the wall, 0.8 in or more in front of the 25 in counter edge. Maxwell (11/24/2026, product photos): the pin is more than halfway to the door front, so at least 1.25 in in from the side; then the door at 90 degrees stays within about 1 in of the fridge's side and does not reach the counter until about 170 degrees. No clash.",
+     "Danielle draws a 21 in tall cabinet over the fridge with its top at 90 in, so its underside is about 69 in. The fridge is 70 in to the top of the hinges and wants 3/8 in more. The model keeps the cabinet's underside at 72 in until that is settled."
     ],
     "links": [
      [
@@ -545,7 +552,7 @@
       "https://www.lowes.com/pd/Frigidaire-22-6-cu-ft-Counter-depth-French-Door-Refrigerator-with-Ice-Maker-Stainless-Steel-ENERGY-STAR/5013990507"
      ]
     ],
-    "placement": "North kitchen wall, in the panelled fridge bay."
+    "placement": "North kitchen wall, in the panelled fridge bay (Danielle's 11/24/2026 plan: 38.5 to 74.5 in east of the west wall)."
    }
   },
   {
@@ -18014,6 +18021,356 @@
     ]
    },
    "src": "added #vacuum"
+  },
+  {
+   "id": "plate_strap_return_bed3_stack_0",
+   "name": "Top plate strap",
+   "category": "Framing",
+   "system": "framing",
+   "layer": "ducts",
+   "builder": "plate_strap",
+   "size": [
+    24,
+    1.5,
+    0.06
+   ],
+   "at": [
+    7.943,
+    10.955833333333334,
+    8.875
+   ],
+   "facing": 180,
+   "info": {
+    "model": "16 ga x 1-1/2 x 24 in galvanized strap, eight 10d nails each side",
+    "notes": [
+     "The 11.88 in return stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses over it."
+    ]
+   }
+  },
+  {
+   "id": "plate_strap_return_bed3_stack_1",
+   "name": "Top plate strap",
+   "category": "Framing",
+   "system": "framing",
+   "layer": "ducts",
+   "builder": "plate_strap",
+   "size": [
+    24,
+    1.5,
+    0.06
+   ],
+   "at": [
+    7.943,
+    10.955833333333334,
+    8.75
+   ],
+   "facing": 180,
+   "info": {
+    "model": "16 ga x 1-1/2 x 24 in galvanized strap, eight 10d nails each side",
+    "notes": [
+     "The 11.88 in return stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses over it."
+    ]
+   }
+  },
+  {
+   "id": "plate_strap_return_bed3_stack2_0",
+   "name": "Top plate strap",
+   "category": "Framing",
+   "system": "framing",
+   "layer": "ducts",
+   "builder": "plate_strap",
+   "size": [
+    24,
+    1.5,
+    0.06
+   ],
+   "at": [
+    6.604,
+    10.955833333333334,
+    8.875
+   ],
+   "facing": 180,
+   "info": {
+    "model": "16 ga x 1-1/2 x 24 in galvanized strap, eight 10d nails each side",
+    "notes": [
+     "The 11.75 in return stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses over it."
+    ]
+   }
+  },
+  {
+   "id": "plate_strap_return_bed3_stack2_1",
+   "name": "Top plate strap",
+   "category": "Framing",
+   "system": "framing",
+   "layer": "ducts",
+   "builder": "plate_strap",
+   "size": [
+    24,
+    1.5,
+    0.06
+   ],
+   "at": [
+    6.604,
+    10.955833333333334,
+    8.75
+   ],
+   "facing": 180,
+   "info": {
+    "model": "16 ga x 1-1/2 x 24 in galvanized strap, eight 10d nails each side",
+    "notes": [
+     "The 11.75 in return stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses over it."
+    ]
+   }
+  },
+  {
+   "id": "plate_strap_return_bed2_stack_0",
+   "name": "Top plate strap",
+   "category": "Framing",
+   "system": "framing",
+   "layer": "ducts",
+   "builder": "plate_strap",
+   "size": [
+    24,
+    1.5,
+    0.06
+   ],
+   "at": [
+    9.286,
+    10.955833333333334,
+    8.875
+   ],
+   "facing": 180,
+   "info": {
+    "model": "16 ga x 1-1/2 x 24 in galvanized strap, eight 10d nails each side",
+    "notes": [
+     "The 12.12 in return stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses over it."
+    ]
+   }
+  },
+  {
+   "id": "plate_strap_return_bed2_stack_1",
+   "name": "Top plate strap",
+   "category": "Framing",
+   "system": "framing",
+   "layer": "ducts",
+   "builder": "plate_strap",
+   "size": [
+    24,
+    1.5,
+    0.06
+   ],
+   "at": [
+    9.286,
+    10.955833333333334,
+    8.75
+   ],
+   "facing": 180,
+   "info": {
+    "model": "16 ga x 1-1/2 x 24 in galvanized strap, eight 10d nails each side",
+    "notes": [
+     "The 12.12 in return stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses over it."
+    ]
+   }
+  },
+  {
+   "id": "plate_strap_return_study_stack_0",
+   "name": "Top plate strap",
+   "category": "Framing",
+   "system": "framing",
+   "layer": "ducts",
+   "builder": "plate_strap",
+   "size": [
+    24,
+    1.5,
+    0.06
+   ],
+   "at": [
+    27.933,
+    10.955833333333334,
+    8.875
+   ],
+   "facing": 180,
+   "info": {
+    "model": "16 ga x 1-1/2 x 24 in galvanized strap, eight 10d nails each side",
+    "notes": [
+     "The 11.64 in return stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses over it."
+    ]
+   }
+  },
+  {
+   "id": "plate_strap_return_study_stack_1",
+   "name": "Top plate strap",
+   "category": "Framing",
+   "system": "framing",
+   "layer": "ducts",
+   "builder": "plate_strap",
+   "size": [
+    24,
+    1.5,
+    0.06
+   ],
+   "at": [
+    27.933,
+    10.955833333333334,
+    8.75
+   ],
+   "facing": 180,
+   "info": {
+    "model": "16 ga x 1-1/2 x 24 in galvanized strap, eight 10d nails each side",
+    "notes": [
+     "The 11.64 in return stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses over it."
+    ]
+   }
+  },
+  {
+   "id": "plate_strap_return_study_stack2_0",
+   "name": "Top plate strap",
+   "category": "Framing",
+   "system": "framing",
+   "layer": "ducts",
+   "builder": "plate_strap",
+   "size": [
+    24,
+    1.5,
+    0.06
+   ],
+   "at": [
+    29.271,
+    10.955833333333334,
+    8.875
+   ],
+   "facing": 180,
+   "info": {
+    "model": "16 ga x 1-1/2 x 24 in galvanized strap, eight 10d nails each side",
+    "notes": [
+     "The 11.76 in return stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses over it."
+    ]
+   }
+  },
+  {
+   "id": "plate_strap_return_study_stack2_1",
+   "name": "Top plate strap",
+   "category": "Framing",
+   "system": "framing",
+   "layer": "ducts",
+   "builder": "plate_strap",
+   "size": [
+    24,
+    1.5,
+    0.06
+   ],
+   "at": [
+    29.271,
+    10.955833333333334,
+    8.75
+   ],
+   "facing": 180,
+   "info": {
+    "model": "16 ga x 1-1/2 x 24 in galvanized strap, eight 10d nails each side",
+    "notes": [
+     "The 11.76 in return stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses over it."
+    ]
+   }
+  },
+  {
+   "id": "plate_strap_return_bed1_stack_0",
+   "name": "Top plate strap",
+   "category": "Framing",
+   "system": "framing",
+   "layer": "ducts",
+   "builder": "plate_strap",
+   "size": [
+    24,
+    1.5,
+    0.06
+   ],
+   "at": [
+    38.604,
+    15.104166666666666,
+    8.875
+   ],
+   "facing": 0,
+   "info": {
+    "model": "16 ga x 1-1/2 x 24 in galvanized strap, eight 10d nails each side",
+    "notes": [
+     "The 11.75 in return stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses over it. If this wall turns out to be a 2x6, the cut is under half the plate and the straps are not required."
+    ]
+   }
+  },
+  {
+   "id": "plate_strap_return_bed1_stack_1",
+   "name": "Top plate strap",
+   "category": "Framing",
+   "system": "framing",
+   "layer": "ducts",
+   "builder": "plate_strap",
+   "size": [
+    24,
+    1.5,
+    0.06
+   ],
+   "at": [
+    38.604,
+    15.104166666666666,
+    8.75
+   ],
+   "facing": 0,
+   "info": {
+    "model": "16 ga x 1-1/2 x 24 in galvanized strap, eight 10d nails each side",
+    "notes": [
+     "The 11.75 in return stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses over it. If this wall turns out to be a 2x6, the cut is under half the plate and the straps are not required."
+    ]
+   }
+  },
+  {
+   "id": "plate_strap_return_bed1_stack2_0",
+   "name": "Top plate strap",
+   "category": "Framing",
+   "system": "framing",
+   "layer": "ducts",
+   "builder": "plate_strap",
+   "size": [
+    24,
+    1.5,
+    0.06
+   ],
+   "at": [
+    41.271,
+    15.104166666666666,
+    8.875
+   ],
+   "facing": 0,
+   "info": {
+    "model": "16 ga x 1-1/2 x 24 in galvanized strap, eight 10d nails each side",
+    "notes": [
+     "The 11.75 in return stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses over it. If this wall turns out to be a 2x6, the cut is under half the plate and the straps are not required."
+    ]
+   }
+  },
+  {
+   "id": "plate_strap_return_bed1_stack2_1",
+   "name": "Top plate strap",
+   "category": "Framing",
+   "system": "framing",
+   "layer": "ducts",
+   "builder": "plate_strap",
+   "size": [
+    24,
+    1.5,
+    0.06
+   ],
+   "at": [
+    41.271,
+    15.104166666666666,
+    8.75
+   ],
+   "facing": 0,
+   "info": {
+    "model": "16 ga x 1-1/2 x 24 in galvanized strap, eight 10d nails each side",
+    "notes": [
+     "The 11.75 in return stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses over it. If this wall turns out to be a 2x6, the cut is under half the plate and the straps are not required."
+    ]
+   }
   }
  ],
  "runs": [
@@ -21248,7 +21605,8 @@
      "Bedroom 3's grille moved from its south wall, next to the bed, to its north wall (Maxwell, 11/17/2026). It shares that wall with bedroom 2, so the stacks rise side by side into the trusses over bedroom 3 and join there: bedroom 2's 6 in flex crosses one truss into bedroom 3's bay and tees into a 10 in flex that runs south in that bay, parallel to the trusses, to the return plenum box at the heat pump.",
      "Bedroom 3 has two grilles and two stacks (duct balance check, 11/18/2026): a 14 x 2-1/2 in stack is all a 2x4 wall holds, and one of them alone passed only about three quarters of the room's 127 CFM.",
      "Each stack ends in a stack head on the top plate (Maxwell, 11/21/2026): a sheet metal box in the truss bay over the stud bay, with the stack in its bottom and a round collar on its south face. The round runs straight south off it, so there is no elbow beside the wall to stick through the drywall of the vaulted room on the other side. The head is about 12 x 4 in, as wide as the part of the stud bay that sits under the truss bay (they are about 2 in apart).",
-     "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 6 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
+     "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 6 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them.",
+     "Top plate straps (Maxwell, 11/24/2026): the attic trusses bear on the top plate of this wall, so each stack is narrowed to about 12 in to sit between two trusses, and a 16 ga x 1 1/2 in galvanized strap crosses the cut on each of the two top plates, 6 in past it each side with eight 10d nails each side (IRC R602.6.1). Framer and truss supplier to confirm."
     ],
     "specs": [
      [
@@ -21257,7 +21615,7 @@
      ],
      [
       "Duct",
-      "14 x 2-1/2 in wall stacks, 6 in flex from bedroom 2 and from bedroom 3's second stack through one truss each, 10 in flex south in one truss bay to the plenum"
+      "About 12 x 2-1/2 in wall stacks, 6 in flex from bedroom 2 and from bedroom 3's second stack through one truss each, 10 in flex south in one truss bay to the plenum"
      ],
      [
       "Crosses",
@@ -21268,7 +21626,7 @@
    "grilles": [
     {
      "at": [
-      7.854,
+      7.943,
       11.0224,
       1.0
      ],
@@ -21280,7 +21638,7 @@
     },
     {
      "at": [
-      6.51,
+      6.604,
       11.0224,
       1.0
      ],
@@ -21299,12 +21657,12 @@
    "type": "return",
    "points": [
     [
-     7.854,
+     7.943,
      10.8,
      0.6699999999999999
     ],
     [
-     7.854,
+     7.943,
      10.8,
      9.03
     ]
@@ -21315,7 +21673,7 @@
    "el": 75,
    "shape": "rect",
    "size": [
-    14,
+    11.88,
     2.5
    ],
    "info_of": "return_bed23"
@@ -21327,12 +21685,12 @@
    "type": "return",
    "points": [
     [
-     6.51,
+     6.604,
      10.8,
      0.6699999999999999
     ],
     [
-     6.51,
+     6.604,
      10.8,
      9.03
     ]
@@ -21343,7 +21701,7 @@
    "el": 75,
    "shape": "rect",
    "size": [
-    14,
+    11.75,
     2.5
    ],
    "info_of": "return_bed23"
@@ -21550,7 +21908,7 @@
    "grilles": [
     {
      "at": [
-      9.208,
+      9.286,
       10.5876,
       1.0
      ],
@@ -21569,12 +21927,12 @@
    "type": "return",
    "points": [
     [
-     9.208,
+     9.286,
      10.8,
      0.6699999999999999
     ],
     [
-     9.208,
+     9.286,
      10.8,
      9.03
     ]
@@ -21585,7 +21943,7 @@
    "el": 75,
    "shape": "rect",
    "size": [
-    14,
+    12.12,
     2.5
    ],
    "info_of": "return_bed23"
@@ -21795,7 +22153,8 @@
      "The study has a low grille (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Two 6 in runs because one big duct would not fit through the truss webs and a single 6 in returned only about 60% of the room's 104 CFM (duct balance check, 11/18/2026). If the builder confirms 7 in fits the webs, one 7 in run does nearly the same job.",
      "Each stack ends in a stack head on the top plate (Maxwell, 11/21/2026): a sheet metal box in the truss bay over the stud bay, with the stack in its bottom and a round collar on its south face. The round runs straight south off it, so there is no elbow beside the wall to stick through the drywall of the vaulted room on the other side. The head is about 12 x 4 in, as wide as the part of the stud bay that sits under the truss bay (they are about 2 in apart).",
      "Second grille and stack (Maxwell, 11/19/2026): the builder can move bedroom 1's door wall east, so it moved 2 ft 1 1/2 in, just far enough that the study's south wall has two stud bays for stacks, each under its own floor truss bay. Maxwell measured the trusses at 16 in on centre from the west wall (11/20/2026), so the stacks sit at x 28.0 and 29.4, centred under two neighbouring truss bays. The studs are 16 in on centre too, but where they fall against the trusses over this wall is not measured yet: a stack whose stud bay sits half a bay off the trusses would land on a truss. Confirm on site.",
-     "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 6 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them."
+     "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 6 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them.",
+     "Top plate straps (Maxwell, 11/24/2026): the attic trusses bear on the top plate of this wall, so each stack is narrowed to about 12 in to sit between two trusses, and a 16 ga x 1 1/2 in galvanized strap crosses the cut on each of the two top plates, 6 in past it each side with eight 10d nails each side (IRC R602.6.1). Framer and truss supplier to confirm."
     ],
     "specs": [
      [
@@ -21804,7 +22163,7 @@
      ],
      [
       "Duct",
-      "Two 14 x 2-1/2 in wall stacks in neighbouring truss bays, each with a 6 in flex home run to the heat pump's return"
+      "Two 12 x 2-1/2 in wall stacks in neighbouring truss bays, each with a 6 in flex home run to the heat pump's return"
      ],
      [
       "Crosses",
@@ -21815,7 +22174,7 @@
    "grilles": [
     {
      "at": [
-      27.834,
+      27.933,
       10.5876,
       1.0
      ],
@@ -21827,7 +22186,7 @@
     },
     {
      "at": [
-      29.178,
+      29.271,
       10.5876,
       1.0
      ],
@@ -21846,12 +22205,12 @@
    "type": "return",
    "points": [
     [
-     27.834,
+     27.933,
      10.8,
      0.6699999999999999
     ],
     [
-     27.834,
+     27.933,
      10.8,
      9.03
     ]
@@ -21862,7 +22221,7 @@
    "el": 75,
    "shape": "rect",
    "size": [
-    14,
+    11.64,
     2.5
    ],
    "info_of": "return_study"
@@ -21874,12 +22233,12 @@
    "type": "return",
    "points": [
     [
-     29.178,
+     29.271,
      10.8,
      0.6699999999999999
     ],
     [
-     29.178,
+     29.271,
      10.8,
      9.03
     ]
@@ -21890,7 +22249,7 @@
    "el": 75,
    "shape": "rect",
    "size": [
-    14,
+    11.76,
     2.5
    ],
    "info_of": "return_study"
@@ -22106,7 +22465,8 @@
     "model": "10 in round on top of the supply trunk",
     "notes": [
      "Replaces a 6 in flex through the laundry and linen trusses, which returned only about half of bedroom 1's 138 CFM (duct balance check, 11/18/2026). A duct big enough for this room cannot pass the truss webs, so it goes over the top instead: it uses no deck along the trunk, and a strip about 10 in wide beside the trunk's west leg over bedroom 3.",
-     "Clearance under the roof is tightest along the north attic wall, about 5 in above the duct in this model. Confirm on site. ASSUMED size and route."
+     "Clearance under the roof is tightest along the north attic wall, about 5 in above the duct in this model. Confirm on site. ASSUMED size and route.",
+     "Top plate straps (Maxwell, 11/24/2026): the attic trusses bear on the top plate of this wall, so each stack is narrowed to about 12 in to sit between two trusses, and a 16 ga x 1 1/2 in galvanized strap crosses the cut on each of the two top plates, 6 in past it each side with eight 10d nails each side (IRC R602.6.1). Framer and truss supplier to confirm."
     ],
     "specs": [
      [
@@ -22115,7 +22475,7 @@
      ],
      [
       "Duct",
-      "Two 14 x 2-1/2 in wall stacks to a header box, then one 10 in round, about 45 ft"
+      "Two 12 x 2-1/2 in wall stacks to a header box, then one 10 in round, about 45 ft"
      ],
      [
       "Route",
@@ -22130,7 +22490,7 @@
    "grilles": [
     {
      "at": [
-      38.51,
+      38.604,
       15.01,
       1.0
      ],
@@ -22142,7 +22502,7 @@
     },
     {
      "at": [
-      41.177,
+      41.271,
       15.01,
       1.0
      ],
@@ -22161,12 +22521,12 @@
    "type": "return",
    "points": [
     [
-     38.51,
+     38.604,
      15.26,
      0.6699999999999999
     ],
     [
-     38.51,
+     38.604,
      15.26,
      12.402083333333332
     ]
@@ -22177,7 +22537,7 @@
    "el": 75,
    "shape": "rect",
    "size": [
-    14,
+    11.75,
     2.5
    ],
    "info_of": "return_bed1"
@@ -22189,12 +22549,12 @@
    "type": "return",
    "points": [
     [
-     41.177,
+     41.271,
      15.26,
      0.6699999999999999
     ],
     [
-     41.177,
+     41.271,
      15.26,
      12.402083333333332
     ]
@@ -22205,7 +22565,7 @@
    "el": 75,
    "shape": "rect",
    "size": [
-    14,
+    11.75,
     2.5
    ],
    "info_of": "return_bed1"

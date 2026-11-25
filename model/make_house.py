@@ -19,7 +19,7 @@ plan feet (x east, y south from the outside NW slab corner, z up from the slab t
 Moving parts sit in a record's "ops": {id, name, type: swing|slide|drawer|rollup, pivot [x, y, z], angle (deg, + turns
 counterclockwise seen from above), slide [dx, dy, dz] plan ft, parts}.
 
-This is a port of archive/blender/build_house.py and build_details.py (v21, 11/13/2026): same config, same rules,
+This is a port of the Blender build_house.py and build_details.py (v21, 11/13/2026, removed 11/24/2026, in git history): same config, same rules,
 same numbers. Records marked "placeholder_for" are the plain appliance boxes from the Blender model; the walkthrough
 skips them when site/models/equipment.json has the real appliance.
 """
@@ -1569,10 +1569,15 @@ def base_unit(run, rn, k, u0, u1, typ, mat, depth=BASE_D, counter=True):
         fp = run.run.get("fridge_panels", 0.0)
         a0_, a1_ = (u0 + fp + 0.02, u1 - fp - 0.02) if fp else (u0 + 0.03, u1 - 0.03)
         if fp:
+            # Danielle Gross's 11/24/2026 plan: REP 1-1/2 x 90 refrigerator end panels, full height, flush with the 24 in
+            # cabinet faces (fridge_panel_depth), and a WR3621 (36 x 21 x 24 in) over the fridge between them.
+            pd_ = run.run.get("fridge_panel_depth", BASE_D + 0.42)
+            ph_ = run.run.get("fridge_panel_height", 6.0)
             for (b0, b1) in ((u0, u0 + fp), (u1 - fp, u1)):
-                run.box(mat, b0, b1, 0, BASE_D + 0.42, 0, 6.0)
-            hollow(run, u0, u1, BASE_D + 0.1, 6.0, TALL - 0.25, mat)
-            doors(run, r, u0, u1, 6.0, TALL - 0.25, BASE_D + 0.1, mat, 2)
+                run.box(mat, b0, b1, 0, pd_, 0, ph_)
+            c0_, c1_ = (u0 + fp, u1 - fp) if ph_ >= TALL - 0.25 else (u0, u1)
+            hollow(run, c0_, c1_, BASE_D + 0.1, 6.0, TALL - 0.25, mat)
+            doors(run, r, c0_, c1_, 6.0, TALL - 0.25, BASE_D + 0.1, mat, 2)
             run.box(mat, u0 - 0.05, u1 + 0.05, 0, BASE_D + 0.22, TALL - 0.25, TALL)
         else:
             hollow(run, u0 - 0.1, u1 + 0.1, BASE_D + 0.1, 6.0, TALL - 0.25, mat)

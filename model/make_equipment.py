@@ -74,18 +74,21 @@ items += [
         links=[["LG product page", "https://www.lg.com/us/cooking-appliances/lg-cbih3013be"]],
         placement="West counter run, centred on the cooktop bay in the cabinet plan.")),
  dict(id="fridge", name="Frigidaire Gallery counter depth French door fridge", category="Kitchen appliance", system="kitchen", room="Kitchen", layer="appliances",
-      builder="fridge_french_door", size=[36, 70, 30.8], at=[5.475, 35.2, 0], facing=180,
-      cull=[dict(box=[3.96, 35.1, 0, 6.99, 37.75, 5.99], materials=["Stainless", "Black Glass", "Appliance Interior", "Brushed Nickel"])],
+      builder="fridge_french_door", size=[36, 70, 30.8], at=[5.25, 35.241, 0], facing=180,
+      cull=[dict(box=[3.76, 35.1, 0, 6.74, 37.75, 5.99], materials=["Stainless", "Black Glass", "Appliance Interior", "Brushed Nickel"])],
       info=dict(model="Frigidaire Gallery GRFC2353AF, 36 in counter depth French door, 22.6 cu ft", price="$2,899 at Lowe's on 11/17/2026 (list $3,299)",
-        specs=[["Size", "36 W x 70 H x 30.8 D in with handles"], ["Depth", "28.5 in without handles, 23.6 in without doors"], ["Capacity", "22.6 cu ft"],
+        specs=[["Size", "36 W x 70 H x 30.8 D in with handles"], ["Depth", "28.5 in without handles, 23.6 in without doors, 42.6 in with a door open 90 degrees (10/21 spec sheet; another version says 43.5)"], ["Clearances", "1 in behind; Frigidaire's top view shows 28 7/8 in deep side panels (1/2 in min) beside a 24 in cabinet and 25 in counter; 3/8 in sides and top in the install guide"], ["Capacity", "22.6 cu ft"],
                ["Doors", "Two French doors over a bottom freezer drawer"], ["Dispenser", "Water and ice in the left door, dual ice maker"],
                ["Finish", "Fingerprint resistant stainless steel"], ["Weight", "334 lb"]],
         notes=["From Erin's list (11/17/2026), replacing the Whirlpool WRFC5036RZ. Size from the Lowe's listing.",
                "Erin's note prices the fridge at $1,699 as FRFC2323AS, which is the plain Frigidaire version of this fridge: same 36 x 70 x 30.8 in and 22.6 cu ft, also with a door dispenser, $1,899 at Lowe's on 11/17/2026. The link on the list points to the Gallery GRFC2353AF, so that is what is modelled. Either one fits the same bay.",
-               "The fridge bay is 37.8 in wide with 3/4 in panels inside it, which leaves about 36.3 in clear, so this 36 in fridge has under 3/16 in each side. Check the opening width in the Frigidaire install guide with Carter Lumber. It is 1 in shallower than the Whirlpool, so the pantry door beside it has no less room than before."],
+               "Danielle Gross's 11/24/2026 plan: a 36 in opening between 1-1/2 in full height end panels (REP), panels and the over fridge cabinet 24 in deep, counter 25 in deep beside it. The 35.6 in case leaves about 3/16 in a side, under the 3/8 in Frigidaire asks for.",
+               "Set 1 in off the wall, the case front is about 24.6 in from the wall, just behind the 25 in counter edge, and the closed doors stand about 4.9 in proud of it (7.2 in with handles).",
+               "Door swing: the doors are 4.9 in thick (28.5 less the 23.6 in case), 7.2 in with handles. The 42.6 in open depth fixes the hinge pin 1.2 in further forward than it is in from the door's outer edge, so any hinge puts the open door's hinge edge about 25.8 in from the wall, 0.8 in or more in front of the 25 in counter edge. Maxwell (11/24/2026, product photos): the pin is more than halfway to the door front, so at least 1.25 in in from the side; then the door at 90 degrees stays within about 1 in of the fridge's side and does not reach the counter until about 170 degrees. No clash.",
+               "Danielle draws a 21 in tall cabinet over the fridge with its top at 90 in, so its underside is about 69 in. The fridge is 70 in to the top of the hinges and wants 3/8 in more. The model keeps the cabinet's underside at 72 in until that is settled."],
         links=[["Lowe's product page (GRFC2353AF)", "https://www.lowes.com/pd/Frigidaire-22-6-Cu-Ft-Counter-Depth-French-Door-Refrigerator/5013011561"],
                ["Lowe's product page (FRFC2323AS)", "https://www.lowes.com/pd/Frigidaire-22-6-cu-ft-Counter-depth-French-Door-Refrigerator-with-Ice-Maker-Stainless-Steel-ENERGY-STAR/5013990507"]],
-        placement="North kitchen wall, in the panelled fridge bay.")),
+        placement="North kitchen wall, in the panelled fridge bay (Danielle's 11/24/2026 plan: 38.5 to 74.5 in east of the west wall).")),
  dict(id="dishwasher", name="Bosch 500 Series dishwasher", category="Kitchen appliance", system="kitchen", room="Kitchen", layer="appliances",
       builder="dishwasher", size=[23.56, 33.88, 23.75], at=[7.25, 51.458, 0.02], facing=0,
       cull=[dict(box=[6.2, 49.2, 0.3, 8.3, 51.46, 3.0], materials=["Stainless"])],
@@ -892,7 +895,7 @@ XR3, XR2, XR3B = bay(SR3), bay(SR2), bay(SR3B)       # the truss bays over those
 r = ret("return_bed23", "Bedrooms 2 and 3 return", 10, bend([stack_head("return_bed3_head", SR3, XR3, "return_bed23", "return_bed23", 10), [XR3, RY - 0.7, ZT], [XR3, RY - 0.7, DECK + 0.2]]), flex=True, el=25,
         grilles=[dict(at=[SR3, 10.97, LOW], size=[14, 8], wall=S), dict(at=[SR3B, 10.97, LOW], size=[14, 8], wall=S)])
 r["info"]["specs"] = [["Serves", "Bedroom 3 (two low grilles on its north wall) and bedroom 2 (low grille on its south wall)"],
-                      ["Duct", "14 x 2-1/2 in wall stacks, 6 in flex from bedroom 2 and from bedroom 3's second stack through one truss each, 10 in flex south in one truss bay to the plenum"],
+                      ["Duct", "About 12 x 2-1/2 in wall stacks, 6 in flex from bedroom 2 and from bedroom 3's second stack through one truss each, 10 in flex south in one truss bay to the plenum"],
                       ["Crosses", "One truss from each side, at 6 in. No supply runs"]]
 r["info"]["notes"] = ["Bedroom 3's grille moved from its south wall, next to the bed, to its north wall (Maxwell, 11/17/2026). It shares that wall with bedroom 2, "
                       "so the stacks rise side by side into the trusses over bedroom 3 and join there: bedroom 2's 6 in flex crosses one truss into bedroom 3's bay and "
@@ -922,7 +925,7 @@ r = ret("return_study", "Study return", 6,
         el=25, grilles=[dict(at=[SSB, 10.64, LOW], size=[14, 8], wall=N), dict(at=[SSB2, 10.64, LOW], size=[14, 8], wall=N)])
 r["info"]["model"] = "Two low grilles, each with its own stack and 6 in round flex run"
 r["info"]["specs"] = [["Serves", "Study (low grille on its south wall, east of the door; a separate high grille over the door carries most of the air)"],
-                      ["Duct", "Two 14 x 2-1/2 in wall stacks in neighbouring truss bays, each with a 6 in flex home run to the heat pump's return"],
+                      ["Duct", "Two 12 x 2-1/2 in wall stacks in neighbouring truss bays, each with a 6 in flex home run to the heat pump's return"],
                       ["Crosses", "The laundry, linen and bedroom 3 trusses at 6 in. No supply runs, and they stay in the trusses, off the tall south part of the attic"]]
 r["info"]["notes"] = ["The study has a low grille (Maxwell, 11/17/2026) with a stack up the stud bay into the trusses. Two 6 in runs because one big duct "
                       "would not fit through the truss webs and a single 6 in returned only about 60% of the room's 104 CFM (duct balance check, 11/18/2026). "
@@ -949,7 +952,7 @@ r = ret("return_bed1", "Bedroom 1 return", 10,
         el=25, model="10 in round on top of the supply trunk",
         grilles=[dict(at=[XB1R, 15.01, LOW], size=[14, 8], wall=N), dict(at=[XB1B, 15.01, LOW], size=[14, 8], wall=N)])
 r["info"]["specs"] = [["Serves", "Bedroom 1 (two low grilles on its south wall, east of the closet 1 pocket door)"],
-                      ["Duct", "Two 14 x 2-1/2 in wall stacks to a header box, then one 10 in round, about 45 ft"],
+                      ["Duct", "Two 12 x 2-1/2 in wall stacks to a header box, then one 10 in round, about 45 ft"],
                       ["Route", "On top of the supply trunk beside the bath exhaust main, then on the deck beside the trunk to the return plenum"],
                       ["Crosses", "No trusses"]]
 r["info"]["notes"] = ["Replaces a 6 in flex through the laundry and linen trusses, which returned only about half of bedroom 1's 138 CFM (duct balance check, 11/18/2026). "
@@ -1813,6 +1816,46 @@ def _follow_drywall():
                     continue
                 break
 
+
+# ------------------------------------------------------------------ return stacks through the truss bearing plates
+# Maxwell, 11/24/2026: the attic floor trusses bear on the top plate of the hall 2 north wall (bedrooms 2 and 3 and the study)
+# and of bedroom 1's south wall, so every low return stack in those walls goes through a bearing plate. He chose (11/24/2026,
+# over a ceiling or high return and over transfer grilles to hall 2) to keep the low grilles and strap the plates: each stack
+# is narrowed to the part of its stud bay that sits between two trusses (about 12 in, so no truss bears over the cut), and a
+# 16 ga x 1 1/2 in strap runs across the cut on the face of each top plate, 6 in past it each side with eight 10d nails each
+# side (IRC R602.6.1: more than half the plate's width removed in a bearing wall).
+STRAP_NOTE = ("Top plate straps (Maxwell, 11/24/2026): the attic trusses bear on the top plate of this wall, so each stack is narrowed to about 12 in to "
+              "sit between two trusses, and a 16 ga x 1 1/2 in galvanized strap crosses the cut on each of the two top plates, 6 in past it each side "
+              "with eight 10d nails each side (IRC R602.6.1). Framer and truss supplier to confirm.")
+def _strap_return_stacks():
+    D = {d["id"]: d for d in ducts}
+    xs_all = sorted(set(round(v, 4) for xs_ in trusses["xs"] for v in xs_))
+    CWH = CFG["floor_trusses"].get("chord_w_in", 3.5) / 24
+    for sid in ["return_bed3_stack", "return_bed3_stack2", "return_bed2_stack", "return_study_stack", "return_study_stack2", "return_bed1_stack", "return_bed1_stack2"]:
+        d = D[sid]; x = d["points"][0][0]; y = d["points"][0][1]; w = d["size"][0] / 12
+        a, b = x - w / 2, x + w / 2
+        for tx in xs_all:                          # pull each end of the cut 1/4 in clear of any truss chord over it
+            if tx - CWH - 0.25 / 12 < a < tx + CWH + 0.25 / 12: a = tx + CWH + 0.25 / 12
+            if tx - CWH - 0.25 / 12 < b < tx + CWH + 0.25 / 12: b = tx - CWH - 0.25 / 12
+        x2 = round((a + b) / 2, 3); w2 = round((b - a) * 12, 2)
+        d["size"] = [w2, 2.5]; d["points"] = [[x2, p[1], p[2]] for p in d["points"]]
+        for g in ducts:                            # the low grille follows its stack
+            for gr in g.get("grilles", []):
+                if abs(gr["at"][0] - x) < 0.02 and abs(gr["at"][2] - LOW) < 0.05 and abs(gr["at"][1] - y) < 0.5: gr["at"][0] = x2
+        L = round(w2 + 12)
+        hall = abs(y - 10.8) < 0.1
+        face = 10.8 + 1.75 / 12 + 0.01 if hall else 15.26 - 1.75 / 12 - 0.01   # the hall 2 face, or the closet 1 face
+        for k, z in enumerate([CEIL - 1.5 / 12, CEIL - 3.0 / 12]):
+            items.append(dict(id=f"plate_strap_{sid}_{k}", name="Top plate strap", category="Framing", system="framing", layer="ducts", builder="plate_strap",
+                              size=[L, 1.5, 0.06], at=[x2, face, z], facing=180 if hall else 0,
+                              info=dict(model=f"16 ga x 1-1/2 x {L} in galvanized strap, eight 10d nails each side",
+                                        notes=[f"The {w2} in return stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for "
+                                               "a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper "
+                                               "plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses over it."
+                                               + ("" if hall else " If this wall turns out to be a 2x6, the cut is under half the plate and the straps are not required.")])))
+    for rid in ("return_bed23", "return_study", "return_bed1"):
+        D[rid]["info"]["notes"].append(STRAP_NOTE)
+_strap_return_stacks()
 
 _follow_drywall()
 

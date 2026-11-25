@@ -12,7 +12,6 @@ function smat(name, color, rough = 0.9, metal = 0, extra = {}) {
   if (!MS[name]) { MS[name] = new THREE.MeshStandardMaterial({ color, roughness: rough, metalness: metal, ...extra }); MS[name].name = 'Site ' + name; }
   return MS[name];
 }
-export function plantingMaterials() { return Object.values(MS); }
 
 // a small repeatable random number source, so every tree keeps its shape from load to load
 function rng(seed) {
