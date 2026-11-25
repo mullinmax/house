@@ -235,8 +235,9 @@ holes += [Point(a + h_, b + h_).buffer(CSK38 / 2, 64) for a, b in pb_["screws"]]
 part("post_base_plate_qty3.dxf", "Post base plate (foot post, corner newel, upper stringer post)", 3, G.BP_T, shp, holes, (), "none",
      f"{G.BP_W:g} x {G.BP_W:g} in, corners R {G.BP_R:g}. Four 1/2 in holes at the corners for 3/8 wedge anchors. COUNTERSINK the two 13/32 in "
      f"holes ({G.BP_SCREW:g} in each side of centre) from the BOTTOM face (82 deg, 3/8 flat head): the screws go up through the plate into the "
-     f"two clip angles (cut from stock L 2 x 2 x 3/8, {G.BC_L:g} in long), nuts on top; put them in before the plate is anchored. The same plate "
-     "fits the 2 x 2 and the 3 x 3 posts: only the hole in the clip's flat leg moves (1.45 in from the heel for 2 x 2, 0.95 in for 3 x 3).")
+     f"two clip angles (cut from stock L 3 x 2 x 3/8, long leg up, {G.BC_L:g} in long; two 3/8 through bolts cross the post and both clips), nuts on top; "
+     "put them in before the plate is anchored. The same plate fits the 2 x 2 and the 3 x 3 posts: only the hole in the clip's flat leg moves "
+     "(1.45 in from the heel for 2 x 2, 0.95 in for 3 x 3).")
 
 # ---------------------------------------------------------------- balcony corner plates (round 10), 3/8 in: replace the round 3 L plates
 # Flat in the plate's own plane: x = a (inches west of the bath 1 wall), y = z (height), the flange unfolded below the band's bend line.
@@ -280,13 +281,22 @@ for j_, what, qty, shape, bolts_ in (("top", "south frame: brace top to the head
     holes = [Point(a - a0_, z - z0_).buffer(H38 / 2, 64) for a, z in bolts_]
     part(f"knee_gusset_{j_}_qty{qty}.dxf", f"Knee frame gusset, {j_.replace('_', ' ')}", qty, 0.25, shp, holes, (), "none",
          f"flat: {what}. South frame: on the brace's north face; north frame: on the north face. 3/8 through bolts with crush sleeves.")
-clip(1.25, 1.5, "rail_clip_1-25in_qty10.dxf", "Rail end clip 1 1/4 in wide, 1 1/2 legs", 10,
-     "straight rail ends into post faces, the north guard rail into the west one, the north guard rail at the bath 1 wall, and the four guard bottom rail ends. 9/32 in holes for 1/4-20.")
-
-shp = rect(0, 1.25, 0, 4.5)
-holes = [Point(0.625, y).buffer(0.28 / 2, 64) for y in (1.0, 3.5)]
-part("rail_post_strap_qty3.dxf", "Rail to post strap 1 1/4 x 4 1/2", 3, 0.25, shp, holes, (), "none",
-     "PLACEHOLDER for an engineer: flat strap on the side where a rail runs over a post top (lower rail on the foot post, guard top rails on the north west and north east posts); 1/4 in spacer behind it on the rail, which sits 1/4 in in from the post face.", rnd=0.6)
+# ---------------------------------------------------------------- rail straps (round 11b): one flat strap at every rail end or post crossing
+from collections import Counter as _C
+_pats = _C()
+_holes = {}
+for nm_, R_, P1_, P2_, t_, side_, plane_, pat_ in G.rail_straps():
+    _pats[pat_] += 1
+    _holes[pat_] = (math.dist(R_, P1_), math.dist(P1_, P2_))
+for pat_, n_ in sorted(_pats.items()):
+    d1_, d2_ = _holes[pat_]
+    ys = [G.ST_E, G.ST_E + d1_, G.ST_E + d1_ + d2_]
+    L_ = ys[-1] + G.ST_E
+    part(f"rail_strap{'' if pat_ == 'standard' else '_' + pat_}_qty{n_}.dxf", f"Rail strap 1 1/4 x {L_:.2f}" + ("" if pat_ == "standard" else f" ({pat_} post)"), n_, 0.25,
+         rect(0, G.ST_W, 0, L_), [Point(G.ST_W / 2, y).buffer(0.28 / 2, 64) for y in ys], (), "none",
+         "flat strap on a post's side face: the hole nearest an end takes a 1/4-20 bolt through the rail and a 1/4 in spacer (the rail sits 1/4 in in "
+         "from the post face), the other two take 1/4-20 bolts through the post. " + ("Lies along the rail into the post where a rail ends on a post, plumb where it runs over a post top."
+         if pat_ == "standard" else "The lower rail over the foot post: its plumb depth is 3.16 in, so the rail hole is further from the post holes."), rnd=0.5)
 
 # ---------------------------------------------------------------- write
 for p in PARTS:

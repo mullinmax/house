@@ -57,8 +57,8 @@ def post_base(post):
     for up, fl, sg in pb["clips"]:
         side = ("west" if sg > 0 else "east") if axis == "a" else ("north" if sg > 0 else "south")
         add("posts", f"{post}_base_clip_{side}", box(*up).fuse(box(*fl)))
-    (ha, hb, hz), (na, nb, nz) = pb["bolt"]
-    bolt(ha, hb, hz, axis, 1); nut(na, nb, nz, axis, -1)
+    for (ha, hb, hz), (na, nb, nz) in pb["bolts"]:
+        bolt(ha, hb, hz, axis, 1); nut(na, nb, nz, axis, -1)
     for a_, b_ in pb["anchors"]:
         nut(a_, b_, G.BP_T, "z")
     for a_, b_ in pb["screws"]:
@@ -99,6 +99,7 @@ def add(group, name, solid, colour=STEEL, mat="steel"):
 FAST = []                                          # bolt heads, nuts and anchors, shown so every joint reads as bolted (Maxwell 11/22/2026: no welding anywhere)
 HEADS = []                                         # round 11b: every head and nut drawn, so the whole bolts can be built from them (build_bolts)
 SHANKS = []                                        # (solid, threaded?) for the assembly
+BOLT_LINES = []                                    # (start, end, kind) of each whole fastener, head bearing face to tip (check_attached.py)
 
 
 def bolt(a, b, z, axis, sign=1, d=0.66, h=0.21, kind="socket", role=None):
@@ -302,6 +303,8 @@ for f in G.FLIGHTS:
         if G.RT:                                                               # mono: an oak riser lip behind every tread leaves under 4 in open above it
             ur = uk + G.TD
             add(g, f"{f.name}_riser_{k}", prism(f, [(ur, zk - G.TT), (ur + G.RT, zk - G.TT), (ur + G.RT, zk + G.RH), (ur, zk + G.RH)], 0.05, G.WN - 0.05), OAK, "oak")
+            for v_ in G.RISER_SCREW_V:                                         # round 11b: three trim head screws (and glue) through the lip into the tread
+                fbolt(f, ur + G.RT, v_, zk - G.TT / 2, "u", 1, d=0.3, h=0.08, role=("trim head screw", 0.164, 2.5, 1.5))
     if G.MONO:                                                                 # head clips: the same part at both stringer tops (round 6)
         hc = G.head_clip(f)
         ub = hc["ub"]
@@ -346,6 +349,8 @@ for f in G.FLIGHTS:
     if G.RT and f is G.UPPER:                                                  # and one stands on the landing under the upper flight's first tread
         ur = G.TD - G.GO
         add(g, "landing_riser", prism(f, [(ur, f.z0 - G.TTD), (ur + G.RT, f.z0 - G.TTD), (ur + G.RT, f.z0 + G.RH), (ur, f.z0 + G.RH)], 0.05, G.WN - 0.05), OAK, "oak")
+        for v_ in G.RISER_SCREW_V:                                             # into the landing deck's edge
+            fbolt(f, ur + G.RT, v_, f.z0 - G.TTD / 2, "u", 1, d=0.3, h=0.08, role=("trim head screw", 0.164, 2.5, 1.5))
     if RISER_PANELS:
         for k in range(0 if f is G.UPPER else 1, f.nr):
             zk = f.z0 + k * G.RI
@@ -414,6 +419,9 @@ for nm, (a0_, a1_, b0_, b1_) in G.LAND_POSTS.items():
             nut(a1_, (b0_ + b1_) / 2, z_, "a")
 deck = box(0, XL, 0, G.LAND_DECK_N, ZP - TT, ZP)
 add("landing", "landing_deck", deck.fuse(box(XL, XL + G.NOSE, G.GAP, XL, ZP - TT, ZP)) if G.NOSE else deck, OAK, "oak")
+if G.MONO:                                         # round 11b: 1/4-20 button heads up through the frame's top wall into brass inserts in the oak
+    for a_, b_ in G.DECK_SCREWS["landing"]:
+        bolt(a_, b_, ZP - TT - FTL, "z", -1, d=0.5, h=0.15, role=("button head screw into an insert", 0.25, 1.0, 1.0))
 add("posts", "corner_newel", post_box(XL, XL + G.POST, XL, XL + G.POST, 0.0) if G.CONT_RAIL else tube(XL, XL + G.POST, XL, XL + G.POST, G.BP_T if G.MONO else 0.0, G.NEWEL_TOP, "z", G.POST_T))
 if G.MONO:                                         # round 10: the standard clip angle base
     post_base("corner_newel")
@@ -438,7 +446,11 @@ if G.MONO:
     deck = box(0, G.BAL_W, G.BAL_S, BN_, FL - TT, FL)
     for a0_, b0_ in ((XL, G.BAL_S), (XL, BN_ - G.POST), (0.0, BN_ - G.POST)):     # notched round the three corner posts
         deck = deck.cut(box(a0_ - 0.02, a0_ + G.POST + 0.02, b0_ - 0.02, b0_ + G.POST + 0.02, FL - TT - 1, FL + 1))
+    for a_, b_ in [(x_, G.BAL_S + 1 if sg_ < 0 else BN_ - 1) for sg_ in (-1, 1) for x_ in G.corner_plate(sg_)[3]]:   # round 11b: counterbores for the corner plate bolts' nuts
+        deck = deck.cut(cq.Solid.makeCylinder(0.45, 0.5, W(a_, b_, FL - TT - 0.01), cq.Vector(0, 0, 1)))
     add("balcony", "balcony_deck", deck, OAK, "oak")
+    for a_, b_ in G.DECK_SCREWS["balcony"]:
+        bolt(a_, b_, FL - TT - FTB, "z", -1, d=0.5, h=0.15, role=("button head screw into an insert", 0.25, 1.0, 1.0))
     for nm, sg in (("sw", -1), ("nw", 1)):
         out_, (fa0, fa1, fw), pbolts, fbolts = G.corner_plate(sg)
         b0_, b1_ = (G.BAL_S + 2, G.BAL_S + 2 + G.CP_T) if sg < 0 else (BN_ - 2 - G.CP_T, BN_ - 2)
@@ -446,7 +458,7 @@ if G.MONO:
         pl = aprism(out_, b0_, b1_).fuse(box(fa0, fa1, bf0, bf1, FL - TK - G.CP_T, FL - TK))
         add("posts", f"corner_plate_{nm}", pl)
         bm_ = G.BAL_S + 1 if sg < 0 else BN_ - 1                                # beam centreline
-        for a_ in fbolts:                                                     # up through the flange and the beam, nut under the oak
+        for a_ in fbolts:                                                     # up through the flange and the beam, nut in a counterbore under the oak
             bolt(a_, bm_, FL - TK - G.CP_T, "z", -1); nut(a_, bm_, FL - TT, "z", 1, d=0.5)
         po_, pi_ = (G.BAL_S, b1_) if sg < 0 else (BN_ + BT, b0_)                 # post's outer face (north west: on the brace gusset), plate's open face
         for a_, z_ in pbolts:
@@ -548,6 +560,19 @@ else:
     for i in range(1, n_n):
         a = G.POST + i * (XL - 2 * G.POST) / n_n
         add("guard", f"picket_north_{i}", cq.Solid.makeCylinder(G.PICKET / 2, pz[1] - pz[0], W(a, G.GP_B, pz[0])))
+if G.MONO and not G.CONT_RAIL:                     # round 11b: a strap at every rail end or post crossing (one rail bolt + spacer, two post bolts)
+    for nm, R, P1, P2, t, side, plane, pat in G.rail_straps():
+        ax, i_ = side[0], (0 if side[0] == "a" else 1)
+        pts = G.strap_outline(R, P2, t, side, plane)
+        dv = cq.Vector(-G.ST_T, 0, 0) if ax == "a" else cq.Vector(0, G.ST_T, 0)
+        add("rails", f"rail_strap_{nm}", cq.Solid.extrudeLinear(cq.Face.makeFromWires(cq.Wire.makePolygon([W(*p) for p in pts], close=True)), dv))
+        rc = R[i_]                                                             # rail centre on the side axis
+        sp_ = list(R); sp_[i_] = rc + G.RAIL / 2
+        add("rails", f"rail_spacer_{nm}", cq.Solid.makeCylinder(0.25, G.SP_T, W(*sp_), cq.Vector(-1, 0, 0) if ax == "a" else cq.Vector(0, 1, 0)))
+        for P, far in ((R, rc - G.RAIL / 2), (P1, P1[i_] - (plane - P1[i_])), (P2, P2[i_] - (plane - P2[i_]))):
+            hd, nt = list(P), list(P)
+            hd[i_], nt[i_] = plane + G.ST_T, (plane - G.POST) if P is not R else far
+            bolt(*hd, ax, 1, d=0.5, h=0.15); nut(*nt, ax, -1, d=0.5)
 # context: slab and the two walls (reference only)
 CTX = [("slab", box(-5, 60, -5, 100, -1, 0)), ("bath_1_wall", box(-4.5, 0, -4.5, 100, 0, FL)), ("clerestory_wall", box(0, 60, -4.5, 0, 0, 170))]
 
@@ -615,15 +640,18 @@ def build_bolts():
         r, D, L, thr = e.pop("r"), e["dia"], e["length"], e["thread"]
         if e.pop("tip_up", False):                    # flat head screw: tip up through the nut, head flush with the plate's underside
             base = cq.Vector(r["o"].x, r["o"].y, 0.0)
+            BOLT_LINES.append((base, base + cq.Vector(0, 0, L), e["kind"]))
             SHANKS.append((cq.Solid.makeCylinder(D / 2 * 0.92, L, base, cq.Vector(0, 0, 1)), True))
             continue
         if e["kind"] == "wedge anchor":               # the stud sticks up through the nut; the rest is in the slab
             top = r["o"] + r["dv"] * (NUT_H[D] + 2 * PITCH[D])
+            BOLT_LINES.append((top, top + cq.Vector(0, 0, -L), e["kind"]))
             SHANKS.append((cq.Solid.makeCylinder(D / 2 * 0.92, thr, top, cq.Vector(0, 0, -1)), True))
             SHANKS.append((cq.Solid.makeCylinder(D / 2, L - thr, top + cq.Vector(0, 0, -thr), cq.Vector(0, 0, -1)), False))
             continue
         ax = r["dv"] * -1                             # from the head bearing face into the joint
         plain = L - thr
+        BOLT_LINES.append((r["o"], r["o"] + ax * L, e["kind"]))
         if plain > 1e-3:
             SHANKS.append((cq.Solid.makeCylinder(D / 2, plain, r["o"], ax), False))
         SHANKS.append((cq.Solid.makeCylinder(D / 2 * 0.92, thr, r["o"] + ax * plain, ax), True))
@@ -699,3 +727,19 @@ for i in range(len(st)):
         if v > 0.02 and 'riser_panel' not in st[i][0] + st[j][0]:      # panel ears pass through slots in the bracket webs
             bad.append((st[i][0], st[j][0], round(v, 2)))
 print("interferences:", bad if bad else "none")
+# round 11b: a bolt head, nut or shank buried in a part it should only touch or pass through a drilled hole of
+bur = []
+for nm_, so_ in [(n, s_) for g_, n, s_, c, m_ in PARTS]:
+    bo_ = so_.BoundingBox()
+    for f_ in FAST:
+        bf_ = f_.BoundingBox()
+        if bo_.xmax < bf_.xmin or bf_.xmax < bo_.xmin or bo_.ymax < bf_.ymin or bf_.ymax < bo_.ymin or bo_.zmax < bf_.zmin or bf_.zmax < bo_.zmin:
+            continue
+        try:
+            v_ = so_.intersect(f_).Volume()
+        except Exception:
+            v_ = 0
+        if v_ > 0.005:
+            c_ = f_.Center()
+            bur.append((nm_, (round(-c_.x, 2), round(c_.y, 2), round(c_.z, 2)), round(v_, 3)))
+print("heads or nuts buried in a part:", bur if bur else "none")

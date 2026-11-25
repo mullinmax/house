@@ -86,7 +86,7 @@
    "thick": 0.5,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "none",
-   "notes": "7 x 7 in, corners R 0.75. Four 1/2 in holes at the corners for 3/8 wedge anchors. COUNTERSINK the two 13/32 in holes (2.45 in each side of centre) from the BOTTOM face (82 deg, 3/8 flat head): the screws go up through the plate into the two clip angles (cut from stock L 2 x 2 x 3/8, 3 in long), nuts on top; put them in before the plate is anchored. The same plate fits the 2 x 2 and the 3 x 3 posts: only the hole in the clip's flat leg moves (1.45 in from the heel for 2 x 2, 0.95 in for 3 x 3).",
+   "notes": "7 x 7 in, corners R 0.75. Four 1/2 in holes at the corners for 3/8 wedge anchors. COUNTERSINK the two 13/32 in holes (2.45 in each side of centre) from the BOTTOM face (82 deg, 3/8 flat head): the screws go up through the plate into the two clip angles (cut from stock L 3 x 2 x 3/8, long leg up, 3 in long; two 3/8 through bolts cross the post and both clips), nuts on top; put them in before the plate is anchored. The same plate fits the 2 x 2 and the 3 x 3 posts: only the hole in the clip's flat leg moves (1.45 in from the heel for 2 x 2, 0.95 in for 3 x 3).",
    "size": [
     7.0,
     7.0
@@ -171,29 +171,29 @@
    ]
   },
   {
-   "file": "rail_clip_1-25in_qty10.dxf",
-   "name": "Rail end clip 1 1/4 in wide, 1 1/2 legs",
-   "qty": 10,
-   "thick": 0.25,
-   "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "1 bend, 90 deg",
-   "notes": "PLACEHOLDER for an engineer: straight rail ends into post faces, the north guard rail into the west one, the north guard rail at the bath 1 wall, and the four guard bottom rail ends. 9/32 in holes for 1/4-20.",
-   "size": [
-    1.25,
-    2.61
-   ]
-  },
-  {
-   "file": "rail_post_strap_qty3.dxf",
-   "name": "Rail to post strap 1 1/4 x 4 1/2",
-   "qty": 3,
+   "file": "rail_strap_foot_qty1.dxf",
+   "name": "Rail strap 1 1/4 x 4.83 (foot post)",
+   "qty": 1,
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "none",
-   "notes": "PLACEHOLDER for an engineer: flat strap on the side where a rail runs over a post top (lower rail on the foot post, guard top rails on the north west and north east posts); 1/4 in spacer behind it on the rail, which sits 1/4 in in from the post face.",
+   "notes": "flat strap on a post's side face: the hole nearest an end takes a 1/4-20 bolt through the rail and a 1/4 in spacer (the rail sits 1/4 in in from the post face), the other two take 1/4-20 bolts through the post. The lower rail over the foot post: its plumb depth is 3.16 in, so the rail hole is further from the post holes.",
    "size": [
     1.25,
-    4.5
+    4.83
+   ]
+  },
+  {
+   "file": "rail_strap_qty11.dxf",
+   "name": "Rail strap 1 1/4 x 4.00",
+   "qty": 11,
+   "thick": 0.25,
+   "material": "Mild steel A36 (hot rolled P&O)",
+   "bends": "none",
+   "notes": "flat strap on a post's side face: the hole nearest an end takes a 1/4-20 bolt through the rail and a 1/4 in spacer (the rail sits 1/4 in in from the post face), the other two take 1/4-20 bolts through the post. Lies along the rail into the post where a rail ends on a post, plumb where it runs over a post top.",
+   "size": [
+    1.25,
+    4.0
    ]
   }
  ]

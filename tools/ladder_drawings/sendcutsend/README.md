@@ -32,3 +32,8 @@ kit). One through bolt crosses the post and both clips. The south knee frame's c
 the head beam (no pivot). Both knee braces are now the same part: level top cut bearing under the frame at its west edge, plumb foot cut.
 Round 11b (11/25/2026): Maxwell asked whether the balcony's west beam is needed. It is not (frame model passes either way), so it is
 gone, and the head arm runs out to the west edge under the brace top. The clip angles stay at 18.
+Every part is now attached: tools/ladder_drawings/check_attached.py --strict passes for the default and decor options. To get there
+the post bases use 2 through bolts each (clips are L 3 x 2 x 3/8, 3 in long, long leg up), the rail clips and post straps are replaced by
+rail_strap_qty11 and rail_strap_foot_qty1 (1 1/4 x 1/4 flat strap on a 1/4 spacer, one 1/4-20 bolt through the rail and two through the
+post), each riser board has 3 trim head screws into its bracket, and the oak decks have button head screws into threaded inserts down
+through the frame. Every bolt is drawn whole (plain shank and threaded length); lengths are in loft_ships_ladder_bolts.json.

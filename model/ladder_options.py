@@ -191,8 +191,8 @@ def mono_ladder(WX, WY):
         for up_, fl_, sg_ in pb_["clips"]:
             gb(ST, up_[0], up_[1], up_[2], up_[3], up_[4] + e, up_[5])
             gb(ST, fl_[0], fl_[1], fl_[2], fl_[3], fl_[4] + e, fl_[5])
-        (ha_, hb_, hz_), (na_, nb_, nz_) = pb_["bolt"]
-        bolt(ha_, hb_, hz_, axis_, 1); nut(na_, nb_, nz_, axis_, -1)
+        for (ha_, hb_, hz_), (na_, nb_, nz_) in pb_["bolts"]:
+            bolt(ha_, hb_, hz_, axis_, 1); nut(na_, nb_, nz_, axis_, -1)
         for a_, b_ in pb_["anchors"]:
             nut(a_, b_, G.BP_T, "z")
         for a_, b_ in pb_["screws"]:
@@ -452,6 +452,15 @@ def mono_ladder(WX, WY):
     for i in range(1, n_n):
         a = G.POST + i * (XL - G.POST) / n_n
         gb(ST, a - 0.25, a + 0.25, G.GP_B - 0.25, G.GP_B + 0.25, *pz)
+    if not G.CONT_RAIL:                                  # round 11b: rail straps (1/4 in) with a spacer and three 1/4-20 bolts each
+        for nm_, R_, P1_, P2_, t_, side_, plane_, pat_ in G.rail_straps():
+            ax_, i_ = side_[0], (0 if side_[0] == "a" else 1)
+            q_ = G.strap_outline(R_, P2_, t_, side_, plane_)
+            q2_ = [tuple(c + (G.ST_T if j == i_ else 0.0) for j, c in enumerate(p_)) for p_ in q_]
+            hexa(ST, [P(*p_) for p_ in q_] + [P(*p_) for p_ in q2_])
+            for Q_ in (R_, P1_, P2_):
+                hd_ = list(Q_); hd_[i_] = plane_ + G.ST_T
+                bolt(*hd_, ax_, 1, d=0.5, h=0.15)
 
 
 def _ladder_options():

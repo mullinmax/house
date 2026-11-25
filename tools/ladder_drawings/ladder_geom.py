@@ -353,8 +353,9 @@ def shoe_anchors():
 BP_W, BP_T, BP_R = 7.0, 0.5, 0.75                 # plate size, thickness, corner radius
 BP_ANC = 2.75                                      # anchors at the plate's corners, this far from its centre each way
 BP_SCREW = 2.45                                    # countersunk clip screw holes, this far from the centre on the clips' axis
-BC_LEG, BC_T, BC_L = 2.0, 0.375, 3.0               # clip angle legs, thickness, length (along the post face)
-BC_BOLT_Z = BP_T + 1.25                            # the through bolt across the post, up from the slab
+BC_LEG, BC_UP, BC_T, BC_L = 2.0, 3.0, 0.375, 3.0   # clip angle flat leg, upright leg, thickness, length (along the post face)
+BC_BOLT_Z = (BP_T + 1.35, BP_T + 2.35)              # round 11b: TWO through bolts across the post (stock L 3 x 2 x 3/8, long leg up), so the
+                                                   # post cannot pivot about a single bolt (the attachment check flagged the foot post)
 
 
 def post_base(a0, a1, b0, b1, axis):
@@ -369,18 +370,26 @@ def post_base(a0, a1, b0, b1, axis):
     for sg in (-1, 1):
         if axis == "a":
             fa = a1 if sg > 0 else a0
-            up = tuple(sorted((fa, fa + sg * BC_T))) + (bc - BC_L / 2, bc + BC_L / 2, BP_T, BP_T + BC_LEG)
+            up = tuple(sorted((fa, fa + sg * BC_T))) + (bc - BC_L / 2, bc + BC_L / 2, BP_T, BP_T + BC_UP)
             fl = tuple(sorted((fa, fa + sg * BC_LEG))) + (bc - BC_L / 2, bc + BC_L / 2, BP_T, BP_T + BC_T)
             screws.append((ac + sg * BP_SCREW, bc))
-            ends.append((fa + sg * BC_T, bc, BC_BOLT_Z))
+            ends.append([(fa + sg * BC_T, bc, z_) for z_ in BC_BOLT_Z])
         else:
             fb = b1 if sg > 0 else b0
-            up = (ac - BC_L / 2, ac + BC_L / 2) + tuple(sorted((fb, fb + sg * BC_T))) + (BP_T, BP_T + BC_LEG)
+            up = (ac - BC_L / 2, ac + BC_L / 2) + tuple(sorted((fb, fb + sg * BC_T))) + (BP_T, BP_T + BC_UP)
             fl = (ac - BC_L / 2, ac + BC_L / 2) + tuple(sorted((fb, fb + sg * BC_LEG))) + (BP_T, BP_T + BC_T)
             screws.append((ac, bc + sg * BP_SCREW))
-            ends.append((ac, fb + sg * BC_T, BC_BOLT_Z))
+            ends.append([(ac, fb + sg * BC_T, z_) for z_ in BC_BOLT_Z])
         clips.append((up, fl, sg))
-    return dict(plate=plate, anchors=anchors, clips=clips, bolt=(ends[1], ends[0]), screws=screws)
+    return dict(plate=plate, anchors=anchors, clips=clips, bolts=list(zip(ends[1], ends[0])), screws=screws)
+
+
+# round 11b fasteners for the oak that only rested on the steel before (check_attached.py): three trim head screws through each riser lip
+# into its tread's back edge, and eight 1/4-20 button heads up through each platform frame's top wall into brass inserts in the oak
+RISER_SCREW_V = (3.0, WN / 2, WN - 3.0)
+DECK_SCREWS = dict(landing=[(1.0, 8.0), (1.0, 22.0), (8.0, 1.0), (18.0, 1.0), (XL - 1.0, 8.0), (XL - 1.0, 22.0), (8.0, B_LN), (18.0, B_LN)],
+                   balcony=[(1.0, BAL_S + 6.0), (1.0, BAL_N - 8.0), (6.0, BAL_S + 1.0), (14.0, BAL_S + 1.0), (6.0, B_BH), (14.0, B_BH),
+                            (6.0, BAL_N - 1.0), (14.0, BAL_N - 1.0)])   # clear of the corner plates' flange bolts at XL - 7 and XL - 1
 
 
 # round 7 knee frames (Maxwell 11/24/2026): each 45 degree brace closes a full triangle with a 2 x 2 post down the bath 1 wall from the
@@ -484,7 +493,7 @@ def corner_plate(sg):
     zu, zt = FL - TK, FL - TTD
     p = [(XL - CP_BAND, zu), (XL, zu), (XL, zu - CP_DROP), (XL + POST, zu - CP_DROP), (XL + POST, zt), (XL - CP_BAND, zt)]
     out = [p[0], p[1]] + _fillet(p, 2, 0.5) + _fillet(p, 3, 0.6) + [p[4]] + _fillet(p, 5, 0.6)
-    return out, (XL - CP_BAND, XL - 0.25, 2.25), [(XL + 1.0, zu + 1.5), (XL + 1.0, zu - 3.0)], [XL - CP_BAND + 1.0, XL - 1.0]
+    return out, (XL - CP_BAND, XL - 0.25, 2.25), [(XL + 1.0, zu + 1.5), (XL + 1.0, zu - 3.0)], [XL - CP_BAND + 1.0, XL - 4.2]   # round 11b: clear of the north brace's top
 
 
 # frame members, centrelines (a, b) to (a, b): 2 x 3 tube on edge
@@ -493,7 +502,7 @@ LAND_FRAME = dict(LE=((1, 0), (1, LAND_N)), LS=((1, 1), (XL, 1)), LW=((XL - 1, 1
 BAL_FRAME = dict(BE=((1, BAL_S), (1, BAL_N)), BS=((1, BAL_S + 1), (XL - 1, BAL_S + 1)), BH=((1, B_BH), (XL - 1, B_BH)),
                  BN=((1, BAL_N - 1), (XL, BAL_N - 1)), BW=((XL - 1, BAL_S), (XL - 1, BAL_N - 1)))   # (round 9 layout; drawings only)
 LAND_LAGS = dict(LE=(4.0, 16.0, 27.0) if MONO else (4.0, 20.0, 32.0), LS=(8.0, 22.0))          # along each ledger, assumed stud or blocking positions
-BAL_LAGS = (BAL_S + 3, B_BH - 3.5, (BAL_S + BAL_N0) / 2, BAL_N0 - 3) if MONO else (BAL_S + 3, (BAL_S + BAL_N) / 2, BAL_N - 3)   # round 8: a 4th bolt beside the head beam, holes drilled tight
+BAL_LAGS = (BAL_S + 3, B_BH - 3.5, B_BH + 2.0, BAL_N0 - 3) if MONO else (BAL_S + 3, (BAL_S + BAL_N) / 2, BAL_N - 3)   # round 8: a 4th bolt beside the head beam, holes drilled tight (round 11b: north of the head arm's corner plate)
 # round 8 (Maxwell 11/24/2026): the upper stringer's head pushes the balcony north along the wall, carried by these bolts in shear. A flat
 # bar diagonal under the frame was tried in the frame model and changed nothing (the frame does not rack; what moves is the bolts' give),
 # so the fix is a 4th bolt by the head beam and tight holes.
@@ -697,3 +706,90 @@ def rail_frames():
         na, nb = -tb / n_ * RAIL / 2, ta / n_ * RAIL / 2
         out.append(((pa + na, pb + nb), (pa - na, pb - nb), rail_z(s_), rail_z(s_) - rail_depth(s_)))
     return out
+
+
+# round 11b rail straps (check_attached.py found every rail held by nothing): each rail end or crossing over a post gets one flat 1/4 in strap
+# on the post's side face, 1 1/4 in wide, with a 1/4 in spacer behind it on the rail (the 1 1/2 rail sits 1/4 in in from the 2 in post's
+# face). One 1/4-20 through bolt crosses the rail and spacer, two cross the post, so nothing hangs on a single bolt. The strap lies along the
+# rail into the post where a rail ends on a post face, and plumb where a rail runs over a post top. Holes: 0.625 from the end, then 1.75 and
+# 1.0 apart (one standard part); the lower rail over the foot post needs a longer first gap (its plumb depth is 3.16 in).
+ST_W, ST_T, ST_E, SP_T = 1.25, 0.25, 0.625, 0.25
+
+
+def _u(v):
+    n = math.sqrt(sum(c * c for c in v))
+    return tuple(c / n for c in v)
+
+
+def rail_straps():
+    """[(name, R, P1, P2, t, n, plane, pattern)]: rail bolt R, post bolts P1, P2 as (a, b, z) on the rail's / post's centre plane, t the unit
+    direction from R to the post bolts, n the outward side (('a', +1) or ('b', +1)), plane the post side face coordinate, pattern name"""
+    rails = {r[0]: r for r in straight_rails()}
+    out = []
+
+    def face(name, rail, end, side):
+        nm, a0, a1, b0, b1, z0, z1, ax = rail
+        ac, bc = (a0 + a1) / 2, (b0 + b1) / 2
+        if ax == "a":
+            a_ = a0 if end == 0 else a1
+            zt = z0 if end == 0 else z1
+            dz = (z1 - z0) / (a1 - a0)
+            depth = RAIL * math.sqrt(1 + dz * dz)
+            p0 = (a_, bc, zt - depth / 2)
+            t = _u((-1.0 if end == 0 else 1.0, 0.0, -dz if end == 0 else dz))
+        else:
+            b_ = b0 if end == 0 else b1
+            zt = z0 if end == 0 else z1
+            dz = (z1 - z0) / (b1 - b0)
+            depth = RAIL * math.sqrt(1 + dz * dz)
+            p0 = (ac, b_, zt - depth / 2)
+            t = _u((0.0, -1.0 if end == 0 else 1.0, -dz if end == 0 else dz))
+        R = tuple(p - 1.25 * q for p, q in zip(p0, t))
+        P1 = tuple(p + 0.5 * q for p, q in zip(p0, t))
+        P2 = tuple(p + 1.5 * q for p, q in zip(p0, t))
+        out.append((name, R, P1, P2, t, side, (bc if side[0] == "b" else ac) + POST / 2, "standard"))
+
+    def over(name, a, b, ztop_post, side, rail_up=0.75, pattern="standard"):
+        R, P1, P2 = (a, b, ztop_post + rail_up), (a, b, ztop_post - 1.0), (a, b, ztop_post - 2.0)
+        c = b if side[0] == "b" else a
+        out.append((name, R, P1, P2, (0.0, 0.0, -1.0), side, c + POST / 2, pattern))
+
+    def tilt(name, R, P1, side, plane):
+        assert abs(math.dist(R, P1) - 1.75) < 1e-6, name                        # the standard hole pattern
+        t = _u(tuple(q - p for p, q in zip(R, P1)))
+        P2 = tuple(p + q for p, q in zip(P1, t))
+        out.append((name, R, P1, P2, t, side, plane, "standard"))
+
+    lo, up = rails["lower_rail_open"], rails["upper_rail_open"]
+    face("lower_newel", lo, 0, ("b", 1))
+    zf = lo[5] + (lo[6] - lo[5]) * (A_FOOT - lo[1]) / (lo[2] - lo[1])            # lower rail top over the foot post
+    dzf = (lo[6] - lo[5]) / (lo[2] - lo[1])
+    dep = RAIL * math.sqrt(1 + dzf * dzf)
+    over("lower_foot", A_FOOT, PC, zf - dep, ("b", 1), rail_up=dep / 2, pattern="foot")
+    face("upper_newel", up, 0, ("a", 1))
+    face("upper_sw", up, 1, ("a", 1))
+    face("guard_top_sw", rails["guard_west_top_rail"], 0, ("a", 1))
+    zp = G_TOP - RAIL
+    over("guard_top_west_nw", PC, GP_B, zp, ("a", 1))
+    over("guard_top_north_ne", POST / 2, GP_B, zp, ("b", 1))
+    tilt("guard_top_north_nw", (XL - 0.5, GP_B, G_TOP - RAIL / 2), (XL + 0.6, GP_B, G_TOP - RAIL / 2 - math.sqrt(1.75 ** 2 - 1.1 ** 2)), ("b", 1), GP_B + POST / 2)
+    zb = FL + 3.6 + RAIL / 2                                                     # guard bottom rails (level)
+    bw = ("guard_bottom_west", PC - RAIL / 2, PC + RAIL / 2, BAL_S + POST, BAL_N - POST, zb + RAIL / 2, zb + RAIL / 2, "b")
+    face("guard_bottom_sw", bw, 0, ("a", 1))
+    tilt("guard_bottom_west_nw", (PC, BAL_N - POST - 0.5, zb), (PC, BAL_N - POST + 0.6, zb + math.sqrt(1.75 ** 2 - 1.1 ** 2)), ("a", 1), PC + POST / 2)
+    bn = ("guard_bottom_north", POST, XL, GP_B - RAIL / 2, GP_B + RAIL / 2, zb + RAIL / 2, zb + RAIL / 2, "a")
+    face("guard_bottom_north_ne", bn, 0, ("b", 1))
+    tilt("guard_bottom_north_nw", (XL - 0.5, GP_B, zb), (XL + 0.6, GP_B, zb - math.sqrt(1.75 ** 2 - 1.1 ** 2)), ("b", 1), GP_B + POST / 2)
+    return out
+
+
+def strap_outline(R, P2, t, side, plane):
+    """the strap's four corners (a, b, z) on the post side face plane"""
+    ax = side[0]
+    n = (1.0, 0.0, 0.0) if ax == "a" else (0.0, 1.0, 0.0)
+    w = _u((n[1] * t[2] - n[2] * t[1], n[2] * t[0] - n[0] * t[2], n[0] * t[1] - n[1] * t[0]))
+    s0 = tuple(p - ST_E * q for p, q in zip(R, t))
+    s1 = tuple(p + ST_E * q for p, q in zip(P2, t))
+    pts = [tuple(p + k * ST_W / 2 * q for p, q in zip(s, w)) for s, k in ((s0, -1), (s1, -1), (s1, 1), (s0, 1))]
+    i = 0 if ax == "a" else 1
+    return [tuple(plane if j == i else c for j, c in enumerate(p)) for p in pts]
