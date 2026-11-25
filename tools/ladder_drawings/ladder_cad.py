@@ -205,11 +205,11 @@ def post_box(a0, a1, b0, b1, z0, t=None, gap=0.12):
 
 def upper_stringer(f, v0, v1):
     """mono stringer, round 5 head (both flights from round 6): head cut plumb at the beam's face, its top trimmed level at the frame top.
-    Upper foot: cut level on the saddle (Z_SEAT) with a short plumb face at U_FOOT against the landing's north beam. Lower foot: level on the slab."""
+    Upper foot: cut level on the saddle (Z_SEAT) with a short plumb face 1/8 in short of the landing's north beam (round 14). Lower foot: level on the slab."""
     zt, zbm = f.zl, lambda u: f.zl(u) - G.PL
     ub, ztr, utr, _ = G.head_cut(f)
     if f is G.UPPER:
-        uf, us_ = G.U_FOOT, G.U_FOOT + G.L_SEAT
+        uf, us_ = G.U_FOOT + G.FOOT_GAP, G.U_FOOT + G.L_SEAT              # round 14: plumb face 1/8 in short of the beam
         foot = [(uf, G.Z_SEAT), (us_, zbm(us_))]
     else:
         uf = f.u0

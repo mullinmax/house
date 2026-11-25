@@ -131,6 +131,9 @@ U_END = U_BEAR                                     # (round 4's under beam tongu
 Z_TRIM = ZBF + FD / 2 if MONO else None            # stringer top trimmed level here, near its head
 U_TRIM = UPPER.u2 + (Z_TRIM - UPPER.zu) / SL if MONO else None
 U_FOOT = UPPER.u0 if MONO else None                # plumb cut foot, against the landing's north beam
+FOOT_GAP = 0.125                                  # round 14 (fine mesh FEA 11/25/2026): the plumb face stops 1/8 in short of the landing beam, so the
+                                                  # foot does not bear on the beam's edge (that corner kept climbing with the mesh, 106% at 0.7);
+                                                  # the saddle cheeks and tabs carry the thrust (no bearing case: tube 55%, saddle 56%, converged)
 L_SEAT = 3.75                                      # level bearing cut at the foot, this long from the plumb face (covers the saddle)
 Z_SEAT = UPPER.zl(U_FOOT) - PL + L_SEAT * SL if MONO else None   # level foot cut = top of the saddle seat
 # Round 6 (Maxwell 11/24/2026): the lower stringer's top copies the upper one: plumb cut bearing on the landing header (moved along the
