@@ -101,10 +101,10 @@ def bracket():
     for f2, k2 in ((G.LOWER, 1), (G.UPPER, 1), (G.LOWER, 3)):
         w2 = Polygon([(u - f2.uk(k2), z - (f2.z0 + k2 * G.RI - G.TT)) for u, z in G.bracket_web(f2, k2)])
         assert w2.symmetric_difference(web).area < 1e-3, "bracket webs differ"
-    seat = rect(G.SEAT_S, B[0], 0, G.SEAT_TAB - BD_WEB / 2)
+    seat = rect(G.SEAT_S, G.SEAT_E, 0, G.SEAT_TAB - BD_WEB / 2)   # round 10: the seat ends where the web's riser corner starts to round
     parts_ = [web, seat]
-    cuts = [rect(B[0], B[0] + 0.25, -0.40, 0)]                  # bend reliefs at the bend ends
-    bends = [((G.SEAT_S, 0), (B[0], 0))]
+    cuts = []                                                   # the bend runs the web's whole straight top edge, so no reliefs
+    bends = [((G.SEAT_S, 0), (G.SEAT_E, 0))]
     holes = []
     if G.STRIPS:
         fl_out = T + G.ARM_FL                                   # flange: outside dimension from the stringer face
@@ -155,28 +155,24 @@ if G.STRIPS:
          "2 bends, 90 deg: a screw tab at each end folds toward the back of the tread",
          "one under every tread. 2 x 7/16 holes for the bracket flange bolts. Drill the tab screw holes at assembly. Tabs 1.6 in outside (CAD shows 1.5).", rnd=0.3)
 
-# ---------------------------------------------------------------- floor shoe (round 8): base under the lower stringer's foot, two cheeks up
+# ---------------------------------------------------------------- floor shoe (round 10): base under the lower stringer's foot, a wall up
+# its sloped top face at the west end (the pocket), its own through bolt. Flat: x along the flight from the toe's bend line (wall at x < 0),
+# y across from the centreline. The bend is 118 deg (the wall leans back over the base at the tube's slope); with SendCutSend's 1/4 in
+# inside radius the flat length works out within 0.03 in of the two inside lengths from the toe, so the wall is laid straight off the line.
 f_ = G.LOWER
-x0_ = f_.u0 - G.SHOE_TAB
-Lb = (f_.u1 + G.SHOE_TAB) - x0_
-Wf = 2 * G.SHOE_HW - BD                                         # base, flat between the two bend lines (outside 2 x SHOE_HW, two bends)
-cheek = Polygon(G.shoe_cheek())
-parts_ = [rect(0, Lb, 0, Wf)]
-for side in (0, 1):
-    pts = [(u - x0_, (-(z - BD / 2)) if side == 0 else (Wf + (z - BD / 2))) for u, z in cheek.exterior.coords]
-    parts_ += [Polygon(pts), rect(f_.u0 - x0_, f_.u1 - x0_, -0.1 if side == 0 else Wf, 0 if side == 0 else Wf + 0.1)]
-shp = unary_union(parts_)
-for side in (0, 1):                                              # bend reliefs into the base at the cheek ends
-    y0r, y1r = (0, 0.4) if side == 0 else (Wf - 0.4, Wf)
-    shp = shp.difference(rect(f_.u0 - x0_ - 0.25, f_.u0 - x0_, y0r, y1r)).difference(rect(f_.u1 - x0_, f_.u1 - x0_ + 0.25, y0r, y1r))
-bu, bz = G.bracket_bolts(f_, 1)[0]
-holes = [Point(u - x0_, Wf / 2).buffer(HANC / 2, 64) for u, _ in G.shoe_anchors()]
-holes += [Point(bu - x0_, -(bz - BD / 2)).buffer(H38 / 2, 64), Point(bu - x0_, Wf + (bz - BD / 2)).buffer(H38 / 2, 64)]
-part("floor_shoe_qty1.dxf", "Floor shoe under the lower stringer", 1, 0.25, shp, holes,
-     [((f_.u0 - x0_, 0), (f_.u1 - x0_, 0)), ((f_.u0 - x0_, Wf), (f_.u1 - x0_, Wf))],
-     "2 bends, both 90 deg the same way (cheeks up): a U channel with tabs past each end",
-     "the lower stringer's level foot stands on the base; the cheeks run up outside the first tread's bracket webs and share that bracket's "
-     "lower bolt (6 in, cheek, web, tube, web, cheek, crush sleeve inside). One 3/8 slab anchor through each end tab (1/2 in holes).", rnd=0.3)
+base = Polygon([(u - f_.u0, v - G.VC) for u, v in G.shoe_base()])
+wall = Polygon([(-s_, w_) for s_, w_ in G.shoe_wall()])
+shp = unary_union([base, wall, rect(-0.02, 0.02, -G.TW / 2, G.TW / 2)])
+for sy in (-1, 1):                                               # bend reliefs where the wings run past the wall's edges
+    shp = shp.difference(rect(-0.01, 0.45, *sorted((sy * G.TW / 2, sy * (G.TW / 2 + 0.25)))))
+holes = [Point(u - f_.u0, v - G.VC).buffer(HANC / 2, 64) for u, v in G.shoe_anchors()]
+holes += [Point(-G.SHOE_BOLT_S, 0).buffer(H38 / 2, 64)]
+part("floor_shoe_qty1.dxf", "Floor shoe under the lower stringer (a pocket)", 1, 0.25, shp, holes,
+     [((0, -G.TW / 2), (0, G.TW / 2))],
+     f"1 bend, {180 - math.degrees(G.ANG):.0f} deg: the wall folds up and back over the base to lie on the stringer's sloped top face ({math.degrees(G.ANG):.1f} deg pocket)",
+     "the lower stringer's level foot stands on the base and its toe sits in the bend; the wall lies on the tube's top face. One 3/8 through bolt "
+     "square through the wall and the tube (about 4 3/4 in, crush sleeve inside, nut on the tube's underside). Three 3/8 slab anchors (1/2 in "
+     "holes): two in the wings beside the tube at the west end, one in the east tab. Nothing shares a bracket bolt.", rnd=0.3)
 
 # ---------------------------------------------------------------- stringer head clips (round 6: the same part at both stringer tops)
 def clip_flat(f):
@@ -208,7 +204,7 @@ yb = (u0 - um) + BD / 2                                          # tab bend line
 cx = lambda z: xs + max((z - zpt) - BD / 2, 0.0)                 # cheek: flat x of a point at height z (outside from the seat's underside)
 cy = lambda u: max(u - um, yb)
 cheek = Polygon([(cx(z), cy(u)) for u, z in G.CHEEK])
-tab = rect(cx(G.TAB_Z[0]), cx(G.TAB_Z[1]), yb, yb - ((G.TAB_W + T) - BD / 2))
+tab = Polygon([(cx(z), yb - (w / G.TAB_W) * ((G.TAB_W + T) - BD / 2)) for w, z in G.tab_outline()])   # round 10: full height, outer corners rounded
 half = unary_union([cheek, tab])
 shp = unary_union([rect(-xs, xs, -ys, ys), rect(-1.5, 1.5, -ys - (leg_out - BD / 2), ys + (leg_out - BD / 2)),
                    half, sscale(half, -1, 1, origin=(0, 0))])
@@ -218,7 +214,7 @@ for sy in (-1, 1):                                               # bend reliefs 
 yh = ys + (T + 2.0) - BD / 2                                     # leg bolt, 2 in below the post top
 holes = [Point(0, sy * yh).buffer(H38 / 2, 64) for sy in (-1, 1)]
 holes += [Point(sx * cx(G.SAD_BOLT[1]), cy(G.SAD_BOLT[0])).buffer(H38 / 2, 64) for sx in (-1, 1)]
-holes += [Point(sx * (cx(G.TAB_Z[0]) + cx(G.TAB_Z[1])) / 2, yb - ((1.05 + T) - BD / 2)).buffer(H38 / 2, 64) for sx in (-1, 1)]
+holes += [Point(sx * cx(G.TAB_BOLT_Z), yb - ((1.05 + T) - BD / 2)).buffer(H38 / 2, 64) for sx in (-1, 1)]
 bends = [((-1.5, -ys), (1.5, -ys)), ((-1.5, ys), (1.5, ys))]
 bends += [((sx * xs, cy(G.CHEEK[0][0])), (sx * xs, cy(G.CHEEK[-1][0]))) for sx in (-1, 1)]
 bends += [((sx * cx(G.TAB_Z[0]), yb), (sx * cx(G.TAB_Z[1]), yb)) for sx in (-1, 1)]
@@ -230,28 +226,36 @@ part("upper_post_saddle_qty1.dxf", "Upper stringer post saddle (seat, legs down 
      f"{SAD_INFO['cheek_h']:.2f} in tall outside, one 3/8 through bolt across the stringer (crush sleeve inside); tabs {SAD_INFO['tab'][0]:.2f} in out x "
      f"{SAD_INFO['tab'][1]:.2f} in tall, one 3/8 bolt each through the landing's north beam. Replaces round 5's foot clips.", rnd=0.3)
 
-# ---------------------------------------------------------------- base plates, 3/8 in
-def base_plate(w, post, through, file, name, qty, notes):
-    shp = rect(-w / 2, w / 2, -w / 2, w / 2)
-    if through:
-        shp = shp.difference(rect(-post / 2 - 0.03, post / 2 + 0.03, -post / 2 - 0.03, post / 2 + 0.03))
-    off = post / 2 + 1.2 if post > 2 else 2.3
-    holes = [Point(sx * off, sy * off).buffer(HANC / 2, 64) for sx in (-1, 1) for sy in (-1, 1)]
-    holes += [Point(sx * (post / 2 + 1.1), 0).buffer(CSK38 / 2, 64) for sx in (-1, 1)]
-    part(file, name, qty, 0.375, shp, holes, (), "none", notes + " COUNTERSINK the two 13/32 in holes from the BOTTOM face (82 deg, 3/8 flat head): flat head screws up through the plate into the post clips, nuts on top (no tapped threads). Four 1/2 in holes for 3/8 in slab anchors.", rnd=0.5)
+# ---------------------------------------------------------------- post base plate (round 11): one part under all three slab posts
+pb_ = G.post_base(-1.0, 1.0, -1.0, 1.0, "a")
+h_ = G.BP_W / 2
+shp = Polygon([(a + h_, b + h_) for a, b in pb_["plate"]])
+holes = [Point(a + h_, b + h_).buffer(HANC / 2, 64) for a, b in pb_["anchors"]]
+holes += [Point(a + h_, b + h_).buffer(CSK38 / 2, 64) for a, b in pb_["screws"]]
+part("post_base_plate_qty3.dxf", "Post base plate (foot post, corner newel, upper stringer post)", 3, G.BP_T, shp, holes, (), "none",
+     f"{G.BP_W:g} x {G.BP_W:g} in, corners R {G.BP_R:g}. Four 1/2 in holes at the corners for 3/8 wedge anchors. COUNTERSINK the two 13/32 in "
+     f"holes ({G.BP_SCREW:g} in each side of centre) from the BOTTOM face (82 deg, 3/8 flat head): the screws go up through the plate into the "
+     f"two clip angles (cut from stock L 2 x 2 x 3/8, {G.BC_L:g} in long), nuts on top; put them in before the plate is anchored. The same plate "
+     "fits the 2 x 2 and the 3 x 3 posts: only the hole in the clip's flat leg moves (1.45 in from the heel for 2 x 2, 0.95 in for 3 x 3).")
 
-
-base_plate(6.0, 2.0, True, "foot_post_base_plate_qty1.dxf", "Foot post base plate, 6 x 6 (post passes through)", 1, "lower flight foot post; the 2 x 2 post stands through the square hole on the slab.")
-base_plate(6.0, 2.0, False, "corner_newel_base_plate_qty1.dxf", "Corner newel base plate, 6 x 6", 1, "corner newel stands on it.")
-base_plate(7.0, 3.0, False, "upper_post_base_plate_qty1.dxf", "Upper stringer post base plate, 7 x 7", 1, "3 x 3 post under the upper stringer's foot.")
-
-# ---------------------------------------------------------------- balcony post L plates, 3/8 in
-x0 = G.XL - 8
-shp = unary_union([rect(0, 10, 0, G.TK - G.TT), rect(8, 10, G.TK - G.TT - 0.01, G.TK + 3.5)])
-holes = [Point(G.XL - 7 - x0, 1.5).buffer(H38 / 2, 64), Point(G.XL - 2.5 - x0, 1.5).buffer(H38 / 2, 64),
-         Point(9, 1.2).buffer(H38 / 2, 64), Point(9, G.TK + 2.6).buffer(H38 / 2, 64)]
-part("balcony_post_L_plate_qty2.dxf", "Balcony post L plate (south west newel and north west post)", 2, 0.375, shp, holes, (), "none",
-     "flat; the long leg bolts to the end beam of the balcony frame, the short leg up the post. Same part both posts (flip one).", rnd=0.5, inner=0.5)
+# ---------------------------------------------------------------- balcony corner plates (round 10), 3/8 in: replace the round 3 L plates
+# Flat in the plate's own plane: x = a (inches west of the bath 1 wall), y = z (height), the flange unfolded below the band's bend line.
+BD38 = 0.60                                                      # 90 degree bend deduction taken for 3/8 in, CHECK in SendCutSend's preview
+out_, (fa0, fa1, fw), pbolts, fbolts = G.corner_plate(-1)
+zu_ = G.FL - G.TK
+yb_ = zu_ - G.CP_T + BD38 / 2                                    # bend line
+plate = Polygon(out_).difference(rect(fa0 - 1, fa1, zu_ - 1, yb_))   # the band's bottom edge becomes the bend line (the post leg keeps its length)
+flange = rect(fa0, fa1, yb_ - (fw - BD38 / 2), yb_)
+shp = unary_union([plate, flange])
+shp = translate(shp, -(G.XL - G.CP_BAND), -(zu_ - G.CP_DROP))
+holes = [Point(a - (G.XL - G.CP_BAND), z - (zu_ - G.CP_DROP)).buffer(H38 / 2, 64) for a, z in pbolts]
+holes += [Point(a - (G.XL - G.CP_BAND), yb_ - ((1.0 + G.CP_T) - BD38 / 2) - (zu_ - G.CP_DROP)).buffer(H38 / 2, 64) for a in fbolts]
+part("balcony_corner_plate_qty2.dxf", "Balcony corner plate (south west newel and north west post)", 2, 0.375, shp, holes,
+     [((fa0 - (G.XL - G.CP_BAND), yb_ - (zu_ - G.CP_DROP)), (fa1 - (G.XL - G.CP_BAND), yb_ - (zu_ - G.CP_DROP)))],
+     "1 bend, 90 deg: the flange folds under the end beam. The two are mirror images: bend ONE UP and ONE DOWN (same flat)",
+     "on the inside face of the post and the end beam (south west: the south beam's north face; north west: the north arm's south face). "
+     "Two 3/8 grade 5 through bolts across the post (crush sleeve inside); two 3/8 bolts up through the flange and the beam (crush sleeves), "
+     "nuts in counterbores on the underside of the oak. Replaces the round 3 L plates: nothing on the stair side.", rnd=0.5, inner=0.5)
 
 # ---------------------------------------------------------------- placeholder clips for joints the CAD does not detail yet
 def clip(w, leg, file, name, qty, notes):
@@ -260,16 +264,22 @@ def clip(w, leg, file, name, qty, notes):
     part(file, name, qty, 0.25, shp, holes, [((0, 0), (w, 0))], "1 bend, 90 deg", "PLACEHOLDER for an engineer: " + notes, rnd=0.25)
 
 
-clip(2.0, 1.75, "clip_angle_2in_qty22.dxf", "Clip angle 2 in wide, 1 3/4 legs", 22,
-     "16 at the landing and balcony frame corners, 6 at the three post bases (2 each, flat heads up through the base plates). Round 7: the knee braces use gusset plates instead.")
+NCLIP = 18 + len(G.frame_clips())
+clip(2.0, 1.75, f"clip_angle_2in_qty{NCLIP}.dxf", "Clip angle 2 in wide, 1 3/4 legs", NCLIP,
+     "at the landing and balcony frame corners, including the ledger and north arm ends on the north east post. Round 7: the knee braces use gusset plates instead. Round 11b: the balcony has no west beam, so no clips there.")
 
 # ---------------------------------------------------------------- knee frame gussets (round 7): brace top, brace foot, post top
-for j_, what in (("top", "brace top to the balcony beam (2 bolts in the beam, 1 in the brace)"), ("foot", "brace foot to the wall post (2 in the post, 1 in the brace)"),
-                 ("corner", "wall post top to the balcony beam's end (1 in each)")):
-    shp = Polygon(G.gusset(j_))
-    holes = [Point(a, z).buffer(H38 / 2, 64) for a, z in G.KG[j_]]
-    part(f"knee_gusset_{j_}_qty2.dxf", f"Knee frame gusset, {j_}", 2, 0.25, shp, holes, (), "none",
-         f"flat, one per knee frame (south and north): {what}. On the face toward the middle of the balcony; 3/8 through bolts with crush sleeves.")
+# round 10: the north knee frame's wall post is the north east guard post in one piece, so its corner gusset is gone; its brace runs to the
+# north west post, so its top gusset is a new shape. The foot gusset is the same part on both frames.
+for j_, what, qty, shape, bolts_ in (("top", "south frame: brace top to the head beam (2 bolts in the beam, 1 in the brace)", 1, G.gusset("top"), G.KG["top"]),
+                                     ("foot", "both frames: brace foot to the wall post (2 in the post, 1 in the brace); a triangle whose lower edge follows the post's 45 deg foot cut", 2, G.gusset("foot"), G.KG["foot"]),
+                                     ("corner", "south frame: wall post top to the head beam's end, an L plate (2 bolts in the post, 2 in the beam, so it cannot pivot)", 1, G.gusset("corner"), G.KG["corner"]),
+                                     ("north_top", "north frame: brace top to the north arm's west end and the north west post (the post's 2 bolts are the corner plate's, 1 in the brace)", 1, G.nk_gusset("top"), G.NKG["top"] + ([] if G.NO_WEST_BEAM else [G.NKG_CLIP]))):
+    a0_, z0_ = min(a for a, _ in shape), min(z for _, z in shape)
+    shp = Polygon([(a - a0_, z - z0_) for a, z in shape])
+    holes = [Point(a - a0_, z - z0_).buffer(H38 / 2, 64) for a, z in bolts_]
+    part(f"knee_gusset_{j_}_qty{qty}.dxf", f"Knee frame gusset, {j_.replace('_', ' ')}", qty, 0.25, shp, holes, (), "none",
+         f"flat: {what}. South frame: on the brace's north face; north frame: on the north face. 3/8 through bolts with crush sleeves.")
 clip(1.25, 1.5, "rail_clip_1-25in_qty10.dxf", "Rail end clip 1 1/4 in wide, 1 1/2 legs", 10,
      "straight rail ends into post faces, the north guard rail into the west one, the north guard rail at the bath 1 wall, and the four guard bottom rail ends. 9/32 in holes for 1/4-20.")
 

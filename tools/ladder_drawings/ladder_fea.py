@@ -59,6 +59,10 @@ if G.MONO and abs(G.WT - 0.25) > 1e-6:
 for env_, key_, dims_ in (("LADDER_POST_T", "POST", (2.0, 2.0)), ("LADDER_RAIL_T", "RAIL", (1.5, 1.5)), ("LADDER_FTB", "TUBE", (2.0, 3.0))):
     if os.environ.get(env_):
         SEC[key_] = ("steel",) + rect_hss(*dims_, float(os.environ[env_]))
+ISEC = dict(W4x13=(3.83, 3.86, 11.3, 0.151, 1.90, 5.46), S4x7_7=(2.26, 0.764, 6.08, 0.0438, 0.505, 3.04), W5x16=(4.71, 6.32, 21.4, 0.192, 3.11, 8.55),
+            W6x15=(4.43, 9.32, 29.1, 0.101, 3.11, 9.72))      # I-beam study (Maxwell 11/24/2026): A, Iy weak, Iz strong, J, Sy, Sz (AISC)
+if os.environ.get("LADDER_STR_SEC"):
+    SEC["STR"] = ("steel",) + ISEC[os.environ["LADDER_STR_SEC"]]
 for k_, s_ in SEC.items():
     m.add_section(k_, *s_[1:5])
 
@@ -130,7 +134,7 @@ if G.MONO:
                 M(f"{fn}tread{k}w", e["sw"], e["w"], "TREAD")
                 TREADS[(fn, k)] = dict(o=e["o"], w=e["w"], mid=pt, members=(f"{fn}tread{k}o", f"{fn}bseat{k}o", f"{fn}bseat{k}w", f"{fn}tread{k}w"))
     for i in (0, 1):
-        S(LO.ends["foot"][i], what="lower stringer floor shoe (base plate bearing and its 2 anchors)")
+        S(LO.ends["foot"][i], what="lower stringer floor shoe (base plate bearing, its wall and 3 anchors)")
 else:
   for f in G.FLIGHTS:
     fn = f.name[0].upper()
@@ -222,9 +226,10 @@ else:
 BS1, BN1 = G.BAL_S + 1, G.BAL_N - 1
 M("BE", (1, BS1, ZB), (1, BN1, ZB), "TUBE")
 M("BS", (1, BS1, ZB), (XW, BS1, ZB), "TUBE", "i" if G.MONO else "ij")
-M("BH", (1, G.B_BH, ZB), (XW, G.B_BH, ZB), "TUBE", "i")
+M("BH", (1, G.B_BH, ZB), (XW, G.B_BH, ZB), "TUBE", "ij" if (G.MONO and not G.NO_WEST_BEAM) else "i")   # round 11: clip angle at the west beam, taken as pinned
 M("BN", (1, BN1, ZB), (XW, BN1, ZB), "TUBE", "i")
-M("BW", (XW, BS1, ZB), (XW, BN1, ZB), "TUBE")
+if not (G.MONO and G.NO_WEST_BEAM):
+    M("BW", (XW, BS1, ZB), (XW, BN1, ZB), "TUBE", "ij" if G.MONO else "")   # round 11: clip angles at both ends, taken as pinned
 for b in G.BAL_LAGS:
     if BAL_K > 0:
         n_ = N(1, b, ZB)
@@ -235,7 +240,7 @@ for b in G.BAL_LAGS:
         continue
     S((1, b, ZB), what="balcony ledger bolt to the loft rim")
     m.def_support(N(1, b, ZB), True, True, True, True, False, False)   # the joists are pinned to the ledger: stop it rolling about its own length (a free mode some solvers reject)
-for nm, b in (("BRh", G.B_BH), ("BRn", BN1)):      # mono round 5: a brace under the head beam too (Maxwell 11/23/2026)
+for nm, b in (("BRh", G.B_BH),) + ((("BRn", BN1),) if not G.MONO else ()):      # mono round 5: a brace under the head beam too (round 10: the north one is below)
     M(nm, (G.A_BR, b, ZB), (1, b, ZB - G.BRACE), "POST", "i")
     if G.MONO:                                     # round 7: a 2 x 2 post down the wall from the ledger closes the triangle (gussets, taken as fixed)
         zl_ = ZB - (G.KB_ZU + 1.5 - G.KB_LAGS[1])
@@ -251,6 +256,8 @@ for nm, b in (("BRh", G.B_BH), ("BRn", BN1)):      # mono round 5: a brace under
                 S((1, b, z_), True, False, True, what=f"knee post {w_} ({'south' if nm == 'BRh' else 'north'}), no vertical")
     else:
         S((1, b, ZB - G.BRACE), what=f"knee brace wall bracket ({'south' if nm == 'BRh' else 'north'})")
+if G.MONO and G.NO_WEST_BEAM:                      # round 11b: no west beam, the deck's west edge boards rest on the end beams' west ends
+    M("Bdeckw", (XW, BS1, ZB), (XW, BN1, ZB), "DECKB", "ij")
 for i, a in enumerate(G.BAL_STRIPS):
     N(a, G.B_BH, ZB); N(a, (G.B_BH + BN1) / 2, ZB)
     M(f"Bdeck{i}", (a, BS1, ZB), (a, BN1, ZB), "DECKB", "ij")
@@ -350,28 +357,39 @@ else:
     # balcony south west newel: lapped onto the upper open tube and the balcony's west beam
     bsw = BS1
     u_sw = bsw - G.B0
-    gs = [(PC, bsw, ZB - 1.5 if G.MONO else UP.zc(u_sw)), (PC, bsw, ZB), (PC, bsw, zr_up(bsw)), (PC, bsw, G.G_TOP - 0.75), (PC, bsw, G.GSW_TOP)]
+    gs = [(PC, bsw, G.FL - G.TK - G.CP_DROP if G.MONO else UP.zc(u_sw)), (PC, bsw, ZB), (PC, bsw, zr_up(bsw)), (PC, bsw, G.G_TOP - 0.75), (PC, bsw, G.GSW_TOP)]
     for i in range(4):
         M(f"gsw{i}", gs[i], gs[i + 1], "POST")
     if not G.MONO:
         M("gsw_tube", gs[0], (XW, bsw, UP.zc(u_sw)), "RIGID")
-    M("gsw_BW", gs[1], (XW, bsw, ZB), "RIGID")       # mono: an L plate bolted to the south beam and up the post carries the post's moment into the frame
+    M("gsw_BW", gs[1], (XW, bsw, ZB), "RIGID")       # mono: the corner plate (round 10: on the post's inside face, flange bolted up through the south beam) carries its moment
     mid_up = (PC, (PC + bsw) / 2, zr_up((PC + bsw) / 2))
     N(*mid_up)
     M("rail_upper", nw[4], gs[2], "RAIL", "ij")
     # balcony guard
     zg = G.G_TOP - 0.75
-    if G.MONO:                                          # the north west post: outside the west beam, north of its own L plate (round 3)
-        corner = (PC, G.GP_B, zg)
+    if G.MONO:                                          # round 10: the north west post at the frame's corner on its corner plate, reaching below
+        corner = (PC, G.GP_B, zg)                        # the frame to the north knee brace's top
+        nwz = [G.FL - G.TK - G.CP_DROP, G.NK_ZT + 1.0, ZB]
         M("gnw_BN", (PC, G.GP_B, ZB), (XW, BN1, ZB), "RIGID")
+        M("gnw0", (PC, G.GP_B, nwz[0]), (PC, G.GP_B, nwz[1]), "POST"); M("gnw1", (PC, G.GP_B, nwz[1]), (PC, G.GP_B, ZB), "POST")
         M("gnw", (PC, G.GP_B, ZB), corner, "POST")
+        # the north east post: the north knee frame's wall post in one piece from its 45 degree foot to the guard rail, lagged to the wall
+        # (lags take no weight), the ledger and north arm clipped to it at the frame's level
+        nez = sorted({ZB - G.BRACE, ZB, zg, *G.NK_LAGS})
+        for i_, (za_, zb2_) in enumerate(zip(nez, nez[1:])):
+            M(f"gne{i_}", (1, G.GP_B, za_), (1, G.GP_B, zb2_), "POST")
+        for z_ in G.NK_LAGS:
+            S((1, G.GP_B, z_), True, False, True, what="north east post lag into the wall, no vertical")
+        M("BRn", (G.A_BR, G.GP_B, ZB), (1, G.GP_B, ZB - G.BRACE), "POST")   # round 11: the same brace as the south one, bearing under the north arm (gussets taken as fixed)
+        ne = [None, None, (1, G.GP_B, zg)]
     else:
         corner = (PC, G.GP_B, zg)
         M("gnw_BN", (XW, G.GP_B, ZB), (XW, BN1, ZB), "RIGID")
         M("gnw", (XW, G.GP_B, ZB), (XW, G.GP_B, zg), "POST")
-    ne = [(1, G.GP_B, G.FL - 11), (1, G.GP_B, G.FL - 2), (1, G.GP_B, zg)]
-    S(ne[0], what="north east guard post lag (lower)"); S(ne[1], what="north east guard post lag (upper)")
-    M("gne0", ne[0], ne[1], "POST"); M("gne1", ne[1], ne[2], "POST")
+        ne = [(1, G.GP_B, G.FL - 11), (1, G.GP_B, G.FL - 2), (1, G.GP_B, zg)]
+        S(ne[0], what="north east guard post lag (lower)"); S(ne[1], what="north east guard post lag (upper)")
+        M("gne0", ne[0], ne[1], "POST"); M("gne1", ne[1], ne[2], "POST")
     mid_gw = (PC, (bsw + corner[1]) / 2, zg)
     mid_gn = ((corner[0] + 1) / 2, (corner[1] + G.GP_B) / 2, zg) if G.MONO else (12.6, G.GP_B, zg)
     N(*mid_gw); N(*mid_gn)
@@ -468,7 +486,7 @@ def stress(name, combo):
 GROUP = lambda n: ("stringer tubes" if "tube_" in n and n[0] in "LU" and n[1:5] == "tube" else "tread brackets" if "brkt" in n else "tread arms" if "seat" in n and G.MONO else "oak treads" if "tread" in n else
                    "oak deck" if "deck" in n else "landing frame" if n in ("LE", "LS", "LW", "LN", "LH") else "balcony frame" if n in ("BE", "BS", "BH", "BN", "BW") else
                    "knee braces" if n.startswith("BR") else "corner newel" if n.startswith("newel") and n[5:].isdigit() else "foot post" if n.startswith("footpost") else "upper stringer post" if n == "Upost" else
-                   "balcony south west newel" if n.startswith("gsw") and n[3:].isdigit() else "guard posts" if n in ("gnw", "gnw0", "gne0", "gne1") else "ties and kickers" if MEM[n][0] == "STRUT" else
+                   "balcony south west newel" if n.startswith("gsw") and n[3:].isdigit() else "guard posts" if n.startswith(("gnw", "gne")) else "ties and kickers" if MEM[n][0] == "STRUT" else
                    "handrails" if n.startswith("rail") and not n.startswith("rail_") or n in ("rail_lower", "rail_upper") else "guard rails" if n.startswith("grail") else None)
 res = {"cases": {}, "groups": {}, "reactions": {}, "deflection": {}}
 dead = {n: stress(n, "D")["sig"] for n in MEM if GROUP(n)}
@@ -501,7 +519,12 @@ for n, what in SUP.items():
             env = [r[0], r[1], r[2], c]
     res["reactions"].setdefault(what, [])
     res["reactions"][what].append(dict(north=round(env[0]), up=round(env[1]), east=round(env[2]), total=round(math.hypot(*env[:3])), case=env[3], dead_up=round(nd.RxnFY["D"])))
+    mm = max(((math.hypot(nd.RxnMX["D+" + c], nd.RxnMZ["D+" + c]), c) for c in CASES), key=lambda t: t[0])
+    if mm[0] > 1.0:                                   # round 11: base moment (in-lb) where a support is fixed, to size the post base plates
+        res["reactions"][what][-1].update(moment_inlb=round(mm[0]), moment_case=mm[1])
 # total dead weight, and a frequency estimate from the self weight plus one 170 lb person at mid flight
+res["knee_post_top"] = {n: dict(tension_lb=round(max(m.members[n].max_axial("D+" + c) for c in CASES)), compression_lb=round(-min(m.members[n].min_axial("D+" + c) for c in CASES)))
+                        for n in MEM if n.endswith("_post_top")}   # round 10: what the corner gusset (post top to the ledger) carries
 res["dead_weight"] = round(sum(m.nodes[n].RxnFY["D"] for n in SUP))
 d_p = abs(m.nodes[N(*TREADS[("U", 4)]["mid"])].DY["T_up4"]) * 170 / 300 + abs(m.nodes[N(*TREADS[("U", 4)]["mid"])].DY["D"])
 res["freq_hz"] = round(0.18 * math.sqrt(386.4 / d_p), 1)

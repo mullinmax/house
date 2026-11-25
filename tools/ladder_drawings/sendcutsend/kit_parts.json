@@ -29,15 +29,15 @@
   },
   {
    "file": "floor_shoe_qty1.dxf",
-   "name": "Floor shoe under the lower stringer",
+   "name": "Floor shoe under the lower stringer (a pocket)",
    "qty": 1,
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "2 bends, both 90 deg the same way (cheeks up): a U channel with tabs past each end",
-   "notes": "the lower stringer's level foot stands on the base; the cheeks run up outside the first tread's bracket webs and share that bracket's lower bolt (6 in, cheek, web, tube, web, cheek, crush sleeve inside). One 3/8 slab anchor through each end tab (1/2 in holes).",
+   "bends": "1 bend, 118 deg: the wall folds up and back over the base to lie on the stringer's sloped top face (61.7 deg pocket)",
+   "notes": "the lower stringer's level foot stands on the base and its toe sits in the bend; the wall lies on the tube's top face. One 3/8 through bolt square through the wall and the tube (about 4 3/4 in, crush sleeve inside, nut on the tube's underside). Three 3/8 slab anchors (1/2 in holes): two in the wings beside the tube at the west end, one in the east tab. Nothing shares a bracket bolt.",
    "size": [
-    9.04,
-    9.58
+    11.29,
+    7.7
    ]
   },
   {
@@ -73,88 +73,62 @@
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "6 bends, all 90 deg: the 2 legs DOWN (a U over the post top), the 2 cheeks UP (a U round the stringer), and a tab off each cheek's south edge bent OUT, away from the stringer (bend the tabs before the cheeks)",
-   "notes": "seat 4.50 x 3.50 in outside; legs 3 in wide, 3.75 in outside, one 3/8 through bolt across the post; cheeks 2.25 in tall outside, one 3/8 through bolt across the stringer (crush sleeve inside); tabs 2.25 in out x 1.17 in tall, one 3/8 bolt each through the landing's north beam. Replaces round 5's foot clips.",
+   "notes": "seat 4.50 x 3.50 in outside; legs 3 in wide, 3.75 in outside, one 3/8 through bolt across the post; cheeks 2.25 in tall outside, one 3/8 through bolt across the stringer (crush sleeve inside); tabs 2.25 in out x 1.80 in tall, one 3/8 bolt each through the landing's north beam. Replaces round 5's foot clips.",
    "size": [
     8.22,
     10.22
    ]
   },
   {
-   "file": "foot_post_base_plate_qty1.dxf",
-   "name": "Foot post base plate, 6 x 6 (post passes through)",
-   "qty": 1,
-   "thick": 0.375,
+   "file": "post_base_plate_qty3.dxf",
+   "name": "Post base plate (foot post, corner newel, upper stringer post)",
+   "qty": 3,
+   "thick": 0.5,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "none",
-   "notes": "lower flight foot post; the 2 x 2 post stands through the square hole on the slab. COUNTERSINK the two 13/32 in holes from the BOTTOM face (82 deg, 3/8 flat head): flat head screws up through the plate into the post clips, nuts on top (no tapped threads). Four 1/2 in holes for 3/8 in slab anchors.",
-   "size": [
-    6.0,
-    6.0
-   ]
-  },
-  {
-   "file": "corner_newel_base_plate_qty1.dxf",
-   "name": "Corner newel base plate, 6 x 6",
-   "qty": 1,
-   "thick": 0.375,
-   "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "none",
-   "notes": "corner newel stands on it. COUNTERSINK the two 13/32 in holes from the BOTTOM face (82 deg, 3/8 flat head): flat head screws up through the plate into the post clips, nuts on top (no tapped threads). Four 1/2 in holes for 3/8 in slab anchors.",
-   "size": [
-    6.0,
-    6.0
-   ]
-  },
-  {
-   "file": "upper_post_base_plate_qty1.dxf",
-   "name": "Upper stringer post base plate, 7 x 7",
-   "qty": 1,
-   "thick": 0.375,
-   "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "none",
-   "notes": "3 x 3 post under the upper stringer's foot. COUNTERSINK the two 13/32 in holes from the BOTTOM face (82 deg, 3/8 flat head): flat head screws up through the plate into the post clips, nuts on top (no tapped threads). Four 1/2 in holes for 3/8 in slab anchors.",
+   "notes": "7 x 7 in, corners R 0.75. Four 1/2 in holes at the corners for 3/8 wedge anchors. COUNTERSINK the two 13/32 in holes (2.45 in each side of centre) from the BOTTOM face (82 deg, 3/8 flat head): the screws go up through the plate into the two clip angles (cut from stock L 2 x 2 x 3/8, 3 in long), nuts on top; put them in before the plate is anchored. The same plate fits the 2 x 2 and the 3 x 3 posts: only the hole in the clip's flat leg moves (1.45 in from the heel for 2 x 2, 0.95 in for 3 x 3).",
    "size": [
     7.0,
     7.0
    ]
   },
   {
-   "file": "balcony_post_L_plate_qty2.dxf",
-   "name": "Balcony post L plate (south west newel and north west post)",
+   "file": "balcony_corner_plate_qty2.dxf",
+   "name": "Balcony corner plate (south west newel and north west post)",
    "qty": 2,
    "thick": 0.375,
    "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "none",
-   "notes": "flat; the long leg bolts to the end beam of the balcony frame, the short leg up the post. Same part both posts (flip one).",
+   "bends": "1 bend, 90 deg: the flange folds under the end beam. The two are mirror images: bend ONE UP and ONE DOWN (same flat)",
+   "notes": "on the inside face of the post and the end beam (south west: the south beam's north face; north west: the north arm's south face). Two 3/8 grade 5 through bolts across the post (crush sleeve inside); two 3/8 bolts up through the flange and the beam (crush sleeves), nuts in counterbores on the underside of the oak. Replaces the round 3 L plates: nothing on the stair side.",
    "size": [
     10.0,
-    7.94
+    7.5
    ]
   },
   {
-   "file": "clip_angle_2in_qty22.dxf",
+   "file": "clip_angle_2in_qty18.dxf",
    "name": "Clip angle 2 in wide, 1 3/4 legs",
-   "qty": 22,
+   "qty": 18,
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "1 bend, 90 deg",
-   "notes": "PLACEHOLDER for an engineer: 16 at the landing and balcony frame corners, 6 at the three post bases (2 each, flat heads up through the base plates). Round 7: the knee braces use gusset plates instead.",
+   "notes": "PLACEHOLDER for an engineer: at the landing and balcony frame corners, including the ledger and north arm ends on the north east post. Round 7: the knee braces use gusset plates instead. Round 11b: the balcony has no west beam, so no clips there.",
    "size": [
     2.0,
     3.11
    ]
   },
   {
-   "file": "knee_gusset_top_qty2.dxf",
+   "file": "knee_gusset_top_qty1.dxf",
    "name": "Knee frame gusset, top",
-   "qty": 2,
+   "qty": 1,
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "none",
-   "notes": "flat, one per knee frame (south and north): brace top to the balcony beam (2 bolts in the beam, 1 in the brace). On the face toward the middle of the balcony; 3/8 through bolts with crush sleeves.",
+   "notes": "flat: south frame: brace top to the head beam (2 bolts in the beam, 1 in the brace). South frame: on the brace's north face; north frame: on the north face. 3/8 through bolts with crush sleeves.",
    "size": [
-    6.3,
-    6.3
+    4.8,
+    6.8
    ]
   },
   {
@@ -164,23 +138,36 @@
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "none",
-   "notes": "flat, one per knee frame (south and north): brace foot to the wall post (2 in the post, 1 in the brace). On the face toward the middle of the balcony; 3/8 through bolts with crush sleeves.",
+   "notes": "flat: both frames: brace foot to the wall post (2 in the post, 1 in the brace); a triangle whose lower edge follows the post's 45 deg foot cut. South frame: on the brace's north face; north frame: on the north face. 3/8 through bolts with crush sleeves.",
    "size": [
-    5.8,
-    7.3
+    6.09,
+    6.74
    ]
   },
   {
-   "file": "knee_gusset_corner_qty2.dxf",
+   "file": "knee_gusset_corner_qty1.dxf",
    "name": "Knee frame gusset, corner",
-   "qty": 2,
+   "qty": 1,
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "none",
-   "notes": "flat, one per knee frame (south and north): wall post top to the balcony beam's end (1 in each). On the face toward the middle of the balcony; 3/8 through bolts with crush sleeves.",
+   "notes": "flat: south frame: wall post top to the head beam's end, an L plate (2 bolts in the post, 2 in the beam, so it cannot pivot). South frame: on the brace's north face; north frame: on the north face. 3/8 through bolts with crush sleeves.",
    "size": [
-    5.55,
-    5.8
+    7.5,
+    7.25
+   ]
+  },
+  {
+   "file": "knee_gusset_north_top_qty1.dxf",
+   "name": "Knee frame gusset, north top",
+   "qty": 1,
+   "thick": 0.25,
+   "material": "Mild steel A36 (hot rolled P&O)",
+   "bends": "none",
+   "notes": "flat: north frame: brace top to the north arm's west end and the north west post (the post's 2 bolts are the corner plate's, 1 in the brace). South frame: on the brace's north face; north frame: on the north face. 3/8 through bolts with crush sleeves.",
+   "size": [
+    7.71,
+    7.18
    ]
   },
   {

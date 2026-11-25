@@ -61,7 +61,7 @@ if R8:
     G.TT = float(os.environ.get("BRACKET_TT", "1.75"))
     OPTIONS["t25"], OPTIONS["t375"] = (0.25, False), (0.375, False)
 CA, SA, SL = math.cos(G.ANG), math.sin(G.ANG), G.SL
-XS0, XS1 = (G.WEB0 if R8 else 1.0), G.TD + G.RT   # seat, along x
+XS0, XS1 = (G.WEB0 if R8 else 1.0), (G.SEAT_E if R8 else G.TD + G.RT)  # seat, along x
 XW = G.WEB0                                       # web front edge
 YF = -G.TW / 2                                    # tube side face (open side)
 ZL = lambda x: (x - G.TD - G.RT) * SL             # tube top line, relative to the tread underside
