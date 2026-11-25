@@ -384,7 +384,8 @@ else:
         M(f"gsw{i}", gs[i], gs[i + 1], "POST")
     if not G.MONO:
         M("gsw_tube", gs[0], (XW, bsw, UP.zc(u_sw)), "RIGID")
-    M("gsw_BW", gs[1], (XW, bsw, ZB), "RIGID")       # mono: the corner plate (round 10: on the post's inside face, flange bolted up through the south beam) carries its moment
+    AF = sum(G.corner_plate(-1)[3]) / 2 if (G.MONO and G.NO_WEST_BEAM) else XW   # round 13: the corner plate's flange bolts' centroid on the end beam
+    M("gsw_BW", gs[1], (AF, bsw, ZB), "RIGID")       # mono: the corner plate (round 10: on the post's inside face, flange bolted up through the south beam) carries its moment
     mid_up = (PC, (PC + bsw) / 2, zr_up((PC + bsw) / 2))
     N(*mid_up)
     M("rail_upper", nw[4], gs[2], "RAIL", "ij")
@@ -393,7 +394,7 @@ else:
     if G.MONO:                                          # round 10: the north west post at the frame's corner on its corner plate, reaching below
         corner = (PC, G.GP_B, zg)                        # the frame to the north knee brace's top
         nwz = [G.FL - G.TK - G.CP_DROP, G.NK_ZT + 1.0, ZB]
-        M("gnw_BN", (PC, G.GP_B, ZB), (XW, BN1, ZB), "RIGID")
+        M("gnw_BN", (PC, G.GP_B, ZB), (AF, BN1, ZB), "RIGID")
         M("gnw0", (PC, G.GP_B, nwz[0]), (PC, G.GP_B, nwz[1]), "POST"); M("gnw1", (PC, G.GP_B, nwz[1]), (PC, G.GP_B, ZB), "POST")
         M("gnw", (PC, G.GP_B, ZB), corner, "POST")
         # the north east post: the north knee frame's wall post in one piece from its 45 degree foot to the guard rail, lagged to the wall
@@ -571,7 +572,7 @@ for n in MEM:
 res["bracket_bolt"] = {k: round(v) for k, v in bb.items()}
 # post laps: forces through the bolted connections of each post to the tubes and frames, and at the tube ends
 LINKS = dict(newel_LW="corner newel to landing west beam", foot_tube="foot post to lower stringer", gsw_tube="balcony newel to upper stringer",
-             gsw_BW="balcony newel to balcony west beam", gnw_BN="north west guard post to balcony north arm", **({f"{e}_{i}": f"{d} ({'north' if i == 'a' else 'south'} angle)" if e[0] == "L" else f"{d} ({'east' if i == 'b' else 'west'} side)" for e, d in (("Lhead", "lower stringer head"), ("Ufoot", "upper stringer foot"), ("Uhead", "upper stringer head")) for i in "ab"} if G.MONO else
+             gsw_BW="balcony newel to south beam (corner plate)" if G.MONO else "balcony newel to balcony west beam", gnw_BN="north west guard post to north arm (corner plate)" if G.MONO else "north west guard post to balcony north arm", **({f"{e}_{i}": f"{d} ({'north' if i == 'a' else 'south'} angle)" if e[0] == "L" else f"{d} ({'east' if i == 'b' else 'west'} side)" for e, d in (("Lhead", "lower stringer head"), ("Ufoot", "upper stringer foot"), ("Uhead", "upper stringer head")) for i in "ab"} if G.MONO else
                 dict(newel_tube="corner newel to lower stringer", Lhead_o="lower stringer head (open side)", Lhead_w="lower stringer head (wall side)",
                      Ufoot_o="upper stringer foot (open side)", Ufoot_w="upper stringer foot (wall side)", Uhead_o="upper stringer head (open side)", Uhead_w="upper stringer head (wall side)")))
 if G.MONO:
