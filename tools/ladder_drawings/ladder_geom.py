@@ -816,6 +816,45 @@ def rail_straps():
     return out
 
 
+# round 13 railing options (Maxwell 11/25/2026: the post top straps look clumsy, is there a kit? show both alternatives side by side).
+# LADDER_RAIL_STYLE: "straps" (round 11b, default), "hidden" (A: same square tubes, a flat 1/4 in tongue plate inside the rail and the post at
+# every joint, through slots, two 1/4-20 bolts across each tube, nothing on the outside but bolt heads) or "pipe" (B: round black pipe posts and
+# rails with slip on kit fittings in the Kee Klamp style, two set screws per socket, stock railing flanges under the two rail posts).
+RAIL_STYLE = os.environ.get("LADDER_RAIL_STYLE", "straps")
+assert RAIL_STYLE in ("straps", "hidden", "pipe"), RAIL_STYLE
+PIPE_POST = (1.900, 0.145)                         # 1 1/2 NPS schedule 40: OD, wall
+PIPE_RAIL = (1.660, 0.140)                         # 1 1/4 NPS schedule 40 (a 1.66 in round handrail is graspable, R311.7.8.5)
+RAIL_POSTS = ("foot_post", "corner_newel", "balcony_sw_newel", "guard_post_nw", "guard_post_ne")
+PF_D, PF_T, PF_SOCK, PF_H, PF_BC = 5.5, 0.4, 2.6, 2.6, 4.25   # B: railing flange (plate dia, thick), its socket (OD, height), anchor circle
+PS_D, PS_H, PC_H = 2.6, 2.2, 2.4                   # B: fitting round a post: OD, post top socket depth, side collar height
+RS_D, RS_L = 2.3, 2.2                              # B: fitting round a rail: OD, socket length
+TG_T, TG_R, TG_RP = 0.25, 0.42, 0.33               # hidden tongue: thickness, round about each rail bolt, about each post bolt
+_AWAY = dict(lower_foot=None, guard_top_west_nw=(0.0, -1.0, 0.0), guard_top_north_ne=(1.0, 0.0, 0.0), guard_top_north_nw=(-1.0, 0.0, 0.0),
+             guard_bottom_west_nw=(0.0, -1.0, 0.0), guard_bottom_north_nw=(-1.0, 0.0, 0.0))
+
+
+def hidden_joints():
+    """option A: [(name, plane axis, plane coordinate (the post's centre plane), rail bolts [(a, b, z)] x2, post bolts x2, knee (a, b, z))].
+    The tongue is TG_T thick on the centre plane: the hull of round ends about the rail bolts and the knee, joined to the hull about the post
+    bolts and the knee (so over a post top it is an upside down T inside the two tubes)."""
+    out = []
+    lo = {r[0]: r for r in straight_rails()}["lower_rail_open"]
+    dzf = (lo[6] - lo[5]) / (lo[2] - lo[1])
+    for nm, R, P1, P2, t, side, plane, pat in rail_straps():
+        u = _AWAY.get(nm, "face")
+        if u == "face":
+            u = tuple(-c for c in t)
+        elif u is None:                                                    # the lower rail running over the foot post: along its slope, uphill
+            u = _u((1.0, 0.0, dzf))
+        R2 = tuple(p + 1.25 * q for p, q in zip(R, u))
+        if nm == "guard_top_west_nw":                                      # clear of the north rail's end and of the north rail's tongue
+            P1, P2 = [(p[0], p[1] - 0.55, p[2]) for p in (P1, P2)]
+            R = (R[0], R[1] - 1.125, R[2]); R2 = tuple(p + 1.25 * q for p, q in zip(R, u))
+        K = R if u == tuple(-c for c in t) else (P1[0], P1[1], R[2])       # knee: where the post part meets the rail part (over a post: above it)
+        out.append((nm, side[0], plane - POST / 2, [R, R2], [P1, P2], K))
+    return out
+
+
 def strap_outline(R, P2, t, side, plane):
     """the strap's four corners (a, b, z) on the post side face plane"""
     ax = side[0]

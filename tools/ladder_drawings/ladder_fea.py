@@ -60,6 +60,17 @@ if G.MONO and abs(G.WT - 0.25) > 1e-6:
 for env_, key_, dims_ in (("LADDER_POST_T", "POST", (2.0, 2.0)), ("LADDER_RAIL_T", "RAIL", (1.5, 1.5)), ("LADDER_FTB", "TUBE", (2.0, 3.0))):
     if os.environ.get(env_):
         SEC[key_] = ("steel",) + rect_hss(*dims_, float(os.environ[env_]))
+def pipe_sec(D, t):
+    """round pipe OD D, nominal wall t (design wall 0.93 t): (A, I, I, J, S, S)"""
+    t = 0.93 * t
+    d = D - 2 * t
+    I = math.pi * (D ** 4 - d ** 4) / 64
+    return (math.pi * (D ** 2 - d ** 2) / 4, I, I, 2 * I, I / (D / 2), I / (D / 2))
+
+
+if G.RAIL_STYLE == "pipe":                          # round 13 option B: round pipe rails and rail posts
+    SEC["RAIL"] = ("steel",) + pipe_sec(*G.PIPE_RAIL)
+    SEC["PPOST"] = ("steel",) + pipe_sec(*G.PIPE_POST)
 ISEC = dict(W4x13=(3.83, 3.86, 11.3, 0.151, 1.90, 5.46), S4x7_7=(2.26, 0.764, 6.08, 0.0438, 0.505, 3.04), W5x16=(4.71, 6.32, 21.4, 0.192, 3.11, 8.55),
             W6x15=(4.43, 9.32, 29.1, 0.101, 3.11, 9.72))      # I-beam study (Maxwell 11/24/2026): A, Iy weak, Iz strong, J, Sy, Sz (AISC)
 if os.environ.get("LADDER_STR_SEC"):
@@ -80,6 +91,8 @@ def N(a, b, z):
 
 def M(name, p, q, sec, rel=""):
     """rel: 'i', 'j' or 'ij' = bending released at that end; 'I' / 'J' = a ball joint (torsion released too)"""
+    if G.RAIL_STYLE == "pipe" and sec == "POST" and name.startswith(("footpost", "newel", "gsw", "gnw", "gne")):
+        sec = "PPOST"
     m.add_member(name, N(*p), N(*q), SEC[sec][0], sec)
     r = dict(Ryi="i" in rel or "I" in rel, Rzi="i" in rel or "I" in rel, Rxi="I" in rel, Ryj="j" in rel or "J" in rel, Rzj="j" in rel or "J" in rel, Rxj="J" in rel)
     if any(r.values()):

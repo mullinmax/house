@@ -69,6 +69,17 @@ def rail_post_base(post):
     """round 12: one bent 3/8 plate under a 2 x 2 rail post: anchor flanges south and east, tabs up its north and west faces, 2 through
     bolts per tab (staggered so they pass each other inside the post)"""
     (a0, a1, b0, b1), _ = G.POST_BASES[post]
+    if G.RAIL_STYLE == "pipe":                      # round 13 option B: a stock railing flange (Kee Klamp style), socket with 2 set screws, 4 anchors
+        ac, bc = (a0 + a1) / 2, (b0 + b1) / 2
+        fl = cq.Solid.makeCylinder(G.PF_D / 2, G.PF_T, W(ac, bc, 0.0)).fuse(cq.Solid.makeCylinder(G.PF_SOCK / 2, G.PF_H, W(ac, bc, 0.0)))
+        fl = fl.cut(cq.Solid.makeCylinder(G.PIPE_POST[0] / 2, G.PF_H, W(ac, bc, G.PF_T)))
+        add("posts", f"{post}_base", fl.clean())
+        for k in range(4):
+            th = math.pi / 4 + k * math.pi / 2
+            nut(ac + G.PF_BC / 2 * math.cos(th), bc + G.PF_BC / 2 * math.sin(th), G.PF_T, "z")
+        for sg in (1, -1):                          # two set screws into the post, east and west
+            bolt(ac + sg * G.PF_SOCK / 2, bc, G.PF_T + (G.PF_H - G.PF_T) / 2, "a", sg, d=0.35, h=0.06, role=("set screw", 0.375, 0.5, 0.5))
+        return
     rb = G.rail_post_base(a0, a1, b0, b1)
     w = cq.Wire.makePolygon([W(a, b, 0.0) for a, b in rb["plate"]], close=True)
     s_ = cq.Solid.extrudeLinear(cq.Face.makeFromWires(w), cq.Vector(0, 0, G.RB_T))
@@ -106,6 +117,9 @@ def slope_tube(f, ua, ub, ztop, depth, v0, v1, t, za=None, zb=None, plumb_head=F
     e0, e1 = ua - 4, ub + 4 + depth / G.SL
     inner = prism(f, [(e0, zbm(e0) + tp), (e1, zbm(e1) + tp), (e1, zt(e1) - tp), (e0, zt(e0) - tp)], v0 + t * (1 if v1 > v0 else -1), v1 - t * (1 if v1 > v0 else -1))
     return outer.cut(inner)
+
+
+_bbo2 = lambda p, q: p.xmin < q.xmax and q.xmin < p.xmax and p.ymin < q.ymax and q.ymin < p.ymax and p.zmin < q.zmax and q.zmin < p.zmax
 
 
 def add(group, name, solid, colour=STEEL, mat="steel"):
@@ -576,7 +590,29 @@ else:
     for i in range(1, n_n):
         a = G.POST + i * (XL - 2 * G.POST) / n_n
         add("guard", f"picket_north_{i}", cq.Solid.makeCylinder(G.PICKET / 2, pz[1] - pz[0], W(a, G.GP_B, pz[0])))
-if G.MONO and not G.CONT_RAIL:                     # round 11b: a strap at every rail end or post crossing (one rail bolt + spacer, two post bolts)
+if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "hidden":   # round 13 option A: a tongue plate inside the rail and the post at every joint
+    from shapely.geometry import MultiPoint as _MP, Point as _Pt
+    from shapely.ops import unary_union as _uu
+    _bbo = lambda p, q: p.xmin < q.xmax and q.xmin < p.xmax and p.ymin < q.ymax and q.ymin < p.ymax and p.zmin < q.zmax and q.zmin < p.zmax
+    for nm, ax, pc, RB, PB, K in G.hidden_joints():
+        i_ = 0 if ax == "a" else 1
+        k_ = [j for j in range(3) if j != i_]                                # in plane coordinates: (the other plan axis, z)
+        q2 = lambda q, r: _Pt(q[k_[0]], q[2]).buffer(r, 24)
+        hull = _uu([_uu([q2(q, G.TG_R) for q in RB + [K]]).convex_hull, _uu([q2(q, G.TG_RP) for q in PB] + [q2(K, G.TG_RP)]).convex_hull])
+        loop = [W(*((pc - G.TG_T / 2, x, z) if ax == "a" else (x, pc - G.TG_T / 2, z))) for x, z in list(hull.exterior.coords)[:-1]]
+        dv = cq.Vector(-G.TG_T, 0, 0) if ax == "a" else cq.Vector(0, G.TG_T, 0)
+        tg = cq.Solid.extrudeLinear(cq.Face.makeFromWires(cq.Wire.makePolygon(loop, close=True)), dv)
+        for j, (g_, n_, s_, *r_) in enumerate(PARTS):                         # slot the rail and the post where the tongue passes their walls
+            if g_ in ("rails", "posts", "guard") and not n_.startswith("picket") and _bbo(s_.BoundingBox(), tg.BoundingBox()):
+                c_ = s_.cut(tg)
+                if abs(c_.Volume() - s_.Volume()) > 1e-6:
+                    PARTS[j] = (g_, n_, c_, *r_)
+        add("rails", f"rail_tongue_{nm}", tg)
+        for P, half in [(q, G.RAIL / 2) for q in RB] + [(q, G.POST / 2) for q in PB]:
+            hd, nt = list(P), list(P)
+            hd[i_], nt[i_] = pc + half, pc - half
+            bolt(*hd, ax, 1, d=0.5, h=0.15); nut(*nt, ax, -1, d=0.5)
+if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "straps":   # round 11b: a strap at every rail end or post crossing (one rail bolt + spacer, two post bolts)
     for nm, R, P1, P2, t, side, plane, pat in G.rail_straps():
         ax, i_ = side[0], (0 if side[0] == "a" else 1)
         pts = G.strap_outline(R, P2, t, side, plane)
@@ -589,6 +625,120 @@ if G.MONO and not G.CONT_RAIL:                     # round 11b: a strap at every
             hd, nt = list(P), list(P)
             hd[i_], nt[i_] = plane + G.ST_T, (plane - G.POST) if P is not R else far
             bolt(*hd, ax, 1, d=0.5, h=0.15); nut(*nt, ax, -1, d=0.5)
+if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe":     # round 13 option B: round pipe posts and rails, slip on kit fittings
+    RP_, RR_ = G.PIPE_POST[0] / 2, G.PIPE_RAIL[0] / 2
+    def _cyl(p0, p1, r):
+        v = cq.Vector(*W(*p1).toTuple()) - W(*p0)
+        return cq.Solid.makeCylinder(r, v.Length, W(*p0), v.normalized())
+    def _pipe(p0, p1, od, wall):
+        return _cyl(p0, p1, od / 2).cut(_cyl(p0, p1, od / 2 - wall))
+    names = {n_: j for j, (g_, n_, *_r) in enumerate(PARTS)}
+    RAILC = {}                                                                 # rail centreline ends
+    sr = {r[0]: r for r in G.straight_rails()}
+    for rn in ("lower_rail_open", "upper_rail_open", "guard_west_top_rail", "guard_north_top_rail", "guard_west_bottom_rail", "guard_north_bottom_rail"):
+        g_, n_, s_, *r_ = PARTS[names[rn]]
+        bb = s_.BoundingBox()
+        a0_, a1_, b0_, b1_ = -bb.xmax, -bb.xmin, bb.ymin, bb.ymax
+        if rn in sr:
+            _, ra0, ra1, rb0, rb1, z0_, z1_, ax_ = sr[rn]
+            L_ = (ra1 - ra0) if ax_ == "a" else (rb1 - rb0)
+            dep = G.RAIL * math.sqrt(1 + ((z1_ - z0_) / L_) ** 2)
+            if ax_ == "a":
+                e0, e1 = (ra0, (rb0 + rb1) / 2, z0_ - dep / 2), (ra1, (rb0 + rb1) / 2, z1_ - dep / 2)
+            else:
+                e0, e1 = ((ra0 + ra1) / 2, rb0, z0_ - dep / 2), ((ra0 + ra1) / 2, rb1, z1_ - dep / 2)
+        else:                                                                  # level bottom rails: from the bounding box
+            zc = (bb.zmin + bb.zmax) / 2
+            if "north" in rn:
+                e0, e1 = (a0_, (b0_ + b1_) / 2, zc), (a1_, (b0_ + b1_) / 2, zc)
+            else:
+                e0, e1 = ((a0_ + a1_) / 2, b0_, zc), ((a0_ + a1_) / 2, b1_, zc)
+        RAILC[rn] = (e0, e1)
+        RAILC[rn] = (e0, e1)
+    OVER_ = dict(foot_post="lower_rail_open", guard_post_nw="guard_west_top_rail", guard_post_ne="guard_north_top_rail")
+    POSTC = {}                                                                 # post centre (a, b) and z range
+    for pn in G.RAIL_POSTS:
+        g_, n_, s_, *r_ = PARTS[names[pn]]
+        bb = s_.BoundingBox()
+        ac, bc = -(bb.xmin + bb.xmax) / 2, (bb.ymin + bb.ymax) / 2
+        z1 = bb.zmax
+        if pn in OVER_:                                                        # the rail runs over this post: its top stops under the rail
+            e0, e1 = RAILC[OVER_[pn]]
+            f_ = ((ac - e0[0]) / (e1[0] - e0[0])) if abs(e1[0] - e0[0]) > 1e-6 else ((bc - e0[1]) / (e1[1] - e0[1]))
+            z1 = e0[2] + f_ * (e1[2] - e0[2]) - RR_ / math.sqrt(1 - ((e1[2] - e0[2]) / math.dist(e0, e1)) ** 2)
+        POSTC[pn] = (ac, bc, bb.zmin, z1)
+        PARTS[names[pn]] = (g_, n_, _pipe((ac, bc, bb.zmin), (ac, bc, z1), *G.PIPE_POST), *r_)
+    SOLIDP = [_cyl((a, b, z0), (a, b, z1), RP_) for a, b, z0, z1 in POSTC.values()]
+    for rn, (e0, e1) in RAILC.items():                                         # rails stop at the round posts
+        g_, n_, s_, *r_ = PARTS[names[rn]]
+        rp_ = _pipe(e0, e1, *G.PIPE_RAIL)
+        for x in SOLIDP:
+            if _bbo2(x.BoundingBox(), rp_.BoundingBox()):
+                rp_ = rp_.cut(x)
+        PARTS[names[rn]] = (g_, n_, rp_, *r_)
+    SOLIDR = [_cyl(e0, e1, RR_) for e0, e1 in RAILC.values()]
+    def _near_post(p):
+        return min(POSTC.items(), key=lambda kv: math.hypot(kv[1][0] - p[0], kv[1][1] - p[1]))
+    def _rail_at(p):
+        best = None
+        for rn, (e0, e1) in RAILC.items():
+            d = [q - p_ for q, p_ in zip(e1, e0)]; L = math.sqrt(sum(x * x for x in d)); u = [x / L for x in d]
+            s_ = max(0.0, min(L, sum((p[i] - e0[i]) * u[i] for i in range(3))))
+            c = [e0[i] + s_ * u[i] for i in range(3)]
+            dist = math.dist(c, p)
+            if best is None or dist < best[0]:
+                best = (dist, rn, c, u, s_, L)
+        return best
+    FIT = {}                                                                   # post name -> list of fitting solids (joined per post)
+    for nm, R, P1, P2, t, side, plane, pat in G.rail_straps():
+        pn, (pa, pb, pz0, pz1) = _near_post(P1)
+        dist, rn, c, u, s_, L = _rail_at(R)
+        over = pat == "foot" or nm in ("guard_top_west_nw", "guard_top_north_ne")
+        shapes = []
+        if over:                                                               # rail over the post top: a socket on the post top and a sleeve round the rail
+            zt = pz1
+            shapes.append(_cyl((pa, pb, zt - G.PS_H), (pa, pb, zt), G.PS_D / 2))
+            cc = _rail_at((pa, pb, zt + RR_))[2]
+            shapes.append(_cyl([cc[i] - u[i] * G.RS_L / 2 for i in range(3)], [cc[i] + u[i] * G.RS_L / 2 for i in range(3)], G.RS_D / 2))
+            ss = [("post", (pa, pb, zt - G.PS_H / 2)), ("rail", cc)]
+        else:                                                                  # rail end on the post's side: a collar round the post and a socket on the rail end
+            end = RAILC[rn][0] if s_ < L / 2 else RAILC[rn][1]
+            ui = [-x for x in u] if s_ < L / 2 else u                          # from the rail end toward the post
+            ce = [end[i] - ui[i] * 0.0 for i in range(3)]
+            shapes.append(_cyl([ce[i] - ui[i] * G.RS_L for i in range(3)], [ce[i] + ui[i] * 0.6 for i in range(3)], G.RS_D / 2))
+            ss = [("rail", [ce[i] - ui[i] * G.RS_L / 2 for i in range(3)])]
+            if nm != "guard_top_north_nw":                                     # (the north top rail ends on the west rail's sleeve over the corner post)
+                shapes.insert(0, _cyl((pa, pb, ce[2] - G.PC_H / 2), (pa, pb, ce[2] + G.PC_H / 2), G.PS_D / 2))
+                ss.insert(0, ("post", (pa, pb, ce[2])))
+        sol = shapes[0]
+        for x in shapes[1:]:
+            sol = sol.fuse(x)
+        FIT.setdefault(pn, []).append((nm, sol, ss, u))
+    for pn, fl in FIT.items():
+        sol = fl[0][1]
+        for _, x, _, _ in fl[1:]:
+            sol = sol.fuse(x)
+        for x in SOLIDP + SOLIDR:
+            if _bbo2(x.BoundingBox(), sol.BoundingBox()):
+                sol = sol.cut(x)
+        add("rails", f"rail_fitting_{pn}", sol.clean())
+        pa, pb = POSTC[pn][:2]
+        done = set()
+        for nm, _, ss, u in fl:
+            for what, p in ss:
+                key = (what, round(p[2], 1)) if what == "post" else (what, nm)
+                if key in done:
+                    continue
+                done.add(key)
+                if what == "post":                                             # two set screws through the collar into the post, on the side away from the rails
+                    for sg in (1, -1):
+                        bolt(pa, pb + sg * G.PS_D / 2, p[2], "b", sg, d=0.35, h=0.06, role=("set screw", 0.375, 0.5, 0.5))
+                else:                                                          # two set screws in through the rail socket's side into the rail
+                    sax = "b" if abs(u[0]) > abs(u[1]) else "a"
+                    for k in (-0.5, 0.5):
+                        q = [p[i] + k * u[i] for i in range(3)]
+                        q[0 if sax == "a" else 1] += G.RS_D / 2
+                        bolt(*q, sax, 1, d=0.35, h=0.06, role=("set screw", 0.375, 0.5, 0.5))
 # context: slab and the two walls (reference only)
 CTX = [("slab", box(-5, 60, -5, 100, -1, 0)), ("bath_1_wall", box(-4.5, 0, -4.5, 100, 0, FL)), ("clerestory_wall", box(0, 60, -4.5, 0, 0, 170))]
 
