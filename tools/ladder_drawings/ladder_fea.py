@@ -10,6 +10,7 @@ from Pynite import FEModel3D
 import ladder_geom as G
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "."
+NEWEL_BASE = os.environ.get("LADDER_NEWEL_BASE", "fixed")     # round 12: corner newel base fixed (one piece moment base) or pinned (as before)
 POST_BASE = os.environ.get("LADDER_POST_BASE", "fixed")       # upper stringer post base: fixed (default) or pinned
 HEAD_VERT = os.environ.get("LADDER_HEAD_VERT", "0") == "1"
 LAG_K = float(os.environ.get("LADDER_LAG_K", "0"))
@@ -306,7 +307,11 @@ if G.CONT_RAIL:
     rn = R_(PS["newel"])
     nwt = (PC, PC, G.NEWEL_TOP2)
     nw = [(PC, PC, 0.0), (PC, PC, ZL), nwt, rn, rn]
-    S(nw[0], what="corner newel base on the slab")
+    if NEWEL_BASE == "fixed":                       # round 12: the newel stands on the same one piece moment base as the foot post
+        m.def_support(N(*nw[0]), True, True, True, True, True, True)
+        SUP[N(*nw[0])] = "corner newel base on the slab (moment base)"
+    else:
+        S(nw[0], what="corner newel base on the slab")
     M("newel0", nw[0], nw[1], "POST"); M("newel1", nw[1], nwt, "POST")
     M("newel_rail", nwt, rn, "RIGID")
     M("newel_LW", nw[1], (XW, PC, ZL), "RIGID", "J")
@@ -332,7 +337,11 @@ else:
     u_nw = G.XL + G.UL - PC
     # corner newel: slab to above the upper rail, lapped onto the lower open tube and the landing's west beam
     nw = [(PC, PC, 0.0), (PC, PC, LO.zc(u_nw)), (PC, PC, ZL), (PC, PC, zr_lo(PC)), (PC, PC, zr_up(PC)), (PC, PC, G.NEWEL_TOP)]
-    S(nw[0], what="corner newel base on the slab")
+    if NEWEL_BASE == "fixed":                       # round 12: the newel stands on the same one piece moment base as the foot post
+        m.def_support(N(*nw[0]), True, True, True, True, True, True)
+        SUP[N(*nw[0])] = "corner newel base on the slab (moment base)"
+    else:
+        S(nw[0], what="corner newel base on the slab")
     for i in range(5):
         M(f"newel{i}", nw[i], nw[i + 1], "POST")
     if not G.MONO:
@@ -521,7 +530,11 @@ for n, what in SUP.items():
     res["reactions"][what].append(dict(north=round(env[0]), up=round(env[1]), east=round(env[2]), total=round(math.hypot(*env[:3])), case=env[3], dead_up=round(nd.RxnFY["D"])))
     mm = max(((math.hypot(nd.RxnMX["D+" + c], nd.RxnMZ["D+" + c]), c) for c in CASES), key=lambda t: t[0])
     if mm[0] > 1.0:                                   # round 11: base moment (in-lb) where a support is fixed, to size the post base plates
-        res["reactions"][what][-1].update(moment_inlb=round(mm[0]), moment_case=mm[1])
+        res["reactions"][what][-1].update(moment_inlb=round(mm[0]), moment_case=mm[1],
+            # round 12: signed envelope about each plan axis, to size one sided (tab) bases. about_north tips the post east/west,
+            # about_east tips it north/south
+            about_north=[round(min(nd.RxnMX["D+" + c] for c in CASES)), round(max(nd.RxnMX["D+" + c] for c in CASES))],
+            about_east=[round(min(nd.RxnMZ["D+" + c] for c in CASES)), round(max(nd.RxnMZ["D+" + c] for c in CASES))])
 # total dead weight, and a frequency estimate from the self weight plus one 170 lb person at mid flight
 res["knee_post_top"] = {n: dict(tension_lb=round(max(m.members[n].max_axial("D+" + c) for c in CASES)), compression_lb=round(-min(m.members[n].min_axial("D+" + c) for c in CASES)))
                         for n in MEM if n.endswith("_post_top")}   # round 10: what the corner gusset (post top to the ledger) carries
@@ -574,7 +587,7 @@ for n, what in LINKS.items():
 # sway stiffness and the first few natural modes (self weight plus one 170 lb person standing mid way up the upper flight)
 res["sway"] = {c: dict(desc=CASES[c]["desc"], defl_in=round(res["cases"][c]["defl_at_load"], 4), stiffness_lb_per_in=round(SW / max(res["cases"][c]["defl_at_load"], 1e-9)))
                for c in CASES if CASES[c]["kind"] == "sway"}
-res["variant"] = dict(post_base=POST_BASE, head_carries_weight=HEAD_VERT, landing_lag_k=LAG_K or "rigid")
+res["variant"] = dict(post_base=POST_BASE, newel_base=NEWEL_BASE, head_carries_weight=HEAD_VERT, landing_lag_k=LAG_K or "rigid")
 if CUTS:
     # forces (lb) and moments (in lb) on each solid piece, in PyNite global axes (X north, Y up, Z east), about the node they act at
     def sub_at(phys, node, end):

@@ -80,16 +80,29 @@
    ]
   },
   {
-   "file": "post_base_plate_qty3.dxf",
-   "name": "Post base plate (foot post, corner newel, upper stringer post)",
-   "qty": 3,
+   "file": "post_base_plate_qty1.dxf",
+   "name": "Post base plate (upper stringer post)",
+   "qty": 1,
    "thick": 0.5,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "none",
-   "notes": "7 x 7 in, corners R 0.75. Four 1/2 in holes at the corners for 3/8 wedge anchors. COUNTERSINK the two 13/32 in holes (2.45 in each side of centre) from the BOTTOM face (82 deg, 3/8 flat head): the screws go up through the plate into the two clip angles (cut from stock L 3 x 2 x 3/8, long leg up, 3 in long; two 3/8 through bolts cross the post and both clips), nuts on top; put them in before the plate is anchored. The same plate fits the 2 x 2 and the 3 x 3 posts: only the hole in the clip's flat leg moves (1.45 in from the heel for 2 x 2, 0.95 in for 3 x 3).",
+   "notes": "7 x 7 in, corners R 0.75. Four 1/2 in holes at the corners for 3/8 wedge anchors. COUNTERSINK the two 13/32 in holes (2.45 in each side of centre) from the BOTTOM face (82 deg, 3/8 flat head): the screws go up through the plate into the two clip angles (cut from stock L 3 x 2 x 3/8, long leg up, 3 in long, hole 0.95 in from the heel; two 3/8 through bolts cross the 3 x 3 post and both clips), nuts on top; put them in before the plate is anchored. Round 12: the two rail posts have their own one piece base.",
    "size": [
     7.0,
     7.0
+   ]
+  },
+  {
+   "file": "rail_post_base_qty2.dxf",
+   "name": "Rail post base (foot post and corner newel), one piece",
+   "qty": 2,
+   "thick": 0.375,
+   "material": "Mild steel A36 (hot rolled P&O)",
+   "bends": "2 bends, both 90 deg UP toward you with the drawing seen from above (north up, east to the right): the west tab and the north tab. Both parts are identical (not mirrored).",
+   "notes": "base 6.12 x 6.12 in outside, tabs 5.85 in tall outside (2 in wide). Three 1/2 in holes for 3/8 wedge anchors on the south and east flanges (the side that lifts under the rail load). Two 7/16 holes in each tab for 3/8 grade 5 through bolts across the post (crush sleeve inside); drill the post through the tab holes on site, the two tabs' holes are at different heights so the bolts pass each other. Grind a small 45 deg bevel on the post's bottom outside edge on the two tab faces so it sits down past the bend radius. Replaces the plate plus two clip angles under these two posts.",
+   "size": [
+    11.38,
+    11.38
    ]
   },
   {

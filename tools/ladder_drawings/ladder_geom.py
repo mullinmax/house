@@ -384,6 +384,39 @@ def post_base(a0, a1, b0, b1, axis):
     return dict(plate=plate, anchors=anchors, clips=clips, bolts=list(zip(ends[1], ends[0])), screws=screws)
 
 
+# round 12 rail post base (Maxwell 11/25/2026): the two 2 x 2 rail posts on the slab (foot post, corner newel) stand on ONE bent 3/8 in plate
+# instead of a plate plus two clips. The frame model tips both posts north and west (foot post up to 4810 in-lb, about 500 the other way), so
+# their south and east edges lift: the plate's anchor flanges run along the post's SOUTH and EAST sides (three 3/8 wedge anchors: the SE corner
+# and one beside each lifting corner) and two tabs bend up 90 deg against its NORTH and WEST faces, two 3/8 through bolts in each (crush sleeve
+# inside). Each tab takes the tipping in its own plane, so its uplift lands right beside an anchor. The two tabs' bolts are staggered in height
+# so they do not cross inside the post. The upper stringer post keeps the round 11 base (post_base above).
+RB_T = 0.375                                       # plate
+RB_FL = 3.75                                       # anchor flanges reach this far south and east of the post's faces (2.75 gave about 1060 lb per anchor, 3.75 about 740)
+RB_H = 5.85                                        # tabs: outside height from the slab
+RB_ANC = 1.5                                       # anchor centres this far from the post's south / east faces
+RB_ANC_IN = 0.75                                   # and the two side anchors this far in from the tabs' outer faces
+RB_BOLT_Z = dict(west=(RB_T + 1.35, RB_T + 3.6), north=(RB_T + 2.475, RB_T + 4.725))   # 2 1/4 apart in each tab, 1 1/8 between the two sets
+RB_R, RB_TAB_R = 0.75, 0.6                         # outline corner radius, tab top corner radius
+
+
+def rail_post_base(a0, a1, b0, b1):
+    """one piece bent base under a 2 x 2 rail post with faces a0 (east) .. a1 (west), b0 (south) .. b1 (north). Returns dict: plate outline [(a, b)]
+    (the flat base as it lies on the slab, NW corner notched for the tabs), tabs {side: box (a0, a1, b0, b1, z0, z1)}, anchors [(a, b)],
+    bolts [(side, axis, head (a, b, z), nut (a, b, z))]"""
+    t = RB_T
+    ae, aw, bs, bn = a0 - RB_FL, a1 + t, b0 - RB_FL, b1 + t          # outer edges (the tabs' outer faces on the west and north)
+    out = [(ae, bs), (aw, bs), (aw, b1), (a1, b1), (a1, bn), (ae, bn)]
+    plate = []
+    for i in range(len(out)):
+        plate += _fillet(out, i, RB_R, cap=0.45) if i in (0, 1, 5) else [out[i]]
+    tabs = dict(west=(a1, aw, b0, b1, 0.0, RB_H), north=(a0, a1, b1, bn, 0.0, RB_H))
+    anchors = [(a0 - RB_ANC, b0 - RB_ANC), (aw - RB_ANC_IN, b0 - RB_ANC), (a0 - RB_ANC, bn - RB_ANC_IN)]
+    ac, bc = (a0 + a1) / 2, (b0 + b1) / 2
+    bolts = [("west", "a", (aw, bc, z), (a0, bc, z)) for z in RB_BOLT_Z["west"]]
+    bolts += [("north", "b", (ac, bn, z), (ac, b0, z)) for z in RB_BOLT_Z["north"]]
+    return dict(plate=plate, tabs=tabs, anchors=anchors, bolts=bolts)
+
+
 # round 11b fasteners for the oak that only rested on the steel before (check_attached.py): three trim head screws through each riser lip
 # into its tread's back edge, and eight 1/4-20 button heads up through each platform frame's top wall into brass inserts in the oak
 RISER_SCREW_V = (3.0, WN / 2, WN - 3.0)

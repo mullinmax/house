@@ -340,9 +340,22 @@ def mono_ladder(WX, WY):
             hexa(ST, [P(*p0, z0_ - dp), P(*p1, z0_ - dp), P(*p1, z0_), P(*p0, z0_), P(*q0, z1_ - dp), P(*q1, z1_ - dp), P(*q1, z1_), P(*q0, z1_)])
     # lower flight foot post and the corner newel, each on a base plate with four slab anchors
     fa = G.A_FOOT
-    post(fa - 1, fa + 1, XL + e, XL + G.POST, G.BP_T + e)    # round 11: each stands on a small square base plate between two clips
-    post(XL + e, XL + G.POST, XL + e, XL + G.POST, G.BP_T + e)
-    post_base("foot_post"); post_base("corner_newel")
+    post(fa - 1, fa + 1, XL + e, XL + G.POST, G.RB_T + e)    # round 12: each stands on a one piece bent base (anchors south and east, tabs north and west)
+    post(XL + e, XL + G.POST, XL + e, XL + G.POST, G.RB_T + e)
+
+    def rail_post_base(post_):
+        (a0_, a1_, b0_, b1_), _ = G.POST_BASES[post_]
+        rb_ = G.rail_post_base(a0_, a1_, b0_, b1_)
+        ae_, aw_, bs_, bn_ = a0_ - G.RB_FL, a1_ + G.RB_T, b0_ - G.RB_FL, b1_ + G.RB_T
+        gb(ST, ae_, aw_, bs_, b1_, 0.02, G.RB_T)
+        gb(ST, ae_, a1_, b1_, bn_, 0.02, G.RB_T)
+        for tb_ in rb_["tabs"].values():
+            gb(ST, tb_[0], tb_[1], tb_[2], tb_[3], G.RB_T, tb_[5])
+        for side_, ax_, (ha_, hb_, hz_), (na_, nb_, nz_) in rb_["bolts"]:
+            bolt(ha_, hb_, hz_, ax_, 1); nut(na_, nb_, nz_, ax_, -1)
+        for a_, b_ in rb_["anchors"]:
+            nut(a_, b_, G.RB_T, "z")
+    rail_post_base("foot_post"); rail_post_base("corner_newel")
     for z_ in (ZP - TK + 0.8, ZP - TT - 0.8):                # corner newel lapped onto the landing's west beam
         bolt(XL + G.POST, XL + 1, z_, "a")
         nut(XL - 2, XL + 1, z_, "a", -1)

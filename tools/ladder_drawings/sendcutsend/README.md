@@ -37,3 +37,8 @@ the post bases use 2 through bolts each (clips are L 3 x 2 x 3/8, 3 in long, lon
 rail_strap_qty11 and rail_strap_foot_qty1 (1 1/4 x 1/4 flat strap on a 1/4 spacer, one 1/4-20 bolt through the rail and two through the
 post), each riser board has 3 trim head screws into its bracket, and the oak decks have button head screws into threaded inserts down
 through the frame. Every bolt is drawn whole (plain shank and threaded length); lengths are in loft_ships_ladder_bolts.json.
+Round 12 (11/25/2026): the two rail posts (foot post, corner newel) stand on rail_post_base_qty2, one bent 3/8 in plate each instead of a
+plate plus two clips: anchor flanges south and east (3 wedge anchors, on the side that lifts under the rail load), tabs bent up 90 deg against
+the post's north and west faces with two 3/8 through bolts each (the two tabs' bolts at different heights). Both tabs bend UP toward you with
+the DXF seen from above. Grind a small bevel on the post's bottom outside edge on the tab faces so it sits past the bend radius. Only the upper
+stringer post keeps post_base_plate (now qty 1) and its two clips.

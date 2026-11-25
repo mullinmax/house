@@ -65,6 +65,22 @@ def post_base(post):
         nut(a_, b_, G.BP_T + G.BC_T, "z", role="fhs")
 
 
+def rail_post_base(post):
+    """round 12: one bent 3/8 plate under a 2 x 2 rail post: anchor flanges south and east, tabs up its north and west faces, 2 through
+    bolts per tab (staggered so they pass each other inside the post)"""
+    (a0, a1, b0, b1), _ = G.POST_BASES[post]
+    rb = G.rail_post_base(a0, a1, b0, b1)
+    w = cq.Wire.makePolygon([W(a, b, 0.0) for a, b in rb["plate"]], close=True)
+    s_ = cq.Solid.extrudeLinear(cq.Face.makeFromWires(w), cq.Vector(0, 0, G.RB_T))
+    for tb in rb["tabs"].values():
+        s_ = s_.fuse(box(*tb))
+    add("posts", f"{post}_base", s_.clean())
+    for side, ax, (ha, hb, hz), (na, nb, nz) in rb["bolts"]:
+        bolt(ha, hb, hz, ax, 1); nut(na, nb, nz, ax, -1)
+    for a_, b_ in rb["anchors"]:
+        nut(a_, b_, G.RB_T, "z")
+
+
 def zprism(f, uv, z0, z1):
     """polygon in a flight's plan (u, v), from z0 up to z1"""
     w = cq.Wire.makePolygon([W(*f.p(u, v, z0)) for u, v in uv], close=True)
@@ -371,11 +387,11 @@ for f in G.FLIGHTS:
         u_a, u_b = G.FOOT_U - 1, G.FOOT_U + 1
         post = prism(f, [(u_a, 0), (u_b, 0), (u_b, und(u_b)), (u_a, und(u_a))], -G.POST, 0.0) if not G.CONT_RAIL else post_box(G.A_FOOT - 1, G.A_FOOT + 1, G.XL, G.XL + G.POST, 0.0)
         if G.MONO:                                                             # round 11: stands on its base plate
-            post = post.cut(box(G.A_FOOT - 2, G.A_FOOT + 2, G.XL - 1, G.XL + G.POST + 1, -1.0, G.BP_T))
+            post = post.cut(box(G.A_FOOT - 2, G.A_FOOT + 2, G.XL - 1, G.XL + G.POST + 1, -1.0, G.RB_T))   # round 12: on its one piece base
         post = post.cut(prism(f, [(u_a + T, -1), (u_b - T, -1), (u_b - T, 200), (u_a + T, 200)], -G.POST + T, -T))
         add("posts", "foot_post", post)
         if G.MONO:
-            post_base("foot_post")
+            rail_post_base("foot_post")
     else:
         if not G.CONT_RAIL:
             add("rails", "upper_rail_open", slope_tube(f, G.POST + G.XL - G.B0, G.BAL_S - G.B0, ztop, RD2, -1.75, -0.25, G.RAIL_T))
@@ -422,9 +438,9 @@ add("landing", "landing_deck", deck.fuse(box(XL, XL + G.NOSE, G.GAP, XL, ZP - TT
 if G.MONO:                                         # round 11b: 1/4-20 button heads up through the frame's top wall into brass inserts in the oak
     for a_, b_ in G.DECK_SCREWS["landing"]:
         bolt(a_, b_, ZP - TT - FTL, "z", -1, d=0.5, h=0.15, role=("button head screw into an insert", 0.25, 1.0, 1.0))
-add("posts", "corner_newel", post_box(XL, XL + G.POST, XL, XL + G.POST, 0.0) if G.CONT_RAIL else tube(XL, XL + G.POST, XL, XL + G.POST, G.BP_T if G.MONO else 0.0, G.NEWEL_TOP, "z", G.POST_T))
-if G.MONO:                                         # round 10: the standard clip angle base
-    post_base("corner_newel")
+add("posts", "corner_newel", post_box(XL, XL + G.POST, XL, XL + G.POST, 0.0) if G.CONT_RAIL else tube(XL, XL + G.POST, XL, XL + G.POST, G.RB_T if G.MONO else 0.0, G.NEWEL_TOP, "z", G.POST_T))
+if G.MONO:                                         # round 12: the one piece rail post base
+    rail_post_base("corner_newel")
 for z_ in (ZP - TK + 0.8, ZP - TT - 0.8):          # corner newel lapped onto the landing's west beam
     bolt(XL + G.POST, XL + 1, z_, "a")
     nut(XL - 2, XL + 1, z_, "a", -1)
