@@ -226,9 +226,10 @@ else:
 BS1, BN1 = G.BAL_S + 1, G.BAL_N - 1
 M("BE", (1, BS1, ZB), (1, BN1, ZB), "TUBE")
 M("BS", (1, BS1, ZB), (XW, BS1, ZB), "TUBE", "i" if G.MONO else "ij")
-M("BH", (1, G.B_BH, ZB), (XW, G.B_BH, ZB), "TUBE", "i")
+M("BH", (1, G.B_BH, ZB), (XW, G.B_BH, ZB), "TUBE", "ij" if (G.MONO and not G.NO_WEST_BEAM) else "i")   # round 11: clip angle at the west beam, taken as pinned
 M("BN", (1, BN1, ZB), (XW, BN1, ZB), "TUBE", "i")
-M("BW", (XW, BS1, ZB), (XW, BN1, ZB), "TUBE")
+if not (G.MONO and G.NO_WEST_BEAM):
+    M("BW", (XW, BS1, ZB), (XW, BN1, ZB), "TUBE", "ij" if G.MONO else "")   # round 11: clip angles at both ends, taken as pinned
 for b in G.BAL_LAGS:
     if BAL_K > 0:
         n_ = N(1, b, ZB)
@@ -255,6 +256,8 @@ for nm, b in (("BRh", G.B_BH),) + ((("BRn", BN1),) if not G.MONO else ()):      
                 S((1, b, z_), True, False, True, what=f"knee post {w_} ({'south' if nm == 'BRh' else 'north'}), no vertical")
     else:
         S((1, b, ZB - G.BRACE), what=f"knee brace wall bracket ({'south' if nm == 'BRh' else 'north'})")
+if G.MONO and G.NO_WEST_BEAM:                      # round 11b: no west beam, the deck's west edge boards rest on the end beams' west ends
+    M("Bdeckw", (XW, BS1, ZB), (XW, BN1, ZB), "DECKB", "ij")
 for i, a in enumerate(G.BAL_STRIPS):
     N(a, G.B_BH, ZB); N(a, (G.B_BH + BN1) / 2, ZB)
     M(f"Bdeck{i}", (a, BS1, ZB), (a, BN1, ZB), "DECKB", "ij")

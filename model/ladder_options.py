@@ -380,11 +380,19 @@ def mono_ladder(WX, WY):
     PN = (BN_ - G.POST, BN_)
     for a0, a1, b0, b1 in ((0.03, XL, G.BAL_S, PN[0]), (G.POST + e, XL, PN[0], BN_), (XL, XL + G.POST, G.BAL_S + G.POST, PN[0])):   # deck, notched at the posts
         gb(OAK, a0, a1, b0, b1, FL_ - TT, FL_ - 0.05)
-    for a0, a1, b0, b1 in ((0.05, 2, G.BAL_S + e, PN[0] - e), (2 + e, XL - e, G.BAL_S + e, G.BAL_S + 2), (2 + e, XL - 2 - e, G.B_BH - 1, G.B_BH + 1),
-                           (2 + e, XL - e, BN_ - 2, BN_ - e), (XL - 2, XL - e, G.BAL_S + 2 + G.CP_T, BN_ - 2 - G.CP_T)):
+    for a0, a1, b0, b1 in ((0.05, 2, G.BAL_S + e, PN[0] - e), (2 + e, XL - e, G.BAL_S + e, G.BAL_S + 2),
+                           (2 + e, (XL - e) if G.NO_WEST_BEAM else (XL - 2 - e), G.B_BH - 1, G.B_BH + 1),   # round 11b: head arm to the west edge
+                           (2 + e, XL - e, BN_ - 2, BN_ - e)) + (() if G.NO_WEST_BEAM else ((XL - 2, XL - e, G.BAL_S + 2 + G.CP_T, BN_ - 2 - G.CP_T),)):
         gb(ST, a0, a1, b0, b1, z0, z1)
     for b_ in G.BAL_LAGS:
         nut(2, b_, z0 + 1.5, "a")
+    FC_E = 0.02                                          # keep the two legs' boxes from sharing a face
+    for nm_, lw_, le_, (bh_, bn_), (eh_, en_) in G.frame_clips():   # round 11: clip angles hold the west beam's ends and the head arm
+        gb(ST, lw_[0], lw_[1], lw_[2], lw_[3], lw_[4], lw_[5])
+        gb(ST, le_[0], le_[1] - FC_E, le_[2], le_[3], le_[4], le_[5])
+        bolt(*bh_, "a", -1); nut(*bn_, "a", 1)
+        sg_ = 1 if eh_[1] < en_[1] else -1
+        bolt(*eh_, "b", -sg_); nut(*en_, "b", sg_)
     r2, c_, zb_ = G.POST / math.sqrt(2), G.A_BR, G.KB_BOT
 
     def gplate(pts, b0, b1):
@@ -400,6 +408,8 @@ def mono_ladder(WX, WY):
         for j_ in ("top", "foot", "corner"):
             gplate(G.gusset(j_), gb0, gb1)
             for a_, z_ in G.KG[j_]:
+                if not G.NO_WEST_BEAM and j_ == "top" and abs(a_ - (G.A_BR - 1.75)) < 1e-6:
+                    continue                             # round 11: the head arm clip's bolt, drawn with the clip
                 bolt(a_, fo_, z_, "b", sd); nut(a_, fi_, z_, "b", -sd)
         for z_ in G.KB_LAGS:
             nut(pa1, b, z_, "a")

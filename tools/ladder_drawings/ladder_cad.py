@@ -62,7 +62,7 @@ def post_base(post):
     for a_, b_ in pb["anchors"]:
         nut(a_, b_, G.BP_T, "z")
     for a_, b_ in pb["screws"]:
-        nut(a_, b_, G.BP_T + G.BC_T, "z")
+        nut(a_, b_, G.BP_T + G.BC_T, "z", role="fhs")
 
 
 def zprism(f, uv, z0, z1):
@@ -97,12 +97,15 @@ def add(group, name, solid, colour=STEEL, mat="steel"):
 
 
 FAST = []                                          # bolt heads, nuts and anchors, shown so every joint reads as bolted (Maxwell 11/22/2026: no welding anywhere)
+HEADS = []                                         # round 11b: every head and nut drawn, so the whole bolts can be built from them (build_bolts)
+SHANKS = []                                        # (solid, threaded?) for the assembly
 
 
-def bolt(a, b, z, axis, sign=1, d=0.66, h=0.21, kind="socket"):
+def bolt(a, b, z, axis, sign=1, d=0.66, h=0.21, kind="socket", role=None):
     """a head standing on the point (a, b, z), pointing along +/- axis 'a', 'b' or 'z'. kind 'socket' = socket button head (Allen key, round),
     'hex' = hex head or hex nut (slab anchors, lag screws, and the nut end of through bolts). Maxwell 11/22/2026: no square heads."""
     dv = dict(a=cq.Vector(-sign, 0, 0), b=cq.Vector(0, sign, 0), z=cq.Vector(0, 0, sign))[axis]
+    HEADS.append(dict(o=W(a, b, z), dv=dv, kind=kind, d=d, role=role))
     if kind == "socket":
         FAST.append(cq.Solid.makeCylinder(d / 2, h, W(a, b, z), dv))
         return
@@ -119,11 +122,12 @@ def nut(a, b, z, axis, sign=1, **kw):
     bolt(a, b, z, axis, sign, kind="hex", **kw)
 
 
-def fboltn(f, u, v, z, d_uz, d=0.66, h=0.21, kind="socket"):
+def fboltn(f, u, v, z, d_uz, d=0.66, h=0.21, kind="socket", role=None):
     """a head on the flight point (u, v, z) pointing along the (u, z) direction d_uz (round 10: the floor shoe's sloped bolt)"""
     o = W(*f.p(u, v, z))
     dv = W(*f.p(u + d_uz[0], v, z + d_uz[1])) - o
     dv = dv * (1.0 / dv.Length)
+    HEADS.append(dict(o=o, dv=dv, kind=kind, d=d, role=role))
     if kind == "socket":
         FAST.append(cq.Solid.makeCylinder(d / 2, h, o, dv))
         return
@@ -274,7 +278,7 @@ for f in G.FLIGHTS:
                     sgv = 1 if vs[0] == vw[0] else -1
                     (fbolt if side == "open" else fnut)(f, ub_, vw[1] if sgv > 0 else vw[0], zb_, "v", sgv)
             for ub_ in G.seat_lags(uk):                                         # screws (no strip option: bigger lags) up through each seat into the tread
-                fbolt(f, ub_, (vs[0] + vs[1]) / 2 + (G.SEAT_LAG_V if vs[0] == vw[0] else -G.SEAT_LAG_V), zk - G.WEB_T, "z", -1, d=0.5 if G.STRIPS else 0.56, h=0.15 if G.STRIPS else 0.22)
+                fbolt(f, ub_, (vs[0] + vs[1]) / 2 + (G.SEAT_LAG_V if vs[0] == vw[0] else -G.SEAT_LAG_V), zk - G.WEB_T, "z", -1, d=0.5 if G.STRIPS else 0.56, h=0.15 if G.STRIPS else 0.22, role=("lag screw", 0.3125, 1.5, 1.0))
         sgn = 1 if vs[0] == vw[0] else -1                                      # head angles, 3 x 3 x 1/4, 4 in long (the feet are held by the first tread brackets)
         e0 = vw[0] if sgn > 0 else vw[1]
         vi, vl = tuple(sorted((e0, e0 + sgn * 3.0))), tuple(sorted((e0, e0 + sgn * 0.25)))
@@ -292,7 +296,7 @@ for f in G.FLIGHTS:
             add(g, f"{f.name}_decor_strip_{k}", prism(f, [(hl_[0], hl_[2]), (hl_[1], hl_[2]), (hl_[1], hl_[3]), (hl_[0], hl_[3])], *vv_)
                 .fuse(prism(f, [(sl_[0], sl_[2]), (sl_[1], sl_[2]), (sl_[1], sl_[3]), (sl_[0], sl_[3])], *vv_)))
             for u_, v_, z_ in scr_:
-                fbolt(f, u_, v_, z_, "z", -1, d=0.4, h=0.1)
+                fbolt(f, u_, v_, z_, "z", -1, d=0.4, h=0.1, role=("wood screw", 0.19, 0.75, 0.75))
         uk, zk = f.uk(k), f.z0 + k * G.RI
         add(g, f"{f.name}_tread_{k}", prism(f, [(uk, zk - G.TT), (uk + G.TD, zk - G.TT), (uk + G.TD, zk), (uk, zk)], 0.05, G.WN - 0.05), OAK, "oak")
         if G.RT:                                                               # mono: an oak riser lip behind every tread leaves under 4 in open above it
@@ -427,9 +431,10 @@ if G.MONO:
     BN_ = G.BAL_N
     add("balcony", "balcony_ledger", tube(0, 2, G.BAL_S, BN_ - G.POST, *bz, "b", FTB))
     add("balcony", "balcony_south_beam", tube(2, XL, G.BAL_S, G.BAL_S + 2, *bz, "a", FTB))
-    add("balcony", "balcony_head_arm", tube(2, XL - 2, G.B_BH - 1, G.B_BH + 1, *bz, "a", FTB))
+    add("balcony", "balcony_head_arm", tube(2, XL if G.NO_WEST_BEAM else XL - 2, G.B_BH - 1, G.B_BH + 1, *bz, "a", FTB))   # round 11b: to the west edge
     add("balcony", "balcony_north_arm", tube(2, XL, BN_ - 2, BN_, *bz, "a", FTB))
-    add("balcony", "balcony_west_beam", tube(XL - 2, XL, G.BAL_S + 2 + G.CP_T, BN_ - 2 - G.CP_T, *bz, "b", FTB))
+    if not G.NO_WEST_BEAM:
+        add("balcony", "balcony_west_beam", tube(XL - 2, XL, G.BAL_S + 2 + G.CP_T, BN_ - 2 - G.CP_T, *bz, "b", FTB))
     deck = box(0, G.BAL_W, G.BAL_S, BN_, FL - TT, FL)
     for a0_, b0_ in ((XL, G.BAL_S), (XL, BN_ - G.POST), (0.0, BN_ - G.POST)):     # notched round the three corner posts
         deck = deck.cut(box(a0_ - 0.02, a0_ + G.POST + 0.02, b0_ - 0.02, b0_ + G.POST + 0.02, FL - TT - 1, FL + 1))
@@ -446,8 +451,11 @@ if G.MONO:
         po_, pi_ = (G.BAL_S, b1_) if sg < 0 else (BN_ + BT, b0_)                 # post's outer face (north west: on the brace gusset), plate's open face
         for a_, z_ in pbolts:
             bolt(a_, po_, z_, "b", sg); nut(a_, pi_, z_, "b", -sg)
-    for b_ in G.BAL_LAGS:
-        nut(2, b_, FL - TK + 1.5, "a")
+    for nm, lw, le, (bh_, bn_), (eh_, en_) in G.frame_clips():                 # round 11: clip angles hold the west beam's ends and the head arm
+        add("balcony", f"west_beam_clip_{nm}", box(*lw).fuse(box(*le)))
+        bolt(*bh_, "a", -1); nut(*bn_, "a", 1)
+        sg_ = 1 if eh_[1] < en_[1] else -1
+        bolt(*eh_, "b", -sg_); nut(*en_, "b", sg_)
 else:
     add("balcony", "balcony_ledger", tube(0, 2, G.BAL_S, G.BAL_N, *bz, "b", FTB))
     add("balcony", "balcony_south_beam", tube(2, XL - 2, G.BAL_S, G.BAL_S + 2, *bz, "a", FTB))
@@ -456,8 +464,6 @@ else:
     add("balcony", "balcony_west_beam", tube(XL - 2, XL, G.BAL_S, G.BAL_N - 2, *bz, "b", FTB))
     deck = box(0, XL, G.BAL_S, G.BAL_N, FL - TT, FL)
     add("balcony", "balcony_deck", deck.fuse(box(G.GAP, XL, G.BAL_S - G.NOSE, G.BAL_S, FL - TT, FL)) if G.NOSE else deck, OAK, "oak")
-    for b_ in G.BAL_LAGS:
-        nut(2, b_, FL - TK + 1.5, "a")
 zu, r2 = FL - TK, G.POST / math.sqrt(2) * 1.0
 if not G.MONO:
     for nm, b in (("south", G.B_BH), ("north", G.BAL_N - 1)):
@@ -474,6 +480,8 @@ for nm, b, sd in (G.knee_frames() if G.MONO else ()):         # round 7: each br
     for j_ in ("top", "foot", "corner"):
         add("balcony", f"knee_gusset_{j_}_{nm}", aprism(G.gusset(j_), gb0, gb1))
         for a_, z_ in G.KG[j_]:
+            if G.MONO and not G.NO_WEST_BEAM and j_ == "top" and abs(a_ - (G.A_BR - 1.75)) < 1e-6:
+                continue                                                   # round 11: this one is the head arm clip's bolt, drawn with the clip
             bolt(a_, fo_, z_, "b", sd); nut(a_, fi_, z_, "b", -sd)              # through the plate and the tube, crush sleeve inside
     for z_ in G.KB_LAGS:                                                   # two lags through the post into the wall framing
         nut(pa1, b, z_, "a", 1)
@@ -543,6 +551,109 @@ else:
 # context: slab and the two walls (reference only)
 CTX = [("slab", box(-5, 60, -5, 100, -1, 0)), ("bath_1_wall", box(-4.5, 0, -4.5, 100, 0, FL)), ("clerestory_wall", box(0, 60, -4.5, 0, 0, 170))]
 
+def build_bolts():
+    """round 11b (Maxwell 11/25/2026: model each bolt whole): pair every bolt head with the nut on its line, and give it a shank: the plain
+    (unthreaded) part from the head and the threaded part to the tip, with standard lengths. Heads or nuts with no partner are lags, anchors
+    or screws, sized by what they are. Writes loft_ships_ladder_bolts.json, a bolt schedule."""
+    NUT_H = {0.375: 0.33, 0.3125: 0.27, 0.25: 0.22, 0.19: 0.17}
+    PITCH = {0.375: 1 / 16, 0.25: 1 / 20, 0.19: 1 / 24}
+    dia = lambda r: 0.375 if r["d"] >= 0.6 else (0.25 if r["d"] >= 0.45 else 0.19)
+    ab = lambda v: (round(-v.x, 2), round(v.y, 2), round(v.z, 2))
+    seen = {}
+    for i, r in enumerate(HEADS):                     # the same head drawn twice is a CAD slip: report it, use one
+        k = (round(r["o"].x, 2), round(r["o"].y, 2), round(r["o"].z, 2), round(r["dv"].x, 2), round(r["dv"].y, 2), round(r["dv"].z, 2))
+        seen.setdefault(k, []).append(i)
+    dup = [k[:3] for k, v in seen.items() if len(v) > 1]
+    if dup:
+        print("fasteners drawn twice (one used):", [(-x, y, z) for x, y, z in dup])
+    used, out = {i for v in seen.values() for i in v[1:]}, []
+    heads = [i for i, r in enumerate(HEADS) if r["kind"] == "socket"]
+    nuts = [i for i, r in enumerate(HEADS) if r["kind"] == "hex"]
+    for i in heads:                                   # through bolts: a head and a nut facing away from each other on one line
+        r = HEADS[i]
+        best = None
+        for j in nuts:
+            if j in used:
+                continue
+            q = HEADS[j]
+            t = (q["o"] - r["o"]).dot(r["dv"] * -1)
+            if 0.05 < t < 14 and ((q["o"] - r["o"]) + r["dv"] * t).Length < 0.12 and q["dv"].dot(r["dv"]) < -0.9 and (best is None or t < best[0]):
+                best = (t, j)
+        if best:
+            used.add(best[1]); used.add(i)
+            D = dia(r)
+            grip = best[0]
+            L = math.ceil((grip + NUT_H[D] + 2 * PITCH[D]) * 4 - 1e-6) / 4
+            lt = 2 * D + 0.5                          # socket head cap screw thread length (2D + 1/2); shorter ones are threaded full length
+            thr = L if L - lt < 0.5 else lt
+            out.append(dict(kind="through bolt", dia=D, length=L, grip=round(grip, 3), thread=round(thr, 3),
+                            threads_in_grip=round(max(0.0, thr - (L - grip)), 3), head=ab(r["o"]), axis=ab(r["dv"] * -1 + cq.Vector(0, 0, 0)), r=r))
+    for i, r in enumerate(HEADS):                     # the rest: lags, anchors, screws
+        if i in used:
+            continue
+        D = dia(r)
+        up = r["dv"].z > 0.9
+        wall = r["dv"].x < -0.9 and -r["o"].x <= 2.6     # a hex head on a wall side face pointing west: a lag into the wall
+        if r["role"] == "fhs":                        # flat head screw up through a countersunk plate: from the plate's underside
+            L, kind = math.ceil((r["o"].z + NUT_H[D] + 2 * PITCH[D]) * 4 - 1e-6) / 4, "flat head screw"
+            out.append(dict(kind=kind, dia=D, length=L, grip=round(r["o"].z, 3), thread=L, threads_in_grip=round(r["o"].z, 3), head=ab(r["o"]), r=r, tip_up=True))
+            continue
+        if isinstance(r["role"], tuple):              # (kind, dia, length, thread) given where it is drawn
+            kind, D, L, thr = r["role"]
+            out.append(dict(kind=kind, dia=D, length=L, grip=None, thread=thr, threads_in_grip=None, head=ab(r["o"]), r=r))
+            continue
+        if r["kind"] == "hex" and up and r["o"].z < 2.0:
+            L, kind, thr = 3.0, "wedge anchor", 1.75
+        elif r["kind"] == "hex" and wall:
+            L, kind, thr = 5.0, "lag screw", 3.0
+        elif r["kind"] == "hex":
+            L, kind, thr = 2.5, "lag screw", 1.5
+        else:
+            L, kind, thr = (0.75, "wood screw", 0.75) if D < 0.3 else (1.5, "lag screw", 1.0)
+        out.append(dict(kind=kind, dia=D, length=L, grip=None, thread=thr, threads_in_grip=None, head=ab(r["o"]), r=r))
+    for e in out:
+        r, D, L, thr = e.pop("r"), e["dia"], e["length"], e["thread"]
+        if e.pop("tip_up", False):                    # flat head screw: tip up through the nut, head flush with the plate's underside
+            base = cq.Vector(r["o"].x, r["o"].y, 0.0)
+            SHANKS.append((cq.Solid.makeCylinder(D / 2 * 0.92, L, base, cq.Vector(0, 0, 1)), True))
+            continue
+        if e["kind"] == "wedge anchor":               # the stud sticks up through the nut; the rest is in the slab
+            top = r["o"] + r["dv"] * (NUT_H[D] + 2 * PITCH[D])
+            SHANKS.append((cq.Solid.makeCylinder(D / 2 * 0.92, thr, top, cq.Vector(0, 0, -1)), True))
+            SHANKS.append((cq.Solid.makeCylinder(D / 2, L - thr, top + cq.Vector(0, 0, -thr), cq.Vector(0, 0, -1)), False))
+            continue
+        ax = r["dv"] * -1                             # from the head bearing face into the joint
+        plain = L - thr
+        if plain > 1e-3:
+            SHANKS.append((cq.Solid.makeCylinder(D / 2, plain, r["o"], ax), False))
+        SHANKS.append((cq.Solid.makeCylinder(D / 2 * 0.92, thr, r["o"] + ax * plain, ax), True))
+    # bolts that run into each other
+    cross = []
+    sh = [s_ for s_, _ in SHANKS]
+    bbs = [s_.BoundingBox() for s_ in sh]
+    for i in range(len(sh)):
+        for j in range(i + 1, len(sh)):
+            bi, bj = bbs[i], bbs[j]
+            if bi.xmax < bj.xmin or bj.xmax < bi.xmin or bi.ymax < bj.ymin or bj.ymax < bi.ymin or bi.zmax < bj.zmin or bj.zmax < bi.zmin:
+                continue
+            try:
+                v = sh[i].intersect(sh[j]).Volume()
+            except Exception:
+                v = 0
+            if v > 1e-3:
+                c_ = sh[i].Center()
+                cross.append((round(-c_.x, 2), round(c_.y, 2), round(c_.z, 2)))
+    cross = sorted(set(cross))
+    json.dump(dict(bolts=out, crossing=cross), open(os.path.join(OUT, "loft_ships_ladder_bolts.json"), "w"), indent=1)
+    from collections import Counter
+    cnt = Counter((e["kind"], e["dia"], e["length"]) for e in out)
+    print("bolts:", len(out), "; by size:", ", ".join(f"{n} x {k} {d} x {l}" for (k, d, l), n in sorted(cnt.items())))
+    print("bolts that cross another bolt:", cross if cross else "none")
+    return out
+
+
+if G.MONO:
+    BOLTS = build_bolts()
 assy, ctx = cq.Assembly(name="loft_ships_ladder"), cq.Assembly(name="context")
 groups = {}
 for group, name, solid, colour, mat in PARTS:
@@ -552,6 +663,8 @@ for g_, a_ in groups.items():
 fa_ = cq.Assembly(name="fasteners")
 for i, s_ in enumerate(FAST):
     fa_.add(s_, name=f"fastener_{i}", color=cq.Color(0.55, 0.6, 0.9, 1.0))
+for i, (s_, thr_) in enumerate(SHANKS):              # round 11b: whole bolts, threaded length in a lighter colour
+    fa_.add(s_, name=f"{'thread' if thr_ else 'shank'}_{i}", color=cq.Color(*((0.85, 0.75, 0.45) if thr_ else (0.45, 0.5, 0.75)), 1.0))
 assy.add(fa_)
 assy.save(os.path.join(OUT, "loft_ships_ladder.step"))
 for nm, s in CTX:

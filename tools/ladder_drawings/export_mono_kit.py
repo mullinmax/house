@@ -264,8 +264,9 @@ def clip(w, leg, file, name, qty, notes):
     part(file, name, qty, 0.25, shp, holes, [((0, 0), (w, 0))], "1 bend, 90 deg", "PLACEHOLDER for an engineer: " + notes, rnd=0.25)
 
 
-clip(2.0, 1.75, "clip_angle_2in_qty18.dxf", "Clip angle 2 in wide, 1 3/4 legs", 18,
-     "at the landing and balcony frame corners, including the ledger and north arm ends on the north east post. Round 7: the knee braces use gusset plates instead. Round 10: the post bases use stock angle instead.")
+NCLIP = 18 + len(G.frame_clips())
+clip(2.0, 1.75, f"clip_angle_2in_qty{NCLIP}.dxf", "Clip angle 2 in wide, 1 3/4 legs", NCLIP,
+     "at the landing and balcony frame corners, including the ledger and north arm ends on the north east post. Round 7: the knee braces use gusset plates instead. Round 11b: the balcony has no west beam, so no clips there.")
 
 # ---------------------------------------------------------------- knee frame gussets (round 7): brace top, brace foot, post top
 # round 10: the north knee frame's wall post is the north east guard post in one piece, so its corner gusset is gone; its brace runs to the
@@ -273,7 +274,7 @@ clip(2.0, 1.75, "clip_angle_2in_qty18.dxf", "Clip angle 2 in wide, 1 3/4 legs", 
 for j_, what, qty, shape, bolts_ in (("top", "south frame: brace top to the head beam (2 bolts in the beam, 1 in the brace)", 1, G.gusset("top"), G.KG["top"]),
                                      ("foot", "both frames: brace foot to the wall post (2 in the post, 1 in the brace); a triangle whose lower edge follows the post's 45 deg foot cut", 2, G.gusset("foot"), G.KG["foot"]),
                                      ("corner", "south frame: wall post top to the head beam's end, an L plate (2 bolts in the post, 2 in the beam, so it cannot pivot)", 1, G.gusset("corner"), G.KG["corner"]),
-                                     ("north_top", "north frame: brace top to the north arm's west end and the north west post (the post's 2 bolts are the corner plate's, 1 in the brace)", 1, G.nk_gusset("top"), G.NKG["top"])):
+                                     ("north_top", "north frame: brace top to the north arm's west end and the north west post (the post's 2 bolts are the corner plate's, 1 in the brace)", 1, G.nk_gusset("top"), G.NKG["top"] + ([] if G.NO_WEST_BEAM else [G.NKG_CLIP]))):
     a0_, z0_ = min(a for a, _ in shape), min(z for _, z in shape)
     shp = Polygon([(a - a0_, z - z0_) for a, z in shape])
     holes = [Point(a - a0_, z - z0_).buffer(H38 / 2, 64) for a, z in bolts_]

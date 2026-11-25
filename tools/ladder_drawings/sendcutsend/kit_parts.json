@@ -112,7 +112,7 @@
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "1 bend, 90 deg",
-   "notes": "PLACEHOLDER for an engineer: at the landing and balcony frame corners, including the ledger and north arm ends on the north east post. Round 7: the knee braces use gusset plates instead. Round 10: the post bases use stock angle instead.",
+   "notes": "PLACEHOLDER for an engineer: at the landing and balcony frame corners, including the ledger and north arm ends on the north east post. Round 7: the knee braces use gusset plates instead. Round 11b: the balcony has no west beam, so no clips there.",
    "size": [
     2.0,
     3.11

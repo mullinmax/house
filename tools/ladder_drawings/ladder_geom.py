@@ -435,12 +435,45 @@ NKG = dict(foot=[(1.0, NK_ZB + 2.5), (1.0, NK_ZB - 1.0), (4.25, NK_ZB + 2.25)],
            top=[(XL + 1.0, FL - TK + 1.5), (XL + 1.0, FL - TK - 3.0), (A_BR - 3.5, KB_ZU - CP_T - 3.5)])   # top: the two post bolts are the corner plate's
 
 
+# round 11 (Maxwell 11/25/2026: how is the west beam attached?): the balcony's west beam is held at each end, and the head arm at its west
+# end, by the standard 2 in clip angle (1/4 in, 1 3/4 legs) on the inside of the frame: one leg against the west beam with a 3/8 through
+# bolt across it, the other against the corner plate (or the head arm) with a 3/8 through bolt across the end beam. At the north west and
+# head arm joints that bolt also passes through the knee frame's top gusset on the beam's far face (the head arm's is the gusset's own
+# east beam bolt). Clip angle joints are taken as pinned in the frame model.
+NO_WEST_BEAM = MONO and _env("LADDER_NO_WEST_BEAM", "1") == "1"   # round 11b (Maxwell 11/25/2026 "do we even need the beam?"): no. The frame model
+# with and without it: everything passes either way; without it the oak's west edge board works hardest (0.53 of allowable, 0.07 in under the
+# 300 lb corner load). So the west beam and its clips are gone and the head arm runs out to the west edge under the brace top.
+FC_T, FC_L, FC_HOLE = 0.25, 1.75, 1.1             # clip thickness, leg, hole from the heel (outside corner)
+
+
+def frame_clips():
+    """[(name, leg on the west beam box, leg on the end beam box, west beam bolt (head pt, nut pt), end beam bolt (head pt, nut pt))],
+    boxes (a0, a1, b0, b1, z0, z1), points (a, b, z); the west beam bolts run along a, the end beam bolts along b"""
+    if NO_WEST_BEAM:
+        return []
+    zu, zc = FL - TK, FL - TK + 1.5
+    aw = XL - 2.0                                  # the west beam's inside (east) face
+    z0, z1 = zc - 1.0, zc + 1.0
+    out = []
+    for nm, bf, sg, ab, bnut in (("sw", BAL_S + 2 + CP_T, 1, aw - FC_HOLE, BAL_S),
+                                 ("head", B_BH - 1, -1, A_BR - 1.75, B_BH + 1 + BRKT_T),
+                                 ("nw", BAL_N - 2 - CP_T, -1, aw - FC_HOLE, BAL_N + BRKT_T)):
+        lw = (aw - FC_T, aw) + tuple(sorted((bf, bf + sg * FC_L))) + (z0, z1)
+        le = (aw - FC_L, aw) + tuple(sorted((bf, bf + sg * FC_T))) + (z0, z1)
+        bw = bf + sg * FC_HOLE
+        out.append((nm, lw, le, ((aw - FC_T, bw, zc), (XL, bw, zc)), ((ab, bf + sg * FC_T, zc), (ab, bnut, zc))))
+    return out
+
+
+NKG_CLIP = (XL - 2.0 - FC_HOLE, FL - TK + 1.5)     # the north west clip's end beam bolt also passes through the north top gusset
+
+
 def nk_gusset(joint):
     """north knee frame gusset outline (a, z)"""
     if joint == "foot":
         p = [(0.0, NK_MITER), (7.0, NK_MITER + 7.0), (0.0, NK_ZB + 4.25)]
         return _fillet(p, 0, 0.6, cap=0.3) + _fillet(p, 1, 0.75, cap=0.3) + _fillet(p, 2, 0.75, cap=0.3)
-    pts = [(a + KB_M * math.cos(2 * math.pi * j / 48), z + KB_M * math.sin(2 * math.pi * j / 48)) for a, z in NKG[joint] for j in range(48)]
+    pts = [(a + KB_M * math.cos(2 * math.pi * j / 48), z + KB_M * math.sin(2 * math.pi * j / 48)) for a, z in NKG[joint] + ([NKG_CLIP] if joint == "top" and not NO_WEST_BEAM else []) for j in range(48)]
     return _hull(pts)
 
 

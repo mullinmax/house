@@ -30,3 +30,5 @@ post_base_plate_qty3 (1/2 in, 7 x 7, corners R 0.75) is one part under all three
 countersunk holes for 3/8 flat heads that go up into two clip angles cut from stock L 2 x 2 x 3/8, 3 in long (buy as angle, not in this
 kit). One through bolt crosses the post and both clips. The south knee frame's corner plate is now an L with 2 bolts in the post and 2 in
 the head beam (no pivot). Both knee braces are now the same part: level top cut bearing under the frame at its west edge, plumb foot cut.
+Round 11b (11/25/2026): Maxwell asked whether the balcony's west beam is needed. It is not (frame model passes either way), so it is
+gone, and the head arm runs out to the west edge under the brace top. The clip angles stay at 18.
