@@ -1012,14 +1012,14 @@
    "src": "U-12 #2"
   },
   {
-   "kind": "floor_box",
-   "x": 31.85,
-   "y": 27.4,
-   "z_in": 0,
-   "facing": 0,
+   "kind": "outlet",
+   "x": 32.3,
+   "y": 22.832,
+   "z_in": 16,
+   "facing": 180,
    "level": "upper",
    "src": "U-12 #4",
-   "note": "U-12 draws this on a 36 in pony wall along the loft's west edge; the model has an open railing there. NEC 210.52(A) counts a railing as wall space, so its 9 ft run needs an outlet within 6 ft of every point. A flush floor box within 18 in of the railing counts (210.52(A)(3)), at the railing's midpoint it covers it end to end. Maxwell 11/21/2026: keep only what code needs. The loft floor is framed, so this is not a slab outlet."
+   "note": "U-12 draws this on a 36 in pony wall along the loft's west edge; the model has an open railing there, and NEC 210.52(A) counts a railing as wall space. It was a flush loft floor box at (31.85, 27.4) (11/21/2026); Maxwell 11/27/2026 moved it to the loft north wall, at its west end just past the railing, where it covers the railing's north run (about 4.3 ft) end to end. It sits behind the loveseat's west arm."
   },
   {
    "kind": "outlet",

@@ -302,9 +302,16 @@ def clip(w, leg, file, name, qty, notes):
     part(file, name, qty, 0.25, shp, holes, [((0, 0), (w, 0))], "1 bend, 90 deg", "PLACEHOLDER for an engineer: " + notes, rnd=0.25)
 
 
-NCLIP = 18 + len(G.frame_clips())
+NCLIP = 18 + len(G.frame_clips()) - (2 if G.LOFT_RAIL else 0)
 clip(2.0, 1.75, f"clip_angle_2in_qty{NCLIP}.dxf", "Clip angle 2 in wide, 1 3/4 legs", NCLIP,
-     "at the landing and balcony frame corners, including the ledger and north arm ends on the north east post. Round 7: the knee braces use gusset plates instead. Round 11b: the balcony has no west beam, so no clips there.")
+     "at the landing and balcony frame corners" + ("" if G.LOFT_RAIL else ", including the ledger and north arm ends on the north east post") + ". Round 7: the knee braces use gusset plates instead. Round 11b: the balcony has no west beam, so no clips there."
+     + (" Round 18: the north arm bears on the north east post's top and the ledger ends against the arm; a flat bar strap ties them, so those two clips are gone." if G.LOFT_RAIL else ""))
+if G.LOFT_RAIL:                                                  # round 18: NE post to north arm strap
+    sa0_, sa1_, sz0_, sz1_ = G.NE_STRAP
+    part("ne_post_strap_qty1.dxf", "North east post strap (flat bar 4 x 1/4)", 1, 0.25, rect(0, sa1_ - sa0_, 0, sz1_ - sz0_),
+         [Point(a_ - sa0_, z_ - sz0_).buffer(H38 / 2, 64) for a_, z_ in G.NE_STRAP_BOLTS], (), "none",
+         "flat, or cut from stock 4 x 1/4 flat bar: on the north faces of the north east post and the north arm (they are flush), one 3/8 through bolt "
+         "across each (crush sleeves inside), the post's lower. Holds the post under the arm's east end.", rnd=0.25)
 
 # ---------------------------------------------------------------- knee frame gussets (round 7): brace top, brace foot, post top
 # round 10: the north knee frame's wall post is the north east guard post in one piece, so its corner gusset is gone; its brace runs to the

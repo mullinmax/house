@@ -139,6 +139,19 @@ def mono_ladder(WX, WY):
     XL, ZP, FL_, TT, TK, VC, BT = G.XL, G.ZP, G.FL, G.TTD, G.TK, G.VC, G.BRKT_T   # TT here: the platform decks (round 8: treads use G.TT)
     gv = lambda mat, f, vz, u0, u1: hexa(mat, [P(*f.p(u0, v, z)) for v, z in vz] + [P(*f.p(u1, v, z)) for v, z in vz])
     nx, nz = math.sin(G.ANG), -math.cos(G.ANG)
+
+    def pr(mat, pts, d, smooth=False):
+        """round 18 (Maxwell 11/27/2026, the polygon outlines on the brackets): a flat outline of (a, b, z) points pushed along d
+        (a, b, z), one closed solid instead of fan slabs"""
+        prism(mat, [P(*p_) for p_ in pts], (-d[0] / 12, -d[1] / 12, d[2] / 12), smooth)
+
+    def fpr(mat, pts, d0, d1):
+        """outline of points (a, b, z), pushed by d1 - d0 (two points a fixed distance apart)"""
+        pr(mat, pts, [q - p for q, p in zip(d1, d0)])
+
+    def gpr(mat, f, uz, v0, v1):
+        """a (u, z) outline in flight f from v0 to v1"""
+        fpr(mat, [f.p(u, v0, z) for u, z in uz], f.p(0, v0, 0), f.p(0, v1, 0))
     SOCKETS = False
     ZN = "Stainless"                                     # bolt heads, nuts and anchors: every joint is bolted, nothing welded (Maxwell 11/22/2026)
 
@@ -153,8 +166,10 @@ def mono_ladder(WX, WY):
         e1, e2 = [q for q in ((1, 0, 0), (0, 1, 0), (0, 0, 1)) if q != ax]
         ring = [tuple((a, b, z)[j] + r * (math.cos(th0 + 2 * math.pi * i / n) * e1[j] + math.sin(th0 + 2 * math.pi * i / n) * e2[j]) for j in range(3)) for i in range(n)]
         top = lambda p_, t_: tuple(p_[j] + sign * t_ * ax[j] for j in range(3))
-        for q in quads:
-            hexa(ZN, [P(*ring[i]) for i in q] + [P(*top(ring[i], h)) for i in q])
+        if kind != "hex":                                # round 18: a rounder head, shaded smooth
+            n = 16
+            ring = [tuple((a, b, z)[j] + r * (math.cos(2 * math.pi * i / n) * e1[j] + math.sin(2 * math.pi * i / n) * e2[j]) for j in range(3)) for i in range(n)]
+        pr(ZN, ring, [sign * h * x for x in ax], kind != "hex")
         if kind != "hex" and d >= 0.6 and SOCKETS:       # the hex socket (off: it is too small to read and its faces upset the flicker audit)
             rs = 0.14
             sk = [tuple((a, b, z)[j] + rs * (math.cos(math.pi / 3 * i) * e1[j] + math.sin(math.pi / 3 * i) * e2[j]) for j in range(3)) for i in range(6)]
@@ -174,10 +189,7 @@ def mono_ladder(WX, WY):
         m1 = math.sqrt(sum(x * x for x in e1)); e1 = [x / m1 for x in e1]
         e2 = [u_[1] * e1[2] - u_[2] * e1[1], u_[2] * e1[0] - u_[0] * e1[2], u_[0] * e1[1] - u_[1] * e1[0]]
         rg = lambda c: [tuple(c[j] + r * (math.cos(2 * math.pi * i / n) * e1[j] + math.sin(2 * math.pi * i / n) * e2[j]) for j in range(3)) for i in range(n)]
-        r0, r1 = rg(p0), rg(p1)
-        for i in range(1, n - 1, 2):
-            q = (0, i, i + 1, min(i + 2, n - 1))
-            hexa(mat, [P(*r0[k]) for k in q] + [P(*r1[k]) for k in q])
+        pr(mat, rg(p0), d_, True)                        # round 18: one solid, sides shaded round
 
     PIPE = G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe"   # round 15 (Maxwell 11/27/2026): round pipe railing kit chosen
 
@@ -192,19 +204,15 @@ def mono_ladder(WX, WY):
         fbolt(f, u, v, z, axis, sign, kind="hex", **kw)
 
     def gpoly(mat, f, pts, v0, v1):
-        """a convex (u, z) outline as fan quads from its first point"""
-        for i in range(1, len(pts) - 1, 2):
-            j = min(i + 2, len(pts) - 1)
-            gh(mat, f, [pts[0], pts[i], pts[i + 1], pts[j]], v0, v1)
+        """a (u, z) outline, one solid (round 18)"""
+        gpr(mat, f, pts, v0, v1)
 
     def post_base(post_):
         """round 11: the standard post base, a 7 x 7 x 1/2 plate with rounded corners on four anchors, two clips from L 2 x 2 x 3/8, one through bolt"""
         rect_, axis_ = G.POST_BASES[post_]
         pb_ = G.post_base(*rect_, axis_)
         pl_ = pb_["plate"]
-        for i_ in range(1, len(pl_) - 1, 2):
-            q_ = [pl_[0], pl_[i_], pl_[i_ + 1], pl_[min(i_ + 2, len(pl_) - 1)]]
-            hexa(ST, [P(a, b, 0.02) for a, b in q_] + [P(a, b, G.BP_T) for a, b in q_])
+        pr(ST, [(a, b, 0.02) for a, b in pl_], (0, 0, G.BP_T - 0.02))
         for up_, fl_, sg_ in pb_["clips"]:
             gb(ST, up_[0], up_[1], up_[2], up_[3], up_[4] + e, up_[5])
             gb(ST, fl_[0], fl_[1], fl_[2], fl_[3], fl_[4] + e, fl_[5])
@@ -216,9 +224,8 @@ def mono_ladder(WX, WY):
             nut(a_, b_, G.BP_T + G.BC_T, "z")
 
     def gstrips(mat, f, zb, top, v0, v1):
-        """outline from a level bottom at zb up to a sampled top line [(u, z), ...], as plumb strips"""
-        for (u0, z0), (u1, z1) in zip(top, top[1:]):
-            gh(mat, f, [(u0, zb), (u1, zb), (u1, z1), (u0, z0)], v0, v1)
+        """outline from a level bottom at zb up to a sampled top line [(u, z), ...], one solid (round 18)"""
+        gpr(mat, f, [(top[-1][0], zb), (top[0][0], zb)] + list(top), v0, v1)
 
     def post(a0, a1, b0, b1, z0):
         """square post whose top is cut to the plane just under the one continuous rail"""
@@ -288,8 +295,7 @@ def mono_ladder(WX, WY):
                 continue
             ua_, v0_, v1_ = uk + G.WEB0, G.ARM_END, G.WN - G.ARM_END
             so_ = G.strip_outline(zk - e)                    # the strip: also the top of the riser below (round 7: bottom end corners rounded)
-            for i_ in range(1, len(so_) - 1, 2):
-                gv(ST, f, [so_[0], so_[i_], so_[i_ + 1], so_[min(i_ + 2, len(so_) - 1)]], ua_ - BT, ua_ - e)
+            fpr(ST, [f.p(ua_ - BT, v_, z_) for v_, z_ in so_], f.p(ua_ - BT, 0, 0), f.p(ua_ - e, 0, 0))
             for vt_ in (v0_ + G.STRIP_TAB, v1_ - G.STRIP_TAB):          # screw tab at each end, folded toward the back of the tread (Maxwell 11/23/2026)
                 gh(ST, f, [(ua_ + e, zk - BT), (ua_ + 1.25, zk - BT), (ua_ + 1.25, zk - e), (ua_ + e, zk - e)], vt_ - 0.9, vt_ + 0.9)
                 fbolt(f, ua_ + 0.7, vt_, zk - BT, "z", -1, d=0.5, h=0.15)
@@ -308,13 +314,10 @@ def mono_ladder(WX, WY):
             def fq(pts4, d_):                                # a quad of flight points (u, v, z) pushed along the flight direction d_ = (du, dz)
                 hexa(ST, [P(*f.p(u_, v_, z_)) for u_, v_, z_ in pts4] + [P(*f.p(u_ + d_[0], v_, z_ + d_[1])) for u_, v_, z_ in pts4])
             bs_ = G.shoe_base()
-            for i_ in range(1, len(bs_) - 1, 2):
-                j_ = min(i_ + 2, len(bs_) - 1)
-                fq([(u_, v_, 0.02) for u_, v_ in (bs_[0], bs_[i_], bs_[i_ + 1], bs_[j_])], (0.0, BT - 0.02))
+            pr(ST, [f.p(u_, v_, 0.02) for u_, v_ in bs_], (0, 0, BT - 0.02))
             ws_ = G.shoe_wall()
-            for i_ in range(1, len(ws_) - 1, 2):
-                j_ = min(i_ + 2, len(ws_) - 1)
-                fq([G.shoe_wall_uz(s_)[:1] + (VC + w_,) + G.shoe_wall_uz(s_)[1:] for s_, w_ in (ws_[0], ws_[i_], ws_[i_ + 1], ws_[j_])], (-BT * nx, -BT * nz))
+            wp_ = [f.p(G.shoe_wall_uz(s_)[0], VC + w_, G.shoe_wall_uz(s_)[1]) for s_, w_ in ws_]
+            fpr(ST, wp_, f.p(0, VC, 0), f.p(-BT * nx, VC, -BT * nz))
             gh(ST, f, [(f.u0 - BT * nx, 0.02), (f.u0, 0.02), (f.u0, f.zf), (f.u0 - BT * nx, f.zf - BT * nz)], VC - G.TW / 2, VC + G.TW / 2)
             for ua_, va_ in G.shoe_anchors():
                 fnut(f, ua_, va_, BT, "z")
@@ -332,10 +335,7 @@ def mono_ladder(WX, WY):
                 vt = VC + sg * (G.TW / 2 + e)
                 gstrips(ST, f, zs, [p for p in G.CHEEK if p[1] > zs], vt, vt + sg * BT)   # cheek, above the seat (the seat block covers below)
                 to_ = G.tab_outline()                            # round 10: full height tab, outer corners rounded, as strips out from the cheek
-                ws_ = sorted({round(w_, 4) for w_, _ in to_})
-                for w0_, w1_ in zip(ws_, ws_[1:]):
-                    zz_ = [z_ for w_, z_ in to_ if w0_ - 1e-3 <= w_ <= w1_ + 1e-3] if w1_ - w0_ < 0.5 else [G.TAB_Z[0], G.TAB_Z[1]]
-                    gh(ST, f, [(u0p + e, min(zz_)), (u0p + BT, min(zz_)), (u0p + BT, max(zz_)), (u0p + e, max(zz_))], vt + sg * (BT + w0_), vt + sg * (BT + w1_))
+                fpr(ST, [f.p(u0p + e, vt + sg * (BT + w_), z_) for w_, z_ in to_], f.p(u0p + e, 0, 0), f.p(u0p + BT, 0, 0))
                 fbolt(f, u0p + BT, vt + sg * (BT + 1.05), G.TAB_BOLT_Z, "u", 1); fnut(f, u0p - G.LN_W, vt + sg * (BT + 1.05), G.TAB_BOLT_Z, "u", -1)
             for u0_ in (u0p, u1p - BT):                      # legs down the post's south and north faces
                 gh(ST, f, [(u0_, zpt - G.SAD_LEG), (u0_ + BT, zpt - G.SAD_LEG), (u0_ + BT, zpt - e), (u0_, zpt - e)], VC - 1.5, VC + 1.5)
@@ -425,11 +425,11 @@ def mono_ladder(WX, WY):
     z0, z1 = FL_ - TK, FL_ - TT - e
     BN_ = G.BAL_N
     PN = (BN_ - G.POST, BN_)
-    for a0, a1, b0, b1 in ((0.03, XL, G.BAL_S, PN[0]), (G.POST + e, XL, PN[0], BN_), (XL, XL + G.POST, G.BAL_S + G.POST, PN[0])):   # deck, notched at the posts
+    for a0, a1, b0, b1 in ((0.03, XL, G.BAL_S, PN[0]), (0.03 if G.LOFT_RAIL else G.POST + e, XL, PN[0], BN_), (XL, XL + G.POST, G.BAL_S + G.POST, PN[0])):   # deck, notched at the posts (round 18: not the NE one)
         gb(OAK, a0, a1, b0, b1, FL_ - TT, FL_ - 0.05)
     for a0, a1, b0, b1 in ((0.05, 2, G.BAL_S + e, PN[0] - e), (2 + e, XL - e, G.BAL_S + e, G.BAL_S + 2),
                            (2 + e, (XL - e) if G.NO_WEST_BEAM else (XL - 2 - e), G.B_BH - 1, G.B_BH + 1),   # round 11b: head arm to the west edge
-                           (2 + e, XL - e, BN_ - 2, BN_ - e)) + (() if G.NO_WEST_BEAM else ((XL - 2, XL - e, G.BAL_S + 2 + G.CP_T, BN_ - 2 - G.CP_T),)):
+                           (e if G.LOFT_RAIL else 2 + e, XL - e, BN_ - 2, BN_ - e)) + (() if G.NO_WEST_BEAM else ((XL - 2, XL - e, G.BAL_S + 2 + G.CP_T, BN_ - 2 - G.CP_T),)):
         gb(ST, a0, a1, b0, b1, z0, z1)
     for b_ in G.BAL_LAGS:
         nut(2, b_, z0 + 1.5, "a")
@@ -443,9 +443,7 @@ def mono_ladder(WX, WY):
     r2, c_, zb_ = G.POST / math.sqrt(2), G.A_BR, G.KB_BOT
 
     def gplate(pts, b0, b1):
-        for i_ in range(1, len(pts) - 1, 2):
-            q_ = [pts[0], pts[i_], pts[i_ + 1], pts[min(i_ + 2, len(pts) - 1)]]
-            hexa(ST, [P(a, b0, z) for a, z in q_] + [P(a, b1, z) for a, z in q_])
+        pr(ST, [(a, b0, z) for a, z in pts], (0, b1 - b0, 0))
     for nm_, b, sd in G.knee_frames():                   # round 7: each brace closes a triangle with a post down the wall, a gusset at every joint
         hexa(ST, [P(a, bb, z) for bb in (b - 1 + e, b + 1 - 2 * e) for a, z in ((c_ + r2, z0 - e), (c_ - r2, z0 - e), (2.0 + e, zb_ + r2), (2.0 + e, zb_ - r2))])
         pa0, pa1, pz0, pz1 = G.KB_POST
@@ -472,7 +470,13 @@ def mono_ladder(WX, WY):
     post(XL + e, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, zl_)
     post(XL + e, XL + G.POST, PN[0] + e, PN[1], zl_)
     m_ = G.NK_MITER
-    if PIPE:
+    if G.LOFT_RAIL:                                      # round 18: square tube up to the north arm, a flat bar strap on the north faces
+        hexa(ST, [P(a, bb, z) for bb in (PN[0] + e, PN[1]) for a, z in ((0.05, m_ + 0.05), (G.POST, m_ + G.POST), (G.POST, z0 - e), (0.05, z0 - e))])
+        sa0_, sa1_, sz0_, sz1_ = G.NE_STRAP
+        gb(ST, sa0_ + 0.05, sa1_, BN_ + e, BN_ + G.NE_STRAP_T, sz0_, sz1_)
+        for a_, z_ in G.NE_STRAP_BOLTS:
+            bolt(a_, BN_ + G.NE_STRAP_T, z_, "b", 1); nut(a_, PN[0], z_, "b", -1)
+    elif PIPE:
         cyl(ST, (G.POST / 2, (PN[0] + PN[1]) / 2, m_ + G.POST / 2), (G.POST / 2, (PN[0] + PN[1]) / 2, FL_ - G.TTD - e if G.LOFT_RAIL else G.G_TOP - G.CAP_T - G.OT_CLIP[1] if G.OAK_TOP else G.G_TOP - G.RAIL / 2), G.PIPE_POST[0] / 2)
     else:
         hexa(ST, [P(a, bb, z) for bb in (PN[0] + e, PN[1]) for a, z in ((0.05, m_ + 0.05), (G.POST, m_ + G.POST), (G.POST, G.G_TOP - G.RAIL - e), (0.05, G.G_TOP - G.RAIL - e))])

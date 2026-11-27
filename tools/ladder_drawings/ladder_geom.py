@@ -953,7 +953,15 @@ RAIL_STYLE = os.environ.get("LADDER_RAIL_STYLE", L.get("ladder_rail_style", "str
 assert RAIL_STYLE in ("straps", "hidden", "pipe"), RAIL_STYLE
 PIPE_POST = (1.900, 0.145)                         # 1 1/2 NPS schedule 40: OD, wall
 PIPE_RAIL = (1.660, 0.140)                         # 1 1/4 NPS schedule 40 (a 1.66 in round handrail is graspable, R311.7.8.5)
-RAIL_POSTS = ("foot_post", "corner_newel", "balcony_sw_newel", "guard_post_nw", "guard_post_ne") + tuple(p_[0] for p_ in loft_rail()["posts"])
+RAIL_POSTS = ("foot_post", "corner_newel", "balcony_sw_newel", "guard_post_nw") + (() if LOFT_RAIL else ("guard_post_ne",)) + tuple(p_[0] for p_ in loft_rail()["posts"])   # round 18: the NE post stays square
+
+# round 18 (Maxwell 11/27/2026: the NE post "is still round", square it and let the balcony cover it): with the loft railing the north east
+# post is the plain 2 x 2 tube of the north knee frame, its top cut level at the frame's underside. The north arm runs east to the wall
+# over it (bearing on the post top) and the ledger stops against the arm's south face. A strap of flat bar 4 x 1/4 on the coplanar north
+# faces ties them: one 3/8 through bolt across the post, one across the arm east of the ledger.
+NE_STRAP = (0.0, 4.0, FL - TK - 4.25, FL - TTD - 0.05)            # a0, a1, z0, z1 on the north face b = BAL_N, 1/4 thick
+NE_STRAP_T = 0.25
+NE_STRAP_BOLTS = [(1.0, FL - TK - 2.5), (3.0, FL - TK + 1.5)]     # (a, z): the post's, then the north arm's (east of the ledger at a 0..2)
 PF_D, PF_T, PF_SOCK, PF_H, PF_BC = 5.5, 0.4, 2.6, 2.6, 4.25   # B: railing flange (plate dia, thick), its socket (OD, height), anchor circle
 PS_D, PS_H, PC_H = 2.6, 2.2, 2.4                   # B: fitting round a post: OD, post top socket depth, side collar height
 RS_D, RS_L = 2.3, 2.2                              # B: fitting round a rail: OD, socket length

@@ -203,6 +203,66 @@ function cylinder(get, mat, cx, cy, z0, z1, r0, r1, seg = 20) {
     tri(bk, cb, b[i], b[j]); tri(bk, ct, t[j], t[i]);            // caps wound to face out (down, up), like the sides
   }
 }
+// a flat polygon pushed along a vector: one closed solid (caps triangulated, so a plate or a bracket is not a pile of fan slabs
+// whose shared faces and seams draw as lines, Maxwell 11/27/2026). smooth = 1 shades the sides round (a pipe, a bolt head):
+// a vertex normal is the mean of its two sides' normals where they meet at under 40 degrees.
+const _sn = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
+function triN(bk, a, b, c, ns, long) {
+  _e1.subVectors(b, a); _e2.subVectors(c, a); _n.crossVectors(_e1, _e2);
+  const len = _n.length(); if (len < 1e-12) return;
+  _n.divideScalar(len);
+  const ax = Math.abs(_n.x), ay = Math.abs(_n.y), az = Math.abs(_n.z);
+  let uA, vA;
+  if (ay >= ax && ay >= az) { uA = 0; vA = 2; } else if (ax >= az) { uA = 2; vA = 1; } else { uA = 0; vA = 1; }
+  if (long !== undefined && long !== vA && long === uA) { const t = uA; uA = vA; vA = t; }
+  [a, b, c].forEach((p, k) => {
+    bk.pos.push(p.x, p.y, p.z); bk.nor.push(ns[k].x, ns[k].y, ns[k].z);
+    bk.uv.push(p.getComponent(uA), p.getComponent(vA));
+  });
+  bk.tris++;
+}
+function prism(get, mat, flat, d, smooth, grainOf) {
+  const bk = get(mat), D = V(...d), P = [];
+  for (let i = 0; i + 2 < flat.length; i += 3) P.push(V(flat[i], flat[i + 1], flat[i + 2]));
+  const n = P.length; if (n < 3) return;
+  const Q = P.map((p) => p.clone().add(D));
+  const N = new THREE.Vector3();                         // Newell normal: the ring runs counterclockwise about it
+  for (let i = 0; i < n; i++) { const a = P[i], b = P[(i + 1) % n]; N.x += (a.y - b.y) * (a.z + b.z); N.y += (a.z - b.z) * (a.x + b.x); N.z += (a.x - b.x) * (a.y + b.y); }
+  if (N.lengthSq() < 1e-20) return;
+  N.normalize();
+  const lg = grainOf(mat) === 'vertical' ? 1 : grainOf(mat) === 'long' ? longAxis(P.concat(Q)) : undefined;
+  const t1 = (Math.abs(N.x) < 0.9 ? V(1, 0, 0) : V(0, 1, 0)).cross(N).normalize(), t2 = N.clone().cross(t1);
+  const tris = THREE.ShapeUtils.triangulateShape(P.map((p) => new THREE.Vector2(p.dot(t1), p.dot(t2))), []);
+  const up = D.dot(N) >= 0 ? 1 : -1;                     // the top cap (at Q) faces +N when d runs along +N
+  const nb = N.clone().multiplyScalar(-up), nt = N.clone().multiplyScalar(up);
+  const cap = (R, want, ccw) => {
+    for (const [i, j, k] of tris) {
+      const [a, b, c] = ccw ? [R[i], R[j], R[k]] : [R[i], R[k], R[j]];
+      _e1.subVectors(b, a); _e2.subVectors(c, a);
+      if (_e1.cross(_e2).dot(want) < 0) triN(bk, a, c, b, [want, want, want], lg); else triN(bk, a, b, c, [want, want, want], lg);
+    }
+  };
+  cap(P, nb, true); cap(Q, nt, true);
+  const fn = [];                                         // each side's outward normal
+  for (let i = 0; i < n; i++) {
+    const a = P[i], b = P[(i + 1) % n];
+    const o = b.clone().sub(a).cross(N);                 // in plane, outward for a counterclockwise ring
+    const f = b.clone().sub(a).cross(D); if (f.dot(o) < 0) f.negate();
+    fn.push(f.lengthSq() > 1e-20 ? f.normalize() : o.normalize());
+  }
+  const vn = (i, side) => {                              // normal at ring vertex i for side `side` (i - 1 or i)
+    if (!smooth) return fn[side];
+    const pv = fn[(i - 1 + n) % n], nx = fn[i % n];
+    return pv.dot(nx) > Math.cos(Math.PI * 40 / 180) ? pv.clone().add(nx).normalize() : fn[side];
+  };
+  for (let i = 0; i < n; i++) {
+    const j = (i + 1) % n, a = P[i], b = P[j], c = Q[j], q = Q[i];
+    const na = vn(i, i), nbv = vn(j, i);
+    _e1.subVectors(b, a); _e2.subVectors(c, a); _n.crossVectors(_e1, _e2);
+    if (_n.dot(fn[i]) >= 0) { triN(bk, a, b, c, [na, nbv, nbv], lg); triN(bk, a, c, q, [na, nbv, na], lg); }
+    else { triN(bk, a, c, b, [na, nbv, nbv], lg); triN(bk, a, q, c, [na, na, nbv], lg); }
+  }
+}
 function shape(get, s, grainOf) {
   switch (s[0]) {
     case 'b': hexa(get, boxPts(...s.slice(2, 8)), Array(6).fill(s[1]), grainOf); break;
@@ -213,6 +273,7 @@ function shape(get, s, grainOf) {
     case 'w': panel(get, s[1], s[2], s[3], s[4], s[5], s[6], s[7], grainOf); break;
     case 'q': polygon(get, s[1], s[2]); break;
     case 'c': cylinder(get, s[1], ...s.slice(2, 8)); break;
+    case 'p': prism(get, s[1], s[2], s[3], s[4], grainOf); break;
   }
 }
 

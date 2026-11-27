@@ -106,16 +106,29 @@
    ]
   },
   {
-   "file": "clip_angle_2in_qty18.dxf",
+   "file": "clip_angle_2in_qty16.dxf",
    "name": "Clip angle 2 in wide, 1 3/4 legs",
-   "qty": 18,
+   "qty": 16,
    "thick": 0.25,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "1 bend, 90 deg",
-   "notes": "PLACEHOLDER for an engineer: at the landing and balcony frame corners, including the ledger and north arm ends on the north east post. Round 7: the knee braces use gusset plates instead. Round 11b: the balcony has no west beam, so no clips there.",
+   "notes": "PLACEHOLDER for an engineer: at the landing and balcony frame corners. Round 7: the knee braces use gusset plates instead. Round 11b: the balcony has no west beam, so no clips there. Round 18: the north arm bears on the north east post's top and the ledger ends against the arm; a flat bar strap ties them, so those two clips are gone.",
    "size": [
     2.0,
     3.11
+   ]
+  },
+  {
+   "file": "ne_post_strap_qty1.dxf",
+   "name": "North east post strap (flat bar 4 x 1/4)",
+   "qty": 1,
+   "thick": 0.25,
+   "material": "Mild steel A36 (hot rolled P&O)",
+   "bends": "none",
+   "notes": "flat, or cut from stock 4 x 1/4 flat bar: on the north faces of the north east post and the north arm (they are flush), one 3/8 through bolt across each (crush sleeves inside), the post's lower. Holds the post under the arm's east end.",
+   "size": [
+    4.0,
+    7.2
    ]
   },
   {

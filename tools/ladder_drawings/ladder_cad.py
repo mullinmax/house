@@ -470,7 +470,12 @@ if G.MONO:
     add("balcony", "balcony_ledger", tube(0, 2, G.BAL_S, BN_ - G.POST, *bz, "b", FTB))
     add("balcony", "balcony_south_beam", tube(2, XL, G.BAL_S, G.BAL_S + 2, *bz, "a", FTB))
     add("balcony", "balcony_head_arm", tube(2, XL if G.NO_WEST_BEAM else XL - 2, G.B_BH - 1, G.B_BH + 1, *bz, "a", FTB))   # round 11b: to the west edge
-    add("balcony", "balcony_north_arm", tube(2, XL, BN_ - 2, BN_, *bz, "a", FTB))
+    add("balcony", "balcony_north_arm", tube(0 if G.LOFT_RAIL else 2, XL, BN_ - 2, BN_, *bz, "a", FTB))   # round 18: over the NE post's top
+    if G.LOFT_RAIL:                                # round 18: flat bar strap on the north faces ties the NE post to the north arm
+        sa0_, sa1_, sz0_, sz1_ = G.NE_STRAP
+        add("balcony", "ne_post_strap", box(sa0_, sa1_, BN_, BN_ + G.NE_STRAP_T, sz0_, sz1_))
+        for a_, z_ in G.NE_STRAP_BOLTS:
+            bolt(a_, BN_ + G.NE_STRAP_T, z_, "b", 1); nut(a_, BN_ - G.POST, z_, "b", -1)
     if not G.NO_WEST_BEAM:
         add("balcony", "balcony_west_beam", tube(XL - 2, XL, G.BAL_S + 2 + G.CP_T, BN_ - 2 - G.CP_T, *bz, "b", FTB))
     deck = box(0, G.BAL_W, G.BAL_S, BN_, FL - TT, FL)
@@ -553,7 +558,7 @@ if G.MONO:
         add("posts", "balcony_sw_newel", tube(XL, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, zl_, G.GSW_TOP, "z", G.POST_T))
         add("posts", "guard_post_nw", tube(XL, XL + G.POST, *PN, zl_, G.G_TOP - G.RAIL, "z", G.POST_T))
     pz0_ = G.NK_MITER
-    ne_ = post_box(0, G.POST, *PN, pz0_) if G.CONT_RAIL else tube(0, G.POST, *PN, pz0_, FL - TT if G.LOFT_RAIL else G.G_TOP - G.RAIL, "z", G.POST_T)   # round 17: stops under the deck
+    ne_ = post_box(0, G.POST, *PN, pz0_) if G.CONT_RAIL else tube(0, G.POST, *PN, pz0_, FL - TK if G.LOFT_RAIL else G.G_TOP - G.RAIL, "z", G.POST_T)   # round 18: square, stops under the north arm
     add("posts", "guard_post_ne", ne_.cut(aprism([(-0.1, pz0_ - 0.1), (G.POST + 0.1, pz0_ + G.POST + 0.1), (G.POST + 0.1, pz0_ - 1), (-0.1, pz0_ - 1)], PN[0] - 0.5, PN[1] + 0.5)))
     if G.CONT_RAIL:
         add("rails", "handrail_and_guard_rail", rail_sweep(), mat="rail")
