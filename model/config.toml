@@ -91,8 +91,10 @@ ladder_wall_gap_in = 0.75         # corner design: ladder edge to the bath 1 wal
 ladder_wall_stringer_under = false # corner design: wall side stringers under the treads. Tried 11/21/2026 and dropped: the overlapping treads leave no seat. With steel plates both stringers sit beside the treads, treads on bolt on angle clips, wall side rails on brackets, wall plates lagged to blocking
 ladder_going_in = 5.0             # nosing to nosing
 ladder_tread_in = 8.5             # each tread overlaps the next by 3.5 in; the loft edge gets a 3.5 in oak nosing over the top tread
-ladder_tread_strips = false       # round 8 (Maxwell 11/24/2026): no tread strips; thicker oak on the bracket seats, 5/16 lags up into it
+ladder_tread_strips = "decor"     # round 13 (Maxwell 11/25/2026): locked in the decorative angle option (no strip structure, 1 3/4 oak on the bracket seats, 5/16 lags, a stock L 2 x 1 x 1/8 under each tread nose). false = plain no strip, true = structural strips
 ladder_tread_thick_in = 1.75      # tread oak with no strips (the landing and balcony decks stay 1.44)
+ladder_seat_tab_in = 1.5         # round 14 (Maxwell 11/25/2026 "can we make them smaller?"): bracket seat 1.5 in wide, was 2.5. Solid FEA (3/16 plate): 300 lb on the seat 11.5 ksi vs 19.1, stiffer too (shorter lever to the bend)
+ladder_rail_style = "pipe"        # round 15 (Maxwell 11/27/2026): round pipe railing kit (1 1/2 sch 40 posts, 1 1/4 sch 40 rails, slip on kit fittings, railing flanges). "straps" = square tube with straps, "hidden" = square tube with tongue plates
 ladder_handrail_in = 32.0         # top of rail above the nosing line, 30 to 34 in allowed
 attic_access = { east_gap = 2.05, width = 2.96, door = { top_in = 60 } }   # walk through opening in the loft north wall onto the attic deck: east edge 1 ft off the inside face of the east wall (Maxwell, 11/19/2026). Width kept from the A-11 gap (x 34.37-37.33) that used to be the way in, now walled above the loft floor. Moved 12 5/8 in west 11/21/2026 (Maxwell) so the 23 in deep bookcase in the loft's north east corner has solid wall behind it; was east_gap = 1.0. door: a short leaf (top_in above the loft floor) swinging into the attic, low enough to clear the roof when open 90 degrees (Maxwell 11/21/2026)
 

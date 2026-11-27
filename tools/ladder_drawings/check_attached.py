@@ -24,7 +24,12 @@ sys.argv = ["ladder_cad.py", os.environ.get("LADDER_CAD_OUT", "/tmp/ladder_check
 import cadquery as cq
 import ladder_cad as C
 
-ALLOW = {}            # name -> reason, for parts deliberately held without a drawn fastener
+ALLOW = {             # name prefix -> reason, for parts deliberately held without a drawn fastener
+    "picket_": "1/2 in bar, its ends sit in 1/2 in holes drilled in the guard top and bottom rails, captured between them",
+}
+SINGLE_OK = {         # name prefix -> why one fastener is enough
+    "rail_spacer_": "a spacer is a thick washer on the rail bolt",
+}
 PROBE_R = 0.12        # probe radius (a 3/8 in bolt is 0.1875)
 LAG_LEN = 4.0         # how far an unpaired fastener reaches
 PAIR_TOL = 0.2        # a nut counts as this bolt's pair when its centre is this close to the bolt line
@@ -63,44 +68,18 @@ def hits(seg_solid):
     return out
 
 
-fast = []
-for s in C.FAST:
-    try:
-        n = axis_of(s)
-    except ValueError:
-        continue
-    c = centre(s)
-    fast.append(dict(c=c, n=n, h=max(abs((cq.Vector(v.toTuple()) - c).dot(n)) for v in s.Vertices())))
-
+# round 11b: ladder_cad.py now builds every fastener whole (build_bolts), so follow each one from its head's bearing face to its tip
 edges = []           # (set of part names, grounded, label)
-for i, f in enumerate(fast):
-    c, n, h = f["c"], f["n"], f["h"]
-    inward = None
-    for sg in (1, -1):                                    # which side of the head the parts are on
-        d = n * sg
-        if hits(cq.Solid.makeCylinder(PROBE_R, 0.2, c + d * (h + 0.02), d)):
-            inward = d
-            break
-    if inward is None:
-        edges.append((set(), False, f"fastener at {tuple(round(x, 2) for x in c.toTuple())} touches nothing"))
+for st, en, kind in C.BOLT_LINES:
+    d = en - st
+    L = d.Length
+    names = set(hits(cq.Solid.makeCylinder(PROBE_R, L, st, d * (1.0 / L))))
+    grounded = en.z < 0.01 or en.x > -0.01 or en.y < 0.01 or st.z < 0.01       # into the slab (z = 0) or a wall (a = 0 or b = 0)
+    if not names:
+        edges.append((set(), False, f"{kind} at {(round(-st.x, 2), round(st.y, 2), round(st.z, 2))} goes into nothing"))
         continue
-    # paired nut: the nearest other fastener on this line, inward
-    best = None
-    for j, g in enumerate(fast):
-        if j == i:
-            continue
-        r = g["c"] - c
-        t = r.dot(inward)
-        if 0.2 < t < MAX_THROUGH and (r - inward * t).Length < PAIR_TOL and (best is None or t < best):
-            best = t
-    L = (best - h) if best else LAG_LEN
-    start = c + inward * (h + 0.02)
-    names = set(hits(cq.Solid.makeCylinder(PROBE_R, L, start, inward)))
-    grounded = False
-    if not best:                                         # a lag or an anchor: does it run into the slab or a wall?
-        end = start + inward * L
-        grounded = end.z < 0.01 or end.x > -0.01 or end.y < 0.01
     edges.append((names, grounded, None))
+fast = C.BOLT_LINES
 
 # union find over parts plus the ground
 par = {n: n for n, s in parts}
@@ -128,12 +107,12 @@ for names, grounded, _ in edges:
     if grounded and names:
         union(names[0], "GROUND")
 
-loose = [n for n, k in count.items() if k == 0 and n not in ALLOW]
+loose = [n for n, k in count.items() if k == 0 and not any(n.startswith(p) for p in ALLOW)]
 groups = {}
 for n, s in parts:
     if count[n] and find(n) != find("GROUND"):
         groups.setdefault(find(n), []).append(n)
-pins = [n for n, k in count.items() if k == 1]
+pins = [n for n, k in count.items() if k == 1 and not any(n.startswith(p) for p in SINGLE_OK)]
 stray = [e[2] for e in edges if e[2]]
 
 print(f"{len(parts)} parts, {len(fast)} fasteners")

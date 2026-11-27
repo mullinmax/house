@@ -10,6 +10,7 @@ from Pynite import FEModel3D
 import ladder_geom as G
 
 OUT = sys.argv[1] if len(sys.argv) > 1 else "."
+NEWEL_BASE = os.environ.get("LADDER_NEWEL_BASE", "fixed")     # round 12: corner newel base fixed (one piece moment base) or pinned (as before)
 POST_BASE = os.environ.get("LADDER_POST_BASE", "fixed")       # upper stringer post base: fixed (default) or pinned
 HEAD_VERT = os.environ.get("LADDER_HEAD_VERT", "0") == "1"
 LAG_K = float(os.environ.get("LADDER_LAG_K", "0"))
@@ -59,6 +60,17 @@ if G.MONO and abs(G.WT - 0.25) > 1e-6:
 for env_, key_, dims_ in (("LADDER_POST_T", "POST", (2.0, 2.0)), ("LADDER_RAIL_T", "RAIL", (1.5, 1.5)), ("LADDER_FTB", "TUBE", (2.0, 3.0))):
     if os.environ.get(env_):
         SEC[key_] = ("steel",) + rect_hss(*dims_, float(os.environ[env_]))
+def pipe_sec(D, t):
+    """round pipe OD D, nominal wall t (design wall 0.93 t): (A, I, I, J, S, S)"""
+    t = 0.93 * t
+    d = D - 2 * t
+    I = math.pi * (D ** 4 - d ** 4) / 64
+    return (math.pi * (D ** 2 - d ** 2) / 4, I, I, 2 * I, I / (D / 2), I / (D / 2))
+
+
+if G.RAIL_STYLE == "pipe":                          # round 13 option B: round pipe rails and rail posts
+    SEC["RAIL"] = ("steel",) + pipe_sec(*G.PIPE_RAIL)
+    SEC["PPOST"] = ("steel",) + pipe_sec(*G.PIPE_POST)
 ISEC = dict(W4x13=(3.83, 3.86, 11.3, 0.151, 1.90, 5.46), S4x7_7=(2.26, 0.764, 6.08, 0.0438, 0.505, 3.04), W5x16=(4.71, 6.32, 21.4, 0.192, 3.11, 8.55),
             W6x15=(4.43, 9.32, 29.1, 0.101, 3.11, 9.72))      # I-beam study (Maxwell 11/24/2026): A, Iy weak, Iz strong, J, Sy, Sz (AISC)
 if os.environ.get("LADDER_STR_SEC"):
@@ -79,6 +91,8 @@ def N(a, b, z):
 
 def M(name, p, q, sec, rel=""):
     """rel: 'i', 'j' or 'ij' = bending released at that end; 'I' / 'J' = a ball joint (torsion released too)"""
+    if G.RAIL_STYLE == "pipe" and sec == "POST" and name.startswith(("footpost", "newel", "gsw", "gnw", "gne")):
+        sec = "PPOST"
     m.add_member(name, N(*p), N(*q), SEC[sec][0], sec)
     r = dict(Ryi="i" in rel or "I" in rel, Rzi="i" in rel or "I" in rel, Rxi="I" in rel, Ryj="j" in rel or "J" in rel, Rzj="j" in rel or "J" in rel, Rxj="J" in rel)
     if any(r.values()):
@@ -306,7 +320,11 @@ if G.CONT_RAIL:
     rn = R_(PS["newel"])
     nwt = (PC, PC, G.NEWEL_TOP2)
     nw = [(PC, PC, 0.0), (PC, PC, ZL), nwt, rn, rn]
-    S(nw[0], what="corner newel base on the slab")
+    if NEWEL_BASE == "fixed":                       # round 12: the newel stands on the same one piece moment base as the foot post
+        m.def_support(N(*nw[0]), True, True, True, True, True, True)
+        SUP[N(*nw[0])] = "corner newel base on the slab (moment base)"
+    else:
+        S(nw[0], what="corner newel base on the slab")
     M("newel0", nw[0], nw[1], "POST"); M("newel1", nw[1], nwt, "POST")
     M("newel_rail", nwt, rn, "RIGID")
     M("newel_LW", nw[1], (XW, PC, ZL), "RIGID", "J")
@@ -332,7 +350,11 @@ else:
     u_nw = G.XL + G.UL - PC
     # corner newel: slab to above the upper rail, lapped onto the lower open tube and the landing's west beam
     nw = [(PC, PC, 0.0), (PC, PC, LO.zc(u_nw)), (PC, PC, ZL), (PC, PC, zr_lo(PC)), (PC, PC, zr_up(PC)), (PC, PC, G.NEWEL_TOP)]
-    S(nw[0], what="corner newel base on the slab")
+    if NEWEL_BASE == "fixed":                       # round 12: the newel stands on the same one piece moment base as the foot post
+        m.def_support(N(*nw[0]), True, True, True, True, True, True)
+        SUP[N(*nw[0])] = "corner newel base on the slab (moment base)"
+    else:
+        S(nw[0], what="corner newel base on the slab")
     for i in range(5):
         M(f"newel{i}", nw[i], nw[i + 1], "POST")
     if not G.MONO:
@@ -362,7 +384,8 @@ else:
         M(f"gsw{i}", gs[i], gs[i + 1], "POST")
     if not G.MONO:
         M("gsw_tube", gs[0], (XW, bsw, UP.zc(u_sw)), "RIGID")
-    M("gsw_BW", gs[1], (XW, bsw, ZB), "RIGID")       # mono: the corner plate (round 10: on the post's inside face, flange bolted up through the south beam) carries its moment
+    AF = sum(G.corner_plate(-1)[3]) / 2 if (G.MONO and G.NO_WEST_BEAM) else XW   # round 13: the corner plate's flange bolts' centroid on the end beam
+    M("gsw_BW", gs[1], (AF, bsw, ZB), "RIGID")       # mono: the corner plate (round 10: on the post's inside face, flange bolted up through the south beam) carries its moment
     mid_up = (PC, (PC + bsw) / 2, zr_up((PC + bsw) / 2))
     N(*mid_up)
     M("rail_upper", nw[4], gs[2], "RAIL", "ij")
@@ -371,7 +394,7 @@ else:
     if G.MONO:                                          # round 10: the north west post at the frame's corner on its corner plate, reaching below
         corner = (PC, G.GP_B, zg)                        # the frame to the north knee brace's top
         nwz = [G.FL - G.TK - G.CP_DROP, G.NK_ZT + 1.0, ZB]
-        M("gnw_BN", (PC, G.GP_B, ZB), (XW, BN1, ZB), "RIGID")
+        M("gnw_BN", (PC, G.GP_B, ZB), (AF, BN1, ZB), "RIGID")
         M("gnw0", (PC, G.GP_B, nwz[0]), (PC, G.GP_B, nwz[1]), "POST"); M("gnw1", (PC, G.GP_B, nwz[1]), (PC, G.GP_B, ZB), "POST")
         M("gnw", (PC, G.GP_B, ZB), corner, "POST")
         # the north east post: the north knee frame's wall post in one piece from its 45 degree foot to the guard rail, lagged to the wall
@@ -521,7 +544,11 @@ for n, what in SUP.items():
     res["reactions"][what].append(dict(north=round(env[0]), up=round(env[1]), east=round(env[2]), total=round(math.hypot(*env[:3])), case=env[3], dead_up=round(nd.RxnFY["D"])))
     mm = max(((math.hypot(nd.RxnMX["D+" + c], nd.RxnMZ["D+" + c]), c) for c in CASES), key=lambda t: t[0])
     if mm[0] > 1.0:                                   # round 11: base moment (in-lb) where a support is fixed, to size the post base plates
-        res["reactions"][what][-1].update(moment_inlb=round(mm[0]), moment_case=mm[1])
+        res["reactions"][what][-1].update(moment_inlb=round(mm[0]), moment_case=mm[1],
+            # round 12: signed envelope about each plan axis, to size one sided (tab) bases. about_north tips the post east/west,
+            # about_east tips it north/south
+            about_north=[round(min(nd.RxnMX["D+" + c] for c in CASES)), round(max(nd.RxnMX["D+" + c] for c in CASES))],
+            about_east=[round(min(nd.RxnMZ["D+" + c] for c in CASES)), round(max(nd.RxnMZ["D+" + c] for c in CASES))])
 # total dead weight, and a frequency estimate from the self weight plus one 170 lb person at mid flight
 res["knee_post_top"] = {n: dict(tension_lb=round(max(m.members[n].max_axial("D+" + c) for c in CASES)), compression_lb=round(-min(m.members[n].min_axial("D+" + c) for c in CASES)))
                         for n in MEM if n.endswith("_post_top")}   # round 10: what the corner gusset (post top to the ledger) carries
@@ -545,7 +572,7 @@ for n in MEM:
 res["bracket_bolt"] = {k: round(v) for k, v in bb.items()}
 # post laps: forces through the bolted connections of each post to the tubes and frames, and at the tube ends
 LINKS = dict(newel_LW="corner newel to landing west beam", foot_tube="foot post to lower stringer", gsw_tube="balcony newel to upper stringer",
-             gsw_BW="balcony newel to balcony west beam", gnw_BN="north west guard post to balcony north arm", **({f"{e}_{i}": f"{d} ({'north' if i == 'a' else 'south'} angle)" if e[0] == "L" else f"{d} ({'east' if i == 'b' else 'west'} side)" for e, d in (("Lhead", "lower stringer head"), ("Ufoot", "upper stringer foot"), ("Uhead", "upper stringer head")) for i in "ab"} if G.MONO else
+             gsw_BW="balcony newel to south beam (corner plate)" if G.MONO else "balcony newel to balcony west beam", gnw_BN="north west guard post to north arm (corner plate)" if G.MONO else "north west guard post to balcony north arm", **({f"{e}_{i}": f"{d} ({'north' if i == 'a' else 'south'} angle)" if e[0] == "L" else f"{d} ({'east' if i == 'b' else 'west'} side)" for e, d in (("Lhead", "lower stringer head"), ("Ufoot", "upper stringer foot"), ("Uhead", "upper stringer head")) for i in "ab"} if G.MONO else
                 dict(newel_tube="corner newel to lower stringer", Lhead_o="lower stringer head (open side)", Lhead_w="lower stringer head (wall side)",
                      Ufoot_o="upper stringer foot (open side)", Ufoot_w="upper stringer foot (wall side)", Uhead_o="upper stringer head (open side)", Uhead_w="upper stringer head (wall side)")))
 if G.MONO:
@@ -574,7 +601,7 @@ for n, what in LINKS.items():
 # sway stiffness and the first few natural modes (self weight plus one 170 lb person standing mid way up the upper flight)
 res["sway"] = {c: dict(desc=CASES[c]["desc"], defl_in=round(res["cases"][c]["defl_at_load"], 4), stiffness_lb_per_in=round(SW / max(res["cases"][c]["defl_at_load"], 1e-9)))
                for c in CASES if CASES[c]["kind"] == "sway"}
-res["variant"] = dict(post_base=POST_BASE, head_carries_weight=HEAD_VERT, landing_lag_k=LAG_K or "rigid")
+res["variant"] = dict(post_base=POST_BASE, newel_base=NEWEL_BASE, head_carries_weight=HEAD_VERT, landing_lag_k=LAG_K or "rigid")
 if CUTS:
     # forces (lb) and moments (in lb) on each solid piece, in PyNite global axes (X north, Y up, Z east), about the node they act at
     def sub_at(phys, node, end):

@@ -26,6 +26,7 @@ T = G.BRKT_T
 BD = 0.39                     # 90 degree bend deduction, 1/4 in mild steel
 BD_WEB = 0.39 if G.WEB_T >= 0.25 else 0.30   # 3/16 in brackets (cost pass 11/24/2026): about 0.30 in, confirm in the SendCutSend preview
 H38, HANC, CSK38 = 0.4375, 0.5, 0.40625
+BD38 = 0.60                    # 90 degree bend deduction taken for 3/8 in, CHECK in SendCutSend's preview
 CA, SA = math.cos(G.ANG), math.sin(G.ANG)
 nx, nz = SA, -CA              # unit normal pointing down and back from the tube top line, in a flight's (u, z)
 
@@ -226,17 +227,54 @@ part("upper_post_saddle_qty1.dxf", "Upper stringer post saddle (seat, legs down 
      f"{SAD_INFO['cheek_h']:.2f} in tall outside, one 3/8 through bolt across the stringer (crush sleeve inside); tabs {SAD_INFO['tab'][0]:.2f} in out x "
      f"{SAD_INFO['tab'][1]:.2f} in tall, one 3/8 bolt each through the landing's north beam. Replaces round 5's foot clips.", rnd=0.3)
 
-# ---------------------------------------------------------------- post base plate (round 11): one part under all three slab posts
+# ---------------------------------------------------------------- post base plate (round 11): now only under the upper stringer post
 pb_ = G.post_base(-1.0, 1.0, -1.0, 1.0, "a")
 h_ = G.BP_W / 2
 shp = Polygon([(a + h_, b + h_) for a, b in pb_["plate"]])
 holes = [Point(a + h_, b + h_).buffer(HANC / 2, 64) for a, b in pb_["anchors"]]
 holes += [Point(a + h_, b + h_).buffer(CSK38 / 2, 64) for a, b in pb_["screws"]]
-part("post_base_plate_qty3.dxf", "Post base plate (foot post, corner newel, upper stringer post)", 3, G.BP_T, shp, holes, (), "none",
+part("post_base_plate_qty1.dxf", "Post base plate (upper stringer post)", 1, G.BP_T, shp, holes, (), "none",
      f"{G.BP_W:g} x {G.BP_W:g} in, corners R {G.BP_R:g}. Four 1/2 in holes at the corners for 3/8 wedge anchors. COUNTERSINK the two 13/32 in "
      f"holes ({G.BP_SCREW:g} in each side of centre) from the BOTTOM face (82 deg, 3/8 flat head): the screws go up through the plate into the "
-     f"two clip angles (cut from stock L 2 x 2 x 3/8, {G.BC_L:g} in long), nuts on top; put them in before the plate is anchored. The same plate "
-     "fits the 2 x 2 and the 3 x 3 posts: only the hole in the clip's flat leg moves (1.45 in from the heel for 2 x 2, 0.95 in for 3 x 3).")
+     f"two clip angles (cut from stock L 3 x 2 x 3/8, long leg up, {G.BC_L:g} in long, hole 0.95 in from the heel; two 3/8 through bolts cross "
+     "the 3 x 3 post and both clips), nuts on top; put them in before the plate is anchored. Round 12: the two rail posts have their own one piece base.")
+
+# ---------------------------------------------------------------- rail post base (round 12): one bent 3/8 plate under the foot post and the corner newel
+# Flat, seen from ABOVE with north up and east to the right (x = -a, y = b); both tabs bend UP toward the viewer.
+def _rpb():
+    a0, a1, b0, b1 = -2.0, 0.0, 0.0, 2.0                          # a 2 x 2 post, west face at a = 0
+    rb = G.rail_post_base(a0, a1, b0, b1)
+    t, H = G.RB_T, G.RB_H
+    ae, aw, bs, bn = a0 - G.RB_FL, a1 + t, b0 - G.RB_FL, b1 + t
+    bl = t - BD38 / 2                                             # bend line this far in from each tab's outer face
+    seg = H - (BD38 - bl)                                         # flat tab length past the bend line (outside base + outside tab - BD)
+    zoff = H - seg                                                # a height z on the tab lies z - zoff past the bend line
+    base = Polygon(rb["plate"])
+    flap_w = rect(aw - bl, aw - bl + seg, b0, b1)                 # west tab, unfolded west
+    flap_n = rect(a0, a1, bn - bl, bn - bl + seg)                 # north tab, unfolded north
+    shp = unary_union([base, flap_w, flap_n])
+    rel = [rect(aw - bl - 0.1, aw + 0.1, b0 - t, b0),             # bend reliefs where each tab meets flat plate
+           rect(a0 - t, a0, bn - bl - 0.1, bn + 0.1), Point(a1, b1).buffer(0.25, 32)]
+    for r_ in rel:
+        shp = shp.difference(r_)
+    holes = [Point(a, b).buffer(HANC / 2, 64) for a, b in rb["anchors"]]
+    for side, ax, (ha, hb, hz), _ in rb["bolts"]:
+        if side == "west":
+            holes.append(Point(aw - bl + (hz - zoff), hb).buffer(H38 / 2, 64))
+        else:
+            holes.append(Point(ha, bn - bl + (hz - zoff)).buffer(H38 / 2, 64))
+    X = lambda g: sscale(g, -1, 1, origin=(0, 0))                 # a is west positive: flip so east is to the right
+    bends = [((-(aw - bl), b0), (-(aw - bl), b1)), ((-a0, bn - bl), (-a1, bn - bl))]
+    return X(shp), [X(h) for h in holes], bends, (aw - ae, bn - bs)
+shp, holes, bends, sz_ = _rpb()
+(part if G.RAIL_STYLE != "pipe" else (lambda *a_, **k_: None))("rail_post_base_qty2.dxf", "Rail post base (foot post and corner newel), one piece", 2, G.RB_T, shp, holes, bends,
+     "2 bends, both 90 deg UP toward you with the drawing seen from above (north up, east to the right): the west tab and the north tab. "
+     "Both parts are identical (not mirrored).",
+     f"base {sz_[0]:.2f} x {sz_[1]:.2f} in outside, tabs {G.RB_H:.2f} in tall outside (2 in wide). Three 1/2 in holes for 3/8 wedge anchors on the "
+     "south and east flanges (the side that lifts under the rail load). Two 7/16 holes in each tab for 3/8 grade 5 through bolts across the post "
+     "(crush sleeve inside); drill the post through the tab holes on site, the two tabs' holes are at different heights so the bolts pass each "
+     "other. Grind a small 45 deg bevel on the post's bottom outside edge on the two tab faces so it sits down past the bend radius. "
+     "Replaces the plate plus two clip angles under these two posts.", rnd=0.5)
 
 # ---------------------------------------------------------------- balcony corner plates (round 10), 3/8 in: replace the round 3 L plates
 # Flat in the plate's own plane: x = a (inches west of the bath 1 wall), y = z (height), the flange unfolded below the band's bend line.
@@ -280,13 +318,22 @@ for j_, what, qty, shape, bolts_ in (("top", "south frame: brace top to the head
     holes = [Point(a - a0_, z - z0_).buffer(H38 / 2, 64) for a, z in bolts_]
     part(f"knee_gusset_{j_}_qty{qty}.dxf", f"Knee frame gusset, {j_.replace('_', ' ')}", qty, 0.25, shp, holes, (), "none",
          f"flat: {what}. South frame: on the brace's north face; north frame: on the north face. 3/8 through bolts with crush sleeves.")
-clip(1.25, 1.5, "rail_clip_1-25in_qty10.dxf", "Rail end clip 1 1/4 in wide, 1 1/2 legs", 10,
-     "straight rail ends into post faces, the north guard rail into the west one, the north guard rail at the bath 1 wall, and the four guard bottom rail ends. 9/32 in holes for 1/4-20.")
-
-shp = rect(0, 1.25, 0, 4.5)
-holes = [Point(0.625, y).buffer(0.28 / 2, 64) for y in (1.0, 3.5)]
-part("rail_post_strap_qty3.dxf", "Rail to post strap 1 1/4 x 4 1/2", 3, 0.25, shp, holes, (), "none",
-     "PLACEHOLDER for an engineer: flat strap on the side where a rail runs over a post top (lower rail on the foot post, guard top rails on the north west and north east posts); 1/4 in spacer behind it on the rail, which sits 1/4 in in from the post face.", rnd=0.6)
+# ---------------------------------------------------------------- rail straps (round 11b): one flat strap at every rail end or post crossing
+from collections import Counter as _C
+_pats = _C()
+_holes = {}
+for nm_, R_, P1_, P2_, t_, side_, plane_, pat_ in G.rail_straps():
+    _pats[pat_] += 1
+    _holes[pat_] = (math.dist(R_, P1_), math.dist(P1_, P2_))
+for pat_, n_ in (sorted(_pats.items()) if G.RAIL_STYLE == "straps" else ()):   # round 15: the pipe railing uses kit fittings, no straps
+    d1_, d2_ = _holes[pat_]
+    ys = [G.ST_E, G.ST_E + d1_, G.ST_E + d1_ + d2_]
+    L_ = ys[-1] + G.ST_E
+    part(f"rail_strap{'' if pat_ == 'standard' else '_' + pat_}_qty{n_}.dxf", f"Rail strap 1 1/4 x {L_:.2f}" + ("" if pat_ == "standard" else f" ({pat_} post)"), n_, 0.25,
+         rect(0, G.ST_W, 0, L_), [Point(G.ST_W / 2, y).buffer(0.28 / 2, 64) for y in ys], (), "none",
+         "flat strap on a post's side face: the hole nearest an end takes a 1/4-20 bolt through the rail and a 1/4 in spacer (the rail sits 1/4 in in "
+         "from the post face), the other two take 1/4-20 bolts through the post. " + ("Lies along the rail into the post where a rail ends on a post, plumb where it runs over a post top."
+         if pat_ == "standard" else "The lower rail over the foot post: its plumb depth is 3.16 in, so the rail hole is further from the post holes."), rnd=0.5)
 
 # ---------------------------------------------------------------- write
 for p in PARTS:

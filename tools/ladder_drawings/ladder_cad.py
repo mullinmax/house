@@ -57,12 +57,39 @@ def post_base(post):
     for up, fl, sg in pb["clips"]:
         side = ("west" if sg > 0 else "east") if axis == "a" else ("north" if sg > 0 else "south")
         add("posts", f"{post}_base_clip_{side}", box(*up).fuse(box(*fl)))
-    (ha, hb, hz), (na, nb, nz) = pb["bolt"]
-    bolt(ha, hb, hz, axis, 1); nut(na, nb, nz, axis, -1)
+    for (ha, hb, hz), (na, nb, nz) in pb["bolts"]:
+        bolt(ha, hb, hz, axis, 1); nut(na, nb, nz, axis, -1)
     for a_, b_ in pb["anchors"]:
         nut(a_, b_, G.BP_T, "z")
     for a_, b_ in pb["screws"]:
         nut(a_, b_, G.BP_T + G.BC_T, "z", role="fhs")
+
+
+def rail_post_base(post):
+    """round 12: one bent 3/8 plate under a 2 x 2 rail post: anchor flanges south and east, tabs up its north and west faces, 2 through
+    bolts per tab (staggered so they pass each other inside the post)"""
+    (a0, a1, b0, b1), _ = G.POST_BASES[post]
+    if G.RAIL_STYLE == "pipe":                      # round 13 option B: a stock railing flange (Kee Klamp style), socket with 2 set screws, 4 anchors
+        ac, bc = (a0 + a1) / 2, (b0 + b1) / 2
+        fl = cq.Solid.makeCylinder(G.PF_D / 2, G.PF_T, W(ac, bc, 0.0)).fuse(cq.Solid.makeCylinder(G.PF_SOCK / 2, G.PF_H, W(ac, bc, 0.0)))
+        fl = fl.cut(cq.Solid.makeCylinder(G.PIPE_POST[0] / 2, G.PF_H, W(ac, bc, G.PF_T)))
+        add("posts", f"{post}_base", fl.clean())
+        for k in range(4):
+            th = math.pi / 4 + k * math.pi / 2
+            nut(ac + G.PF_BC / 2 * math.cos(th), bc + G.PF_BC / 2 * math.sin(th), G.PF_T, "z")
+        for sg in (1, -1):                          # two set screws into the post, east and west
+            bolt(ac + sg * G.PF_SOCK / 2, bc, G.PF_T + (G.PF_H - G.PF_T) / 2, "a", sg, d=0.35, h=0.06, role=("set screw", 0.375, 0.5, 0.5))
+        return
+    rb = G.rail_post_base(a0, a1, b0, b1)
+    w = cq.Wire.makePolygon([W(a, b, 0.0) for a, b in rb["plate"]], close=True)
+    s_ = cq.Solid.extrudeLinear(cq.Face.makeFromWires(w), cq.Vector(0, 0, G.RB_T))
+    for tb in rb["tabs"].values():
+        s_ = s_.fuse(box(*tb))
+    add("posts", f"{post}_base", s_.clean())
+    for side, ax, (ha, hb, hz), (na, nb, nz) in rb["bolts"]:
+        bolt(ha, hb, hz, ax, 1); nut(na, nb, nz, ax, -1)
+    for a_, b_ in rb["anchors"]:
+        nut(a_, b_, G.RB_T, "z")
 
 
 def zprism(f, uv, z0, z1):
@@ -92,6 +119,9 @@ def slope_tube(f, ua, ub, ztop, depth, v0, v1, t, za=None, zb=None, plumb_head=F
     return outer.cut(inner)
 
 
+_bbo2 = lambda p, q: p.xmin < q.xmax and q.xmin < p.xmax and p.ymin < q.ymax and q.ymin < p.ymax and p.zmin < q.zmax and q.zmin < p.zmax
+
+
 def add(group, name, solid, colour=STEEL, mat="steel"):
     PARTS.append((group, name, solid, colour, mat))
 
@@ -99,6 +129,7 @@ def add(group, name, solid, colour=STEEL, mat="steel"):
 FAST = []                                          # bolt heads, nuts and anchors, shown so every joint reads as bolted (Maxwell 11/22/2026: no welding anywhere)
 HEADS = []                                         # round 11b: every head and nut drawn, so the whole bolts can be built from them (build_bolts)
 SHANKS = []                                        # (solid, threaded?) for the assembly
+BOLT_LINES = []                                    # (start, end, kind) of each whole fastener, head bearing face to tip (check_attached.py)
 
 
 def bolt(a, b, z, axis, sign=1, d=0.66, h=0.21, kind="socket", role=None):
@@ -174,11 +205,11 @@ def post_box(a0, a1, b0, b1, z0, t=None, gap=0.12):
 
 def upper_stringer(f, v0, v1):
     """mono stringer, round 5 head (both flights from round 6): head cut plumb at the beam's face, its top trimmed level at the frame top.
-    Upper foot: cut level on the saddle (Z_SEAT) with a short plumb face at U_FOOT against the landing's north beam. Lower foot: level on the slab."""
+    Upper foot: cut level on the saddle (Z_SEAT) with a short plumb face 1/8 in short of the landing's north beam (round 14). Lower foot: level on the slab."""
     zt, zbm = f.zl, lambda u: f.zl(u) - G.PL
     ub, ztr, utr, _ = G.head_cut(f)
     if f is G.UPPER:
-        uf, us_ = G.U_FOOT, G.U_FOOT + G.L_SEAT
+        uf, us_ = G.U_FOOT + G.FOOT_GAP, G.U_FOOT + G.L_SEAT              # round 14: plumb face 1/8 in short of the beam
         foot = [(uf, G.Z_SEAT), (us_, zbm(us_))]
     else:
         uf = f.u0
@@ -302,6 +333,8 @@ for f in G.FLIGHTS:
         if G.RT:                                                               # mono: an oak riser lip behind every tread leaves under 4 in open above it
             ur = uk + G.TD
             add(g, f"{f.name}_riser_{k}", prism(f, [(ur, zk - G.TT), (ur + G.RT, zk - G.TT), (ur + G.RT, zk + G.RH), (ur, zk + G.RH)], 0.05, G.WN - 0.05), OAK, "oak")
+            for v_ in G.RISER_SCREW_V:                                         # round 11b: three trim head screws (and glue) through the lip into the tread
+                fbolt(f, ur + G.RT, v_, zk - G.TT / 2, "u", 1, d=0.3, h=0.08, role=("trim head screw", 0.164, 2.5, 1.5))
     if G.MONO:                                                                 # head clips: the same part at both stringer tops (round 6)
         hc = G.head_clip(f)
         ub = hc["ub"]
@@ -346,6 +379,8 @@ for f in G.FLIGHTS:
     if G.RT and f is G.UPPER:                                                  # and one stands on the landing under the upper flight's first tread
         ur = G.TD - G.GO
         add(g, "landing_riser", prism(f, [(ur, f.z0 - G.TTD), (ur + G.RT, f.z0 - G.TTD), (ur + G.RT, f.z0 + G.RH), (ur, f.z0 + G.RH)], 0.05, G.WN - 0.05), OAK, "oak")
+        for v_ in G.RISER_SCREW_V:                                             # into the landing deck's edge
+            fbolt(f, ur + G.RT, v_, f.z0 - G.TTD / 2, "u", 1, d=0.3, h=0.08, role=("trim head screw", 0.164, 2.5, 1.5))
     if RISER_PANELS:
         for k in range(0 if f is G.UPPER else 1, f.nr):
             zk = f.z0 + k * G.RI
@@ -366,11 +401,11 @@ for f in G.FLIGHTS:
         u_a, u_b = G.FOOT_U - 1, G.FOOT_U + 1
         post = prism(f, [(u_a, 0), (u_b, 0), (u_b, und(u_b)), (u_a, und(u_a))], -G.POST, 0.0) if not G.CONT_RAIL else post_box(G.A_FOOT - 1, G.A_FOOT + 1, G.XL, G.XL + G.POST, 0.0)
         if G.MONO:                                                             # round 11: stands on its base plate
-            post = post.cut(box(G.A_FOOT - 2, G.A_FOOT + 2, G.XL - 1, G.XL + G.POST + 1, -1.0, G.BP_T))
+            post = post.cut(box(G.A_FOOT - 2, G.A_FOOT + 2, G.XL - 1, G.XL + G.POST + 1, -1.0, G.RB_T))   # round 12: on its one piece base
         post = post.cut(prism(f, [(u_a + T, -1), (u_b - T, -1), (u_b - T, 200), (u_a + T, 200)], -G.POST + T, -T))
         add("posts", "foot_post", post)
         if G.MONO:
-            post_base("foot_post")
+            rail_post_base("foot_post")
     else:
         if not G.CONT_RAIL:
             add("rails", "upper_rail_open", slope_tube(f, G.POST + G.XL - G.B0, G.BAL_S - G.B0, ztop, RD2, -1.75, -0.25, G.RAIL_T))
@@ -414,9 +449,12 @@ for nm, (a0_, a1_, b0_, b1_) in G.LAND_POSTS.items():
             nut(a1_, (b0_ + b1_) / 2, z_, "a")
 deck = box(0, XL, 0, G.LAND_DECK_N, ZP - TT, ZP)
 add("landing", "landing_deck", deck.fuse(box(XL, XL + G.NOSE, G.GAP, XL, ZP - TT, ZP)) if G.NOSE else deck, OAK, "oak")
-add("posts", "corner_newel", post_box(XL, XL + G.POST, XL, XL + G.POST, 0.0) if G.CONT_RAIL else tube(XL, XL + G.POST, XL, XL + G.POST, G.BP_T if G.MONO else 0.0, G.NEWEL_TOP, "z", G.POST_T))
-if G.MONO:                                         # round 10: the standard clip angle base
-    post_base("corner_newel")
+if G.MONO:                                         # round 11b: 1/4-20 button heads up through the frame's top wall into brass inserts in the oak
+    for a_, b_ in G.DECK_SCREWS["landing"]:
+        bolt(a_, b_, ZP - TT - FTL, "z", -1, d=0.5, h=0.15, role=("button head screw into an insert", 0.25, 1.0, 1.0))
+add("posts", "corner_newel", post_box(XL, XL + G.POST, XL, XL + G.POST, 0.0) if G.CONT_RAIL else tube(XL, XL + G.POST, XL, XL + G.POST, G.RB_T if G.MONO else 0.0, G.NEWEL_TOP, "z", G.POST_T))
+if G.MONO:                                         # round 12: the one piece rail post base
+    rail_post_base("corner_newel")
 for z_ in (ZP - TK + 0.8, ZP - TT - 0.8):          # corner newel lapped onto the landing's west beam
     bolt(XL + G.POST, XL + 1, z_, "a")
     nut(XL - 2, XL + 1, z_, "a", -1)
@@ -438,7 +476,11 @@ if G.MONO:
     deck = box(0, G.BAL_W, G.BAL_S, BN_, FL - TT, FL)
     for a0_, b0_ in ((XL, G.BAL_S), (XL, BN_ - G.POST), (0.0, BN_ - G.POST)):     # notched round the three corner posts
         deck = deck.cut(box(a0_ - 0.02, a0_ + G.POST + 0.02, b0_ - 0.02, b0_ + G.POST + 0.02, FL - TT - 1, FL + 1))
+    for a_, b_ in [(x_, G.BAL_S + 1 if sg_ < 0 else BN_ - 1) for sg_ in (-1, 1) for x_ in G.corner_plate(sg_)[3]]:   # round 11b: counterbores for the corner plate bolts' nuts
+        deck = deck.cut(cq.Solid.makeCylinder(0.45, 0.5, W(a_, b_, FL - TT - 0.01), cq.Vector(0, 0, 1)))
     add("balcony", "balcony_deck", deck, OAK, "oak")
+    for a_, b_ in G.DECK_SCREWS["balcony"]:
+        bolt(a_, b_, FL - TT - FTB, "z", -1, d=0.5, h=0.15, role=("button head screw into an insert", 0.25, 1.0, 1.0))
     for nm, sg in (("sw", -1), ("nw", 1)):
         out_, (fa0, fa1, fw), pbolts, fbolts = G.corner_plate(sg)
         b0_, b1_ = (G.BAL_S + 2, G.BAL_S + 2 + G.CP_T) if sg < 0 else (BN_ - 2 - G.CP_T, BN_ - 2)
@@ -446,7 +488,7 @@ if G.MONO:
         pl = aprism(out_, b0_, b1_).fuse(box(fa0, fa1, bf0, bf1, FL - TK - G.CP_T, FL - TK))
         add("posts", f"corner_plate_{nm}", pl)
         bm_ = G.BAL_S + 1 if sg < 0 else BN_ - 1                                # beam centreline
-        for a_ in fbolts:                                                     # up through the flange and the beam, nut under the oak
+        for a_ in fbolts:                                                     # up through the flange and the beam, nut in a counterbore under the oak
             bolt(a_, bm_, FL - TK - G.CP_T, "z", -1); nut(a_, bm_, FL - TT, "z", 1, d=0.5)
         po_, pi_ = (G.BAL_S, b1_) if sg < 0 else (BN_ + BT, b0_)                 # post's outer face (north west: on the brace gusset), plate's open face
         for a_, z_ in pbolts:
@@ -548,6 +590,155 @@ else:
     for i in range(1, n_n):
         a = G.POST + i * (XL - 2 * G.POST) / n_n
         add("guard", f"picket_north_{i}", cq.Solid.makeCylinder(G.PICKET / 2, pz[1] - pz[0], W(a, G.GP_B, pz[0])))
+if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "hidden":   # round 13 option A: a tongue plate inside the rail and the post at every joint
+    from shapely.geometry import MultiPoint as _MP, Point as _Pt
+    from shapely.ops import unary_union as _uu
+    _bbo = lambda p, q: p.xmin < q.xmax and q.xmin < p.xmax and p.ymin < q.ymax and q.ymin < p.ymax and p.zmin < q.zmax and q.zmin < p.zmax
+    for nm, ax, pc, RB, PB, K in G.hidden_joints():
+        i_ = 0 if ax == "a" else 1
+        k_ = [j for j in range(3) if j != i_]                                # in plane coordinates: (the other plan axis, z)
+        q2 = lambda q, r: _Pt(q[k_[0]], q[2]).buffer(r, 24)
+        hull = _uu([_uu([q2(q, G.TG_R) for q in RB + [K]]).convex_hull, _uu([q2(q, G.TG_RP) for q in PB] + [q2(K, G.TG_RP)]).convex_hull])
+        loop = [W(*((pc - G.TG_T / 2, x, z) if ax == "a" else (x, pc - G.TG_T / 2, z))) for x, z in list(hull.exterior.coords)[:-1]]
+        dv = cq.Vector(-G.TG_T, 0, 0) if ax == "a" else cq.Vector(0, G.TG_T, 0)
+        tg = cq.Solid.extrudeLinear(cq.Face.makeFromWires(cq.Wire.makePolygon(loop, close=True)), dv)
+        for j, (g_, n_, s_, *r_) in enumerate(PARTS):                         # slot the rail and the post where the tongue passes their walls
+            if g_ in ("rails", "posts", "guard") and not n_.startswith("picket") and _bbo(s_.BoundingBox(), tg.BoundingBox()):
+                c_ = s_.cut(tg)
+                if abs(c_.Volume() - s_.Volume()) > 1e-6:
+                    PARTS[j] = (g_, n_, c_, *r_)
+        add("rails", f"rail_tongue_{nm}", tg)
+        for P, half in [(q, G.RAIL / 2) for q in RB] + [(q, G.POST / 2) for q in PB]:
+            hd, nt = list(P), list(P)
+            hd[i_], nt[i_] = pc + half, pc - half
+            bolt(*hd, ax, 1, d=0.5, h=0.15); nut(*nt, ax, -1, d=0.5)
+if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "straps":   # round 11b: a strap at every rail end or post crossing (one rail bolt + spacer, two post bolts)
+    for nm, R, P1, P2, t, side, plane, pat in G.rail_straps():
+        ax, i_ = side[0], (0 if side[0] == "a" else 1)
+        pts = G.strap_outline(R, P2, t, side, plane)
+        dv = cq.Vector(-G.ST_T, 0, 0) if ax == "a" else cq.Vector(0, G.ST_T, 0)
+        add("rails", f"rail_strap_{nm}", cq.Solid.extrudeLinear(cq.Face.makeFromWires(cq.Wire.makePolygon([W(*p) for p in pts], close=True)), dv))
+        rc = R[i_]                                                             # rail centre on the side axis
+        sp_ = list(R); sp_[i_] = rc + G.RAIL / 2
+        add("rails", f"rail_spacer_{nm}", cq.Solid.makeCylinder(0.25, G.SP_T, W(*sp_), cq.Vector(-1, 0, 0) if ax == "a" else cq.Vector(0, 1, 0)))
+        for P, far in ((R, rc - G.RAIL / 2), (P1, P1[i_] - (plane - P1[i_])), (P2, P2[i_] - (plane - P2[i_]))):
+            hd, nt = list(P), list(P)
+            hd[i_], nt[i_] = plane + G.ST_T, (plane - G.POST) if P is not R else far
+            bolt(*hd, ax, 1, d=0.5, h=0.15); nut(*nt, ax, -1, d=0.5)
+if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe":     # round 13 option B: round pipe posts and rails, slip on kit fittings
+    RP_, RR_ = G.PIPE_POST[0] / 2, G.PIPE_RAIL[0] / 2
+    def _cyl(p0, p1, r):
+        v = cq.Vector(*W(*p1).toTuple()) - W(*p0)
+        return cq.Solid.makeCylinder(r, v.Length, W(*p0), v.normalized())
+    def _pipe(p0, p1, od, wall):
+        return _cyl(p0, p1, od / 2).cut(_cyl(p0, p1, od / 2 - wall))
+    names = {n_: j for j, (g_, n_, *_r) in enumerate(PARTS)}
+    RAILC = {}                                                                 # rail centreline ends
+    sr = {r[0]: r for r in G.straight_rails()}
+    for rn in ("lower_rail_open", "upper_rail_open", "guard_west_top_rail", "guard_north_top_rail", "guard_west_bottom_rail", "guard_north_bottom_rail"):
+        g_, n_, s_, *r_ = PARTS[names[rn]]
+        bb = s_.BoundingBox()
+        a0_, a1_, b0_, b1_ = -bb.xmax, -bb.xmin, bb.ymin, bb.ymax
+        if rn in sr:
+            _, ra0, ra1, rb0, rb1, z0_, z1_, ax_ = sr[rn]
+            L_ = (ra1 - ra0) if ax_ == "a" else (rb1 - rb0)
+            dep = G.RAIL * math.sqrt(1 + ((z1_ - z0_) / L_) ** 2)
+            if ax_ == "a":
+                e0, e1 = (ra0, (rb0 + rb1) / 2, z0_ - dep / 2), (ra1, (rb0 + rb1) / 2, z1_ - dep / 2)
+            else:
+                e0, e1 = ((ra0 + ra1) / 2, rb0, z0_ - dep / 2), ((ra0 + ra1) / 2, rb1, z1_ - dep / 2)
+        else:                                                                  # level bottom rails: from the bounding box
+            zc = (bb.zmin + bb.zmax) / 2
+            if "north" in rn:
+                e0, e1 = (a0_, (b0_ + b1_) / 2, zc), (a1_, (b0_ + b1_) / 2, zc)
+            else:
+                e0, e1 = ((a0_ + a1_) / 2, b0_, zc), ((a0_ + a1_) / 2, b1_, zc)
+        RAILC[rn] = (e0, e1)
+        RAILC[rn] = (e0, e1)
+    OVER_ = dict(foot_post="lower_rail_open", guard_post_nw="guard_west_top_rail", guard_post_ne="guard_north_top_rail")
+    POSTC = {}                                                                 # post centre (a, b) and z range
+    for pn in G.RAIL_POSTS:
+        g_, n_, s_, *r_ = PARTS[names[pn]]
+        bb = s_.BoundingBox()
+        ac, bc = -(bb.xmin + bb.xmax) / 2, (bb.ymin + bb.ymax) / 2
+        z1 = bb.zmax
+        if pn in OVER_:                                                        # the rail runs over this post: its top stops under the rail
+            e0, e1 = RAILC[OVER_[pn]]
+            f_ = ((ac - e0[0]) / (e1[0] - e0[0])) if abs(e1[0] - e0[0]) > 1e-6 else ((bc - e0[1]) / (e1[1] - e0[1]))
+            z1 = e0[2] + f_ * (e1[2] - e0[2]) - RR_ / math.sqrt(1 - ((e1[2] - e0[2]) / math.dist(e0, e1)) ** 2)
+        POSTC[pn] = (ac, bc, bb.zmin, z1)
+        PARTS[names[pn]] = (g_, n_, _pipe((ac, bc, bb.zmin), (ac, bc, z1), *G.PIPE_POST), *r_)
+    SOLIDP = [_cyl((a, b, z0), (a, b, z1), RP_) for a, b, z0, z1 in POSTC.values()]
+    for rn, (e0, e1) in RAILC.items():                                         # rails stop at the round posts
+        g_, n_, s_, *r_ = PARTS[names[rn]]
+        rp_ = _pipe(e0, e1, *G.PIPE_RAIL)
+        for x in SOLIDP:
+            if _bbo2(x.BoundingBox(), rp_.BoundingBox()):
+                rp_ = rp_.cut(x)
+        PARTS[names[rn]] = (g_, n_, rp_, *r_)
+    SOLIDR = [_cyl(e0, e1, RR_) for e0, e1 in RAILC.values()]
+    def _near_post(p):
+        return min(POSTC.items(), key=lambda kv: math.hypot(kv[1][0] - p[0], kv[1][1] - p[1]))
+    def _rail_at(p):
+        best = None
+        for rn, (e0, e1) in RAILC.items():
+            d = [q - p_ for q, p_ in zip(e1, e0)]; L = math.sqrt(sum(x * x for x in d)); u = [x / L for x in d]
+            s_ = max(0.0, min(L, sum((p[i] - e0[i]) * u[i] for i in range(3))))
+            c = [e0[i] + s_ * u[i] for i in range(3)]
+            dist = math.dist(c, p)
+            if best is None or dist < best[0]:
+                best = (dist, rn, c, u, s_, L)
+        return best
+    FIT = {}                                                                   # post name -> list of fitting solids (joined per post)
+    for nm, R, P1, P2, t, side, plane, pat in G.rail_straps():
+        pn, (pa, pb, pz0, pz1) = _near_post(P1)
+        dist, rn, c, u, s_, L = _rail_at(R)
+        over = pat == "foot" or nm in ("guard_top_west_nw", "guard_top_north_ne")
+        shapes = []
+        if over:                                                               # rail over the post top: a socket on the post top and a sleeve round the rail
+            zt = pz1
+            shapes.append(_cyl((pa, pb, zt - G.PS_H), (pa, pb, zt), G.PS_D / 2))
+            cc = _rail_at((pa, pb, zt + RR_))[2]
+            shapes.append(_cyl([cc[i] - u[i] * G.RS_L / 2 for i in range(3)], [cc[i] + u[i] * G.RS_L / 2 for i in range(3)], G.RS_D / 2))
+            ss = [("post", (pa, pb, zt - G.PS_H / 2)), ("rail", cc)]
+        else:                                                                  # rail end on the post's side: a collar round the post and a socket on the rail end
+            end = RAILC[rn][0] if s_ < L / 2 else RAILC[rn][1]
+            ui = [-x for x in u] if s_ < L / 2 else u                          # from the rail end toward the post
+            ce = [end[i] - ui[i] * 0.0 for i in range(3)]
+            shapes.append(_cyl([ce[i] - ui[i] * G.RS_L for i in range(3)], [ce[i] + ui[i] * 0.6 for i in range(3)], G.RS_D / 2))
+            ss = [("rail", [ce[i] - ui[i] * G.RS_L / 2 for i in range(3)])]
+            if nm != "guard_top_north_nw":                                     # (the north top rail ends on the west rail's sleeve over the corner post)
+                shapes.insert(0, _cyl((pa, pb, ce[2] - G.PC_H / 2), (pa, pb, ce[2] + G.PC_H / 2), G.PS_D / 2))
+                ss.insert(0, ("post", (pa, pb, ce[2])))
+        sol = shapes[0]
+        for x in shapes[1:]:
+            sol = sol.fuse(x)
+        FIT.setdefault(pn, []).append((nm, sol, ss, u))
+    for pn, fl in FIT.items():
+        sol = fl[0][1]
+        for _, x, _, _ in fl[1:]:
+            sol = sol.fuse(x)
+        for x in SOLIDP + SOLIDR:
+            if _bbo2(x.BoundingBox(), sol.BoundingBox()):
+                sol = sol.cut(x)
+        add("rails", f"rail_fitting_{pn}", sol.clean())
+        pa, pb = POSTC[pn][:2]
+        done = set()
+        for nm, _, ss, u in fl:
+            for what, p in ss:
+                key = (what, round(p[2], 1)) if what == "post" else (what, nm)
+                if key in done:
+                    continue
+                done.add(key)
+                if what == "post":                                             # two set screws through the collar into the post, on the side away from the rails
+                    for sg in (1, -1):
+                        bolt(pa, pb + sg * G.PS_D / 2, p[2], "b", sg, d=0.35, h=0.06, role=("set screw", 0.375, 0.5, 0.5))
+                else:                                                          # two set screws in through the rail socket's side into the rail
+                    sax = "b" if abs(u[0]) > abs(u[1]) else "a"
+                    for k in (-0.5, 0.5):
+                        q = [p[i] + k * u[i] for i in range(3)]
+                        q[0 if sax == "a" else 1] += G.RS_D / 2
+                        bolt(*q, sax, 1, d=0.35, h=0.06, role=("set screw", 0.375, 0.5, 0.5))
 # context: slab and the two walls (reference only)
 CTX = [("slab", box(-5, 60, -5, 100, -1, 0)), ("bath_1_wall", box(-4.5, 0, -4.5, 100, 0, FL)), ("clerestory_wall", box(0, 60, -4.5, 0, 0, 170))]
 
@@ -615,15 +806,18 @@ def build_bolts():
         r, D, L, thr = e.pop("r"), e["dia"], e["length"], e["thread"]
         if e.pop("tip_up", False):                    # flat head screw: tip up through the nut, head flush with the plate's underside
             base = cq.Vector(r["o"].x, r["o"].y, 0.0)
+            BOLT_LINES.append((base, base + cq.Vector(0, 0, L), e["kind"]))
             SHANKS.append((cq.Solid.makeCylinder(D / 2 * 0.92, L, base, cq.Vector(0, 0, 1)), True))
             continue
         if e["kind"] == "wedge anchor":               # the stud sticks up through the nut; the rest is in the slab
             top = r["o"] + r["dv"] * (NUT_H[D] + 2 * PITCH[D])
+            BOLT_LINES.append((top, top + cq.Vector(0, 0, -L), e["kind"]))
             SHANKS.append((cq.Solid.makeCylinder(D / 2 * 0.92, thr, top, cq.Vector(0, 0, -1)), True))
             SHANKS.append((cq.Solid.makeCylinder(D / 2, L - thr, top + cq.Vector(0, 0, -thr), cq.Vector(0, 0, -1)), False))
             continue
         ax = r["dv"] * -1                             # from the head bearing face into the joint
         plain = L - thr
+        BOLT_LINES.append((r["o"], r["o"] + ax * L, e["kind"]))
         if plain > 1e-3:
             SHANKS.append((cq.Solid.makeCylinder(D / 2, plain, r["o"], ax), False))
         SHANKS.append((cq.Solid.makeCylinder(D / 2 * 0.92, thr, r["o"] + ax * plain, ax), True))
@@ -699,3 +893,19 @@ for i in range(len(st)):
         if v > 0.02 and 'riser_panel' not in st[i][0] + st[j][0]:      # panel ears pass through slots in the bracket webs
             bad.append((st[i][0], st[j][0], round(v, 2)))
 print("interferences:", bad if bad else "none")
+# round 11b: a bolt head, nut or shank buried in a part it should only touch or pass through a drilled hole of
+bur = []
+for nm_, so_ in [(n, s_) for g_, n, s_, c, m_ in PARTS]:
+    bo_ = so_.BoundingBox()
+    for f_ in FAST:
+        bf_ = f_.BoundingBox()
+        if bo_.xmax < bf_.xmin or bf_.xmax < bo_.xmin or bo_.ymax < bf_.ymin or bf_.ymax < bo_.ymin or bo_.zmax < bf_.zmin or bf_.zmax < bo_.zmin:
+            continue
+        try:
+            v_ = so_.intersect(f_).Volume()
+        except Exception:
+            v_ = 0
+        if v_ > 0.005:
+            c_ = f_.Center()
+            bur.append((nm_, (round(-c_.x, 2), round(c_.y, 2), round(c_.z, 2)), round(v_, 3)))
+print("heads or nuts buried in a part:", bur if bur else "none")

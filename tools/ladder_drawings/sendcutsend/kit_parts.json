@@ -11,7 +11,7 @@
    "notes": "every tread (4 lower + 7 upper); west side of the upper flight, north side of the lower flight. 2 x 7/16 bolt holes into the stringer, 3 x 11/32 holes in the seat for 5/16 x 1 1/2 lags up into the tread.",
    "size": [
     6.23,
-    9.13
+    8.13
    ]
   },
   {
@@ -24,7 +24,7 @@
    "notes": "mirror image of the open side part. every tread (4 lower + 7 upper).",
    "size": [
     6.23,
-    9.13
+    8.13
    ]
   },
   {
@@ -80,13 +80,13 @@
    ]
   },
   {
-   "file": "post_base_plate_qty3.dxf",
-   "name": "Post base plate (foot post, corner newel, upper stringer post)",
-   "qty": 3,
+   "file": "post_base_plate_qty1.dxf",
+   "name": "Post base plate (upper stringer post)",
+   "qty": 1,
    "thick": 0.5,
    "material": "Mild steel A36 (hot rolled P&O)",
    "bends": "none",
-   "notes": "7 x 7 in, corners R 0.75. Four 1/2 in holes at the corners for 3/8 wedge anchors. COUNTERSINK the two 13/32 in holes (2.45 in each side of centre) from the BOTTOM face (82 deg, 3/8 flat head): the screws go up through the plate into the two clip angles (cut from stock L 2 x 2 x 3/8, 3 in long), nuts on top; put them in before the plate is anchored. The same plate fits the 2 x 2 and the 3 x 3 posts: only the hole in the clip's flat leg moves (1.45 in from the heel for 2 x 2, 0.95 in for 3 x 3).",
+   "notes": "7 x 7 in, corners R 0.75. Four 1/2 in holes at the corners for 3/8 wedge anchors. COUNTERSINK the two 13/32 in holes (2.45 in each side of centre) from the BOTTOM face (82 deg, 3/8 flat head): the screws go up through the plate into the two clip angles (cut from stock L 3 x 2 x 3/8, long leg up, 3 in long, hole 0.95 in from the heel; two 3/8 through bolts cross the 3 x 3 post and both clips), nuts on top; put them in before the plate is anchored. Round 12: the two rail posts have their own one piece base.",
    "size": [
     7.0,
     7.0
@@ -168,32 +168,6 @@
    "size": [
     7.71,
     7.18
-   ]
-  },
-  {
-   "file": "rail_clip_1-25in_qty10.dxf",
-   "name": "Rail end clip 1 1/4 in wide, 1 1/2 legs",
-   "qty": 10,
-   "thick": 0.25,
-   "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "1 bend, 90 deg",
-   "notes": "PLACEHOLDER for an engineer: straight rail ends into post faces, the north guard rail into the west one, the north guard rail at the bath 1 wall, and the four guard bottom rail ends. 9/32 in holes for 1/4-20.",
-   "size": [
-    1.25,
-    2.61
-   ]
-  },
-  {
-   "file": "rail_post_strap_qty3.dxf",
-   "name": "Rail to post strap 1 1/4 x 4 1/2",
-   "qty": 3,
-   "thick": 0.25,
-   "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "none",
-   "notes": "PLACEHOLDER for an engineer: flat strap on the side where a rail runs over a post top (lower rail on the foot post, guard top rails on the north west and north east posts); 1/4 in spacer behind it on the rail, which sits 1/4 in in from the post face.",
-   "size": [
-    1.25,
-    4.5
    ]
   }
  ]
