@@ -767,7 +767,8 @@ def stair_guards():
 # a groove CAP_G deep under it that sits on the 1 1/4 pipe; mitred at the north west corner, 1/8 in off the bath 1 wall, and running on
 # over the south west newel's top. #10 screws up through the pipe's top wall into the oak, put in through a 1/2 in access hole in the
 # pipe's underside, between the pickets. The cap's top is CAP_T - CAP_G above the pipe's top, so the guard grows to about 37 in.
-CAP_W, CAP_T, CAP_G = 2.5, 1.25, 0.4
+OAK_TOP = os.environ.get("LADDER_RAIL_STYLE", L.get("ladder_rail_style", "straps")) == "pipe" and L.get("ladder_guard_top", "cap") == "oak"   # round 16b (Maxwell 11/27/2026): no top pipe, the pickets go into the oak
+CAP_W, CAP_T, CAP_G = (3.5, 2.0, 0.0) if OAK_TOP else (2.5, 1.25, 0.4)
 
 
 def rail_caps():

@@ -18,6 +18,7 @@ BAL_K = float(os.environ.get("LADDER_BAL_K", "0"))              # >0: balcony le
 os.makedirs(OUT, exist_ok=True)
 FY_STEEL, FB_OAK = 46000.0, 1150.0            # A500 Gr B yield; white oak allowable bending (No. 1 class, before adjustment factors)
 ALLOW = 0.6 * FY_STEEL
+FY_PIPE = 35000.0                                 # A53 Grade B pipe (round 16: the pipe railing was checked against A500's 46 ksi before)
 m = FEModel3D()
 m.add_material("steel", 29e6, 11.2e6, 0.3, 0.2836)
 m.add_material("oak", 1.6e6, 0.1e6, 0.35, 0.027)
@@ -75,6 +76,9 @@ ISEC = dict(W4x13=(3.83, 3.86, 11.3, 0.151, 1.90, 5.46), S4x7_7=(2.26, 0.764, 6.
             W6x15=(4.43, 9.32, 29.1, 0.101, 3.11, 9.72))      # I-beam study (Maxwell 11/24/2026): A, Iy weak, Iz strong, J, Sy, Sz (AISC)
 if os.environ.get("LADDER_STR_SEC"):
     SEC["STR"] = ("steel",) + ISEC[os.environ["LADDER_STR_SEC"]]
+if G.OAK_TOP:                                       # white oak top rail, CAP_W wide x CAP_T deep
+    _w, _t = G.CAP_W, G.CAP_T
+    SEC["OAKRAIL"] = ("oak", _w * _t, _w * _t ** 3 / 12, _t * _w ** 3 / 12, 0.2 * _w * _t ** 3, _w * _t ** 2 / 6, _t * _w ** 2 / 6)
 for k_, s_ in SEC.items():
     m.add_section(k_, *s_[1:5])
 
@@ -416,8 +420,12 @@ else:
     mid_gw = (PC, (bsw + corner[1]) / 2, zg)
     mid_gn = ((corner[0] + 1) / 2, (corner[1] + G.GP_B) / 2, zg) if G.MONO else (12.6, G.GP_B, zg)
     N(*mid_gw); N(*mid_gn)
-    M("grail_w", gs[3], corner, "RAIL", "i")
-    M("grail_n", corner, ne[2], "RAIL", "j")
+    if G.OAK_TOP:                                       # round 16 (Maxwell 11/27/2026): oak top rail, pickets straight into it, flanges on the post tops; both rails screwed to the north west post's flange, taken as fixed there and pinned at the other posts
+        M("grail_w", gs[3], corner, "OAKRAIL", "i")
+        M("grail_n", corner, ne[2], "OAKRAIL", "j")
+    else:
+        M("grail_w", gs[3], corner, "RAIL", "i")
+        M("grail_n", corner, ne[2], "RAIL", "j")
 
 
 # ------------------------------------------------------------------ cut stations for the solid joint models (joint_solid_fea.py)
@@ -520,9 +528,10 @@ for c, info in CASES.items():
         if not g:
             continue
         s = stress(n, "D+" + c)
-        allow = FB_OAK if SEC[MEM[n][0]][0] == "oak" else ALLOW
+        pipe_ = G.RAIL_STYLE == "pipe" and MEM[n][0] in ("PPOST", "RAIL")    # A53 Gr B pipe: Fy 35 ksi, not the A500 tube's 46
+        allow = FB_OAK if SEC[MEM[n][0]][0] == "oak" else (0.6 * FY_PIPE if pipe_ else ALLOW)
         live = max(s["sig"] - dead[n], 1e-9)
-        s.update(member=n, util=s["sig"] / allow, factor=(allow - dead[n]) / live, yield_factor=((FY_STEEL if allow == ALLOW else 2.1 * FB_OAK * 2.5) - dead[n]) / live)
+        s.update(member=n, util=s["sig"] / allow, factor=(allow - dead[n]) / live, yield_factor=((FY_STEEL if allow == ALLOW else FY_PIPE if pipe_ else 2.1 * FB_OAK * 2.5) - dead[n]) / live)
         if g not in worst or s["util"] > worst[g]["util"]:
             worst[g] = s
         if g not in res["groups"] or s["util"] > res["groups"][g]["util"]:
