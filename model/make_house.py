@@ -1347,9 +1347,11 @@ ROOFINFO = [["Panels", f"{ftin(TH)} roof SIP (A-13)"], ["Roofing", f"Standing se
             ["Overhang", ftin(OH)]]
 rec("roof.north", "roof", "High roof (north)", "roof", info=dict(model=f"{R['north_pitch']}:12 shed roof", specs=[["Pitch", f"{R['north_pitch']}:12 (revised 9/15/2026, was 3.88 on A-30)"]] + ROOFINFO))
 roof_slab(-OH, YC2 + OH, north_roof_z)
+quad("OSB", [(T, T, north_roof_z(T) - 0.004), (HW - T, T, north_roof_z(T) - 0.004), (HW - T, YC, north_roof_z(YC) - 0.004), (T, YC, north_roof_z(YC) - 0.004)])   # the SIP's inner OSB skin, seen with the Drywall layer off
 seam_ribs(-OH, HW + OH, -OH, YC2 + OH, lambda y: north_roof_z(y) + TH)
 rec("roof.south", "roof", "Low roof (south)", "roof", info=dict(model=f"{R['south_pitch']:g}:12 shed roof", specs=[["Pitch", f"{R['south_pitch']:g}:12 (A-13)"]] + ROOFINFO))
 roof_slab(YC2, HD + OH, south_roof_z)
+quad("OSB", [(T, YC2, south_roof_z(YC2) - 0.004), (HW - T, YC2, south_roof_z(YC2) - 0.004), (HW - T, HD - T, south_roof_z(HD - T) - 0.004), (T, HD - T, south_roof_z(HD - T) - 0.004)])
 seam_ribs(-OH, HW + OH, YC2, HD + OH, lambda y: south_roof_z(y) + TH)
 
 rec("ceiling.vault", "ceiling", "Vaulted ceilings", "ceiling", info=dict(model="Drywall on the underside of the roof panels", specs=[["Rooms", "Everything outside the 9' flat ceiling rooms"]]))
@@ -3347,7 +3349,7 @@ if PO["enabled"]:
     ry1 = (GA["rect"][3] + 1.0) if GA["enabled"] else py1 + 1
     hexa("Trim", [(px0, py0 - 0.5, ptop(py0 - 0.5)), (rx1, py0 - 0.5, ptop(py0 - 0.5)), (rx1, ry1, ptop(ry1)), (px0, ry1, ptop(ry1)),
                   (px0, py0 - 0.5, ptop(py0 - 0.5) + PT), (rx1, py0 - 0.5, ptop(py0 - 0.5) + PT), (rx1, ry1, ptop(ry1) + PT), (px0, ry1, ptop(ry1) + PT)],
-         ["Drywall", "Standing Seam", "Trim", "Trim", "Trim", "Trim"])     # closed (the audit counts on closed solids); its end face sits against the garage roof edge
+         ["Roof Liner", "Standing Seam", "Trim", "Trim", "Trim", "Trim"])     # underside: the same liner as the garage roof it runs into, not drywall (it is outdoors). Closed (the audit counts on closed solids); its end face sits against the garage roof edge
     seam_ribs(px0, rx1, py0 - 0.5, ry1, lambda y: ptop(y) + PT)
 
 GH = C["greenhouse"]
