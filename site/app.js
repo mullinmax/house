@@ -893,14 +893,15 @@ const LAYERS = LAYERS_ALL();
 const layerOn = (k) => $('l' + k).checked;
 let sliced = false;
 function applyToggles() {
-  for (const o of roofNodes) show(o, layerOn('Roof') && !sliced);     // a slice lifts the roof off too, or it would cover the cut
+  const roofOn = layerOn('Roof') && !sliced;
+  for (const o of roofNodes) show(o, roofOn);     // a slice lifts the roof off too, or it would cover the cut
   for (const o of utilNodes) show(o, layerOn('Util'));
   if (layerOn('Trees')) loadLazy(/^trees/i);
   if (layerOn('Furniture') || layerOn('Finish')) loadLazy(/^furniture/i);
   for (const o of furnitureMeshes) show(o, layerOn('Furniture'));
   for (const [k, list] of Object.entries(togMeshes)) {
     const id = { drywall: 'Drywall', extwalls: 'Extwalls', openings: 'Openings', finish: 'Finish', framing: 'Framing', electrical: 'Electrical', appliances: 'Appliances' }[k];
-    if (id) for (const o of list) show(o, layerOn(id));
+    if (id) for (const o of list) show(o, layerOn(id) && (roofOn || !underRoof(o)));    // ceilings are drywall under the roof: both must be on
   }
   // One Trees layer for everything that grows (Maxwell, 11/17/2026: no separate Distant trees). Low quality (or ?lite) leaves the far woods out, for slow devices
   for (const o of treeMeshes) show(o, layerOn('Trees') && !(isLow() && o.userData.fullCount >= 80));
@@ -924,6 +925,11 @@ function applyToggles() {
 }
 for (const k of LAYERS) $('l' + k).onchange = applyToggles;
 // Walls is the parent of Framing, Drywall and SIP panels: it turns all three on or off, and shows a dash when they differ.
+const roofCache = new WeakMap();
+function underRoof(o) {
+  if (!roofCache.has(o)) { const rs = new Set(roofNodes); let u = false; for (let p = o; p; p = p.parent) if (rs.has(p)) { u = true; break; } roofCache.set(o, u); }
+  return roofCache.get(o);
+}
 const WALL_PARTS = ['Framing', 'Drywall', 'Extwalls'];
 function syncWalls() {
   const on = WALL_PARTS.filter((k) => layerOn(k)).length;
