@@ -233,6 +233,12 @@ function bucketMesh(bk, name) {
 // ---------------------------------------------------------------- view layers
 // Which Layers checkbox a record answers to, so the finishes can come off and leave the framing (Maxwell, 11/20/2026).
 // '' = always shown (slab, floors, loft ladder and railing).
+// Drywall is its own layer wherever it hangs: the room side of the SIP and clerestory walls, the ceilings and the range
+// hood's drywall box all go off with the Drywall layer, whatever record they belong to (Maxwell, 11/27/2026: the
+// clerestory wall's drywall stayed up around the barn doors). tools/layer_check.mjs fails a PR if any slips out.
+export const DRYWALL_MATS = new Set(['Drywall', 'Hood Plaster']);
+export const partToggle = (m, tog) => (DRYWALL_MATS.has(m) ? 'drywall' : tog);
+
 export function toggleOf(r) {
   if (r.tog) return r.tog;
   if (r.layer === 'framing') return 'framing';
@@ -257,9 +263,9 @@ export function buildHouse(data, { skip = new Set() } = {}) {
   const buckets = new Map();
   let ri = -1;
   const getter = (group, tog) => (m) => {
-    const key = `${group}|${tog}|${m}`;
+    const t = partToggle(m, tog), key = `${group}|${t}|${m}`;
     let bk = buckets.get(key);
-    if (!bk) { bk = new Bucket(mats[m] || mats.Drywall); bk.group = group; bk.tog = tog; buckets.set(key, bk); }
+    if (!bk) { bk = new Bucket(mats[m] || mats.Drywall); bk.group = group; bk.tog = t; buckets.set(key, bk); }
     bk.mark(ri);
     return bk;
   };
@@ -301,7 +307,7 @@ export function buildHouse(data, { skip = new Set() } = {}) {
       const m = bucketMesh(bk, `${r.name} ${bk.mat.name}`);
       m.geometry.translate(-piv.position.x, -piv.position.y, -piv.position.z);
       m.userData.equipId = r.id; m.userData.layer = r.layer;
-      const tg = toggleOf(r); if (tg) m.userData.tog = tg;
+      const tg = partToggle(bk.mat.name, toggleOf(r)); if (tg) m.userData.tog = tg;
       piv.add(m);
     }
     root.add(piv);
