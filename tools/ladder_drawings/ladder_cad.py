@@ -714,6 +714,25 @@ if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe":     # round 13 option 
         for x in shapes[1:]:
             sol = sol.fuse(x)
         FIT.setdefault(pn, []).append((nm, sol, ss, u))
+    # round 16: stair guards on the open sides, a bottom rail parallel to the nosing line and plumb pickets up to the handrail
+    for gnm, (g0, g1), pks in G.stair_guards():
+        post0, post1 = ("corner_newel", "foot_post") if "lower" in gnm else ("corner_newel", "balcony_sw_newel")
+        br = _pipe(g0, g1, *G.PIPE_RAIL)
+        for x in SOLIDP:
+            if _bbo2(x.BoundingBox(), br.BoundingBox()):
+                br = br.cut(x)
+        add("rails", f"{gnm}_bottom_rail", br)
+        SOLIDR.append(_cyl(g0, g1, RR_))
+        d_ = [q - p for q, p in zip(g1, g0)]; L_ = math.sqrt(sum(x * x for x in d_)); u_ = [x / L_ for x in d_]
+        hz_ = math.hypot(u_[0], u_[1])
+        for pn, pc_, ui in ((post0, g0, u_), (post1, g1, [-x for x in u_])):   # ui: from the post into the span
+            t_ = RP_ / hz_
+            ce = [pc_[i] + ui[i] * t_ for i in range(3)]
+            sol = _cyl([ce[i] - ui[i] * 0.6 for i in range(3)], [ce[i] + ui[i] * G.RS_L for i in range(3)], G.RS_D / 2)
+            sol = sol.fuse(_cyl((pc_[0], pc_[1], ce[2] - G.PC_H / 2), (pc_[0], pc_[1], ce[2] + G.PC_H / 2), G.PS_D / 2))
+            FIT.setdefault(pn, []).append((f"{gnm}_{pn}", sol, [("post", (pc_[0], pc_[1], ce[2])), ("rail", [ce[i] + ui[i] * G.RS_L / 2 for i in range(3)])], u_))
+        for i, (pa_, pb_, z0_, z1_) in enumerate(pks):
+            add("guard", f"picket_{gnm}_{i + 1}", cq.Solid.makeCylinder(G.PICKET / 2, z1_ - z0_, W(pa_, pb_, z0_)))
     for pn, fl in FIT.items():
         sol = fl[0][1]
         for _, x, _, _ in fl[1:]:

@@ -731,6 +731,38 @@ def straight_rails():
             ("guard_north_top_rail", 0.0, ra[0], *rb, G_TOP, G_TOP, "a")]
 
 
+# round 16 (Maxwell 11/27/2026, IRC R312.1.1 to R312.1.3): the ladder's open sides get a guard. Its top is the open side handrail
+# (ladder_handrail_in 34: a stair guard is 34 in min above the nosing line, a ships ladder handrail 30 to 34), a bottom rail runs parallel to
+# the nosing line with its underside SG_BOT above it (the triangle under it, tread and riser, passes 5.3 in, under the 6 in sphere), and 1/2 in
+# plumb pickets between them leave at most SG_CLEAR clear (4 3/8 in sphere on stairs). Pipe railing only.
+SG_BOT, SG_CLEAR = 4.0, 3.9
+
+
+def stair_guards():
+    """[(name, bottom rail centreline (p0, p1), [(a, b, z_bottom, z_top) per picket])] for the lower and upper open sides; p = (a, b, z) and
+    both rail ends sit on post centres (the CAD cuts them at the round posts). Pickets run plumb between the two pipes' surfaces (their ends sit in drilled holes)."""
+    rr = PIPE_RAIL[0] / 2
+    out = []
+    for nm, f, posts, ax in (("lower", LOWER, (XL + POST / 2, A_FOOT), "a"), ("upper", UPPER, (XL + POST / 2, BAL_S + POST / 2), "b")):
+        if ax == "a":
+            u = lambda a: XL + UL - a
+        else:
+            u = lambda b: b - B0
+        s_ = lambda x: x                                                   # plan position along the rail
+        cosr = 1 / math.sqrt(1 + SL ** 2)
+        zbc = lambda x: f.zn(u(x)) + SG_BOT + rr / cosr                     # bottom rail centre
+        ztc = lambda x: f.zn(u(x)) + HR - RAIL * math.sqrt(1 + SL ** 2) / 2   # top rail centre (as the pipe CAD places it)
+        x0, x1 = sorted(posts)
+        q = lambda x, z: (x, PC, z) if ax == "a" else (PC, x, z)
+        rp = PIPE_POST[0] / 2
+        free0, free1 = x0 + rp, x1 - rp
+        n = max(1, math.ceil((free1 - free0) / (SG_CLEAR + PICKET)))
+        step = (free1 - free0) / n
+        pk = [x for x in (free0 + i * step for i in range(1, n))]
+        out.append((f"stair_guard_{nm}", (q(x0, zbc(x0)), q(x1, zbc(x1))), [(*q(x, 0)[:2], zbc(x) + rr / cosr + 0.02, ztc(x) - rr / cosr - 0.02) for x in pk]))
+    return out
+
+
 def rail_frames():
     """the rail's cross sections at every station: (a, b) of its two sides and z of its top and bottom"""
     out = []

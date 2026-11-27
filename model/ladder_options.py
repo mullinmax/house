@@ -507,6 +507,12 @@ def mono_ladder(WX, WY):
             pc_ = min(((x, y) for x, y in ((G.A_FOOT, XL + G.POST / 2), (XL + G.POST / 2, XL + G.POST / 2), (XL + G.POST / 2, G.BAL_S + G.POST / 2),
                                            (XL + G.POST / 2, (PN[0] + PN[1]) / 2), (G.POST / 2, (PN[0] + PN[1]) / 2))), key=lambda q: math.hypot(q[0] - P1_[0], q[1] - P1_[1]))
             cyl(ST, (*pc_, R_[2] - G.PC_H / 2), (*pc_, R_[2] + G.PC_H / 2), G.PS_D / 2)
+        for gnm_, (g0_, g1_), pks_ in G.stair_guards():  # round 16: stair guards, bottom rail and plumb pickets up to the handrail
+            cyl(ST, g0_, g1_, G.PIPE_RAIL[0] / 2)
+            for g_ in (g0_, g1_):
+                cyl(ST, (g_[0], g_[1], g_[2] - G.PC_H / 2), (g_[0], g_[1], g_[2] + G.PC_H / 2), G.PS_D / 2)
+            for pa_, pb_, z0_, z1_ in pks_:
+                gb(ST, pa_ - 0.25, pa_ + 0.25, pb_ - 0.25, pb_ + 0.25, z0_, z1_)
     elif not G.CONT_RAIL:                                # round 11b: rail straps (1/4 in) with a spacer and three 1/4-20 bolts each
         for nm_, R_, P1_, P2_, t_, side_, plane_, pat_ in G.rail_straps():
             ax_, i_ = side_[0], (0 if side_[0] == "a" else 1)
