@@ -72,6 +72,7 @@ def pipe_sec(D, t):
 if G.RAIL_STYLE == "pipe":                          # round 13 option B: round pipe rails and rail posts
     SEC["RAIL"] = ("steel",) + pipe_sec(*G.PIPE_RAIL)
     SEC["PPOST"] = ("steel",) + pipe_sec(*G.PIPE_POST)
+    SEC["PPOST80"] = ("steel",) + pipe_sec(*G.PIPE_POST80)     # round 17: loft railing posts, 1 1/2 schedule 80
 ISEC = dict(W4x13=(3.83, 3.86, 11.3, 0.151, 1.90, 5.46), S4x7_7=(2.26, 0.764, 6.08, 0.0438, 0.505, 3.04), W5x16=(4.71, 6.32, 21.4, 0.192, 3.11, 8.55),
             W6x15=(4.43, 9.32, 29.1, 0.101, 3.11, 9.72))      # I-beam study (Maxwell 11/24/2026): A, Iy weak, Iz strong, J, Sy, Sz (AISC)
 if os.environ.get("LADDER_STR_SEC"):
@@ -403,13 +404,17 @@ else:
         M("gnw", (PC, G.GP_B, ZB), corner, "POST")
         # the north east post: the north knee frame's wall post in one piece from its 45 degree foot to the guard rail, lagged to the wall
         # (lags take no weight), the ledger and north arm clipped to it at the frame's level
-        nez = sorted({ZB - G.BRACE, ZB, zg, *G.NK_LAGS})
+        nez = sorted({ZB - G.BRACE, ZB, *G.NK_LAGS} | (set() if G.LOFT_RAIL else {zg}))   # round 17: with the loft railing it stops under the deck
         for i_, (za_, zb2_) in enumerate(zip(nez, nez[1:])):
             M(f"gne{i_}", (1, G.GP_B, za_), (1, G.GP_B, zb2_), "POST")
         for z_ in G.NK_LAGS:
             S((1, G.GP_B, z_), True, False, True, what="north east post lag into the wall, no vertical")
         M("BRn", (G.A_BR, G.GP_B, ZB), (1, G.GP_B, ZB - G.BRACE), "POST")   # round 11: the same brace as the south one, bearing under the north arm (gussets taken as fixed)
         ne = [None, None, (1, G.GP_B, zg)]
+        if G.LOFT_RAIL:                                 # round 17: the north rail runs on to the loft corner post, a cantilever off the loft floor (base taken as fixed:
+            ne[2] = (G.LR_A, G.GP_B, zg)                # railing flange through bolted into blocking); the loft railing's own run north is left out (conservative)
+            M("loftcorner", (G.LR_A, G.GP_B, G.FL), ne[2], "PPOST80")
+            n_ = N(G.LR_A, G.GP_B, G.FL); m.def_support(n_, True, True, True, True, True, True); SUP[n_] = "loft corner post base (railing flange into blocking)"
     else:
         corner = (PC, G.GP_B, zg)
         M("gnw_BN", (XW, G.GP_B, ZB), (XW, BN1, ZB), "RIGID")
@@ -418,7 +423,7 @@ else:
         S(ne[0], what="north east guard post lag (lower)"); S(ne[1], what="north east guard post lag (upper)")
         M("gne0", ne[0], ne[1], "POST"); M("gne1", ne[1], ne[2], "POST")
     mid_gw = (PC, (bsw + corner[1]) / 2, zg)
-    mid_gn = ((corner[0] + 1) / 2, (corner[1] + G.GP_B) / 2, zg) if G.MONO else (12.6, G.GP_B, zg)
+    mid_gn = ((corner[0] + ne[2][0]) / 2, (corner[1] + G.GP_B) / 2, zg) if G.MONO else (12.6, G.GP_B, zg)
     N(*mid_gw); N(*mid_gn)
     if G.OAK_TOP:                                       # round 16 (Maxwell 11/27/2026): oak top rail, pickets straight into it, flanges on the post tops; both rails screwed to the north west post's flange, taken as fixed there and pinned at the other posts
         M("grail_w", gs[3], corner, "OAKRAIL", "i")
@@ -488,6 +493,9 @@ node_load("H_gwmid", mid_gw, a=H, desc="200 lb outward on the balcony's west gua
 node_load("H_corner_w", corner, a=H, desc="200 lb west on the guard's north west corner")
 node_load("H_corner_n", corner, b=H, desc="200 lb north on the guard's north west corner")
 node_load("H_gnmid", mid_gn, b=H, desc="200 lb outward on the balcony's north guard rail, mid span")
+if G.LOFT_RAIL:
+    for d_, kw_ in (("w", dict(a=H)), ("e", dict(a=-H)), ("n", dict(b=H)), ("s", dict(b=-H))):
+        node_load(f"H_loftc_{d_}", ne[2], desc=f"200 lb {dict(w='west', e='east', n='north', s='south')[d_]} on the loft corner post top", **kw_)
 # sway: a climber's sideways push (50 lb, about a quarter of a 200 lb person's weight), to see how much the flights wobble
 SW = 50.0
 if G.MONO:
@@ -517,7 +525,7 @@ def stress(name, combo):
 GROUP = lambda n: ("stringer tubes" if "tube_" in n and n[0] in "LU" and n[1:5] == "tube" else "tread brackets" if "brkt" in n else "tread arms" if "seat" in n and G.MONO else "oak treads" if "tread" in n else
                    "oak deck" if "deck" in n else "landing frame" if n in ("LE", "LS", "LW", "LN", "LH") else "balcony frame" if n in ("BE", "BS", "BH", "BN", "BW") else
                    "knee braces" if n.startswith("BR") else "corner newel" if n.startswith("newel") and n[5:].isdigit() else "foot post" if n.startswith("footpost") else "upper stringer post" if n == "Upost" else
-                   "balcony south west newel" if n.startswith("gsw") and n[3:].isdigit() else "guard posts" if n.startswith(("gnw", "gne")) else "ties and kickers" if MEM[n][0] == "STRUT" else
+                   "balcony south west newel" if n.startswith("gsw") and n[3:].isdigit() else "guard posts" if n.startswith(("gnw", "gne")) else "loft corner post" if n == "loftcorner" else "ties and kickers" if MEM[n][0] == "STRUT" else
                    "handrails" if n.startswith("rail") and not n.startswith("rail_") or n in ("rail_lower", "rail_upper") else "guard rails" if n.startswith("grail") else None)
 res = {"cases": {}, "groups": {}, "reactions": {}, "deflection": {}}
 dead = {n: stress(n, "D")["sig"] for n in MEM if GROUP(n)}
@@ -528,7 +536,7 @@ for c, info in CASES.items():
         if not g:
             continue
         s = stress(n, "D+" + c)
-        pipe_ = G.RAIL_STYLE == "pipe" and MEM[n][0] in ("PPOST", "RAIL")    # A53 Gr B pipe: Fy 35 ksi, not the A500 tube's 46
+        pipe_ = G.RAIL_STYLE == "pipe" and MEM[n][0] in ("PPOST", "PPOST80", "RAIL")    # A53 Gr B pipe: Fy 35 ksi, not the A500 tube's 46
         allow = FB_OAK if SEC[MEM[n][0]][0] == "oak" else (0.6 * FY_PIPE if pipe_ else ALLOW)
         live = max(s["sig"] - dead[n], 1e-9)
         s.update(member=n, util=s["sig"] / allow, factor=(allow - dead[n]) / live, yield_factor=((FY_STEEL if allow == ALLOW else FY_PIPE if pipe_ else 2.1 * FB_OAK * 2.5) - dead[n]) / live)

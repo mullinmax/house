@@ -474,7 +474,7 @@ if G.MONO:
     if not G.NO_WEST_BEAM:
         add("balcony", "balcony_west_beam", tube(XL - 2, XL, G.BAL_S + 2 + G.CP_T, BN_ - 2 - G.CP_T, *bz, "b", FTB))
     deck = box(0, G.BAL_W, G.BAL_S, BN_, FL - TT, FL)
-    for a0_, b0_ in ((XL, G.BAL_S), (XL, BN_ - G.POST), (0.0, BN_ - G.POST)):     # notched round the three corner posts
+    for a0_, b0_ in ((XL, G.BAL_S), (XL, BN_ - G.POST)) + (() if G.LOFT_RAIL else ((0.0, BN_ - G.POST),)):     # notched round the corner posts (round 17: the NE one stops under it)
         deck = deck.cut(box(a0_ - 0.02, a0_ + G.POST + 0.02, b0_ - 0.02, b0_ + G.POST + 0.02, FL - TT - 1, FL + 1))
     for a_, b_ in [(x_, G.BAL_S + 1 if sg_ < 0 else BN_ - 1) for sg_ in (-1, 1) for x_ in G.corner_plate(sg_)[3]]:   # round 11b: counterbores for the corner plate bolts' nuts
         deck = deck.cut(cq.Solid.makeCylinder(0.45, 0.5, W(a_, b_, FL - TT - 0.01), cq.Vector(0, 0, 1)))
@@ -553,7 +553,7 @@ if G.MONO:
         add("posts", "balcony_sw_newel", tube(XL, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, zl_, G.GSW_TOP, "z", G.POST_T))
         add("posts", "guard_post_nw", tube(XL, XL + G.POST, *PN, zl_, G.G_TOP - G.RAIL, "z", G.POST_T))
     pz0_ = G.NK_MITER
-    ne_ = post_box(0, G.POST, *PN, pz0_) if G.CONT_RAIL else tube(0, G.POST, *PN, pz0_, G.G_TOP - G.RAIL, "z", G.POST_T)
+    ne_ = post_box(0, G.POST, *PN, pz0_) if G.CONT_RAIL else tube(0, G.POST, *PN, pz0_, FL - TT if G.LOFT_RAIL else G.G_TOP - G.RAIL, "z", G.POST_T)   # round 17: stops under the deck
     add("posts", "guard_post_ne", ne_.cut(aprism([(-0.1, pz0_ - 0.1), (G.POST + 0.1, pz0_ + G.POST + 0.1), (G.POST + 0.1, pz0_ - 1), (-0.1, pz0_ - 1)], PN[0] - 0.5, PN[1] + 0.5)))
     if G.CONT_RAIL:
         add("rails", "handrail_and_guard_rail", rail_sweep(), mat="rail")
@@ -563,15 +563,23 @@ if G.MONO:
     ra = (XL + 0.25, XL + 0.25 + G.RAIL)
     rb = (G.GP_B - G.RAIL / 2, G.GP_B + G.RAIL / 2)
     add("guard", "guard_west_bottom_rail", tube(*ra, G.BAL_S + G.POST, PN[0], FL + 3.6, FL + 3.6 + G.RAIL, "b", G.RAIL_T))
-    add("guard", "guard_north_bottom_rail", tube(G.POST, XL, *rb, FL + 3.6, FL + 3.6 + G.RAIL, "a", G.RAIL_T))
+    na0_ = G.LR_A + G.POST / 2 if G.LOFT_RAIL else G.POST                  # round 17: on to the loft corner post
+    add("guard", "guard_north_bottom_rail", tube(na0_, XL, *rb, FL + 3.6, FL + 3.6 + G.RAIL, "a", G.RAIL_T))
     pz = (FL + 3.6 + G.RAIL, G.G_TOP - G.CAP_T + G.OT_PK if G.OAK_TOP else G.G_TOP - G.RAIL - 0.02)   # round 16b: up into a hole in the oak
     span = (G.BAL_S + G.POST, PN[0])
     n_w = math.ceil((span[1] - span[0]) / 4.4)
     for i in range(1, n_w):
         add("guard", f"picket_west_{i}", cq.Solid.makeCylinder(G.PICKET / 2, pz[1] - pz[0], W(G.PC, span[0] + i * (span[1] - span[0]) / n_w, pz[0])))
-    n_n = math.ceil((XL - G.POST) / 4.4)
+    n_n = math.ceil((XL - na0_) / 4.4)
     for i in range(1, n_n):
-        add("guard", f"picket_north_{i}", cq.Solid.makeCylinder(G.PICKET / 2, pz[1] - pz[0], W(G.POST + i * (XL - G.POST) / n_n, G.GP_B, pz[0])))
+        add("guard", f"picket_north_{i}", cq.Solid.makeCylinder(G.PICKET / 2, pz[1] - pz[0], W(na0_ + i * (XL - na0_) / n_n, G.GP_B, pz[0])))
+    LR = G.loft_rail()                                                       # round 17: the loft railing, same parts as the balcony guard
+    for nm_, a_, b_ in LR["posts"]:
+        add("posts", nm_, tube(a_ - G.POST / 2, a_ + G.POST / 2, b_ - G.POST / 2, b_ + G.POST / 2, FL + G.PF_T, G.G_TOP - G.RAIL, "z", G.POST_T))
+    for nm_, a0_, a1_, b0_, b1_, z0_, z1_, ax_ in LR["rails"]:
+        add("guard", nm_, tube(a0_, a1_, b0_, b1_, z0_ - G.RAIL, z0_, "b", G.RAIL_T))
+    for i, (a_, b_, z0_, z1_) in enumerate(LR["pickets"]):
+        add("guard", f"picket_loft_{i + 1}", cq.Solid.makeCylinder(G.PICKET / 2, z1_ - z0_, W(a_, b_, z0_)))
 else:
     gsw_z0 = G.UPPER.zc(G.BAL_S + 1 - G.B0) - 4.0
     add("posts", "balcony_sw_newel", tube(XL, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, gsw_z0, G.GSW_TOP, "z", G.POST_T))
@@ -637,7 +645,7 @@ if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe":     # round 13 option 
     names = {n_: j for j, (g_, n_, *_r) in enumerate(PARTS)}
     RAILC = {}                                                                 # rail centreline ends
     sr = {r[0]: r for r in G.straight_rails()}
-    for rn in ("lower_rail_open", "upper_rail_open", "guard_west_top_rail", "guard_north_top_rail", "guard_west_bottom_rail", "guard_north_bottom_rail"):
+    for rn in ("lower_rail_open", "upper_rail_open", "guard_west_top_rail", "guard_north_top_rail", "guard_west_bottom_rail", "guard_north_bottom_rail") + tuple(r_[0] for r_ in G.loft_rail()["rails"]):
         if rn not in names:
             continue
         g_, n_, s_, *r_ = PARTS[names[rn]]
@@ -673,7 +681,16 @@ if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe":     # round 13 option 
             f_ = ((ac - e0[0]) / (e1[0] - e0[0])) if abs(e1[0] - e0[0]) > 1e-6 else ((bc - e0[1]) / (e1[1] - e0[1]))
             z1 = e0[2] + f_ * (e1[2] - e0[2]) - RR_ / math.sqrt(1 - ((e1[2] - e0[2]) / math.dist(e0, e1)) ** 2)
         POSTC[pn] = (ac, bc, bb.zmin, z1)
-        PARTS[names[pn]] = (g_, n_, _pipe((ac, bc, bb.zmin), (ac, bc, z1), *G.PIPE_POST), *r_)
+        PARTS[names[pn]] = (g_, n_, _pipe((ac, bc, bb.zmin), (ac, bc, z1), *(G.PIPE_POST80 if pn.startswith("loft_post") else G.PIPE_POST)), *r_)
+        if pn.startswith("loft_post"):                                         # round 17: kit railing flange on the loft floor, 4 through bolts down
+            fl_ = cq.Solid.makeCylinder(G.PF_D / 2, G.PF_T, W(ac, bc, FL)).fuse(cq.Solid.makeCylinder(G.PF_SOCK / 2, G.PF_H, W(ac, bc, FL)))
+            add("posts", f"{pn}_base", fl_.cut(cq.Solid.makeCylinder(RP_, G.PF_H, W(ac, bc, FL + G.PF_T))).clean())
+            for k in range(4):
+                th = math.pi / 4 + k * math.pi / 2
+                bolt(ac + G.PF_BC / 2 * math.cos(th), bc + G.PF_BC / 2 * math.sin(th), FL + G.PF_T, "z", 1, d=0.66, h=0.21,
+                     role=("through bolt to a plate under the blocking", 0.375, 14.0, 2.0))
+            for sg in (1, -1):
+                bolt(ac + sg * G.PF_SOCK / 2, bc, FL + G.PF_T + (G.PF_H - G.PF_T) / 2, "a", sg, d=0.35, h=0.06, role=("set screw", 0.375, 0.5, 0.5))
     SOLIDP = [_cyl((a, b, z0), (a, b, z1), RP_) for a, b, z0, z1 in POSTC.values()]
     for rn, (e0, e1) in RAILC.items():                                         # rails stop at the round posts
         g_, n_, s_, *r_ = PARTS[names[rn]]
@@ -767,12 +784,15 @@ if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe":     # round 13 option 
                         q[0 if sax == "a" else 1] += G.RS_D / 2
                         bolt(*q, sax, 1, d=0.35, h=0.06, role=("set screw", 0.375, 0.5, 0.5))
 if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe" and G.OAK_TOP:   # round 16b: solid white oak top rail, pickets into it
-    _pk = [s_ for g_, n_, s_, *r_ in PARTS if n_.startswith(("picket_west_", "picket_north_"))]
+    _pk = [s_ for g_, n_, s_, *r_ in PARTS if n_.startswith(("picket_west_", "picket_north_", "picket_loft_"))]
     _oak = []
     for nm, quad, z0_, z1_, _g, _s in G.rail_caps():
         w_ = cq.Wire.makePolygon([W(a, b, z0_) for a, b in quad], close=True)
         _oak.append((nm, cq.Solid.extrudeLinear(cq.Face.makeFromWires(w_), cq.Vector(0, 0, z1_ - z0_))))
-    _foot = _oak[0][1].fuse(_oak[1][1]).translate(cq.Vector(0, 0, -3.0))           # the oak's plan, lowered: what the flange rims are ground to
+    _foot = _oak[0][1]
+    for _, o_ in _oak[1:]:
+        _foot = _foot.fuse(o_)
+    _foot = _foot.translate(cq.Vector(0, 0, -3.0))           # the oak's plan, lowered: what the flange rims are ground to
     _foot = _foot.fuse(_foot.translate(cq.Vector(0, 0, 1.5)))
     for nm, oak in _oak:
         for x in _pk:
