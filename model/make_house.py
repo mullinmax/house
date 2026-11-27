@@ -979,6 +979,73 @@ if ATTIC_ACCESS:
 # walls that are still only a bottom plate on the slab, and the stick framed bearing wall on the clerestory line.
 # Hidden inside the walls until the Drywall walls layer is off. [framing] in config.toml says which walls are up and what
 # each header is; anything not in a photo is typical framing, ASSUMED. FRAMING_META goes to house.json for tools/header_clash.py.
+# Ducts and pipes that rise through a top plate (the low return stacks, bath 2's supply stack) or the attic deck: the board is cut where
+# each one passes, 1/8 in clear all round, so the walkthrough shows the notch rather than a duct running through solid
+# lumber. What is left of the plate either side of the cut is drawn when it is at least 1/4 in thick. The straps across
+# each cut are equipment items (make_equipment.py _strap_plate_stacks). Positions come from the last
+# site/models/equipment.json, so after moving a stack run make_equipment.py and then this script again
+# (node tools/clash_audit.mjs --only Lumber lists any plate a duct still runs through).
+PEN_CLR = 0.125 / 12
+PENS = []                                    # (x, y, width, depth, z0, z1, round) of each vertical duct or pipe segment, plan ft
+SLOPED = []                                  # (p, q, width, depth) of each sloping segment (a branch dropping off the trunk through the deck)
+try:
+    _eq = json.load(open(os.path.join(HERE, "..", "site", "models", "equipment.json")))
+except (OSError, ValueError):
+    _eq = {}
+for _d in _eq.get("ducts", []) + _eq.get("runs", []):
+    _sz = _d.get("size", _d.get("dia", 0))
+    _w, _dd = (_sz / 12, _sz / 12) if isinstance(_sz, (int, float)) else (_sz[0] / 12, _sz[1] / 12)
+    for _p, _q in zip(_d["points"], _d["points"][1:]):
+        if abs(_p[0] - _q[0]) > 0.01 or abs(_p[1] - _q[1]) > 0.01:
+            if abs(_p[2] - _q[2]) > 0.01:
+                SLOPED.append((_p, _q, _w, _dd))
+            continue
+        PENS.append((_p[0], _p[1], _w, _dd, min(_p[2], _q[2]), max(_p[2], _q[2]), isinstance(_sz, (int, float))))
+
+
+def rect_minus(r, holes):
+    """plan rectangle (x0, x1, y0, y1) less the holes that cross it, as a list of rectangles"""
+    for k, (h0, h1, g0, g1) in enumerate(holes):
+        x0, x1, y0, y1 = r
+        if h1 <= x0 or h0 >= x1 or g1 <= y0 or g0 >= y1:
+            continue
+        hx0, hx1, hy0, hy1 = max(h0, x0), min(h1, x1), max(g0, y0), min(g1, y1)
+        rest = holes[k + 1:]
+        out = []
+        for q in ((x0, hx0, y0, y1), (hx1, x1, y0, y1), (hx0, hx1, y0, hy0), (hx0, hx1, hy1, y1)):
+            if q[1] - q[0] > 1e-4 and q[3] - q[2] > 1e-4:
+                out += rect_minus(q, rest)
+        return out
+    return [r]
+
+
+DECK_CUTS = []
+def deck_box(mat, x0, x1, y0, y1, z0, z1):
+    """a piece of the attic deck with a hole, 1/8 in clear, where each duct or pipe rises through it"""
+    holes = [(px - w_ / 2 - PEN_CLR, px + w_ / 2 + PEN_CLR, py - d_ / 2 - PEN_CLR, py + d_ / 2 + PEN_CLR)
+             for (px, py, w_, d_, pz0, pz1, _r) in PENS if pz0 < z1 - 1e-3 and pz1 > z0 + 1e-3]
+    for (p_, q_, w_, d_) in SLOPED:             # a sloping branch: the part of its axis within half its size of the deck, widened by its half width
+        lo, hi = sorted((p_[2], q_[2]))
+        za, zb = z0 - d_ / 2, z1 + d_ / 2
+        if hi <= za or lo >= zb:
+            continue
+        pts = []
+        for zz in (max(lo, za), min(hi, zb)):
+            t = (zz - p_[2]) / (q_[2] - p_[2])
+            pts.append((p_[0] + (q_[0] - p_[0]) * t, p_[1] + (q_[1] - p_[1]) * t))
+        r_ = max(w_, d_) / 2 + PEN_CLR
+        holes.append((min(u[0] for u in pts) - r_, max(u[0] for u in pts) + r_, min(u[1] for u in pts) - r_, max(u[1] for u in pts) + r_))
+    for it_ in _eq.get("items", []):              # the server rack's home run bundle drops through the deck 3 in off its centre (site/equipment.js)
+        if it_.get("builder") == "server_rack" and it_.get("facing", 0) == 0:
+            hx, hy, hr = it_["at"][0] + 3 / 12, it_["at"][1] - 1.5 / 12, 1.3 / 12
+            holes.append((hx - hr, hx + hr, hy - hr, hy + hr))
+    for h in holes:
+        if h[1] > x0 and h[0] < x1 and h[3] > y0 and h[2] < y1:
+            DECK_CUTS.append([round(v, 3) for v in h])
+    for q in rect_minus((x0, x1, y0, y1), holes):
+        box(mat, q[0], q[1], q[2], q[3], z0, z1)
+
+
 FR = C.get("framing", {})
 FRAMING_META = dict(headers=[], kings=[], junctions=[], walls=[])
 if FR.get("enabled", True):
@@ -1068,6 +1135,29 @@ if FR.get("enabled", True):
             u = max(u, c1)
         fbox("Lumber", alongx, u, b, v0, v1, 0.0, SW)
 
+    FRAMING_META["plate_cuts"] = []
+
+    def plate_with_cuts(alongx, a, b, v0, v1, z0, z1):
+        cuts = []
+        for (px, py, w_, d_, pz0, pz1, rnd_) in PENS:
+            if pz1 <= z0 + 1e-3 or pz0 >= z1 - 1e-3:
+                continue
+            pu, pv = (px, py) if alongx else (py, px)
+            ww, dd = w_, d_                                   # a stack's width lies along its wall, its depth across it
+            cu0, cu1, cv0, cv1 = pu - ww / 2 - PEN_CLR, pu + ww / 2 + PEN_CLR, pv - dd / 2 - PEN_CLR, pv + dd / 2 + PEN_CLR
+            if cu1 <= a or cu0 >= b or cv1 <= v0 or cv0 >= v1:
+                continue
+            cuts.append((max(cu0, a), min(cu1, b), cv0, cv1))
+            FRAMING_META["plate_cuts"].append(dict(at=[round(px, 3), round(py, 3)], z=[round(z0, 3), round(z1, 3)], u=[round(cu0, 3), round(cu1, 3)]))
+        u = a
+        for c0, c1, cv0, cv1 in sorted(cuts):
+            fbox("Lumber", alongx, u, c0, v0, v1, z0, z1)
+            for s0, s1 in ((v0, cv0), (cv1, v1)):           # the plate left either side of the hole
+                if s1 - s0 >= 0.25 * IN:
+                    fbox("Lumber", alongx, c0, c1, s0, s1, z0, z1)
+            u = max(u, c1)
+        fbox("Lumber", alongx, u, b, v0, v1, z0, z1)
+
     def lines_up(op_, alongx, t0, t1):
         return (op_["axis"] == "x") == alongx and abs((op_["t0"] + op_["t1"]) / 2 - (t0 + t1) / 2) < 0.3
 
@@ -1099,7 +1189,7 @@ if FR.get("enabled", True):
         FRAMING_META["walls"].append(dict(rect=[x0, x1, y0, y1], built=True, top=min(zt(a), zt(b))))
         a, b = a + FACE_IN, b - FACE_IN
         for n in range(NTOP):
-            fbox("Lumber", alongx, a, b, v0, v1, min(zt(a), zt(b)) - (n + 1) * SW, min(zt(a), zt(b)) - n * SW)
+            plate_with_cuts(alongx, a, b, v0, v1, min(zt(a), zt(b)) - (n + 1) * SW, min(zt(a), zt(b)) - n * SW)
         ztop = min(zt(a), zt(b)) - NTOP * SW
         # skip studs inside any rough opening (and its kings and jacks) on this wall line
         skip = []
@@ -1109,6 +1199,23 @@ if FR.get("enabled", True):
                 skip.append((op_["r0"] - kk * SW, op_["r1"] + kk * SW))
         bottom_plate(alongx, a, b, v0, v1, [(op_["r0"] - FACE_IN, op_["r1"] + FACE_IN) for op_ in OPEN if lines_up(op_, alongx, t0, t1)])
         us = [a + OC * i for i in range(0, int((b - a) / OC) + 1)] + [b - SW]
+        # where Maxwell taped the studs ([framing] stud_lines), draw them where they really are: the duct stacks sit in
+        # the measured bays, so the typical 16 in layout put studs straight through them
+        meas, spans = [], []
+        for sl in FR.get("stud_lines", []):
+            if (sl["axis"] == "x") != alongx or abs((t0 + t1) / 2 - sl["at"]) > 0.35:
+                continue
+            if "right_edges_in" in sl:              # east (or south) edge of each stud, measured from x0 toward +u
+                us_ = [sl["x0"] + e * IN - SW for e in sl["right_edges_in"]]
+            else:                                   # west edge of each stud, measured from x0 toward -u
+                us_ = [sl["x0"] - e * IN for e in sl["west_edges_in"]]
+            m0, m1 = min(us_), max(us_) + SW
+            if m1 <= a or m0 >= b:
+                continue
+            spans.append((m0 - OC / 2, m1 + OC / 2))
+            meas += [u for u in us_ if a - 0.001 <= u <= b - SW + 0.001]
+        if spans:
+            us = [u for u in us if not any(s0 < u < s1 for s0, s1 in spans)] + meas
         last = None
         for u in sorted(us):
             u = min(max(u, a), b - SW)
@@ -1270,16 +1377,16 @@ if C["ceilings"].get("attic_floor"):
         info=dict(model="Walkable attic deck over the flat ceilings", specs=[["Top", f"{ftin(FH + FLOOR_T)} above the slab"], ["Build up", f"{_ft['depth_in'] if _ft else ''}\" floor trusses + {_ft['deck_in'] if _ft else ''}\" decking"]],
                   notes=["One continuous attic: the deck bridges the walls between flat ceiling rooms. ASSUMED."]))
     for k, (x0, y0, x1, y1) in enumerate(FR_):
-        box("Attic Deck", x0, x1, y0, y1, FH + FLOOR_T - DECK_T, FH + FLOOR_T)
+        deck_box("Attic Deck", x0, x1, y0, y1, FH + FLOOR_T - DECK_T, FH + FLOOR_T)
     for i, (a0, b0, a1, b1) in enumerate(FR_):
         for j, (c0, d0, c1, d1) in enumerate(FR_):
             if j <= i:
                 continue
             ox0, ox1 = max(a0, c0), min(a1, c1); oy0, oy1 = max(b0, d0), min(b1, d1)
             if ox1 - ox0 > 1.0 and 0 < oy0 - oy1 <= 0.8:
-                box("Attic Deck", ox0, ox1, oy1, oy0, FH + FLOOR_T - DECK_T, FH + FLOOR_T)
+                deck_box("Attic Deck", ox0, ox1, oy1, oy0, FH + FLOOR_T - DECK_T, FH + FLOOR_T)
             elif oy1 - oy0 > 1.0 and 0 < ox0 - ox1 <= 0.8:
-                box("Attic Deck", ox1, ox0, oy0, oy1, FH + FLOOR_T - DECK_T, FH + FLOOR_T)
+                deck_box("Attic Deck", ox1, ox0, oy0, oy1, FH + FLOOR_T - DECK_T, FH + FLOOR_T)
 
 # ------------------------------------------------------------------ loft
 if LOFT["enabled"]:
@@ -1594,8 +1701,9 @@ def base_unit(run, rn, k, u0, u1, typ, mat, depth=BASE_D, counter=True):
         return
     if typ == "panel":
         run.box(mat, u0, u1, 0, d + FRONT_T, 0, zt); return
-    run.box(mat, u0, u1, 0, d, KICK, zt)
-    run.box(mat, u0, u1, 0, d - 0.25, 0, KICK)
+    if typ not in ("beverage", "dishwasher"):        # an undercounter appliance stands in an open bay, floor to counter: no box or kick behind it
+        run.box(mat, u0, u1, 0, d, KICK, zt)
+        run.box(mat, u0, u1, 0, d - 0.25, 0, KICK)
     if counter:
         run.box("Counter", u0, u1, 0, d + 0.18, zt, CTR_Z)
     if typ == "blind":
@@ -3996,12 +4104,202 @@ def web_bar_stool(it):
         lbox("Plastic Grey", fr, bot[0] - 0.02, bot[0] + 0.02, bot[1] - 0.02, bot[1] + 0.02, 0.003, 0.012)
 
 
+# ------------------------------------------------------------------ bathroom vanities (Maxwell 11/26/2026)
+# One Shaker design in three sizes, from his reference photos: the Wyndham Beckett 84 in double vanity (navy, brushed
+# gold bar pulls, white quartz top, short square feet) is the master's style; the hall bath and powder room vanities are
+# the same design with fewer sections (sizes and layouts like the 42 in Ariel Hepburn and the 36 in allen + roth
+# Roveland). Built here; the baked vanities, faucets and mirrors are culled by box.
+MATERIALS.update({
+    "Vanity Mirror": dict(color="#DCE3E6", rough=0.03, metal=1.0),
+    "Sink Porcelain": dict(color="#F4F3F0", rough=0.15),
+})
+VAN_IN = 1 / 12
+
+
+def web_vanity(it):
+    """Wall hung against `back` (the drywall face) over `span` along the wall, fronts facing `facing` (90 E, 180 S, 270 W).
+    sections (left to right as you stand in front): "drawers" = a stack of four drawers, "sink" = a false drawer over a
+    pair of Shaker doors with an undermount basin and faucet above. widths_in per section; the total is the cabinet."""
+    I = VAN_IN
+    back, (s0, s1), fc = it["back"], it["span"], it["facing"]
+    secs, wid = it["sections"], [w * I for w in it["widths_in"]]
+    W = sum(wid)
+    gap = ((s1 - s0) - W) / 2                     # side splashes fill what is left of the alcove, if anything
+    paintc = paint(it.get("color", "#2B3A55"))
+    PULL, TOP = "Cabinet Pull", "Counter"
+
+    def P(u, v):                                  # u from your left as you face the vanity, v out from the wall
+        if fc == 90: return back + v, s1 - gap - u
+        if fc == 270: return back - v, s0 + gap + u
+        if fc == 180: return s0 + gap + u, back + v
+        return s1 - gap - u, back - v
+
+    def vb(mat, u0, u1, v0, v1, z0, z1):
+        a, b = P(u0, v0), P(u1, v1)
+        box(mat, a[0], b[0], a[1], b[1], z0, z1)
+
+    def vc(mat, u, v, z0, z1, r):
+        x, y = P(u, v)
+        cyl(mat, x, y, z0, z1, r)
+
+    FOOT, ZC, ZT = 4 * I, 33.25 * I, 34.5 * I     # feet, carcass top, counter top (34 1/2 in, like the Beckett)
+    VF, VD, VO = 20.25 * I, 21.0 * I, 22.0 * I    # face frame front, fronts' face, top's front edge
+    ST, TR, BR, GP = 1.5 * I, 1.5 * I, 2.5 * I, 0.125 * I
+    # carcass (split round the basins up top so they read from above), face frame and feet
+    holes = []
+    u = 0
+    for s, w in zip(secs, wid):
+        if s == "sink":
+            bw = min(16 * I, w - 1 * I)
+            holes.append((u + w / 2 - bw / 2, u + w / 2 + bw / 2))
+        u += w
+    bv0, bv1 = 4.5 * I, 16.5 * I                  # basin front to back, out from the wall
+    ZB = ZC - 6.5 * I                             # below the basins
+    vb(paintc, 0, W, 0, VF, FOOT, ZB)
+    ends = [0] + [c for h in holes for c in (h[0] - 0.3 * I, h[1] + 0.3 * I)] + [W]
+    for k in range(0, len(ends), 2):
+        vb(paintc, ends[k], ends[k + 1], 0, VF, ZB, ZC)
+    for h0, h1 in holes:
+        vb(paintc, h0 - 0.3 * I, h1 + 0.3 * I, 0, bv0 - 0.3 * I, ZB, ZC); vb(paintc, h0 - 0.3 * I, h1 + 0.3 * I, bv1 + 0.3 * I, VF, ZB, ZC)
+    for u in [0.75 * I, W - 2.75 * I] + ([W / 2 - I] if W > 4.5 else []):
+        vb(paintc, u, u + 2 * I, VF - 2.2 * I, VF, 0, FOOT)
+        vb(paintc, u, u + 2 * I, 1.0 * I, 3.0 * I, 0, FOOT)
+    vb(paintc, 0, W, VF - 0.3 * I, VF, FOOT, FOOT + BR - 0.5 * I)   # base rail lip under the fronts
+    # counter, cut round each basin; backsplash and side splashes
+    cuts = [-gap] + [c for h in holes for c in h] + [W + gap]
+    for k in range(0, len(cuts), 2):
+        vb(TOP, cuts[k], cuts[k + 1], 0, VO, ZC, ZT)
+    for h0, h1 in holes:
+        vb(TOP, h0, h1, 0, bv0, ZC, ZT); vb(TOP, h0, h1, bv1, VO, ZC, ZT)
+        zb = ZC - 6 * I                           # undermount basin, 6 in deep
+        vb("Sink Porcelain", h0, h1, bv0, bv1, zb - 0.3 * I, zb)
+        vb("Sink Porcelain", h0 - 0.3 * I, h0, bv0, bv1, zb, ZC); vb("Sink Porcelain", h1, h1 + 0.3 * I, bv0, bv1, zb, ZC)
+        vb("Sink Porcelain", h0, h1, bv0 - 0.3 * I, bv0, zb, ZC); vb("Sink Porcelain", h0, h1, bv1, bv1 + 0.3 * I, zb, ZC)
+        vc("Black Metal", (h0 + h1) / 2, (bv0 + bv1) / 2 + 2 * I, zb, zb + 0.05 * I, 0.75 * I)   # drain
+        fu, fv = (h0 + h1) / 2, 2.4 * I            # single hole faucet, brushed gold: deck plate, riser, spout, lever
+        vc(PULL, fu, fv, ZT, ZT + 0.4 * I, 1.1 * I)
+        vc(PULL, fu, fv, ZT, ZT + 10.5 * I, 0.55 * I)
+        vb(PULL, fu - 0.5 * I, fu + 0.5 * I, fv - 0.5 * I, fv + 5.5 * I, ZT + 9.6 * I, ZT + 10.6 * I)
+        vb(PULL, fu - 0.5 * I, fu + 0.5 * I, fv + 4.6 * I, fv + 5.5 * I, ZT + 8.4 * I, ZT + 9.6 * I)
+        vb(PULL, fu + 0.5 * I, fu + 3.2 * I, fv - 0.3 * I, fv + 0.3 * I, ZT + 6.0 * I, ZT + 6.6 * I)
+    vb(TOP, -gap, W + gap, 0, 0.75 * I, ZT, ZT + 4 * I)
+    if gap > 0.001:                                # side splashes against both walls
+        for u0 in (-gap, W):
+            vb(TOP, u0, u0 + gap, 0, VO, ZT, ZT + 4 * I)
+    # fronts
+    zf0, zf1 = FOOT + BR, ZC - TR
+    zs = [zf0 + k * (zf1 - zf0) / 4 for k in range(5)]   # four equal drawer heights; the sink's false drawer uses the top one
+    u = 0
+    for k, (s, w) in enumerate(zip(secs, wid)):
+        a0 = u + (ST if k == 0 else ST / 2)
+        a1 = u + w - (ST if k == len(secs) - 1 else ST / 2)
+        vb(paintc, u, a0, VF, VF + 0.1 * I, FOOT, ZC); vb(paintc, a1, u + w, VF, VF + 0.1 * I, FOOT, ZC)   # stiles
+        rows = [(zs[j], zs[j + 1]) for j in range(4)] if s == "drawers" else [(zs[3], zs[4])]
+        for z0, z1 in rows:                        # slab drawer fronts with a short horizontal bar pull
+            vb(paintc, a0 + GP, a1 - GP, VF, VD, z0 + GP, z1 - GP)
+            pl = min(5 * I, (a1 - a0) * 0.55)
+            cu, cz = (a0 + a1) / 2, (z0 + z1) / 2
+            vb(PULL, cu - pl / 2, cu + pl / 2, VD + 0.75 * I, VD + 1.15 * I, cz - 0.2 * I, cz + 0.2 * I)
+            for e in (-1, 1):
+                vb(PULL, cu + e * (pl / 2 - 0.35 * I) - 0.17 * I, cu + e * (pl / 2 - 0.35 * I) + 0.17 * I, VD, VD + 0.8 * I, cz - 0.15 * I, cz + 0.15 * I)
+        if s == "sink":                            # a pair of Shaker doors, vertical pulls at the meeting stiles
+            z0, z1 = zs[0], zs[3]
+            m = (a0 + a1) / 2
+            for d0, d1, side in ((a0, m, 1), (m, a1, -1)):
+                d0g, d1g = d0 + GP, d1 - GP
+                zz0, zz1 = z0 + GP, z1 - GP
+                vb(paintc, d0g, d1g, VF, VD - 0.25 * I, zz0, zz1)
+                R = 2.25 * I                         # Shaker frame, a little proud of the recessed panel
+                vb(paintc, d0g, d0g + R, VD - 0.25 * I, VD, zz0, zz1); vb(paintc, d1g - R, d1g, VD - 0.25 * I, VD, zz0, zz1)
+                vb(paintc, d0g + R, d1g - R, VD - 0.25 * I, VD, zz1 - R, zz1); vb(paintc, d0g + R, d1g - R, VD - 0.25 * I, VD, zz0, zz0 + R)
+                pu = (d1g - 1.3 * I) if side == 1 else (d0g + 1.3 * I)
+                pz1 = zz1 - 2.0 * I
+                vb(PULL, pu - 0.2 * I, pu + 0.2 * I, VD + 0.75 * I, VD + 1.15 * I, pz1 - 6 * I, pz1)
+                for zp in (pz1 - 5.65 * I, pz1 - 0.35 * I):
+                    vb(PULL, pu - 0.15 * I, pu + 0.15 * I, VD, VD + 0.8 * I, zp - 0.17 * I, zp + 0.17 * I)
+        u += w
+    vb(paintc, 0, W, VF, VF + 0.1 * I, zf1, ZC); vb(paintc, 0, W, VF, VF + 0.1 * I, FOOT, zf0)   # top and bottom rails
+    # mirror over the sink(s): thin black frame
+    mr = it.get("mirror")
+    if mr:
+        mc = mr.get("center_in")
+        mc = mc * I if mc is not None else (sum((h0 + h1) / 2 for h0, h1 in holes) / len(holes) if len(holes) == 1 else W / 2)
+        mw, mh, mz = mr["w"], mr["h"], mr.get("bottom", 3.5)
+        vb("Black Metal", mc - mw / 2, mc + mw / 2, 0, 0.75 * I, mz, mz + mh)
+        vb("Vanity Mirror", mc - mw / 2 + 0.75 * I, mc + mw / 2 - 0.75 * I, 0.75 * I, 0.8 * I, mz + 0.75 * I, mz + mh - 0.75 * I)
+    # the baked vanity, faucet and mirror make way
+    for c in it.get("cull", []):
+        WEB_META["cull"].append(dict(box=c, materials=["Cabinet Wood", "Counter", "Porcelain", "Brushed Nickel", "Black Glass", "Enamel White",
+                                                       "Black Metal", "Plastic Grey", "Mirror", "Aluminum", "Appliance Interior"]))
+
+
+def web_toilet(it):
+    """Two piece toilet with an elongated bowl (Maxwell 11/27/2026: every toilet elongated). back = the drywall face it
+    stands against, x or y = its centre along that wall, facing = which way you face sitting on it. 12 in rough-in, about
+    30 in deep, 17 in seat (comfort height). Sizes ASSUMED, typical of an elongated two piece."""
+    I = VAN_IN
+    back, fc = it["back"], it["facing"]
+    c = it["y"] if fc in (90, 270) else it["x"]
+
+    def P(a, v):                                   # a across the bowl, v out from the wall
+        if fc == 90: return back + v, c + a
+        if fc == 270: return back - v, c - a
+        if fc == 180: return c - a, back + v
+        return c + a, back - v
+
+    def tb(mat, a0, a1, v0, v1, z0, z1):
+        p, q = P(a0, v0), P(a1, v1)
+        box(mat, p[0], q[0], p[1], q[1], z0, z1)
+
+    PC = "Sink Porcelain"
+    # tank and lid
+    tb(PC, -10 * I, 10 * I, 1.0 * I, 8.5 * I, 15 * I, 29.5 * I)
+    tb(PC, -10.4 * I, 10.4 * I, 0.7 * I, 8.9 * I, 29.5 * I, 30.6 * I)
+    tb("Brushed Nickel", -8.5 * I, -6.3 * I, 8.5 * I, 9.1 * I, 26.5 * I, 27.3 * I)   # flush lever
+    def tc(mat, v, z0, z1, r0, r1=None):
+        x, y = P(0, v)
+        cyl(mat, x, y, z0, z1, r0, r1)
+
+    # elongated bowl: a round front (7 in radius, centre 20 in off the wall, so the rim ends at 27 in) on a straight back
+    VC = 20 * I
+    tc(PC, VC, 9 * I, 15.5 * I, 5.2 * I, 7.0 * I)                       # bowl, flaring up to the rim
+    tb(PC, -6.0 * I, 6.0 * I, 8.5 * I, VC, 9 * I, 15.5 * I)
+    tc(PC, VC, 15.5 * I, 16.3 * I, 7.4 * I)                            # seat
+    tb(PC, -7.4 * I, 7.4 * I, 9.0 * I, VC, 15.5 * I, 16.3 * I)
+    tc(PC, VC, 16.3 * I, 16.9 * I, 7.1 * I)                            # lid, closed
+    tb(PC, -7.1 * I, 7.1 * I, 9.3 * I, VC, 16.3 * I, 16.9 * I)
+    tb("Brushed Nickel", -7.6 * I, 7.6 * I, 9.0 * I, 10.0 * I, 16.3 * I, 17.1 * I)   # seat hinge bar
+    # pedestal, narrower at the floor
+    tc(PC, 16 * I, 0, 9 * I, 4.6 * I, 5.0 * I)
+    tb(PC, -4.6 * I, 4.6 * I, 7.5 * I, 16 * I, 0, 9 * I)
+    tb("Brushed Nickel", -7.0 * I, -5.8 * I, 0, 2.2 * I, 6.5 * I, 7.7 * I)
+    tb("Brushed Nickel", -6.6 * I, -6.2 * I, 2.2 * I, 2.6 * I, 7.7 * I, 15 * I)
+    for cb in it.get("cull", []):
+        WEB_META["cull"].append(dict(box=cb, materials=["Porcelain", "Brushed Nickel", "Plastic Grey", "Enamel White", "Black Glass"]))
+
+
+def vanity_info(it):
+    secs, wid = it["sections"], it["widths_in"]
+    W = sum(wid)
+    sinks = secs.count("sink")
+    lay = ", ".join(f"{'4 drawers' if s == 'drawers' else 'sink doors'} {w:g} in" for s, w in zip(secs, wid))
+    colour = it.get("color_name", "navy")
+    notes = list(it.get("notes", []))
+    return dict(model=f"{W:g} in {'double' if sinks > 1 else 'single'} sink Shaker vanity, {colour}, brushed gold pulls, white quartz top (style of the Wyndham Beckett; maker ASSUMED)",
+                specs=[["Size", f"{W:g} in wide, 22 in deep, 34 1/2 in to the counter"], ["Layout, left to right", lay],
+                       ["Basin", f"{sinks} undermount rectangle, 16 x 12 in" if sinks > 1 else "undermount rectangle, 16 x 12 in"],
+                       ["Faucet", "single hole, brushed gold (ASSUMED)"]],
+                notes=notes)
+
+
 WEB_BUILD = {"bed": web_bed, "nightstand": web_nightstand, "table_lamp": web_table_lamp, "desk_lamp": web_desk_lamp,
              "l_desk": web_l_desk, "office_chair": web_office_chair, "towel_warmer": web_towel_warmer, "bench": web_bench,
              "tv_console": web_tv_console, "l_couch": web_l_couch, "dining_table": web_dining_table, "dining_chair": web_dining_chair,
              "fruit_bowl": web_fruit_bowl, "jute_rug": web_jute_rug,
-             "bar_stool": web_bar_stool, "seated_person": web_seated_person}
+             "bar_stool": web_bar_stool, "seated_person": web_seated_person, "vanity": web_vanity, "toilet": web_toilet}
 WEB_INFO = {
+    "vanity": vanity_info,
+    "toilet": lambda it: dict(model="Two piece toilet, elongated bowl, comfort height (model ASSUMED)", specs=[["Bowl", "elongated, about 30 in from the wall to the front"], ["Seat", "about 17 in high"], ["Rough-in", "12 in (ASSUMED)"]], notes=["Every toilet in the house has an elongated bowl (Maxwell 11/27/2026)."]),
     "dining_table": lambda it: dict(model=f"Shaker style solid maple dining table, honey finish, {round(it.get('l', 7.0) * 12)} x {round(it.get('w', 40 / 12) * 12)} in, {round(it.get('h', 2.5) * 12)} in high (style from Maxwell's reference photo; maker and size ASSUMED)",
                                     specs=[["Seats", "8: three on each side and one at each end"], ["Legs", "square, tapered on the inside faces"], ["Clearance", "about 3 ft or more behind every chair pulled out"]],
                                     notes=["Replaced the Gallinera table and six chairs (Maxwell 11/21/2026, from his reference photo)."]),
@@ -4046,9 +4344,9 @@ WEB_INFO = {
 }
 # Bolted down pieces show with the cabinets and trim, not with Belongings (Maxwell, 11/20/2026: anything bolted down is
 # not a belonging).
-BUILT_IN = {"bench", "towel_warmer"}
+BUILT_IN = {"bench", "towel_warmer", "vanity", "toilet"}
 WEB_NAMES = {"bench": "Mudroom bench and cabinets", "bed": "Queen bed", "nightstand": "Nightstand", "table_lamp": "Table lamp", "desk_lamp": "Desk lamp", "l_desk": "L-shaped standing desk", "office_chair": "Office chair", "towel_warmer": "Towel warmer", "tv_console": "TV console", "l_couch": "L sectional couch",
-             "dining_table": "Dining table", "dining_chair": "Dining chair", "fruit_bowl": "Fruit bowl", "jute_rug": "Dining rug", "bar_stool": "Counter stool", "seated_person": "Seated person, 6 ft (mockup)"}
+             "dining_table": "Dining table", "dining_chair": "Dining chair", "fruit_bowl": "Fruit bowl", "jute_rug": "Dining rug", "bar_stool": "Counter stool", "seated_person": "Seated person, 6 ft (mockup)", "vanity": "Vanity", "toilet": "Toilet"}
 for it in FURN:
     if it.get("moved_from"):
         ox, oy, of = it["moved_from"]
@@ -4329,7 +4627,7 @@ out = dict(
                     + ([dict(name="Porch", rect=list(C["porch"]["rect"]), floor=rnd(PZ), outside=True)] if C.get("porch", {}).get("enabled", True) and C.get("porch", {}).get("rect") else []),
               outline=dict(house=[0, 0, HW, HD], garage=GA["rect"] if GA.get("enabled") else None, porch=C.get("porch", {}).get("rect")),
               climbs=(LADDER_CLIMBS if LADDER_CLIMBS is not None else [dict(id="loft.ladder", rect=list(LOFT["ships_ladder"]), axis="x", z0=0.0, z1=LOFT["floor_height"])]) if LOFT.get("enabled") else [],
-              framing=FRAMING_META,
+              framing=FRAMING_META, deck_cuts=DECK_CUTS,
               grade=GRADE_GRID,
               partitions=[dict(a11=[rnd(v) for v in a], built=[rnd(v) for v in b]) for a, b in zip(INT_RECTS_A11, INT_RECTS) if a != b],
               **WEB_META),
