@@ -580,37 +580,41 @@
    "kind": "outlet",
    "x": 32.738,
    "y": 33.11,
-   "z_in": 16,
+   "z_in": 44,
    "facing": 180,
    "level": "main",
-   "src": "U-11 #66"
+   "src": "U-11 #66",
+   "note": "Moved 11/27/2026: at 16 in it sat behind the mudroom unit's base cabinet. Same spot along the wall, raised to 44 in, just above the 4 in stone backsplash over the unit's counter, for charging phones and keys. ASSUMED, confirm."
   },
   {
    "kind": "outlet",
-   "x": 34.734,
+   "x": 34.69,
    "y": 33.11,
-   "z_in": 16,
+   "z_in": 9,
    "facing": 180,
    "level": "main",
-   "src": "U-11 #67"
+   "src": "U-11 #67",
+   "note": "Moved 11/27/2026: at 16 in it sat behind the mudroom bench seat board. Now centred in a bench bay at 9 in, above the boot tray's lip and under the seat, for a boot dryer or a charger. Use GFCI with a weather resistant tamper resistant receptacle since wet boots stand in front. ASSUMED, confirm."
   },
   {
    "kind": "outlet",
-   "x": 36.695,
+   "x": 36.76,
    "y": 33.11,
-   "z_in": 16,
+   "z_in": 9,
    "facing": 180,
    "level": "main",
-   "src": "U-11 #68"
+   "src": "U-11 #68",
+   "note": "Moved 11/27/2026: at 16 in it sat behind the mudroom bench seat board. Now centred in a bench bay at 9 in, above the boot tray's lip and under the seat, for a boot dryer or a charger. Use GFCI with a weather resistant tamper resistant receptacle since wet boots stand in front. ASSUMED, confirm."
   },
   {
    "kind": "outlet",
-   "x": 38.689,
+   "x": 38.83,
    "y": 33.11,
-   "z_in": 16,
+   "z_in": 9,
    "facing": 180,
    "level": "main",
-   "src": "U-11 #69"
+   "src": "U-11 #69",
+   "note": "Moved 11/27/2026: at 16 in it sat behind the mudroom bench seat board. Now centred in a bench bay at 9 in, above the boot tray's lip and under the seat, for a boot dryer or a charger. Use GFCI with a weather resistant tamper resistant receptacle since wet boots stand in front. ASSUMED, confirm."
   },
   {
    "kind": "outlet",

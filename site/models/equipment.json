@@ -6989,7 +6989,7 @@
   },
   {
    "id": "elec_outlet_24",
-   "name": "Outlet, 16 in",
+   "name": "Outlet, 44 in",
    "category": "Electrical",
    "system": "electrical.power",
    "room": "Bath 1",
@@ -7003,7 +7003,7 @@
    "at": [
     32.738,
     33.168,
-    1.146
+    3.479
    ],
    "facing": 180,
    "gfi": false,
@@ -7014,7 +7014,7 @@
     "specs": [
      [
       "Height",
-      "16 in to the centre (U-11 legend)"
+      "44 in to the centre"
      ],
      [
       "On",
@@ -7022,6 +7022,7 @@
      ]
     ],
     "notes": [
+     "Moved 11/27/2026: at 16 in it sat behind the mudroom unit's base cabinet. Same spot along the wall, raised to 44 in, just above the 4 in stone backsplash over the unit's counter, for charging phones and keys. ASSUMED, confirm.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 66).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -7030,7 +7031,7 @@
   },
   {
    "id": "elec_outlet_25",
-   "name": "Outlet, 16 in",
+   "name": "Outlet, 9 in",
    "category": "Electrical",
    "system": "electrical.power",
    "room": "Bath 1",
@@ -7042,9 +7043,9 @@
     0.3
    ],
    "at": [
-    34.734,
+    34.69,
     33.168,
-    1.146
+    0.562
    ],
    "facing": 180,
    "gfi": false,
@@ -7055,7 +7056,7 @@
     "specs": [
      [
       "Height",
-      "16 in to the centre (U-11 legend)"
+      "9 in to the centre"
      ],
      [
       "On",
@@ -7063,6 +7064,7 @@
      ]
     ],
     "notes": [
+     "Moved 11/27/2026: at 16 in it sat behind the mudroom bench seat board. Now centred in a bench bay at 9 in, above the boot tray's lip and under the seat, for a boot dryer or a charger. Use GFCI with a weather resistant tamper resistant receptacle since wet boots stand in front. ASSUMED, confirm.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 67).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -7071,7 +7073,7 @@
   },
   {
    "id": "elec_outlet_26",
-   "name": "Outlet, 16 in",
+   "name": "Outlet, 9 in",
    "category": "Electrical",
    "system": "electrical.power",
    "room": "Bath 1",
@@ -7083,9 +7085,9 @@
     0.3
    ],
    "at": [
-    36.695,
+    36.76,
     33.168,
-    1.146
+    0.562
    ],
    "facing": 180,
    "gfi": false,
@@ -7096,7 +7098,7 @@
     "specs": [
      [
       "Height",
-      "16 in to the centre (U-11 legend)"
+      "9 in to the centre"
      ],
      [
       "On",
@@ -7104,6 +7106,7 @@
      ]
     ],
     "notes": [
+     "Moved 11/27/2026: at 16 in it sat behind the mudroom bench seat board. Now centred in a bench bay at 9 in, above the boot tray's lip and under the seat, for a boot dryer or a charger. Use GFCI with a weather resistant tamper resistant receptacle since wet boots stand in front. ASSUMED, confirm.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 68).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -7112,7 +7115,7 @@
   },
   {
    "id": "elec_outlet_27",
-   "name": "Outlet, 16 in",
+   "name": "Outlet, 9 in",
    "category": "Electrical",
    "system": "electrical.power",
    "room": "Bath 1",
@@ -7124,9 +7127,9 @@
     0.3
    ],
    "at": [
-    38.689,
+    38.83,
     33.168,
-    1.146
+    0.562
    ],
    "facing": 180,
    "gfi": false,
@@ -7137,7 +7140,7 @@
     "specs": [
      [
       "Height",
-      "16 in to the centre (U-11 legend)"
+      "9 in to the centre"
      ],
      [
       "On",
@@ -7145,6 +7148,7 @@
      ]
     ],
     "notes": [
+     "Moved 11/27/2026: at 16 in it sat behind the mudroom bench seat board. Now centred in a bench bay at 9 in, above the boot tray's lip and under the seat, for a boot dryer or a charger. Use GFCI with a weather resistant tamper resistant receptacle since wet boots stand in front. ASSUMED, confirm.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 69).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
