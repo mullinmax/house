@@ -1041,7 +1041,7 @@ const BUILD = {
     }
     box(g, 1.8, 0.6, 0.8, darkPlastic(), 9.5, base + 1, 2.5);                                         // rear: PDU end and power cord out to the receptacle
     // home run bundle: up the back right post, across, and down through the deck into the wall under the back edge
-    const bx = -6, bz = 1.5;
+    const bx = -3, bz = 1.5;                                                                        // 3 in off centre: at 6 in it dropped into the study return under the deck (clash_audit 11/27/2026)
     cyl(g, 1.0, base + railH - 6 - z0 + 12, cable, bx, (base + railH - 6 + z0 - 12) / 2, bz, 'y', 12);
     box(g, 13, 2.0, 2.0, cable, bx + 6.5, base + railH - 6, bz);
     cyl(g, 1.3, 1.2, darkPlastic(), bx, z0 + 0.3, bz, 'y', 16);                                      // grommet in the deck

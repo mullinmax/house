@@ -72,7 +72,7 @@ Counted from the model with 10 percent extra. Anything that crosses the floor tr
 | Item | Spec | Qty | Unit | Where | Notes |
 |---|---|---|---|---|---|
 | 4 in round pipe, 30 ga snap lock | Exhaust | 4 | x 5 ft | 16 ft in the model |  |
-| 6 in round pipe, 30 ga snap lock | Exhaust | 9 | x 5 ft | 39 ft in the model |  |
+| 6 in round pipe, 30 ga snap lock | Exhaust | 9 | x 5 ft | 38 ft in the model |  |
 | 6 in round pipe, 30 ga snap lock | Supply | 10 | x 5 ft | 43 ft in the model |  |
 | 7 in round pipe, 30 ga snap lock | Supply | 5 | x 5 ft | 19 ft in the model |  |
 | 8 in round pipe, 30 ga snap lock | ERV | 2 | x 5 ft | 8 ft in the model |  |
@@ -80,7 +80,7 @@ Counted from the model with 10 percent extra. Anything that crosses the floor tr
 | 8 in round pipe, 30 ga snap lock | Exhaust | 9 | x 5 ft | 37 ft in the model |  |
 | 8 in round pipe, 30 ga snap lock | Supply | 13 | x 5 ft | 55 ft in the model |  |
 | 10 in round pipe, 30 ga snap lock | Range hood makeup air outdoor side, insulated | 4 | x 5 ft | 15 ft in the model | Insulate with R-8 wrap or use insulated duct, vapor jacket outside |
-| 10 in round pipe, 30 ga snap lock | Return | 12 | x 5 ft | 51 ft in the model |  |
+| 10 in round pipe, 30 ga snap lock | Return | 12 | x 5 ft | 52 ft in the model |  |
 | 12 in round pipe, 30 ga snap lock | Range hood makeup air outdoor side, insulated | 1 | x 5 ft | 1 ft in the model | Insulate with R-8 wrap or use insulated duct, vapor jacket outside |
 | 6 in flex duct, R-6 insulated | Return runs through the trusses | 4 | x 25 ft box | 70 ft in the model | Pull it tight, no sags; support every 4 ft |
 | 10 in flex duct, R-6 insulated | Return runs through the trusses | 1 | x 25 ft box | 14 ft in the model | Pull it tight, no sags; support every 4 ft |
@@ -108,7 +108,7 @@ Trunks, plenums and boxes are usually made to measure by a sheet metal shop once
 
 | Item | Spec | Qty | Unit | Where | Notes |
 |---|---|---|---|---|---|
-| 18 x 16 in supply trunk | Fabricated | 1 | piece | 50.8 ft, 3 turns |  |
+| 18 x 16 in supply trunk | Fabricated | 1 | piece | 51.0 ft, 3 turns |  |
 | 26 x 24 in supply plenum at the heat pump | part of Supply trunk | 1 | piece | 1.3 ft, 0 turns |  |
 | 12 x 10 in south supply main | Fabricated | 1 | piece | 13.3 ft, 1 turns |  |
 | 10 x 6 in supply to Pantry | Fabricated | 1 | piece | 0.4 ft, 0 turns |  |
@@ -122,7 +122,11 @@ Trunks, plenums and boxes are usually made to measure by a sheet metal shop once
 | 50 x 10 in bedroom 1 return header box | part of Bedroom 1 return | 1 | piece | 0.6 ft, 0 turns |  |
 | 20 x 4 in study high return boot | Fabricated | 1 | piece | 1.4 ft, 0 turns |  |
 | 10 x 3-1/4 in range hood duct | Fabricated | 1 | piece | 1.7 ft, 1 turns |  |
-| Wall stack 14 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 7 | ea | 65 ft total | Plus one stack head per stack, or a header box |
+| Wall stack 11.88 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 1 | ea | 8 ft total | Plus one stack head per stack, or a header box |
+| Wall stack 11-3/4 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 3 | ea | 32 ft total | Plus one stack head per stack, or a header box |
+| Wall stack 12.12 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 1 | ea | 8 ft total | Plus one stack head per stack, or a header box |
+| Wall stack 11.64 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 1 | ea | 8 ft total | Plus one stack head per stack, or a header box |
+| Wall stack 11.76 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 1 | ea | 8 ft total | Plus one stack head per stack, or a header box |
 | Wall stack 10 x 2-1/2 in | In a 2x4 stud bay (stock 3-1/4 in deep stacks also fit) | 1 | ea | 9 ft total | Plus one stack head per stack, or a header box |
 | Stack head, wall stack to side round collar | Sits on the top plate in the truss bay over the stack; the round collar is on its south face, so the round runs straight off it with no elbow beside the wall. About 12 x 4 in, 8 to 11 in tall | 5 | ea |  | The stud bay and the truss bay over it are about 2 in apart: the head is as wide as the part they share |
 
@@ -182,30 +186,30 @@ Estimated from the joint and length counts above.
 
 | Run | System | Room | Size | Length ft | CFM | Flex | Truss crossings | Wall stacks |
 |---|---|---|---|---|---|---|---|---|
-| Bath 1 exhaust | Exhaust | Bath 1 | 6 in round | 13.0 |  |  |  |  |
+| Bath 1 exhaust | Exhaust | Bath 1 | 6 in round | 11.9 |  |  |  |  |
 | Bath 2 exhaust | Exhaust | Bath 2 | 6 in round | 0.9 |  |  |  |  |
 | Litter box exhaust | Exhaust | Utility | 4 in round | 6.2 | 20 |  |  |  |
 | Bath exhaust main | Exhaust | None | 6 in round | 62.3 |  |  |  |  |
 | Powder exhaust | Exhaust | Powder | 4 in round | 9.6 |  |  |  |  |
 | Range hood duct | Range hood | Kitchen | 10 x 3-1/4 in | 1.7 |  |  |  |  |
 | Range hood makeup air duct | Range hood makeup air | Kitchen | 10 in round | 15.4 | 600 |  |  |  |
-| Bedroom 1 return | Return |  | 10 in round | 52.1 |  |  |  | 2 |
+| Bedroom 1 return | Return |  | 10 in round | 52.4 |  |  |  | 2 |
 | Bedrooms 2 and 3 return | Return |  | 10 in round | 22.3 |  | yes | 2 | 3 |
 | Main return (M-10) | Return |  | 34 x 20 in | 8.3 |  |  |  |  |
 | Return plenum box | Return |  | 14 x 24 in | 3.2 |  |  |  |  |
 | Study return | Return |  | 6 in round | 65.7 |  | yes | 27 | 2 |
 | Study high return | Return | Bedroom 4 / study | 20 x 4 in | 1.4 |  |  |  |  |
 | Utility room transfer grille | Return |  | 12 x 12 in | 1.0 |  |  |  |  |
-| Supply to Bath 1 | Supply | Bath 1 | 6 in round | 11.5 | 49 |  |  |  |
+| Supply to Bath 1 | Supply | Bath 1 | 6 in round | 11.4 | 49 |  |  |  |
 | Supply to Bath 2 | Supply | Bath 2 | 6 in round | 2.0 | 37 |  |  | 1 |
-| Supply to Bedroom 1 | Supply | Bedroom 1 | 8 in round | 0.6 | 138 |  |  |  |
+| Supply to Bedroom 1 | Supply | Bedroom 1 | 8 in round | 0.7 | 138 |  |  |  |
 | Supply to Bedroom 2 | Supply | Bedroom 2 | 6 in round | 0.8 | 78 |  |  |  |
 | Supply to Bedroom 3 | Supply | Bedroom 3 | 8 in round | 4.1 | 127 |  |  |  |
-| Supply to Closet 1 | Supply | Closet 1 | 6 in round | 2.8 | 33 |  |  |  |
+| Supply to Closet 1 | Supply | Closet 1 | 6 in round | 2.7 | 33 |  |  |  |
 | Supply to Closet 2 | Supply | Closet 2 | 6 in round | 6.0 | 32 |  |  |  |
 | Supply to Closet 3 | Supply | Closet 3 | 6 in round | 0.8 | 26 |  |  |  |
-| Supply to Entry / family | Supply | Entry / family | 8 in round | 19.1 | 112 |  |  |  |
-| Supply to Entry / family | Supply | Entry / family | 8 in round | 19.1 | 112 |  |  |  |
+| Supply to Entry / family | Supply | Entry / family | 8 in round | 18.9 | 112 |  |  |  |
+| Supply to Entry / family | Supply | Entry / family | 8 in round | 18.9 | 112 |  |  |  |
 | Supply to Hall 2 | Supply | Hall 2 | 6 in round | 5.8 | 15 |  |  |  |
 | Supply to Hall 2 | Supply | Hall 2 | 6 in round | 1.8 | 16 |  |  |  |
 | Supply to Kitchen / dining | Supply | Kitchen / dining | 8 in round | 0.6 | 127 |  |  |  |
@@ -213,8 +217,8 @@ Estimated from the joint and length counts above.
 | Supply to Kitchen / dining | Supply | Kitchen / dining | 8 in round | 0.6 | 127 |  |  |  |
 | Supply to Laundry | Supply | Laundry | 6 in round | 4.5 | 40 |  |  |  |
 | Supply to Living | Supply | Living | 7 in round | 12.8 | 70 |  | 2 |  |
-| Supply to Living | Supply | Living | 7 in round | 6.6 | 70 |  |  |  |
-| Supply to Loft | Supply | Loft | 8 in round | 9.1 | 88 |  |  |  |
+| Supply to Living | Supply | Living | 7 in round | 6.4 | 70 |  |  |  |
+| Supply to Loft | Supply | Loft | 8 in round | 8.9 | 88 |  |  |  |
 | Supply to Pantry | Supply | Pantry | 10 x 6 in | 0.4 | 22 |  |  |  |
 | Supply to Powder | Supply | Powder | 6 in round | 6.8 | 15 |  | 5 |  |
 | Supply to Bedroom 4 / study, west register | Supply | Bedroom 4 / study | 8 in round | 0.8 | 98 |  |  |  |
@@ -222,5 +226,5 @@ Estimated from the joint and length counts above.
 | Supply to Utility | Supply | Utility | 6 in round | 0.4 | 18 |  |  |  |
 | Kitchen supply duct | Supply |  | 14 x 8 in | 9.5 |  |  |  |  |
 | South supply main | Supply |  | 12 x 10 in | 13.3 |  |  |  |  |
-| Supply trunk | Supply |  | 18 x 16 in | 52.1 |  |  |  |  |
+| Supply trunk | Supply |  | 18 x 16 in | 52.3 |  |  |  |  |
 | Water heater intake duct | Water heater air | Utility | 8 in round | 12.8 |  | yes |  |  |

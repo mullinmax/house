@@ -28,7 +28,9 @@ for (const dc of eq.ducts || []) for (const gr of dc.grilles || []) {
   const dirs = [gr.wall ? DIR[gr.wall] : up ? [0, 1, 0] : [0, -1, 0]];
   let best = null;
   for (const d of dirs) {
-    const out = new THREE.Vector3(...d), front = plan(...gr.at).addScaledVector(out, T / 2);
+    // a floor grille covers a hole cut in the deck (make_house.py deck_box), so look at the deck under its flange, 1/2 in past the opening
+    const at = up ? [gr.at[0] + ((gr.size ? gr.size[0] : 10) / 2 + 0.5) / 12, gr.at[1], gr.at[2]] : gr.at;
+    const out = new THREE.Vector3(...d), front = plan(...at).addScaledVector(out, T / 2);
     // start 4 in out in the room and look back: the first house surface hit is the face the grille should sit on
     rc.set(front.clone().addScaledVector(out, 4 * IN), out.clone().negate()); rc.far = 10 * IN;
     const hit = rc.intersectObjects(meshes, false)[0];

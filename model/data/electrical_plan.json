@@ -54,12 +54,13 @@
   },
   {
    "kind": "switch",
-   "x": 26.45,
+   "x": 26.6,
    "y": 10.616,
    "z_in": 44,
    "facing": 0,
    "level": "main",
-   "src": "U-11 #4"
+   "src": "U-11 #4",
+   "note": "Moved from x 26.45 (11/27/2026): the study door was moved east to its framed position, so the switch sat under the door casing."
   },
   {
    "kind": "switch",
@@ -733,12 +734,13 @@
   },
   {
    "kind": "outlet",
-   "x": 7.392,
+   "x": 7.33,
    "y": 10.916,
    "z_in": 16,
    "facing": 180,
    "level": "main",
-   "src": "U-11 #84"
+   "src": "U-11 #84",
+   "note": "Nudged from x 7.39 to 7.33 (11/27/2026): its box now sits against the stud, clear of the bedroom 3 return stack in the same bay."
   },
   {
    "kind": "outlet",
@@ -751,12 +753,13 @@
   },
   {
    "kind": "data",
-   "x": 9.238,
+   "x": 10.25,
    "y": 10.625,
    "z_in": 16,
    "facing": 0,
    "level": "main",
-   "src": "U-11 #86"
+   "src": "U-11 #86",
+   "note": "Moved one stud bay east from x 9.24 (11/27/2026): it sat on the bedroom 2 low return grille, in the bay the return stack fills."
   },
   {
    "kind": "outlet",
@@ -1046,10 +1049,11 @@
    "kind": "outlet",
    "x": 34.491,
    "y": 15.457,
-   "z_in": 16,
+   "z_in": 30,
    "facing": 180,
    "level": "upper",
-   "src": "U-12 #8"
+   "src": "U-12 #8",
+   "note": "Raised from 16 in to 30 in above the deck (11/27/2026): the supply trunk and the exhaust main on it run along this wall and covered it."
   },
   {
    "kind": "outlet",

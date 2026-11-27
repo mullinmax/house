@@ -979,6 +979,73 @@ if ATTIC_ACCESS:
 # walls that are still only a bottom plate on the slab, and the stick framed bearing wall on the clerestory line.
 # Hidden inside the walls until the Drywall walls layer is off. [framing] in config.toml says which walls are up and what
 # each header is; anything not in a photo is typical framing, ASSUMED. FRAMING_META goes to house.json for tools/header_clash.py.
+# Ducts and pipes that rise through a top plate (the low return stacks, bath 2's supply stack) or the attic deck: the board is cut where
+# each one passes, 1/8 in clear all round, so the walkthrough shows the notch rather than a duct running through solid
+# lumber. What is left of the plate either side of the cut is drawn when it is at least 1/4 in thick. The straps across
+# each cut are equipment items (make_equipment.py _strap_plate_stacks). Positions come from the last
+# site/models/equipment.json, so after moving a stack run make_equipment.py and then this script again
+# (node tools/clash_audit.mjs --only Lumber lists any plate a duct still runs through).
+PEN_CLR = 0.125 / 12
+PENS = []                                    # (x, y, width, depth, z0, z1, round) of each vertical duct or pipe segment, plan ft
+SLOPED = []                                  # (p, q, width, depth) of each sloping segment (a branch dropping off the trunk through the deck)
+try:
+    _eq = json.load(open(os.path.join(HERE, "..", "site", "models", "equipment.json")))
+except (OSError, ValueError):
+    _eq = {}
+for _d in _eq.get("ducts", []) + _eq.get("runs", []):
+    _sz = _d.get("size", _d.get("dia", 0))
+    _w, _dd = (_sz / 12, _sz / 12) if isinstance(_sz, (int, float)) else (_sz[0] / 12, _sz[1] / 12)
+    for _p, _q in zip(_d["points"], _d["points"][1:]):
+        if abs(_p[0] - _q[0]) > 0.01 or abs(_p[1] - _q[1]) > 0.01:
+            if abs(_p[2] - _q[2]) > 0.01:
+                SLOPED.append((_p, _q, _w, _dd))
+            continue
+        PENS.append((_p[0], _p[1], _w, _dd, min(_p[2], _q[2]), max(_p[2], _q[2]), isinstance(_sz, (int, float))))
+
+
+def rect_minus(r, holes):
+    """plan rectangle (x0, x1, y0, y1) less the holes that cross it, as a list of rectangles"""
+    for k, (h0, h1, g0, g1) in enumerate(holes):
+        x0, x1, y0, y1 = r
+        if h1 <= x0 or h0 >= x1 or g1 <= y0 or g0 >= y1:
+            continue
+        hx0, hx1, hy0, hy1 = max(h0, x0), min(h1, x1), max(g0, y0), min(g1, y1)
+        rest = holes[k + 1:]
+        out = []
+        for q in ((x0, hx0, y0, y1), (hx1, x1, y0, y1), (hx0, hx1, y0, hy0), (hx0, hx1, hy1, y1)):
+            if q[1] - q[0] > 1e-4 and q[3] - q[2] > 1e-4:
+                out += rect_minus(q, rest)
+        return out
+    return [r]
+
+
+DECK_CUTS = []
+def deck_box(mat, x0, x1, y0, y1, z0, z1):
+    """a piece of the attic deck with a hole, 1/8 in clear, where each duct or pipe rises through it"""
+    holes = [(px - w_ / 2 - PEN_CLR, px + w_ / 2 + PEN_CLR, py - d_ / 2 - PEN_CLR, py + d_ / 2 + PEN_CLR)
+             for (px, py, w_, d_, pz0, pz1, _r) in PENS if pz0 < z1 - 1e-3 and pz1 > z0 + 1e-3]
+    for (p_, q_, w_, d_) in SLOPED:             # a sloping branch: the part of its axis within half its size of the deck, widened by its half width
+        lo, hi = sorted((p_[2], q_[2]))
+        za, zb = z0 - d_ / 2, z1 + d_ / 2
+        if hi <= za or lo >= zb:
+            continue
+        pts = []
+        for zz in (max(lo, za), min(hi, zb)):
+            t = (zz - p_[2]) / (q_[2] - p_[2])
+            pts.append((p_[0] + (q_[0] - p_[0]) * t, p_[1] + (q_[1] - p_[1]) * t))
+        r_ = max(w_, d_) / 2 + PEN_CLR
+        holes.append((min(u[0] for u in pts) - r_, max(u[0] for u in pts) + r_, min(u[1] for u in pts) - r_, max(u[1] for u in pts) + r_))
+    for it_ in _eq.get("items", []):              # the server rack's home run bundle drops through the deck 3 in off its centre (site/equipment.js)
+        if it_.get("builder") == "server_rack" and it_.get("facing", 0) == 0:
+            hx, hy, hr = it_["at"][0] + 3 / 12, it_["at"][1] - 1.5 / 12, 1.3 / 12
+            holes.append((hx - hr, hx + hr, hy - hr, hy + hr))
+    for h in holes:
+        if h[1] > x0 and h[0] < x1 and h[3] > y0 and h[2] < y1:
+            DECK_CUTS.append([round(v, 3) for v in h])
+    for q in rect_minus((x0, x1, y0, y1), holes):
+        box(mat, q[0], q[1], q[2], q[3], z0, z1)
+
+
 FR = C.get("framing", {})
 FRAMING_META = dict(headers=[], kings=[], junctions=[], walls=[])
 if FR.get("enabled", True):
@@ -1068,6 +1135,29 @@ if FR.get("enabled", True):
             u = max(u, c1)
         fbox("Lumber", alongx, u, b, v0, v1, 0.0, SW)
 
+    FRAMING_META["plate_cuts"] = []
+
+    def plate_with_cuts(alongx, a, b, v0, v1, z0, z1):
+        cuts = []
+        for (px, py, w_, d_, pz0, pz1, rnd_) in PENS:
+            if pz1 <= z0 + 1e-3 or pz0 >= z1 - 1e-3:
+                continue
+            pu, pv = (px, py) if alongx else (py, px)
+            ww, dd = w_, d_                                   # a stack's width lies along its wall, its depth across it
+            cu0, cu1, cv0, cv1 = pu - ww / 2 - PEN_CLR, pu + ww / 2 + PEN_CLR, pv - dd / 2 - PEN_CLR, pv + dd / 2 + PEN_CLR
+            if cu1 <= a or cu0 >= b or cv1 <= v0 or cv0 >= v1:
+                continue
+            cuts.append((max(cu0, a), min(cu1, b), cv0, cv1))
+            FRAMING_META["plate_cuts"].append(dict(at=[round(px, 3), round(py, 3)], z=[round(z0, 3), round(z1, 3)], u=[round(cu0, 3), round(cu1, 3)]))
+        u = a
+        for c0, c1, cv0, cv1 in sorted(cuts):
+            fbox("Lumber", alongx, u, c0, v0, v1, z0, z1)
+            for s0, s1 in ((v0, cv0), (cv1, v1)):           # the plate left either side of the hole
+                if s1 - s0 >= 0.25 * IN:
+                    fbox("Lumber", alongx, c0, c1, s0, s1, z0, z1)
+            u = max(u, c1)
+        fbox("Lumber", alongx, u, b, v0, v1, z0, z1)
+
     def lines_up(op_, alongx, t0, t1):
         return (op_["axis"] == "x") == alongx and abs((op_["t0"] + op_["t1"]) / 2 - (t0 + t1) / 2) < 0.3
 
@@ -1099,7 +1189,7 @@ if FR.get("enabled", True):
         FRAMING_META["walls"].append(dict(rect=[x0, x1, y0, y1], built=True, top=min(zt(a), zt(b))))
         a, b = a + FACE_IN, b - FACE_IN
         for n in range(NTOP):
-            fbox("Lumber", alongx, a, b, v0, v1, min(zt(a), zt(b)) - (n + 1) * SW, min(zt(a), zt(b)) - n * SW)
+            plate_with_cuts(alongx, a, b, v0, v1, min(zt(a), zt(b)) - (n + 1) * SW, min(zt(a), zt(b)) - n * SW)
         ztop = min(zt(a), zt(b)) - NTOP * SW
         # skip studs inside any rough opening (and its kings and jacks) on this wall line
         skip = []
@@ -1109,6 +1199,23 @@ if FR.get("enabled", True):
                 skip.append((op_["r0"] - kk * SW, op_["r1"] + kk * SW))
         bottom_plate(alongx, a, b, v0, v1, [(op_["r0"] - FACE_IN, op_["r1"] + FACE_IN) for op_ in OPEN if lines_up(op_, alongx, t0, t1)])
         us = [a + OC * i for i in range(0, int((b - a) / OC) + 1)] + [b - SW]
+        # where Maxwell taped the studs ([framing] stud_lines), draw them where they really are: the duct stacks sit in
+        # the measured bays, so the typical 16 in layout put studs straight through them
+        meas, spans = [], []
+        for sl in FR.get("stud_lines", []):
+            if (sl["axis"] == "x") != alongx or abs((t0 + t1) / 2 - sl["at"]) > 0.35:
+                continue
+            if "right_edges_in" in sl:              # east (or south) edge of each stud, measured from x0 toward +u
+                us_ = [sl["x0"] + e * IN - SW for e in sl["right_edges_in"]]
+            else:                                   # west edge of each stud, measured from x0 toward -u
+                us_ = [sl["x0"] - e * IN for e in sl["west_edges_in"]]
+            m0, m1 = min(us_), max(us_) + SW
+            if m1 <= a or m0 >= b:
+                continue
+            spans.append((m0 - OC / 2, m1 + OC / 2))
+            meas += [u for u in us_ if a - 0.001 <= u <= b - SW + 0.001]
+        if spans:
+            us = [u for u in us if not any(s0 < u < s1 for s0, s1 in spans)] + meas
         last = None
         for u in sorted(us):
             u = min(max(u, a), b - SW)
@@ -1270,16 +1377,16 @@ if C["ceilings"].get("attic_floor"):
         info=dict(model="Walkable attic deck over the flat ceilings", specs=[["Top", f"{ftin(FH + FLOOR_T)} above the slab"], ["Build up", f"{_ft['depth_in'] if _ft else ''}\" floor trusses + {_ft['deck_in'] if _ft else ''}\" decking"]],
                   notes=["One continuous attic: the deck bridges the walls between flat ceiling rooms. ASSUMED."]))
     for k, (x0, y0, x1, y1) in enumerate(FR_):
-        box("Attic Deck", x0, x1, y0, y1, FH + FLOOR_T - DECK_T, FH + FLOOR_T)
+        deck_box("Attic Deck", x0, x1, y0, y1, FH + FLOOR_T - DECK_T, FH + FLOOR_T)
     for i, (a0, b0, a1, b1) in enumerate(FR_):
         for j, (c0, d0, c1, d1) in enumerate(FR_):
             if j <= i:
                 continue
             ox0, ox1 = max(a0, c0), min(a1, c1); oy0, oy1 = max(b0, d0), min(b1, d1)
             if ox1 - ox0 > 1.0 and 0 < oy0 - oy1 <= 0.8:
-                box("Attic Deck", ox0, ox1, oy1, oy0, FH + FLOOR_T - DECK_T, FH + FLOOR_T)
+                deck_box("Attic Deck", ox0, ox1, oy1, oy0, FH + FLOOR_T - DECK_T, FH + FLOOR_T)
             elif oy1 - oy0 > 1.0 and 0 < ox0 - ox1 <= 0.8:
-                box("Attic Deck", ox1, ox0, oy0, oy1, FH + FLOOR_T - DECK_T, FH + FLOOR_T)
+                deck_box("Attic Deck", ox1, ox0, oy0, oy1, FH + FLOOR_T - DECK_T, FH + FLOOR_T)
 
 # ------------------------------------------------------------------ loft
 if LOFT["enabled"]:
@@ -4519,7 +4626,7 @@ out = dict(
                     + ([dict(name="Porch", rect=list(C["porch"]["rect"]), floor=rnd(PZ), outside=True)] if C.get("porch", {}).get("enabled", True) and C.get("porch", {}).get("rect") else []),
               outline=dict(house=[0, 0, HW, HD], garage=GA["rect"] if GA.get("enabled") else None, porch=C.get("porch", {}).get("rect")),
               climbs=(LADDER_CLIMBS if LADDER_CLIMBS is not None else [dict(id="loft.ladder", rect=list(LOFT["ships_ladder"]), axis="x", z0=0.0, z1=LOFT["floor_height"])]) if LOFT.get("enabled") else [],
-              framing=FRAMING_META,
+              framing=FRAMING_META, deck_cuts=DECK_CUTS,
               grade=GRADE_GRID,
               partitions=[dict(a11=[rnd(v) for v in a], built=[rnd(v) for v in b]) for a, b in zip(INT_RECTS_A11, INT_RECTS) if a != b],
               **WEB_META),

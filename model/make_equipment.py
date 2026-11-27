@@ -484,7 +484,7 @@ items += [
       info=dict(model="Whole house UV sterilizer, about 12 gpm (Viqua VH410 class, generic)", specs=[["Power", "120 V outlet nearby"], ["Lamp", "Change once a year"], ["Order", "Last, after the filters, so the water it sees is clear"]],
                 notes=["Generic placeholder, not in Crabtree's quote. Common on private wells to kill bacteria; the county may want a bacteria test either way.", APPROX])),
  dict(id="softener_space", name="Water softener (space reserved)", category="Well water", system="plumbing.well", room="Utility", layer="mechanical",
-      builder="softener_cabinet", size=[14, 44, 17.5], at=[UE - 0.62, US - 0.02, 0], facing=0,
+      builder="softener_cabinet", size=[14, 44, 17.5], at=[UE - 0.66, US - 0.02, 0], facing=0,   # 0.66: at 0.62 it ran 3/8 in under the utility door casing (clash_audit 11/27/2026)
       info=dict(model="Space for a cabinet softener, about 14 W x 17-1/2 D x 44 H in (generic, not decided)",
         specs=[["Status", "Not decided. Space kept so one can go in later (Maxwell, 11/19/2026)"], ["Needs", "120 V outlet, the floor drain for backwash (about 8 ft of 1/2 in tubing), and the treated cold line"],
                ["Would sit", "After the filters, before the preheat tank, with a bypass valve"]],
@@ -620,7 +620,7 @@ def supply(id, room, cfm, dia, points, grille=None, note=None, name=None, parent
     if grille: d["grilles"] = [grille]
     ducts.append(d)
 
-XW, YN, YE, XJ = HP_CX, 12.0, 16.1, 29.2         # west leg x, north leg y, east leg y, jog x: against bedroom 1's door wall (west face x 30.25), the attic's east wall there (Maxwell, 11/19/2026; it had stayed at 27.07 when that wall moved east from 28.12)
+XW, YN, YE, XJ = HP_CX, 12.0, 16.26, 29.2        # west leg x, north leg y, east leg y, jog x (east leg 1/4 in clear of bedroom 1's south wall, attic face y 15.49: at 16.1 it ran 1 3/4 in into it, tools/clash_audit.mjs 11/27/2026): against bedroom 1's door wall (west face x 30.25), the attic's east wall there (Maxwell, 11/19/2026; it had stayed at 27.07 when that wall moved east from 28.12)
 TRUNK_NOTE = ("Rerouted from M-10. Andy drew this trunk down the middle of the attic at y about 21.6 ft. Maxwell asked for it along the north wall of the attic, "
               "so it runs straight north from the heat pump with no turn (Maxwell, 11/18/2026), then along the north attic wall all the way to bedroom 1's west wall, follows that wall south, then runs east along bedroom 1's south wall (Maxwell, 11/17/2026: keep the middle of the attic free for storage). Size is Andy's 18 x 16 throughout, no reductions modelled.")
 ducts.append(dict(id="supply_trunk", name="Supply trunk", category="HVAC supply duct", system="hvac.supply", type="supply", shape="rect", size=[18, 16], parent="supply_plenum", el=20,
@@ -967,7 +967,7 @@ ret("return_bed1_head", None, [HBW, 10], [[XBH, 15.3, ZH], [XBH, 15.95, ZH]], in
 # supply air straight back out. A bottom takeoff from the trunk drops into hall 2's trusses, runs north in one truss bay to the
 # bath 2 / hall 2 wall (an interior stud wall, not a SIP), and goes down that stud bay to a low register just east of the door.
 XS2 = stud_bay(20.0, min_in=10.2)                             # the measured stud bay just east of the bath 2 door (Maxwell, 11/20/2026): 10 3/4 in clear, so a 10 in stack
-supply("s_bath2", "Bath 2", 37, 6, [[XS2, YN, DECK + 0.3], [XS2, YN, ZT], [XS2, 10.85, ZT]], dict(at=[XS2, 10.64, LOW], size=[10, 6], wall=N), el=60, note=
+supply("s_bath2", "Bath 2", 37, 6, [[XS2, YN, DECK + 0.3], [XS2, YN, ZT], [XS2, 10.85, ZT]], dict(at=[XS2 + 0.04, 10.64, LOW], size=[10, 6], wall=N), el=60, note=
        "Low sidewall register on the south wall (Maxwell, 11/18/2026): supply low, exhaust high on the other end of the same wall, so fresh air "
        "sweeps across the room before the exhaust takes it. Bottom takeoff from the trunk, 6 in round north in one hall 2 truss bay, then a "
        "10 x 2-1/2 in stack down the stud bay of the interior wall (the measured bay east of the door is 10 3/4 in clear, Maxwell 11/20/2026). The register sits east of the door and west of the vanity. ASSUMED sizes.")
@@ -988,8 +988,10 @@ def exhaust(id, name, dia, points, grilles=None, note=None, info_of=None, room=N
     ducts.append(d)
 XE1 = bay(39.7)
 Y_EL, X_EL, Y_EN = YE - 0.48, XJ + 0.48, YN - 0.48  # the exhaust main's lane on the trunk top: the other side from the bedroom 1 return
-exhaust("ex_bath1", "Bath 1 exhaust", 6, [[XE1, 30.0, ZT], [XE1, 17.8, ZT], [XE1, 17.8, EX]], room="Bath 1",
-        grilles=[dict(at=[XE1, 30.0, CEIL - 0.02], size=[10, 10])], note=ENOTE + " Runs north in one loft floor truss bay, east of the family supply drop, then up onto the deck.")
+YE1 = 28.9                                        # grille between the bench and the rain head: at y 30.0 it lapped over the head's ceiling flange and the shower light (clash_audit 11/27/2026)
+exhaust("ex_bath1", "Bath 1 exhaust", 6, [[XE1, YE1, ZT], [XE1, 17.8, ZT], [XE1, 17.8, EX]], room="Bath 1",
+        grilles=[dict(at=[XE1, YE1, CEIL - 0.02], size=[10, 10])], note=ENOTE + " Runs north in one loft floor truss bay, east of the family supply drop, then up onto the deck. "
+        "The grille sits about 11 in north of the rain head, over the wet zone.")
 XE2 = 21.9                                        # east end of the south wall, over the toilet and vanity, away from the low supply
 exhaust("ex_bath2", "Bath 2 exhaust", 6, [[XE2, 10.62, ZTOP], [XE2, Y_EN, ZTOP]], room="Bath 2",
         grilles=[dict(at=[XE2, 10.64, ZTOP], size=[10, 6], wall=N)], note=ENOTE + " High on the east end of the bath 2 south wall, through the attic wall and into the main on top of the supply trunk. "
@@ -1534,12 +1536,17 @@ fan("fan_family", "Entry / family", 36.5, 42.5, 60, 9.0, False, ["Between the en
 _CL_P = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "ceiling_lights.json")
 _CL = json.load(open(_CL_P)) if os.path.exists(_CL_P) else {}
 _CL_ROOM = {"Bath1": "Bath 1", "Bath1 shower": "Bath 1 shower", "Bath1 toilet": "Bath 1 toilet", "Bath2": "Bath 2"}
+# lights moved off things the clash audit found them on (11/27/2026), plan ft [dx, dy]: the shower light sat on the rain
+# head's ceiling arm, the closet 1 light lapped over the closet supply grille
+LIGHT_SHIFT = {"Light Bath1 shower 15": [0.0, 1.3], "Light Closet 1 22": [0.15, 0.0]}
 _n_cl = 0
 for _L in json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "site", "models", "manifest.json"))).get("lights", []):
     _nm = _L["name"]
     if not _nm.startswith("Light ") or _nm in FAN_META["lights_moved"] or _nm not in _CL:
         continue
     _x, _y = round(_L["pos"][0] / 0.3048, 3), round(-_L["pos"][1] / 0.3048, 3)
+    if _nm in LIGHT_SHIFT:
+        _x, _y = round(_x + LIGHT_SHIFT[_nm][0], 3), round(_y + LIGHT_SHIFT[_nm][1], 3)
     _z, _sl = _CL[_nm]
     if _L["room"] == "Garage":       # pole barn (Maxwell 11/22/2026): no ceiling, the lights hang flat under the truss bottom chords
         _PB = CFG["garage"].get("pole_barn", {}); _PV1 = (_PB.get("siding_in", 0.75) + 1.5 + _PB.get("post_in", 5.5)) / 12
@@ -1824,14 +1831,16 @@ def _follow_drywall():
 # is narrowed to the part of its stud bay that sits between two trusses (about 12 in, so no truss bears over the cut), and a
 # 16 ga x 1 1/2 in strap runs across the cut on the face of each top plate, 6 in past it each side with eight 10d nails each
 # side (IRC R602.6.1: more than half the plate's width removed in a bearing wall).
-STRAP_NOTE = ("Top plate straps (Maxwell, 11/24/2026): the attic trusses bear on the top plate of this wall, so each stack is narrowed to about 12 in to "
-              "sit between two trusses, and a 16 ga x 1 1/2 in galvanized strap crosses the cut on each of the two top plates, 6 in past it each side "
+# 11/27/2026 (Maxwell): bath 2's 10 in supply stack goes up through the same hall 2 wall plates, so it gets the same straps,
+# and make_house.py now cuts every top plate where a stack passes.
+STRAP_NOTE = ("Top plate straps (Maxwell, 11/24/2026): the attic trusses bear on the top plate of this wall, so each stack sits between two trusses (the "
+              "returns are narrowed to about 12 in for it), and a 16 ga x 1 1/2 in galvanized strap crosses the cut on each of the two top plates, 6 in past it each side "
               "with eight 10d nails each side (IRC R602.6.1). Framer and truss supplier to confirm.")
 def _strap_return_stacks():
     D = {d["id"]: d for d in ducts}
     xs_all = sorted(set(round(v, 4) for xs_ in trusses["xs"] for v in xs_))
     CWH = CFG["floor_trusses"].get("chord_w_in", 3.5) / 24
-    for sid in ["return_bed3_stack", "return_bed3_stack2", "return_bed2_stack", "return_study_stack", "return_study_stack2", "return_bed1_stack", "return_bed1_stack2"]:
+    for sid in ["return_bed3_stack", "return_bed3_stack2", "return_bed2_stack", "return_study_stack", "return_study_stack2", "return_bed1_stack", "return_bed1_stack2", "s_bath2_stack"]:
         d = D[sid]; x = d["points"][0][0]; y = d["points"][0][1]; w = d["size"][0] / 12
         a, b = x - w / 2, x + w / 2
         for tx in xs_all:                          # pull each end of the cut 1/4 in clear of any truss chord over it
@@ -1849,11 +1858,11 @@ def _strap_return_stacks():
             items.append(dict(id=f"plate_strap_{sid}_{k}", name="Top plate strap", category="Framing", system="framing", layer="ducts", builder="plate_strap",
                               size=[L, 1.5, 0.06], at=[x2, face, z], facing=180 if hall else 0,
                               info=dict(model=f"16 ga x 1-1/2 x {L} in galvanized strap, eight 10d nails each side",
-                                        notes=[f"The {w2} in return stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for "
+                                        notes=[f"The {w2} in {'supply' if sid.startswith('s_') else 'return'} stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for "
                                                "a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper "
-                                               "plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses over it."
+                                               "plate and one on the lower. " + ("The stack already sits between the two trusses over it." if sid.startswith("s_") else "The stack is narrowed from 14 in so it stays between the two trusses over it.")
                                                + ("" if hall else " If this wall turns out to be a 2x6, the cut is under half the plate and the straps are not required.")])))
-    for rid in ("return_bed23", "return_study", "return_bed1"):
+    for rid in ("return_bed23", "return_study", "return_bed1", "s_bath2"):
         D[rid]["info"]["notes"].append(STRAP_NOTE)
 _strap_return_stacks()
 
