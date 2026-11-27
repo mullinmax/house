@@ -692,7 +692,7 @@ items = [
   { id = "towel2", type = "towel", x = 16.3, y = 6.4, z = 4.0, w = 2.0, facing = 90, color = "#E9E4DA" },
   # ---- bath 1 (x 31.6-42.5, y 22.9-34.6): double vanity on the west wall, shower in the NE corner
   # Master: the west wall alcove is 73 in (closet wall face y 22.866 to the water closet wall face y 28.949), so the 84 in
-  # Beckett can't fit. 72 in double, all five sections, 1/2 in quartz side splashes take up the rest (ASSUMED, decision open).
+  # Beckett can't fit. 72 in double, all five sections, 1/2 in quartz side splashes take up the rest (Maxwell OK 11/26/2026: photos are style only, sizes flex).
   { id = "vanity1", type = "vanity", web = true, x = 32.5, y = 25.91, back = 31.581, span = [22.866, 28.949], facing = 90, sections = ["drawers", "sink", "drawers", "sink", "drawers"], widths_in = [11.5, 18.75, 11.5, 18.75, 11.5], color = "#2B3A55", color_name = "navy", mirror = { w = 5.5, h = 2.9, bottom = 3.85 }, cull = [[31.55, 22.9, 0.02, 33.45, 28.92, 7.6]], notes = ["Style of the Wyndham Beckett 84 in Maxwell picked (11/26/2026). 84 in is 11 in too long for this wall, so it is 72 in with the same five sections, each a little narrower.", "Sinks are about 30 in apart, centre to centre."] },
   { id = "mirror1", type = "mirror", x = 31.62, y = 26.0, z = 3.9, w = 4.8, h = 3.0, facing = 90 },   # baked; the vanity builds its own now
   { id = "toilet1", type = "toilet", x = 32.75, y = 31.1, facing = 90 },   # toilet room south of the D28-68 door (A-11 position)
