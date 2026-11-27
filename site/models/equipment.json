@@ -716,7 +716,7 @@
     "specs": [
      [
       "Size",
-      "23.4 W x 33.9 H x 23.6 D in"
+      "23.4 W x 33.9 H x 23.6 D in (21.65 without the door, 25.5 with the handle, 45.8 with the door open 90 degrees; Hisense spec sheet, checked 11/27/2026)"
      ],
      [
       "Capacity",
@@ -736,7 +736,8 @@
      ]
     ],
     "notes": [
-     "Confirmed against Erin's list (11/17/2026)."
+     "Confirmed against Erin's list (11/17/2026).",
+     "Island bay check 11/27/2026: the bay is 24 in wide and 34 1/2 in to the counter underside, so the 23.4 x 33.9 in case fits with about 5/16 in each side and 5/8 in on top. The spec sheet's 4 in side and top air clearance is for freestanding use; confirm in the install guide that it vents at the front when built in."
     ],
     "links": [
      [

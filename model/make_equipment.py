@@ -107,9 +107,9 @@ items += [
  dict(id="beverage", name="Hisense beverage fridge", category="Kitchen appliance", system="kitchen", room="Kitchen", layer="appliances",
       builder="beverage_center", size=[23.4, 33.9, 25.0], at=[11.81, 44.95, 0.02], facing=90,   # 1/8 in off the island back, which it was flush with
       cull=[dict(box=[13.6, 43.95, 0.2, 14.1, 45.95, 3.0], materials=["Stainless", "Black Glass", "Brushed Nickel"])],
-      info=dict(model="Hisense HBC164N6SS, 24 in beverage centre", price="$599 at Lowe's on 11/17/2026 (list $899)", specs=[["Size", "23.4 W x 33.9 H x 23.6 D in"], ["Capacity", "5.4 cu ft, about 164 cans"],
+      info=dict(model="Hisense HBC164N6SS, 24 in beverage centre", price="$599 at Lowe's on 11/17/2026 (list $899)", specs=[["Size", "23.4 W x 33.9 H x 23.6 D in (21.65 without the door, 25.5 with the handle, 45.8 with the door open 90 degrees; Hisense spec sheet, checked 11/27/2026)"], ["Capacity", "5.4 cu ft, about 164 cans"],
                ["Power", "115 V, 0.8 A"], ["Noise", "39 dB"], ["Install", "Built in or freestanding, reversible door"]],
-        notes=["Confirmed against Erin's list (11/17/2026)."],
+        notes=["Confirmed against Erin's list (11/17/2026).", "Island bay check 11/27/2026: the bay is 24 in wide and 34 1/2 in to the counter underside, so the 23.4 x 33.9 in case fits with about 5/16 in each side and 5/8 in on top. The spec sheet's 4 in side and top air clearance is for freestanding use; confirm in the install guide that it vents at the front when built in."],
         links=[["Lowe's product page", "https://www.lowes.com/pd/Hisense-23-43-in-W-Smart-140-Can-Capacity-Stainless-Steel-Built-In-Freestanding-Beverage-Refrigerator-with-Glass-Door/5015197291"]],
         placement="Under the island, facing the dining room.")),
 ]

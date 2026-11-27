@@ -1701,8 +1701,9 @@ def base_unit(run, rn, k, u0, u1, typ, mat, depth=BASE_D, counter=True):
         return
     if typ == "panel":
         run.box(mat, u0, u1, 0, d + FRONT_T, 0, zt); return
-    run.box(mat, u0, u1, 0, d, KICK, zt)
-    run.box(mat, u0, u1, 0, d - 0.25, 0, KICK)
+    if typ not in ("beverage", "dishwasher"):        # an undercounter appliance stands in an open bay, floor to counter: no box or kick behind it
+        run.box(mat, u0, u1, 0, d, KICK, zt)
+        run.box(mat, u0, u1, 0, d - 0.25, 0, KICK)
     if counter:
         run.box("Counter", u0, u1, 0, d + 0.18, zt, CTR_Z)
     if typ == "blind":
