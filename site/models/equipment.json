@@ -186,7 +186,7 @@
    ],
    "Light Bath1 shower 15": [
     40.449,
-    29.902,
+    31.202,
     8.7
    ],
    "Light Bath1 toilet 16": [
@@ -220,7 +220,7 @@
     8.7
    ],
    "Light Closet 1 22": [
-    33.999,
+    34.149,
     18.901,
     8.7
    ],
@@ -716,7 +716,7 @@
     "specs": [
      [
       "Size",
-      "23.4 W x 33.9 H x 23.6 D in"
+      "23.4 W x 33.9 H x 23.6 D in (21.65 without the door, 25.5 with the handle, 45.8 with the door open 90 degrees; Hisense spec sheet, checked 11/27/2026)"
      ],
      [
       "Capacity",
@@ -736,7 +736,8 @@
      ]
     ],
     "notes": [
-     "Confirmed against Erin's list (11/17/2026)."
+     "Confirmed against Erin's list (11/17/2026).",
+     "Island bay check 11/27/2026: the bay is 24 in wide and 34 1/2 in to the counter underside, so the 23.4 x 33.9 in case fits with about 5/16 in each side and 5/8 in on top. The spec sheet's 4 in side and top air clearance is for freestanding use; confirm in the install guide that it vents at the front when built in."
     ],
     "links": [
      [
@@ -1894,7 +1895,7 @@
     17.5
    ],
    "at": [
-    11.044,
+    11.004,
     28.1691,
     0
    ],
@@ -3669,7 +3670,7 @@
    ],
    "at": [
     40.449,
-    29.902,
+    31.202,
     9
    ],
    "facing": 0,
@@ -3693,7 +3694,7 @@
     "notes": [
      "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
     ],
-    "placement": "Ceiling of Bath 1 shower, x 40.4 ft, y 29.9 ft."
+    "placement": "Ceiling of Bath 1 shower, x 40.4 ft, y 31.2 ft."
    }
   },
   {
@@ -3955,7 +3956,7 @@
     0.5
    ],
    "at": [
-    33.999,
+    34.149,
     18.901,
     9
    ],
@@ -3980,7 +3981,7 @@
     "notes": [
      "Positions are ASSUMED (the model's lighting plan, not on U-11). Flush with the ceiling and tilted to it. A wafer light needs only about 1 in of depth, which suits the SIP roof panels where a can would not fit; its wiring and box still have to be planned with the panel maker."
     ],
-    "placement": "Ceiling of Closet 1, x 34.0 ft, y 18.9 ft."
+    "placement": "Ceiling of Closet 1, x 34.1 ft, y 18.9 ft."
    }
   },
   {
@@ -4688,7 +4689,7 @@
    ],
    "gangs": 1,
    "at": [
-    26.45,
+    26.6,
     10.606,
     3.479
    ],
@@ -4706,6 +4707,7 @@
      ]
     ],
     "notes": [
+     "Moved from x 26.45 (11/27/2026): the study door was moved east to its framed position, so the switch sat under the door casing.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 4).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "U-11 marks some of these 3-way or 4-way. Which ones switch which lights is on the sheet's dashed lines, not modelled here."
@@ -6988,7 +6990,7 @@
   },
   {
    "id": "elec_outlet_24",
-   "name": "Outlet, 16 in",
+   "name": "Outlet, 44 in",
    "category": "Electrical",
    "system": "electrical.power",
    "room": "Bath 1",
@@ -7002,7 +7004,7 @@
    "at": [
     32.738,
     33.168,
-    1.146
+    3.479
    ],
    "facing": 180,
    "gfi": false,
@@ -7013,7 +7015,7 @@
     "specs": [
      [
       "Height",
-      "16 in to the centre (U-11 legend)"
+      "44 in to the centre"
      ],
      [
       "On",
@@ -7021,6 +7023,7 @@
      ]
     ],
     "notes": [
+     "Moved 11/27/2026: at 16 in it sat behind the mudroom unit's base cabinet. Same spot along the wall, raised to 44 in, just above the 4 in stone backsplash over the unit's counter, for charging phones and keys. ASSUMED, confirm.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 66).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -7029,7 +7032,7 @@
   },
   {
    "id": "elec_outlet_25",
-   "name": "Outlet, 16 in",
+   "name": "Outlet, 9 in",
    "category": "Electrical",
    "system": "electrical.power",
    "room": "Bath 1",
@@ -7041,9 +7044,9 @@
     0.3
    ],
    "at": [
-    34.734,
+    34.69,
     33.168,
-    1.146
+    0.562
    ],
    "facing": 180,
    "gfi": false,
@@ -7054,7 +7057,7 @@
     "specs": [
      [
       "Height",
-      "16 in to the centre (U-11 legend)"
+      "9 in to the centre"
      ],
      [
       "On",
@@ -7062,6 +7065,7 @@
      ]
     ],
     "notes": [
+     "Moved 11/27/2026: at 16 in it sat behind the mudroom bench seat board. Now centred in a bench bay at 9 in, above the boot tray's lip and under the seat, for a boot dryer or a charger. Use GFCI with a weather resistant tamper resistant receptacle since wet boots stand in front. ASSUMED, confirm.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 67).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -7070,7 +7074,7 @@
   },
   {
    "id": "elec_outlet_26",
-   "name": "Outlet, 16 in",
+   "name": "Outlet, 9 in",
    "category": "Electrical",
    "system": "electrical.power",
    "room": "Bath 1",
@@ -7082,9 +7086,9 @@
     0.3
    ],
    "at": [
-    36.695,
+    36.76,
     33.168,
-    1.146
+    0.562
    ],
    "facing": 180,
    "gfi": false,
@@ -7095,7 +7099,7 @@
     "specs": [
      [
       "Height",
-      "16 in to the centre (U-11 legend)"
+      "9 in to the centre"
      ],
      [
       "On",
@@ -7103,6 +7107,7 @@
      ]
     ],
     "notes": [
+     "Moved 11/27/2026: at 16 in it sat behind the mudroom bench seat board. Now centred in a bench bay at 9 in, above the boot tray's lip and under the seat, for a boot dryer or a charger. Use GFCI with a weather resistant tamper resistant receptacle since wet boots stand in front. ASSUMED, confirm.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 68).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -7111,7 +7116,7 @@
   },
   {
    "id": "elec_outlet_27",
-   "name": "Outlet, 16 in",
+   "name": "Outlet, 9 in",
    "category": "Electrical",
    "system": "electrical.power",
    "room": "Bath 1",
@@ -7123,9 +7128,9 @@
     0.3
    ],
    "at": [
-    38.689,
+    38.83,
     33.168,
-    1.146
+    0.562
    ],
    "facing": 180,
    "gfi": false,
@@ -7136,7 +7141,7 @@
     "specs": [
      [
       "Height",
-      "16 in to the centre (U-11 legend)"
+      "9 in to the centre"
      ],
      [
       "On",
@@ -7144,6 +7149,7 @@
      ]
     ],
     "notes": [
+     "Moved 11/27/2026: at 16 in it sat behind the mudroom bench seat board. Now centred in a bench bay at 9 in, above the boot tray's lip and under the seat, for a boot dryer or a charger. Use GFCI with a weather resistant tamper resistant receptacle since wet boots stand in front. ASSUMED, confirm.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 69).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -7696,7 +7702,7 @@
     0.3
    ],
    "at": [
-    7.392,
+    7.33,
     11.001,
     1.146
    ],
@@ -7717,6 +7723,7 @@
      ]
     ],
     "notes": [
+     "Nudged from x 7.39 to 7.33 (11/27/2026): its box now sits against the stud, clear of the bedroom 3 return stack in the same bay.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 84).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -7778,7 +7785,7 @@
     0.3
    ],
    "at": [
-    9.238,
+    10.25,
     10.606,
     1.146
    ],
@@ -7796,6 +7803,7 @@
      ]
     ],
     "notes": [
+     "Moved one stud bay east from x 9.24 (11/27/2026): it sat on the bedroom 2 low return grille, in the bay the return stack fills.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-11 main level utility plan (symbol 86).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this.",
      "No coax anywhere in the house (Maxwell, 11/19/2026): each U-11 cable TV and CAT-5 outlet becomes two network jacks, each with its own cable back to the network spot.",
@@ -9032,7 +9040,7 @@
   },
   {
    "id": "elec_outlet_68",
-   "name": "Outlet, 16 in",
+   "name": "Outlet, 30 in",
    "category": "Electrical",
    "system": "electrical.power",
    "room": "Attic",
@@ -9046,7 +9054,7 @@
    "at": [
     34.491,
     15.491,
-    11.198
+    12.365
    ],
    "facing": 180,
    "gfi": false,
@@ -9057,7 +9065,7 @@
     "specs": [
      [
       "Height",
-      "16 in to the centre (U-11 legend)"
+      "30 in to the centre"
      ],
      [
       "On",
@@ -9065,6 +9073,7 @@
      ]
     ],
     "notes": [
+     "Raised from 16 in to 30 in above the deck (11/27/2026): the supply trunk and the exhaust main on it run along this wall and covered it.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 8).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -18371,6 +18380,56 @@
      "The 11.75 in return stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack is narrowed from 14 in so it stays between the two trusses over it. If this wall turns out to be a 2x6, the cut is under half the plate and the straps are not required."
     ]
    }
+  },
+  {
+   "id": "plate_strap_s_bath2_stack_0",
+   "name": "Top plate strap",
+   "category": "Framing",
+   "system": "framing",
+   "layer": "ducts",
+   "builder": "plate_strap",
+   "size": [
+    22,
+    1.5,
+    0.06
+   ],
+   "at": [
+    20.031,
+    10.955833333333334,
+    8.875
+   ],
+   "facing": 180,
+   "info": {
+    "model": "16 ga x 1-1/2 x 22 in galvanized strap, eight 10d nails each side",
+    "notes": [
+     "The 10.0 in supply stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack already sits between the two trusses over it."
+    ]
+   }
+  },
+  {
+   "id": "plate_strap_s_bath2_stack_1",
+   "name": "Top plate strap",
+   "category": "Framing",
+   "system": "framing",
+   "layer": "ducts",
+   "builder": "plate_strap",
+   "size": [
+    22,
+    1.5,
+    0.06
+   ],
+   "at": [
+    20.031,
+    10.955833333333334,
+    8.75
+   ],
+   "facing": 180,
+   "info": {
+    "model": "16 ga x 1-1/2 x 22 in galvanized strap, eight 10d nails each side",
+    "notes": [
+     "The 10.0 in supply stack cuts about 70% of the plate's 3 1/2 in width where the attic trusses bear, so IRC R602.6.1 asks for a 16 ga strap 1 1/2 in wide across the cut, at least 6 in past it each side, with eight 10d nails each side. One on the upper plate and one on the lower. The stack already sits between the two trusses over it."
+    ]
+   }
   }
  ],
  "runs": [
@@ -19725,12 +19784,12 @@
     ],
     [
      29.2,
-     16.1,
+     16.26,
      10.73875
     ],
     [
      41.2,
-     16.1,
+     16.26,
      10.73875
     ]
    ],
@@ -20381,13 +20440,13 @@
    "points": [
     [
      2.656,
-     26.5,
-     9.494791666666666
+     26.41,
+     9.597
     ],
     [
      3.1,
-     26.5,
-     9.494791666666666
+     26.41,
+     9.597
     ]
    ],
    "cfm": 18,
@@ -20417,7 +20476,7 @@
     {
      "at": [
       3.1,
-      26.5,
+      26.41,
       8.98
      ],
      "size": [
@@ -20425,6 +20484,15 @@
       6
      ]
     }
+   ],
+   "threaded": [
+    [
+     26.5,
+     26.41,
+     9.495,
+     9.597,
+     0.08
+    ]
    ]
   },
   {
@@ -20820,13 +20888,13 @@
     ],
     [
      26.656,
-     21.4,
-     9.494791666666666
+     22.15,
+     9.492
     ],
     [
      23.989,
-     21.4,
-     9.494791666666666
+     22.15,
+     9.492
     ],
     [
      23.989,
@@ -20871,7 +20939,16 @@
      "wall": "S"
     }
    ],
-   "cross_ok": 7
+   "cross_ok": 7,
+   "threaded": [
+    [
+     21.4,
+     22.15,
+     9.495,
+     9.492,
+     0.07
+    ]
+   ]
   },
   {
    "id": "s_living2",
@@ -20885,12 +20962,12 @@
    "points": [
     [
      29.323,
-     16.85,
+     17.01,
      10.502083333333333
     ],
     [
      29.323,
-     17.1,
+     17.26,
      9.494791666666666
     ],
     [
@@ -20949,12 +21026,12 @@
    "points": [
     [
      33.323,
-     16.85,
+     17.01,
      10.502083333333333
     ],
     [
      33.323,
-     17.1,
+     17.26,
      9.494791666666666
     ],
     [
@@ -21010,12 +21087,12 @@
    "points": [
     [
      34.656,
-     16.85,
+     17.01,
      10.502083333333333
     ],
     [
      34.656,
-     17.1,
+     17.26,
      9.494791666666666
     ],
     [
@@ -21073,12 +21150,12 @@
    "points": [
     [
      35.989,
-     16.85,
+     17.01,
      10.502083333333333
     ],
     [
      35.989,
-     17.1,
+     17.26,
      9.494791666666666
     ],
     [
@@ -21141,12 +21218,12 @@
    "points": [
     [
      31.989,
-     16.85,
+     17.01,
      10.502083333333333
     ],
     [
      31.989,
-     17.1,
+     17.26,
      9.494791666666666
     ],
     [
@@ -21205,12 +21282,12 @@
    "points": [
     [
      37.323,
-     16.85,
+     17.01,
      10.502083333333333
     ],
     [
      37.323,
-     17.1,
+     17.26,
      9.494791666666666
     ],
     [
@@ -21269,7 +21346,7 @@
    "points": [
     [
      35.3,
-     15.500000000000002,
+     15.660000000000002,
      11.0
     ],
     [
@@ -21606,7 +21683,7 @@
      "Bedroom 3 has two grilles and two stacks (duct balance check, 11/18/2026): a 14 x 2-1/2 in stack is all a 2x4 wall holds, and one of them alone passed only about three quarters of the room's 127 CFM.",
      "Each stack ends in a stack head on the top plate (Maxwell, 11/21/2026): a sheet metal box in the truss bay over the stud bay, with the stack in its bottom and a round collar on its south face. The round runs straight south off it, so there is no elbow beside the wall to stick through the drywall of the vaulted room on the other side. The head is about 12 x 4 in, as wide as the part of the stud bay that sits under the truss bay (they are about 2 in apart).",
      "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 6 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them.",
-     "Top plate straps (Maxwell, 11/24/2026): the attic trusses bear on the top plate of this wall, so each stack is narrowed to about 12 in to sit between two trusses, and a 16 ga x 1 1/2 in galvanized strap crosses the cut on each of the two top plates, 6 in past it each side with eight 10d nails each side (IRC R602.6.1). Framer and truss supplier to confirm."
+     "Top plate straps (Maxwell, 11/24/2026): the attic trusses bear on the top plate of this wall, so each stack sits between two trusses (the returns are narrowed to about 12 in for it), and a 16 ga x 1 1/2 in galvanized strap crosses the cut on each of the two top plates, 6 in past it each side with eight 10d nails each side (IRC R602.6.1). Framer and truss supplier to confirm."
     ],
     "specs": [
      [
@@ -21745,57 +21822,57 @@
     ],
     [
      6.656,
-     12.2,
-     9.495
+     12.88,
+     9.46
     ],
     [
-     6.676,
-     12.39,
-     9.495
+     6.681,
+     13.055,
+     9.457
     ],
     [
-     6.735,
-     12.561,
-     9.495
+     6.756,
+     13.18,
+     9.455
     ],
     [
-     6.834,
-     12.713,
-     9.495
+     6.881,
+     13.255,
+     9.453
     ],
     [
-     6.972,
-     12.845,
-     9.495
+     7.056,
+     13.28,
+     9.453
     ],
     [
-     7.458,
-     13.221,
-     9.495
+     7.288,
+     13.28,
+     9.453
     ],
     [
-     7.569,
-     13.315,
-     9.495
+     7.412,
+     13.287,
+     9.454
     ],
     [
-     7.669,
-     13.418,
-     9.495
+     7.532,
+     13.307,
+     9.458
     ],
     [
-     7.759,
-     13.529,
-     9.495
+     7.65,
+     13.342,
+     9.465
     ],
     [
-     7.839,
-     13.65,
-     9.495
+     7.764,
+     13.39,
+     9.474
     ],
     [
      7.989,
-     13.9,
+     13.5,
      9.494791666666666
     ]
    ],
@@ -21804,7 +21881,16 @@
    "shape": "round",
    "size": 6,
    "flex": true,
-   "info_of": "return_bed23"
+   "info_of": "return_bed23",
+   "threaded": [
+    [
+     12.9,
+     13.28,
+     9.495,
+     9.453,
+     0.08
+    ]
+   ]
   },
   {
    "id": "return_bed2_head",
@@ -21845,57 +21931,57 @@
     ],
     [
      9.323,
-     11.5,
-     9.495
+     12.011,
+     9.568
     ],
     [
-     9.303,
-     11.69,
-     9.495
+     9.298,
+     12.186,
+     9.581
     ],
     [
-     9.244,
-     11.861,
-     9.495
+     9.223,
+     12.31,
+     9.59
     ],
     [
-     9.145,
-     12.013,
-     9.495
+     9.098,
+     12.385,
+     9.595
     ],
     [
-     9.007,
-     12.145,
-     9.495
+     8.923,
+     12.41,
+     9.597
     ],
     [
-     8.52,
-     12.522,
-     9.495
+     8.689,
+     12.41,
+     9.597
     ],
     [
-     8.409,
-     12.615,
-     9.495
+     8.565,
+     12.416,
+     9.594
     ],
     [
-     8.309,
-     12.718,
-     9.495
+     8.445,
+     12.434,
+     9.584
     ],
     [
-     8.219,
-     12.829,
-     9.495
+     8.328,
+     12.463,
+     9.568
     ],
     [
-     8.139,
-     12.95,
-     9.495
+     8.214,
+     12.505,
+     9.546
     ],
     [
      7.989,
-     13.2,
+     12.6,
      9.494791666666666
     ]
    ],
@@ -21918,6 +22004,15 @@
      ],
      "wall": "N"
     }
+   ],
+   "threaded": [
+    [
+     12.0,
+     12.41,
+     9.495,
+     9.597,
+     0.08
+    ]
    ]
   },
   {
@@ -21988,153 +22083,153 @@
     ],
     [
      27.989,
-     11.431,
-     9.495
+     11.861,
+     9.557
     ],
     [
-     27.963,
-     11.615,
-     9.495
+     27.955,
+     12.101,
+     9.574
     ],
     [
-     27.884,
-     11.745,
-     9.495
+     27.852,
+     12.273,
+     9.587
     ],
     [
-     27.754,
-     11.824,
-     9.495
+     27.68,
+     12.376,
+     9.594
     ],
     [
-     27.571,
-     11.85,
-     9.495
+     27.439,
+     12.41,
+     9.597
     ],
     [
      25.613,
-     11.85,
-     9.495
+     12.41,
+     9.597
     ],
     [
      25.372,
-     11.884,
-     9.495
+     12.444,
+     9.597
     ],
     [
      25.201,
-     11.987,
-     9.495
+     12.548,
+     9.597
     ],
     [
      25.097,
-     12.159,
-     9.495
+     12.719,
+     9.597
     ],
     [
      25.063,
-     12.4,
-     9.495
+     12.96,
+     9.597
     ],
     [
      25.063,
-     19.05,
-     9.495
+     18.86,
+     9.597
     ],
     [
      25.029,
-     19.291,
-     9.495
+     19.101,
+     9.597
     ],
     [
      24.925,
-     19.462,
-     9.495
+     19.273,
+     9.597
     ],
     [
      24.754,
-     19.566,
-     9.495
+     19.376,
+     9.597
     ],
     [
      24.513,
-     19.6,
-     9.495
+     19.41,
+     9.597
     ],
     [
      9.873,
-     19.6,
-     9.495
+     19.41,
+     9.597
     ],
     [
      9.632,
-     19.634,
-     9.495
+     19.444,
+     9.596
     ],
     [
      9.46,
-     19.738,
-     9.495
+     19.547,
+     9.594
     ],
     [
      9.357,
-     19.909,
-     9.495
+     19.719,
+     9.59
     ],
     [
      9.323,
-     20.15,
-     9.495
+     19.96,
+     9.584
     ],
     [
      9.323,
-     24.75,
-     9.495
+     24.98,
+     9.466
     ],
     [
      9.289,
-     24.991,
-     9.495
+     25.221,
+     9.46
     ],
     [
      9.186,
-     25.162,
-     9.495
+     25.393,
+     9.456
     ],
     [
      9.014,
-     25.266,
-     9.495
+     25.496,
+     9.454
     ],
     [
      8.773,
-     25.3,
-     9.495
+     25.53,
+     9.453
     ],
     [
-     8.368,
-     25.3,
-     9.495
+     8.405,
+     25.53,
+     9.453
     ],
     [
-     8.202,
-     25.3,
-     9.518
+     8.223,
+     25.523,
+     9.478
     ],
     [
-     8.084,
-     25.3,
-     9.589
+     8.093,
+     25.501,
+     9.553
     ],
     [
-     8.013,
-     25.3,
-     9.708
+     8.015,
+     25.465,
+     9.678
     ],
     [
      7.989,
-     25.3,
-     9.873
+     25.415,
+     9.853
     ],
     [
      7.989,
@@ -22154,7 +22249,7 @@
      "Each stack ends in a stack head on the top plate (Maxwell, 11/21/2026): a sheet metal box in the truss bay over the stud bay, with the stack in its bottom and a round collar on its south face. The round runs straight south off it, so there is no elbow beside the wall to stick through the drywall of the vaulted room on the other side. The head is about 12 x 4 in, as wide as the part of the stud bay that sits under the truss bay (they are about 2 in apart).",
      "Second grille and stack (Maxwell, 11/19/2026): the builder can move bedroom 1's door wall east, so it moved 2 ft 1 1/2 in, just far enough that the study's south wall has two stud bays for stacks, each under its own floor truss bay. Maxwell measured the trusses at 16 in on centre from the west wall (11/20/2026), so the stacks sit at x 28.0 and 29.4, centred under two neighbouring truss bays. The studs are 16 in on centre too, but where they fall against the trusses over this wall is not measured yet: a stack whose stud bay sits half a bay off the trusses would land on a truss. Confirm on site.",
      "Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through the web openings at 6 in or less. For reference, SBCA's floor truss guidance lists about 5-5/8 in round through the end panel of a 12 in deep truss and 7 to 8 in through the larger interior panels, so the truss maker should confirm the opening sizes on the truss drawings, or build a duct chase where these runs cross. Flex is fine for returns inside the conditioned envelope if it is pulled tight with gentle bends. Sizes are ASSUMED until Andy or the HVAC installer sizes them.",
-     "Top plate straps (Maxwell, 11/24/2026): the attic trusses bear on the top plate of this wall, so each stack is narrowed to about 12 in to sit between two trusses, and a 16 ga x 1 1/2 in galvanized strap crosses the cut on each of the two top plates, 6 in past it each side with eight 10d nails each side (IRC R602.6.1). Framer and truss supplier to confirm."
+     "Top plate straps (Maxwell, 11/24/2026): the attic trusses bear on the top plate of this wall, so each stack sits between two trusses (the returns are narrowed to about 12 in for it), and a 16 ga x 1 1/2 in galvanized strap crosses the cut on each of the two top plates, 6 in past it each side with eight 10d nails each side (IRC R602.6.1). Framer and truss supplier to confirm."
     ],
     "specs": [
      [
@@ -22196,6 +22291,29 @@
      ],
      "wall": "N"
     }
+   ],
+   "threaded": [
+    [
+     12.41,
+     12.41,
+     9.495,
+     9.597,
+     0.08
+    ],
+    [
+     19.6,
+     19.41,
+     9.495,
+     9.597,
+     0.08
+    ],
+    [
+     25.3,
+     25.53,
+     9.495,
+     9.453,
+     0.08
+    ]
    ]
   },
   {
@@ -22293,103 +22411,103 @@
     ],
     [
      29.323,
-     12.05,
-     9.495
+     12.73,
+     9.463
     ],
     [
      29.289,
-     12.291,
-     9.495
+     12.971,
+     9.459
     ],
     [
      29.185,
-     12.463,
-     9.495
+     13.143,
+     9.456
     ],
     [
      29.014,
-     12.566,
-     9.495
+     13.246,
+     9.454
     ],
     [
      28.773,
-     12.6,
-     9.495
+     13.28,
+     9.453
     ],
     [
      26.133,
-     12.6,
-     9.495
+     13.28,
+     9.453
     ],
     [
      25.892,
-     12.634,
-     9.495
+     13.314,
+     9.453
     ],
     [
      25.721,
-     12.737,
-     9.495
+     13.417,
+     9.453
     ],
     [
      25.617,
-     12.909,
-     9.495
+     13.589,
+     9.453
     ],
     [
      25.583,
-     13.15,
-     9.495
+     13.83,
+     9.453
     ],
     [
      25.583,
-     19.75,
-     9.495
+     19.73,
+     9.453
     ],
     [
      25.549,
-     19.991,
-     9.495
+     19.971,
+     9.453
     ],
     [
      25.446,
-     20.163,
-     9.495
+     20.143,
+     9.453
     ],
     [
      25.274,
-     20.266,
-     9.495
+     20.246,
+     9.453
     ],
     [
      25.033,
-     20.3,
-     9.495
+     20.28,
+     9.453
     ],
     [
      11.206,
-     20.3,
-     9.495
+     20.28,
+     9.453
     ],
     [
      10.965,
-     20.334,
-     9.495
+     20.314,
+     9.453
     ],
     [
      10.793,
-     20.438,
-     9.495
+     20.417,
+     9.455
     ],
     [
      10.69,
-     20.609,
-     9.495
+     20.589,
+     9.457
     ],
     [
      10.656,
-     20.85,
-     9.495
+     20.83,
+     9.46
     ],
     [
      10.656,
@@ -22402,7 +22520,23 @@
    "shape": "round",
    "size": 6,
    "flex": true,
-   "info_of": "return_study"
+   "info_of": "return_study",
+   "threaded": [
+    [
+     13.28,
+     13.28,
+     9.495,
+     9.453,
+     0.08
+    ],
+    [
+     20.3,
+     20.28,
+     9.495,
+     9.453,
+     0.08
+    ]
+   ]
   },
   {
    "id": "return_bed1",
@@ -22418,17 +22552,17 @@
     ],
     [
      39.8435,
-     16.41,
+     16.57,
      12.402083333333332
     ],
     [
      39.8435,
-     16.41,
+     16.57,
      11.842083333333331
     ],
     [
      28.89,
-     16.41,
+     16.57,
      11.842083333333331
     ],
     [
@@ -22466,7 +22600,7 @@
     "notes": [
      "Replaces a 6 in flex through the laundry and linen trusses, which returned only about half of bedroom 1's 138 CFM (duct balance check, 11/18/2026). A duct big enough for this room cannot pass the truss webs, so it goes over the top instead: it uses no deck along the trunk, and a strip about 10 in wide beside the trunk's west leg over bedroom 3.",
      "Clearance under the roof is tightest along the north attic wall, about 5 in above the duct in this model. Confirm on site. ASSUMED size and route.",
-     "Top plate straps (Maxwell, 11/24/2026): the attic trusses bear on the top plate of this wall, so each stack is narrowed to about 12 in to sit between two trusses, and a 16 ga x 1 1/2 in galvanized strap crosses the cut on each of the two top plates, 6 in past it each side with eight 10d nails each side (IRC R602.6.1). Framer and truss supplier to confirm."
+     "Top plate straps (Maxwell, 11/24/2026): the attic trusses bear on the top plate of this wall, so each stack sits between two trusses (the returns are narrowed to about 12 in for it), and a 16 ga x 1 1/2 in galvanized strap crosses the cut on each of the two top plates, 6 in past it each side with eight 10d nails each side (IRC R602.6.1). Framer and truss supplier to confirm."
     ],
     "specs": [
      [
@@ -22642,14 +22776,15 @@
      ]
     ],
     "notes": [
-     "Low sidewall register on the south wall (Maxwell, 11/18/2026): supply low, exhaust high on the other end of the same wall, so fresh air sweeps across the room before the exhaust takes it. Bottom takeoff from the trunk, 6 in round north in one hall 2 truss bay, then a 10 x 2-1/2 in stack down the stud bay of the interior wall (the measured bay east of the door is 10 3/4 in clear, Maxwell 11/20/2026). The register sits east of the door and west of the vanity. ASSUMED sizes."
+     "Low sidewall register on the south wall (Maxwell, 11/18/2026): supply low, exhaust high on the other end of the same wall, so fresh air sweeps across the room before the exhaust takes it. Bottom takeoff from the trunk, 6 in round north in one hall 2 truss bay, then a 10 x 2-1/2 in stack down the stud bay of the interior wall (the measured bay east of the door is 10 3/4 in clear, Maxwell 11/20/2026). The register sits east of the door and west of the vanity. ASSUMED sizes.",
+     "Top plate straps (Maxwell, 11/24/2026): the attic trusses bear on the top plate of this wall, so each stack sits between two trusses (the returns are narrowed to about 12 in for it), and a 16 ga x 1 1/2 in galvanized strap crosses the cut on each of the two top plates, 6 in past it each side with eight 10d nails each side (IRC R602.6.1). Framer and truss supplier to confirm."
     ]
    },
    "el": 60,
    "grilles": [
     {
      "at": [
-      20.031,
+      20.070999999999998,
       10.5876,
       1.0
      ],
@@ -22667,7 +22802,7 @@
    "type": "supply",
    "shape": "rect",
    "size": [
-    10,
+    10.0,
     2.5
    ],
    "points": [
@@ -22693,7 +22828,7 @@
    "points": [
     [
      39.989,
-     30.0,
+     28.9,
      9.494791666666666
     ],
     [
@@ -22712,14 +22847,14 @@
    "info": {
     "model": "6 in round exhaust",
     "notes": [
-     "ERV pickup grille: the ERV pulls 20 CFM from it continuously and more on boost, from a timer by the door. There is no separate bath fan (Maxwell, 11/19/2026). Allowed by the Ohio residential code (4101:8-15-01, sections 1501.1 and 1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Runs north in one loft floor truss bay, east of the family supply drop, then up onto the deck."
+     "ERV pickup grille: the ERV pulls 20 CFM from it continuously and more on boost, from a timer by the door. There is no separate bath fan (Maxwell, 11/19/2026). Allowed by the Ohio residential code (4101:8-15-01, sections 1501.1 and 1505.4.4) because the ERV discharges outdoors. Duct sizes and route are ASSUMED. Runs north in one loft floor truss bay, east of the family supply drop, then up onto the deck. The grille sits about 11 in north of the rain head, over the wet zone."
     ]
    },
    "grilles": [
     {
      "at": [
       39.989,
-      30.0,
+      28.9,
       8.98
      ],
      "size": [
@@ -22932,12 +23067,12 @@
     ],
     [
      39.989,
-     15.620000000000001,
+     15.780000000000001,
      11.675416666666665
     ],
     [
      29.68,
-     15.620000000000001,
+     15.780000000000001,
      11.675416666666665
     ],
     [
@@ -23826,6 +23961,190 @@
   "chord_w_in": 2.5,
   "web_in": 1.5,
   "web_pitch_in": 21.0,
+  "web_y0": [
+   [
+    0.656,
+    11.533,
+    10.95
+   ],
+   [
+    1.9893,
+    11.533,
+    10.95
+   ],
+   [
+    3.3227,
+    11.533,
+    10.95
+   ],
+   [
+    4.656,
+    11.533,
+    10.95
+   ],
+   [
+    5.9893,
+    11.533,
+    10.95
+   ],
+   [
+    7.3227,
+    11.533,
+    10.95
+   ],
+   [
+    8.656,
+    11.533,
+    10.95
+   ],
+   [
+    9.9893,
+    11.533,
+    10.95
+   ],
+   [
+    11.3227,
+    11.533,
+    10.95
+   ],
+   [
+    12.656,
+    11.533,
+    10.95
+   ],
+   [
+    13.9893,
+    11.533,
+    10.95
+   ],
+   [
+    15.3227,
+    11.533,
+    10.95
+   ],
+   [
+    16.656,
+    11.533,
+    10.95
+   ],
+   [
+    17.9893,
+    11.533,
+    10.95
+   ],
+   [
+    19.3227,
+    11.533,
+    10.95
+   ],
+   [
+    20.656,
+    11.533,
+    10.95
+   ],
+   [
+    21.9893,
+    11.533,
+    10.95
+   ],
+   [
+    23.3227,
+    11.533,
+    10.95
+   ],
+   [
+    24.656,
+    11.533,
+    10.95
+   ],
+   [
+    25.9893,
+    11.533,
+    10.95
+   ],
+   [
+    27.3227,
+    11.533,
+    10.95
+   ],
+   [
+    28.656,
+    17.493,
+    15.41
+   ],
+   [
+    29.9893,
+    17.493,
+    15.41
+   ],
+   [
+    31.3227,
+    17.493,
+    15.41
+   ],
+   [
+    32.656,
+    17.493,
+    15.41
+   ],
+   [
+    33.9893,
+    17.493,
+    15.41
+   ],
+   [
+    35.3227,
+    17.493,
+    15.41
+   ],
+   [
+    36.656,
+    17.493,
+    15.41
+   ],
+   [
+    37.9893,
+    17.493,
+    15.41
+   ],
+   [
+    39.3227,
+    17.493,
+    15.41
+   ],
+   [
+    40.656,
+    17.493,
+    15.41
+   ],
+   [
+    41.9893,
+    17.493,
+    15.41
+   ],
+   [
+    42.427,
+    17.493,
+    15.41
+   ],
+   [
+    11.89,
+    23.443,
+    22.86
+   ]
+  ],
+  "web_y0_region": [
+   11.533,
+   11.533,
+   11.533,
+   11.533,
+   11.533,
+   17.493,
+   17.493,
+   11.533,
+   11.533,
+   17.493
+  ],
   "max_cross_in": 7.0,
   "info": {
    "model": "11-7/8 in open web floor trusses",

@@ -1,0 +1,89 @@
+# Pairs tools/clash_audit.mjs finds passing into each other that are on purpose. One regular expression per line, tested
+# against "a [kind a] vs b [kind b]" (either order is written both ways below where it matters). Text after " #" is the
+# reason. Reviewed 11/27/2026.
+
+# The model draws interior walls, flat ceilings and the truss space under the attic deck as SOLID boxes (drywall face to
+# drywall face, ceiling up to the deck underside). Framing, ducts, pipes, trusses and wall boxes live inside them.
+# Ducts, pipes and trusses only count as on purpose in the rooms and the truss space: above the attic deck a duct inside a
+# wall is a real clash (except where it goes out through the exterior wall, listed further down).
+\[(house framing|equipment framing|equipment electrical|equipment low voltage|equipment lighting|equipment ceiling fan)\] vs \S+ \[house (wall|ceiling)\]  # inside the solid wall or ceiling block
+\[house (wall|ceiling)\] vs \S+ \[(house framing|equipment framing|equipment electrical|equipment low voltage|equipment lighting|equipment ceiling fan)\]  # inside the solid wall or ceiling block
+\[(duct|pipe|floor trusses)\] vs \S+ \[house (wall|ceiling)\] @(rooms|trusses)
+\[house (wall|ceiling)\] vs \S+ \[(duct|pipe|floor trusses)\] @(rooms|trusses)
+\[house ceiling\] vs \S+ \[(duct|pipe)\] @attic   # a riser through the ceiling block's top face into the attic
+\[(duct|pipe)\] vs \S+ \[house ceiling\] @attic
+^wall\.ext\.W \[house wall\] vs (ex_hood|mua|erv) \[   # the hood exhaust, the makeup air intake and the ERV's outdoor ports go out through the west wall
+^(mua_intake|hood_cap) \[equipment ventilation\] vs wall\.ext\.W   # wall caps
+^wall\.ext\.C \[house wall\] vs s_(family1|family2|kitchen1|kitchen2|kitchen3) \[duct\]   # stubs through the clerestory wall into the vaulted rooms (PR 33)
+^(loft\.floor) \[house floor\] vs \S+ \[(duct|floor trusses)\]  # the loft floor is drawn solid from the ceiling to the oak floor, its trusses and ducts inside
+^\S+ \[(duct|floor trusses)\] vs loft\.floor   # same, other order
+# drywall sheets, ceilings and headers lapped at corners so no gap shows (Maxwell 11/27/2026: fine)
+\[house (wall|ceiling)\] vs \S+ \[house (wall|ceiling)\]
+# windows, doors and trim sit in their wall openings and are let into the wall solid
+\[house (window|door|trim)\] vs \S+ \[house wall\]
+\[house wall\] vs \S+ \[house (window|door|trim)\]
+\[house (door|window)\] vs \S+ \[house trim\]
+\[house trim\] vs \S+ \[house (door|window)\]
+# baseboard runs about 1/2 in round each inside corner, behind the other wall's drywall
+^trim\.baseboard \[house trim\] vs \S+ \[house framing\]
+\[house framing\] vs trim\.baseboard
+# T junctions: the plates of the wall that butts in run up to the other wall's drywall, about 1/2 in into its framing (hidden)
+^framing\.wall\.\S+ \[house framing\] vs framing\.(wall|header)\.\S+ \[house framing\]
+^framing\.header\.\S+ \[house framing\] vs framing\.wall\.\S+ \[house framing\]
+# branches: a takeoff starts inside its trunk (tools/pipe_clash.py checks ducts that really cross)
+\[duct\] vs \S+ \[duct\]
+# a pipe or duct ends inside the equipment it connects to, or an inline part sits on it
+\[pipe\] vs \S+ \[equipment (well water|hot water|geothermal|plumbing fixture)\]
+\[equipment (well water|hot water|geothermal|plumbing fixture)\] vs \S+ \[pipe\]
+\[duct\] vs \S+ \[equipment (ventilation|hvac)\]
+\[equipment (ventilation|hvac)\] vs \S+ \[duct\]
+\[equipment (well water|hot water)\] vs \S+ \[equipment (well water|hot water)\]  # tees, valves and tanks plumbed together
+^\S+ \[pipe\] vs \S+ \[pipe\]  # tees (tools/pipe_clash.py checks pipes that really cross)
+# the exterior wall, slab and roof are solid too
+\[house (wall|slab|roof)\] vs \S+ \[house (wall|slab|roof|structure)\]
+\[house (slab|roof)\] vs \S+ \[house wall\]
+# the attic deck runs up to the attic face of the walls that rise above it, into the solid wall block by the drywall
+^attic\.deck \[house floor\] vs \S+ \[house wall\]
+\[house wall\] vs attic\.deck \[house floor\]
+# branches that leave the attic through the hall 2 and bedroom 1 walls to their high wall grilles in the vaulted rooms, and
+# the low return stacks that rise inside those walls above the deck to their headers
+\[house wall\] vs (s_closet2|s_closet3|s_bed1|s_bed2|s_study|s_study2|ex_bath2|return_study_high|return_main) \[duct\] @attic
+^(return_bed1|return_study_high|s_bed1) \[duct\] vs \S+ \[house wall\] @attic
+# a range hood's own duct collar and insert sit inside the hood shell
+^ex_hood \[duct\] vs kitchen\.hood
+^kitchen\.hood \[house fixture\] vs hood_insert
+# a pipe ends on the heat pump it connects to (the desuperheater lines)
+^heat_pump \[equipment hvac\] vs dsh_\d \[pipe\]
+# appliances that drop into their cabinet or counter cutout
+^cabinet\.\S+ \[house cabinet\] vs (cooktop|oven|kitchen\.sink) \[
+# flat ceiling fan canopies and smoke alarms on a sloped ceiling: one edge of the flat base meets the slope
+^roof\.(north|south) \[house roof\] vs (fan_\w+|elec_smoke_\d+) \[
+# cars' tyres flatten on the garage slab, the gravel drive runs under the slab edge
+^garage\.slab \[house slab\] vs (car_\w+|gravel_drive) \[
+# a door in its frame, a threshold in its slab
+^garage\.frame \[house structure\] vs garage\.door\.\d
+^porch\.slab \[house slab\] vs garage\.man_door
+# soft goods: the dining rug under the chair and table feet, clothes on the closet rods, the seated person in the couch cushion
+^furniture\.dining_rug \[house furniture\] vs furniture\.(dchair_\w+|dining_table)
+^closet1\.\S+ \[house furniture\] vs closet1\.\S+
+^furniture\.l_couch \[house furniture\] vs furniture\.sit_test
+# exterior light fixtures and downspouts fastened through the siding
+^wall\.ext\.[NSEW] \[house wall\] vs shell\.fixture\.\d
+^shell\.fixture\.\d \[house fixture\] vs wall\.ext\.[NSEW]
+^shell\.downspouts \[house gutter\] vs wall\.ext
+# the ship's ladder's top rail is fixed to the loft railing
+^loft\.ladder \[house stair\] vs loft\.railing
+# baseboard runs behind built ins (cabinets, vanities, the mudroom bench, the closet shelving, the pantry shelves, the softener cabinet)
+^trim\.baseboard \[house trim\] vs (cabinet\.\S+|furniture\.vanity\w*|furniture\.entry_bench|closet1\.\S+|pantry\.shelves|softener_space) \[
+^trim\.baseboard \[house trim\] vs trim\.passages
+# the attic and loft floors run into the walls under their edges
+\[house floor\] vs \S+ \[house wall\]
+\[house wall\] vs \S+ \[house floor\]
+# the server rack's home run bundle drops through the deck into the bedroom 3 / utility wall below it
+^wall\.int\.39 \[house wall\] vs server_rack
+# beds and nightstands stand in front of the outlets and jacks behind them (plates are 0.3 in proud)
+^furniture\.(bed\d|ns\d_\w) \[house furniture\] vs elec_\w+
+# the spin down filter's wall bracket is screwed into the drywall
+^wall\.int\.39 \[house wall\] vs spin_down
+# the strap over the east study stack ends at the corner where the study's east wall comes in; its last nail heads touch that wall's end stud
+^plate_strap_return_study_stack2_\d \[equipment framing\] vs framing\.wall\.23
