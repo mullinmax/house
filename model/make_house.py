@@ -4125,6 +4125,51 @@ def web_vanity(it):
                                                        "Black Metal", "Plastic Grey", "Mirror", "Aluminum", "Appliance Interior"]))
 
 
+def web_toilet(it):
+    """Two piece toilet with an elongated bowl (Maxwell 11/27/2026: every toilet elongated). back = the drywall face it
+    stands against, x or y = its centre along that wall, facing = which way you face sitting on it. 12 in rough-in, about
+    30 in deep, 17 in seat (comfort height). Sizes ASSUMED, typical of an elongated two piece."""
+    I = VAN_IN
+    back, fc = it["back"], it["facing"]
+    c = it["y"] if fc in (90, 270) else it["x"]
+
+    def P(a, v):                                   # a across the bowl, v out from the wall
+        if fc == 90: return back + v, c + a
+        if fc == 270: return back - v, c - a
+        if fc == 180: return c - a, back + v
+        return c + a, back - v
+
+    def tb(mat, a0, a1, v0, v1, z0, z1):
+        p, q = P(a0, v0), P(a1, v1)
+        box(mat, p[0], q[0], p[1], q[1], z0, z1)
+
+    PC = "Sink Porcelain"
+    # tank and lid
+    tb(PC, -10 * I, 10 * I, 1.0 * I, 8.5 * I, 15 * I, 29.5 * I)
+    tb(PC, -10.4 * I, 10.4 * I, 0.7 * I, 8.9 * I, 29.5 * I, 30.6 * I)
+    tb("Brushed Nickel", -8.5 * I, -6.3 * I, 8.5 * I, 9.1 * I, 26.5 * I, 27.3 * I)   # flush lever
+    def tc(mat, v, z0, z1, r0, r1=None):
+        x, y = P(0, v)
+        cyl(mat, x, y, z0, z1, r0, r1)
+
+    # elongated bowl: a round front (7 in radius, centre 20 in off the wall, so the rim ends at 27 in) on a straight back
+    VC = 20 * I
+    tc(PC, VC, 9 * I, 15.5 * I, 5.2 * I, 7.0 * I)                       # bowl, flaring up to the rim
+    tb(PC, -6.0 * I, 6.0 * I, 8.5 * I, VC, 9 * I, 15.5 * I)
+    tc(PC, VC, 15.5 * I, 16.3 * I, 7.4 * I)                            # seat
+    tb(PC, -7.4 * I, 7.4 * I, 9.0 * I, VC, 15.5 * I, 16.3 * I)
+    tc(PC, VC, 16.3 * I, 16.9 * I, 7.1 * I)                            # lid, closed
+    tb(PC, -7.1 * I, 7.1 * I, 9.3 * I, VC, 16.3 * I, 16.9 * I)
+    tb("Brushed Nickel", -7.6 * I, 7.6 * I, 9.0 * I, 10.0 * I, 16.3 * I, 17.1 * I)   # seat hinge bar
+    # pedestal, narrower at the floor
+    tc(PC, 16 * I, 0, 9 * I, 4.6 * I, 5.0 * I)
+    tb(PC, -4.6 * I, 4.6 * I, 7.5 * I, 16 * I, 0, 9 * I)
+    tb("Brushed Nickel", -7.0 * I, -5.8 * I, 0, 2.2 * I, 6.5 * I, 7.7 * I)
+    tb("Brushed Nickel", -6.6 * I, -6.2 * I, 2.2 * I, 2.6 * I, 7.7 * I, 15 * I)
+    for cb in it.get("cull", []):
+        WEB_META["cull"].append(dict(box=cb, materials=["Porcelain", "Brushed Nickel", "Plastic Grey", "Enamel White", "Black Glass"]))
+
+
 def vanity_info(it):
     secs, wid = it["sections"], it["widths_in"]
     W = sum(wid)
@@ -4143,9 +4188,10 @@ WEB_BUILD = {"bed": web_bed, "nightstand": web_nightstand, "table_lamp": web_tab
              "l_desk": web_l_desk, "office_chair": web_office_chair, "towel_warmer": web_towel_warmer, "bench": web_bench,
              "tv_console": web_tv_console, "l_couch": web_l_couch, "dining_table": web_dining_table, "dining_chair": web_dining_chair,
              "fruit_bowl": web_fruit_bowl, "jute_rug": web_jute_rug,
-             "bar_stool": web_bar_stool, "seated_person": web_seated_person, "vanity": web_vanity}
+             "bar_stool": web_bar_stool, "seated_person": web_seated_person, "vanity": web_vanity, "toilet": web_toilet}
 WEB_INFO = {
     "vanity": vanity_info,
+    "toilet": lambda it: dict(model="Two piece toilet, elongated bowl, comfort height (model ASSUMED)", specs=[["Bowl", "elongated, about 30 in from the wall to the front"], ["Seat", "about 17 in high"], ["Rough-in", "12 in (ASSUMED)"]], notes=["Every toilet in the house has an elongated bowl (Maxwell 11/27/2026)."]),
     "dining_table": lambda it: dict(model=f"Shaker style solid maple dining table, honey finish, {round(it.get('l', 7.0) * 12)} x {round(it.get('w', 40 / 12) * 12)} in, {round(it.get('h', 2.5) * 12)} in high (style from Maxwell's reference photo; maker and size ASSUMED)",
                                     specs=[["Seats", "8: three on each side and one at each end"], ["Legs", "square, tapered on the inside faces"], ["Clearance", "about 3 ft or more behind every chair pulled out"]],
                                     notes=["Replaced the Gallinera table and six chairs (Maxwell 11/21/2026, from his reference photo)."]),
@@ -4190,9 +4236,9 @@ WEB_INFO = {
 }
 # Bolted down pieces show with the cabinets and trim, not with Belongings (Maxwell, 11/20/2026: anything bolted down is
 # not a belonging).
-BUILT_IN = {"bench", "towel_warmer", "vanity"}
+BUILT_IN = {"bench", "towel_warmer", "vanity", "toilet"}
 WEB_NAMES = {"bench": "Mudroom bench and cabinets", "bed": "Queen bed", "nightstand": "Nightstand", "table_lamp": "Table lamp", "desk_lamp": "Desk lamp", "l_desk": "L-shaped standing desk", "office_chair": "Office chair", "towel_warmer": "Towel warmer", "tv_console": "TV console", "l_couch": "L sectional couch",
-             "dining_table": "Dining table", "dining_chair": "Dining chair", "fruit_bowl": "Fruit bowl", "jute_rug": "Dining rug", "bar_stool": "Counter stool", "seated_person": "Seated person, 6 ft (mockup)", "vanity": "Vanity"}
+             "dining_table": "Dining table", "dining_chair": "Dining chair", "fruit_bowl": "Fruit bowl", "jute_rug": "Dining rug", "bar_stool": "Counter stool", "seated_person": "Seated person, 6 ft (mockup)", "vanity": "Vanity", "toilet": "Toilet"}
 for it in FURN:
     if it.get("moved_from"):
         ox, oy, of = it["moved_from"]
