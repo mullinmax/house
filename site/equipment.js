@@ -1322,13 +1322,14 @@ function buildDuct(dc) {
     // A round duct is often taller than its wall register, and its end can reach past the drywall, so it showed around or through the
     // register from the room. Like a real register boot: the round stops about 5 in behind the register and a rectangular boot a
     // little smaller than the register carries on to its back.
+    // A floor or ceiling register that the round meets straight up or down gets the same boot (the loft's 8 in round showed
+    // around its 4 in wide floor register, 11/27/2026).
     for (const gr of dc.grilles || []) {
-      if (!gr.wall) continue;
-      const ax = /[NS]/.test(gr.wall) ? 1 : 0, ox = 1 - ax, n = src.length;
+      const ax = !gr.wall ? 2 : /[NS]/.test(gr.wall) ? 1 : 0, [o1, o2] = [0, 1, 2].filter((k) => k !== ax), n = src.length;
       for (const [e, nb] of [[n - 1, n - 2], [0, 1]]) {
         const P = src[e], Q = src[nb];
-        if (Math.abs(P[ax] - gr.at[ax]) > 0.6 || Math.abs(P[ox] - gr.at[ox]) > 0.05 || Math.abs(P[2] - gr.at[2]) > 0.05) continue;
-        if (Math.abs(Q[ox] - P[ox]) > 0.01 || Math.abs(Q[2] - P[2]) > 0.01) continue;      // the end piece must run straight at the wall
+        if (Math.abs(P[ax] - gr.at[ax]) > 0.6 || Math.abs(P[o1] - gr.at[o1]) > 0.05 || Math.abs(P[o2] - gr.at[o2]) > 0.05) continue;
+        if (Math.abs(Q[o1] - P[o1]) > 0.01 || Math.abs(Q[o2] - P[o2]) > 0.01) continue;      // the end piece must run straight at the wall, floor or ceiling
         const sgn = Math.sign(Q[ax] - gr.at[ax]) || 1, room = Math.abs(Q[ax] - gr.at[ax]);
         const back = Math.min(5 / 12, room * 0.6);                                          // how far behind the register the round stops
         if ((P[ax] - gr.at[ax]) * sgn < back) P[ax] = gr.at[ax] + sgn * back;
