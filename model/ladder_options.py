@@ -164,6 +164,21 @@ def mono_ladder(WX, WY):
     def nut(a, b, z, axis, sign=1, **kw):
         bolt(a, b, z, axis, sign, kind="hex", **kw)
 
+    def cyl(mat, p0, p1, r, n=16):
+        """round bar from p0 to p1 (a, b, z): a 16 sided prism as fan quads"""
+        d_ = [q - p for q, p in zip(p1, p0)]; L_ = math.sqrt(sum(x * x for x in d_)); u_ = [x / L_ for x in d_]
+        t_ = (1.0, 0.0, 0.0) if abs(u_[0]) < 0.9 else (0.0, 1.0, 0.0)
+        e1 = [u_[1] * t_[2] - u_[2] * t_[1], u_[2] * t_[0] - u_[0] * t_[2], u_[0] * t_[1] - u_[1] * t_[0]]
+        m1 = math.sqrt(sum(x * x for x in e1)); e1 = [x / m1 for x in e1]
+        e2 = [u_[1] * e1[2] - u_[2] * e1[1], u_[2] * e1[0] - u_[0] * e1[2], u_[0] * e1[1] - u_[1] * e1[0]]
+        rg = lambda c: [tuple(c[j] + r * (math.cos(2 * math.pi * i / n) * e1[j] + math.sin(2 * math.pi * i / n) * e2[j]) for j in range(3)) for i in range(n)]
+        r0, r1 = rg(p0), rg(p1)
+        for i in range(1, n - 1, 2):
+            q = (0, i, i + 1, min(i + 2, n - 1))
+            hexa(mat, [P(*r0[k]) for k in q] + [P(*r1[k]) for k in q])
+
+    PIPE = G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe"   # round 15 (Maxwell 11/27/2026): round pipe railing kit chosen
+
     def fbolt(f, u, v, z, axis, sign=1, **kw):
         a, b, _ = f.p(u, v, z)
         if axis == "z":
@@ -206,6 +221,9 @@ def mono_ladder(WX, WY):
     def post(a0, a1, b0, b1, z0):
         """square post whose top is cut to the plane just under the one continuous rail"""
         zt = G.rail_plane(a0, a1, b0, b1)
+        if PIPE:                                         # 1 1/2 schedule 40 pipe on the square post's centre
+            ac_, bc_ = (a0 + a1) / 2, (b0 + b1) / 2
+            return cyl(ST, (ac_, bc_, z0), (ac_, bc_, zt(ac_, bc_)), G.PIPE_POST[0] / 2)
         cs = ((a0, b0), (a1, b0), (a1, b1), (a0, b1))
         hexa(ST, [P(a, b, z0) for a, b in cs] + [P(a, b, zt(a, b)) for a, b in cs])
 
@@ -337,6 +355,10 @@ def mono_ladder(WX, WY):
             else:
                 ends = (((a0, b0), (a1, b0)), ((a0, b1), (a1, b1)))
             (p0, p1), (q0, q1) = ends
+            if PIPE:                                     # 1 1/4 schedule 40 pipe on the rail's centreline
+                c0_ = tuple((x + y) / 2 for x, y in zip(p0, p1)); c1_ = tuple((x + y) / 2 for x, y in zip(q0, q1))
+                cyl(ST, (*c0_, z0_ - dp / 2), (*c1_, z1_ - dp / 2), G.PIPE_RAIL[0] / 2)
+                continue
             hexa(ST, [P(*p0, z0_ - dp), P(*p1, z0_ - dp), P(*p1, z0_), P(*p0, z0_), P(*q0, z1_ - dp), P(*q1, z1_ - dp), P(*q1, z1_), P(*q0, z1_)])
     # lower flight foot post and the corner newel, each on a base plate with four slab anchors
     fa = G.A_FOOT
@@ -345,6 +367,14 @@ def mono_ladder(WX, WY):
 
     def rail_post_base(post_):
         (a0_, a1_, b0_, b1_), _ = G.POST_BASES[post_]
+        if PIPE:                                         # stock railing flange: plate, socket, 4 anchors
+            ac_, bc_ = (a0_ + a1_) / 2, (b0_ + b1_) / 2
+            cyl(ST, (ac_, bc_, 0.02), (ac_, bc_, G.PF_T), G.PF_D / 2)
+            cyl(ST, (ac_, bc_, G.PF_T), (ac_, bc_, G.PF_H), G.PF_SOCK / 2)
+            for k_ in range(4):
+                th_ = math.pi / 4 + k_ * math.pi / 2
+                nut(ac_ + G.PF_BC / 2 * math.cos(th_), bc_ + G.PF_BC / 2 * math.sin(th_), G.PF_T, "z")
+            return
         rb_ = G.rail_post_base(a0_, a1_, b0_, b1_)
         ae_, aw_, bs_, bn_ = a0_ - G.RB_FL, a1_ + G.RB_T, b0_ - G.RB_FL, b1_ + G.RB_T
         gb(ST, ae_, aw_, bs_, b1_, 0.02, G.RB_T)
@@ -438,7 +468,10 @@ def mono_ladder(WX, WY):
     post(XL + e, XL + G.POST, G.BAL_S, G.BAL_S + G.POST, zl_)
     post(XL + e, XL + G.POST, PN[0] + e, PN[1], zl_)
     m_ = G.NK_MITER
-    hexa(ST, [P(a, bb, z) for bb in (PN[0] + e, PN[1]) for a, z in ((0.05, m_ + 0.05), (G.POST, m_ + G.POST), (G.POST, G.G_TOP - G.RAIL - e), (0.05, G.G_TOP - G.RAIL - e))])
+    if PIPE:
+        cyl(ST, (G.POST / 2, (PN[0] + PN[1]) / 2, m_ + G.POST / 2), (G.POST / 2, (PN[0] + PN[1]) / 2, G.G_TOP - G.RAIL / 2), G.PIPE_POST[0] / 2)
+    else:
+        hexa(ST, [P(a, bb, z) for bb in (PN[0] + e, PN[1]) for a, z in ((0.05, m_ + 0.05), (G.POST, m_ + G.POST), (G.POST, G.G_TOP - G.RAIL - e), (0.05, G.G_TOP - G.RAIL - e))])
     for nm_, sg in (("sw", -1), ("nw", 1)):              # corner plates on the west posts' inside faces, flange under the end beam
         out_, (fa0, fa1, fw), pbolts, fbolts = G.corner_plate(sg)
         b0_, b1_ = (G.BAL_S + 2 + e, G.BAL_S + 2 + G.CP_T) if sg < 0 else (BN_ - 2 - G.CP_T, BN_ - 2 - e)
@@ -453,8 +486,12 @@ def mono_ladder(WX, WY):
             bolt(a_, po_, z_, "b", sg); nut(a_, pi_, z_, "b", -sg)
     ra, rb = (XL + 0.25, XL + 0.25 + G.RAIL), (G.GP_B - G.RAIL / 2, G.GP_B + G.RAIL / 2)
     zr = FL_ + 3.6                                       # bottom rails; the top rails are the continuous rail
-    gb(ST, ra[0], ra[1], G.BAL_S + G.POST + e, PN[0] - e, zr, zr + G.RAIL - e)
-    gb(ST, G.POST + e, XL - e, rb[0], rb[1], zr, zr + G.RAIL - e)
+    if PIPE:
+        cyl(ST, (sum(ra) / 2, G.BAL_S + G.POST, zr + G.RAIL / 2), (sum(ra) / 2, PN[0], zr + G.RAIL / 2), G.PIPE_RAIL[0] / 2)
+        cyl(ST, (G.POST, sum(rb) / 2, zr + G.RAIL / 2), (XL, sum(rb) / 2, zr + G.RAIL / 2), G.PIPE_RAIL[0] / 2)
+    else:
+        gb(ST, ra[0], ra[1], G.BAL_S + G.POST + e, PN[0] - e, zr, zr + G.RAIL - e)
+        gb(ST, G.POST + e, XL - e, rb[0], rb[1], zr, zr + G.RAIL - e)
     pz = (FL_ + 3.6 + G.RAIL, G.G_TOP - G.RAIL - e)
     span = (G.BAL_S + G.POST, PN[0])
     n_w = math.ceil((span[1] - span[0]) / 4.4)
@@ -465,7 +502,12 @@ def mono_ladder(WX, WY):
     for i in range(1, n_n):
         a = G.POST + i * (XL - G.POST) / n_n
         gb(ST, a - 0.25, a + 0.25, G.GP_B - 0.25, G.GP_B + 0.25, *pz)
-    if not G.CONT_RAIL:                                  # round 11b: rail straps (1/4 in) with a spacer and three 1/4-20 bolts each
+    if PIPE:                                             # kit fittings: a collar on the post at every rail joint
+        for nm_, R_, P1_, P2_, t_, side_, plane_, pat_ in G.rail_straps():
+            pc_ = min(((x, y) for x, y in ((G.A_FOOT, XL + G.POST / 2), (XL + G.POST / 2, XL + G.POST / 2), (XL + G.POST / 2, G.BAL_S + G.POST / 2),
+                                           (XL + G.POST / 2, (PN[0] + PN[1]) / 2), (G.POST / 2, (PN[0] + PN[1]) / 2))), key=lambda q: math.hypot(q[0] - P1_[0], q[1] - P1_[1]))
+            cyl(ST, (*pc_, R_[2] - G.PC_H / 2), (*pc_, R_[2] + G.PC_H / 2), G.PS_D / 2)
+    elif not G.CONT_RAIL:                                # round 11b: rail straps (1/4 in) with a spacer and three 1/4-20 bolts each
         for nm_, R_, P1_, P2_, t_, side_, plane_, pat_ in G.rail_straps():
             ax_, i_ = side_[0], (0 if side_[0] == "a" else 1)
             q_ = G.strap_outline(R_, P2_, t_, side_, plane_)

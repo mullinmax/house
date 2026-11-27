@@ -93,19 +93,6 @@
    ]
   },
   {
-   "file": "rail_post_base_qty2.dxf",
-   "name": "Rail post base (foot post and corner newel), one piece",
-   "qty": 2,
-   "thick": 0.375,
-   "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "2 bends, both 90 deg UP toward you with the drawing seen from above (north up, east to the right): the west tab and the north tab. Both parts are identical (not mirrored).",
-   "notes": "base 6.12 x 6.12 in outside, tabs 5.85 in tall outside (2 in wide). Three 1/2 in holes for 3/8 wedge anchors on the south and east flanges (the side that lifts under the rail load). Two 7/16 holes in each tab for 3/8 grade 5 through bolts across the post (crush sleeve inside); drill the post through the tab holes on site, the two tabs' holes are at different heights so the bolts pass each other. Grind a small 45 deg bevel on the post's bottom outside edge on the two tab faces so it sits down past the bend radius. Replaces the plate plus two clip angles under these two posts.",
-   "size": [
-    11.38,
-    11.38
-   ]
-  },
-  {
    "file": "balcony_corner_plate_qty2.dxf",
    "name": "Balcony corner plate (south west newel and north west post)",
    "qty": 2,
@@ -181,32 +168,6 @@
    "size": [
     7.71,
     7.18
-   ]
-  },
-  {
-   "file": "rail_strap_foot_qty1.dxf",
-   "name": "Rail strap 1 1/4 x 4.83 (foot post)",
-   "qty": 1,
-   "thick": 0.25,
-   "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "none",
-   "notes": "flat strap on a post's side face: the hole nearest an end takes a 1/4-20 bolt through the rail and a 1/4 in spacer (the rail sits 1/4 in in from the post face), the other two take 1/4-20 bolts through the post. The lower rail over the foot post: its plumb depth is 3.16 in, so the rail hole is further from the post holes.",
-   "size": [
-    1.25,
-    4.83
-   ]
-  },
-  {
-   "file": "rail_strap_qty11.dxf",
-   "name": "Rail strap 1 1/4 x 4.00",
-   "qty": 11,
-   "thick": 0.25,
-   "material": "Mild steel A36 (hot rolled P&O)",
-   "bends": "none",
-   "notes": "flat strap on a post's side face: the hole nearest an end takes a 1/4-20 bolt through the rail and a 1/4 in spacer (the rail sits 1/4 in in from the post face), the other two take 1/4-20 bolts through the post. Lies along the rail into the post where a rail ends on a post, plumb where it runs over a post top.",
-   "size": [
-    1.25,
-    4.0
    ]
   }
  ]

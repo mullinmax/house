@@ -267,7 +267,7 @@ def _rpb():
     bends = [((-(aw - bl), b0), (-(aw - bl), b1)), ((-a0, bn - bl), (-a1, bn - bl))]
     return X(shp), [X(h) for h in holes], bends, (aw - ae, bn - bs)
 shp, holes, bends, sz_ = _rpb()
-part("rail_post_base_qty2.dxf", "Rail post base (foot post and corner newel), one piece", 2, G.RB_T, shp, holes, bends,
+(part if G.RAIL_STYLE != "pipe" else (lambda *a_, **k_: None))("rail_post_base_qty2.dxf", "Rail post base (foot post and corner newel), one piece", 2, G.RB_T, shp, holes, bends,
      "2 bends, both 90 deg UP toward you with the drawing seen from above (north up, east to the right): the west tab and the north tab. "
      "Both parts are identical (not mirrored).",
      f"base {sz_[0]:.2f} x {sz_[1]:.2f} in outside, tabs {G.RB_H:.2f} in tall outside (2 in wide). Three 1/2 in holes for 3/8 wedge anchors on the "
@@ -325,7 +325,7 @@ _holes = {}
 for nm_, R_, P1_, P2_, t_, side_, plane_, pat_ in G.rail_straps():
     _pats[pat_] += 1
     _holes[pat_] = (math.dist(R_, P1_), math.dist(P1_, P2_))
-for pat_, n_ in sorted(_pats.items()):
+for pat_, n_ in (sorted(_pats.items()) if G.RAIL_STYLE == "straps" else ()):   # round 15: the pipe railing uses kit fittings, no straps
     d1_, d2_ = _holes[pat_]
     ys = [G.ST_E, G.ST_E + d1_, G.ST_E + d1_ + d2_]
     L_ = ys[-1] + G.ST_E

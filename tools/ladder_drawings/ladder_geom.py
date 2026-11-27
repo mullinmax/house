@@ -823,7 +823,7 @@ def rail_straps():
 # LADDER_RAIL_STYLE: "straps" (round 11b, default), "hidden" (A: same square tubes, a flat 1/4 in tongue plate inside the rail and the post at
 # every joint, through slots, two 1/4-20 bolts across each tube, nothing on the outside but bolt heads) or "pipe" (B: round black pipe posts and
 # rails with slip on kit fittings in the Kee Klamp style, two set screws per socket, stock railing flanges under the two rail posts).
-RAIL_STYLE = os.environ.get("LADDER_RAIL_STYLE", "straps")
+RAIL_STYLE = os.environ.get("LADDER_RAIL_STYLE", L.get("ladder_rail_style", "straps"))   # round 15 (Maxwell 11/27/2026): config picks "pipe"
 assert RAIL_STYLE in ("straps", "hidden", "pipe"), RAIL_STYLE
 PIPE_POST = (1.900, 0.145)                         # 1 1/2 NPS schedule 40: OD, wall
 PIPE_RAIL = (1.660, 0.140)                         # 1 1/4 NPS schedule 40 (a 1.66 in round handrail is graspable, R311.7.8.5)

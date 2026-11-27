@@ -42,3 +42,9 @@ plate plus two clips: anchor flanges south and east (3 wedge anchors, on the sid
 the post's north and west faces with two 3/8 through bolts each (the two tabs' bolts at different heights). Both tabs bend UP toward you with
 the DXF seen from above. Grind a small bevel on the post's bottom outside edge on the tab faces so it sits past the bend radius. Only the upper
 stringer post keeps post_base_plate (now qty 1) and its two clips.
+
+Round 14 (11/25/2026): tread bracket seats 1 1/2 in wide (were 2 1/2).
+
+Round 15 (11/27/2026): Maxwell chose the round pipe railing kit (config ladder_rail_style = "pipe"). The rail straps and the two rail post
+bases leave the kit: the rail posts are 1 1/2 in schedule 40 pipe on stock railing flanges and the rails 1 1/4 in schedule 40 pipe joined by
+slip on kit fittings with set screws, all bought, none cut here.
