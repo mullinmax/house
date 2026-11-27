@@ -758,6 +758,21 @@ if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe":     # round 13 option 
                         q = [p[i] + k * u[i] for i in range(3)]
                         q[0 if sax == "a" else 1] += G.RS_D / 2
                         bolt(*q, sax, 1, d=0.35, h=0.06, role=("set screw", 0.375, 0.5, 0.5))
+if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe":     # round 16: white oak cap on the balcony guard's two level top rails
+    _fits = [s_ for g_, n_, s_, *r_ in PARTS if n_.startswith("rail_fitting_")]
+    _grooves = []
+    for nm, quad, z0_, z1_, (q0, q1), screws in G.rail_caps():
+        d_ = [q - p for q, p in zip(q1, q0)]; L_ = math.sqrt(sum(x * x for x in d_)); u_ = [x / L_ for x in d_]
+        _grooves.append(_cyl([q0[i] - u_[i] * 3 for i in range(3)], [q1[i] + u_[i] * 3 for i in range(3)], RR_ + 0.03))
+    for nm, quad, z0_, z1_, (q0, q1), screws in G.rail_caps():
+        w_ = cq.Wire.makePolygon([W(a, b, z0_) for a, b in quad], close=True)
+        cap = cq.Solid.extrudeLinear(cq.Face.makeFromWires(w_), cq.Vector(0, 0, z1_ - z0_))
+        for x in _grooves + SOLIDP + _fits:                                    # the grooves both pipes sit in, pockets over the fittings and the newel top
+            if _bbo2(x.BoundingBox(), cap.BoundingBox()):
+                cap = cap.cut(x)
+        add("guard", nm, cap.clean(), OAK, "oak")
+        for a_, b_, z_ in screws:
+            bolt(a_, b_, z_, "z", -1, d=0.4, h=0.1, role=("wood screw", 0.19, 1.25, 1.25))
 # context: slab and the two walls (reference only)
 CTX = [("slab", box(-5, 60, -5, 100, -1, 0)), ("bath_1_wall", box(-4.5, 0, -4.5, 100, 0, FL)), ("clerestory_wall", box(0, 60, -4.5, 0, 0, 170))]
 

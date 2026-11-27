@@ -763,6 +763,29 @@ def stair_guards():
     return out
 
 
+# round 16 (Maxwell 11/27/2026): a white oak cap on the balcony guard's two level top rails (not the sloped stair rails). CAP_W x CAP_T with
+# a groove CAP_G deep under it that sits on the 1 1/4 pipe; mitred at the north west corner, 1/8 in off the bath 1 wall, and running on
+# over the south west newel's top. #10 screws up through the pipe's top wall into the oak, put in through a 1/2 in access hole in the
+# pipe's underside, between the pickets. The cap's top is CAP_T - CAP_G above the pipe's top, so the guard grows to about 37 in.
+CAP_W, CAP_T, CAP_G = 2.5, 1.25, 0.4
+
+
+def rail_caps():
+    """[(name, plan quad [(a, b)] x 4, z bottom, z top, groove centreline (p0, p1), [screw head (a, b, z) inside the pipe, pointing down])]"""
+    rr, wall = PIPE_RAIL[0] / 2, PIPE_RAIL[1]
+    zc = G_TOP - RAIL / 2
+    z0, z1 = zc + rr - CAP_G, zc + rr - CAP_G + CAP_T
+    h = CAP_W / 2
+    zs = zc + rr - wall                                          # screw heads on the inside of the pipe's top wall
+    s0, s1 = BAL_S + POST, BAL_N - POST
+    nw = math.ceil((s1 - s0) / 4.4); bw = [s0 + (i + 0.5) * (s1 - s0) / nw for i in (0, nw // 2, nw - 1)]
+    nn = math.ceil((XL - POST) / 4.4); an = [POST + (i + 0.5) * (XL - POST) / nn for i in (0, nn // 3, 2 * nn // 3, nn - 1)]
+    west = [(PC - h, BAL_S + POST / 2 - h), (PC + h, BAL_S + POST / 2 - h), (PC + h, GP_B + h), (PC - h, GP_B - h)]
+    north = [(0.125, GP_B - h), (PC - h, GP_B - h), (PC + h, GP_B + h), (0.125, GP_B + h)]
+    return [("rail_cap_west", west, z0, z1, ((PC, BAL_S, zc), (PC, GP_B + h, zc)), [(PC, b, zs) for b in bw]),
+            ("rail_cap_north", north, z0, z1, ((0.0, GP_B, zc), (PC + h, GP_B, zc)), [(a, GP_B, zs) for a in an])]
+
+
 def rail_frames():
     """the rail's cross sections at every station: (a, b) of its two sides and z of its top and bottom"""
     out = []

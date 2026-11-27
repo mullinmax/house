@@ -507,6 +507,8 @@ def mono_ladder(WX, WY):
             pc_ = min(((x, y) for x, y in ((G.A_FOOT, XL + G.POST / 2), (XL + G.POST / 2, XL + G.POST / 2), (XL + G.POST / 2, G.BAL_S + G.POST / 2),
                                            (XL + G.POST / 2, (PN[0] + PN[1]) / 2), (G.POST / 2, (PN[0] + PN[1]) / 2))), key=lambda q: math.hypot(q[0] - P1_[0], q[1] - P1_[1]))
             cyl(ST, (*pc_, R_[2] - G.PC_H / 2), (*pc_, R_[2] + G.PC_H / 2), G.PS_D / 2)
+        for nm_, quad_, z0_, z1_, _g, _s in G.rail_caps():    # round 16: white oak cap on the balcony guard's level top rails
+            hexa(OAK, [P(a_, b_, z0_) for a_, b_ in quad_] + [P(a_, b_, z1_) for a_, b_ in quad_])
         for gnm_, (g0_, g1_), pks_ in G.stair_guards():  # round 16: stair guards, bottom rail and plumb pickets up to the handrail
             cyl(ST, g0_, g1_, G.PIPE_RAIL[0] / 2)
             for g_ in (g0_, g1_):
