@@ -153,7 +153,7 @@ def _loft_furniture():
         SW_, SD_, SH_, SO_ = 88.625 / 12, 41.375 / 12, 32.625 / 12, 56.75 / 12
         wc = (WY0 + WY1) / 2
         s0, s1 = wc - SW_ / 2, wc + SW_ / 2
-        bx = piano(X0 + 0.05)
+        bx = piano(X0 + 0.5)   # round 17: 6 in off the loft edge, clear of the loft railing's south end post and its flange
         bench(bx, 32.0)
         piece("sleeper_sofa", "Sleeper sofa", "IKEA FRIHETEN sleeper sofa: the seat pulls forward into a bed that lies along the sofa",
               [["Closed", "88 5/8 in wide, 41 3/8 in deep, 32 5/8 in high"], ["Bed", "56 3/4 in x 78 3/8 in (a full is 54 x 75)"], ["Open", "56 3/4 in from the wall"],
@@ -185,7 +185,7 @@ def _loft_furniture():
         swivel(36.0, 24.6, "N")
         return
     loveseat(31.6, 36.8)
-    bx = piano(X0 + 0.05)
+    bx = piano(X0 + 0.5)   # round 17: 6 in off the loft edge, clear of the loft railing's south end post and its flange
     bench(bx, 32.0)
     cy1 = Y1 - 0.02
     cy0 = cy1 - CW

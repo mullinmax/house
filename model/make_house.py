@@ -1464,7 +1464,9 @@ if LOFT["enabled"]:
     if LOFT.get("railing"):
         RH = LOFT.get("railing_height", 3.0)
         rec("loft.railing", "railing", "Loft railing", "interior", room="Loft",
-            info=dict(model=f"{ftin(RH)} guard, black steel posts and balusters with a white oak cap (ASSUMED)", specs=[["Edge", "Open west edge of the loft, open where the ladder lands"], ["Top", ftin(FL + RH)]]))
+            info=dict(model=(f"{ftin(RH)} guard matching the ladder balcony: 3 1/2 x 2 white oak top rail, 1/2 in pickets, 1 1/4 pipe bottom rail, 1 1/2 schedule 80 pipe posts on railing flanges"
+                             if LOFT.get("ladder_loft_rail", "") == "match" else f"{ftin(RH)} guard, black steel posts and balusters with a white oak cap (ASSUMED)"),
+                      specs=[["Edge", "Open west edge of the loft, open where the ladder lands"], ["Top", ftin(FL + RH)]]))
         for ya, yb in (RAIL_SPAN if isinstance(RAIL_SPAN, list) else [RAIL_SPAN]):
             rx0, rx1 = LX0, LX0 + 0.12
             box("White Oak", rx0 - 0.04, rx1 + 0.04, ya, yb, FL + RH - 0.12, FL + RH)

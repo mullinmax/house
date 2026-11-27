@@ -164,8 +164,10 @@ def mono_ladder(WX, WY):
     def nut(a, b, z, axis, sign=1, **kw):
         bolt(a, b, z, axis, sign, kind="hex", **kw)
 
-    def cyl(mat, p0, p1, r, n=16):
-        """round bar from p0 to p1 (a, b, z): a 16 sided prism as fan quads"""
+    def cyl(mat, p0, p1, r, n=None):
+        """round bar from p0 to p1 (a, b, z): a many sided prism as fan quads (round 17, Maxwell 11/27/2026 "pretty low poly": a side
+        every 1/5 in of girth, 20 to 48 sides)"""
+        n = n or min(48, max(20, round(2 * math.pi * r / 0.2)))
         d_ = [q - p for q, p in zip(p1, p0)]; L_ = math.sqrt(sum(x * x for x in d_)); u_ = [x / L_ for x in d_]
         t_ = (1.0, 0.0, 0.0) if abs(u_[0]) < 0.9 else (0.0, 1.0, 0.0)
         e1 = [u_[1] * t_[2] - u_[2] * t_[1], u_[2] * t_[0] - u_[0] * t_[2], u_[0] * t_[1] - u_[1] * t_[0]]
@@ -471,7 +473,7 @@ def mono_ladder(WX, WY):
     post(XL + e, XL + G.POST, PN[0] + e, PN[1], zl_)
     m_ = G.NK_MITER
     if PIPE:
-        cyl(ST, (G.POST / 2, (PN[0] + PN[1]) / 2, m_ + G.POST / 2), (G.POST / 2, (PN[0] + PN[1]) / 2, G.G_TOP - G.CAP_T - G.OT_CLIP[1] if G.OAK_TOP else G.G_TOP - G.RAIL / 2), G.PIPE_POST[0] / 2)
+        cyl(ST, (G.POST / 2, (PN[0] + PN[1]) / 2, m_ + G.POST / 2), (G.POST / 2, (PN[0] + PN[1]) / 2, FL_ - G.TTD - e if G.LOFT_RAIL else G.G_TOP - G.CAP_T - G.OT_CLIP[1] if G.OAK_TOP else G.G_TOP - G.RAIL / 2), G.PIPE_POST[0] / 2)
     else:
         hexa(ST, [P(a, bb, z) for bb in (PN[0] + e, PN[1]) for a, z in ((0.05, m_ + 0.05), (G.POST, m_ + G.POST), (G.POST, G.G_TOP - G.RAIL - e), (0.05, G.G_TOP - G.RAIL - e))])
     for nm_, sg in (("sw", -1), ("nw", 1)):              # corner plates on the west posts' inside faces, flange under the end beam
@@ -490,7 +492,7 @@ def mono_ladder(WX, WY):
     zr = FL_ + 3.6                                       # bottom rails; the top rails are the continuous rail
     if PIPE:
         cyl(ST, (sum(ra) / 2, G.BAL_S + G.POST, zr + G.RAIL / 2), (sum(ra) / 2, PN[0], zr + G.RAIL / 2), G.PIPE_RAIL[0] / 2)
-        cyl(ST, (G.POST, sum(rb) / 2, zr + G.RAIL / 2), (XL, sum(rb) / 2, zr + G.RAIL / 2), G.PIPE_RAIL[0] / 2)
+        cyl(ST, (G.LR_A if G.LOFT_RAIL else G.POST, sum(rb) / 2, zr + G.RAIL / 2), (XL, sum(rb) / 2, zr + G.RAIL / 2), G.PIPE_RAIL[0] / 2)
     else:
         gb(ST, ra[0], ra[1], G.BAL_S + G.POST + e, PN[0] - e, zr, zr + G.RAIL - e)
         gb(ST, G.POST + e, XL - e, rb[0], rb[1], zr, zr + G.RAIL - e)
@@ -499,17 +501,29 @@ def mono_ladder(WX, WY):
     n_w = math.ceil((span[1] - span[0]) / 4.4)
     for i in range(1, n_w):
         b = span[0] + i * (span[1] - span[0]) / n_w
-        gb(ST, G.PC - 0.25, G.PC + 0.25, b - 0.25, b + 0.25, *pz)
-    n_n = math.ceil((XL - G.POST) / 4.4)
+        cyl(ST, (G.PC, b, pz[0]), (G.PC, b, pz[1]), G.PICKET / 2)
+    na0 = G.LR_A + G.POST / 2 if G.LOFT_RAIL else G.POST    # round 17: the north rail runs on to the loft corner post
+    n_n = math.ceil((XL - na0) / 4.4)
     for i in range(1, n_n):
-        a = G.POST + i * (XL - G.POST) / n_n
-        gb(ST, a - 0.25, a + 0.25, G.GP_B - 0.25, G.GP_B + 0.25, *pz)
+        a = na0 + i * (XL - na0) / n_n
+        cyl(ST, (a, G.GP_B, pz[0]), (a, G.GP_B, pz[1]), G.PICKET / 2)
+    LR = G.loft_rail()                                   # round 17: the loft railing, the same parts as the balcony guard
+    if PIPE:
+        for nm_, a_, b_ in LR["posts"]:
+            cyl(ST, (a_, b_, FL_ + G.PF_T), (a_, b_, G.G_TOP - G.CAP_T - G.FF_T), G.PIPE_POST[0] / 2)
+            cyl(ST, (a_, b_, FL_ + e), (a_, b_, FL_ + G.PF_T), G.PF_D / 2)
+            cyl(ST, (a_, b_, FL_ + G.PF_T), (a_, b_, FL_ + G.PF_H), G.PF_SOCK / 2)
+        for nm_, a0_, a1_, b0_, b1_, z0_, z1_, ax_ in LR["rails"]:
+            cyl(ST, ((a0_ + a1_) / 2, b0_, z0_ - G.RAIL / 2), ((a0_ + a1_) / 2, b1_, z0_ - G.RAIL / 2), G.PIPE_RAIL[0] / 2)
+        for a_, b_, z0_, z1_ in LR["pickets"]:
+            cyl(ST, (a_, b_, z0_), (a_, b_, z1_), G.PICKET / 2)
     if PIPE:                                             # kit fittings: a collar on the post at every rail joint
         for nm_, R_, P1_, P2_, t_, side_, plane_, pat_ in G.rail_straps():
             if G.OAK_TOP and nm_.startswith("guard_top_"):
                 continue
             pc_ = min(((x, y) for x, y in ((G.A_FOOT, XL + G.POST / 2), (XL + G.POST / 2, XL + G.POST / 2), (XL + G.POST / 2, G.BAL_S + G.POST / 2),
-                                           (XL + G.POST / 2, (PN[0] + PN[1]) / 2), (G.POST / 2, (PN[0] + PN[1]) / 2))), key=lambda q: math.hypot(q[0] - P1_[0], q[1] - P1_[1]))
+                                           (XL + G.POST / 2, (PN[0] + PN[1]) / 2)) + (() if G.LOFT_RAIL else ((G.POST / 2, (PN[0] + PN[1]) / 2),)) + tuple((a_, b_) for _, a_, b_ in LR["posts"])),
+                      key=lambda q: math.hypot(q[0] - P1_[0], q[1] - P1_[1]))
             cyl(ST, (*pc_, R_[2] - G.PC_H / 2), (*pc_, R_[2] + G.PC_H / 2), G.PS_D / 2)
         for nm_, quad_, z0_, z1_, _g, _s in G.rail_caps():    # round 16: white oak cap on the balcony guard's level top rails
             hexa(OAK, [P(a_, b_, z0_) for a_, b_ in quad_] + [P(a_, b_, z1_) for a_, b_ in quad_])
@@ -529,7 +543,7 @@ def mono_ladder(WX, WY):
             for g_ in (g0_, g1_):
                 cyl(ST, (g_[0], g_[1], g_[2] - G.PC_H / 2), (g_[0], g_[1], g_[2] + G.PC_H / 2), G.PS_D / 2)
             for pa_, pb_, z0_, z1_ in pks_:
-                gb(ST, pa_ - 0.25, pa_ + 0.25, pb_ - 0.25, pb_ + 0.25, z0_, z1_)
+                cyl(ST, (pa_, pb_, z0_), (pa_, pb_, z1_), G.PICKET / 2)
     elif not G.CONT_RAIL:                                # round 11b: rail straps (1/4 in) with a spacer and three 1/4-20 bolts each
         for nm_, R_, P1_, P2_, t_, side_, plane_, pat_ in G.rail_straps():
             ax_, i_ = side_[0], (0 if side_[0] == "a" else 1)
@@ -668,7 +682,7 @@ def _ladder_options():
         for yb_ in (() if mono else (yt0 + 0.2, yt1 - 0.2)):
             hexa("Black Metal", [(XL + 0.2, yb_, zb_ - 0.62), (XL + 0.45, yb_, zb_ - 0.5), (EDGE_X, yb_, zb_ - 2.2), (EDGE_X, yb_, zb_ - 2.5),
                                  (XL + 0.2, yb_ + 0.12, zb_ - 0.62), (XL + 0.45, yb_ + 0.12, zb_ - 0.5), (EDGE_X, yb_ + 0.12, zb_ - 2.2), (EDGE_X, yb_ + 0.12, zb_ - 2.5)])
-        RAIL_SPAN = [(LY0 + 0.1, yt0 - 0.05), (yt1 + 0.06, LY1 - 0.1)]
+        RAIL_SPAN = [] if (mono and LOFT.get("ladder_loft_rail", "") == "match") else [(LY0 + 0.1, yt0 - 0.05), (yt1 + 0.06, LY1 - 0.1)]   # round 17: mono_ladder draws the loft railing
         LADDER_CLIMBS = [dict(id="loft.ladder", rect=[rnd(XL - ul), rnd(sy1 - wn), rnd(XL), rnd(sy1)], axis="x", z0=0.0, z1=rnd(zp)),
                          dict(id="loft.ladder", rect=[rnd(XL), rnd(yt1), rnd(XL + wn), rnd(yl0)], axis="y", rev=True, z0=rnd(zp), z1=FL, pad=0.7)]
         r_lad["info"]["specs"] = [["Risers", f"{NR} at {ftin(RI)}: {n_lo} east along the south wall, {n_up} north along the bath 1 wall"],

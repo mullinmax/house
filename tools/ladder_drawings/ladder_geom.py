@@ -789,7 +789,10 @@ def rail_caps():
     north = [(0.125, GP_B - h), (PC - h, GP_B - h), (PC + h, GP_B + h), (0.125, GP_B + h)]
     if OAK_TOP:
         west[0], west[1] = (PC - h, OT_SW_END), (PC + h, OT_SW_END)
-        return [("oak_top_rail_west", west, z0, z1, None, []), ("oak_top_rail_north", north, z0, z1, None, [])]
+        if LOFT_RAIL:                                            # round 17: on to the loft corner post, mitred into the loft railing's north run
+            north = [(LR_A - h, GP_B - h), (PC - h, GP_B - h), (PC + h, GP_B + h), (LR_A + h, GP_B + h)]
+        return [("oak_top_rail_west", west, z0, z1, None, []), ("oak_top_rail_north", north, z0, z1, None, [])] + \
+               [(nm, q, z0, z1, None, []) for nm, q in loft_rail()["oak"]]
     return [("rail_cap_west", west, z0, z1, ((PC, BAL_S, zc), (PC, GP_B + h, zc)), [(PC, b, zs) for b in bw]),
             ("rail_cap_north", north, z0, z1, ((0.0, GP_B, zc), (PC + h, GP_B, zc)), [(a, GP_B, zs) for a in an])]
 
@@ -804,11 +807,51 @@ def rail_caps():
 FF_D, FF_T, FF_H, FF_HUB, FF_BC = 4.5625, 0.3, 1.0, 2.6, 3.56     # floor flange: rim diameter, rim thickness, overall height, hub, screw circle
 OT_CLIP = (2.0, 0.25, 1.75)                                      # leg, thickness, length along the rail
 OT_PK = 0.75                                                     # the balcony pickets' depth up into the oak
+
+# round 17 (Maxwell 11/27/2026): the loft railing matches the balcony guard (same oak top at the same height, 1/2 in pickets, a 1 1/4 pipe
+# bottom rail on kit fittings, 1 1/2 pipe posts) and the balcony's north east post goes: the balcony's north rails run straight on to a
+# loft corner post, flush and level with the loft railing. The NE post stays below the deck as the north knee frame's wall post.
+# Loft posts: 1 1/2 schedule 80 (same 1.90 OD, so the same fittings; a lone post with 200 lb at its top is 85% in schedule 80, 107% in 40),
+# each on a kit railing flange through bolted down into blocking, a floor flange on top under the oak like the balcony's.
+LOFT_RAIL = OAK_TOP and L.get("ladder_loft_rail", "") == "match"
+LR_A = -2.85                                                     # post centre line, east of the loft edge (bath 1 wall face): the 5 1/2 in base flange stays on the floor
+PIPE_POST80 = (1.900, 0.200)                                     # 1 1/2 NPS schedule 80
+_YC = tomllib.load(open(os.path.join(HERE, "..", "..", "model", "config.toml"), "rb"))["roof"]["clerestory_wall_y"]
+LR_B_N = (_YC - L["rect"][1]) * 12 - 0.625                       # the loft's north wall face (drywall on the framing line)
+LR_B_S = 0.0                                                     # the clerestory wall's north face
+
+
+def loft_rail():
+    """posts [(name, a, b)], bottom rails [(name, a0, a1, b0, b1, z0, z1, axis)] like straight_rails, oak runs [(name, quad)], pickets [(a, b, z0, z1)]"""
+    if not LOFT_RAIL:
+        return dict(posts=[], rails=[], oak=[], pickets=[])
+    h = CAP_W / 2
+    n_end = LR_B_N - 3.0                                         # end posts 3 in off the walls
+    s_end = LR_B_S + 3.0
+    s_top = BAL_S - 2.75 - 0.1                                   # the south run's north post: its flange just south of the balcony's south edge
+    bn = [GP_B, (GP_B + n_end) / 2, n_end]
+    bs = [s_top, (s_top + s_end) / 2, s_end]
+    posts = [(f"loft_post_n{i}", LR_A, b) for i, b in enumerate(bn)] + [(f"loft_post_s{i}", LR_A, b) for i, b in enumerate(bs)]
+    zb = FL + 3.6                                                # same bottom rail height as the balcony guard
+    rails, pickets = [], []
+    zp = (zb + RAIL, G_TOP - CAP_T + OT_PK)
+    for run, bb in (("n", bn), ("s", bs)):
+        for i in range(1, len(bb)):
+            b0, b1 = sorted((bb[i - 1], bb[i]))
+            rails.append((f"loft_bottom_rail_{run}{i}", LR_A - RAIL / 2, LR_A + RAIL / 2, b0 + POST / 2, b1 - POST / 2, zb + RAIL, zb + RAIL, "b"))
+            n_ = math.ceil((b1 - b0 - POST) / 4.4)
+            pickets += [(LR_A, b0 + POST / 2 + k * (b1 - b0 - POST) / n_, *zp) for k in range(1, n_)]
+    oak = [("oak_top_rail_loft_north", [(LR_A - h, GP_B - h), (LR_A + h, GP_B + h), (LR_A + h, LR_B_N - 0.125), (LR_A - h, LR_B_N - 0.125)]),
+           ("oak_top_rail_loft_south", [(LR_A - h, LR_B_S + 0.125), (LR_A + h, LR_B_S + 0.125), (LR_A + h, s_top + 1.5), (LR_A - h, s_top + 1.5)])]
+    return dict(posts=posts, rails=rails, oak=oak, pickets=pickets)
+
 OT_SW_END = BAL_S + POST / 2 - FF_D / 2 - 0.1                    # the west rail's south end, just past the newel flange's rim
 
 
 def oak_top_mounts():
     """[(post name, a, b, kind)] with kind 'flange' or 'clip'"""
+    if LOFT_RAIL:                                                # round 17: no NE guard post; every loft post has a floor flange too
+        return [("balcony_sw_newel", PC, BAL_S + POST / 2, "flange"), ("guard_post_nw", PC, GP_B, "flange")] + [(n, a, b, "flange") for n, a, b in loft_rail()["posts"]]
     return [("balcony_sw_newel", PC, BAL_S + POST / 2, "flange"), ("guard_post_nw", PC, GP_B, "flange"), ("guard_post_ne", POST / 2, GP_B, "clip")]
 
 
@@ -894,8 +937,10 @@ def rail_straps():
     bw = ("guard_bottom_west", PC - RAIL / 2, PC + RAIL / 2, BAL_S + POST, BAL_N - POST, zb + RAIL / 2, zb + RAIL / 2, "b")
     face("guard_bottom_sw", bw, 0, ("a", 1))
     tilt("guard_bottom_west_nw", (PC, BAL_N - POST - 0.5, zb), (PC, BAL_N - POST + 0.6, zb + math.sqrt(1.75 ** 2 - 1.1 ** 2)), ("a", 1), PC + POST / 2)
-    bn = ("guard_bottom_north", POST, XL, GP_B - RAIL / 2, GP_B + RAIL / 2, zb + RAIL / 2, zb + RAIL / 2, "a")
-    face("guard_bottom_north_ne", bn, 0, ("b", 1))
+    bn = ("guard_bottom_north", LR_A + POST / 2 if LOFT_RAIL else POST, XL, GP_B - RAIL / 2, GP_B + RAIL / 2, zb + RAIL / 2, zb + RAIL / 2, "a")
+    face("guard_bottom_north_lc" if LOFT_RAIL else "guard_bottom_north_ne", bn, 0, ("b", 1))
+    for r_ in loft_rail()["rails"]:                                              # round 17: loft railing bottom rails, a fitting at each end
+        face(r_[0] + "_0", r_, 0, ("a", 1)); face(r_[0] + "_1", r_, 1, ("a", 1))
     tilt("guard_bottom_north_nw", (XL - 0.5, GP_B, zb), (XL + 0.6, GP_B, zb - math.sqrt(1.75 ** 2 - 1.1 ** 2)), ("b", 1), GP_B + POST / 2)
     return out
 
@@ -908,7 +953,7 @@ RAIL_STYLE = os.environ.get("LADDER_RAIL_STYLE", L.get("ladder_rail_style", "str
 assert RAIL_STYLE in ("straps", "hidden", "pipe"), RAIL_STYLE
 PIPE_POST = (1.900, 0.145)                         # 1 1/2 NPS schedule 40: OD, wall
 PIPE_RAIL = (1.660, 0.140)                         # 1 1/4 NPS schedule 40 (a 1.66 in round handrail is graspable, R311.7.8.5)
-RAIL_POSTS = ("foot_post", "corner_newel", "balcony_sw_newel", "guard_post_nw", "guard_post_ne")
+RAIL_POSTS = ("foot_post", "corner_newel", "balcony_sw_newel", "guard_post_nw", "guard_post_ne") + tuple(p_[0] for p_ in loft_rail()["posts"])
 PF_D, PF_T, PF_SOCK, PF_H, PF_BC = 5.5, 0.4, 2.6, 2.6, 4.25   # B: railing flange (plate dia, thick), its socket (OD, height), anchor circle
 PS_D, PS_H, PC_H = 2.6, 2.2, 2.4                   # B: fitting round a post: OD, post top socket depth, side collar height
 RS_D, RS_L = 2.3, 2.2                              # B: fitting round a rail: OD, socket length
