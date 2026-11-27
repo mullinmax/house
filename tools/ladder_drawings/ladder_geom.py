@@ -703,8 +703,8 @@ def rail_plane(a0, a1, b0, b1, gap=0.12):
         if abs(ac - PC) < 0.1 and abs(bc - PC) < 0.1:          # corner newel, above the upper rail
             return lambda a, b: NEWEL_TOP
         if abs(bc - (BAL_S + POST / 2)) < 0.1:                 # balcony south west newel, flush with the guard's top rail
-            return lambda a, b: GSW_TOP
-        return lambda a, b: G_TOP - RAIL                        # guard posts, under the level top rails
+            return lambda a, b: (G_TOP - CAP_T - FF_T) if OAK_TOP else GSW_TOP     # round 16b: up into its floor flange under the oak
+        return lambda a, b: (G_TOP - CAP_T - FF_T) if OAK_TOP else G_TOP - RAIL   # guard posts, under the level top rails (or the oak's flange)
     s_ = rail_s((a0 + a1) / 2, (b0 + b1) / 2)
     pa, pb = rail_plan(s_)
     qa, qb = rail_plan(min(s_ + 0.05, S_END))
@@ -769,6 +769,8 @@ def stair_guards():
 # pipe's underside, between the pickets. The cap's top is CAP_T - CAP_G above the pipe's top, so the guard grows to about 37 in.
 OAK_TOP = os.environ.get("LADDER_RAIL_STYLE", L.get("ladder_rail_style", "straps")) == "pipe" and L.get("ladder_guard_top", "cap") == "oak"   # round 16b (Maxwell 11/27/2026): no top pipe, the pickets go into the oak
 CAP_W, CAP_T, CAP_G = (3.5, 2.0, 0.0) if OAK_TOP else (2.5, 1.25, 0.4)
+if OAK_TOP:            # round 16b: guard top 36 3/4, so the north west and south west floor flanges' 1 in hubs clear the upper stair rail's collar on the
+    G_TOP = FL + 36.75  # newel (its top is about 1/4 in under a 36 in rail's oak). Code wants at least 36, so the extra 3/4 is fine
 
 
 def rail_caps():
@@ -776,6 +778,8 @@ def rail_caps():
     rr, wall = PIPE_RAIL[0] / 2, PIPE_RAIL[1]
     zc = G_TOP - RAIL / 2
     z0, z1 = zc + rr - CAP_G, zc + rr - CAP_G + CAP_T
+    if OAK_TOP:                                                  # round 16b: the oak is the top rail, its top at the guard height
+        z0, z1 = G_TOP - CAP_T, G_TOP
     h = CAP_W / 2
     zs = zc + rr - wall                                          # screw heads on the inside of the pipe's top wall
     s0, s1 = BAL_S + POST, BAL_N - POST
@@ -783,8 +787,29 @@ def rail_caps():
     nn = math.ceil((XL - POST) / 4.4); an = [POST + (i + 0.5) * (XL - POST) / nn for i in (0, nn // 3, 2 * nn // 3, nn - 1)]
     west = [(PC - h, BAL_S + POST / 2 - h), (PC + h, BAL_S + POST / 2 - h), (PC + h, GP_B + h), (PC - h, GP_B - h)]
     north = [(0.125, GP_B - h), (PC - h, GP_B - h), (PC + h, GP_B + h), (0.125, GP_B + h)]
+    if OAK_TOP:
+        west[0], west[1] = (PC - h, OT_SW_END), (PC + h, OT_SW_END)
+        return [("oak_top_rail_west", west, z0, z1, None, []), ("oak_top_rail_north", north, z0, z1, None, [])]
     return [("rail_cap_west", west, z0, z1, ((PC, BAL_S, zc), (PC, GP_B + h, zc)), [(PC, b, zs) for b in bw]),
             ("rail_cap_north", north, z0, z1, ((0.0, GP_B, zc), (PC + h, GP_B, zc)), [(a, GP_B, zs) for a in an])]
+
+
+# round 16b: what holds the oak top rail on each post top. The south west newel and the north west corner post: a stock 1 1/2 in black
+# malleable iron floor flange, upside down, screwed onto the post's threaded top (a plain pipe thread), 4 screws up into the oak; at the
+# corner both rails share it, which makes the corner stiff, as the frame model takes it. A floor flange, not the kit's set screw railing
+# flange, because the kit flange's 2.6 in socket would hit the upper stair rail's collar on the newel; the floor flange's hub is 1 in tall.
+# Its 4 9/16 rim is ground flat where it would show past the oak. The north east post is 1 in off the bath 1 wall, too close for a flange:
+# a stock L 2 x 2 x 1/4 clip, its vertical leg through bolted (along b) to the post's south side, its horizontal leg over the post top
+# under the oak with 2 screws up.
+FF_D, FF_T, FF_H, FF_HUB, FF_BC = 4.5625, 0.3, 1.0, 2.6, 3.56     # floor flange: rim diameter, rim thickness, overall height, hub, screw circle
+OT_CLIP = (2.0, 0.25, 1.75)                                      # leg, thickness, length along the rail
+OT_PK = 0.75                                                     # the balcony pickets' depth up into the oak
+OT_SW_END = BAL_S + POST / 2 - FF_D / 2 - 0.1                    # the west rail's south end, just past the newel flange's rim
+
+
+def oak_top_mounts():
+    """[(post name, a, b, kind)] with kind 'flange' or 'clip'"""
+    return [("balcony_sw_newel", PC, BAL_S + POST / 2, "flange"), ("guard_post_nw", PC, GP_B, "flange"), ("guard_post_ne", POST / 2, GP_B, "clip")]
 
 
 def rail_frames():

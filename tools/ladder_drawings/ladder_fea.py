@@ -383,8 +383,8 @@ else:
     # balcony south west newel: lapped onto the upper open tube and the balcony's west beam
     bsw = BS1
     u_sw = bsw - G.B0
-    gs = [(PC, bsw, G.FL - G.TK - G.CP_DROP if G.MONO else UP.zc(u_sw)), (PC, bsw, ZB), (PC, bsw, zr_up(bsw)), (PC, bsw, G.G_TOP - 0.75), (PC, bsw, G.GSW_TOP)]
-    for i in range(4):
+    gs = [(PC, bsw, G.FL - G.TK - G.CP_DROP if G.MONO else UP.zc(u_sw)), (PC, bsw, ZB), (PC, bsw, zr_up(bsw)), (PC, bsw, G.G_TOP - (G.CAP_T / 2 if G.OAK_TOP else 0.75)), (PC, bsw, G.GSW_TOP)]
+    for i in range(3 if G.OAK_TOP else 4):           # round 16b: the newel stops in its floor flange under the oak
         M(f"gsw{i}", gs[i], gs[i + 1], "POST")
     if not G.MONO:
         M("gsw_tube", gs[0], (XW, bsw, UP.zc(u_sw)), "RIGID")
@@ -394,7 +394,7 @@ else:
     N(*mid_up)
     M("rail_upper", nw[4], gs[2], "RAIL", "ij")
     # balcony guard
-    zg = G.G_TOP - 0.75
+    zg = G.G_TOP - (G.CAP_T / 2 if G.OAK_TOP else 0.75)   # round 16b: the oak rail's centre
     if G.MONO:                                          # round 10: the north west post at the frame's corner on its corner plate, reaching below
         corner = (PC, G.GP_B, zg)                        # the frame to the north knee brace's top
         nwz = [G.FL - G.TK - G.CP_DROP, G.NK_ZT + 1.0, ZB]
