@@ -4147,26 +4147,61 @@ def web_vanity(it):
     FOOT, ZC, ZT = 4 * I, 33.25 * I, 34.5 * I     # feet, carcass top, counter top (34 1/2 in, like the Beckett)
     VF, VD, VO = 20.25 * I, 21.0 * I, 22.0 * I    # face frame front, fronts' face, top's front edge
     ST, TR, BR, GP = 1.5 * I, 1.5 * I, 2.5 * I, 0.125 * I
-    # carcass (split round the basins up top so they read from above), face frame and feet
-    holes = []
+    r = RECS[-1]                                  # the vanity's record: drawers and doors become its moving parts
+    CT = 0.75 * I                                 # case panels
+    zf0, zf1 = FOOT + BR, ZC - TR
+    zs = [zf0 + k * (zf1 - zf0) / 4 for k in range(5)]   # four equal drawer heights; the sink's false drawer uses the top one
+    bv0, bv1 = 4.5 * I, 16.5 * I                  # basin front to back, out from the wall
+    ZB = ZC - 6.5 * I                             # below the basins
+    # each section's opening between the face frame stiles, and the basin cut-outs
+    opens, holes = [], []
     u = 0
-    for s, w in zip(secs, wid):
+    for k, (s, w) in enumerate(zip(secs, wid)):
+        a0 = u + (ST if k == 0 else ST / 2)
+        a1 = u + w - (ST if k == len(secs) - 1 else ST / 2)
+        opens.append((a0, a1))
         if s == "sink":
             bw = min(16 * I, w - 1 * I)
             holes.append((u + w / 2 - bw / 2, u + w / 2 + bw / 2))
         u += w
-    bv0, bv1 = 4.5 * I, 16.5 * I                  # basin front to back, out from the wall
-    ZB = ZC - 6.5 * I                             # below the basins
-    vb(paintc, 0, W, 0, VF, FOOT, ZB)
-    ends = [0] + [c for h in holes for c in (h[0] - 0.3 * I, h[1] + 0.3 * I)] + [W]
-    for k in range(0, len(ends), 2):
-        vb(paintc, ends[k], ends[k + 1], 0, VF, ZB, ZC)
+    # the case is hollow behind the fronts (Maxwell 11/27/2026: the drawers and doors open): partitions full height at
+    # the stiles, and inside each opening a back, a floor and a top. Drawer sections are open from the floor to the
+    # top rail; a sink section is open below the false drawer, with the basins let into the solid block above it.
+    edges = [0] + [c for a in opens for c in a] + [W]
+    for k in range(0, len(edges), 2):
+        vb(paintc, edges[k], edges[k + 1], 0, VF, FOOT, ZB)
+    # up top (round the basins), solid except the drawer openings and the basin cut-outs; a basin may run into a stile
+    gaps = sorted([a for s, a in zip(secs, opens) if s == "drawers"] + [(h0 - 0.3 * I, h1 + 0.3 * I) for h0, h1 in holes])
+    edges = [0] + [c for a in gaps for c in a] + [W]
+    for k in range(0, len(edges), 2):
+        vb(paintc, edges[k], edges[k + 1], 0, VF, ZB, ZC)
     for h0, h1 in holes:
         vb(paintc, h0 - 0.3 * I, h1 + 0.3 * I, 0, bv0 - 0.3 * I, ZB, ZC); vb(paintc, h0 - 0.3 * I, h1 + 0.3 * I, bv1 + 0.3 * I, VF, ZB, ZC)
+    hk = 0
+    for s, (a0, a1) in zip(secs, opens):
+        vb(paintc, a0, a1, CT, VF, FOOT, zf0)                         # floor, behind the bottom rail
+        ztop = zf1 if s == "drawers" else zs[3]
+        vb(paintc, a0, a1, 0, CT, FOOT, ztop)                         # back
+        if s == "drawers":
+            vb(paintc, a0, a1, 0, VF, zf1, ZC)                        # top, behind the top rail
+            continue
+        h0, h1 = holes[hk]; hk += 1
+        vb(paintc, a0, a1, 0, VF, zs[3], ZB)                          # behind the false drawer
+        # the plumbing in the sink cabinet: tailpiece from the drain, a P-trap into the wall, and two angle stops
+        hc = (h0 + h1) / 2
+        dv = (bv0 + bv1) / 2 + 2 * I                                  # under the drain
+        vc("Stainless", hc, dv, zs[3] - 7 * I, zs[3], 0.75 * I)
+        vb("Stainless", hc - 0.75 * I, hc + 0.75 * I, dv - 3 * I, dv + 0.75 * I, zs[3] - 8.5 * I, zs[3] - 7 * I)
+        vc("Stainless", hc, dv - 2.25 * I, zs[3] - 8.5 * I, zs[3] - 5.5 * I, 0.75 * I)
+        vb("Stainless", hc - 0.75 * I, hc + 0.75 * I, CT, dv - 3 * I, zs[3] - 5.5 * I, zs[3] - 4 * I)
+        for e in (-1, 1):
+            su = hc + e * 4 * I
+            vb("Stainless", su - 0.35 * I, su + 0.35 * I, CT, 2.75 * I, zf0 + 9 * I, zf0 + 9.7 * I)
+            vc("Stainless", su, 2.5 * I, zf0 + 9.7 * I, zs[3], 0.2 * I)   # supply riser up to the faucet
+            vb("Plastic Grey", su - 0.4 * I, su + 0.4 * I, 2.75 * I, 3.4 * I, zf0 + 8.9 * I, zf0 + 9.8 * I)   # handle
     for u in [0.75 * I, W - 2.75 * I] + ([W / 2 - I] if W > 4.5 else []):
         vb(paintc, u, u + 2 * I, VF - 2.2 * I, VF, 0, FOOT)
         vb(paintc, u, u + 2 * I, 1.0 * I, 3.0 * I, 0, FOOT)
-    vb(paintc, 0, W, VF - 0.3 * I, VF, FOOT, FOOT + BR - 0.5 * I)   # base rail lip under the fronts
     # counter, cut round each basin; backsplash and side splashes
     cuts = [-gap] + [c for h in holes for c in h] + [W + gap]
     for k in range(0, len(cuts), 2):
@@ -4188,37 +4223,64 @@ def web_vanity(it):
     if gap > 0.001:                                # side splashes against both walls
         for u0 in (-gap, W):
             vb(TOP, u0, u0 + gap, 0, VO, ZT, ZT + 4 * I)
-    # fronts
-    zf0, zf1 = FOOT + BR, ZC - TR
-    zs = [zf0 + k * (zf1 - zf0) / 4 for k in range(5)]   # four equal drawer heights; the sink's false drawer uses the top one
-    u = 0
-    for k, (s, w) in enumerate(zip(secs, wid)):
-        a0 = u + (ST if k == 0 else ST / 2)
-        a1 = u + w - (ST if k == len(secs) - 1 else ST / 2)
-        vb(paintc, u, a0, VF, VF + 0.1 * I, FOOT, ZC); vb(paintc, a1, u + w, VF, VF + 0.1 * I, FOOT, ZC)   # stiles
-        rows = [(zs[j], zs[j + 1]) for j in range(4)] if s == "drawers" else [(zs[3], zs[4])]
-        for z0, z1 in rows:                        # slab drawer fronts with a short horizontal bar pull
-            vb(paintc, a0 + GP, a1 - GP, VF, VD, z0 + GP, z1 - GP)
+    # fronts. Every drawer slides out on its box and the sink doors swing open (Maxwell 11/27/2026); the sink's top
+    # front is a false drawer, as on the Beckett, and stays put.
+    ax0, ax1, ou = P(0, 0), P(1, 0), P(0, 1)
+    axv, outv = (ax1[0] - ax0[0], -(ax1[1] - ax0[1])), (ou[0] - ax0[0], -(ou[1] - ax0[1]))
+    sgn = 1 if axv[0] * outv[1] - axv[1] * outv[0] > 0 else -1     # which way a left hinged door turns to open, as in shaker()
+    PULLOUT = 14 * I                              # full extension slides on a 17 in drawer box
+    nd = [0]
+
+    def drawer(a0, a1, z0, z1, moving):
+        tgt = CUR[0]
+        if moving:
+            nd[0] += 1
+            x, y = P((a0 + a1) / 2, VD)
+            sx, sy = P(0, PULLOUT)[0] - ax0[0], P(0, PULLOUT)[1] - ax0[1]
+            tgt = op(r, f"{r['id']}.drawer{nd[0]}", "Drawer", "drawer", (x, y, (z0 + z1) / 2), slide=(sx, sy, 0))["parts"]
+        with into(tgt):
+            vb(paintc, a0 + GP, a1 - GP, VF, VD, z0 + GP, z1 - GP)       # slab drawer front with a short horizontal bar pull
             pl = min(5 * I, (a1 - a0) * 0.55)
             cu, cz = (a0 + a1) / 2, (z0 + z1) / 2
             vb(PULL, cu - pl / 2, cu + pl / 2, VD + 0.75 * I, VD + 1.15 * I, cz - 0.2 * I, cz + 0.2 * I)
             for e in (-1, 1):
                 vb(PULL, cu + e * (pl / 2 - 0.35 * I) - 0.17 * I, cu + e * (pl / 2 - 0.35 * I) + 0.17 * I, VD, VD + 0.8 * I, cz - 0.15 * I, cz + 0.15 * I)
-        if s == "sink":                            # a pair of Shaker doors, vertical pulls at the meeting stiles
+            if moving:                                   # white oak drawer box behind the front, clear of the case
+                b0, b1, bz0, bz1 = a0 + 0.5 * I, a1 - 0.5 * I, z0 + 0.6 * I, z1 - 1.0 * I
+                bf, bb, t = VF - 0.05 * I, VF - 17 * I, 0.5 * I
+                vb("Cabinet Wood", b0, b1, bb, bb + t, bz0, bz1)
+                vb("Cabinet Wood", b0, b1, bf - t, bf, bz0, bz1)
+                vb("Cabinet Wood", b0, b0 + t, bb + t, bf - t, bz0, bz1); vb("Cabinet Wood", b1 - t, b1, bb + t, bf - t, bz0, bz1)
+                vb("Cabinet Wood", b0 + t, b1 - t, bb + t, bf - t, bz0, bz0 + 0.25 * I)
+
+    u = 0
+    for k, (s, w) in enumerate(zip(secs, wid)):
+        a0, a1 = opens[k]
+        vb(paintc, u, a0, VF, VF + 0.1 * I, FOOT, ZC); vb(paintc, a1, u + w, VF, VF + 0.1 * I, FOOT, ZC)   # stiles
+        if s == "drawers":
+            for j in range(4):
+                drawer(a0, a1, zs[j], zs[j + 1], True)
+        else:
+            drawer(a0, a1, zs[3], zs[4], False)
+            # a pair of Shaker doors, vertical pulls at the meeting stiles, hinged on the outer edges
             z0, z1 = zs[0], zs[3]
             m = (a0 + a1) / 2
             for d0, d1, side in ((a0, m, 1), (m, a1, -1)):
                 d0g, d1g = d0 + GP, d1 - GP
                 zz0, zz1 = z0 + GP, z1 - GP
-                vb(paintc, d0g, d1g, VF, VD - 0.25 * I, zz0, zz1)
-                R = 2.25 * I                         # Shaker frame, a little proud of the recessed panel
-                vb(paintc, d0g, d0g + R, VD - 0.25 * I, VD, zz0, zz1); vb(paintc, d1g - R, d1g, VD - 0.25 * I, VD, zz0, zz1)
-                vb(paintc, d0g + R, d1g - R, VD - 0.25 * I, VD, zz1 - R, zz1); vb(paintc, d0g + R, d1g - R, VD - 0.25 * I, VD, zz0, zz0 + R)
-                pu = (d1g - 1.3 * I) if side == 1 else (d0g + 1.3 * I)
-                pz1 = zz1 - 2.0 * I
-                vb(PULL, pu - 0.2 * I, pu + 0.2 * I, VD + 0.75 * I, VD + 1.15 * I, pz1 - 6 * I, pz1)
-                for zp in (pz1 - 5.65 * I, pz1 - 0.35 * I):
-                    vb(PULL, pu - 0.15 * I, pu + 0.15 * I, VD, VD + 0.8 * I, zp - 0.17 * I, zp + 0.17 * I)
+                hu = d0g if side == 1 else d1g
+                hx, hy = P(hu, VD)
+                o_ = op(r, f"{r['id']}.door{len(r.get('ops', []))}", "Vanity door", "swing", (hx, hy, 0), angle=(100 if side == 1 else -100) * sgn)
+                with into(o_["parts"]):
+                    vb(paintc, d0g, d1g, VF, VD - 0.25 * I, zz0, zz1)
+                    R = 2.25 * I                         # Shaker frame, a little proud of the recessed panel
+                    vb(paintc, d0g, d0g + R, VD - 0.25 * I, VD, zz0, zz1); vb(paintc, d1g - R, d1g, VD - 0.25 * I, VD, zz0, zz1)
+                    vb(paintc, d0g + R, d1g - R, VD - 0.25 * I, VD, zz1 - R, zz1); vb(paintc, d0g + R, d1g - R, VD - 0.25 * I, VD, zz0, zz0 + R)
+                    pu = (d1g - 1.3 * I) if side == 1 else (d0g + 1.3 * I)
+                    pz1 = zz1 - 2.0 * I
+                    vb(PULL, pu - 0.2 * I, pu + 0.2 * I, VD + 0.75 * I, VD + 1.15 * I, pz1 - 6 * I, pz1)
+                    for zp in (pz1 - 5.65 * I, pz1 - 0.35 * I):
+                        vb(PULL, pu - 0.15 * I, pu + 0.15 * I, VD, VD + 0.8 * I, zp - 0.17 * I, zp + 0.17 * I)
         u += w
     vb(paintc, 0, W, VF, VF + 0.1 * I, zf1, ZC); vb(paintc, 0, W, VF, VF + 0.1 * I, FOOT, zf0)   # top and bottom rails
     # mirror over the sink(s): thin black frame
