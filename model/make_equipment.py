@@ -655,6 +655,24 @@ def _end(x, yw, inch):            # a negative length reaches north of the refer
     return [x] + sorted([yw, round(yw + inch / 12, 3)])
 TENDS = [_end(round(TG + k * TSP, 4), yw, inch) for k0, k1, yw, inch in CFG["floor_trusses"].get("solid_ends", []) for k in range(k0, k1 + 1)]
 TENDS += [_end(x, yw, inch) for x, yw, inch in CFG["floor_trusses"].get("solid_ends_x", [])]
+# Where each truss's web triangles start (Maxwell, 11/20/2026: the triangles line up across every truss, whatever its solid end).
+# The webs are laid out at the measured pitch from the end of the shortest solid end on the same bearing wall, at a web peak
+# (the hall 1 west wall truss "ends at a web peak" after its 7 in block), so the openings line up from truss to truss and a
+# duct crossing several of them can thread one row of triangles. A truss counts from its own bearing wall only south of it.
+def _web_y0():
+    faces = {}
+    for x, y0_, y1_ in TENDS:
+        faces.setdefault(round(y0_, 3), []).append(y1_)
+    out = []
+    for x, y0_, y1_ in TENDS:
+        f = round(y0_, 3)
+        if f in faces and y1_ > y0_ and f < 30:     # a north end (the south ends reach north of their face)
+            out.append([x, min(faces[f]), f])              # [x, first peak, the bearing face it counts from]
+    return out
+TWEB0 = _web_y0()
+def _reg_web0(xs_, r_):              # a truss with no solid end of its own takes the start its region's other trusses use
+    ys = [w[1] for w in TWEB0 for x in xs_ if abs(w[0] - x) < 0.01 and w[2] < r_[3]]
+    return max(set(ys), key=ys.count) if ys else None
 
 S = "S"; N = "N"
 # A wall register's back sits about 1/10 in behind the drywall face and its front stands about 0.6 in proud, so it shows
@@ -800,7 +818,10 @@ def bend(pts, r=0.55):
         for t in (0.0, 0.25, 0.5, 0.75, 1.0):            # quadratic Bezier through the corner
             out.append([round((1 - t) ** 2 * p0[i] + 2 * (1 - t) * t * b[i] + t * t * p2[i], 3) for i in range(3)])
     out.append(pts[-1])
+    out = _Bent(out); out.raw = [list(q) for q in pts]; out.r = r   # the corners, kept so _thread_ducts can move a leg and bend it again
     return out
+class _Bent(list):
+    pass
 
 RFLEX = ("Round flex duct: a rectangular duct cannot pass through open web floor trusses, and 11-7/8 in trusses leave about 8-7/8 in between the chords. "
          "Runs that go north to south lie in one truss bay, parallel to the trusses, where a bigger round fits. Runs that cross the trusses go through "
@@ -904,8 +925,9 @@ r["info"]["notes"] = ["Bedroom 3's grille moved from its south wall, next to the
                       "passed only about three quarters of the room's 127 CFM.", STACK_HEAD_NOTE, RFLEX]
 stack("return_bed3_stack", SR3, 10.8, "return_bed23", "return_bed23", "Bedroom 3", top=CEIL + 0.03)
 stack("return_bed3_stack2", SR3B, 10.8, "return_bed23", "return_bed3b", "Bedroom 3", top=CEIL + 0.03)
-ret("return_bed3b", None, 6, bend([stack_head("return_bed3b_head", SR3B, XR3B, "return_bed23", "return_bed3b", 6), [XR3B, 12.6, ZT], [XR3 - 0.3, 13.4, ZT], [XR3, 13.9, ZT]], 0.4), flex=True, info_of="return_bed23", parent="return_bed23", el=30)
-ret("return_bed2", None, 6, bend([stack_head("return_bed2_head", SR2, XR2, "return_bed23", "return_bed2", 6), [XR2, 11.9, ZT], [XR3 + 0.3, 12.7, ZT], [XR3, 13.2, ZT]], 0.4), flex=True, parent="return_bed23", el=30,
+# the two branches cross their one truss square on (a slanted crossing needs a wider web opening), then slant into the main run
+ret("return_bed3b", None, 6, bend([stack_head("return_bed3b_head", SR3B, XR3B, "return_bed23", "return_bed3b", 6), [XR3B, 12.9, ZT], [XR3 - 0.45, 12.9, ZT], [XR3, 13.5, ZT]], 0.4), flex=True, info_of="return_bed23", parent="return_bed23", el=30)
+ret("return_bed2", None, 6, bend([stack_head("return_bed2_head", SR2, XR2, "return_bed23", "return_bed2", 6), [XR2, 12.0, ZT], [XR3 + 0.45, 12.0, ZT], [XR3, 12.6, ZT]], 0.4), flex=True, parent="return_bed23", el=30,
     grilles=[dict(at=[SR2, 10.64, LOW], size=[14, 8], wall=N)], info_of="return_bed23")
 stack("return_bed2_stack", SR2, 10.8, "return_bed23", "return_bed2", "Bedroom 2", top=CEIL + 0.03)
 
@@ -920,8 +942,9 @@ XSB, XSB2 = bay(SSB), bay(SSB2)                 # the study's two low grilles ea
 XB1R = stud_bay(38.6, 2)                           # measured stud bays (Maxwell, 11/20/2026)
 XSR = bay(25.4)                                   # both runs go south side by side in this bay: the living 1 and laundry supplies fill the next two east
 YSW, YBW = 19.6, 20.3
+YS1, YS2 = 12.41, 13.28                           # the two runs west over the hall 2 trusses, each through its own row of web triangles (they were at 11.85 and 12.6, through the webs; 11/27/2026)
 r = ret("return_study", "Study return", 6,
-        bend([stack_head("return_study_head", SSB, XSB, "return_study", "return_study", 6, line=1), [XSB, 11.85, ZT], [XSR - 0.26, 11.85, ZT], [XSR - 0.26, YSW, ZT], [XR2, YSW, ZT], [XR2, RY + 0.5, ZT], [RPX, RY + 0.5, ZT], [RPX, RY + 0.5, DECK + 0.2]]), flex=True,
+        bend([stack_head("return_study_head", SSB, XSB, "return_study", "return_study", 6, line=1), [XSB, YS1, ZT], [XSR - 0.26, YS1, ZT], [XSR - 0.26, YSW, ZT], [XR2, YSW, ZT], [XR2, RY + 0.5, ZT], [RPX, RY + 0.5, ZT], [RPX, RY + 0.5, DECK + 0.2]]), flex=True,
         el=25, grilles=[dict(at=[SSB, 10.64, LOW], size=[14, 8], wall=N), dict(at=[SSB2, 10.64, LOW], size=[14, 8], wall=N)])
 r["info"]["model"] = "Two low grilles, each with its own stack and 6 in round flex run"
 r["info"]["specs"] = [["Serves", "Study (low grille on its south wall, east of the door; a separate high grille over the door carries most of the air)"],
@@ -933,7 +956,7 @@ r["info"]["notes"] = ["The study has a low grille (Maxwell, 11/17/2026) with a s
                       STACK_HEAD_NOTE, "Second grille and stack (Maxwell, 11/19/2026): the builder can move bedroom 1's door wall east, so it moved 2 ft 1 1/2 in, just far enough that the study's south wall has two stud bays for stacks, each under its own floor truss bay. Maxwell measured the trusses at 16 in on centre from the west wall (11/20/2026), so the stacks sit at x 28.0 and 29.4, centred under two neighbouring truss bays. The studs are 16 in on centre too, but where they fall against the trusses over this wall is not measured yet: a stack whose stud bay sits half a bay off the trusses would land on a truss. Confirm on site.", RFLEX]
 stack("return_study_stack", SSB, 10.8, "return_study", "return_study", "Bedroom 4 / study", top=CEIL + 0.03)
 stack("return_study_stack2", SSB2, 10.8, "return_study", "return_study2", "Bedroom 4 / study", top=CEIL + 0.03)
-ret("return_study2", None, 6, bend([stack_head("return_study2_head", SSB2, XSB2, "return_study", "return_study2", 6, line=1), [XSB2, 12.6, ZT], [XSR + 0.26, 12.6, ZT], [XSR + 0.26, YBW, ZT], [bay(10.7), YBW, ZT],
+ret("return_study2", None, 6, bend([stack_head("return_study2_head", SSB2, XSB2, "return_study", "return_study2", 6, line=1), [XSB2, YS2, ZT], [XSR + 0.26, YS2, ZT], [XSR + 0.26, YBW, ZT], [bay(10.7), YBW, ZT],
                                     [bay(10.7), RY - 1.3, ZT]]), flex=True, info_of="return_study", el=25)
 
 # Bedroom 1 (duct balance check, 11/18/2026): its 138 CFM is too much for anything that fits through the truss webs, so its return
@@ -1790,12 +1813,151 @@ if SP:
 
 _tag()
 trusses = dict(id="floor_trusses", name="Open web floor trusses", category="Structure", system="structure.floor", regions=FLAT, loft_regions=[LOFT],
-    z0=CEIL, depth_in=TRUSS_IN, spacing_in=CFG["floor_trusses"]["spacing_in"], deck_in=DECK_IN, grid_x0=TG, xs=[truss_xs(r) for r in FLAT + [LOFT]], solid_ends=TENDS, chord_w_in=CFG["floor_trusses"].get("chord_w_in", 3.5), web_in=CFG["floor_trusses"].get("web_in", 1.5), web_pitch_in=CFG["floor_trusses"].get("web_pitch_in"), max_cross_in=CFG["floor_trusses"]["max_round_duct_in"],
+    z0=CEIL, depth_in=TRUSS_IN, spacing_in=CFG["floor_trusses"]["spacing_in"], deck_in=DECK_IN, grid_x0=TG, xs=[truss_xs(r) for r in FLAT + [LOFT]], solid_ends=TENDS, chord_w_in=CFG["floor_trusses"].get("chord_w_in", 3.5), web_in=CFG["floor_trusses"].get("web_in", 1.5), web_pitch_in=CFG["floor_trusses"].get("web_pitch_in"), web_y0=TWEB0, web_y0_region=[_reg_web0(truss_xs(r), r) for r in FLAT + [LOFT]], max_cross_in=CFG["floor_trusses"]["max_round_duct_in"],
     info=dict(model="11-7/8 in open web floor trusses",
       specs=[["Depth", "11-7/8 in (Maxwell, 11/16/2026)"], ["Chords", "2.5 in wide, webs 1.5 x 1.5 in (Maxwell, 11/20/2026)"], ["Web openings", "Triangles 19.5 in along the chord, 13 in legs, 8.5 in high inside: a 7 in round duct passes (Maxwell, 11/20/2026)"], ["Floor top", f"{DECK:.2f} ft above the slab with 3/4 in decking"],
              ["Spacing", "16 in on centre from the west wall, doubled at the east wall (Maxwell, 11/20/2026)"], ["Span", "North to south, continuous over the interior walls"], ["Ends", "Solid trimmable ends at the bearing walls, open webs between (Maxwell's photo, 11/20/2026)"]],
       notes=["The attic deck and the loft floor sit on these, about 3 in higher in the attic and 2 in higher in the loft than the sealed plans.",
              "The loft railing, pony wall, ladder and furniture come from the last Blender export and still sit at the old height, about 2 in low, until the next export."]))
+
+# ------------------------------------------------------------------ threading the truss webs
+# Maxwell, 11/27/2026: the trusses are measured, so the ducts follow them. A round duct crossing the trusses has to pass
+# through one row of web triangles, and the webs are laid out as site/equipment.js draws them (measured 21 in triangles,
+# lined up truss to truss from web_y0). Each straight east-west run that crosses trusses is moved, within 9 in north or
+# south and up or down between the chords, to where it clears every chord and web it passes by the most; a grille at its
+# end moves with it. tools/truss_clash.py checks the same geometry.
+def _truss_planes(t):
+    D_, CH_, WW_ = t["depth_in"] / 12, 1.5 / 12, t["web_in"] / 12
+    P_ = (t["web_pitch_in"] or 0) / 24
+    lo_, hi_ = t["z0"] + 0.07 + CH_, t["z0"] + D_ - 0.01 - CH_
+    out = []
+    for ri, (rx0, ry0, rx1, ry1) in enumerate(t["regions"] + t["loft_regions"]):
+        y0_, y1_ = ry0 + 0.05, ry1 - 0.05
+        for x in t["xs"][ri]:
+            w0, w1, sol = y0_, y1_, []
+            for ex, ey0, ey1 in t["solid_ends"]:
+                if abs(ex - x) > 0.01 or ey1 <= y0_ or ey0 >= y1_:
+                    continue
+                atN, atS = ey0 <= y0_ + 0.2, ey1 >= y1_ - 0.2
+                if not (atN or atS):
+                    continue
+                e0, e1 = (y0_, min(ey1, y1_)) if atN else (max(ey0, y0_), y1_)
+                sol.append((e0, e1))
+                if atN: w0 = max(w0, e1)
+                else: w1 = min(w1, e0)
+            o = [w for w in t["web_y0"] if abs(w[0] - x) < 0.01 and w[2] < ry1]
+            if not o and t["web_y0_region"][ri] is not None:
+                o = [[x, t["web_y0_region"][ri]]]
+            nodes = []
+            if o and P_:
+                k = math.ceil((w0 - o[0][1]) / P_ - 1e-6)
+                while o[0][1] + k * P_ <= w1 + 1e-6:
+                    nodes.append((o[0][1] + k * P_, hi_ if k % 2 == 0 else lo_)); k += 1
+            else:
+                n_ = max(2, round((w1 - w0) / (P_ or D_ * 1.5)))
+                nodes = [(w0 + k * (w1 - w0) / n_, hi_ if k % 2 else lo_) for k in range(n_ + 1)]
+            out.append(dict(x=x, y0=y0_, y1=y1_, solids=sol, segs=list(zip(nodes, nodes[1:])) if w1 - w0 > 0.3 else []))
+    return out, lo_, hi_, WW_
+def truss_clearance(planes, lo_, hi_, ww, y, z, r):
+    """least clearance (ft) of a round duct radius r at (y, z) across the given truss planes; negative = it hits"""
+    c = min(z - r - lo_, hi_ - z - r)
+    for p_ in planes:
+        for e0, e1 in p_["solids"]:
+            if e0 - r < y < e1 + r: c = min(c, -1.0)
+        for (ya, za), (yb, zb_) in p_["segs"]:
+            dy_, dz_ = yb - ya, zb_ - za
+            u = max(0.0, min(1.0, ((y - ya) * dy_ + (z - za) * dz_) / (dy_ * dy_ + dz_ * dz_)))
+            c = min(c, math.hypot(y - ya - u * dy_, z - za - u * dz_) - ww / 2 - r)
+    return c
+def _segdist(p1, q1, p2, q2):                       # closest distance between two 3D segments (sampled finely enough here)
+    best = 1e9
+    for i in range(21):
+        t = i / 20
+        p = [p1[k] + (q1[k] - p1[k]) * t for k in range(3)]
+        d_ = [q2[k] - p2[k] for k in range(3)]; L2 = sum(v * v for v in d_) or 1e-9
+        u = max(0.0, min(1.0, sum((p[k] - p2[k]) * d_[k] for k in range(3)) / L2))
+        best = min(best, math.dist(p, [p2[k] + d_[k] * u for k in range(3)]))
+    return best
+def _thread_ducts():
+    """Move each straight east-west round run in the truss space sideways (and up or down) until it passes through the same web
+    opening in every truss it crosses. Bent runs move their corner points and are bent again, so the arcs follow."""
+    planes, lo_, hi_, ww = _truss_planes(trusses)
+    def rad(o):
+        sz = o["size"]
+        return sz / 24 if isinstance(sz, (int, float)) else min(sz) / 24   # a flat rect duct: its height (pipe_clash.py checks the real boxes)
+    def legs(o):
+        return getattr(o["points"], "raw", o["points"])
+    def crossing(P, i):                               # a straight east-west leg in the truss space
+        a, b = P[i], P[i + 1]
+        return abs(a[1] - b[1]) < 1e-3 and abs(a[2] - b[2]) < 1e-3 and abs(a[0] - b[0]) >= 0.3 and lo_ < a[2] < hi_
+    pending = set()                                   # legs still to be threaded do not block yet: they move after
+    byid = {d["id"]: d for d in ducts}
+    for o in ducts:
+        if isinstance(o["size"], (int, float)):
+            L = legs(o)
+            for i in range(len(L) - 1):
+                if crossing(L, i): pending.add((o["id"], i))
+    def is_pending(o, p, q):                          # this drawn segment lies on a leg still to be threaded
+        for oid, j in pending:
+            if oid != o["id"]:
+                continue
+            a, b = legs(o)[j][:3], legs(o)[j + 1][:3]
+            xl, xh = sorted((a[0], b[0]))
+            if all(abs(t[1] - a[1]) < 1e-3 and abs(t[2] - a[2]) < 1e-3 and xl - 1e-3 <= t[0] <= xh + 1e-3 for t in (p, q)):
+                return True
+        return False
+    def others_ok(d, xa, xb, y, z, r_):              # stays 1/4 in off every other duct it is not joined to
+        for o in ducts:
+            if o is d or o.get("parent") == d["id"] or d.get("parent") == o["id"]:
+                continue
+            for p, q in zip(o["points"], o["points"][1:]):
+                if max(p[0], q[0]) < min(xa, xb) - 1 or min(p[0], q[0]) > max(xa, xb) + 1 or abs((p[1] + q[1]) / 2 - y) > 3 + abs(p[1] - q[1]):
+                    continue
+                if is_pending(o, p, q):
+                    continue
+                if _segdist([xa, y, z], [xb, y, z], p, q) < r_ + rad(o) + 0.25 / 12:
+                    return False
+        return True
+    def across(a, b, r_):
+        xl, xh = sorted((a[0], b[0]))
+        return [p_ for p_ in planes if xl - r_ < p_["x"] < xh + r_ and p_["y0"] <= a[1] <= p_["y1"]]
+    def options(d, i):                                # how many spots near it clear the trusses alone: the tightest legs go first
+        a, b = legs(d)[i], legs(d)[i + 1]; r_ = d["size"] / 24; cr = across(a, b, r_)
+        return sum(1 for j in range(-75, 76, 5) if all(p_["y0"] <= a[1] + j / 100 <= p_["y1"] for p_ in cr)
+                   and any(truss_clearance(cr, lo_, hi_, ww, a[1] + j / 100, lo_ + r_ + (hi_ - lo_ - 2 * r_) * k / 20, r_) >= 0 for k in range(21)))
+    for did, i in sorted(pending, key=lambda q: (options(byid[q[0]], q[1]), q)):
+        d = byid[did]
+        r_, L = d["size"] / 24, legs(d)
+        a, b = L[i], L[i + 1]
+        pending.discard((did, i))
+        cr = across(a, b, r_)
+        if not cr or truss_clearance(cr, lo_, hi_, ww, a[1], a[2], r_) >= 0.25 / 12:
+            continue
+        best = None
+        for j in range(-75, 76):
+            y = a[1] + j / 100
+            if any(not (p_["y0"] <= y <= p_["y1"]) for p_ in cr):
+                continue
+            for k in range(0, 41):
+                z = lo_ + r_ + (hi_ - lo_ - 2 * r_) * k / 40
+                c = truss_clearance(cr, lo_, hi_, ww, y, z, r_)
+                key = (min(c, 0.25 / 12), -abs(j), c)          # clear by 1/4 in if it can, then the smallest move
+                if c < 0 or (best is not None and key <= best[0]) or not others_ok(d, a[0], b[0], y, z, r_):
+                    continue
+                best = (key, y, z, c)
+        if best is None:
+            print(f"!! {did}: no opening near y {a[1]:.2f} lines up through all {len(cr)} trusses")
+            continue
+        _, y, z, c = best
+        oy, oz = a[1], a[2]
+        for g in d.get("grilles", []):
+            if not g.get("wall") and abs(g["at"][1] - oy) < 1e-3 and any(abs(g["at"][0] - q[0]) < 1e-3 for q in (a, b)):
+                g["at"][1] = round(y, 3)
+        L[i] = [a[0], round(y, 3), round(z, 3)]; L[i + 1] = [b[0], round(y, 3), round(z, 3)]
+        if L is not d["points"]:
+            d["points"] = bend(L, d["points"].r)
+        d.setdefault("threaded", []).append([round(oy, 3), round(y, 3), round(oz, 3), round(z, 3), round(c * 12, 2)])
+_thread_ducts()
 
 # Wall grilles were placed against the A-11 faces of the partitions. make_house.py builds the walls A-11 draws as a bare
 # 3 1/2 in stud a 2x4 plus 5/8 in drywall each side thick (Maxwell 11/21/2026), so those faces moved about 5/8 in into the

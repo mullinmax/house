@@ -1460,10 +1460,16 @@ function buildTrusses(t) {
         push(new THREE.BoxGeometry(CW * 0.9 * F, hz * F, (e1 - e0) * F), m4.clone());
         if (atN) w0 = Math.max(w0, e1); else w1 = Math.min(w1, e0);
       }
-      const WL = w1 - w0, panels = Math.max(2, Math.round(WL / (PITCH || D * 1.5))), pl = WL / panels;     // webs zigzag between the chords
-      for (let k = 0; WL > 0.3 && k < panels; k++) {
-        const lo = z0 + zb + CH, hi = z0 + D - zt - CH;
-        const a = plan(x, w0 + k * pl, k % 2 ? hi : lo), b = plan(x, w0 + (k + 1) * pl, k % 2 ? lo : hi);
+      const WL = w1 - w0, lo = z0 + zb + CH, hi = z0 + D - zt - CH;
+      // webs zigzag between the chords. With a measured pitch and a first peak (web_y0) they sit on one grid per bearing wall,
+      // so the triangles line up from truss to truss as built (Maxwell, 11/20/2026); otherwise they are spread evenly
+      const own = (t.web_y0 || []).find((w) => Math.abs(w[0] - x) < 0.01 && w[2] < ry1), rg = (t.web_y0_region || [])[ri];
+      const o = PITCH && (own || (rg != null ? [x, rg] : null));
+      const nodes = [];
+      if (o) { for (let k = Math.ceil((w0 - o[1]) / PITCH - 1e-6); o[1] + k * PITCH <= w1 + 1e-6; k++) nodes.push([o[1] + k * PITCH, k % 2 === 0 ? hi : lo]); }
+      else { const panels = Math.max(2, Math.round(WL / (PITCH || D * 1.5))), pl = WL / panels; for (let k = 0; k <= panels; k++) nodes.push([w0 + k * pl, k % 2 ? hi : lo]); }
+      for (let k = 0; WL > 0.3 && k + 1 < nodes.length; k++) {
+        const a = plan(x, nodes[k][0], nodes[k][1]), b = plan(x, nodes[k + 1][0], nodes[k + 1][1]);
         const d = b.clone().sub(a), len = d.length();
         q.setFromUnitVectors(new THREE.Vector3(0, 0, 1), d.clone().normalize());
         m4.compose(a.clone().addScaledVector(d, 0.5), q, one);
