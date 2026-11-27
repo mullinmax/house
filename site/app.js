@@ -828,9 +828,10 @@ function setMode(m) {
     if (!jumping) { jumping = true; jump(lastRoom || 'Outside_SW'); jumping = false; }
   }
 }
-// Leaving the overhead view keeps you where you were looking (Maxwell, 11/20/2026: Walk snapped outside the house).
-// Walk drops onto the nearest floor under the orbit centre, facing the way the camera faced. No clip stays exactly
-// where the camera is, looking the same way, and just starts flying.
+// Leaving the overhead view drops you straight down from where the camera is (Maxwell, 11/27/2026: Walk snapped to
+// the orbit centre), facing the way the camera faced. Only when there is nothing to stand on under the camera (past
+// the edge of the terrain) does it fall back to the floor under the orbit centre. No clip stays exactly where the
+// camera is, looking the same way, and just starts flying.
 function leaveOrbit(fly) {
   const was = mode;
   jumping = true; setMode('walk'); jumping = false;
@@ -843,17 +844,8 @@ function leaveOrbit(fly) {
   if (fwd.lengthSq() < 1e-4) { fwd.set(0, 1, 0).applyQuaternion(camera.quaternion); fwd.y = 0; }   // straight down: screen up is ahead
   if (fwd.lengthSq() < 1e-8) fwd.set(0, 0, -1);
   fwd.normalize();
-  let spot = dropSpot(orbit.target);
+  const spot = dropUnder(camera.position) || dropSpot(orbit.target);
   if (!spot) { jumping = true; jump('Outside_SW'); jumping = false; return; }
-  // Stand a few steps back from that spot when you can see it from there, so what you were orbiting is in front of you.
-  for (const k of [8, 5, 3]) {
-    const c = spot.clone().addScaledVector(fwd, -k * F), back = nearClear(c.x, c.z, spot.y, 0.4 * F, 0.6 * F);
-    if (!back) continue;
-    const eye = back.clone(); eye.y += eyeH;
-    const to = spot.clone(); to.y += eyeH; const gap = to.clone().sub(eye), len = gap.length();
-    side.set(eye, gap.divideScalar(len)); side.far = len;
-    if (!side.intersectObjects(colliders, false)[0]) { spot = back; break; }
-  }
   camera.position.copy(spot); camera.position.y += eyeH;
   camera.lookAt(camera.position.clone().add(fwd));
 }
@@ -1433,14 +1425,14 @@ function clearAt(x, feet, z) {    // nothing within a body radius at knee, waist
   return true;
 }
 // Search outward from (x, z) in rings for a clear floor within tol of y. Returns the feet position or null.
-function nearClear(x, z, y, tol, maxR) {
+function nearClear(x, z, y, tol, maxR, ok) {
   const step = 0.6 * F;
   for (let r = 0; r <= maxR + 1e-6; r += step) {
     const n = r ? Math.max(6, Math.round(2 * Math.PI * r / step)) : 1;
     for (let i = 0; i < n; i++) {
       const a = (i / n) * 2 * Math.PI, px = x + r * Math.cos(a), pz = z + r * Math.sin(a);
       const hs = horizHits(px, pz, y + tol, y - tol);
-      if (!hs.length) continue;
+      if (!hs.length || (ok && !ok(px, pz))) continue;
       const h = hs.reduce((b, q) => Math.abs(q.point.y - y) < Math.abs(b.point.y - y) ? q : b);
       if (clearAt(px, h.point.y, pz)) return new THREE.Vector3(px, h.point.y, pz);
     }
@@ -1464,6 +1456,39 @@ function dropSpot(at) {
   if (!hs.length) return null;
   const y = hs.reduce((b, q) => Math.abs(q.point.y - at.y) < Math.abs(b.point.y - at.y) ? q : b).point.y;
   return nearClear(x, z, y, 2 * F, 12 * F);
+}
+
+// Straight down from the camera (Walk from orbit). Inside the house you land on the main floor, or on the loft when
+// the camera is over the loft and above its floor; the attic deck and the roof never catch you, so dropping from
+// over the roof lands you in the room below. The height slice still rules: a cut under the loft drops you through
+// it. In the garage or on the porch you land on its floor, not its roof. Out in the yard you land on the ground
+// under you. A spot inside a wall or a cabinet moves to
+// the nearest clear spot within a few feet. Returns the feet position in metres, or null when nothing is below.
+function dropUnder(cam) {
+  const x = cam.x, z = cam.z, px = x / F, py = z / F;
+  const inR = (r, u = px, v = py) => u >= r[0] && u <= r[2] && v >= r[1] && v <= r[3];
+  const o = houseMeta.outline || { house: [0, 0, 43.0833, 52] };
+  let top = cam.y;
+  if (upperPlane.constant < 1e5) top = Math.min(top, upperPlane.constant);       // nothing above the slice counts
+  const rooms = houseMeta.rooms || [];
+  if (inR(o.house)) {
+    const tries = [];
+    for (const r of rooms) if (r.upper && inR(r.rect) && r.floor * F + 1 * F <= top)
+      tries.push([r.floor * F, (u, v) => inR(r.rect, u / F, v / F)]);           // stay on the loft, not the attic deck beside it
+    tries.push([0, null]);
+    for (const maxR of [3 * F, 12 * F]) for (const [y, ok] of tries) { const s = nearClear(x, z, y, 0.6 * F, maxR, ok); if (s) return s; }
+    return null;
+  }
+  for (const k of ['garage', 'porch']) {
+    const r = o[k]; if (!r || !inR(r)) continue;
+    const rm = rooms.find((q) => q.name.toLowerCase() === k), y = (rm && rm.floor ? rm.floor : 0) * F;
+    const s = nearClear(x, z, y, 0.6 * F, 12 * F); if (s) return s;
+  }
+  // the yard: the first thing under you you can stand on (trees never catch you, they have no collision; the far
+  // terrain and the skirt under the real ground are tried only if that fails). The slice cuts the house, not the ground.
+  const ys = horizHits(x, z, cam.y, -100).map((h) => h.point.y).sort((a, b) => b - a);
+  for (const y of ys) { const s = nearClear(x, z, y, 0.5 * F, 6 * F); if (s) return s; }
+  return null;
 }
 
 // Body rays: knee, waist and the crouched head. Anything higher you duck under instead of walking into.
@@ -1747,4 +1772,4 @@ renderer.setAnimationLoop(() => {
 
 loadAll().catch((e) => { console.error(e); $('loadmsg').textContent = 'The model could not be loaded.'; });
 window.__B = THREE.Box3; window.__T = THREE; window.__walk = { orbit, resetView, setSlice, applyToggles, goRoom, closeModal,
-  simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, openSheet, act, inspectAt, showInfo, goTo, panOrbit, keys, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setQuality, get quality() { return quality; }, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip, measure };
+  simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, openSheet, act, inspectAt, showInfo, goTo, panOrbit, keys, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setQuality, get quality() { return quality; }, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip, measure, leaveOrbit };
