@@ -703,8 +703,8 @@ def rail_plane(a0, a1, b0, b1, gap=0.12):
         if abs(ac - PC) < 0.1 and abs(bc - PC) < 0.1:          # corner newel, above the upper rail
             return lambda a, b: NEWEL_TOP
         if abs(bc - (BAL_S + POST / 2)) < 0.1:                 # balcony south west newel, flush with the guard's top rail
-            return lambda a, b: GSW_TOP
-        return lambda a, b: G_TOP - RAIL                        # guard posts, under the level top rails
+            return lambda a, b: (G_TOP - CAP_T - FF_T) if OAK_TOP else GSW_TOP     # round 16b: up into its floor flange under the oak
+        return lambda a, b: (G_TOP - CAP_T - FF_T) if OAK_TOP else G_TOP - RAIL   # guard posts, under the level top rails (or the oak's flange)
     s_ = rail_s((a0 + a1) / 2, (b0 + b1) / 2)
     pa, pb = rail_plan(s_)
     qa, qb = rail_plan(min(s_ + 0.05, S_END))
@@ -729,6 +729,87 @@ def straight_rails():
             ("upper_rail_open", *ra, XL + POST, BAL_S, zb(XL + POST), zb(BAL_S), "b"),
             ("guard_west_top_rail", *ra, BAL_S + POST, rb[1], G_TOP, G_TOP, "b"),
             ("guard_north_top_rail", 0.0, ra[0], *rb, G_TOP, G_TOP, "a")]
+
+
+# round 16 (Maxwell 11/27/2026, IRC R312.1.1 to R312.1.3): the ladder's open sides get a guard. Its top is the open side handrail
+# (ladder_handrail_in 34: a stair guard is 34 in min above the nosing line, a ships ladder handrail 30 to 34), a bottom rail runs parallel to
+# the nosing line with its underside SG_BOT above it (the triangle under it, tread and riser, passes 5.3 in, under the 6 in sphere), and 1/2 in
+# plumb pickets between them leave at most SG_CLEAR clear (4 3/8 in sphere on stairs). Pipe railing only.
+SG_BOT, SG_CLEAR = 4.0, 3.9
+
+
+def stair_guards():
+    """[(name, bottom rail centreline (p0, p1), [(a, b, z_bottom, z_top) per picket])] for the lower and upper open sides; p = (a, b, z) and
+    both rail ends sit on post centres (the CAD cuts them at the round posts). Pickets run plumb between the two pipes' surfaces (their ends sit in drilled holes)."""
+    rr = PIPE_RAIL[0] / 2
+    out = []
+    for nm, f, posts, ax in (("lower", LOWER, (XL + POST / 2, A_FOOT), "a"), ("upper", UPPER, (XL + POST / 2, BAL_S + POST / 2), "b")):
+        if ax == "a":
+            u = lambda a: XL + UL - a
+        else:
+            u = lambda b: b - B0
+        s_ = lambda x: x                                                   # plan position along the rail
+        cosr = 1 / math.sqrt(1 + SL ** 2)
+        zbc = lambda x: f.zn(u(x)) + SG_BOT + rr / cosr                     # bottom rail centre
+        ztc = lambda x: f.zn(u(x)) + HR - RAIL * math.sqrt(1 + SL ** 2) / 2   # top rail centre (as the pipe CAD places it)
+        x0, x1 = sorted(posts)
+        q = lambda x, z: (x, PC, z) if ax == "a" else (PC, x, z)
+        rp = PIPE_POST[0] / 2
+        free0, free1 = x0 + rp, x1 - rp
+        n = max(1, math.ceil((free1 - free0) / (SG_CLEAR + PICKET)))
+        step = (free1 - free0) / n
+        pk = [x for x in (free0 + i * step for i in range(1, n))]
+        out.append((f"stair_guard_{nm}", (q(x0, zbc(x0)), q(x1, zbc(x1))), [(*q(x, 0)[:2], zbc(x) + rr / cosr + 0.02, ztc(x) - rr / cosr - 0.02) for x in pk]))
+    return out
+
+
+# round 16 (Maxwell 11/27/2026): a white oak cap on the balcony guard's two level top rails (not the sloped stair rails). CAP_W x CAP_T with
+# a groove CAP_G deep under it that sits on the 1 1/4 pipe; mitred at the north west corner, 1/8 in off the bath 1 wall, and running on
+# over the south west newel's top. #10 screws up through the pipe's top wall into the oak, put in through a 1/2 in access hole in the
+# pipe's underside, between the pickets. The cap's top is CAP_T - CAP_G above the pipe's top, so the guard grows to about 37 in.
+OAK_TOP = os.environ.get("LADDER_RAIL_STYLE", L.get("ladder_rail_style", "straps")) == "pipe" and L.get("ladder_guard_top", "cap") == "oak"   # round 16b (Maxwell 11/27/2026): no top pipe, the pickets go into the oak
+CAP_W, CAP_T, CAP_G = (3.5, 2.0, 0.0) if OAK_TOP else (2.5, 1.25, 0.4)
+if OAK_TOP:            # round 16b: guard top 36 3/4, so the north west and south west floor flanges' 1 in hubs clear the upper stair rail's collar on the
+    G_TOP = FL + 36.75  # newel (its top is about 1/4 in under a 36 in rail's oak). Code wants at least 36, so the extra 3/4 is fine
+
+
+def rail_caps():
+    """[(name, plan quad [(a, b)] x 4, z bottom, z top, groove centreline (p0, p1), [screw head (a, b, z) inside the pipe, pointing down])]"""
+    rr, wall = PIPE_RAIL[0] / 2, PIPE_RAIL[1]
+    zc = G_TOP - RAIL / 2
+    z0, z1 = zc + rr - CAP_G, zc + rr - CAP_G + CAP_T
+    if OAK_TOP:                                                  # round 16b: the oak is the top rail, its top at the guard height
+        z0, z1 = G_TOP - CAP_T, G_TOP
+    h = CAP_W / 2
+    zs = zc + rr - wall                                          # screw heads on the inside of the pipe's top wall
+    s0, s1 = BAL_S + POST, BAL_N - POST
+    nw = math.ceil((s1 - s0) / 4.4); bw = [s0 + (i + 0.5) * (s1 - s0) / nw for i in (0, nw // 2, nw - 1)]
+    nn = math.ceil((XL - POST) / 4.4); an = [POST + (i + 0.5) * (XL - POST) / nn for i in (0, nn // 3, 2 * nn // 3, nn - 1)]
+    west = [(PC - h, BAL_S + POST / 2 - h), (PC + h, BAL_S + POST / 2 - h), (PC + h, GP_B + h), (PC - h, GP_B - h)]
+    north = [(0.125, GP_B - h), (PC - h, GP_B - h), (PC + h, GP_B + h), (0.125, GP_B + h)]
+    if OAK_TOP:
+        west[0], west[1] = (PC - h, OT_SW_END), (PC + h, OT_SW_END)
+        return [("oak_top_rail_west", west, z0, z1, None, []), ("oak_top_rail_north", north, z0, z1, None, [])]
+    return [("rail_cap_west", west, z0, z1, ((PC, BAL_S, zc), (PC, GP_B + h, zc)), [(PC, b, zs) for b in bw]),
+            ("rail_cap_north", north, z0, z1, ((0.0, GP_B, zc), (PC + h, GP_B, zc)), [(a, GP_B, zs) for a in an])]
+
+
+# round 16b: what holds the oak top rail on each post top. The south west newel and the north west corner post: a stock 1 1/2 in black
+# malleable iron floor flange, upside down, screwed onto the post's threaded top (a plain pipe thread), 4 screws up into the oak; at the
+# corner both rails share it, which makes the corner stiff, as the frame model takes it. A floor flange, not the kit's set screw railing
+# flange, because the kit flange's 2.6 in socket would hit the upper stair rail's collar on the newel; the floor flange's hub is 1 in tall.
+# Its 4 9/16 rim is ground flat where it would show past the oak. The north east post is 1 in off the bath 1 wall, too close for a flange:
+# a stock L 2 x 2 x 1/4 clip, its vertical leg through bolted (along b) to the post's south side, its horizontal leg over the post top
+# under the oak with 2 screws up.
+FF_D, FF_T, FF_H, FF_HUB, FF_BC = 4.5625, 0.3, 1.0, 2.6, 3.56     # floor flange: rim diameter, rim thickness, overall height, hub, screw circle
+OT_CLIP = (2.0, 0.25, 1.75)                                      # leg, thickness, length along the rail
+OT_PK = 0.75                                                     # the balcony pickets' depth up into the oak
+OT_SW_END = BAL_S + POST / 2 - FF_D / 2 - 0.1                    # the west rail's south end, just past the newel flange's rim
+
+
+def oak_top_mounts():
+    """[(post name, a, b, kind)] with kind 'flange' or 'clip'"""
+    return [("balcony_sw_newel", PC, BAL_S + POST / 2, "flange"), ("guard_post_nw", PC, GP_B, "flange"), ("guard_post_ne", POST / 2, GP_B, "clip")]
 
 
 def rail_frames():

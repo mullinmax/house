@@ -564,7 +564,7 @@ if G.MONO:
     rb = (G.GP_B - G.RAIL / 2, G.GP_B + G.RAIL / 2)
     add("guard", "guard_west_bottom_rail", tube(*ra, G.BAL_S + G.POST, PN[0], FL + 3.6, FL + 3.6 + G.RAIL, "b", G.RAIL_T))
     add("guard", "guard_north_bottom_rail", tube(G.POST, XL, *rb, FL + 3.6, FL + 3.6 + G.RAIL, "a", G.RAIL_T))
-    pz = (FL + 3.6 + G.RAIL, G.G_TOP - G.RAIL - 0.02)
+    pz = (FL + 3.6 + G.RAIL, G.G_TOP - G.CAP_T + G.OT_PK if G.OAK_TOP else G.G_TOP - G.RAIL - 0.02)   # round 16b: up into a hole in the oak
     span = (G.BAL_S + G.POST, PN[0])
     n_w = math.ceil((span[1] - span[0]) / 4.4)
     for i in range(1, n_w):
@@ -632,10 +632,14 @@ if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe":     # round 13 option 
         return cq.Solid.makeCylinder(r, v.Length, W(*p0), v.normalized())
     def _pipe(p0, p1, od, wall):
         return _cyl(p0, p1, od / 2).cut(_cyl(p0, p1, od / 2 - wall))
+    if G.OAK_TOP:                                                              # round 16b: the oak is the balcony guard's top rail, no top pipes
+        PARTS[:] = [p_ for p_ in PARTS if p_[1] not in ("guard_west_top_rail", "guard_north_top_rail")]
     names = {n_: j for j, (g_, n_, *_r) in enumerate(PARTS)}
     RAILC = {}                                                                 # rail centreline ends
     sr = {r[0]: r for r in G.straight_rails()}
     for rn in ("lower_rail_open", "upper_rail_open", "guard_west_top_rail", "guard_north_top_rail", "guard_west_bottom_rail", "guard_north_bottom_rail"):
+        if rn not in names:
+            continue
         g_, n_, s_, *r_ = PARTS[names[rn]]
         bb = s_.BoundingBox()
         a0_, a1_, b0_, b1_ = -bb.xmax, -bb.xmin, bb.ymin, bb.ymax
@@ -655,13 +659,15 @@ if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe":     # round 13 option 
                 e0, e1 = ((a0_ + a1_) / 2, b0_, zc), ((a0_ + a1_) / 2, b1_, zc)
         RAILC[rn] = (e0, e1)
         RAILC[rn] = (e0, e1)
-    OVER_ = dict(foot_post="lower_rail_open", guard_post_nw="guard_west_top_rail", guard_post_ne="guard_north_top_rail")
+    OVER_ = dict(foot_post="lower_rail_open") if G.OAK_TOP else dict(foot_post="lower_rail_open", guard_post_nw="guard_west_top_rail", guard_post_ne="guard_north_top_rail")
+    ZOAK0 = G.G_TOP - G.CAP_T                                                  # round 16b: the oak top rail's underside
+    OTOP = {pn: ZOAK0 - (G.FF_T if k == "flange" else G.OT_CLIP[1]) for pn, a, b, k in G.oak_top_mounts()} if G.OAK_TOP else {}
     POSTC = {}                                                                 # post centre (a, b) and z range
     for pn in G.RAIL_POSTS:
         g_, n_, s_, *r_ = PARTS[names[pn]]
         bb = s_.BoundingBox()
         ac, bc = -(bb.xmin + bb.xmax) / 2, (bb.ymin + bb.ymax) / 2
-        z1 = bb.zmax
+        z1 = OTOP.get(pn, bb.zmax)                                              # round 16b: up into the floor flange, or under the clip
         if pn in OVER_:                                                        # the rail runs over this post: its top stops under the rail
             e0, e1 = RAILC[OVER_[pn]]
             f_ = ((ac - e0[0]) / (e1[0] - e0[0])) if abs(e1[0] - e0[0]) > 1e-6 else ((bc - e0[1]) / (e1[1] - e0[1]))
@@ -691,6 +697,8 @@ if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe":     # round 13 option 
         return best
     FIT = {}                                                                   # post name -> list of fitting solids (joined per post)
     for nm, R, P1, P2, t, side, plane, pat in G.rail_straps():
+        if G.OAK_TOP and nm.startswith("guard_top_"):
+            continue
         pn, (pa, pb, pz0, pz1) = _near_post(P1)
         dist, rn, c, u, s_, L = _rail_at(R)
         over = pat == "foot" or nm in ("guard_top_west_nw", "guard_top_north_ne")
@@ -714,6 +722,25 @@ if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe":     # round 13 option 
         for x in shapes[1:]:
             sol = sol.fuse(x)
         FIT.setdefault(pn, []).append((nm, sol, ss, u))
+    # round 16: stair guards on the open sides, a bottom rail parallel to the nosing line and plumb pickets up to the handrail
+    for gnm, (g0, g1), pks in G.stair_guards():
+        post0, post1 = ("corner_newel", "foot_post") if "lower" in gnm else ("corner_newel", "balcony_sw_newel")
+        br = _pipe(g0, g1, *G.PIPE_RAIL)
+        for x in SOLIDP:
+            if _bbo2(x.BoundingBox(), br.BoundingBox()):
+                br = br.cut(x)
+        add("rails", f"{gnm}_bottom_rail", br)
+        SOLIDR.append(_cyl(g0, g1, RR_))
+        d_ = [q - p for q, p in zip(g1, g0)]; L_ = math.sqrt(sum(x * x for x in d_)); u_ = [x / L_ for x in d_]
+        hz_ = math.hypot(u_[0], u_[1])
+        for pn, pc_, ui in ((post0, g0, u_), (post1, g1, [-x for x in u_])):   # ui: from the post into the span
+            t_ = RP_ / hz_
+            ce = [pc_[i] + ui[i] * t_ for i in range(3)]
+            sol = _cyl([ce[i] - ui[i] * 0.6 for i in range(3)], [ce[i] + ui[i] * G.RS_L for i in range(3)], G.RS_D / 2)
+            sol = sol.fuse(_cyl((pc_[0], pc_[1], ce[2] - G.PC_H / 2), (pc_[0], pc_[1], ce[2] + G.PC_H / 2), G.PS_D / 2))
+            FIT.setdefault(pn, []).append((f"{gnm}_{pn}", sol, [("post", (pc_[0], pc_[1], ce[2])), ("rail", [ce[i] + ui[i] * G.RS_L / 2 for i in range(3)])], u_))
+        for i, (pa_, pb_, z0_, z1_) in enumerate(pks):
+            add("guard", f"picket_{gnm}_{i + 1}", cq.Solid.makeCylinder(G.PICKET / 2, z1_ - z0_, W(pa_, pb_, z0_)))
     for pn, fl in FIT.items():
         sol = fl[0][1]
         for _, x, _, _ in fl[1:]:
@@ -739,6 +766,52 @@ if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe":     # round 13 option 
                         q = [p[i] + k * u[i] for i in range(3)]
                         q[0 if sax == "a" else 1] += G.RS_D / 2
                         bolt(*q, sax, 1, d=0.35, h=0.06, role=("set screw", 0.375, 0.5, 0.5))
+if G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe" and G.OAK_TOP:   # round 16b: solid white oak top rail, pickets into it
+    _pk = [s_ for g_, n_, s_, *r_ in PARTS if n_.startswith(("picket_west_", "picket_north_"))]
+    _oak = []
+    for nm, quad, z0_, z1_, _g, _s in G.rail_caps():
+        w_ = cq.Wire.makePolygon([W(a, b, z0_) for a, b in quad], close=True)
+        _oak.append((nm, cq.Solid.extrudeLinear(cq.Face.makeFromWires(w_), cq.Vector(0, 0, z1_ - z0_))))
+    _foot = _oak[0][1].fuse(_oak[1][1]).translate(cq.Vector(0, 0, -3.0))           # the oak's plan, lowered: what the flange rims are ground to
+    _foot = _foot.fuse(_foot.translate(cq.Vector(0, 0, 1.5)))
+    for nm, oak in _oak:
+        for x in _pk:
+            if _bbo2(x.BoundingBox(), oak.BoundingBox()):
+                oak = oak.cut(x)
+        add("guard", nm, oak.clean(), OAK, "oak")
+    for pn, a_, b_, kind in G.oak_top_mounts():
+        if kind == "flange":                                                   # upside down floor flange on the post's threaded top
+            fl = cq.Solid.makeCylinder(G.FF_D / 2, G.FF_T, W(a_, b_, ZOAK0 - G.FF_T)).intersect(_foot)
+            fl = fl.fuse(cq.Solid.makeCylinder(G.FF_HUB / 2, G.FF_H - G.FF_T, W(a_, b_, ZOAK0 - G.FF_H)))
+            fl = fl.cut(cq.Solid.makeCylinder(RP_, G.FF_H - G.FF_T, W(a_, b_, ZOAK0 - G.FF_H)))
+            add("rails", f"oak_top_flange_{pn}", fl.clean())
+            for k in range(4):                                                 # 4 lag screws up into the oak
+                th = math.pi / 4 + k * math.pi / 2
+                nut(a_ + G.FF_BC / 2 * math.cos(th), b_ + G.FF_BC / 2 * math.sin(th), ZOAK0 - G.FF_T, "z", -1, d=0.5, role=("lag screw", 0.25, 1.5, 1.5))
+        else:                                                                  # stock angle clip on the post's south side, leg over the post top
+            lg, t_, ln = G.OT_CLIP
+            bs = b_ - RP_                                                      # the post's south face
+            cl = box(a_ - ln / 2, a_ + ln / 2, bs - t_, bs - t_ + lg, ZOAK0 - t_, ZOAK0).fuse(box(a_ - ln / 2, a_ + ln / 2, bs - t_, bs, ZOAK0 - lg, ZOAK0))
+            add("rails", f"oak_top_clip_{pn}", cl.clean())
+            zb_ = ZOAK0 - (lg + t_) / 2 - 0.1
+            bolt(a_, bs - t_, zb_, "b", -1, d=0.5, h=0.15); nut(a_, b_ + RP_, zb_, "b", 1, d=0.5)
+            for sa_ in (-0.45, 0.45):                                          # 2 lag screws up through the top leg into the oak, put in on the
+                nut(a_ + sa_, b_ + 0.15, ZOAK0 - t_, "z", -1, d=0.5, role=("lag screw", 0.25, 1.5, 1.5))   # bench before the rail goes on (heads inside the pipe)
+elif G.MONO and not G.CONT_RAIL and G.RAIL_STYLE == "pipe":     # round 16: white oak cap on the balcony guard's two level top rails
+    _fits = [s_ for g_, n_, s_, *r_ in PARTS if n_.startswith("rail_fitting_")]
+    _grooves = []
+    for nm, quad, z0_, z1_, (q0, q1), screws in G.rail_caps():
+        d_ = [q - p for q, p in zip(q1, q0)]; L_ = math.sqrt(sum(x * x for x in d_)); u_ = [x / L_ for x in d_]
+        _grooves.append(_cyl([q0[i] - u_[i] * 3 for i in range(3)], [q1[i] + u_[i] * 3 for i in range(3)], RR_ + 0.03))
+    for nm, quad, z0_, z1_, (q0, q1), screws in G.rail_caps():
+        w_ = cq.Wire.makePolygon([W(a, b, z0_) for a, b in quad], close=True)
+        cap = cq.Solid.extrudeLinear(cq.Face.makeFromWires(w_), cq.Vector(0, 0, z1_ - z0_))
+        for x in _grooves + SOLIDP + _fits:                                    # the grooves both pipes sit in, pockets over the fittings and the newel top
+            if _bbo2(x.BoundingBox(), cap.BoundingBox()):
+                cap = cap.cut(x)
+        add("guard", nm, cap.clean(), OAK, "oak")
+        for a_, b_, z_ in screws:
+            bolt(a_, b_, z_, "z", -1, d=0.4, h=0.1, role=("wood screw", 0.19, 1.25, 1.25))
 # context: slab and the two walls (reference only)
 CTX = [("slab", box(-5, 60, -5, 100, -1, 0)), ("bath_1_wall", box(-4.5, 0, -4.5, 100, 0, FL)), ("clerestory_wall", box(0, 60, -4.5, 0, 0, 170))]
 

@@ -349,6 +349,8 @@ def mono_ladder(WX, WY):
             hexa(ST, [P(*p0, zb0), P(*p1, zb0), P(*p1, zt0), P(*p0, zt0), P(*q0, zb1), P(*q1, zb1), P(*q1, zt1), P(*q0, zt1)])
     else:                                                # straight rails between the posts (Maxwell 11/24/2026)
         for nm_, a0, a1, b0, b1, z0_, z1_, ax in G.straight_rails():
+            if G.OAK_TOP and nm_ in ("guard_west_top_rail", "guard_north_top_rail"):
+                continue                                 # round 16b: the oak is the balcony guard's top rail
             dp = G.RAIL / math.cos(G.ANG) if z0_ != z1_ else G.RAIL     # plumb depth of a sloped rail
             if ax == "a":
                 ends = (((a0, b0), (a0, b1)), ((a1, b0), (a1, b1)))
@@ -469,7 +471,7 @@ def mono_ladder(WX, WY):
     post(XL + e, XL + G.POST, PN[0] + e, PN[1], zl_)
     m_ = G.NK_MITER
     if PIPE:
-        cyl(ST, (G.POST / 2, (PN[0] + PN[1]) / 2, m_ + G.POST / 2), (G.POST / 2, (PN[0] + PN[1]) / 2, G.G_TOP - G.RAIL / 2), G.PIPE_POST[0] / 2)
+        cyl(ST, (G.POST / 2, (PN[0] + PN[1]) / 2, m_ + G.POST / 2), (G.POST / 2, (PN[0] + PN[1]) / 2, G.G_TOP - G.CAP_T - G.OT_CLIP[1] if G.OAK_TOP else G.G_TOP - G.RAIL / 2), G.PIPE_POST[0] / 2)
     else:
         hexa(ST, [P(a, bb, z) for bb in (PN[0] + e, PN[1]) for a, z in ((0.05, m_ + 0.05), (G.POST, m_ + G.POST), (G.POST, G.G_TOP - G.RAIL - e), (0.05, G.G_TOP - G.RAIL - e))])
     for nm_, sg in (("sw", -1), ("nw", 1)):              # corner plates on the west posts' inside faces, flange under the end beam
@@ -492,7 +494,7 @@ def mono_ladder(WX, WY):
     else:
         gb(ST, ra[0], ra[1], G.BAL_S + G.POST + e, PN[0] - e, zr, zr + G.RAIL - e)
         gb(ST, G.POST + e, XL - e, rb[0], rb[1], zr, zr + G.RAIL - e)
-    pz = (FL_ + 3.6 + G.RAIL, G.G_TOP - G.RAIL - e)
+    pz = (FL_ + 3.6 + G.RAIL, G.G_TOP - G.CAP_T + G.OT_PK if G.OAK_TOP else G.G_TOP - G.RAIL - e)   # round 16b: up into the oak
     span = (G.BAL_S + G.POST, PN[0])
     n_w = math.ceil((span[1] - span[0]) / 4.4)
     for i in range(1, n_w):
@@ -504,9 +506,30 @@ def mono_ladder(WX, WY):
         gb(ST, a - 0.25, a + 0.25, G.GP_B - 0.25, G.GP_B + 0.25, *pz)
     if PIPE:                                             # kit fittings: a collar on the post at every rail joint
         for nm_, R_, P1_, P2_, t_, side_, plane_, pat_ in G.rail_straps():
+            if G.OAK_TOP and nm_.startswith("guard_top_"):
+                continue
             pc_ = min(((x, y) for x, y in ((G.A_FOOT, XL + G.POST / 2), (XL + G.POST / 2, XL + G.POST / 2), (XL + G.POST / 2, G.BAL_S + G.POST / 2),
                                            (XL + G.POST / 2, (PN[0] + PN[1]) / 2), (G.POST / 2, (PN[0] + PN[1]) / 2))), key=lambda q: math.hypot(q[0] - P1_[0], q[1] - P1_[1]))
             cyl(ST, (*pc_, R_[2] - G.PC_H / 2), (*pc_, R_[2] + G.PC_H / 2), G.PS_D / 2)
+        for nm_, quad_, z0_, z1_, _g, _s in G.rail_caps():    # round 16: white oak cap on the balcony guard's level top rails
+            hexa(OAK, [P(a_, b_, z0_) for a_, b_ in quad_] + [P(a_, b_, z1_) for a_, b_ in quad_])
+        if G.OAK_TOP:                                    # round 16b: floor flanges (rim drawn inside the oak's width) and the north east clip
+            zo_ = G.G_TOP - G.CAP_T
+            for pn_, a_, b_, k_ in G.oak_top_mounts():
+                if k_ == "flange":
+                    cyl(ST, (a_, b_, zo_ - G.FF_T), (a_, b_, zo_ - e), G.CAP_W / 2 - e)
+                    cyl(ST, (a_, b_, zo_ - G.FF_H), (a_, b_, zo_ - G.FF_T), G.FF_HUB / 2)
+                else:
+                    lg_, t_, ln_ = G.OT_CLIP
+                    bs_ = b_ - G.PIPE_POST[0] / 2
+                    gb(ST, a_ - ln_ / 2, a_ + ln_ / 2, bs_ - t_, bs_ - t_ + lg_, zo_ - t_, zo_ - e)
+                    gb(ST, a_ - ln_ / 2, a_ + ln_ / 2, bs_ - t_, bs_ - e, zo_ - lg_, zo_ - t_)
+        for gnm_, (g0_, g1_), pks_ in G.stair_guards():  # round 16: stair guards, bottom rail and plumb pickets up to the handrail
+            cyl(ST, g0_, g1_, G.PIPE_RAIL[0] / 2)
+            for g_ in (g0_, g1_):
+                cyl(ST, (g_[0], g_[1], g_[2] - G.PC_H / 2), (g_[0], g_[1], g_[2] + G.PC_H / 2), G.PS_D / 2)
+            for pa_, pb_, z0_, z1_ in pks_:
+                gb(ST, pa_ - 0.25, pa_ + 0.25, pb_ - 0.25, pb_ + 0.25, z0_, z1_)
     elif not G.CONT_RAIL:                                # round 11b: rail straps (1/4 in) with a spacer and three 1/4-20 bolts each
         for nm_, R_, P1_, P2_, t_, side_, plane_, pat_ in G.rail_straps():
             ax_, i_ = side_[0], (0 if side_[0] == "a" else 1)
