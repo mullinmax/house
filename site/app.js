@@ -367,6 +367,9 @@ function prepare(roots, first) {
     if (!o.isMesh) return;
     o.castShadow = true; o.receiveShadow = true;
     const mats = [].concat(o.material);
+    // Any transmissive material (the baked lamp shades) makes three.js draw the whole opaque scene a second time
+    // into a texture each frame, doubling the draw calls with Belongings on. Plain see-through looks the same here.
+    for (const m of mats) if (m && m.transmission > 0) { m.opacity = Math.min(m.opacity, 1 - m.transmission * 0.6); m.transmission = 0; m.transparent = true; m.depthWrite = false; m.needsUpdate = true; }
     if (mats.some((m) => m && m.transparent && m.opacity < 0.99)) o.castShadow = false;
     const part = partOf(o);
     if (part && !/^(site|trees)$/i.test(part.name)) for (const m of mats) if (m) { m.clippingPlanes = [upperPlane]; m.clipShadows = true; houseMats.add(m); capSection(m); }
