@@ -27,11 +27,11 @@ const KEY = 0.1;                    // exposure without a normal frame to match:
 
 export function createPhoto({ renderer, scene, camera, sun, sky = () => null, draw = null, touch = false, toast = () => {}, onOpen = () => {}, onClose = () => {} }) {
   // Limits. A float target of 2 megapixels is about 100 MB with its two blend partners; phones get half of everything.
-  const MAX_PIXELS = touch ? 1.0e6 : 2.1e6, MAX_TRIS = touch ? 1.2e6 : 4e6, MAX_SAMPLES = touch ? 200 : 1000;
+  const MAX_PIXELS = touch ? 0.6e6 : 2.1e6, MAX_TRIS = touch ? 1.2e6 : 4e6, MAX_SAMPLES = touch ? 200 : 1000;
   let PT = null, pt = null, pscene = null, psun = null, plights = [], sunDir = new THREE.Vector3();
   let active = false, ready = false, sig = 0, builds = 0, saved = null, skipped = 0, tris = 0;
   let autoExp = 1, stops = 0, expAt = 0, lastShown = -1, lastW = 0, lastH = 0, frameMs = 0, lastT = 0, done = false, token = 0;
-  let envTex = null, envFrom = null, aim = 0, clampU = { value: 1e9 }, clamped = false, panes = [], skyMean = new THREE.Color(0.5, 0.6, 0.75), portals = 0, inside = false;
+  let redos = 0, dirty = false, snap = null, shown = false, envTex = null, envFrom = null, aim = 0, clampU = { value: 1e9 }, clamped = false, panes = [], skyMean = new THREE.Color(0.5, 0.6, 0.75), portals = 0, inside = false;
 
   // ---- the small panel, and a sheet over the page that swallows clicks and touches while the photo runs
   const css = document.createElement('style');
@@ -60,7 +60,7 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
   for (const ev of ['pointerdown', 'pointermove', 'pointerup', 'wheel', 'contextmenu', 'click']) shield.addEventListener(ev, (e) => { e.stopPropagation(); if (ev !== 'click') e.preventDefault(); }, { passive: false });
   const say = (t) => { stat.textContent = t; };
   // Tone mapping happens when the float picture is put on the canvas, so brightness changes at once and costs no samples.
-  const applyExposure = () => { renderer.toneMappingExposure = autoExp * 2 ** stops; };
+  const applyExposure = () => { renderer.toneMappingExposure = autoExp * 2 ** stops; dirty = true; };
 
   // ---- what would be drawn: the same test the renderer makes (visible all the way up, on a camera layer)
   function drawn(cb) {
@@ -429,7 +429,9 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
       if (!pt) {
         const warn = console.warn; console.warn = () => {};          // it announces its own deprecation in favour of WebGPU on every start
         try { pt = new PT.WebGLPathTracer(renderer); } finally { console.warn = warn; }
-        pt.bounces = 6; pt.transmissiveBounces = 8;       // enough for window light to reach a ceiling by way of the floor
+        // Enough for window light to reach a ceiling by way of the floor. A phone stops two bounces sooner: each bounce
+        // costs about as much as the first hit, and the light left after four is a few percent of the picture.
+        pt.bounces = touch ? 4 : 6; pt.transmissiveBounces = touch ? 5 : 8;
         pt.filterGlossyFactor = 0.5;                      // tames the bright specks shiny things throw onto matte ones
         pt.renderDelay = 0; pt.minSamples = 1; pt.fadeDuration = 0; pt.rasterizeScene = false; pt.dynamicLowRes = false;
         pt.textureSize.set(touch ? 512 : 1024, touch ? 512 : 1024);
@@ -448,7 +450,10 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
           mat.uniforms.photoClamp = clampU;
           mat.fragmentShader = 'uniform float photoClamp;\nbool photoSplit = false;\nvec3 photoDirect = vec3( 0.0 );\n' + F.slice(0, a1 + k1.length)
             + '\nif ( ! photoSplit && ! isTransmissiveRay ) { photoSplit = true; photoDirect = gl_FragColor.rgb; }\n' + F.slice(a1 + k1.length, a2)
-            + 'if ( photoSplit ) gl_FragColor.rgb = photoDirect + min( gl_FragColor.rgb - photoDirect, vec3( photoClamp ) );\n' + F.slice(a2);
+            + 'if ( photoSplit ) gl_FragColor.rgb = photoDirect + min( gl_FragColor.rgb - photoDirect, vec3( photoClamp ) );\n'
+            // a sample that came out as not-a-number or infinite (a phone GPU's lower precision can do it on a grazing hit)
+            // would poison that pixel for good, since every later sample is averaged with it. It counts as black instead.
+            + 'if ( any( isnan( gl_FragColor.rgb ) ) || any( isinf( gl_FragColor.rgb ) ) ) gl_FragColor.rgb = vec3( 0.0 );\n' + F.slice(a2);
           mat.needsUpdate = true;
         }
       }
@@ -479,7 +484,50 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
     const gl = renderer.getContext(); lastW = gl.drawingBufferWidth; lastH = gl.drawingBufferHeight;
     pt.renderScale = Math.min(1, Math.sqrt(MAX_PIXELS / (lastW * lastH)));
     const n = touch ? 3 : lastW * lastH * pt.renderScale ** 2 > 1.2e6 ? 3 : 2; pt.tiles.set(n, n);
+    redos = 0; pt.renderToCanvas = false;
+    shown = false;
     camera.updateMatrixWorld(); pt.updateCamera();
+  }
+  // Sun jitter: one direction per whole pass, not per tile. Changed per tile, each square of the first pass got its own
+  // hard shadow edge and its own sun, and those squares stood out until enough passes had averaged them (Maxwell on his
+  // phone, 11/28/2026). The directions follow a Halton sequence, which covers the sun's disc more evenly than random.
+  const halton = (i, b) => { let f = 1, r = 0; for (; i > 0; i = Math.floor(i / b)) { f /= b; r += f * (i % b); } return r; };
+  // Failed squares. A tile that the GPU dropped (a phone can give up on a long draw) comes back pure black. After the
+  // first passes the rendered picture is read back at a few rows, and a tile with nothing in it, while the rest of the
+  // picture has light, is a failure: the whole pass is thrown away and done again with smaller tiles.
+  function failedTile() {
+    const t = pt.target, w = t.width, h = t.height, nx = pt.tiles.x, ny = pt.tiles.y, rowsPer = 4, buf = new Float32Array(w * 4);
+    const tw = Math.ceil(w / nx), th = Math.ceil(h / ny);          // the path tracer's own tile sizes, so no pixel is counted in the wrong tile
+    const sum = new Float64Array(nx * ny), bad = new Uint8Array(nx * ny);
+    for (let ty = 0; ty < ny; ty++) for (let r = 0; r < rowsPer; r++) {
+      const y = Math.min(h - 1, ty * th + Math.floor((r + 0.5) * th / rowsPer)); if (y >= h) continue;
+      renderer.readRenderTargetPixels(t, 0, y, w, 1, buf);
+      for (let x = 0; x < w; x++) {
+        const v = buf[x * 4] + buf[x * 4 + 1] + buf[x * 4 + 2], k = ty * nx + Math.min(nx - 1, Math.floor(x / tw));
+        if (!Number.isFinite(v)) bad[k] = 1; else sum[k] += v;
+      }
+    }
+    const lit = [...sum].filter((v) => v > 0).length;
+    return bad.some((b) => b) || (lit >= Math.ceil(nx * ny / 2) && lit < nx * ny);
+  }
+  // What the canvas shows. The path tracer would put its picture on the canvas after every tile, half way through a
+  // pass. Where the GPU cannot blend float pictures (many phones) it then keeps a second copy, and the half done copy
+  // mixes the new tiles with stale ones: squares that look wrong until enough passes have gone by (Maxwell, 11/28/2026).
+  // So only whole passes are shown: when a pass completes its picture is copied aside, and the canvas is drawn from that
+  // copy, once per pass or when Brightness moves (a canvas nobody draws on keeps its picture, so idle frames cost nothing).
+  function keepPass() {
+    const q = pt._quad, was = renderer.getRenderTarget(), tw = pt.target.width, th = pt.target.height;
+    if (!snap || snap.width !== tw || snap.height !== th) { if (snap) snap.dispose(); snap = new THREE.WebGLRenderTarget(tw, th, { type: THREE.HalfFloatType, depthBuffer: false, minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter }); }
+    q.material.map = pt.target.texture; q.material.opacity = 1; q.material.blending = THREE.NoBlending;
+    renderer.setRenderTarget(snap); q.render(renderer); renderer.setRenderTarget(was);
+    shown = true; dirty = true;
+  }
+  function showPass() {
+    if (!shown || !dirty) return;
+    const q = pt._quad, ac = renderer.autoClear;
+    q.material.map = snap.texture; q.material.opacity = 1; q.material.blending = THREE.NoBlending;
+    renderer.setRenderTarget(null); renderer.autoClear = false; q.render(renderer); renderer.autoClear = ac;
+    dirty = false;
   }
   function frame() {
     if (!active || !ready) return;
@@ -488,30 +536,44 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
     const now = performance.now(); if (lastT) frameMs += ((now - lastT) - frameMs) * 0.2; lastT = now;
     renderer.setRenderTarget(null);
     pt.pausePathTracing = done;
-    if (!done && psun) {
-      aimSun(Math.random(), Math.random());
+    const atPassStart = Math.abs(pt.samples - Math.round(pt.samples)) < 1e-6;
+    if (!done && psun && atPassStart) {
+      const k = Math.round(pt.samples);
+      if (k === 0) aimSun(0, 0); else aimSun(halton(k, 2), halton(k, 3));       // the first pass (the one shown first) has the sun's centre
       try { pt._pathTracer.material.lights.updateFrom(plights, []); } catch (err) { /* a library change: hard shadows */ }
     }
     pt.renderSample();
     const n = Math.floor(pt.samples);
     if (n !== lastShown) {
       lastShown = n;
-      if (n >= 2 && !clamped) {       // two samples in: enough to meter, so the speck clamp can be set, and the picture starts again with it on
+      if (n >= 1) keepPass();
+      if (n >= 1 && n <= 2 && redos < 2 && failedTile()) {
+        redos++; pt.tiles.set(Math.min(8, pt.tiles.x + 1), Math.min(8, pt.tiles.x + 1)); pt.reset(); lastShown = -1; clamped = false; clampU.value = 1e9;
+        console.warn('photo: a tile came back empty, pass redone with', pt.tiles.x, 'x', pt.tiles.y, 'tiles'); return;
+      }
+      // one pass in: enough to meter, so the speck clamp can be set, and the picture starts again with it on. The canvas
+      // keeps showing that first pass until the clamped one is whole (no preview this time, so no flash of blur).
+      if (n >= 1 && !clamped) {
         meter(); clamped = true; clampU.value = CLAMP / autoExp; pt.reset(); lastShown = -1; return;
       }
       if ([2, 8, 24, 64, 160, 400].some((k) => n >= k && expAt < k)) { expAt = n; meter(); }      // meter early, then again as the noise settles (specks read as brightness at first)
       if (n >= MAX_SAMPLES) done = true;
-      // slow frames: cut each sample into more tiles (only between whole samples, so no tile is left half done)
-      if (!done && frameMs > 160 && pt.tiles.x < 6 && n >= 1) { pt.tiles.set(pt.tiles.x + 1, pt.tiles.x + 1); frameMs = 80; }
+      // Tile size follows the frame time, between whole passes only (so no tile is left half done): slow frames cut a
+      // pass into more tiles so the page keeps answering, quick ones join them up, since every tile costs a full
+      // screen redraw and a frame's worth of waiting on top of its own work.
+      if (!done && n >= 1) {
+        if (frameMs > 160 && pt.tiles.x < 8) { pt.tiles.set(pt.tiles.x + 1, pt.tiles.x + 1); frameMs = 80; }
+        else if (frameMs > 0 && frameMs < 45 && pt.tiles.x > 1) { pt.tiles.set(pt.tiles.x - 1, pt.tiles.x - 1); frameMs = 80; }
+      }
       const note = skipped ? ' · far trees left out' : '';
-      say(pt.isCompiling ? 'Preparing' : n < 1 ? 'Starting' : done ? `Done, ${n} samples${note}` : `${n} of ${MAX_SAMPLES} samples${note}`);
+      say(pt.isCompiling ? 'Preparing' : n < 1 || !clamped ? 'Starting' : done ? `Done, ${n} samples${note}` : `${n} of ${MAX_SAMPLES} samples${note}`);
     } else if (n < 1) say(pt.isCompiling ? 'Preparing' : 'Starting');
+    showPass();
   }
   // The canvas keeps no copy of a frame once the browser has shown it, so the picture is drawn again and read in the same breath.
   function save() {
-    if (!ready || pt.samples < 1) { toast('Wait for the first sample'); return null; }
-    const was = pt.pausePathTracing; pt.pausePathTracing = true;
-    renderer.setRenderTarget(null); pt.renderSample(); pt.pausePathTracing = was;
+    if (!ready || !shown) { toast('Wait for the first sample'); return null; }
+    dirty = true; showPass();
     const stamp = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').slice(0, 15);
     renderer.domElement.toBlob((blob) => {
       if (!blob) { toast('The picture could not be saved'); return; }
@@ -528,11 +590,11 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
     document.body.classList.remove('photo'); shield.hidden = true; panel.hidden = true;
     // A phone has no memory to spare for a BVH and float targets nobody is looking at; a laptop keeps them so the
     // next photo of the same scene starts at once.
-    if (touch && pt) { pt.dispose(); pt = null; pscene = null; sig = 0; }
+    if (touch && pt) { pt.dispose(); pt = null; pscene = null; sig = 0; if (snap) { snap.dispose(); snap = null; } }
     onClose();
   }
 
-  return { open, close, frame, save, get active() { return active; }, get ready() { return ready; },
+  return { open, close, frame, save, redraw() { dirty = true; showPass(); }, get active() { return active; }, get ready() { return ready; },
     get samples() { return pt && ready ? pt.samples : 0; }, get info() { return { builds, tris, skipped, meshes: pscene ? pscene.children.length : 0, panes: panes.length, portals, inside, exposure: renderer.toneMappingExposure, tiles: pt ? pt.tiles.x : 0, scale: pt ? pt.renderScale : 1 }; },
     get tracer() { return pt; } };
 }
