@@ -73,6 +73,7 @@ export function createPhoto({ renderer, scene, camera, sun, sky = () => null, dr
   let PT = null, pt = null, pscene = null, psun = null, plights = [], sunDir = new THREE.Vector3();
   let active = false, ready = false, go = false, picking = false, sig = 0, builds = 0, saved = null, skipped = 0, tris = 0;
   let autoExp = 1, stops = 0, expAt = 0, lastShown = -1, lastW = 0, lastH = 0, frameMs = 0, lastT = 0, done = false, token = 0;
+  let texInfo = { layers: 0, empty: 0, cpu: false }, forceCpuTex = false;
   let redos = 0, dirty = false, snap = null, shown = false, W = 0, H = 0, warming = null, bvhWorker = null, size = 'screen', envTex = null, envFrom = null, aim = 0, clampU = { value: 1e9 }, clamped = false, panes = [], skyMean = new THREE.Color(0.5, 0.6, 0.75), portals = 0, inside = false;
 
   // ---- the small panel, and a sheet over the page that swallows clicks and touches while the photo runs
@@ -501,8 +502,72 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
         + 'if ( any( isnan( gl_FragColor.rgb ) ) || any( isinf( gl_FragColor.rgb ) ) ) gl_FragColor.rgb = vec3( 0.0 );\n' + F.slice(a2);
       mat.needsUpdate = true;
     }
+    // Textures: checked after the GPU copies them, and copied by hand where it did not (textureFallback below).
+    const gpuSet = mat.textures.setTextures;
+    const setTextures = (r, list, w, h) => {
+      let dat = mat.uniforms.textures.value;
+      if (dat.isDataArrayTexture) { mat.uniforms.textures.value = gpuTex; dat.dispose(); }      // back to the GPU copy for a new scene
+      gpuSet(r, list, w, h);
+      const empty = list.length ? emptyLayers(list.length) : 0;
+      texInfo = { layers: list.length, empty, cpu: false };
+      if (list.length && (forceCpuTex || empty >= Math.max(1, Math.ceil(list.length / 4)))) {
+        if (!forceCpuTex) console.warn(`photo: ${empty} of ${list.length} textures came through empty on this GPU, copying them by hand`);
+        dat = textureFallback(list, w, h); dat.setTextures = setTextures; mat.uniforms.textures.value = dat; texInfo.cpu = true;
+      }
+    };
+    const gpuTex = mat.textures; gpuTex.setTextures = setTextures;
     pt.renderToCanvas = false; pt.synchronizeRenderSize = false;
     try { bvhWorker = bvhWorker || new BVHWorker(BVH_WORKER_URL); pt.setBVHWorker(bvhWorker); } catch (err) { bvhWorker = null; }
+  }
+  // Material textures. The path tracer copies every texture into one layered texture by drawing each into a layer,
+  // and on some GPUs that copy comes out empty: every textured surface (cabinets, counters, floors) then renders black
+  // while plain coloured ones keep their colour (Maxwell's kitchen, 11/28/2026). So after the copy each layer is read
+  // back at a grid of points: a layer that is all zero, alpha included, was never written (a real texture is opaque
+  // somewhere). If too many are, the layers are made on the CPU instead: each image is drawn to a 2D canvas at the
+  // layer size and its pixels uploaded as plain data, which every device supports.
+  function emptyLayers(n) {
+    const gl = renderer.getContext(), wt = renderer.properties.get(pt._pathTracer.material.textures).__webglTexture;
+    if (!wt) return n;
+    const tex = pt._pathTracer.material.textures, w = tex.image.width, h = tex.image.height, prev = gl.getParameter(gl.FRAMEBUFFER_BINDING), fb = gl.createFramebuffer(), px = new Uint8Array(4);
+    let empty = 0;
+    gl.bindFramebuffer(gl.FRAMEBUFFER, fb);
+    try {
+      for (let i = 0; i < n; i++) {
+        gl.framebufferTextureLayer(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, wt, 0, i);
+        if (gl.checkFramebufferStatus(gl.FRAMEBUFFER) !== gl.FRAMEBUFFER_COMPLETE) { empty++; continue; }
+        let any = false;
+        for (let y = 0; y < 8 && !any; y++) for (let x = 0; x < 8 && !any; x++) {
+          gl.readPixels(Math.floor((x + 0.5) * w / 8), Math.floor((y + 0.5) * h / 8), 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+          any = px[0] || px[1] || px[2] || px[3];
+        }
+        if (!any) empty++;
+      }
+    } finally { gl.bindFramebuffer(gl.FRAMEBUFFER, prev); gl.deleteFramebuffer(fb); }
+    return empty;
+  }
+  const toLinear = new Uint8Array(256).map((_, i) => { const c = i / 255; return Math.round(255 * (c <= 0.04045 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4)); });
+  function textureFallback(list, w, h) {
+    const data = new Uint8Array(w * h * 4 * list.length), cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+    const cx = cv.getContext('2d', { willReadFrequently: true });
+    list.forEach((t, i) => {
+      const img = t && t.image, o = i * w * h * 4;
+      cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, w, h);
+      // the same orientation the GPU copy gives: a texture uploaded upside down (flipY) is stored bottom row first
+      if (t.flipY) cx.setTransform(1, 0, 0, -1, 0, h);
+      try { cx.drawImage(img, 0, 0, w, h); } catch (err) { cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h); }
+      const px = cx.getImageData(0, 0, w, h).data, lin = t.colorSpace === THREE.SRGBColorSpace;
+      for (let y = 0; y < h; y++) {            // getImageData is top row first; layer row 0 is v = 0
+        const src = y * w * 4, dst = o + y * w * 4;
+        for (let x = 0; x < w * 4; x += 4) {
+          data[dst + x] = lin ? toLinear[px[src + x]] : px[src + x]; data[dst + x + 1] = lin ? toLinear[px[src + x + 1]] : px[src + x + 1];
+          data[dst + x + 2] = lin ? toLinear[px[src + x + 2]] : px[src + x + 2]; data[dst + x + 3] = px[src + x + 3];
+        }
+      }
+    });
+    const d = new THREE.DataArrayTexture(data, w, h, list.length);
+    d.format = THREE.RGBAFormat; d.type = THREE.UnsignedByteType; d.minFilter = d.magFilter = THREE.LinearFilter; d.wrapS = d.wrapT = THREE.RepeatWrapping;
+    d.generateMipmaps = false; d.needsUpdate = true;
+    return d;
   }
   // A scene of one small triangle: something to compile the program against, and what a phone keeps loaded between photos.
   function tinyScene() {
@@ -723,6 +788,6 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
   }
 
   return { open, close, frame, save, warm, start, get size() { return [W, H]; }, redraw() { dirty = true; showPass(); }, get active() { return active; }, get ready() { return ready; }, get started() { return go; },
-    get samples() { return pt && ready ? pt.samples : 0; }, get info() { return { builds, tris, skipped, meshes: pscene ? pscene.children.length : 0, panes: panes.length, portals, inside, exposure: renderer.toneMappingExposure, tiles: pt ? pt.tiles.x : 0, size: [W, H] }; },
+    get samples() { return pt && ready ? pt.samples : 0; }, get info() { return { builds, tris, skipped, meshes: pscene ? pscene.children.length : 0, panes: panes.length, portals, inside, exposure: renderer.toneMappingExposure, tiles: pt ? pt.tiles.x : 0, size: [W, H], textures: texInfo }; }, set cpuTextures(v) { forceCpuTex = !!v; },
     get tracer() { return pt; } };
 }
