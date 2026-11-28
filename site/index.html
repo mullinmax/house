@@ -231,7 +231,8 @@ body.compact .keys td:first-child { white-space: normal; }
   "three/examples/jsm/": "./vendor/three/examples/jsm/",
   "n8ao": "./vendor/n8ao/N8AO.js",
   "postprocessing": "./vendor/n8ao/postprocessing-stub.js",
-  "three-mesh-bvh": "./vendor/three-mesh-bvh/index.module.js"
+  "three-mesh-bvh": "./vendor/three-mesh-bvh/index.module.js",
+  "three-gpu-pathtracer": "./vendor/three-gpu-pathtracer/index.module.js"
 } }
 </script>
 </head>
@@ -271,6 +272,7 @@ body.compact .keys td:first-child { white-space: normal; }
     </div>
     <div class="row">
       <button data-act="measure" aria-pressed="false" title="Tape measure (M): click two points, each snaps to the nearest corner, to read the distance in feet and inches"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" style="vertical-align:-4px;margin-right:4px;color:inherit"><path d="M1.5 10.5 10.5 1.5l4 4-9 9z"/><path d="M4.5 7.5l1.5 1.5M6.5 5.5l1 1M8.5 3.5l1.5 1.5"/></svg>Measure</button>
+      <button data-act="photo" title="Photo (P): a lifelike still of this view, with light traced for real. It gets cleaner the longer it runs, and Save PNG keeps it"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" style="vertical-align:-4px;margin-right:4px;color:inherit"><path d="M2 5h2.6l1-1.5h4.8l1 1.5H14v8H2z"/><circle cx="8" cy="8.8" r="2.4"/></svg>Photo</button>
     </div>
     <div class="row">
       <button data-act="share" title="Copy a link that opens this exact view: mode, camera, room, day or night, slice and layers"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true" style="vertical-align:-4px;margin-right:4px;color:inherit"><path d="M8 10V2.2M5 5 8 2l3 3"/><path d="M3.5 8v5.5h9V8"/></svg>Share this view</button>

@@ -17,6 +17,7 @@ import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-
 import { buildEquipment, cullBaked, setDuctXray, infoHTML, equipMaterials } from './equipment.js';
 import { buildHouse, houseRecordAt } from './house.js';
 import { createMeasure } from './measure.js';
+import { createPhoto } from './photo.js';
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
@@ -1197,13 +1198,13 @@ function openModal(kind) {
     const K = (k) => k.split(' ').map((x) => `<kbd>${x}</kbd>`).join(' ');
     const sect = (title, rows) => `<div><h3>${title}</h3><table>${rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</table></div>`;
     const phone = sect('Phone or tablet', [['Drag', 'Turn the view (Orbit), or look around (Walk)'], ['Pinch', 'Zoom (in Orbit)'], ['Two finger drag', 'Slide the view (in Orbit)'], ['Left stick', 'Move (in Walk)'],
-      ['Tap', 'Open or close a door or a drawer, or pick a point when measuring'], ['More, Measure', 'Tape measure: tap two points to read the distance between them'], ['Press and hold', 'Read about what is under your finger. Tap elsewhere to put the card away'], ['Layers', 'Height slice, and show or hide parts of the model'], ['More', 'Find equipment, day and night, no clip']]);
+      ['Tap', 'Open or close a door or a drawer, or pick a point when measuring'], ['More, Measure', 'Tape measure: tap two points to read the distance between them'], ['Press and hold', 'Read about what is under your finger. Tap elsewhere to put the card away'], ['Layers', 'Height slice, and show or hide parts of the model'], ['More', 'Find equipment, day and night, no clip, Photo']]);
     body.innerHTML = `<div class="keys">${touch || compact ? phone : ''}${
       sect('Orbit (the default)', [['Drag', 'Turn around the house'], ['Right drag', 'Slide the view'], ['Scroll', 'Zoom'], [K('W A S D'), 'Slide the point you turn around'], [K('Space') + ' ' + K('Shift'), 'Raise or lower that point'], ['Click', 'Open a door, or read about what you click'], ['Press and hold', 'Read about a door instead of opening it']])
     }${
       sect('Walk', [['Click the view', 'Look with the mouse'], [K('W A S D'), 'Move'], [K('Shift'), 'Walk faster'], [K('C'), 'Crouch. You also duck under low roofs on your own'], [K('E'), 'Open or close, or read about what is under the dot (or pick a point when measuring)'], [K('N'), 'No clip: fly through walls'], [K('Space') + ' ' + K('C'), 'Up and down while flying'], [K('Esc'), 'Free the mouse']])
     }${
-      sect('Anywhere', [[K('H'), 'This page'], [K('M') + ' or Measure', 'Tape measure: click two points, each snaps to the nearest corner, and read the distance in feet and inches. ' + K('Esc') + ' clears, ' + K('M') + ' again turns it off'], ['Go to a room', 'Pick a room on the plan'], ['Find equipment', 'Pick a piece of equipment on the plan'], ['Height slice', 'Cut the house at any height'], ['Layers', 'Show or hide parts of the model']])
+      sect('Anywhere', [[K('H'), 'This page'], [K('M') + ' or Measure', 'Tape measure: click two points, each snaps to the nearest corner, and read the distance in feet and inches. ' + K('Esc') + ' clears, ' + K('M') + ' again turns it off'], [K('P') + ' or Photo', 'A lifelike still of the view you are looking at: light is traced for real, so it takes a little while and gets cleaner as you wait. Save PNG keeps it, ' + K('Esc') + ' closes'], ['Go to a room', 'Pick a room on the plan'], ['Find equipment', 'Pick a piece of equipment on the plan'], ['Height slice', 'Cut the house at any height'], ['Layers', 'Show or hide parts of the model']])
     }${
 touch || compact ? '' : phone}</div><p class="note">Slow? Set Quality to Medium or Low in the menu. It is remembered on this device.</p>`;
   }
@@ -1342,6 +1343,11 @@ const measure = createMeasure({ scene, camera, renderer, pickables, cutY, F, tou
   if (on) { hideInfo(); if (compact) openSheet(null); }
 } });
 for (const b of document.querySelectorAll('[data-act="measure"]')) b.onclick = () => measure.toggle();
+// ---------------------------------------------------------------- photo (photo.js): P or the Photo button
+// A path-traced still of this exact view. While it is open the frame loop hands every frame to it (see the loop).
+const photo = createPhoto({ renderer, scene, camera, sun, sky: () => daySky, draw, touch, toast, onClose: () => { shadowDirty = true; } });
+window.__photo = photo;
+for (const b of document.querySelectorAll('[data-act="photo"]')) b.onclick = () => { openSheet(null); photo.open(); };
 
 // ---------------------------------------------------------------- equipment, ducts, info card
 function addEquipment() {
@@ -1773,6 +1779,7 @@ function walk(dt) {
 
 // ---------------------------------------------------------------- input
 addEventListener('keydown', (e) => {
+  if (photo.active) { if (e.code === 'Escape') photo.close(); return; }      // a photo is rendering: nothing else listens
   if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
   if (modalKind && e.code !== 'Escape') return;
   keys.add(e.code);
@@ -1783,6 +1790,7 @@ addEventListener('keydown', (e) => {
     else if (measure.on) { if (!measure.clear()) measure.setActive(false); } else hideInfo();
   }
   if (e.code === 'KeyM') measure.toggle();
+  if (e.code === 'KeyP' && !e.ctrlKey && !e.metaKey) photo.open();
   if (e.code === 'KeyN') { if (mode !== 'walk') leaveOrbit(true); else setNoclip(!noclip); }
   if (e.code === 'KeyC' && mode === 'walk' && !noclip) setCrouch(!crouch);
   if (e.code === 'KeyH' || e.key === '?') openModal('controls');
@@ -1908,6 +1916,7 @@ function adaptResolution(raw) {
   else if (ms < 13 && dpr < MAX_DPR - 0.01) setDpr(Math.min(MAX_DPR, dpr + 0.1));
 }
 renderer.setAnimationLoop(() => {
+  if (photo.active) { clock.update(); clock.getDelta(); photo.frame(); return; }      // photo mode: the walkthrough stands still and the path tracer draws
   clock.update(); const raw = clock.getDelta(), dt = Math.min(raw, 0.05);
   if (!document.hidden) adaptResolution(raw);
   if (mode === 'walk' && colliders.length) walk(dt); else { panOrbit(dt); orbit.update(); }
