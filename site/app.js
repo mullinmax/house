@@ -257,6 +257,9 @@ async function loadAll() {
   await Promise.all(loads);
   await new Promise((r) => { const t = setInterval(() => { if (!queue.length && !busy) { clearInterval(t); r(); } }, 100); });
   window.__allLoaded = true;
+  // Photo mode's path tracer compiles its GPU program ahead, a few seconds after everything is in and the page is idle,
+  // so the first photo does not wait on it (photo.js warm). Not on Low: that setting is for devices with nothing to spare.
+  if (quality !== 'low') setTimeout(() => (window.requestIdleCallback || ((f) => f()))(() => photo.warm(), { timeout: 10000 }), 4000);
   console.log(`all parts in: ${colliders.length} colliders, ${operables.length} operable`);
 }
 

@@ -25,13 +25,55 @@ const MAX_PORTALS = 4, PORTAL_REACH = 18;      // window lights: the few windows
 const CLAMP = 2.5;                  // the bounced light in one sample may not be brighter than this many times display white (see open)
 const KEY = 0.1;                    // exposure without a normal frame to match: the picture's typical (log average) light is brought up to this, never down
 
+// The ray search tree (BVH) over half a million triangles takes a couple of seconds on a laptop and far longer on a
+// phone, and built on the page it froze everything, the panel included. three-mesh-bvh ships a self contained worker for
+// it; this is the small page side that hands it the triangles and takes the tree back. The time is the same, but the
+// page keeps answering, the panel can show how far along it is, and the GPU program compiles meanwhile.
+class BVHWorker {
+  constructor(url) {
+    this.worker = new Worker(url);
+    this.ready = new Promise((res, rej) => {
+      this.worker.onmessage = (e) => { if (e.data && e.data.type === 'ready') { this.worker.onmessage = null; res(); } };
+      this.worker.onerror = (e) => { e.preventDefault(); rej(new Error(e.message || 'the BVH worker did not load')); };
+    });
+    this.ready.catch(() => {});
+  }
+  async generate(geometry, options = {}) {
+    await this.ready;
+    const { MeshBVH } = await import('three-mesh-bvh');
+    return new Promise((resolve, reject) => {
+      const w = this.worker, onProgress = options.onProgress;
+      w.onerror = (e) => { e.preventDefault(); reject(new Error(e.message || 'the BVH worker failed')); };
+      w.onmessage = ({ data }) => {
+        if (data.error) { w.onmessage = null; reject(new Error(String(data.error))); return; }
+        if (!data.serialized) { if (onProgress) onProgress(data.progress); return; }
+        w.onmessage = null;
+        const ser = data.serialized, bvh = MeshBVH.deserialize(ser, geometry, { setIndex: false });
+        if (ser.index && !geometry.index) geometry.setIndex(new THREE.BufferAttribute(ser.index, 1, false));
+        else if (ser.index && !bvh.indirect) { geometry.index.array.set(ser.index); geometry.index.needsUpdate = true; }
+        if (onProgress) onProgress(1);
+        resolve(bvh);
+      };
+      const position = geometry.attributes.position.array.slice(), index = geometry.index ? geometry.index.array.slice() : null;
+      const opts = { ...options, onProgress: null, range: null, includedProgressCallback: !!onProgress, groups: geometry.groups.map((g) => ({ ...g })) };
+      w.postMessage({ index, position, normalized: geometry.attributes.position.normalized, options: opts }, index ? [position.buffer, index.buffer] : [position.buffer]);
+    });
+  }
+}
+const BVH_WORKER_URL = new URL('./vendor/three-mesh-bvh/generateMeshBVH.worker.js', import.meta.url);
+
+// Fixed picture sizes (Maxwell, 11/28/2026): the picture keeps its size when the window changes, and Save gives it at
+// exactly that size. Screen is the window's own size when the photo starts (capped as below).
+const SIZES = { screen: null, '1080p': [1920, 1080], '1440p': [2560, 1440], '4k': [3840, 2160] };
+
 export function createPhoto({ renderer, scene, camera, sun, sky = () => null, draw = null, touch = false, toast = () => {}, onOpen = () => {}, onClose = () => {} }) {
   // Limits. A float target of 2 megapixels is about 100 MB with its two blend partners; phones get half of everything.
   const MAX_PIXELS = touch ? 0.6e6 : 2.1e6, MAX_TRIS = touch ? 1.2e6 : 4e6, MAX_SAMPLES = touch ? 200 : 1000;
+  const pcam = new THREE.PerspectiveCamera();      // the photo's own camera: the view's, at the picture's shape
   let PT = null, pt = null, pscene = null, psun = null, plights = [], sunDir = new THREE.Vector3();
   let active = false, ready = false, sig = 0, builds = 0, saved = null, skipped = 0, tris = 0;
   let autoExp = 1, stops = 0, expAt = 0, lastShown = -1, lastW = 0, lastH = 0, frameMs = 0, lastT = 0, done = false, token = 0;
-  let redos = 0, dirty = false, snap = null, shown = false, envTex = null, envFrom = null, aim = 0, clampU = { value: 1e9 }, clamped = false, panes = [], skyMean = new THREE.Color(0.5, 0.6, 0.75), portals = 0, inside = false;
+  let redos = 0, dirty = false, snap = null, shown = false, W = 0, H = 0, warming = null, bvhWorker = null, size = 'screen', envTex = null, envFrom = null, aim = 0, clampU = { value: 1e9 }, clamped = false, panes = [], skyMean = new THREE.Color(0.5, 0.6, 0.75), portals = 0, inside = false;
 
   // ---- the small panel, and a sheet over the page that swallows clicks and touches while the photo runs
   const css = document.createElement('style');
@@ -43,6 +85,7 @@ export function createPhoto({ renderer, scene, camera, sun, sky = () => null, dr
 #photoPanel b { font: 600 .95rem var(--display); }
 #photoPanel .pstat { flex: 1; color: var(--muted); font-size: .82rem; font-variant-numeric: tabular-nums; }
 #photoPanel label { font-size: .8rem; color: var(--muted); }
+#photoPanel select { margin-left: 6px; }
 #photoPanel .row button { flex: 1; }
 body.photo #panel, body.photo #bar, body.photo #info, body.photo #cross, body.photo #prompt, body.photo #stick, body.photo #hint,
 body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold { display: none !important; }`;
@@ -51,9 +94,16 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
   const panel = document.createElement('div'); panel.id = 'photoPanel'; panel.hidden = true; panel.setAttribute('role', 'dialog'); panel.setAttribute('aria-label', 'Photo');
   panel.innerHTML = `<div class="ptop"><b>Photo</b><span class="pstat"></span></div>
 <label>Brightness <input type="range" min="-2" max="2" step="0.1" value="0" aria-label="Brightness"></label>
+<label>Size <select aria-label="Picture size"><option value="screen">Screen</option><option value="1080p">1080p (1920 x 1080)</option><option value="1440p">1440p (2560 x 1440)</option>${touch ? '' : '<option value="4k">4K (3840 x 2160)</option>'}</select></label>
 <div class="row"><button data-p="save" title="Save the picture as it is now. More samples make it cleaner">Save PNG</button><button data-p="close" title="Back to the walkthrough (Esc)">Close</button></div>`;
   document.body.append(shield, panel);
-  const stat = panel.querySelector('.pstat'), slider = panel.querySelector('input');
+  const stat = panel.querySelector('.pstat'), slider = panel.querySelector('input'), sizeSel = panel.querySelector('select');
+  try { const v = localStorage.getItem('photoSize'); if (v && v in SIZES && [...sizeSel.options].some((o) => o.value === v)) size = v; } catch (err) { /* private window */ }
+  sizeSel.value = size;
+  sizeSel.onchange = () => {
+    size = sizeSel.value; try { localStorage.setItem('photoSize', size); } catch (err) { /* private window */ }
+    if (active && ready) { sizeUp(true); done = false; lastShown = -1; expAt = 0; clampU.value = 1e9; clamped = false; }
+  };
   slider.oninput = () => { stops = parseFloat(slider.value); applyExposure(); };
   panel.querySelector('[data-p="save"]').onclick = () => save();
   panel.querySelector('[data-p="close"]').onclick = () => close();
@@ -408,6 +458,69 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
     applyExposure();
   }
 
+  // The path tracer itself, made once. Its GPU program is the slow part of a first photo (several seconds to compile on
+  // Windows and on phones), and nothing in it depends on the scene, so it is made and compiled ahead of time (warm).
+  function makeTracer() {
+    const warn = console.warn; console.warn = () => {};          // it announces its own deprecation in favour of WebGPU on every start
+    try { pt = new PT.WebGLPathTracer(renderer); } finally { console.warn = warn; }
+    // Enough for window light to reach a ceiling by way of the floor. A phone stops two bounces sooner: each bounce
+    // costs about as much as the first hit, and the light left after four is a few percent of the picture.
+    pt.bounces = touch ? 4 : 6; pt.transmissiveBounces = touch ? 5 : 8;
+    pt.filterGlossyFactor = 0.5;                      // tames the bright specks shiny things throw onto matte ones
+    pt.renderDelay = 0; pt.minSamples = 1; pt.fadeDuration = 0; pt.rasterizeScene = false; pt.dynamicLowRes = false;
+    pt.textureSize.set(touch ? 512 : 1024, touch ? 512 : 1024);
+    pt._generator.attributes = ['position', 'normal', 'tangent', 'color', 'uv'];      // no second uv set here; it would only be carried around
+    // Speck clamp. A room by day is lit mostly by a few small bright things (the patch of floor the sun lands on, a
+    // window), and a bounced ray finds one of them only now and then, with a sample worth many times white when it
+    // does. Those rare hits are the specks that take thousands of samples to average out. So the bounced part of
+    // each sample is capped a little above display white (CLAMP): what the camera sees directly (a sunlit patch,
+    // the sky in a window) is untouched, and specks fade several times faster. The price is that bounced light is
+    // a little dimmer near the brightest spots. The path tracer has no such setting, so three lines go into its
+    // shader: remember what has been gathered when the path leaves the first solid surface, cap the rest at the end.
+    const mat = pt._pathTracer.material, F = mat.fragmentShader;
+    const k1 = 'bool isTransmissiveRay = ! surf.volumeParticle && dot( scatterRec.direction, surf.faceNormal * surfaceHit.side ) < 0.0;', k2 = 'gl_FragColor.a *= opacity;';
+    const a1 = F.indexOf(k1), a2 = F.lastIndexOf(k2);
+    if (a1 > 0 && a2 > a1 && !mat.uniforms.photoClamp) {
+      mat.uniforms.photoClamp = clampU;
+      mat.fragmentShader = 'uniform float photoClamp;\nbool photoSplit = false;\nvec3 photoDirect = vec3( 0.0 );\n' + F.slice(0, a1 + k1.length)
+        + '\nif ( ! photoSplit && ! isTransmissiveRay ) { photoSplit = true; photoDirect = gl_FragColor.rgb; }\n' + F.slice(a1 + k1.length, a2)
+        + 'if ( photoSplit ) gl_FragColor.rgb = photoDirect + min( gl_FragColor.rgb - photoDirect, vec3( photoClamp ) );\n'
+        // a sample that came out as not-a-number or infinite (a phone GPU's lower precision can do it on a grazing hit)
+        // would poison that pixel for good, since every later sample is averaged with it. It counts as black instead.
+        + 'if ( any( isnan( gl_FragColor.rgb ) ) || any( isinf( gl_FragColor.rgb ) ) ) gl_FragColor.rgb = vec3( 0.0 );\n' + F.slice(a2);
+      mat.needsUpdate = true;
+    }
+    pt.renderToCanvas = false; pt.synchronizeRenderSize = false;
+    try { bvhWorker = bvhWorker || new BVHWorker(BVH_WORKER_URL); pt.setBVHWorker(bvhWorker); } catch (err) { bvhWorker = null; }
+  }
+  // A scene of one small triangle: something to compile the program against, and what a phone keeps loaded between photos.
+  function tinyScene() {
+    const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute([0, 0, 0, 0.01, 0, 0, 0, 0.01, 0], 3)); g.computeVertexNormals();
+    const t = new THREE.Scene(); t.add(new THREE.Mesh(g, new THREE.MeshStandardMaterial())); t.background = scene.background; return t;
+  }
+  // Compile ahead: once the walkthrough has loaded and gone quiet, the path tracer is made and its program compiled in
+  // the background (the browser compiles on its own thread where it can), so pressing Photo skips that wait.
+  function warm(force = false) {
+    if (warming || pt || active) return warming;
+    if (!force && !renderer.extensions.has('KHR_parallel_shader_compile') || !renderer.extensions.get('EXT_color_buffer_float')) return null;     // without it the compile would freeze the walkthrough instead (force: tests)
+    warming = (async () => {
+      try {
+        if (!PT) PT = await import('three-gpu-pathtracer');
+        if (pt || active) return;
+        makeTracer(); pt._pathTracer.setSize(16, 16); pt._lowResPathTracer.setSize(4, 4);
+        pcam.copy(camera); pt.setScene(tinyScene(), pcam);
+        // the program's switches (depth of field, sky picture, fog) set as a photo will have them, then compiled
+        // and compiled with the renderer as a photo has it: drawing into the float target, with the photo's tone curve and
+        // colour set on the renderer. Any difference makes a different program, and the photo would compile its own.
+        // (Setting the switches starts the compile at once, so the renderer is put in that state first.)
+        const pm = pt._pathTracer.material, tm = renderer.toneMapping, cs = renderer.outputColorSpace, rt = renderer.getRenderTarget();
+        renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.setRenderTarget(pt._pathTracer._primaryTarget);
+        let job; try { pm.onBeforeRender(); job = pt._pathTracer._compilePromise || pt._pathTracer.compileMaterial(); } finally { renderer.setRenderTarget(rt); renderer.toneMapping = tm; renderer.outputColorSpace = cs; }
+        await job;
+      } catch (err) { console.warn('photo: could not prepare ahead', err); }
+    })();
+    return warming;
+  }
   // ---- open, frame by frame, save, close
   async function open() {
     if (active) return;
@@ -422,55 +535,31 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
     say('Building the scene'); onOpen();
     try {
       await new Promise((r) => requestAnimationFrame(() => setTimeout(r, 30)));      // let the panel paint before the page stalls on the build
+      if (warming) await warming;
       if (!PT) PT = await import('three-gpu-pathtracer');
       if (mine !== token) return;
       sun.target.updateMatrixWorld(); sun.updateMatrixWorld();
       sunDir.setFromMatrixPosition(sun.matrixWorld).sub(_a.setFromMatrixPosition(sun.target.matrixWorld)).normalize();
-      if (!pt) {
-        const warn = console.warn; console.warn = () => {};          // it announces its own deprecation in favour of WebGPU on every start
-        try { pt = new PT.WebGLPathTracer(renderer); } finally { console.warn = warn; }
-        // Enough for window light to reach a ceiling by way of the floor. A phone stops two bounces sooner: each bounce
-        // costs about as much as the first hit, and the light left after four is a few percent of the picture.
-        pt.bounces = touch ? 4 : 6; pt.transmissiveBounces = touch ? 5 : 8;
-        pt.filterGlossyFactor = 0.5;                      // tames the bright specks shiny things throw onto matte ones
-        pt.renderDelay = 0; pt.minSamples = 1; pt.fadeDuration = 0; pt.rasterizeScene = false; pt.dynamicLowRes = false;
-        pt.textureSize.set(touch ? 512 : 1024, touch ? 512 : 1024);
-        pt._generator.attributes = ['position', 'normal', 'tangent', 'color', 'uv'];      // no second uv set here; it would only be carried around
-        // Speck clamp. A room by day is lit mostly by a few small bright things (the patch of floor the sun lands on, a
-        // window), and a bounced ray finds one of them only now and then, with a sample worth many times white when it
-        // does. Those rare hits are the specks that take thousands of samples to average out. So the bounced part of
-        // each sample is capped a little above display white (CLAMP): what the camera sees directly (a sunlit patch,
-        // the sky in a window) is untouched, and specks fade several times faster. The price is that bounced light is
-        // a little dimmer near the brightest spots. The path tracer has no such setting, so three lines go into its
-        // shader: remember what has been gathered when the path leaves the first solid surface, cap the rest at the end.
-        const mat = pt._pathTracer.material, F = mat.fragmentShader;
-        const k1 = 'bool isTransmissiveRay = ! surf.volumeParticle && dot( scatterRec.direction, surf.faceNormal * surfaceHit.side ) < 0.0;', k2 = 'gl_FragColor.a *= opacity;';
-        const a1 = F.indexOf(k1), a2 = F.lastIndexOf(k2);
-        if (a1 > 0 && a2 > a1 && !mat.uniforms.photoClamp) {
-          mat.uniforms.photoClamp = clampU;
-          mat.fragmentShader = 'uniform float photoClamp;\nbool photoSplit = false;\nvec3 photoDirect = vec3( 0.0 );\n' + F.slice(0, a1 + k1.length)
-            + '\nif ( ! photoSplit && ! isTransmissiveRay ) { photoSplit = true; photoDirect = gl_FragColor.rgb; }\n' + F.slice(a1 + k1.length, a2)
-            + 'if ( photoSplit ) gl_FragColor.rgb = photoDirect + min( gl_FragColor.rgb - photoDirect, vec3( photoClamp ) );\n'
-            // a sample that came out as not-a-number or infinite (a phone GPU's lower precision can do it on a grazing hit)
-            // would poison that pixel for good, since every later sample is averaged with it. It counts as black instead.
-            + 'if ( any( isnan( gl_FragColor.rgb ) ) || any( isinf( gl_FragColor.rgb ) ) ) gl_FragColor.rgb = vec3( 0.0 );\n' + F.slice(a2);
-          mat.needsUpdate = true;
-        }
-      }
+      if (!pt) makeTracer();
+      sizeUp(false);
       const s = signature();
       if (s !== sig || !pscene) {
         build(); setLights(); builds++;
-        pt.setScene(pscene, camera);
+        if (bvhWorker) {
+          say('Building the scene');
+          await pt.setSceneAsync(pscene, pcam, { onProgress: (f) => { if (mine === token) say(`Building the scene ${Math.round(f * 100)}%`); } });
+        } else pt.setScene(pscene, pcam);
+        if (mine !== token) return;
         // The generator keeps its own copies of every mesh so it can update a moving scene. Nothing moves during a photo
         // and the data is on the GPU now, so a fresh generator frees a few hundred megabytes of them.
-        const gen = new PT.PathTracingSceneGenerator(); gen.attributes = pt._generator.attributes; pt._generator = gen;
+        const gen = new PT.PathTracingSceneGenerator(); gen.attributes = pt._generator.attributes; if (bvhWorker) gen.setBVHWorker(bvhWorker); pt._generator = gen;
         for (const m of pscene.children) if (m.isMesh) m.geometry = new THREE.BufferGeometry();
         sig = s;
-      } else { setLights(); pt.updateLights(); pt.updateEnvironment(); pt.setCamera(camera); }
+      } else { setLights(); pt.updateLights(); pt.updateEnvironment(); pt.setCamera(pcam); }
       // the canvas is the float picture through the same tone curve as the normal view
       renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.outputColorSpace = THREE.SRGBColorSpace; autoExp = 1; applyExposure();
       clampU.value = 1e9; clamped = false;
-      sizeUp();
+      sizeUp(true);
       if (mine !== token) return;
       ready = true; say('Starting');
     } catch (err) {
@@ -478,15 +567,20 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
       if (mine === token) { close(); toast('The photo could not be made on this device'); }
     }
   }
-  // Render size: the canvas, scaled down if it is more pixels than the cap. Tiles split each sample over several frames
-  // so the page stays responsive: more of them for bigger pictures, and more again if frames come slowly (frame()).
-  function sizeUp() {
+  // Picture size: a fixed size from the menu, or the canvas as it is when the photo starts, scaled down if it is more
+  // pixels than the cap. Either way it is set here and nowhere else: resizing the window only changes how the picture
+  // sits on the canvas (letterboxed), never the picture. Tiles split each sample over several frames so the page stays
+  // responsive: more of them for bigger pictures, and more again if frames come slowly (frame()).
+  function sizeUp(restart) {
     const gl = renderer.getContext(); lastW = gl.drawingBufferWidth; lastH = gl.drawingBufferHeight;
-    pt.renderScale = Math.min(1, Math.sqrt(MAX_PIXELS / (lastW * lastH)));
-    const n = touch ? 3 : lastW * lastH * pt.renderScale ** 2 > 1.2e6 ? 3 : 2; pt.tiles.set(n, n);
-    redos = 0; pt.renderToCanvas = false;
-    shown = false;
-    camera.updateMatrixWorld(); pt.updateCamera();
+    if (SIZES[size]) [W, H] = SIZES[size];
+    else { const k = Math.min(1, Math.sqrt(MAX_PIXELS / (lastW * lastH))); W = Math.max(16, Math.floor(lastW * k)); H = Math.max(16, Math.floor(lastH * k)); }
+    pcam.copy(camera); pcam.aspect = W / H; pcam.updateProjectionMatrix(); pcam.updateMatrixWorld();
+    if (!restart) return;
+    pt._pathTracer.setSize(W, H); pt._lowResPathTracer.setSize(Math.max(1, Math.floor(W * 0.25)), Math.max(1, Math.floor(H * 0.25)));
+    const n = touch ? 3 : W * H > 4.5e6 ? 4 : W * H > 1.2e6 ? 3 : 2; pt.tiles.set(n, n);
+    redos = 0; shown = false;
+    pt.setCamera(pcam);
   }
   // Sun jitter: one direction per whole pass, not per tile. Changed per tile, each square of the first pass got its own
   // hard shadow edge and its own sun, and those squares stood out until enough passes had averaged them (Maxwell on his
@@ -524,15 +618,20 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
   }
   function showPass() {
     if (!shown || !dirty) return;
-    const q = pt._quad, ac = renderer.autoClear;
+    const q = pt._quad, ac = renderer.autoClear, pr = renderer.getPixelRatio(), gl = renderer.getContext();
+    const cw = gl.drawingBufferWidth, ch = gl.drawingBufferHeight, cc = renderer.getClearColor(new THREE.Color()), ca = renderer.getClearAlpha();
+    let vw = cw, vh = Math.round(cw * H / W); if (vh > ch) { vh = ch; vw = Math.round(ch * W / H); }      // the whole picture, as large as fits
     q.material.map = snap.texture; q.material.opacity = 1; q.material.blending = THREE.NoBlending;
-    renderer.setRenderTarget(null); renderer.autoClear = false; q.render(renderer); renderer.autoClear = ac;
+    renderer.setRenderTarget(null); renderer.setClearColor(0x000000, 1); renderer.clear();
+    renderer.setViewport((cw - vw) / 2 / pr, (ch - vh) / 2 / pr, vw / pr, vh / pr);
+    renderer.autoClear = false; q.render(renderer); renderer.autoClear = ac;
+    renderer.setViewport(0, 0, cw / pr, ch / pr); renderer.setClearColor(cc, ca);
     dirty = false;
   }
   function frame() {
     if (!active || !ready) return;
     const gl = renderer.getContext();
-    if (gl.drawingBufferWidth !== lastW || gl.drawingBufferHeight !== lastH) { sizeUp(); done = false; lastShown = -1; expAt = 0; clampU.value = 1e9; clamped = false; }      // the window was resized: start over at the new shape
+    if (gl.drawingBufferWidth !== lastW || gl.drawingBufferHeight !== lastH) { lastW = gl.drawingBufferWidth; lastH = gl.drawingBufferHeight; dirty = true; }      // the window was resized: the same picture, placed again
     const now = performance.now(); if (lastT) frameMs += ((now - lastT) - frameMs) * 0.2; lastT = now;
     renderer.setRenderTarget(null);
     pt.pausePathTracing = done;
@@ -566,20 +665,23 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
         else if (frameMs > 0 && frameMs < 45 && pt.tiles.x > 1) { pt.tiles.set(pt.tiles.x - 1, pt.tiles.x - 1); frameMs = 80; }
       }
       const note = skipped ? ' · far trees left out' : '';
-      say(pt.isCompiling ? 'Preparing' : n < 1 || !clamped ? 'Starting' : done ? `Done, ${n} samples${note}` : `${n} of ${MAX_SAMPLES} samples${note}`);
-    } else if (n < 1) say(pt.isCompiling ? 'Preparing' : 'Starting');
+      say(pt.isCompiling ? 'Compiling the renderer' : n < 1 || !clamped ? 'Starting' : done ? `Done, ${n} samples${note}` : `${n} of ${MAX_SAMPLES} samples${note}`);
+    } else if (n < 1) say(pt.isCompiling ? 'Compiling the renderer' : 'Starting');
     showPass();
   }
   // The canvas keeps no copy of a frame once the browser has shown it, so the picture is drawn again and read in the same breath.
   function save() {
     if (!ready || !shown) { toast('Wait for the first sample'); return null; }
-    dirty = true; showPass();
+    // drawn once at the picture's own size, read, and the canvas put back (the copy is taken when toBlob is called)
+    const pr = renderer.getPixelRatio(), css = renderer.getSize(new THREE.Vector2());
+    renderer.setPixelRatio(1); renderer.setSize(W, H, false); dirty = true; showPass();
     const stamp = new Date().toISOString().replace(/[-:]/g, '').replace('T', '-').slice(0, 15);
     renderer.domElement.toBlob((blob) => {
       if (!blob) { toast('The picture could not be saved'); return; }
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `house-photo-${stamp}.png`;
       document.body.append(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 10000);
     }, 'image/png');
+    renderer.setPixelRatio(pr); renderer.setSize(css.x, css.y, false); lastW = -1; dirty = true; showPass();
     return stamp;
   }
   function close() {
@@ -588,13 +690,16 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
     if (saved) { renderer.toneMapping = saved.tm; renderer.toneMappingExposure = saved.exp; renderer.outputColorSpace = saved.cs; renderer.autoClear = saved.ac; saved = null; }
     renderer.setRenderTarget(null);
     document.body.classList.remove('photo'); shield.hidden = true; panel.hidden = true;
-    // A phone has no memory to spare for a BVH and float targets nobody is looking at; a laptop keeps them so the
-    // next photo of the same scene starts at once.
-    if (touch && pt) { pt.dispose(); pt = null; pscene = null; sig = 0; if (snap) { snap.dispose(); snap = null; } }
+    // A phone has no memory to spare for a BVH and float targets nobody is looking at, so it keeps only the compiled
+    // path tracer; a laptop keeps everything so the next photo of the same scene starts at once.
+    if (touch && pt) {
+      pt.setScene(tinyScene(), pcam); pt._pathTracer.setSize(16, 16); pt._lowResPathTracer.setSize(4, 4);
+      pscene = null; sig = 0; if (snap) { snap.dispose(); snap = null; }
+    }
     onClose();
   }
 
-  return { open, close, frame, save, redraw() { dirty = true; showPass(); }, get active() { return active; }, get ready() { return ready; },
-    get samples() { return pt && ready ? pt.samples : 0; }, get info() { return { builds, tris, skipped, meshes: pscene ? pscene.children.length : 0, panes: panes.length, portals, inside, exposure: renderer.toneMappingExposure, tiles: pt ? pt.tiles.x : 0, scale: pt ? pt.renderScale : 1 }; },
+  return { open, close, frame, save, warm, get size() { return [W, H]; }, redraw() { dirty = true; showPass(); }, get active() { return active; }, get ready() { return ready; },
+    get samples() { return pt && ready ? pt.samples : 0; }, get info() { return { builds, tris, skipped, meshes: pscene ? pscene.children.length : 0, panes: panes.length, portals, inside, exposure: renderer.toneMappingExposure, tiles: pt ? pt.tiles.x : 0, size: [W, H] }; },
     get tracer() { return pt; } };
 }
