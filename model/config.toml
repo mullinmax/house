@@ -243,6 +243,7 @@ head = 19.0
 # Mudroom cubby and entry closet (Maxwell 11/17/2026): the partition between them moved 6" west (closet 2'-6 1/2" to 3'-0 1/2"
 # inside, cubby 8'-1" to 7'-7"), and the closet door is now 2'-6" x 8'-0", the same height as the cubby opening. Was [31.581, 39.664, 8.0], [40.164, 42.289, 6.67]
 passages = [[0.743, 3.443, 6.67],[12.122, 16.206, 8.0], [20.914, 26.914, 7.71], [31.581, 39.164, 7.75], [39.56, 42.167, 7.75]]   # the living room opening stops 1 in under its header (bottom 7' 9 1/2", Maxwell 11/20/2026); the entry cubby and entry closet sit under the cubby beam (bottom 7'-10"), so they stop at 7'-9" (Maxwell 11/20/2026: the beam showed through)
+untrimmed = [12.122]            # passages (by x_start) left as plain drywall wrapped openings, no casing: the hall 1 opening (Maxwell 11/28/2026). The baseboard wraps their wall ends
 
 [entry_closet]                  # Maxwell's builder, 11/19/2026: the (2) LVL beam over the mudroom cubby (S-11) needs two 2x4 posts under its
 # east end, beside the closet, so the closet opening shrinks to 18 in (hinge jamb kept on the east). Closet inside stays 3'-0" x 1'-6".
@@ -574,6 +575,11 @@ enabled = true
 interior_door_style = "slab"       # white oak flat slab doors, brushed nickel levers. ASSUMED
 baseboard_height_in = 4.5          # ASSUMED, white oak to match casings
 casing_width_in = 3.5
+# interior door frames (11/28/2026): door heads in this file (6.67, 8.0) are the nominal slab, 6'-8" or 8'-0". The model hangs a
+# real 80 in (or 96 in) slab: undercut off the floor, a gap at the top, a 3/4 in head jamb. A 6'-8" door's jamb top is then
+# 81 5/8 in, under the 83 in headers Maxwell measured (11/20/2026), leaving 1 3/8 in to shim. Was drawn 80 in to the jamb top
+# with a 78 5/8 in leaf, about 1 1/2 in short. Undercut ASSUMED
+door_frame = { undercut_in = 0.75, top_gap_in = 0.125, jamb_in = 0.75 }
 gutters = true
 exterior_lights = true
 door_add = [ { axis = "x", g0 = 34.372, g1 = 37.039, t0 = 22.408, t1 = 22.866, head = 6.67, name = "Pocket door, closet 1 to bath 1", note = "Closet 1 to bath 1 pocket door (Maxwell 11/20/2026). It slides west into the pocket the framing shows (header 31' 4\" to 37' 3\")." },

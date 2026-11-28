@@ -690,12 +690,24 @@ def nearest_label(x, y):
     return best if bd < 3.5 else None
 
 
+DOOR_FRAME = FU.get("door_frame", {})
+DF_UNDER, DF_GAP, DF_JAMB = (DOOR_FRAME.get(k, d) / 12 for k, d in (("undercut_in", 0.75), ("top_gap_in", 0.125), ("jamb_in", 0.75)))
+
+
+def door_top(nominal):
+    """a nominal 6'-8" or 8'-0" door (the slab) to the top of its frame: undercut + slab + top gap + head jamb"""
+    for nom, slab_in in ((6.67, 80), (8.0, 96)):
+        if abs(nominal - nom) < 0.01:
+            return slab_in / 12 + DF_UNDER + DF_GAP + DF_JAMB
+    return nominal
+
+
 def door_head_near(x, y):
     for hx, hy, hh in C.get("framing", {}).get("door_heads", []):     # heads set to clear the as-built headers
         if math.hypot(hx - x, hy - y) < 1.5:
-            return hh
+            return door_top(hh)
     lab = nearest_label(x, y)
-    return 8.0 if lab is None else (8.0 if lab.endswith("80") else 6.67)
+    return door_top(8.0 if lab is None else (8.0 if lab.endswith("80") else 6.67))
 
 
 def between(x0, x1, y0, y1):
@@ -2754,11 +2766,12 @@ if FU.get("enabled"):
             if EC_STYLE == "split":
                 DOOR_LEAF_TOP[(da["g0"], da["g1"])] = EC.get("split_at", 6.67)
         t0_, t1_ = (YC, YC2) if da.get("t0") == "clerestory" else (da["t0"], da["t1"])
-        DOOR_GAPS.append((da["axis"], da["g0"], da["g1"], t0_, t1_, da.get("head", 6.67)))
+        da = dict(da, head=door_top(da.get("head", 6.67)))
+        DOOR_GAPS.append((da["axis"], da["g0"], da["g1"], t0_, t1_, da["head"]))
         if da.get("name"):
-            DOOR_NAMES[(da["g0"], da["g1"])] = da["name"]
+            DOOR_NAMES[(da["g0"], da["g1"], t0_)] = da["name"]
         if da.get("note"):
-            DOOR_NOTES[(da["g0"], da["g1"])] = da["note"]
+            DOOR_NOTES[(da["g0"], da["g1"], t0_)] = da["note"]
         if not da.get("header", True):         # a cased opening that already has its wall above: the door only
             continue
         rec(f"wall.header.added.{len(DOOR_GAPS)}", "wall", "Wall over a doorway", "interior", info=dict(model="Drywall over the door head", notes=[da.get("note", "")]))
@@ -2766,6 +2779,53 @@ if FU.get("enabled"):
             box("Drywall", da["t0"], da["t1"], da["g0"], da["g1"], da.get("head", 6.67), FH + FLOOR_T - DECK_T)
         else:
             box("Drywall", da["g0"], da["g1"], da["t0"], da["t1"], da.get("head", 6.67), FH + FLOOR_T - DECK_T)
+    # baseboard round the ends of walls (11/28/2026, Maxwell saw gaps): a wall end that stands free, faces a doorless opening,
+    # or carries on the face of a wall it meets in an L got no baseboard, since only the long faces were trimmed and runs
+    # under 3 in were dropped. Ends in a doorway with a door are skipped: the jamb covers them.
+    def _in_rect(x, y, skip):
+        return any(r_ is not skip and r_[0] < x < r_[1] and r_[2] < y < r_[3] for r_ in INT_RECTS)
+    def _door_end(ax_, c, a0, a1):          # ax_ "x": an end face at x = c spanning y a0..a1
+        for (gax, g0, g1, t0, t1, _h) in DOOR_GAPS:
+            if gax == ("x" if ax_ == "x" else "y") and min(abs(c - g0), abs(c - g1)) < 0.02 and t0 < (a0 + a1) / 2 < t1:
+                return True
+        return False
+    n_wrap = 0
+    rec("trim.baseboard.ends", "trim", "Baseboards round wall ends", "interior", info=dict(model=f"{FU.get('baseboard_height_in', 4.5):g}\" white oak baseboard (ASSUMED)", notes=["Wraps the ends of walls that stand free, face an opening without a door, or meet another wall in an L (11/28/2026)."]))
+    for R_ in INT_RECTS:
+        x0, x1, y0, y1 = R_
+        long_x = x1 - x0 >= y1 - y0
+        ends = [("x", x0, -1), ("x", x1, 1)] if long_x else [("y", y0, -1), ("y", y1, 1)]
+        if (x1 - x0 if long_x else y1 - y0) <= 0.35:     # a stub the main pass skipped: trim all four faces
+            ends += [("y", y0, -1), ("y", y1, 1)] if long_x else [("x", x0, -1), ("x", x1, 1)]
+        for (fa, c, sg) in ends:                # fa "x": the face is at x = c, running along y
+            a0, a1 = (y0, y1) if fa == "x" else (x0, x1)
+            if not (0 < c < HW and 0 < a0 < HD) or _door_end(fa, c, a0, a1):
+                continue
+            n_ = max(2, int((a1 - a0) / 0.01))
+            run, runs = [], []
+            for k in range(n_ + 1):
+                a = a0 + (a1 - a0) * k / n_
+                po = (c + sg * 0.02, a) if fa == "x" else (a, c + sg * 0.02)          # just outside the face
+                pi = (c - sg * 0.02, a) if fa == "x" else (a, c - sg * 0.02)          # just inside it
+                wet = any(w[0] - 0.3 < po[0] < w[1] + 0.3 and w[2] - 0.3 < po[1] < w[3] + 0.3 for w in WET_RECTS)
+                ok = (T + 0.06 < po[0] < HW - T - 0.06 and T + 0.06 < po[1] < HD - T - 0.06 and not (YC - 0.01 < po[1] < YC2 + 0.01)
+                      and not _in_rect(*po, R_) and not _in_rect(*pi, R_) and not wet)
+                if ok:
+                    run.append(a)
+                if (not ok or k == n_) and run:
+                    runs.append((run[0], run[-1])); run = []
+            for (r0, r1) in runs:
+                if r1 - r0 < 0.1:
+                    continue                            # slivers by the wet room and in wall junctions
+                r0 -= 0.045 if r0 - a0 < 0.015 else 0      # outside corners: run on over the side baseboards' ends
+                r1 += 0.045 if a1 - r1 < 0.015 else 0
+                d0, d1 = sorted((c + sg * 0.003, c + sg * 0.048))      # 1/32 in off the end: a drywall cap quad sits on some ends
+                if fa == "x":
+                    box("White Oak", d0, d1, r0, r1, 0, BB)
+                else:
+                    box("White Oak", r0, r1, d0, d1, 0, BB)
+                n_wrap += 1
+    print(f"baseboard wrapped round {n_wrap} wall ends")
     nd_ = 0
     for (ax, g0, g1, t0, t1, h) in DOOR_GAPS:
         wdt = g1 - g0
@@ -2775,18 +2835,18 @@ if FU.get("enabled"):
         a_, b_ = (room_at(gc[0], t0 - 0.8), room_at(gc[0], t1 + 0.8)) if ax == "x" else (room_at(t0 - 0.8, gc[1]), room_at(t1 + 0.8, gc[1]))
         rooms = " and ".join(n_ for n_ in dict.fromkeys([a_, b_]) if n_)
         leaves = [(g0 + 0.07, g1 - 0.07)] if wdt <= 3.3 else [(g0 + 0.07, (g0 + g1) / 2 - 0.01), ((g0 + g1) / 2 + 0.01, g1 - 0.07)]
-        dname = DOOR_NAMES.get((g0, g1)) or f"{'Pocket door' if pocket_dir else 'Door'}{', ' + rooms if rooms else ''}"
+        dname = DOOR_NAMES.get((g0, g1, t0)) or f"{'Pocket door' if pocket_dir else 'Door'}{', ' + rooms if rooms else ''}"
         r = rec(f"door.int.{nd_ + 1}", "door", dname, "interior",
                 info=dict(model=f"{lab + ' ' if lab else ''}white oak {'pocket' if pocket_dir else 'slab'} door{' pair' if len(leaves) > 1 else ''}",
-                          specs=[["Opening", f"{ftin(wdt)} x {ftin(h)}"], ["Hardware", "Flush pulls" if pocket_dir else "Brushed nickel levers"]],
-                          notes=([DOOR_NOTES[(g0, g1)]] if (g0, g1) in DOOR_NOTES else ["Opening found where two traced A-11 wall ends line up."]) + ["Style ASSUMED (slab doors, white oak casing)."] + (["Pocket door, Maxwell 11/13/2026."] if pocket_dir else [])))
+                          specs=[["Opening", f"{ftin(wdt)} x {ftin(h)} to the top of the frame"], ["Leaf height", f"{ftin(h - DF_UNDER - DF_GAP - DF_JAMB)}, {DOOR_FRAME.get('undercut_in', 0.75):g} in off the floor"], ["Hardware", "Flush pulls" if pocket_dir else "Brushed nickel levers"]],
+                          notes=([DOOR_NOTES[(g0, g1, t0)]] if (g0, g1, t0) in DOOR_NOTES else ["Opening found where two traced A-11 wall ends line up."]) + ["Style ASSUMED (slab doors, white oak casing)."] + (["Pocket door, Maxwell 11/13/2026."] if pocket_dir else [])))
 
         def B(mat, a0, a1, b0, b1, z0, z1):
             if ax == "x":
                 box(mat, a0, a1, b0, b1, z0, z1)
             else:
                 box(mat, b0, b1, a0, a1, z0, z1)
-        B("White Oak", g0, g0 + 0.06, t0, t1, 0, h); B("White Oak", g1 - 0.06, g1, t0, t1, 0, h); B("White Oak", g0, g1, t0, t1, h - 0.06, h)
+        B("White Oak", g0, g0 + 0.06, t0, t1, 0, h); B("White Oak", g1 - 0.06, g1, t0, t1, 0, h); B("White Oak", g0, g1, t0, t1, h - DF_JAMB, h)
         for (b0, b1) in ((t0 - 0.06, t0), (t1, t1 + 0.06)):
             B("White Oak", g0 - CW, g0 + 0.02, b0, b1, 0, h); B("White Oak", g1 - 0.02, g1 + CW, b0, b1, 0, h)
             B("White Oak", g0 - CW, g1 + CW, b0, b1, h, h + CW)
@@ -2798,7 +2858,7 @@ if FU.get("enabled"):
                 lf = op(r, f"{r['id']}.leaf{suffix}", r["name"], "slide", ((l0 + l1) / 2, tm, 0) if ax == "x" else (tm, (l0 + l1) / 2, 0),
                         slide=(d_, 0, 0) if ax == "x" else (0, d_, 0))
                 with into(lf["parts"]):
-                    B("White Oak", l0, l1, tm - 0.06, tm + 0.06, 0.04, h - 0.08)
+                    B("White Oak", l0, l1, tm - 0.06, tm + 0.06, DF_UNDER, h - DF_JAMB - DF_GAP)
                     px_ = l0 + 0.2 if pocket_dir > 0 else l1 - 0.2
                     for sgn in (-1, 1):
                         b0 = tm + sgn * 0.06; b1 = b0 + sgn * 0.01
@@ -2818,7 +2878,7 @@ if FU.get("enabled"):
                 hp = (ha, tm) if ax == "x" else (tm, ha)
                 lf = op(r, f"{r['id']}.leaf{suffix}", r["name"], "swing", (hp[0], hp[1], 0), angle=90 * sgn_)
                 with into(lf["parts"]):
-                    B("White Oak", l0, l1, tm - 0.07, tm + 0.07, 0.04, DOOR_LEAF_TOP.get((g0, g1), h) - 0.08)
+                    B("White Oak", l0, l1, tm - 0.07, tm + 0.07, DF_UNDER, DOOR_LEAF_TOP.get((g0, g1), h) - DF_JAMB - DF_GAP)
                     cd_ = FU.get("cat_door")
                     if cd_ and math.hypot(cd_["at"][0] - gc[0], cd_["at"][1] - gc[1]) < 1.5:
                         # flapped cat door through the leaf (Maxwell, 11/20/2026): a frame on each face, a smoked flap inside the
@@ -2848,8 +2908,12 @@ if FU.get("enabled"):
     for (x0, x1, hd) in CL["passages"][1:]:
         if abs((x0 + x1) / 2 - BD.get("center_x", -99)) < 3.5:
             continue
-        if (x0, x1) in DOOR_NAMES or (x0, x1) in DOOR_NOTES:
+        if any(k_[:2] == (x0, x1) for k_ in list(DOOR_NAMES) + list(DOOR_NOTES)):
             continue                           # a door was hung in it, and the door brings its own jambs and casing
+        if any(abs(x0 - u_) < 0.01 for u_ in CL.get("untrimmed", [])):
+            for xe, d0, d1 in ((x0, x0, x0 + 0.045), (x1, x1 - 0.045, x1)):     # no casing: the baseboard wraps the wall's ends in the opening
+                box("White Oak", d0, d1, YC - 0.045, YC2 + 0.045, 0, BB)
+            continue
         # an opening whose jambs are partitions running north (the mudroom cubby) has no wall face on its north side to
         # trim: casings there stood in the cubby and poked through its side walls (Maxwell 11/17/2026)
         abut = lambda xj: (EC_MERGE and abs(xj - EC["posts"][0]) < 0.05) or (EC_STYLE == "open" and abs(xj - EC["open_to"]) < 0.05) or any(r_[1] > r_[0] + 0.1 and r_[0] - 0.05 <= xj <= r_[1] + 0.05 and r_[3] >= YC - 0.05 and r_[2] < YC - 0.3 for r_ in INT_RECTS)
