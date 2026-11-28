@@ -15,12 +15,14 @@ Open the site, then:
 - **Layers**, each with an icon: roof, walls, furniture, trees, distant trees, appliances, mechanical, ducts, duct x-ray, floor trusses and buried lines. Walls off fades the house so the systems read. Duct x-ray colours the ducts (blue supply, red return, green fresh air) and shows them through everything.
 - **Day and Night:** at night the room lights come on. The porch and exterior lights stay on, and the nearest six interior lights fade in as you move.
 - **Share this view** (in the menu's View section, or More on a phone) copies a link that opens exactly what you see: orbit, walk or no clip, where the camera is and where it looks, the room, day or night, the height slice, crouching, any layers you changed and an open info card. On a phone it opens the share sheet. The address bar keeps up with the view as you move, so a refresh brings you back to the same view. **Reset view**, next to Share, goes back to the opening view (orbit from the southwest, day, whole house, default layers).
+- **Photo** (in the menu's View section, or P): a lifelike still of the view you are looking at. Light is path traced: daylight comes in through the windows and bounces around the room, glass reflects, shadows soften with distance, and at night the fixtures light the rooms. The walkthrough pauses while samples build up on the screen. Brightness adjusts the exposure, Save PNG keeps the picture and Esc goes back. It honours the layers and the height slice. Fog, the tape measure and the duct x-ray's see-through effect are not in the photo.
 - **Slow device?** Add `?lite` to the address to start without shadows or the distant trees.
 - **Phones:** the left stick moves, drag anywhere else to look, tap a door to open it.
 
 ## Layout
 
 - `site/index.html`, `site/app.js`: the viewer (three.js 0.160, vendored in `site/vendor`, MIT license).
+- `site/photo.js`: Photo mode (three-gpu-pathtracer 0.0.28, vendored in `site/vendor`, MIT license). It builds the path tracer's scene from exactly the meshes the normal view draws and cuts the height slice into the triangles.
 - `model/config.toml`: the house plans as numbers (walls, rooms, windows, doors, roof, kitchen, loft, garage, porch, floor trusses). Everything below is built from it.
 - `site/models/house.json`, `site/house.js`: the house itself (see "The house" below).
 - `site/models/equipment.json`, `site/equipment.js`: appliances, equipment and ducts (see below).
@@ -34,6 +36,7 @@ Open the site, then:
 ## Performance notes
 
 - On load the viewer bakes static meshes that share a material into one mesh per part, toggle group and 20 m grid cell, cutting about 2000 draw calls to about 550. Operable parts and light fixtures stay separate.
+- After that, drawing is split from picking: every mesh (house, equipment, ducts, doors and drawers) stays in the scene for clicks, collisions, measuring and the layer switches but is not drawn itself. One merged mesh per material is drawn instead, its index repacked from the pieces whose layer is on, and a moving door or drawer rewrites its own vertices in it. Spinning fan blades and see-through glass stay separate. Overhead view: about 1,800 draw calls down to about 220; kitchen 600 to 150.
 - Shadows are redrawn only when the viewer moves 4 m, a door moves, or a toggle changes.
 - The render scale adapts to the frame rate: it starts at the screen's pixel ratio (capped at 1.5), drops in steps to 0.6 when frames take longer than 24 ms, and climbs back when there is headroom. Antialiasing is off on high-DPI screens.
 - No logarithmic depth buffer: it disables the GPU's early depth test, which made every hidden pixel cost a full shade.

@@ -17,6 +17,86 @@ globalThis.document = { createElement: el, createElementNS: el };
 const { buildHouse } = await import('../site/house.js');
 const { buildEquipment, cullBaked } = await import('../site/equipment.js');
 const { MeshBVH } = await import('three-mesh-bvh');
+// three r187 made Ray.intersectTriangle watertight. The hidden-or-not vote below samples points that often sit exactly on
+// another solid's face or edge, where the two methods round differently, so the audit keeps the r160 test it was tuned
+// with (the geometry and what the walkthrough draws are the same either way).
+{
+  const _edge1 = new THREE.Vector3(), _edge2 = new THREE.Vector3(), _normal$1 = new THREE.Vector3(), _diff = new THREE.Vector3();
+  THREE.Ray.prototype.intersectTriangle = function intersectTriangle( a, b, c, backfaceCulling, target ) {
+
+		// Compute the offset origin, edges, and normal.
+
+		// from https://github.com/pmjoniak/GeometricTools/blob/master/GTEngine/Include/Mathematics/GteIntrRay3Triangle3.h
+
+		_edge1.subVectors( b, a );
+		_edge2.subVectors( c, a );
+		_normal$1.crossVectors( _edge1, _edge2 );
+
+		// Solve Q + t*D = b1*E1 + b2*E2 (Q = kDiff, D = ray direction,
+		// E1 = kEdge1, E2 = kEdge2, N = Cross(E1,E2)) by
+		//   |Dot(D,N)|*b1 = sign(Dot(D,N))*Dot(D,Cross(Q,E2))
+		//   |Dot(D,N)|*b2 = sign(Dot(D,N))*Dot(D,Cross(E1,Q))
+		//   |Dot(D,N)|*t = -sign(Dot(D,N))*Dot(Q,N)
+		let DdN = this.direction.dot( _normal$1 );
+		let sign;
+
+		if ( DdN > 0 ) {
+
+			if ( backfaceCulling ) return null;
+			sign = 1;
+
+		} else if ( DdN < 0 ) {
+
+			sign = - 1;
+			DdN = - DdN;
+
+		} else {
+
+			return null;
+
+		}
+
+		_diff.subVectors( this.origin, a );
+		const DdQxE2 = sign * this.direction.dot( _edge2.crossVectors( _diff, _edge2 ) );
+
+		// b1 < 0, no intersection
+		if ( DdQxE2 < 0 ) {
+
+			return null;
+
+		}
+
+		const DdE1xQ = sign * this.direction.dot( _edge1.cross( _diff ) );
+
+		// b2 < 0, no intersection
+		if ( DdE1xQ < 0 ) {
+
+			return null;
+
+		}
+
+		// b1+b2 > 1, no intersection
+		if ( DdQxE2 + DdE1xQ > DdN ) {
+
+			return null;
+
+		}
+
+		// Line intersects triangle, check if ray does.
+		const QdN = - sign * _diff.dot( _normal$1 );
+
+		// t < 0, no intersection
+		if ( QdN < 0 ) {
+
+			return null;
+
+		}
+
+		// Ray intersects triangle.
+		return this.at( QdN / DdN, target );
+
+	}
+}
 const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
 const { MeshoptDecoder } = await import('three/addons/libs/meshopt_decoder.module.js');
 

@@ -8,10 +8,16 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
+import { N8AOPass } from 'n8ao';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { buildEquipment, cullBaked, setDuctXray, infoHTML, equipMaterials } from './equipment.js';
 import { buildHouse, houseRecordAt } from './house.js';
 import { createMeasure } from './measure.js';
+import { createPhoto } from './photo.js';
 
 THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
 THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
@@ -38,18 +44,23 @@ const ROOMS = {
 // ---------------------------------------------------------------- renderer, scene
 // No logarithmic depth: it writes depth per pixel, which turns off the GPU's early depth test and made every
 // hidden surface cost full shading. The model's coplanar faces are nudged apart instead, and a 0.15 m near
-// plane keeps enough depth precision. 4x MSAA everywhere: it softens jaggies and turns one pixel cracks
-// between pieces into faint lines instead of bright specks, and on phone GPUs it is resolved on chip for little cost.
+// plane keeps enough depth precision. 4x MSAA on High and Medium: it softens jaggies and turns one pixel cracks
+// between pieces into faint lines instead of bright specks.
 // ?dpr=1.5 pins the render scale (no adaptive drops), handy for screenshots or a fast machine.
-// Quality (menu, remembered on this device; Maxwell 11/22/2026). High: full screen resolution up to 1.5x, sharp shadows.
-// Medium: at most 1x resolution, softer shadow map. Low: 0.75x, no antialiasing, no shadows, no far woods (what ?lite was).
-// Antialiasing can only be set when the page starts, so going to or from Low reloads the page (the address keeps the view).
-const QUALITY = { high: { maxDpr: 1.5, aa: true, shadows: true, shadowMap: 2048 },
-  medium: { maxDpr: 1.0, aa: true, shadows: true, shadowMap: 1024 },
-  low: { maxDpr: 0.75, aa: false, shadows: false, shadowMap: 1024 } };
+// Quality (menu, remembered on this device; Maxwell 11/22/2026). Every level draws the scene once; they differ in
+// what is done with that one image (see post processing below), so the ~2,000 draw calls never double.
+// High: full screen resolution up to 1.5x, 4x MSAA, sharp shadows, ambient occlusion (soft darkening in corners,
+// under cabinets and along trim; costs a few full screen passes at half resolution, no extra draw calls).
+// Medium: at most 1x resolution, 4x MSAA, softer shadow map, no AO.
+// Low: 0.75x, SMAA (three cheap full screen passes that find and blend edges, instead of MSAA's extra samples),
+// no shadows, no far woods (what ?lite was).
+// Antialiasing lives in the composer's render targets, not in the canvas, so changing Quality no longer reloads the page.
+const QUALITY = { high: { maxDpr: 1.5, msaa: 4, ao: true, smaa: false, shadows: true, shadowMap: 2048 },
+  medium: { maxDpr: 1.0, msaa: 4, ao: false, smaa: false, shadows: true, shadowMap: 1024 },
+  low: { maxDpr: 0.75, msaa: 0, ao: false, smaa: true, shadows: false, shadowMap: 1024 } };
 let quality = /[?&]lite\b/.test(location.search) ? 'low' : 'high';
 try { const q = localStorage.getItem('quality'); if (QUALITY[q] && !/[?&]lite\b/.test(location.search)) quality = q; } catch (err) { /* private window: default */ }
-const renderer = new THREE.WebGLRenderer({ antialias: QUALITY[quality].aa, powerPreference: 'high-performance' });
+const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });   // MSAA is in the composer
 const PIN_DPR = parseFloat((/[?&]dpr=([\d.]+)/.exec(location.search) || [])[1]) || 0;
 let MAX_DPR = PIN_DPR || Math.min(window.devicePixelRatio, QUALITY[quality].maxDpr);
 let MIN_DPR = Math.min(MAX_DPR, 0.75);       // was 0.6, which looked blocky; trials below decide whether dropping helps at all
@@ -80,6 +91,51 @@ sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
 scene.add(sun, sun.target);
 const fill = new THREE.AmbientLight(0xffffff, 0.25);
 scene.add(fill);
+
+// ---------------------------------------------------------------- post processing
+// Every frame goes through one EffectComposer. The scene is drawn into a half float target in linear light and
+// OutputPass applies the renderer's ACES tone mapping, exposure and sRGB once, at the end, the same as drawing straight
+// to the canvas did (N8AO's own gamma step is off so nothing is corrected twice).
+// High: N8AOPass draws the scene itself, into its own 4x MSAA target, and darkens it by AO worked out from that depth
+// buffer. Picked over three's GTAOPass and SSAOPass, which draw the whole scene a second time for normals (twice the
+// draw calls, through an override material that knows nothing of the slice cap); N8AO rebuilds normals from depth,
+// so clipping, the slice and its cut faces come out right with no extra work. It is also the cleanest of the three
+// at a low sample count. Medium: RenderPass into a 4x MSAA target, then OutputPass. Low: no MSAA, OutputPass, then
+// SMAA on the finished sRGB image (its edge thresholds are meant for display values, not linear light).
+// Duct x-ray clears depth before the ducts draw, which leaves nothing for AO to read, so x-ray drops to Medium's path.
+const AO = { radius: 0.8, falloff: 1.0, day: 3, night: 2 };      // metres. 1 m shaded the whole wall between two shelves; night is lamp lit, so lighter
+const composer = new EffectComposer(renderer);
+const scenePass = new RenderPass(scene, camera), outputPass = new OutputPass();
+const post = { composer, ao: null, smaa: null, key: '', AO };      // exposed on __walk for tuning
+function makeAO() {
+  const ao = new N8AOPass(scene, camera, 1, 1), c = ao.configuration;
+  ao.beautyRenderTarget.samples = 4;           // MSAA stays on High: three resolves its colour and depth before AO reads them
+  // Glass has depthWrite off, so the AO of what is behind it shows through, which reads right. Tracking transparency
+  // would draw every transparent mesh twice more and walk the whole scene each frame, so it is off.
+  ao.autoDetectTransparency = false; c.transparencyAware = false;
+  c.gammaCorrection = false;                   // OutputPass does tone mapping and sRGB
+  ao.setQualityMode('Medium');                 // 16 samples, 8 denoise taps: soft and stable at half resolution
+  c.halfRes = true;                            // AO is low frequency; depth aware upsampling keeps it off object edges
+  Object.assign(c, { aoRadius: AO.radius, distanceFalloff: AO.falloff, intensity: AO.day });
+  return ao;
+}
+function configurePost() {
+  const Q = QUALITY[quality], ao = Q.ao && !xray, key = `${quality} ${ao}`;
+  if (key === post.key) return;
+  post.key = key;
+  const samples = ao ? 0 : Q.msaa;             // with AO the scene goes into N8AO's own MSAA target; these only take flat passes
+  for (const rt of [composer.renderTarget1, composer.renderTarget2]) if (rt.samples !== samples) { rt.samples = samples; rt.dispose(); }
+  if (ao && !post.ao) post.ao = makeAO();
+  if (Q.smaa && !post.smaa) post.smaa = new SMAAPass();
+  composer.passes.length = 0;
+  for (const p of [ao ? post.ao : scenePass, outputPass, Q.smaa && post.smaa]) if (p) composer.addPass(p);
+}
+// One frame, exactly as the loop draws it (also window.__walk.render, for the screenshot tool).
+function draw() {
+  configurePost();
+  if (post.ao) post.ao.configuration.intensity = night ? AO.night : AO.day;
+  composer.render();
+}
 
 // ---------------------------------------------------------------- loading
 const $ = (id) => document.getElementById(id);
@@ -228,29 +284,33 @@ const upperPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1e6);   // the s
 // has been cut open, so a back face is drawn as that solid's cut face: its own material, lit as if it faced up like the
 // cut, a little darker so the cut reads, and 2 mm toward the eye so it always beats a flush face of the next layer (a
 // ray inside the OSB shows OSB). Off when the slice is off.
-const CAP = { on: { value: 0 }, proj: { value: camera.projectionMatrix } };
+// Writing gl_FragDepth turns off the GPU's early depth test for the whole material, so the depth nudge is only compiled
+// in while the slice is on (two shader variants, swapped when the slice turns on or off).
+const CAP = { on: { value: 0 }, proj: { value: camera.projectionMatrix } }, cappedMats = new Set();
 function capSection(m) {
   if (m.userData.capped || m.transparent || !m.isMeshStandardMaterial) return;
-  m.userData.capped = true;
+  m.userData.capped = true; cappedMats.add(m);
   m.side = THREE.DoubleSide;
   m.onBeforeCompile = (sh) => {
     sh.uniforms.uCapOn = CAP.on; sh.uniforms.uCapProj = CAP.proj;
-    sh.fragmentShader = 'uniform float uCapOn;\nuniform mat4 uCapProj;\n' + sh.fragmentShader
+    sh.fragmentShader = (CAP.on.value > 0.5 ? '#define CAP_ON\n' : '') + 'uniform float uCapOn;\nuniform mat4 uCapProj;\n' + sh.fragmentShader
       .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
       #if NUM_CLIPPING_PLANES > 0
       if (uCapOn > 0.5 && !gl_FrontFacing) normal = normalize(-clippingPlanes[0].xyz);   // the cut faces up
       #endif`)
       .replace('#include <dithering_fragment>', `#include <dithering_fragment>
+      #ifdef CAP_ON
       gl_FragDepth = gl_FragCoord.z;
       if (uCapOn > 0.5 && !gl_FrontFacing) {
         vec3 p = -vViewPosition;
         p -= normalize(p) * 0.002;                   // 2 mm toward the eye: wins over a flush face, never over a real one
         vec4 c = uCapProj * vec4(p, 1.0);
         gl_FragDepth = clamp(c.z / c.w * 0.5 + 0.5, 0.0, 1.0);
-        gl_FragColor.rgb *= 0.82;
-      }`);
+        gl_FragColor.rgb *= 0.55;                    // in linear light (tone mapping comes after, in OutputPass): about 0.82 on screen
+      }
+      #endif`);
   };
-  m.customProgramCacheKey = () => 'cap2';
+  m.customProgramCacheKey = () => (CAP.on.value > 0.5 ? 'cap3on' : 'cap3off');
   m.needsUpdate = true;
 }
 const houseMats = new Set(), furnitureMeshes = [], bakedDeck = [];
@@ -363,6 +423,9 @@ function prepare(roots, first) {
     if (!o.isMesh) return;
     o.castShadow = true; o.receiveShadow = true;
     const mats = [].concat(o.material);
+    // Any transmissive material (the baked lamp shades) makes three.js draw the whole opaque scene a second time
+    // into a texture each frame, doubling the draw calls with Belongings on. Plain see-through looks the same here.
+    for (const m of mats) if (m && m.transmission > 0) { m.opacity = Math.min(m.opacity, 1 - m.transmission * 0.6); m.transmission = 0; m.transparent = true; m.depthWrite = false; m.needsUpdate = true; }
     if (mats.some((m) => m && m.transparent && m.opacity < 0.99)) o.castShadow = false;
     const part = partOf(o);
     if (part && !/^(site|trees)$/i.test(part.name)) for (const m of mats) if (m) { m.clippingPlanes = [upperPlane]; m.clipShadows = true; houseMats.add(m); capSection(m); }
@@ -388,6 +451,7 @@ function prepare(roots, first) {
     if (!pass) colliders.push(o);
   });
   console.log(`${roots.map((r) => r.name).join(', ')}: merged static meshes into ${merged} draw groups`);
+  batchDraw(roots);
   applyToggles();
   shadowDirty = true;
   if (!first) {                       // a part that streamed in after the house: match the current settings
@@ -703,6 +767,113 @@ function bakeMerge(list) {
   return geo;
 }
 
+// ---------------------------------------------------------------- draw batches
+// A frame here is bound by draw calls, not by pixels or triangles: the default view made about 2,000 of them, most for
+// small pieces (805 duct segments, 392 electrical parts, 236 door and drawer faces) that share a few hundred materials.
+// So drawing is split from everything else. Every mesh stays in the scene exactly as built, for clicks, info cards,
+// collisions, the tape measure and the layer switches, but with visible off, which only the renderer looks at (a
+// raycast and show() go by layers). What is drawn instead is one merged mesh per material, in world space.
+// Layers: each source keeps its own run of the batch's index, and after every switch the index is repacked from the
+// sources still on layer 0, so a hidden piece costs nothing and no rule about what hides with what is repeated here.
+// Doors, drawers and lids: when one moves, its vertices in the batch are rewritten from its own mesh (a few hundred
+// numbers per frame for under half a second). Spinning fan blades stay their own meshes, and so does see-through glass,
+// which must sort by distance piece by piece. A material only one mesh uses gains nothing and is left alone.
+// Measured at 960 x 600: overhead view 1,805 calls to 218, kitchen 602 to 153, living room 387 to 115, loft 169 to 94.
+const drawRoot = new THREE.Group(); drawRoot.name = 'draw batches'; scene.add(drawRoot);
+const batches = new Map(), batched = new WeakSet(), movers = new Map();
+const _nm = new THREE.Matrix3(), _bp = new THREE.Vector3();
+function batchDraw(roots) {
+  const touched = new Set();
+  for (const r of roots) r.traverse((o) => {
+    if (!o.isMesh || batched.has(o) || !o.visible || !o.frustumCulled || o.isInstancedMesh || o.isSkinnedMesh || Array.isArray(o.material)) return;
+    const g = o.geometry, m = o.material;
+    if (!g.attributes.position || m.vertexColors || (g.morphAttributes && Object.keys(g.morphAttributes).length)) return;
+    if ((m.transparent && !m.alphaTest && (!m.depthWrite || m.opacity < 1)) || m.transmission > 0) return;
+    let op = null;
+    for (let p = o; p && !op; p = p.parent) if (p.userData && p.userData._op && p.userData._op.obj === p) op = p.userData._op;
+    if (op && op.type === 'spin') return;
+    const key = [m.uuid, o.castShadow ? 1 : 0, o.receiveShadow ? 1 : 0, o.renderOrder].join('|');
+    let b = batches.get(key);
+    if (!b) batches.set(key, b = { mat: m, cast: o.castShadow, recv: o.receiveShadow, src: [], mesh: null });
+    const s = { mesh: o, on: true, v0: 0, nv: 0, i0: 0, ni: 0 };
+    b.src.push(s); batched.add(o); touched.add(b);
+    if (op) { if (!movers.has(op.obj)) movers.set(op.obj, []); movers.get(op.obj).push([b, s]); }
+  });
+  for (const b of touched) if (b.src.length > 1) buildBatch(b);     // a part that streams in later joins the batches already there
+}
+function buildBatch(b) {
+  let nv = 0, ni = 0, hasUV = false;
+  for (const s of b.src) {
+    const g = s.mesh.geometry;
+    if (!g.attributes.normal) g.computeVertexNormals();
+    s.v0 = nv; s.nv = g.attributes.position.count; s.i0 = ni; s.ni = g.index ? g.index.count : s.nv;
+    nv += s.nv; ni += s.ni; hasUV = hasUV || !!g.attributes.uv;
+  }
+  b.pos = new Float32Array(nv * 3); b.nor = new Float32Array(nv * 3); b.all = new Uint32Array(ni);
+  const uv = hasUV ? new Float32Array(nv * 2) : null;
+  for (const s of b.src) {
+    const o = s.mesh, g = o.geometry, I = g.index, U = g.attributes.uv;
+    o.updateWorldMatrix(true, false);
+    writeSrc(b, s);
+    if (U) for (let i = 0, k = s.v0 * 2; i < s.nv; i++, k += 2) { uv[k] = U.getX(i); uv[k + 1] = U.getY(i); }
+    const flip = o.matrixWorld.determinant() < 0;                 // a mirrored piece: restore the winding
+    for (let k = 0; k < s.ni; k += 3) {
+      const a = I ? I.getX(k) : k, c1 = I ? I.getX(k + 1) : k + 1, c2 = I ? I.getX(k + 2) : k + 2;
+      b.all[s.i0 + k] = s.v0 + a; b.all[s.i0 + k + 1] = s.v0 + (flip ? c2 : c1); b.all[s.i0 + k + 2] = s.v0 + (flip ? c1 : c2);
+    }
+    o.visible = false;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(b.pos, 3));
+  geo.setAttribute('normal', new THREE.BufferAttribute(b.nor, 3));
+  if (uv) geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  geo.setIndex(new THREE.BufferAttribute(new Uint32Array(ni), 1));
+  geo.computeBoundingSphere();
+  if (b.mesh) { b.mesh.geometry.dispose(); b.mesh.geometry = geo; }
+  else {
+    const m = b.mesh = new THREE.Mesh(geo, b.mat);
+    m.name = `batch ${b.mat.name || ''}`.trim(); m.castShadow = b.cast; m.receiveShadow = b.recv;
+    m.matrixAutoUpdate = false; m.raycast = () => {}; m.userData.pass = true;
+    drawRoot.add(m);
+  }
+  b.stale = true;
+}
+// One source's vertices into its batch, in world space, from where its mesh is now.
+function writeSrc(b, s, grow = false) {
+  const o = s.mesh, P = o.geometry.attributes.position, N = o.geometry.attributes.normal, e = o.matrixWorld.elements;
+  const n = _nm.getNormalMatrix(o.matrixWorld).elements, pos = b.pos, nor = b.nor;
+  for (let i = 0, k = s.v0 * 3; i < s.nv; i++, k += 3) {
+    let x = P.getX(i), y = P.getY(i), z = P.getZ(i);
+    pos[k] = e[0] * x + e[4] * y + e[8] * z + e[12]; pos[k + 1] = e[1] * x + e[5] * y + e[9] * z + e[13]; pos[k + 2] = e[2] * x + e[6] * y + e[10] * z + e[14];
+    x = N.getX(i); y = N.getY(i); z = N.getZ(i);
+    const a = n[0] * x + n[3] * y + n[6] * z, c = n[1] * x + n[4] * y + n[7] * z, d = n[2] * x + n[5] * y + n[8] * z, l = Math.hypot(a, c, d) || 1;
+    nor[k] = a / l; nor[k + 1] = c / l; nor[k + 2] = d / l;
+    if (grow) b.mesh.geometry.boundingSphere.expandByPoint(_bp.set(pos[k], pos[k + 1], pos[k + 2]));   // an open door still has to pass the view cull
+  }
+}
+function batchMoved(obj) {
+  for (const [b, s] of movers.get(obj) || []) {
+    if (!b.mesh) continue;
+    writeSrc(b, s, true);
+    for (const at of [b.mesh.geometry.attributes.position, b.mesh.geometry.attributes.normal]) { at.addUpdateRange(s.v0 * 3, s.nv * 3); at.needsUpdate = true; }
+  }
+}
+// After any layer switch: each batch draws the sources that are on layer 0, and takes its draw order from them
+// (duct x-ray moves the ducts to the end of the frame).
+function syncBatches() {
+  for (const b of batches.values()) {
+    if (!b.mesh) continue;
+    let change = b.stale;
+    for (const s of b.src) { const on = (s.mesh.layers.mask & 1) === 1; if (on !== s.on) { s.on = on; change = true; } }
+    b.mesh.renderOrder = b.src[0].mesh.renderOrder;
+    if (!change) continue;
+    b.stale = false;
+    const idx = b.mesh.geometry.index; let n = 0;
+    for (const s of b.src) if (s.on) { idx.array.set(b.all.subarray(s.i0, s.i0 + s.ni), n); n += s.ni; }
+    idx.needsUpdate = true; b.mesh.geometry.setDrawRange(0, n); b.mesh.visible = n > 0;
+  }
+}
+
 // ---------------------------------------------------------------- operable things (E)
 // extras: {"operable": "swing"|"slide"|"drawer"|"rollup"|"bifold", "open_angle": deg, "axis": "z", "slide": [dx,dy,dz] (Blender metres, Z up)}
 function makeOperable(o) {
@@ -748,6 +919,7 @@ function applyOp(op) {
     op.obj.position.copy(op.pos0).addScaledVector(op.slide, e);
   }
   op.obj.updateMatrix(); op.obj.updateMatrixWorld(true);
+  batchMoved(op.obj);
   shadowDirty = true;
 }
 
@@ -913,6 +1085,7 @@ function applyToggles() {
   syncWalls();
   if (xray !== layerOn('Xray')) { xray = layerOn('Xray'); setDuctXray(xray, equip.layers.ducts); }
   $('rowXray').classList.toggle('off', !layerOn('Ducts'));
+  syncBatches();
   shadowDirty = true;
 }
 for (const k of LAYERS) $('l' + k).onchange = applyToggles;
@@ -1025,13 +1198,13 @@ function openModal(kind) {
     const K = (k) => k.split(' ').map((x) => `<kbd>${x}</kbd>`).join(' ');
     const sect = (title, rows) => `<div><h3>${title}</h3><table>${rows.map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('')}</table></div>`;
     const phone = sect('Phone or tablet', [['Drag', 'Turn the view (Orbit), or look around (Walk)'], ['Pinch', 'Zoom (in Orbit)'], ['Two finger drag', 'Slide the view (in Orbit)'], ['Left stick', 'Move (in Walk)'],
-      ['Tap', 'Open or close a door or a drawer, or pick a point when measuring'], ['More, Measure', 'Tape measure: tap two points to read the distance between them'], ['Press and hold', 'Read about what is under your finger. Tap elsewhere to put the card away'], ['Layers', 'Height slice, and show or hide parts of the model'], ['More', 'Find equipment, day and night, no clip']]);
+      ['Tap', 'Open or close a door or a drawer, or pick a point when measuring'], ['More, Measure', 'Tape measure: tap two points to read the distance between them'], ['Press and hold', 'Read about what is under your finger. Tap elsewhere to put the card away'], ['Layers', 'Height slice, and show or hide parts of the model'], ['More', 'Find equipment, day and night, no clip, Photo']]);
     body.innerHTML = `<div class="keys">${touch || compact ? phone : ''}${
       sect('Orbit (the default)', [['Drag', 'Turn around the house'], ['Right drag', 'Slide the view'], ['Scroll', 'Zoom'], [K('W A S D'), 'Slide the point you turn around'], [K('Space') + ' ' + K('Shift'), 'Raise or lower that point'], ['Click', 'Open a door, or read about what you click'], ['Press and hold', 'Read about a door instead of opening it']])
     }${
       sect('Walk', [['Click the view', 'Look with the mouse'], [K('W A S D'), 'Move'], [K('Shift'), 'Walk faster'], [K('C'), 'Crouch. You also duck under low roofs on your own'], [K('E'), 'Open or close, or read about what is under the dot (or pick a point when measuring)'], [K('N'), 'No clip: fly through walls'], [K('Space') + ' ' + K('C'), 'Up and down while flying'], [K('Esc'), 'Free the mouse']])
     }${
-      sect('Anywhere', [[K('H'), 'This page'], [K('M') + ' or Measure', 'Tape measure: click two points, each snaps to the nearest corner, and read the distance in feet and inches. ' + K('Esc') + ' clears, ' + K('M') + ' again turns it off'], ['Go to a room', 'Pick a room on the plan'], ['Find equipment', 'Pick a piece of equipment on the plan'], ['Height slice', 'Cut the house at any height'], ['Layers', 'Show or hide parts of the model']])
+      sect('Anywhere', [[K('H'), 'This page'], [K('M') + ' or Measure', 'Tape measure: click two points, each snaps to the nearest corner, and read the distance in feet and inches. ' + K('Esc') + ' clears, ' + K('M') + ' again turns it off'], [K('P') + ' or Photo', 'A lifelike still of the view you are looking at: light is traced for real, so it takes a little while and gets cleaner as you wait. Save PNG keeps it, ' + K('Esc') + ' closes'], ['Go to a room', 'Pick a room on the plan'], ['Find equipment', 'Pick a piece of equipment on the plan'], ['Height slice', 'Cut the house at any height'], ['Layers', 'Show or hide parts of the model']])
     }${
 touch || compact ? '' : phone}</div><p class="note">Slow? Set Quality to Medium or Low in the menu. It is remembered on this device.</p>`;
   }
@@ -1142,7 +1315,7 @@ function setSlice(ft, snapTo = true) {
   for (const L of levels) { const c = L.cut_ft ?? SLICE_MAX; if (Math.abs(v - c) <= (snapTo ? SNAP : 0.001)) { v = c; hit = L; } }
   const whole = v >= SLICE_MAX - 0.001;
   upperPlane.constant = whole ? 1e6 : v * F;
-  CAP.on.value = whole ? 0 : 1;
+  if (CAP.on.value !== (whole ? 0 : 1)) { CAP.on.value = whole ? 0 : 1; for (const m of cappedMats) m.needsUpdate = true; }
   if (sliced !== !whole) { sliced = !whole; applyToggles(); }
   $('slice').value = v;
   $('slicelbl').textContent = whole ? 'Whole house' : `${ftIn(v)}${hit ? ', ' + hit.name.toLowerCase() : ''}`;
@@ -1170,6 +1343,11 @@ const measure = createMeasure({ scene, camera, renderer, pickables, cutY, F, tou
   if (on) { hideInfo(); if (compact) openSheet(null); }
 } });
 for (const b of document.querySelectorAll('[data-act="measure"]')) b.onclick = () => measure.toggle();
+// ---------------------------------------------------------------- photo (photo.js): P or the Photo button
+// A path-traced still of this exact view. While it is open the frame loop hands every frame to it (see the loop).
+const photo = createPhoto({ renderer, scene, camera, sun, sky: () => daySky, draw, touch, toast, onClose: () => { shadowDirty = true; } });
+window.__photo = photo;
+for (const b of document.querySelectorAll('[data-act="photo"]')) b.onclick = () => { openSheet(null); photo.open(); };
 
 // ---------------------------------------------------------------- equipment, ducts, info card
 function addEquipment() {
@@ -1194,6 +1372,7 @@ function addEquipment() {
     pickables.push(o);
     if (!o.userData.pass) colliders.push(o);
   });
+  batchDraw([equip.root]);
   for (const b of document.querySelectorAll('[data-act="equip"]')) b.hidden = false;
   applyToggles();
   console.log(`equipment: ${Object.keys(equip.byId).length} things with info`);
@@ -1231,12 +1410,11 @@ if (!QUALITY[quality].shadows) renderer.shadowMap.enabled = false;
 function setQuality(q) {
   if (!QUALITY[q] || q === quality) return;
   try { localStorage.setItem('quality', q); } catch (err) { /* private window: this visit only */ }
-  const was = QUALITY[quality], Q = QUALITY[q];
-  if (Q.aa !== was.aa || /[?&]lite\b/.test(location.search)) {        // antialiasing is fixed when the page starts
-    const u = new URL(shareURL()); u.searchParams.delete('lite');
-    location.replace(u.toString().replace(/=(?=&|$)/g, '') + location.hash); return;
+  const Q = QUALITY[q];
+  if (/[?&]lite\b/.test(location.search)) {   // a picked level outlasts ?lite: drop it so a reload or a shared link keeps the pick
+    try { const u = new URL(location.href); u.searchParams.delete('lite'); history.replaceState(null, '', u.toString().replace(/=(?=&|$)/g, '')); } catch (err) { /* sandboxed frame */ }
   }
-  quality = q;
+  quality = q;                                 // the composer picks up MSAA, AO and SMAA on the next frame
   for (const b of document.querySelectorAll('[data-quality]')) b.setAttribute('aria-pressed', b.dataset.quality === q);
   if (!PIN_DPR) { MAX_DPR = Math.min(window.devicePixelRatio, Q.maxDpr); MIN_DPR = Math.min(MAX_DPR, 0.75); setDpr(MAX_DPR); }
   if (Q.shadowMap !== sun.shadow.mapSize.x) { sun.shadow.mapSize.set(Q.shadowMap, Q.shadowMap); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; } }
@@ -1601,6 +1779,7 @@ function walk(dt) {
 
 // ---------------------------------------------------------------- input
 addEventListener('keydown', (e) => {
+  if (photo.active) { if (e.code === 'Escape') photo.close(); return; }      // a photo is rendering: nothing else listens
   if (e.target.tagName === 'SELECT' || e.target.tagName === 'INPUT') return;
   if (modalKind && e.code !== 'Escape') return;
   keys.add(e.code);
@@ -1611,6 +1790,7 @@ addEventListener('keydown', (e) => {
     else if (measure.on) { if (!measure.clear()) measure.setActive(false); } else hideInfo();
   }
   if (e.code === 'KeyM') measure.toggle();
+  if (e.code === 'KeyP' && !e.ctrlKey && !e.metaKey) photo.open();
   if (e.code === 'KeyN') { if (mode !== 'walk') leaveOrbit(true); else setNoclip(!noclip); }
   if (e.code === 'KeyC' && mode === 'walk' && !noclip) setCrouch(!crouch);
   if (e.code === 'KeyH' || e.key === '?') openModal('controls');
@@ -1709,11 +1889,11 @@ canvas.addEventListener('pointerup', endLook); canvas.addEventListener('pointerc
 
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
+  renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight);
 });
 
 // ---------------------------------------------------------------- loop
-const clock = new THREE.Clock();
+const clock = new THREE.Timer();
 let promptFrame = 0;
 const snap = new THREE.Vector3(), lastSnap = new THREE.Vector3(1e9, 0, 0);
 // Adaptive resolution: drop the render scale when frames run long, raise it back when there's headroom. Fewer pixels
@@ -1721,7 +1901,7 @@ const snap = new THREE.Vector3(), lastSnap = new THREE.Vector3(1e9, 0, 0);
 // 11/21/2026: about 25 ms at every scale) a lower scale just looks blocky. So each drop is a trial: if the next
 // second isn't at least 12% faster, the old scale comes back and no further drops are tried for 30 s.
 let frameAcc = 0, frameN = 0, trial = null, noDropUntil = 0;
-function setDpr(next) { dpr = next; renderer.setPixelRatio(dpr); renderer.setSize(innerWidth, innerHeight); }
+function setDpr(next) { dpr = next; renderer.setPixelRatio(dpr); renderer.setSize(innerWidth, innerHeight); composer.setPixelRatio(dpr); }
 function adaptResolution(raw) {
   frameAcc += raw; frameN++;
   if (frameAcc < 1.0) return;
@@ -1736,7 +1916,8 @@ function adaptResolution(raw) {
   else if (ms < 13 && dpr < MAX_DPR - 0.01) setDpr(Math.min(MAX_DPR, dpr + 0.1));
 }
 renderer.setAnimationLoop(() => {
-  const raw = clock.getDelta(), dt = Math.min(raw, 0.05);
+  if (photo.active) { clock.update(); clock.getDelta(); photo.frame(); return; }      // photo mode: the walkthrough stands still and the path tracer draws
+  clock.update(); const raw = clock.getDelta(), dt = Math.min(raw, 0.05);
   if (!document.hidden) adaptResolution(raw);
   if (mode === 'walk' && colliders.length) walk(dt); else { panOrbit(dt); orbit.update(); }
   for (const op of operables) {
@@ -1766,10 +1947,10 @@ renderer.setAnimationLoop(() => {
     $('prompt').hidden = !shown;
     if (shown) $('promptTxt').textContent = t.op ? (t.op.type === 'spin' ? (t.op.target ? 'Turn fan off' : 'Turn fan on') : t.op.target ? 'Close' : 'Open') : `About: ${t.equip.name}`;
   } else if (mode !== 'walk') $('prompt').hidden = true;
-  renderer.render(scene, camera);
+  draw();
   syncAddress(performance.now());
 });
 
 loadAll().catch((e) => { console.error(e); $('loadmsg').textContent = 'The model could not be loaded.'; });
 window.__B = THREE.Box3; window.__T = THREE; window.__walk = { orbit, resetView, setSlice, applyToggles, goRoom, closeModal,
-  simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, openSheet, act, inspectAt, showInfo, goTo, panOrbit, keys, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setQuality, get quality() { return quality; }, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip, measure, leaveOrbit };
+  simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, openSheet, act, inspectAt, showInfo, goTo, panOrbit, keys, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setQuality, render: draw, post, get quality() { return quality; }, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, pickables, batches, toggle, opAt, setNoclip, measure, leaveOrbit };
