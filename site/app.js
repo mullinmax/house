@@ -392,6 +392,7 @@ function prepare(roots, first) {
     if (!pass) colliders.push(o);
   });
   console.log(`${roots.map((r) => r.name).join(', ')}: merged static meshes into ${merged} draw groups`);
+  batchDraw(roots);
   applyToggles();
   shadowDirty = true;
   if (!first) {                       // a part that streamed in after the house: match the current settings
@@ -707,6 +708,113 @@ function bakeMerge(list) {
   return geo;
 }
 
+// ---------------------------------------------------------------- draw batches
+// A frame here is bound by draw calls, not by pixels or triangles: the default view made about 2,000 of them, most for
+// small pieces (805 duct segments, 392 electrical parts, 236 door and drawer faces) that share a few hundred materials.
+// So drawing is split from everything else. Every mesh stays in the scene exactly as built, for clicks, info cards,
+// collisions, the tape measure and the layer switches, but with visible off, which only the renderer looks at (a
+// raycast and show() go by layers). What is drawn instead is one merged mesh per material, in world space.
+// Layers: each source keeps its own run of the batch's index, and after every switch the index is repacked from the
+// sources still on layer 0, so a hidden piece costs nothing and no rule about what hides with what is repeated here.
+// Doors, drawers and lids: when one moves, its vertices in the batch are rewritten from its own mesh (a few hundred
+// numbers per frame for under half a second). Spinning fan blades stay their own meshes, and so does see-through glass,
+// which must sort by distance piece by piece. A material only one mesh uses gains nothing and is left alone.
+// Measured at 960 x 600: overhead view 1,805 calls to 218, kitchen 602 to 153, living room 387 to 115, loft 169 to 94.
+const drawRoot = new THREE.Group(); drawRoot.name = 'draw batches'; scene.add(drawRoot);
+const batches = new Map(), batched = new WeakSet(), movers = new Map();
+const _nm = new THREE.Matrix3(), _bp = new THREE.Vector3();
+function batchDraw(roots) {
+  const touched = new Set();
+  for (const r of roots) r.traverse((o) => {
+    if (!o.isMesh || batched.has(o) || !o.visible || !o.frustumCulled || o.isInstancedMesh || o.isSkinnedMesh || Array.isArray(o.material)) return;
+    const g = o.geometry, m = o.material;
+    if (!g.attributes.position || m.vertexColors || (g.morphAttributes && Object.keys(g.morphAttributes).length)) return;
+    if ((m.transparent && !m.alphaTest && (!m.depthWrite || m.opacity < 1)) || m.transmission > 0) return;
+    let op = null;
+    for (let p = o; p && !op; p = p.parent) if (p.userData && p.userData._op && p.userData._op.obj === p) op = p.userData._op;
+    if (op && op.type === 'spin') return;
+    const key = [m.uuid, o.castShadow ? 1 : 0, o.receiveShadow ? 1 : 0, o.renderOrder].join('|');
+    let b = batches.get(key);
+    if (!b) batches.set(key, b = { mat: m, cast: o.castShadow, recv: o.receiveShadow, src: [], mesh: null });
+    const s = { mesh: o, on: true, v0: 0, nv: 0, i0: 0, ni: 0 };
+    b.src.push(s); batched.add(o); touched.add(b);
+    if (op) { if (!movers.has(op.obj)) movers.set(op.obj, []); movers.get(op.obj).push([b, s]); }
+  });
+  for (const b of touched) if (b.src.length > 1) buildBatch(b);     // a part that streams in later joins the batches already there
+}
+function buildBatch(b) {
+  let nv = 0, ni = 0, hasUV = false;
+  for (const s of b.src) {
+    const g = s.mesh.geometry;
+    if (!g.attributes.normal) g.computeVertexNormals();
+    s.v0 = nv; s.nv = g.attributes.position.count; s.i0 = ni; s.ni = g.index ? g.index.count : s.nv;
+    nv += s.nv; ni += s.ni; hasUV = hasUV || !!g.attributes.uv;
+  }
+  b.pos = new Float32Array(nv * 3); b.nor = new Float32Array(nv * 3); b.all = new Uint32Array(ni);
+  const uv = hasUV ? new Float32Array(nv * 2) : null;
+  for (const s of b.src) {
+    const o = s.mesh, g = o.geometry, I = g.index, U = g.attributes.uv;
+    o.updateWorldMatrix(true, false);
+    writeSrc(b, s);
+    if (U) for (let i = 0, k = s.v0 * 2; i < s.nv; i++, k += 2) { uv[k] = U.getX(i); uv[k + 1] = U.getY(i); }
+    const flip = o.matrixWorld.determinant() < 0;                 // a mirrored piece: restore the winding
+    for (let k = 0; k < s.ni; k += 3) {
+      const a = I ? I.getX(k) : k, c1 = I ? I.getX(k + 1) : k + 1, c2 = I ? I.getX(k + 2) : k + 2;
+      b.all[s.i0 + k] = s.v0 + a; b.all[s.i0 + k + 1] = s.v0 + (flip ? c2 : c1); b.all[s.i0 + k + 2] = s.v0 + (flip ? c1 : c2);
+    }
+    o.visible = false;
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(b.pos, 3));
+  geo.setAttribute('normal', new THREE.BufferAttribute(b.nor, 3));
+  if (uv) geo.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
+  geo.setIndex(new THREE.BufferAttribute(new Uint32Array(ni), 1));
+  geo.computeBoundingSphere();
+  if (b.mesh) { b.mesh.geometry.dispose(); b.mesh.geometry = geo; }
+  else {
+    const m = b.mesh = new THREE.Mesh(geo, b.mat);
+    m.name = `batch ${b.mat.name || ''}`.trim(); m.castShadow = b.cast; m.receiveShadow = b.recv;
+    m.matrixAutoUpdate = false; m.raycast = () => {}; m.userData.pass = true;
+    drawRoot.add(m);
+  }
+  b.stale = true;
+}
+// One source's vertices into its batch, in world space, from where its mesh is now.
+function writeSrc(b, s, grow = false) {
+  const o = s.mesh, P = o.geometry.attributes.position, N = o.geometry.attributes.normal, e = o.matrixWorld.elements;
+  const n = _nm.getNormalMatrix(o.matrixWorld).elements, pos = b.pos, nor = b.nor;
+  for (let i = 0, k = s.v0 * 3; i < s.nv; i++, k += 3) {
+    let x = P.getX(i), y = P.getY(i), z = P.getZ(i);
+    pos[k] = e[0] * x + e[4] * y + e[8] * z + e[12]; pos[k + 1] = e[1] * x + e[5] * y + e[9] * z + e[13]; pos[k + 2] = e[2] * x + e[6] * y + e[10] * z + e[14];
+    x = N.getX(i); y = N.getY(i); z = N.getZ(i);
+    const a = n[0] * x + n[3] * y + n[6] * z, c = n[1] * x + n[4] * y + n[7] * z, d = n[2] * x + n[5] * y + n[8] * z, l = Math.hypot(a, c, d) || 1;
+    nor[k] = a / l; nor[k + 1] = c / l; nor[k + 2] = d / l;
+    if (grow) b.mesh.geometry.boundingSphere.expandByPoint(_bp.set(pos[k], pos[k + 1], pos[k + 2]));   // an open door still has to pass the view cull
+  }
+}
+function batchMoved(obj) {
+  for (const [b, s] of movers.get(obj) || []) {
+    if (!b.mesh) continue;
+    writeSrc(b, s, true);
+    for (const at of [b.mesh.geometry.attributes.position, b.mesh.geometry.attributes.normal]) { at.addUpdateRange(s.v0 * 3, s.nv * 3); at.needsUpdate = true; }
+  }
+}
+// After any layer switch: each batch draws the sources that are on layer 0, and takes its draw order from them
+// (duct x-ray moves the ducts to the end of the frame).
+function syncBatches() {
+  for (const b of batches.values()) {
+    if (!b.mesh) continue;
+    let change = b.stale;
+    for (const s of b.src) { const on = (s.mesh.layers.mask & 1) === 1; if (on !== s.on) { s.on = on; change = true; } }
+    b.mesh.renderOrder = b.src[0].mesh.renderOrder;
+    if (!change) continue;
+    b.stale = false;
+    const idx = b.mesh.geometry.index; let n = 0;
+    for (const s of b.src) if (s.on) { idx.array.set(b.all.subarray(s.i0, s.i0 + s.ni), n); n += s.ni; }
+    idx.needsUpdate = true; b.mesh.geometry.setDrawRange(0, n); b.mesh.visible = n > 0;
+  }
+}
+
 // ---------------------------------------------------------------- operable things (E)
 // extras: {"operable": "swing"|"slide"|"drawer"|"rollup"|"bifold", "open_angle": deg, "axis": "z", "slide": [dx,dy,dz] (Blender metres, Z up)}
 function makeOperable(o) {
@@ -752,6 +860,7 @@ function applyOp(op) {
     op.obj.position.copy(op.pos0).addScaledVector(op.slide, e);
   }
   op.obj.updateMatrix(); op.obj.updateMatrixWorld(true);
+  batchMoved(op.obj);
   shadowDirty = true;
 }
 
@@ -917,6 +1026,7 @@ function applyToggles() {
   syncWalls();
   if (xray !== layerOn('Xray')) { xray = layerOn('Xray'); setDuctXray(xray, equip.layers.ducts); }
   $('rowXray').classList.toggle('off', !layerOn('Ducts'));
+  syncBatches();
   shadowDirty = true;
 }
 for (const k of LAYERS) $('l' + k).onchange = applyToggles;
@@ -1198,6 +1308,7 @@ function addEquipment() {
     pickables.push(o);
     if (!o.userData.pass) colliders.push(o);
   });
+  batchDraw([equip.root]);
   for (const b of document.querySelectorAll('[data-act="equip"]')) b.hidden = false;
   applyToggles();
   console.log(`equipment: ${Object.keys(equip.byId).length} things with info`);
@@ -1776,4 +1887,4 @@ renderer.setAnimationLoop(() => {
 
 loadAll().catch((e) => { console.error(e); $('loadmsg').textContent = 'The model could not be loaded.'; });
 window.__B = THREE.Box3; window.__T = THREE; window.__walk = { orbit, resetView, setSlice, applyToggles, goRoom, closeModal,
-  simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, openSheet, act, inspectAt, showInfo, goTo, panOrbit, keys, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setQuality, get quality() { return quality; }, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, toggle, opAt, setNoclip, measure, leaveOrbit };
+  simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, openSheet, act, inspectAt, showInfo, goTo, panOrbit, keys, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setQuality, get quality() { return quality; }, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, pickables, batches, toggle, opAt, setNoclip, measure, leaveOrbit };

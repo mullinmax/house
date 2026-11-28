@@ -34,6 +34,7 @@ Open the site, then:
 ## Performance notes
 
 - On load the viewer bakes static meshes that share a material into one mesh per part, toggle group and 20 m grid cell, cutting about 2000 draw calls to about 550. Operable parts and light fixtures stay separate.
+- After that, drawing is split from picking: every mesh (house, equipment, ducts, doors and drawers) stays in the scene for clicks, collisions, measuring and the layer switches but is not drawn itself. One merged mesh per material is drawn instead, its index repacked from the pieces whose layer is on, and a moving door or drawer rewrites its own vertices in it. Spinning fan blades and see-through glass stay separate. Overhead view: about 1,800 draw calls down to about 220; kitchen 600 to 150.
 - Shadows are redrawn only when the viewer moves 4 m, a door moves, or a toggle changes.
 - The render scale adapts to the frame rate: it starts at the screen's pixel ratio (capped at 1.5), drops in steps to 0.6 when frames take longer than 24 ms, and climbs back when there is headroom. Antialiasing is off on high-DPI screens.
 - No logarithmic depth buffer: it disables the GPU's early depth test, which made every hidden pixel cost a full shade.
