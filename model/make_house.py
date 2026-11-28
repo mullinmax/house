@@ -16,6 +16,8 @@ plan feet (x east, y south from the outside NW slab corner, z up from the slab t
                                                          is the top edge, holes = [[u0, u1, z0, z1], ...]
   ["q", mat, [[x, y, z], ...]]                           flat polygon, seen from both sides
   ["c", mat, cx, cy, z0, z1, r0, r1]                     vertical cylinder (r0 at the bottom, r1 at the top)
+  ["p", mat, [x, y, z, ...], [dx, dy, dz], smooth]       flat polygon (any order, may be concave) pushed along d: one closed
+                                                         solid; smooth 1 shades the sides round (pipes, bolt heads)
 Moving parts sit in a record's "ops": {id, name, type: swing|slide|drawer|rollup, pivot [x, y, z], angle (deg, + turns
 counterclockwise seen from above), slide [dx, dy, dz] plan ft, parts}.
 
@@ -161,6 +163,11 @@ def prism_x(mat, x0, x1, prof):
 
 def quad(mat, pts):
     CUR[0].append(["q", mat, [[rnd(c) for c in p] for p in pts]])
+
+
+def prism(mat, pts, d, smooth=False):
+    """a flat polygon (plan ft) pushed along d: one solid, so a plate or a pipe has no inner faces or seams to draw lines"""
+    CUR[0].append(["p", mat, [rnd(c) for p in pts for c in p], [rnd(c) for c in d], 1 if smooth else 0])
 
 
 def cyl(mat, cx, cy, z0, z1, r0, r1=None):

@@ -8880,34 +8880,41 @@
    "src": "U-12 #2"
   },
   {
-   "id": "elec_floor_01",
-   "name": "Floor outlet",
+   "id": "elec_outlet_65",
+   "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
    "room": "Loft",
    "layer": "electrical",
-   "builder": "floor_box",
+   "builder": "outlet",
    "size": [
-    4.6,
-    0.15,
-    4.6
+    2.75,
+    4.5,
+    0.3
    ],
    "at": [
-    31.85,
-    27.4,
-    10.052
+    32.3,
+    22.832,
+    11.198
    ],
-   "facing": 0,
+   "facing": 180,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
    "info": {
-    "model": "Flush floor box with a brass cover, 120 V duplex",
+    "model": "Duplex receptacle, 120 V, tamper resistant",
     "specs": [
      [
-      "Where",
-      "In the loft floor"
+      "Height",
+      "16 in to the centre (U-11 legend)"
+     ],
+     [
+      "On",
+      "The south facing wall"
      ]
     ],
     "notes": [
-     "U-12 draws this on a 36 in pony wall along the loft's west edge; the model has an open railing there. NEC 210.52(A) counts a railing as wall space, so its 9 ft run needs an outlet within 6 ft of every point. A flush floor box within 18 in of the railing counts (210.52(A)(3)), at the railing's midpoint it covers it end to end. Maxwell 11/21/2026: keep only what code needs. The loft floor is framed, so this is not a slab outlet.",
+     "U-12 draws this on a 36 in pony wall along the loft's west edge; the model has an open railing there, and NEC 210.52(A) counts a railing as wall space. It was a flush loft floor box at (31.85, 27.4) (11/21/2026); Maxwell 11/27/2026 moved it to the loft north wall, at its west end just past the railing, where it covers the railing's north run (about 4.3 ft) end to end. It sits behind the loveseat's west arm.",
      "Andy Roehl's sealed utility plans, 06/14/2026: U-12 upper level utility plan (symbol 4).",
      "The sheet says outlet locations get confirmed with the owner in the field, so the electrician's rough in wins over this."
     ]
@@ -8915,7 +8922,7 @@
    "src": "U-12 #4"
   },
   {
-   "id": "elec_outlet_65",
+   "id": "elec_outlet_66",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -8957,7 +8964,7 @@
    "src": "U-12 #5"
   },
   {
-   "id": "elec_outlet_66",
+   "id": "elec_outlet_67",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -8998,7 +9005,7 @@
    "src": "U-12 #6"
   },
   {
-   "id": "elec_outlet_67",
+   "id": "elec_outlet_68",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9039,7 +9046,7 @@
    "src": "U-12 #7"
   },
   {
-   "id": "elec_outlet_68",
+   "id": "elec_outlet_69",
    "name": "Outlet, 30 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9081,7 +9088,7 @@
    "src": "U-12 #8"
   },
   {
-   "id": "elec_outlet_69",
+   "id": "elec_outlet_70",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9122,7 +9129,7 @@
    "src": "U-12 #9"
   },
   {
-   "id": "elec_outlet_70",
+   "id": "elec_outlet_71",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9163,7 +9170,7 @@
    "src": "U-12 #10"
   },
   {
-   "id": "elec_outlet_71",
+   "id": "elec_outlet_72",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9362,7 +9369,7 @@
    "src": "U-12 #15"
   },
   {
-   "id": "elec_outlet_72",
+   "id": "elec_outlet_73",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9403,7 +9410,7 @@
    "src": "U-12 #16"
   },
   {
-   "id": "elec_outlet_73",
+   "id": "elec_outlet_74",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9444,7 +9451,7 @@
    "src": "U-12 #17"
   },
   {
-   "id": "elec_outlet_74",
+   "id": "elec_outlet_75",
    "name": "Outlet, 18 in",
    "category": "Electrical",
    "system": "electrical.power",
