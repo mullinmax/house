@@ -73,7 +73,10 @@ export function createPhoto({ renderer, scene, camera, sun, sky = () => null, dr
   let PT = null, pt = null, pscene = null, psun = null, plights = [], sunDir = new THREE.Vector3();
   let active = false, ready = false, go = false, picking = false, sig = 0, builds = 0, saved = null, skipped = 0, tris = 0;
   let autoExp = 1, stops = 0, expAt = 0, lastShown = -1, lastW = 0, lastH = 0, frameMs = 0, lastT = 0, done = false, token = 0;
-  let texInfo = { layers: 0, empty: 0, cpu: false }, forceCpuTex = false;
+  let texInfo = { layers: 0, empty: 0, cpu: false }, forceCpuTex = false, lost = false;
+  // Gentle: this browser has lost the GPU during a photo before (remembered). Smaller pieces of work per draw, fewer
+  // bounces and no compiling in the background.
+  let gentle = false; try { gentle = localStorage.getItem('photoGentle') === '1'; } catch (err) { /* private window */ }
   let redos = 0, dirty = false, snap = null, shown = false, W = 0, H = 0, warming = null, bvhWorker = null, size = 'screen', envTex = null, envFrom = null, aim = 0, clampU = { value: 1e9 }, clamped = false, panes = [], skyMean = new THREE.Color(0.5, 0.6, 0.75), portals = 0, inside = false;
 
   // ---- the small panel, and a sheet over the page that swallows clicks and touches while the photo runs
@@ -477,7 +480,7 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
     try { pt = new PT.WebGLPathTracer(renderer); } finally { console.warn = warn; }
     // Enough for window light to reach a ceiling by way of the floor. A phone stops two bounces sooner: each bounce
     // costs about as much as the first hit, and the light left after four is a few percent of the picture.
-    pt.bounces = touch ? 4 : 6; pt.transmissiveBounces = touch ? 5 : 8;
+    pt.bounces = touch || gentle ? 4 : 6; pt.transmissiveBounces = touch ? 5 : 8;
     pt.filterGlossyFactor = 0.5;                      // tames the bright specks shiny things throw onto matte ones
     pt.renderDelay = 0; pt.minSamples = 1; pt.fadeDuration = 0; pt.rasterizeScene = false; pt.dynamicLowRes = false;
     pt.textureSize.set(touch ? 512 : 1024, touch ? 512 : 1024);
@@ -577,7 +580,8 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
   // Compile ahead: once the walkthrough has loaded and gone quiet, the path tracer is made and its program compiled in
   // the background (the browser compiles on its own thread where it can), so pressing Photo skips that wait.
   function warm(force = false) {
-    if (warming || pt || active) return warming;
+    if (warming || pt || active || lost) return warming;
+    if (gentle && !force) return null;
     if (!force && !renderer.extensions.has('KHR_parallel_shader_compile') || !renderer.extensions.get('EXT_color_buffer_float')) return null;     // without it the compile would freeze the walkthrough instead (force: tests)
     warming = (async () => {
       try {
@@ -600,6 +604,7 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
   // ---- open, frame by frame, save, close
   async function open() {
     if (active) return;
+    if (lost) { toast('The graphics chip is restarting. Try Photo again in a moment'); return; }
     const gl = renderer.getContext();
     if (!renderer.capabilities.isWebGL2 && !(gl instanceof WebGL2RenderingContext) || !renderer.extensions.get('EXT_color_buffer_float')) { toast('Photo needs a graphics feature this device does not have'); return; }
     try { aim = draw ? meterNormal() : 0; } catch (err) { aim = 0; }
@@ -654,6 +659,18 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
     sizeUp(true); done = false; lastShown = -1; expAt = 0; clampU.value = 1e9; clamped = false; frameMs = 0; lastT = 0;
     pt.reset(); say('Starting');
   }
+  // The GPU was reset (a draw ran too long, or the driver gave up). Everything the path tracer drew into its own
+  // targets is gone, the material textures included: carrying on would render textured surfaces black. So the photo
+  // closes, the tracer is dropped to be made again from scratch, and this browser is remembered as needing a gentler
+  // photo. three.js restores the walkthrough itself.
+  renderer.domElement.addEventListener('webglcontextlost', () => {
+    lost = true; gentle = true; try { localStorage.setItem('photoGentle', '1'); } catch (err) { /* private window */ }
+    const was = active;
+    pt = null; pscene = null; sig = 0; snap = null; envTex = null; envFrom = null; warming = null; glassOf.clear();
+    if (was) { close(); toast('The graphics chip stopped responding, so the photo was closed. It will go easier on it next time'); }
+    console.warn('photo: WebGL context lost', was ? 'during a photo' : '');
+  });
+  renderer.domElement.addEventListener('webglcontextrestored', () => { lost = false; });
   // Picture size: a fixed size from the menu, or the canvas as it is when the photo starts, scaled down if it is more
   // pixels than the cap. Either way it is set here and nowhere else: resizing the window only changes how the picture
   // sits on the canvas (letterboxed), never the picture. Tiles split each sample over several frames so the page stays
@@ -665,7 +682,10 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
     pcam.copy(camera); pcam.aspect = W / H; pcam.updateProjectionMatrix(); pcam.updateMatrixWorld();
     if (!restart) return;
     pt._pathTracer.setSize(W, H); pt._lowResPathTracer.setSize(Math.max(1, Math.floor(W * 0.25)), Math.max(1, Math.floor(H * 0.25)));
-    const n = touch ? 3 : W * H > 4.5e6 ? 4 : W * H > 1.2e6 ? 3 : 2; pt.tiles.set(n, n);
+    // Windows resets a GPU that spends about 2 s on one draw, and Chrome blocks WebGL for a page that causes that
+    // twice (Erin's laptop, 11/28/2026: textures came back black after the first reset, then the site would not load).
+    // So the first pass starts in small pieces, and frame() joins them while frames come back quickly.
+    const per = touch ? 70e3 : gentle ? 30e3 : 60e3, n = Math.min(8, Math.max(2, Math.ceil(Math.sqrt(W * H / per)))); pt.tiles.set(n, n);
     redos = 0; shown = false;
     pt.setCamera(pcam);
   }
@@ -788,6 +808,6 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
   }
 
   return { open, close, frame, save, warm, start, get size() { return [W, H]; }, redraw() { dirty = true; showPass(); }, get active() { return active; }, get ready() { return ready; }, get started() { return go; },
-    get samples() { return pt && ready ? pt.samples : 0; }, get info() { return { builds, tris, skipped, meshes: pscene ? pscene.children.length : 0, panes: panes.length, portals, inside, exposure: renderer.toneMappingExposure, tiles: pt ? pt.tiles.x : 0, size: [W, H], textures: texInfo }; }, set cpuTextures(v) { forceCpuTex = !!v; },
+    get samples() { return pt && ready ? pt.samples : 0; }, get info() { return { builds, tris, skipped, meshes: pscene ? pscene.children.length : 0, panes: panes.length, portals, inside, exposure: renderer.toneMappingExposure, tiles: pt ? pt.tiles.x : 0, size: [W, H], textures: texInfo, gentle }; }, set cpuTextures(v) { forceCpuTex = !!v; },
     get tracer() { return pt; } };
 }
