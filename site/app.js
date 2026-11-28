@@ -8,6 +8,11 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { PointerLockControls } from 'three/addons/controls/PointerLockControls.js';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
+import { N8AOPass } from 'n8ao';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { buildEquipment, cullBaked, setDuctXray, infoHTML, equipMaterials } from './equipment.js';
 import { buildHouse, houseRecordAt } from './house.js';
@@ -38,18 +43,23 @@ const ROOMS = {
 // ---------------------------------------------------------------- renderer, scene
 // No logarithmic depth: it writes depth per pixel, which turns off the GPU's early depth test and made every
 // hidden surface cost full shading. The model's coplanar faces are nudged apart instead, and a 0.15 m near
-// plane keeps enough depth precision. 4x MSAA everywhere: it softens jaggies and turns one pixel cracks
-// between pieces into faint lines instead of bright specks, and on phone GPUs it is resolved on chip for little cost.
+// plane keeps enough depth precision. 4x MSAA on High and Medium: it softens jaggies and turns one pixel cracks
+// between pieces into faint lines instead of bright specks.
 // ?dpr=1.5 pins the render scale (no adaptive drops), handy for screenshots or a fast machine.
-// Quality (menu, remembered on this device; Maxwell 11/22/2026). High: full screen resolution up to 1.5x, sharp shadows.
-// Medium: at most 1x resolution, softer shadow map. Low: 0.75x, no antialiasing, no shadows, no far woods (what ?lite was).
-// Antialiasing can only be set when the page starts, so going to or from Low reloads the page (the address keeps the view).
-const QUALITY = { high: { maxDpr: 1.5, aa: true, shadows: true, shadowMap: 2048 },
-  medium: { maxDpr: 1.0, aa: true, shadows: true, shadowMap: 1024 },
-  low: { maxDpr: 0.75, aa: false, shadows: false, shadowMap: 1024 } };
+// Quality (menu, remembered on this device; Maxwell 11/22/2026). Every level draws the scene once; they differ in
+// what is done with that one image (see post processing below), so the ~2,000 draw calls never double.
+// High: full screen resolution up to 1.5x, 4x MSAA, sharp shadows, ambient occlusion (soft darkening in corners,
+// under cabinets and along trim; costs a few full screen passes at half resolution, no extra draw calls).
+// Medium: at most 1x resolution, 4x MSAA, softer shadow map, no AO.
+// Low: 0.75x, SMAA (three cheap full screen passes that find and blend edges, instead of MSAA's extra samples),
+// no shadows, no far woods (what ?lite was).
+// Antialiasing lives in the composer's render targets, not in the canvas, so changing Quality no longer reloads the page.
+const QUALITY = { high: { maxDpr: 1.5, msaa: 4, ao: true, smaa: false, shadows: true, shadowMap: 2048 },
+  medium: { maxDpr: 1.0, msaa: 4, ao: false, smaa: false, shadows: true, shadowMap: 1024 },
+  low: { maxDpr: 0.75, msaa: 0, ao: false, smaa: true, shadows: false, shadowMap: 1024 } };
 let quality = /[?&]lite\b/.test(location.search) ? 'low' : 'high';
 try { const q = localStorage.getItem('quality'); if (QUALITY[q] && !/[?&]lite\b/.test(location.search)) quality = q; } catch (err) { /* private window: default */ }
-const renderer = new THREE.WebGLRenderer({ antialias: QUALITY[quality].aa, powerPreference: 'high-performance' });
+const renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'high-performance' });   // MSAA is in the composer
 const PIN_DPR = parseFloat((/[?&]dpr=([\d.]+)/.exec(location.search) || [])[1]) || 0;
 let MAX_DPR = PIN_DPR || Math.min(window.devicePixelRatio, QUALITY[quality].maxDpr);
 let MIN_DPR = Math.min(MAX_DPR, 0.75);       // was 0.6, which looked blocky; trials below decide whether dropping helps at all
@@ -80,6 +90,51 @@ sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.02;
 scene.add(sun, sun.target);
 const fill = new THREE.AmbientLight(0xffffff, 0.25);
 scene.add(fill);
+
+// ---------------------------------------------------------------- post processing
+// Every frame goes through one EffectComposer. The scene is drawn into a half float target in linear light and
+// OutputPass applies the renderer's ACES tone mapping, exposure and sRGB once, at the end, the same as drawing straight
+// to the canvas did (N8AO's own gamma step is off so nothing is corrected twice).
+// High: N8AOPass draws the scene itself, into its own 4x MSAA target, and darkens it by AO worked out from that depth
+// buffer. Picked over three's GTAOPass and SSAOPass, which draw the whole scene a second time for normals (twice the
+// draw calls, through an override material that knows nothing of the slice cap); N8AO rebuilds normals from depth,
+// so clipping, the slice and its cut faces come out right with no extra work. It is also the cleanest of the three
+// at a low sample count. Medium: RenderPass into a 4x MSAA target, then OutputPass. Low: no MSAA, OutputPass, then
+// SMAA on the finished sRGB image (its edge thresholds are meant for display values, not linear light).
+// Duct x-ray clears depth before the ducts draw, which leaves nothing for AO to read, so x-ray drops to Medium's path.
+const AO = { radius: 0.8, falloff: 1.0, day: 3, night: 2 };      // metres. 1 m shaded the whole wall between two shelves; night is lamp lit, so lighter
+const composer = new EffectComposer(renderer);
+const scenePass = new RenderPass(scene, camera), outputPass = new OutputPass();
+const post = { composer, ao: null, smaa: null, key: '', AO };      // exposed on __walk for tuning
+function makeAO() {
+  const ao = new N8AOPass(scene, camera, 1, 1), c = ao.configuration;
+  ao.beautyRenderTarget.samples = 4;           // MSAA stays on High: three resolves its colour and depth before AO reads them
+  // Glass has depthWrite off, so the AO of what is behind it shows through, which reads right. Tracking transparency
+  // would draw every transparent mesh twice more and walk the whole scene each frame, so it is off.
+  ao.autoDetectTransparency = false; c.transparencyAware = false;
+  c.gammaCorrection = false;                   // OutputPass does tone mapping and sRGB
+  ao.setQualityMode('Medium');                 // 16 samples, 8 denoise taps: soft and stable at half resolution
+  c.halfRes = true;                            // AO is low frequency; depth aware upsampling keeps it off object edges
+  Object.assign(c, { aoRadius: AO.radius, distanceFalloff: AO.falloff, intensity: AO.day });
+  return ao;
+}
+function configurePost() {
+  const Q = QUALITY[quality], ao = Q.ao && !xray, key = `${quality} ${ao}`;
+  if (key === post.key) return;
+  post.key = key;
+  const samples = ao ? 0 : Q.msaa;             // with AO the scene goes into N8AO's own MSAA target; these only take flat passes
+  for (const rt of [composer.renderTarget1, composer.renderTarget2]) if (rt.samples !== samples) { rt.samples = samples; rt.dispose(); }
+  if (ao && !post.ao) post.ao = makeAO();
+  if (Q.smaa && !post.smaa) post.smaa = new SMAAPass();
+  composer.passes.length = 0;
+  for (const p of [ao ? post.ao : scenePass, outputPass, Q.smaa && post.smaa]) if (p) composer.addPass(p);
+}
+// One frame, exactly as the loop draws it (also window.__walk.render, for the screenshot tool).
+function draw() {
+  configurePost();
+  if (post.ao) post.ao.configuration.intensity = night ? AO.night : AO.day;
+  composer.render();
+}
 
 // ---------------------------------------------------------------- loading
 const $ = (id) => document.getElementById(id);
@@ -250,7 +305,7 @@ function capSection(m) {
         p -= normalize(p) * 0.002;                   // 2 mm toward the eye: wins over a flush face, never over a real one
         vec4 c = uCapProj * vec4(p, 1.0);
         gl_FragDepth = clamp(c.z / c.w * 0.5 + 0.5, 0.0, 1.0);
-        gl_FragColor.rgb *= 0.82;
+        gl_FragColor.rgb *= 0.55;                    // in linear light (tone mapping comes after, in OutputPass): about 0.82 on screen
       }
       #endif`);
   };
@@ -1349,12 +1404,11 @@ if (!QUALITY[quality].shadows) renderer.shadowMap.enabled = false;
 function setQuality(q) {
   if (!QUALITY[q] || q === quality) return;
   try { localStorage.setItem('quality', q); } catch (err) { /* private window: this visit only */ }
-  const was = QUALITY[quality], Q = QUALITY[q];
-  if (Q.aa !== was.aa || /[?&]lite\b/.test(location.search)) {        // antialiasing is fixed when the page starts
-    const u = new URL(shareURL()); u.searchParams.delete('lite');
-    location.replace(u.toString().replace(/=(?=&|$)/g, '') + location.hash); return;
+  const Q = QUALITY[q];
+  if (/[?&]lite\b/.test(location.search)) {   // a picked level outlasts ?lite: drop it so a reload or a shared link keeps the pick
+    try { const u = new URL(location.href); u.searchParams.delete('lite'); history.replaceState(null, '', u.toString().replace(/=(?=&|$)/g, '')); } catch (err) { /* sandboxed frame */ }
   }
-  quality = q;
+  quality = q;                                 // the composer picks up MSAA, AO and SMAA on the next frame
   for (const b of document.querySelectorAll('[data-quality]')) b.setAttribute('aria-pressed', b.dataset.quality === q);
   if (!PIN_DPR) { MAX_DPR = Math.min(window.devicePixelRatio, Q.maxDpr); MIN_DPR = Math.min(MAX_DPR, 0.75); setDpr(MAX_DPR); }
   if (Q.shadowMap !== sun.shadow.mapSize.x) { sun.shadow.mapSize.set(Q.shadowMap, Q.shadowMap); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; } }
@@ -1827,7 +1881,7 @@ canvas.addEventListener('pointerup', endLook); canvas.addEventListener('pointerc
 
 addEventListener('resize', () => {
   camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix();
-  renderer.setSize(innerWidth, innerHeight);
+  renderer.setSize(innerWidth, innerHeight); composer.setSize(innerWidth, innerHeight);
 });
 
 // ---------------------------------------------------------------- loop
@@ -1839,7 +1893,7 @@ const snap = new THREE.Vector3(), lastSnap = new THREE.Vector3(1e9, 0, 0);
 // 11/21/2026: about 25 ms at every scale) a lower scale just looks blocky. So each drop is a trial: if the next
 // second isn't at least 12% faster, the old scale comes back and no further drops are tried for 30 s.
 let frameAcc = 0, frameN = 0, trial = null, noDropUntil = 0;
-function setDpr(next) { dpr = next; renderer.setPixelRatio(dpr); renderer.setSize(innerWidth, innerHeight); }
+function setDpr(next) { dpr = next; renderer.setPixelRatio(dpr); renderer.setSize(innerWidth, innerHeight); composer.setPixelRatio(dpr); }
 function adaptResolution(raw) {
   frameAcc += raw; frameN++;
   if (frameAcc < 1.0) return;
@@ -1884,10 +1938,10 @@ renderer.setAnimationLoop(() => {
     $('prompt').hidden = !shown;
     if (shown) $('promptTxt').textContent = t.op ? (t.op.type === 'spin' ? (t.op.target ? 'Turn fan off' : 'Turn fan on') : t.op.target ? 'Close' : 'Open') : `About: ${t.equip.name}`;
   } else if (mode !== 'walk') $('prompt').hidden = true;
-  renderer.render(scene, camera);
+  draw();
   syncAddress(performance.now());
 });
 
 loadAll().catch((e) => { console.error(e); $('loadmsg').textContent = 'The model could not be loaded.'; });
 window.__B = THREE.Box3; window.__T = THREE; window.__walk = { orbit, resetView, setSlice, applyToggles, goRoom, closeModal,
-  simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, openSheet, act, inspectAt, showInfo, goTo, panOrbit, keys, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setQuality, get quality() { return quality; }, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, pickables, batches, toggle, opAt, setNoclip, measure, leaveOrbit };
+  simWalk(codes, n, dt = 0.05) { keys.clear(); for (const c of codes) keys.add(c); for (let i = 0; i < n; i++) walk(dt); keys.clear(); const p = camera.position; return [p.x / F, p.z / F, (p.y - eyeH) / F, eyeH / F]; }, get eyeH() { return eyeH; }, setCrouch, openModal, targetAt, openSheet, act, inspectAt, showInfo, goTo, panOrbit, keys, get equip() { return equip; }, get house() { return house; }, getDpr: () => dpr, setQuality, render: draw, post, get quality() { return quality; }, setNight, upperPlane, renderer, scene, camera, jump, setMode, operables, colliders, pickables, batches, toggle, opAt, setNoclip, measure, leaveOrbit };
