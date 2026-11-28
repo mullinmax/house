@@ -2779,6 +2779,53 @@ if FU.get("enabled"):
             box("Drywall", da["t0"], da["t1"], da["g0"], da["g1"], da.get("head", 6.67), FH + FLOOR_T - DECK_T)
         else:
             box("Drywall", da["g0"], da["g1"], da["t0"], da["t1"], da.get("head", 6.67), FH + FLOOR_T - DECK_T)
+    # baseboard round the ends of walls (11/28/2026, Maxwell saw gaps): a wall end that stands free, faces a doorless opening,
+    # or carries on the face of a wall it meets in an L got no baseboard, since only the long faces were trimmed and runs
+    # under 3 in were dropped. Ends in a doorway with a door are skipped: the jamb covers them.
+    def _in_rect(x, y, skip):
+        return any(r_ is not skip and r_[0] < x < r_[1] and r_[2] < y < r_[3] for r_ in INT_RECTS)
+    def _door_end(ax_, c, a0, a1):          # ax_ "x": an end face at x = c spanning y a0..a1
+        for (gax, g0, g1, t0, t1, _h) in DOOR_GAPS:
+            if gax == ("x" if ax_ == "x" else "y") and min(abs(c - g0), abs(c - g1)) < 0.02 and t0 < (a0 + a1) / 2 < t1:
+                return True
+        return False
+    n_wrap = 0
+    rec("trim.baseboard.ends", "trim", "Baseboards round wall ends", "interior", info=dict(model=f"{FU.get('baseboard_height_in', 4.5):g}\" white oak baseboard (ASSUMED)", notes=["Wraps the ends of walls that stand free, face an opening without a door, or meet another wall in an L (11/28/2026)."]))
+    for R_ in INT_RECTS:
+        x0, x1, y0, y1 = R_
+        long_x = x1 - x0 >= y1 - y0
+        ends = [("x", x0, -1), ("x", x1, 1)] if long_x else [("y", y0, -1), ("y", y1, 1)]
+        if (x1 - x0 if long_x else y1 - y0) <= 0.35:     # a stub the main pass skipped: trim all four faces
+            ends += [("y", y0, -1), ("y", y1, 1)] if long_x else [("x", x0, -1), ("x", x1, 1)]
+        for (fa, c, sg) in ends:                # fa "x": the face is at x = c, running along y
+            a0, a1 = (y0, y1) if fa == "x" else (x0, x1)
+            if not (0 < c < HW and 0 < a0 < HD) or _door_end(fa, c, a0, a1):
+                continue
+            n_ = max(2, int((a1 - a0) / 0.01))
+            run, runs = [], []
+            for k in range(n_ + 1):
+                a = a0 + (a1 - a0) * k / n_
+                po = (c + sg * 0.02, a) if fa == "x" else (a, c + sg * 0.02)          # just outside the face
+                pi = (c - sg * 0.02, a) if fa == "x" else (a, c - sg * 0.02)          # just inside it
+                wet = any(w[0] - 0.3 < po[0] < w[1] + 0.3 and w[2] - 0.3 < po[1] < w[3] + 0.3 for w in WET_RECTS)
+                ok = (T + 0.06 < po[0] < HW - T - 0.06 and T + 0.06 < po[1] < HD - T - 0.06 and not (YC - 0.01 < po[1] < YC2 + 0.01)
+                      and not _in_rect(*po, R_) and not _in_rect(*pi, R_) and not wet)
+                if ok:
+                    run.append(a)
+                if (not ok or k == n_) and run:
+                    runs.append((run[0], run[-1])); run = []
+            for (r0, r1) in runs:
+                if r1 - r0 < 0.1:
+                    continue                            # slivers by the wet room and in wall junctions
+                r0 -= 0.045 if r0 - a0 < 0.015 else 0      # outside corners: run on over the side baseboards' ends
+                r1 += 0.045 if a1 - r1 < 0.015 else 0
+                d0, d1 = sorted((c + sg * 0.003, c + sg * 0.048))      # 1/32 in off the end: a drywall cap quad sits on some ends
+                if fa == "x":
+                    box("White Oak", d0, d1, r0, r1, 0, BB)
+                else:
+                    box("White Oak", r0, r1, d0, d1, 0, BB)
+                n_wrap += 1
+    print(f"baseboard wrapped round {n_wrap} wall ends")
     nd_ = 0
     for (ax, g0, g1, t0, t1, h) in DOOR_GAPS:
         wdt = g1 - g0
@@ -2863,6 +2910,10 @@ if FU.get("enabled"):
             continue
         if any(k_[:2] == (x0, x1) for k_ in list(DOOR_NAMES) + list(DOOR_NOTES)):
             continue                           # a door was hung in it, and the door brings its own jambs and casing
+        if any(abs(x0 - u_) < 0.01 for u_ in CL.get("untrimmed", [])):
+            for xe, d0, d1 in ((x0, x0, x0 + 0.045), (x1, x1 - 0.045, x1)):     # no casing: the baseboard wraps the wall's ends in the opening
+                box("White Oak", d0, d1, YC - 0.045, YC2 + 0.045, 0, BB)
+            continue
         # an opening whose jambs are partitions running north (the mudroom cubby) has no wall face on its north side to
         # trim: casings there stood in the cubby and poked through its side walls (Maxwell 11/17/2026)
         abut = lambda xj: (EC_MERGE and abs(xj - EC["posts"][0]) < 0.05) or (EC_STYLE == "open" and abs(xj - EC["open_to"]) < 0.05) or any(r_[1] > r_[0] + 0.1 and r_[0] - 0.05 <= xj <= r_[1] + 0.05 and r_[3] >= YC - 0.05 and r_[2] < YC - 0.3 for r_ in INT_RECTS)
