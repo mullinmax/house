@@ -71,7 +71,7 @@ export function createPhoto({ renderer, scene, camera, sun, sky = () => null, dr
   const MAX_PIXELS = touch ? 0.6e6 : 2.1e6, MAX_TRIS = touch ? 1.2e6 : 4e6, MAX_SAMPLES = touch ? 200 : 1000;
   const pcam = new THREE.PerspectiveCamera();      // the photo's own camera: the view's, at the picture's shape
   let PT = null, pt = null, pscene = null, psun = null, plights = [], sunDir = new THREE.Vector3();
-  let active = false, ready = false, sig = 0, builds = 0, saved = null, skipped = 0, tris = 0;
+  let active = false, ready = false, go = false, picking = false, sig = 0, builds = 0, saved = null, skipped = 0, tris = 0;
   let autoExp = 1, stops = 0, expAt = 0, lastShown = -1, lastW = 0, lastH = 0, frameMs = 0, lastT = 0, done = false, token = 0;
   let redos = 0, dirty = false, snap = null, shown = false, W = 0, H = 0, warming = null, bvhWorker = null, size = 'screen', envTex = null, envFrom = null, aim = 0, clampU = { value: 1e9 }, clamped = false, panes = [], skyMean = new THREE.Color(0.5, 0.6, 0.75), portals = 0, inside = false;
 
@@ -87,6 +87,7 @@ export function createPhoto({ renderer, scene, camera, sun, sky = () => null, dr
 #photoPanel label { font-size: .8rem; color: var(--muted); }
 #photoPanel select { margin-left: 6px; }
 #photoPanel .row button { flex: 1; }
+#photoPanel [data-p="go"] { font-weight: 600; }
 body.photo #panel, body.photo #bar, body.photo #info, body.photo #cross, body.photo #prompt, body.photo #stick, body.photo #hint,
 body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold { display: none !important; }`;
   document.head.append(css);
@@ -95,20 +96,30 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
   panel.innerHTML = `<div class="ptop"><b>Photo</b><span class="pstat"></span></div>
 <label>Brightness <input type="range" min="-2" max="2" step="0.1" value="0" aria-label="Brightness"></label>
 <label>Size <select aria-label="Picture size"><option value="screen">Screen</option><option value="1080p">1080p (1920 x 1080)</option><option value="1440p">1440p (2560 x 1440)</option>${touch ? '' : '<option value="4k">4K (3840 x 2160)</option>'}</select></label>
+<div class="row"><button data-p="go" title="Start the picture at the size above">Render</button></div>
 <div class="row"><button data-p="save" title="Save the picture as it is now. More samples make it cleaner">Save PNG</button><button data-p="close" title="Back to the walkthrough (Esc)">Close</button></div>`;
   document.body.append(shield, panel);
   const stat = panel.querySelector('.pstat'), slider = panel.querySelector('input'), sizeSel = panel.querySelector('select');
   try { const v = localStorage.getItem('photoSize'); if (v && v in SIZES && [...sizeSel.options].some((o) => o.value === v)) size = v; } catch (err) { /* private window */ }
   sizeSel.value = size;
+  // Nothing renders until Render is pressed, so the menu is never fighting the path tracer for the page (Maxwell,
+  // 11/28/2026: the open menu lagged while samples came in). A new size picked mid picture stops it and waits for Render
+  // again, and while the menu has focus the tracer stands still, so it opens and scrolls at full speed.
+  const goBtn = panel.querySelector('[data-p="go"]');
+  const waitForGo = () => { go = false; goBtn.hidden = false; goBtn.textContent = shown ? `Render at ${label()}` : 'Render'; if (ready) say('Pick a size, then press Render'); };
+  const label = () => sizeSel.options[sizeSel.selectedIndex].text.replace(/ \(.*/, '');
   sizeSel.onchange = () => {
     size = sizeSel.value; try { localStorage.setItem('photoSize', size); } catch (err) { /* private window */ }
-    if (active && ready) { sizeUp(true); done = false; lastShown = -1; expAt = 0; clampU.value = 1e9; clamped = false; }
+    if (active && go) waitForGo(); else if (active) goBtn.textContent = shown ? `Render at ${label()}` : 'Render';
   };
+  sizeSel.addEventListener('focus', () => { picking = true; });
+  sizeSel.addEventListener('blur', () => { picking = false; lastT = 0; });
+  goBtn.onclick = () => start();
   slider.oninput = () => { stops = parseFloat(slider.value); applyExposure(); };
   panel.querySelector('[data-p="save"]').onclick = () => save();
   panel.querySelector('[data-p="close"]').onclick = () => close();
   for (const ev of ['pointerdown', 'pointermove', 'pointerup', 'wheel', 'contextmenu', 'click']) shield.addEventListener(ev, (e) => { e.stopPropagation(); if (ev !== 'click') e.preventDefault(); }, { passive: false });
-  const say = (t) => { stat.textContent = t; };
+  const say = (t) => { if (stat.textContent !== t) stat.textContent = t; };
   // Tone mapping happens when the float picture is put on the canvas, so brightness changes at once and costs no samples.
   const applyExposure = () => { renderer.toneMappingExposure = autoExp * 2 ** stops; dirty = true; };
 
@@ -527,7 +538,7 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
     const gl = renderer.getContext();
     if (!renderer.capabilities.isWebGL2 && !(gl instanceof WebGL2RenderingContext) || !renderer.extensions.get('EXT_color_buffer_float')) { toast('Photo needs a graphics feature this device does not have'); return; }
     try { aim = draw ? meterNormal() : 0; } catch (err) { aim = 0; }
-    active = true; ready = false; done = false; lastShown = -1; expAt = 0; stops = 0; slider.value = 0; frameMs = 0; lastT = 0;
+    active = true; ready = false; go = false; picking = false; shown = false; goBtn.hidden = false; goBtn.textContent = 'Render'; done = false; lastShown = -1; expAt = 0; stops = 0; slider.value = 0; frameMs = 0; lastT = 0;
     const mine = ++token;
     if (document.pointerLockElement) document.exitPointerLock();
     saved = { tm: renderer.toneMapping, exp: renderer.toneMappingExposure, cs: renderer.outputColorSpace, ac: renderer.autoClear };
@@ -561,11 +572,22 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
       clampU.value = 1e9; clamped = false;
       sizeUp(true);
       if (mine !== token) return;
-      ready = true; say('Starting');
+      ready = true;
+      if (go) begin(); else say('Pick a size, then press Render');
     } catch (err) {
       console.error(err);
       if (mine === token) { close(); toast('The photo could not be made on this device'); }
     }
+  }
+  // Render pressed: before the scene is built it only marks the wish, and open() starts the picture once it is ready.
+  function start() {
+    if (!active) return;
+    go = true; goBtn.hidden = true;
+    if (ready) begin(); else say('Building the scene, then rendering');
+  }
+  function begin() {
+    sizeUp(true); done = false; lastShown = -1; expAt = 0; clampU.value = 1e9; clamped = false; frameMs = 0; lastT = 0;
+    pt.reset(); say('Starting');
   }
   // Picture size: a fixed size from the menu, or the canvas as it is when the photo starts, scaled down if it is more
   // pixels than the cap. Either way it is set here and nowhere else: resizing the window only changes how the picture
@@ -632,6 +654,7 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
     if (!active || !ready) return;
     const gl = renderer.getContext();
     if (gl.drawingBufferWidth !== lastW || gl.drawingBufferHeight !== lastH) { lastW = gl.drawingBufferWidth; lastH = gl.drawingBufferHeight; dirty = true; }      // the window was resized: the same picture, placed again
+    if (!go || picking) { showPass(); return; }      // waiting for Render, or the size menu is open: no samples
     const now = performance.now(); if (lastT) frameMs += ((now - lastT) - frameMs) * 0.2; lastT = now;
     renderer.setRenderTarget(null);
     pt.pausePathTracing = done;
@@ -699,7 +722,7 @@ body.photo #measure, body.photo #mLabel, body.photo #fCrouch, body.photo #hold {
     onClose();
   }
 
-  return { open, close, frame, save, warm, get size() { return [W, H]; }, redraw() { dirty = true; showPass(); }, get active() { return active; }, get ready() { return ready; },
+  return { open, close, frame, save, warm, start, get size() { return [W, H]; }, redraw() { dirty = true; showPass(); }, get active() { return active; }, get ready() { return ready; }, get started() { return go; },
     get samples() { return pt && ready ? pt.samples : 0; }, get info() { return { builds, tris, skipped, meshes: pscene ? pscene.children.length : 0, panes: panes.length, portals, inside, exposure: renderer.toneMappingExposure, tiles: pt ? pt.tiles.x : 0, size: [W, H] }; },
     get tracer() { return pt; } };
 }
