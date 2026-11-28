@@ -690,12 +690,24 @@ def nearest_label(x, y):
     return best if bd < 3.5 else None
 
 
+DOOR_FRAME = FU.get("door_frame", {})
+DF_UNDER, DF_GAP, DF_JAMB = (DOOR_FRAME.get(k, d) / 12 for k, d in (("undercut_in", 0.75), ("top_gap_in", 0.125), ("jamb_in", 0.75)))
+
+
+def door_top(nominal):
+    """a nominal 6'-8" or 8'-0" door (the slab) to the top of its frame: undercut + slab + top gap + head jamb"""
+    for nom, slab_in in ((6.67, 80), (8.0, 96)):
+        if abs(nominal - nom) < 0.01:
+            return slab_in / 12 + DF_UNDER + DF_GAP + DF_JAMB
+    return nominal
+
+
 def door_head_near(x, y):
     for hx, hy, hh in C.get("framing", {}).get("door_heads", []):     # heads set to clear the as-built headers
         if math.hypot(hx - x, hy - y) < 1.5:
-            return hh
+            return door_top(hh)
     lab = nearest_label(x, y)
-    return 8.0 if lab is None else (8.0 if lab.endswith("80") else 6.67)
+    return door_top(8.0 if lab is None else (8.0 if lab.endswith("80") else 6.67))
 
 
 def between(x0, x1, y0, y1):
@@ -2754,11 +2766,12 @@ if FU.get("enabled"):
             if EC_STYLE == "split":
                 DOOR_LEAF_TOP[(da["g0"], da["g1"])] = EC.get("split_at", 6.67)
         t0_, t1_ = (YC, YC2) if da.get("t0") == "clerestory" else (da["t0"], da["t1"])
-        DOOR_GAPS.append((da["axis"], da["g0"], da["g1"], t0_, t1_, da.get("head", 6.67)))
+        da = dict(da, head=door_top(da.get("head", 6.67)))
+        DOOR_GAPS.append((da["axis"], da["g0"], da["g1"], t0_, t1_, da["head"]))
         if da.get("name"):
-            DOOR_NAMES[(da["g0"], da["g1"])] = da["name"]
+            DOOR_NAMES[(da["g0"], da["g1"], t0_)] = da["name"]
         if da.get("note"):
-            DOOR_NOTES[(da["g0"], da["g1"])] = da["note"]
+            DOOR_NOTES[(da["g0"], da["g1"], t0_)] = da["note"]
         if not da.get("header", True):         # a cased opening that already has its wall above: the door only
             continue
         rec(f"wall.header.added.{len(DOOR_GAPS)}", "wall", "Wall over a doorway", "interior", info=dict(model="Drywall over the door head", notes=[da.get("note", "")]))
@@ -2775,18 +2788,18 @@ if FU.get("enabled"):
         a_, b_ = (room_at(gc[0], t0 - 0.8), room_at(gc[0], t1 + 0.8)) if ax == "x" else (room_at(t0 - 0.8, gc[1]), room_at(t1 + 0.8, gc[1]))
         rooms = " and ".join(n_ for n_ in dict.fromkeys([a_, b_]) if n_)
         leaves = [(g0 + 0.07, g1 - 0.07)] if wdt <= 3.3 else [(g0 + 0.07, (g0 + g1) / 2 - 0.01), ((g0 + g1) / 2 + 0.01, g1 - 0.07)]
-        dname = DOOR_NAMES.get((g0, g1)) or f"{'Pocket door' if pocket_dir else 'Door'}{', ' + rooms if rooms else ''}"
+        dname = DOOR_NAMES.get((g0, g1, t0)) or f"{'Pocket door' if pocket_dir else 'Door'}{', ' + rooms if rooms else ''}"
         r = rec(f"door.int.{nd_ + 1}", "door", dname, "interior",
                 info=dict(model=f"{lab + ' ' if lab else ''}white oak {'pocket' if pocket_dir else 'slab'} door{' pair' if len(leaves) > 1 else ''}",
-                          specs=[["Opening", f"{ftin(wdt)} x {ftin(h)}"], ["Hardware", "Flush pulls" if pocket_dir else "Brushed nickel levers"]],
-                          notes=([DOOR_NOTES[(g0, g1)]] if (g0, g1) in DOOR_NOTES else ["Opening found where two traced A-11 wall ends line up."]) + ["Style ASSUMED (slab doors, white oak casing)."] + (["Pocket door, Maxwell 11/13/2026."] if pocket_dir else [])))
+                          specs=[["Opening", f"{ftin(wdt)} x {ftin(h)} to the top of the frame"], ["Leaf height", f"{ftin(h - DF_UNDER - DF_GAP - DF_JAMB)}, {DOOR_FRAME.get('undercut_in', 0.75):g} in off the floor"], ["Hardware", "Flush pulls" if pocket_dir else "Brushed nickel levers"]],
+                          notes=([DOOR_NOTES[(g0, g1, t0)]] if (g0, g1, t0) in DOOR_NOTES else ["Opening found where two traced A-11 wall ends line up."]) + ["Style ASSUMED (slab doors, white oak casing)."] + (["Pocket door, Maxwell 11/13/2026."] if pocket_dir else [])))
 
         def B(mat, a0, a1, b0, b1, z0, z1):
             if ax == "x":
                 box(mat, a0, a1, b0, b1, z0, z1)
             else:
                 box(mat, b0, b1, a0, a1, z0, z1)
-        B("White Oak", g0, g0 + 0.06, t0, t1, 0, h); B("White Oak", g1 - 0.06, g1, t0, t1, 0, h); B("White Oak", g0, g1, t0, t1, h - 0.06, h)
+        B("White Oak", g0, g0 + 0.06, t0, t1, 0, h); B("White Oak", g1 - 0.06, g1, t0, t1, 0, h); B("White Oak", g0, g1, t0, t1, h - DF_JAMB, h)
         for (b0, b1) in ((t0 - 0.06, t0), (t1, t1 + 0.06)):
             B("White Oak", g0 - CW, g0 + 0.02, b0, b1, 0, h); B("White Oak", g1 - 0.02, g1 + CW, b0, b1, 0, h)
             B("White Oak", g0 - CW, g1 + CW, b0, b1, h, h + CW)
@@ -2798,7 +2811,7 @@ if FU.get("enabled"):
                 lf = op(r, f"{r['id']}.leaf{suffix}", r["name"], "slide", ((l0 + l1) / 2, tm, 0) if ax == "x" else (tm, (l0 + l1) / 2, 0),
                         slide=(d_, 0, 0) if ax == "x" else (0, d_, 0))
                 with into(lf["parts"]):
-                    B("White Oak", l0, l1, tm - 0.06, tm + 0.06, 0.04, h - 0.08)
+                    B("White Oak", l0, l1, tm - 0.06, tm + 0.06, DF_UNDER, h - DF_JAMB - DF_GAP)
                     px_ = l0 + 0.2 if pocket_dir > 0 else l1 - 0.2
                     for sgn in (-1, 1):
                         b0 = tm + sgn * 0.06; b1 = b0 + sgn * 0.01
@@ -2818,7 +2831,7 @@ if FU.get("enabled"):
                 hp = (ha, tm) if ax == "x" else (tm, ha)
                 lf = op(r, f"{r['id']}.leaf{suffix}", r["name"], "swing", (hp[0], hp[1], 0), angle=90 * sgn_)
                 with into(lf["parts"]):
-                    B("White Oak", l0, l1, tm - 0.07, tm + 0.07, 0.04, DOOR_LEAF_TOP.get((g0, g1), h) - 0.08)
+                    B("White Oak", l0, l1, tm - 0.07, tm + 0.07, DF_UNDER, DOOR_LEAF_TOP.get((g0, g1), h) - DF_JAMB - DF_GAP)
                     cd_ = FU.get("cat_door")
                     if cd_ and math.hypot(cd_["at"][0] - gc[0], cd_["at"][1] - gc[1]) < 1.5:
                         # flapped cat door through the leaf (Maxwell, 11/20/2026): a frame on each face, a smoked flap inside the
@@ -2848,7 +2861,7 @@ if FU.get("enabled"):
     for (x0, x1, hd) in CL["passages"][1:]:
         if abs((x0 + x1) / 2 - BD.get("center_x", -99)) < 3.5:
             continue
-        if (x0, x1) in DOOR_NAMES or (x0, x1) in DOOR_NOTES:
+        if any(k_[:2] == (x0, x1) for k_ in list(DOOR_NAMES) + list(DOOR_NOTES)):
             continue                           # a door was hung in it, and the door brings its own jambs and casing
         # an opening whose jambs are partitions running north (the mudroom cubby) has no wall face on its north side to
         # trim: casings there stood in the cubby and poked through its side walls (Maxwell 11/17/2026)
