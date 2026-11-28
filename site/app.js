@@ -228,19 +228,22 @@ const upperPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 1e6);   // the s
 // has been cut open, so a back face is drawn as that solid's cut face: its own material, lit as if it faced up like the
 // cut, a little darker so the cut reads, and 2 mm toward the eye so it always beats a flush face of the next layer (a
 // ray inside the OSB shows OSB). Off when the slice is off.
-const CAP = { on: { value: 0 }, proj: { value: camera.projectionMatrix } };
+// Writing gl_FragDepth turns off the GPU's early depth test for the whole material, so the depth nudge is only compiled
+// in while the slice is on (two shader variants, swapped when the slice turns on or off).
+const CAP = { on: { value: 0 }, proj: { value: camera.projectionMatrix } }, cappedMats = new Set();
 function capSection(m) {
   if (m.userData.capped || m.transparent || !m.isMeshStandardMaterial) return;
-  m.userData.capped = true;
+  m.userData.capped = true; cappedMats.add(m);
   m.side = THREE.DoubleSide;
   m.onBeforeCompile = (sh) => {
     sh.uniforms.uCapOn = CAP.on; sh.uniforms.uCapProj = CAP.proj;
-    sh.fragmentShader = 'uniform float uCapOn;\nuniform mat4 uCapProj;\n' + sh.fragmentShader
+    sh.fragmentShader = (CAP.on.value > 0.5 ? '#define CAP_ON\n' : '') + 'uniform float uCapOn;\nuniform mat4 uCapProj;\n' + sh.fragmentShader
       .replace('#include <normal_fragment_maps>', `#include <normal_fragment_maps>
       #if NUM_CLIPPING_PLANES > 0
       if (uCapOn > 0.5 && !gl_FrontFacing) normal = normalize(-clippingPlanes[0].xyz);   // the cut faces up
       #endif`)
       .replace('#include <dithering_fragment>', `#include <dithering_fragment>
+      #ifdef CAP_ON
       gl_FragDepth = gl_FragCoord.z;
       if (uCapOn > 0.5 && !gl_FrontFacing) {
         vec3 p = -vViewPosition;
@@ -248,9 +251,10 @@ function capSection(m) {
         vec4 c = uCapProj * vec4(p, 1.0);
         gl_FragDepth = clamp(c.z / c.w * 0.5 + 0.5, 0.0, 1.0);
         gl_FragColor.rgb *= 0.82;
-      }`);
+      }
+      #endif`);
   };
-  m.customProgramCacheKey = () => 'cap2';
+  m.customProgramCacheKey = () => (CAP.on.value > 0.5 ? 'cap3on' : 'cap3off');
   m.needsUpdate = true;
 }
 const houseMats = new Set(), furnitureMeshes = [], bakedDeck = [];
@@ -1142,7 +1146,7 @@ function setSlice(ft, snapTo = true) {
   for (const L of levels) { const c = L.cut_ft ?? SLICE_MAX; if (Math.abs(v - c) <= (snapTo ? SNAP : 0.001)) { v = c; hit = L; } }
   const whole = v >= SLICE_MAX - 0.001;
   upperPlane.constant = whole ? 1e6 : v * F;
-  CAP.on.value = whole ? 0 : 1;
+  if (CAP.on.value !== (whole ? 0 : 1)) { CAP.on.value = whole ? 0 : 1; for (const m of cappedMats) m.needsUpdate = true; }
   if (sliced !== !whole) { sliced = !whole; applyToggles(); }
   $('slice').value = v;
   $('slicelbl').textContent = whole ? 'Whole house' : `${ftIn(v)}${hit ? ', ' + hit.name.toLowerCase() : ''}`;
@@ -1713,7 +1717,7 @@ addEventListener('resize', () => {
 });
 
 // ---------------------------------------------------------------- loop
-const clock = new THREE.Clock();
+const clock = new THREE.Timer();
 let promptFrame = 0;
 const snap = new THREE.Vector3(), lastSnap = new THREE.Vector3(1e9, 0, 0);
 // Adaptive resolution: drop the render scale when frames run long, raise it back when there's headroom. Fewer pixels
@@ -1736,7 +1740,7 @@ function adaptResolution(raw) {
   else if (ms < 13 && dpr < MAX_DPR - 0.01) setDpr(Math.min(MAX_DPR, dpr + 0.1));
 }
 renderer.setAnimationLoop(() => {
-  const raw = clock.getDelta(), dt = Math.min(raw, 0.05);
+  clock.update(); const raw = clock.getDelta(), dt = Math.min(raw, 0.05);
   if (!document.hidden) adaptResolution(raw);
   if (mode === 'walk' && colliders.length) walk(dt); else { panOrbit(dt); orbit.update(); }
   for (const op of operables) {
