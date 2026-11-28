@@ -8923,10 +8923,10 @@
   },
   {
    "id": "elec_outlet_66",
-   "name": "Outlet, 16 in",
+   "name": "Outlet, 100 in",
    "category": "Electrical",
    "system": "electrical.power",
-   "room": "Loft",
+   "room": "Bath 1",
    "layer": "electrical",
    "builder": "outlet",
    "size": [
@@ -8935,11 +8935,11 @@
     0.3
    ],
    "at": [
-    32.45,
-    34.584,
-    11.198
+    31.583,
+    29.8,
+    8.146
    ],
-   "facing": 0,
+   "facing": 270,
    "gfi": false,
    "wp": false,
    "volts": 120,
@@ -8948,15 +8948,15 @@
     "specs": [
      [
       "Height",
-      "16 in to the centre (U-11 legend)"
+      "100 in to the centre"
      ],
      [
       "On",
-      "The north facing wall"
+      "The west facing wall"
      ]
     ],
     "notes": [
-     "Covers the loft railing's south run (about 4.9 ft, from the balcony opening to this wall): NEC 210.52(A) wants an outlet within 6 ft of every point along it, and the next one on this wall (U-12 #7, x 36.53) is about 9 ft away. Maxwell 11/28/2026: on the wall, not up through the floor. On the loft side of the wall above the living room, just east of the light switch, behind the piano's west end."
+     "Maxwell 11/28/2026: high on the living room face of the bath 1 wall, just south of the balcony, so nothing comes up through the loft floor. Note: it is below the loft floor, so it does not count as a loft receptacle under NEC 210.52(A); the loft railing's south run (about 4.9 ft) still has none within 6 ft. Put first on the loft south wall at x 32.45 (PR 130), moved here at his ask."
     ]
    },
    "src": "added 11/28/2026"
