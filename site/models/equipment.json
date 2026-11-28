@@ -8923,6 +8923,46 @@
   },
   {
    "id": "elec_outlet_66",
+   "name": "Outlet, 100 in",
+   "category": "Electrical",
+   "system": "electrical.power",
+   "room": "Bath 1",
+   "layer": "electrical",
+   "builder": "outlet",
+   "size": [
+    2.75,
+    4.5,
+    0.3
+   ],
+   "at": [
+    31.583,
+    29.8,
+    8.146
+   ],
+   "facing": 270,
+   "gfi": false,
+   "wp": false,
+   "volts": 120,
+   "info": {
+    "model": "Duplex receptacle, 120 V, tamper resistant",
+    "specs": [
+     [
+      "Height",
+      "100 in to the centre"
+     ],
+     [
+      "On",
+      "The west facing wall"
+     ]
+    ],
+    "notes": [
+     "Maxwell 11/28/2026: high on the living room face of the bath 1 wall, just south of the balcony, so nothing comes up through the loft floor. Note: it is below the loft floor, so it does not count as a loft receptacle under NEC 210.52(A); the loft railing's south run (about 4.9 ft) still has none within 6 ft. Put first on the loft south wall at x 32.45 (PR 130), moved here at his ask."
+    ]
+   },
+   "src": "added 11/28/2026"
+  },
+  {
+   "id": "elec_outlet_67",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -8964,7 +9004,7 @@
    "src": "U-12 #5"
   },
   {
-   "id": "elec_outlet_67",
+   "id": "elec_outlet_68",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9005,7 +9045,7 @@
    "src": "U-12 #6"
   },
   {
-   "id": "elec_outlet_68",
+   "id": "elec_outlet_69",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9046,7 +9086,7 @@
    "src": "U-12 #7"
   },
   {
-   "id": "elec_outlet_69",
+   "id": "elec_outlet_70",
    "name": "Outlet, 30 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9088,7 +9128,7 @@
    "src": "U-12 #8"
   },
   {
-   "id": "elec_outlet_70",
+   "id": "elec_outlet_71",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9129,7 +9169,7 @@
    "src": "U-12 #9"
   },
   {
-   "id": "elec_outlet_71",
+   "id": "elec_outlet_72",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9170,7 +9210,7 @@
    "src": "U-12 #10"
   },
   {
-   "id": "elec_outlet_72",
+   "id": "elec_outlet_73",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9369,7 +9409,7 @@
    "src": "U-12 #15"
   },
   {
-   "id": "elec_outlet_73",
+   "id": "elec_outlet_74",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9410,7 +9450,7 @@
    "src": "U-12 #16"
   },
   {
-   "id": "elec_outlet_74",
+   "id": "elec_outlet_75",
    "name": "Outlet, 16 in",
    "category": "Electrical",
    "system": "electrical.power",
@@ -9451,7 +9491,7 @@
    "src": "U-12 #17"
   },
   {
-   "id": "elec_outlet_75",
+   "id": "elec_outlet_76",
    "name": "Outlet, 18 in",
    "category": "Electrical",
    "system": "electrical.power",

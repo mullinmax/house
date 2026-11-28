@@ -1023,6 +1023,16 @@
   },
   {
    "kind": "outlet",
+   "x": 31.583,
+   "y": 29.8,
+   "z_in": 100,
+   "facing": 270,
+   "level": "main",
+   "src": "added 11/28/2026",
+   "note": "Maxwell 11/28/2026: high on the living room face of the bath 1 wall, just south of the balcony, so nothing comes up through the loft floor. Note: it is below the loft floor, so it does not count as a loft receptacle under NEC 210.52(A); the loft railing's south run (about 4.9 ft) still has none within 6 ft. Put first on the loft south wall at x 32.45 (PR 130), moved here at his ask."
+  },
+  {
+   "kind": "outlet",
    "x": 37.05,
    "y": 22.832,
    "z_in": 16,
