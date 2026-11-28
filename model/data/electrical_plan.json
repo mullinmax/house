@@ -1023,6 +1023,16 @@
   },
   {
    "kind": "outlet",
+   "x": 32.45,
+   "y": 34.584,
+   "z_in": 16,
+   "facing": 0,
+   "level": "upper",
+   "src": "added 11/28/2026",
+   "note": "Covers the loft railing's south run (about 4.9 ft, from the balcony opening to this wall): NEC 210.52(A) wants an outlet within 6 ft of every point along it, and the next one on this wall (U-12 #7, x 36.53) is about 9 ft away. Maxwell 11/28/2026: on the wall, not up through the floor. On the loft side of the wall above the living room, just east of the light switch, behind the piano's west end."
+  },
+  {
+   "kind": "outlet",
    "x": 37.05,
    "y": 22.832,
    "z_in": 16,

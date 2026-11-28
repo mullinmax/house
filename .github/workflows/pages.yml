@@ -34,6 +34,15 @@ jobs:
       - uses: actions/checkout@v4
       - name: Rebuild the bill of materials from the deployed model
         run: python3 model/make_bom.py
+      # Every deploy gets its own script URLs (Maxwell 11/28/2026: right after round 18 merged, a browser still held the old
+      # house.js, which skips the new "p" shapes, while house.json, fetched no-cache, was new, so the pickets and brackets vanished).
+      # Pages caches files for 10 minutes; a ?v=<commit> on app.js and every local module import makes a new index.html pull new code.
+      - name: Stamp script URLs with the commit
+        run: |
+          v=${GITHUB_SHA::8}
+          sed -i -E "s#src=\"\./app\.js\"#src=\"./app.js?v=$v\"#" site/index.html
+          sed -i -E "s#from '\./([A-Za-z_]+)\.js'#from './\1.js?v=$v'#g" site/*.js
+          grep -c "?v=$v" site/index.html site/*.js
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

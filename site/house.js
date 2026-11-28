@@ -274,6 +274,7 @@ function shape(get, s, grainOf) {
     case 'q': polygon(get, s[1], s[2]); break;
     case 'c': cylinder(get, s[1], ...s.slice(2, 8)); break;
     case 'p': prism(get, s[1], s[2], s[3], s[4], grainOf); break;
+    default: if (!shape.warned) { shape.warned = true; console.warn(`house.json has a shape kind this house.js does not know (${s[0]}): reload without the cache`); }
   }
 }
 
