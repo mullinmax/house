@@ -4123,14 +4123,198 @@ def web_bar_stool(it):
 MATERIALS.update({
     "Vanity Mirror": dict(color="#DCE3E6", rough=0.03, metal=1.0),
     "Sink Porcelain": dict(color="#F4F3F0", rough=0.15),
+    # Moreno Bath VIV 72 in the master (Maxwell 11/28/2026): washed light oak sampled from the listing photos
+    # (tools/make_cabinet_texture.py makes vanity_oak.jpg), and its white reinforced acrylic top
+    "Vanity Oak": dict(color="#FFFFFF", rough=0.5, map="vanity_oak.jpg", normal="oak_normal.jpg", normal_scale=0.5, tile=0.8, grain="long"),
+    "Vanity Acrylic": dict(color="#F5F5F2", rough=0.12),
 })
 VAN_IN = 1 / 12
+
+
+VIV_MM = 1 / 304.8                                # the Moreno spec sheet is in mm
+
+
+def web_vanity_viv(it):
+    """Moreno Bath VIV 72 (Maxwell 11/28/2026): two VIV 36 bases side by side (36L on your left with its drawer stack
+    on the outside, 36R mirrored) under one 71 in reinforced acrylic double sink top. Freestanding: the corner posts
+    run to the floor as legs, 120 mm clear under the bottom rail. Sizes from the Moreno spec sheet (VIV 36L, mm):
+    base 894 wide, 495 deep, 850 high; drawers 280 wide; doors 235 x 428; overall 71 x 19.75 x 35.5 in. The sink bowl
+    size, top thickness and faucet are ASSUMED (the listing gives none)."""
+    I, M = VAN_IN, VIV_MM
+    back, (s0, s1), fc = it["back"], it["span"], it["facing"]
+    WT, DT, HT = 71.0 * I, 19.75 * I, 35.5 * I   # the top: overall size from the listing
+    BW, BD, BH = 894 * M, 495 * M, 850 * M        # one base
+    W0 = (WT - 2 * BW) / 2                        # top overhang past each end of the pair
+    gap = ((s1 - s0) - WT) / 2                    # alcove left over at each end (open, it is freestanding)
+    oak = "Vanity Oak"
+    PULL = "Black Metal"                          # matte black bar pulls, as on the listing photos
+
+    def P(u, v):
+        if fc == 90: return back + v, s1 - gap - u
+        if fc == 270: return back - v, s0 + gap + u
+        if fc == 180: return s0 + gap + u, back + v
+        return s1 - gap - u, back - v
+
+    def vb(mat, u0, u1, v0, v1, z0, z1):
+        a, b = P(u0, v0), P(u1, v1)
+        box(mat, a[0], b[0], a[1], b[1], z0, z1)
+
+    def vc(mat, u, v, z0, z1, r):
+        x, y = P(u, v)
+        cyl(mat, x, y, z0, z1, r)
+
+    r = RECS[-1]
+    POST, PD = 54 * M, 1.75 * I                   # corner posts (54 mm face on the drawing), legs to the floor
+    LEG = 120 * M                                 # clear under the bottom rail
+    RB = LEG + 1.2 * I                            # top of the bottom rail
+    RT = BH - 1.65 * I                            # underside of the top rail
+    COL = 280 * M                                 # drawer stack opening
+    MS = 1.2 * I                                  # stile between the drawer stack and the doors
+    CT, GP = 0.75 * I, 0.1 * I
+    VF = BD                                       # face frame front
+    VD = VF + 0.75 * I                            # fronts' face (overlay)
+    ZT = HT
+    TT = 2.0 * I                                  # top thickness (850 base + about 52 mm = 35.5 in)
+    ZC = ZT - TT
+    # drawer stack: three equal drawers; door side: doors over one wide drawer
+    rail = 0.75 * I
+    hz = (RT - RB - 2 * rail) / 3
+    stack = [(RB + k * (hz + rail), RB + k * (hz + rail) + hz) for k in range(3)]
+    DZ = RT - 428 * M                             # bottom of the doors
+    wide = (RB, DZ - rail)
+    # the sink in each half of the top, centred on that half (the listing photos put each faucet there)
+    BWB, BDB, BZ = 19.0 * I, 13.0 * I, 5.5 * I    # bowl: ASSUMED
+    bv0, bv1 = 3.25 * I, 3.25 * I + BDB
+    PULLOUT = 14 * I
+    ax0, ax1, ou = P(0, 0), P(1, 0), P(0, 1)
+    axv, outv = (ax1[0] - ax0[0], -(ax1[1] - ax0[1])), (ou[0] - ax0[0], -(ou[1] - ax0[1]))
+    sgn = 1 if axv[0] * outv[1] - axv[1] * outv[0] > 0 else -1
+    nd = [0]
+    sinks = []
+
+    def front_frame(a0, a1, z0, z1, R):
+        """a recessed panel front: slab with a frame standing proud round it"""
+        vb(oak, a0, a1, VF, VD - 0.25 * I, z0, z1)
+        vb(oak, a0, a0 + R, VD - 0.25 * I, VD, z0, z1); vb(oak, a1 - R, a1, VD - 0.25 * I, VD, z0, z1)
+        vb(oak, a0 + R, a1 - R, VD - 0.25 * I, VD, z1 - R, z1); vb(oak, a0 + R, a1 - R, VD - 0.25 * I, VD, z0, z0 + R)
+
+    def hbar(cu, cz, pl):
+        vb(PULL, cu - pl / 2, cu + pl / 2, VD + 0.75 * I, VD + 1.1 * I, cz - 0.2 * I, cz + 0.2 * I)
+        for e in (-1, 1):
+            q = cu + e * (pl / 2 - 0.4 * I)
+            vb(PULL, q - 0.15 * I, q + 0.15 * I, VD, VD + 0.8 * I, cz - 0.15 * I, cz + 0.15 * I)
+
+    def drawer(a0, a1, z0, z1, depth, boxtop=None):
+        nd[0] += 1
+        x, y = P((a0 + a1) / 2, VD)
+        sx, sy = P(0, PULLOUT)[0] - ax0[0], P(0, PULLOUT)[1] - ax0[1]
+        tgt = op(r, f"{r['id']}.drawer{nd[0]}", "Drawer", "drawer", (x, y, (z0 + z1) / 2), slide=(sx, sy, 0))["parts"]
+        with into(tgt):
+            front_frame(a0 + GP, a1 - GP, z0 + GP, z1 - GP, 1.25 * I)
+            hbar((a0 + a1) / 2, (z0 + z1) / 2, min(12.5 * I, (a1 - a0) * 0.55))
+            b0, b1, bz0 = a0 + 0.5 * I, a1 - 0.5 * I, z0 + 0.6 * I
+            bz1 = boxtop if boxtop is not None else z1 - 1.0 * I
+            bf, bb, t = VF - 0.05 * I, VF - depth, 0.5 * I
+            vb("Cabinet Wood", b0, b1, bb, bb + t, bz0, bz1)
+            vb("Cabinet Wood", b0, b1, bf - t, bf, bz0, bz1)
+            vb("Cabinet Wood", b0, b0 + t, bb + t, bf - t, bz0, bz1); vb("Cabinet Wood", b1 - t, b1, bb + t, bf - t, bz0, bz1)
+            vb("Cabinet Wood", b0 + t, b1 - t, bb + t, bf - t, bz0, bz0 + 0.25 * I)
+
+    for k in (0, 1):                              # 36L, then 36R mirrored
+        def U(x, k=k):                            # x measured in from the outer end of this base
+            return W0 + x if k == 0 else W0 + 2 * BW - x
+
+        def hb(mat, x0, x1, v0, v1, z0, z1):
+            a, b = sorted((U(x0), U(x1)))
+            vb(mat, a, b, v0, v1, z0, z1)
+
+        xc0, xc1 = POST, POST + COL               # drawer stack opening
+        xd0, xd1 = xc1 + MS, BW - POST              # door side opening
+        # case: posts at the four corners to the floor, sides, back, floor, the partition behind the stile, rails
+        for xp in (0, BW - POST):
+            hb(oak, xp, xp + POST, VF - PD, VF, 0, BH)
+            hb(oak, xp, xp + POST, 0, PD, 0, BH)
+            hb(oak, xp, xp + POST, PD, VF - PD, LEG, RB)                    # side bottom rail
+            hb(oak, xp + POST / 2 - CT / 2, xp + POST / 2 + CT / 2, PD, VF - PD, RB, BH)   # side panel
+        hb(oak, POST, BW - POST, 0, CT, RB, BH)                             # back
+        hb(oak, POST, BW - POST, CT, VF, RB - CT, RB)                       # floor
+        hb(oak, POST, BW - POST, VF - CT, VF, LEG, RB)                      # bottom rail
+        hb(oak, POST, BW - POST, VF - CT, VF, RT, BH)                       # top rail
+        # stile and partition; it stops under the bowl, which hangs over the drawer stack
+        hb(oak, xc1, xc1 + MS, CT, bv0 - 0.3 * I, RB, RT); hb(oak, xc1, xc1 + MS, bv1 + 0.3 * I, VF, RB, RT)
+        hb(oak, xc1, xc1 + MS, bv0 - 0.3 * I, bv1 + 0.3 * I, RB, ZT - BZ - 0.6 * I)
+        for z0, z1 in stack[:2]:                                            # rails between the stack's drawers
+            hb(oak, xc0, xc1, VF - CT, VF, z1, z1 + rail)
+        hb(oak, xd0, xd1, VF - CT, VF, wide[1], DZ)                         # rail under the doors
+        # drawers: the top one in the stack is a short box that slides under the bowl
+        uc0, uc1 = sorted((U(xc0), U(xc1)))
+        ZBB = ZT - BZ - 0.3 * I                   # under the bowl
+        for j, (z0, z1) in enumerate(stack):
+            drawer(uc0, uc1, z0, z1, 17 * I, boxtop=min(z1 - 1.0 * I, ZBB - 0.4 * I) if j == 2 else None)
+        ud0, ud1 = sorted((U(xd0), U(xd1)))
+        drawer(ud0, ud1, wide[0], wide[1], 17 * I)     # wide drawer under the doors; the trap is above it
+        # a pair of doors, hinged on their outer edges, vertical bar pulls where they meet
+        m = (ud0 + ud1) / 2
+        for d0, d1, side in ((ud0, m, 1), (m, ud1, -1)):
+            d0g, d1g, zz0, zz1 = d0 + GP, d1 - GP, DZ + GP, RT - GP
+            hu = d0g if side == 1 else d1g
+            hx, hy = P(hu, VD)
+            o_ = op(r, f"{r['id']}.door{len(r.get('ops', []))}", "Vanity door", "swing", (hx, hy, 0), angle=(100 if side == 1 else -100) * sgn)
+            with into(o_["parts"]):
+                front_frame(d0g, d1g, zz0, zz1, 2.0 * I)
+                pu = (d1g - 1.2 * I) if side == 1 else (d0g + 1.2 * I)
+                pz1 = zz1 - 2.0 * I
+                vb(PULL, pu - 0.2 * I, pu + 0.2 * I, VD + 0.75 * I, VD + 1.1 * I, pz1 - 6 * I, pz1)
+                for zp in (pz1 - 5.6 * I, pz1 - 0.4 * I):
+                    vb(PULL, pu - 0.15 * I, pu + 0.15 * I, VD, VD + 0.8 * I, zp - 0.15 * I, zp + 0.15 * I)
+        sinks.append(WT / 4 if k == 0 else 3 * WT / 4)
+    # the top: two halves meeting in the middle, each with an integral rectangular bowl
+    for k, hc in enumerate(sinks):
+        t0, t1 = (0, WT / 2) if k == 0 else (WT / 2, WT)
+        h0, h1 = hc - BWB / 2, hc + BWB / 2
+        vb("Vanity Acrylic", t0, h0, 0, DT, ZC, ZT); vb("Vanity Acrylic", h1, t1, 0, DT, ZC, ZT)
+        vb("Vanity Acrylic", h0, h1, 0, bv0, ZC, ZT); vb("Vanity Acrylic", h0, h1, bv1, DT, ZC, ZT)
+        zb = ZT - BZ
+        vb("Vanity Acrylic", h0, h1, bv0, bv1, zb - 0.3 * I, zb)
+        vb("Vanity Acrylic", h0 - 0.3 * I, h0, bv0, bv1, zb, ZC); vb("Vanity Acrylic", h1, h1 + 0.3 * I, bv0, bv1, zb, ZC)
+        vb("Vanity Acrylic", h0, h1, bv0 - 0.3 * I, bv0, zb, ZC); vb("Vanity Acrylic", h0, h1, bv1, bv1 + 0.3 * I, zb, ZC)
+        dv = bv0 + BDB * 0.55
+        vc("Black Metal", hc, dv, zb, zb + 0.05 * I, 0.75 * I)                # drain
+        # plumbing in the door cabinet: tailpiece, P-trap to the wall, two angle stops and risers
+        vc("Stainless", hc, dv, zb - 6 * I, zb - 0.35 * I, 0.75 * I)
+        vb("Stainless", hc - 0.75 * I, hc + 0.75 * I, dv - 3 * I, dv + 0.75 * I, zb - 7.5 * I, zb - 6 * I)
+        vc("Stainless", hc, dv - 2.25 * I, zb - 7.5 * I, zb - 4.5 * I, 0.75 * I)
+        vb("Stainless", hc - 0.75 * I, hc + 0.75 * I, CT, dv - 3 * I, zb - 4.5 * I, zb - 3 * I)
+        inward = 1 if k == 0 else -1
+        for su in (hc + inward * 2.5 * I, hc + inward * 8.5 * I):
+            vb("Stainless", su - 0.35 * I, su + 0.35 * I, CT, 2.75 * I, RB + 14 * I, RB + 14.7 * I)
+            vc("Stainless", su, 2.5 * I, RB + 14.7 * I, ZC, 0.2 * I)
+            vb("Plastic Grey", su - 0.4 * I, su + 0.4 * I, 2.75 * I, 3.4 * I, RB + 13.9 * I, RB + 14.8 * I)
+        # single hole faucet, matte black like the listing photo (faucets are not included: ASSUMED)
+        fu, fv = hc, 1.8 * I
+        vc("Black Metal", fu, fv, ZT, ZT + 0.3 * I, 1.0 * I)
+        vc("Black Metal", fu, fv, ZT, ZT + 11.5 * I, 0.6 * I)
+        vb("Black Metal", fu - 0.45 * I, fu + 0.45 * I, fv, fv + 5.5 * I, ZT + 10.6 * I, ZT + 11.5 * I)
+        vb("Black Metal", fu - 0.45 * I, fu + 0.45 * I, fv + 4.6 * I, fv + 5.5 * I, ZT + 9.6 * I, ZT + 10.6 * I)
+        vb("Black Metal", fu + 0.6 * I, fu + 3.0 * I, fv - 0.25 * I, fv + 0.25 * I, ZT + 8.0 * I, ZT + 8.5 * I)
+    # a black framed mirror over each sink, as on the listing photo (not included: ASSUMED)
+    mr = it.get("mirror")
+    if mr:
+        mw, mh, mz = mr["w"], mr["h"], mr.get("bottom", 3.5)
+        for mc in sinks:
+            vb("Black Metal", mc - mw / 2, mc + mw / 2, 0, 0.75 * I, mz, mz + mh)
+            vb("Vanity Mirror", mc - mw / 2 + 0.6 * I, mc + mw / 2 - 0.6 * I, 0.75 * I, 0.8 * I, mz + 0.6 * I, mz + mh - 0.6 * I)
+    for c in it.get("cull", []):
+        WEB_META["cull"].append(dict(box=c, materials=["Cabinet Wood", "Counter", "Porcelain", "Brushed Nickel", "Black Glass", "Enamel White",
+                                                       "Black Metal", "Plastic Grey", "Mirror", "Aluminum", "Appliance Interior"]))
 
 
 def web_vanity(it):
     """Wall hung against `back` (the drywall face) over `span` along the wall, fronts facing `facing` (90 E, 180 S, 270 W).
     sections (left to right as you stand in front): "drawers" = a stack of four drawers, "sink" = a false drawer over a
     pair of Shaker doors with an undermount basin and faucet above. widths_in per section; the total is the cabinet."""
+    if it.get("style") == "viv":
+        return web_vanity_viv(it)
     I = VAN_IN
     back, (s0, s1), fc = it["back"], it["span"], it["facing"]
     secs, wid = it["sections"], [w * I for w in it["widths_in"]]
@@ -4352,6 +4536,19 @@ def web_toilet(it):
 
 
 def vanity_info(it):
+    if it.get("style") == "viv":
+        return dict(model="Moreno Bath VIV 72 in solid wood freestanding double vanity, Oak finish, reinforced acrylic double sink top (SKU VIV-72)",
+                    price="$1,989.99 on sale, $2,999.99 list (morenobath.com, 11/28/2026)",
+                    links=[["Moreno Bath VIV 72 in Oak", "https://morenobath.com/viv-72-solid-wood-freestanding-bathroom-vanity-with-reinforced-acrylic-double-sink/"],
+                           ["VIV spec sheet (Google Drive)", "https://drive.google.com/file/d/1QEZYd_ujk2rQ2GK6HFVM2R-muYRoMyx4/view"]],
+                    specs=[["Size", "71 in wide, 19 3/4 in deep, 35 1/2 in to the top of the counter"],
+                           ["Build", "two 36 in bases (VIV 36L and 36R, each 894 x 495 x 850 mm) under one 72 in top; solid wood and plywood, 275 lb"],
+                           ["Each base, outside in", "three drawers (280 mm wide), then two soft close doors (235 x 428 mm) over a wide drawer"],
+                           ["Legs", "corner posts to the floor, about 4 3/4 in (120 mm) clear under the bottom rail"],
+                           ["Sinks", "two rectangular acrylic bowls, one centred on each half, about 35 1/2 in apart (bowl size ASSUMED)"],
+                           ["Pulls", "matte black bars"],
+                           ["Not included", "faucets, drains, mirrors (black single hole faucets and two black framed mirrors shown, ASSUMED)"]],
+                    notes=list(it.get("notes", [])))
     secs, wid = it["sections"], it["widths_in"]
     W = sum(wid)
     sinks = secs.count("sink")
